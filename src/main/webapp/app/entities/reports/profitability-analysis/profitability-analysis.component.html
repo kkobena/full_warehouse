@@ -38,6 +38,14 @@
         <div class="flex gap-2">
           <p-button
             size="small"
+            label="Aide"
+            icon="pi pi-question-circle"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleHelpDrawer()"
+          />
+          <p-button
+            size="small"
             label="Marges faibles (<10%)"
             icon="pi pi-exclamation-triangle"
             severity="warn"
@@ -312,4 +320,284 @@
       </div>
     </div>
   </div>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide - Analyse de Rentabilité (Matrice BCG)</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que la Matrice BCG ?
+        </h6>
+        <p class="text-sm text-muted">
+          La <strong>Matrice BCG</strong> (Boston Consulting Group) est un outil stratégique qui classe vos produits
+          selon <strong>deux critères</strong> : la <strong>rentabilité (taux de marge)</strong> et la
+          <strong>dynamique commerciale (rotation)</strong>. Elle permet d'<strong>optimiser votre portefeuille produits</strong>
+          et de <strong>prendre des décisions stratégiques</strong> sur chaque catégorie.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Les 4 catégories BCG -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-th-large me-2"></i>Les 4 catégories de la Matrice BCG
+        </h6>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="pi pi-star text-success" style="font-size: 1.2rem;"></i>
+            <span class="fw-bold text-success">STARS (Vedettes)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Marge élevée (≥ 20%) + Rotation élevée (≥ 4x/an)<br />
+            <strong>Interprétation :</strong> Produits très rentables qui se vendent bien
+          </p>
+          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li><strong>Maximiser :</strong> Ces produits sont vos champions, investissez dans leur promotion</li>
+            <li>Maintenir des stocks élevés pour éviter les ruptures</li>
+            <li>Fidéliser les clients sur ces produits (conseils, disponibilité)</li>
+            <li>Surveiller la concurrence et ajuster les prix si nécessaire</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="pi pi-briefcase text-primary" style="font-size: 1.2rem;"></i>
+            <span class="fw-bold text-primary">CASH COWS (Vaches à lait)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Marge élevée (≥ 20%) + Rotation faible (< 4x/an)<br />
+            <strong>Interprétation :</strong> Produits très rentables mais se vendent lentement
+          </p>
+          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li><strong>Optimiser :</strong> Produits rentables mais à faible rotation</li>
+            <li>Réduire les stocks (immobilisation de trésorerie)</li>
+            <li>Vendre sur commande ou en petites quantités</li>
+            <li>Maintenir les prix (bonne marge) mais sans sur-stocker</li>
+            <li>Envisager des promotions ciblées pour accélérer la vente</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="pi pi-question-circle text-warning" style="font-size: 1.2rem;"></i>
+            <span class="fw-bold text-warning">QUESTION MARKS (Dilemmes)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Marge faible (< 20%) + Rotation élevée (≥ 4x/an)<br />
+            <strong>Interprétation :</strong> Produits qui se vendent bien mais peu rentables
+          </p>
+          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li><strong>Améliorer :</strong> Volume élevé mais faible rentabilité</li>
+            <li>Négocier de meilleurs prix d'achat avec les fournisseurs</li>
+            <li>Ajuster les prix de vente (si possible) pour augmenter la marge</li>
+            <li>Analyser les coûts cachés (transport, stockage, casse)</li>
+            <li>Décision stratégique : transformer en Star ou abandonner ?</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFEBEE; border-left: 4px solid #F44336;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="pi pi-times-circle text-danger" style="font-size: 1.2rem;"></i>
+            <span class="fw-bold text-danger">DOGS (Poids morts)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Marge faible (< 20%) + Rotation faible (< 4x/an)<br />
+            <strong>Interprétation :</strong> Produits peu rentables et qui se vendent mal
+          </p>
+          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li><strong>Éliminer ou transformer :</strong> Ces produits coûtent plus qu'ils ne rapportent</li>
+            <li>Déréférencer progressivement (sauf obligation réglementaire)</li>
+            <li>Liquider les stocks (promotions agressives)</li>
+            <li>Commander uniquement à la demande client</li>
+            <li>Libérer de l'espace de stockage et de la trésorerie</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Métriques clés -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Taux de Marge (%)</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> ((Prix de vente HT - Prix d'achat HT) / Prix de vente HT) × 100<br />
+            <strong>Seuils BCG :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 30% : Excellente marge (vert)</li>
+            <li>20-30% : Bonne marge (bleu)</li>
+            <li>10-20% : Marge faible (orange)</li>
+            <li>< 10% : Marge très faible (rouge) - Alerte !</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Taux de Rotation Annuel</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> Quantité vendue (12 mois) / Stock moyen<br />
+            <strong>Seuils BCG :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 4x/an : Rotation élevée (dynamique commerciale forte)</li>
+            <li>< 4x/an : Rotation faible (vente lente)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Marge Brute</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> CA - Coût d'achat<br />
+            <strong>Utilité :</strong> Montre le profit réel généré par le produit en FCFA
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse
+        </h6>
+
+        <div class="alert alert-success">
+          <strong><i class="pi pi-check-circle me-2"></i>Stratégies par catégorie :</strong>
+          <ul class="mb-0 mt-2 ps-3 text-sm">
+            <li><strong>Stars :</strong> Investir et promouvoir - Ce sont vos produits d'or</li>
+            <li><strong>Cash Cows :</strong> Optimiser les stocks - Rentables mais lents</li>
+            <li><strong>Question Marks :</strong> Améliorer la marge ou abandonner - Décision stratégique</li>
+            <li><strong>Dogs :</strong> Déréférencer - Libérer trésorerie et espace</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples de décisions concrètes
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Star avec marge 35%, rotation 8x/an</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Produit champion. Augmentez le stock de sécurité, mettez-le en avant
+              dans la pharmacie, formez votre équipe pour le conseiller activement.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Cash Cow avec marge 28%, rotation 2x/an</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Réduisez le stock (commandez 1x/trimestre au lieu de mensuel),
+              maintenez le prix (bonne marge), surveillez la date de péremption.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Question Mark avec marge 12%, rotation 6x/an</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Volume important mais marge faible. Négociez avec le fournisseur
+              pour baisser le prix d'achat de 5-10%. Si refus, augmentez légèrement le prix de vente.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 4 : Dog avec marge 8%, rotation 0.5x/an</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Produit non rentable. Promotion pour liquider le stock existant,
+              puis arrêt du référencement (sauf si obligatoire). Récupérez votre trésorerie.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Objectif de portefeuille -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-chart-pie me-2"></i>Portefeuille idéal
+        </h6>
+
+        <p class="text-sm text-muted mb-2">Un portefeuille équilibré devrait viser :</p>
+        <ul class="text-sm text-muted ps-3">
+          <li><strong>40-50% de Stars :</strong> Moteurs de croissance et de profit</li>
+          <li><strong>20-30% de Cash Cows :</strong> Générateurs de marge stable</li>
+          <li><strong>10-20% de Question Marks :</strong> Potentiel d'amélioration</li>
+          <li><strong>< 10% de Dogs :</strong> À éliminer progressivement</li>
+        </ul>
+
+        <div class="alert alert-warning mt-2">
+          <strong><i class="pi pi-exclamation-triangle me-2"></i>Signal d'alerte :</strong>
+          <p class="text-sm mb-0 mt-2">
+            Si vous avez > 30% de Dogs dans votre portefeuille, votre rentabilité globale est menacée.
+            Priorisez le déréférencement et concentrez-vous sur les Stars et Cash Cows.
+          </p>
+        </div>
+      </div>
+
+      <!-- Utilisation du filtre -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li><strong>Marges faibles (< 10%) :</strong> Identifiez rapidement les produits problématiques</li>
+          <li><strong>Par catégorie BCG :</strong> Analysez chaque quadrant séparément</li>
+          <li><strong>Par famille :</strong> Comparez la rentabilité entre catégories de produits</li>
+        </ul>
+      </div>
+
+      <!-- Révision périodique -->
+      <div class="mb-3">
+        <div class="alert alert-info">
+          <strong><i class="pi pi-calendar me-2"></i>Fréquence de révision :</strong>
+          <p class="text-sm mb-0 mt-2">
+            Analysez cette matrice <strong>trimestriellement</strong>. Les produits peuvent migrer d'une catégorie
+            à l'autre selon les saisons, la concurrence ou les changements de marché. Une Star peut devenir
+            Question Mark si la marge baisse (nouvelle concurrence par exemple).
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions immédiates -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-bolt me-2"></i>Actions immédiates recommandées
+        </h6>
+
+        <ol class="text-sm text-muted ps-3">
+          <li>Cliquez sur "Marges faibles" pour voir tous les produits à < 10% de marge</li>
+          <li>Filtrez par "Dogs" et établissez un plan de déréférencement sur 3-6 mois</li>
+          <li>Filtrez par "Stars" et assurez-vous qu'ils ne sont jamais en rupture de stock</li>
+          <li>Exportez le PDF et partagez-le avec votre équipe pour définir les priorités</li>
+        </ol>
+      </div>
+    </div>
+  </p-drawer>
 </div>

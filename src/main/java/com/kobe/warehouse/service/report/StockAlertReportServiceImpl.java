@@ -1,21 +1,18 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
-import com.kobe.warehouse.service.report.excel.CsvExportService;
-import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,9 +20,6 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-
-
 
     @Override
     @Cacheable(value = "stockAlerts", key = "#alertTypes != null ? #alertTypes.toString() : 'all'")
@@ -46,13 +40,13 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
         // Add alert type filter if provided
         if (alertTypes != null && !alertTypes.isEmpty()) {
             sql.append("AND alert_type IN (");
-            sql.append(alertTypes.stream().map(t -> "'" + t.name() + "'").collect(java.util.stream.Collectors.joining(",")));
+            sql.append(alertTypes.stream().map(t -> "'" + t.name() + "'").collect(Collectors.joining(",")));
             sql.append(") ");
         }
 
         sql.append("ORDER BY alert_type, libelle");
-
-        Query query = entityManager.createNativeQuery(sql.toString());
+        var finalSql = sql.toString();
+        Query query = entityManager.createNativeQuery(finalSql);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -68,19 +62,9 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
                 LocalDate expiryDate = row[5] != null ? ((Date) row[5]).toLocalDate() : null;
                 String alertTypeStr = (String) row[6];
 
-                StockAlertDTO.StockAlertType alertType = alertTypeStr != null
-                    ? StockAlertDTO.StockAlertType.valueOf(alertTypeStr)
-                    : null;
+                StockAlertDTO.StockAlertType alertType = alertTypeStr != null ? StockAlertDTO.StockAlertType.valueOf(alertTypeStr) : null;
 
-                return new StockAlertDTO(
-                    produitId,
-                    libelle,
-                    codeCip,
-                    stockQuantity,
-                    seuilMin,
-                    expiryDate,
-                    alertType
-                );
+                return new StockAlertDTO(produitId, libelle, codeCip, stockQuantity, seuilMin, expiryDate, alertType);
             })
             .toList();
     }
@@ -88,8 +72,7 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
     @Override
     public Map<StockAlertDTO.StockAlertType, Long> getStockAlertsCount() {
         // Use materialized view for better performance
-        String countQuery =
-            "SELECT alert_type, COUNT(*) as count " + "FROM mv_stock_alerts " + "GROUP BY alert_type";
+        String countQuery = "SELECT alert_type, COUNT(*) as count " + "FROM mv_stock_alerts " + "GROUP BY alert_type";
 
         Query query = entityManager.createNativeQuery(countQuery);
 
@@ -117,6 +100,4 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
 
         return counts;
     }
-
-
 }

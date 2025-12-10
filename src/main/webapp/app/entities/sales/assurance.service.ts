@@ -5,14 +5,10 @@ import { map } from 'rxjs/operators';
 import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
+import { createRequestOptions } from 'app/shared/util/request-util';
 import { ISales } from 'app/shared/model/sales.model';
-import { ISalesLine } from '../../shared/model/sales-line.model';
-import { IResponseDto } from '../../shared/util/response-dto';
-import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { UpdateSale } from './customer-edit-modal/update-sale.model';
 
-type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({ providedIn: 'root' })

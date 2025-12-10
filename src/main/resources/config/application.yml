@@ -1,5 +1,5 @@
 flyway:
-  enabled: false
+  enabled: true
   schemas: pharma_smart
   table: pharma_smart_history
 

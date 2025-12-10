@@ -17,6 +17,7 @@ import { ProfitabilityReportService } from '../services/profitability-report.ser
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Drawer } from 'primeng/drawer';
 
 @Component({
   selector: 'jhi-profitability-analysis',
@@ -34,7 +35,8 @@ import { InputIcon } from 'primeng/inputicon';
     WarehouseCommonModule,
     InputText,
     IconField,
-    InputIcon
+    InputIcon,
+    Drawer
   ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
@@ -44,6 +46,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected selectedCategorie = signal<string | null>(null);
   protected selectedBCGCategory = signal<BCGCategory | null>(null);
   protected  showLowMarginOnly = signal<boolean>(false);
+  protected helpDrawerVisible = signal<boolean>(false);
 
   protected categorieOptions = signal<Array<{ label: string; value: string }>>([]);
   protected  bcgCategoryOptions = signal<Array<{ label: string; value: BCGCategory }>>([
@@ -190,5 +193,9 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected calculateMarginPercentage(product: IProductProfitability): number {
     return product.tauxMargePct || 0;
+  }
+
+  protected toggleHelpDrawer(): void {
+    this.helpDrawerVisible.update(value => !value);
   }
 }

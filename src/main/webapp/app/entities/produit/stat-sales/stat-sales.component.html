@@ -1,25 +1,106 @@
-<div class="pharma-nav-tabs-container">
-  <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
-    <ng-container ngbNavItem="daily">
-      <a class="pharma-nav-tab-link" ngbNavLink>
-        <i class="pi pi-calendar"></i>
-        <span>Historiques par jour</span>
-      </a>
-      <ng-template ngbNavContent>
-        <jhi-daily-sale-produit-historique></jhi-daily-sale-produit-historique>
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-history"></i>
+      <span class="pharma-toolbar-title">Transactions</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div style="min-width: 300px; flex: 1 1 auto">
+            <jhi-produit-autocomplete
+              (onClear)="onClear($event)"
+              (selectedProduit)="onSelect($event)"
+              [(ngModel)]="produit"
+              [autofocus]="true"
+              [includeDetails]="true"
+              [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+            />
+          </div>
+
+          <jhi-date-picker
+            #dateDebut
+            [disabled]="false"
+            [id]="'du'"
+            [label]="'warehouseApp.labels.du'"
+            [max]="toDate"
+            [style]="{ 'max-width': '150px' }"
+          />
+          <jhi-date-picker
+            #dateFin
+            (onSelect)="updateParam()"
+            [defaultDate]="defaultDate"
+            [disabled]="false"
+            [id]="'au'"
+            [label]="'warehouseApp.labels.au'"
+            [min]="fromDate"
+            [style]="{ 'max-width': '150px' }"
+          />
+        </div>
       </ng-template>
-    </ng-container>
-    <ng-container ngbNavItem="yearly">
-      <a class="pharma-nav-tab-link" ngbNavLink>
-        <i class="pi pi-calendar-plus"></i>
-        <span>Historiques par mois</span>
-      </a>
-      <ng-template ngbNavContent>
-        <jhi-yearly-sale-produit-historique></jhi-yearly-sale-produit-historique>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="load()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            @if (produit) {
+              <p-button
+                (click)="exportPdf()"
+                [raised]="true"
+                icon="pi pi-file-pdf"
+                label="Imprimer"
+                pTooltip="Imprimer"
+                severity="warn"
+                tooltipPosition="top"
+                type="button"
+              />
+            }
+          </div>
+        </div>
       </ng-template>
-    </ng-container>
+    </p-toolbar>
   </div>
-  <div class="pharma-nav-tabs-outlet">
-    <div [ngbNavOutlet]="nav"></div>
+
+  <div class="pharma-nav-tabs-container">
+    <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav
+         orientation="horizontal">
+      <ng-container ngbNavItem="daily">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-calendar"></i>
+          <span>Historiques par jour</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-daily-sale-produit-historique></jhi-daily-sale-produit-historique>
+        </ng-template>
+      </ng-container>
+      <ng-container ngbNavItem="yearly">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-calendar-plus"></i>
+          <span>Historiques par mois</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-yearly-sale-produit-historique></jhi-yearly-sale-produit-historique>
+        </ng-template>
+      </ng-container>
+    </div>
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
   </div>
 </div>
+
+
+
+
+

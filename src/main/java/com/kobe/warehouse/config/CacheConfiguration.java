@@ -48,7 +48,7 @@ public class CacheConfiguration {
                 buildCache("profitability", 15, TimeUnit.MINUTES, 100),
                 buildCache("comparativeReports", 15, TimeUnit.MINUTES, 100),
                 buildCache("marketBasketCache", 15, TimeUnit.MINUTES, 100),
-                buildCache("stockAlerts", 30, TimeUnit.MINUTES, 50),
+                buildCache("stockAlerts", 30, TimeUnit.MINUTES, 100),
                 buildCache("topProducts", 30, TimeUnit.MINUTES, 100),
                 buildCache("abcPareto", 30, TimeUnit.MINUTES, 100),
                 buildCache("salesForecast", 30, TimeUnit.MINUTES, 100),

@@ -9,6 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
+import { Drawer } from 'primeng/drawer';
 
 import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
 import { ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
@@ -30,6 +31,7 @@ interface FilterOption {
     InputTextModule,
     TooltipModule,
     ToolbarModule,
+    Drawer,
   ],
   templateUrl: './supplier-performance.component.html',
   styleUrl: './supplier-performance.component.scss',
@@ -43,6 +45,7 @@ export default class SupplierPerformanceComponent implements OnInit {
   isLoading = signal<boolean>(false);
   selectedFilter = signal<string>('all');
   searchText = signal<string>('');
+  helpDrawerVisible = signal<boolean>(false);
 
   // Filter options
   filterOptions: FilterOption[] = [
@@ -201,5 +204,9 @@ export default class SupplierPerformanceComponent implements OnInit {
         s.phone?.includes(search) ||
         s.mobile?.includes(search),
     );
+  }
+
+  toggleHelpDrawer(): void {
+    this.helpDrawerVisible.update(value => !value);
   }
 }

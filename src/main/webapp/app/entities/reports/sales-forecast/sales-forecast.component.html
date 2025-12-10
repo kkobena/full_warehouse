@@ -33,6 +33,7 @@
 
       <ng-template #end>
         <div class="pharma-toolbar-actions">
+          <p-button label="Aide" icon="pi pi-question-circle" (onClick)="toggleHelpDrawer()" size="small" severity="secondary" [outlined]="true" />
           <p-button label="Actualiser" icon="pi pi-refresh" (onClick)="loadData()" size="small" />
         </div>
       </ng-template>
@@ -252,4 +253,251 @@
       </div>
     </div>
   }
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide d'utilisation - Prévisions de Ventes</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que la prévision de ventes ?
+        </h6>
+        <p class="text-sm text-muted">
+          La prévision de ventes utilise des <strong>modèles statistiques</strong> pour estimer le chiffre d'affaires futur
+          en se basant sur l'historique des ventes. Cela permet d'<strong>anticiper les besoins</strong>,
+          d'<strong>optimiser les stocks</strong> et de <strong>planifier la trésorerie</strong>.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Méthodes de prévision -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-chart-line me-2"></i>Méthodes de prévision disponibles
+        </h6>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+          <p class="fw-bold mb-2">1. Régression Linéaire (par défaut)</p>
+          <p class="text-sm mb-2">
+            <strong>Principe :</strong> Calcule une droite de tendance à partir des données historiques<br />
+            <strong>Formule :</strong> y = ax + b (où x = temps, y = CA prévu)
+          </p>
+          <p class="text-sm mb-0">
+            <strong>Utilisez-la si :</strong> Vos ventes suivent une tendance stable (croissance ou décroissance régulière)
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <p class="fw-bold mb-2">2. Moyenne Mobile</p>
+          <p class="text-sm mb-2">
+            <strong>Principe :</strong> Fait la moyenne des N derniers mois pour lisser les variations<br />
+            <strong>Formule :</strong> CA prévu = Moyenne (CA des N derniers mois)
+          </p>
+          <p class="text-sm mb-0">
+            <strong>Utilisez-la si :</strong> Vos ventes sont relativement stables sans tendance marquée
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <p class="fw-bold mb-2">3. Saisonnier (Recommandé si saisonnalité détectée)</p>
+          <p class="text-sm mb-2">
+            <strong>Principe :</strong> Intègre les variations saisonnières (grippes en hiver, allergies au printemps, etc.)<br />
+            <strong>Formule :</strong> CA prévu = Tendance × Coefficient saisonnier du mois
+          </p>
+          <p class="text-sm mb-0">
+            <strong>Utilisez-la si :</strong> L'alerte "Saisonnalité détectée" s'affiche (variations importantes selon les mois)
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Métriques clés -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">CA Prévu (Forecasted CA)</p>
+          <p class="text-sm text-muted mb-2">
+            Estimation du chiffre d'affaires pour la période future selon la méthode sélectionnée.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Intervalle de Confiance (95%)</p>
+          <p class="text-sm text-muted mb-2">
+            <strong>Limite Basse :</strong> CA minimum probable (scénario pessimiste)<br />
+            <strong>Limite Haute :</strong> CA maximum probable (scénario optimiste)<br />
+            <strong>Interprétation :</strong> Vous avez 95% de chances que le CA réel soit dans cet intervalle
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Précision du Modèle (Model Accuracy)</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> 100% - MAPE (Mean Absolute Percentage Error)<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 80% : Excellent (prévisions très fiables)</li>
+            <li>60-80% : Bon (prévisions fiables)</li>
+            <li>< 60% : Faible (utiliser avec prudence)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Croissance Mensuelle Moyenne</p>
+          <p class="text-sm text-muted mb-2">
+            <strong>Formule :</strong> ((CA mois N / CA mois N-1) - 1) × 100<br />
+            Indique si votre pharmacie est en croissance (+) ou en déclin (-)
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Points de Données Utilisés</p>
+          <p class="text-sm text-muted mb-2">
+            Nombre de mois d'historique utilisés pour calculer les prévisions.
+            Plus ce nombre est élevé, plus la prévision est robuste.
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Saisonnalité -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calendar me-2"></i>Comprendre la saisonnalité
+        </h6>
+
+        <div class="alert alert-warning">
+          <strong><i class="pi pi-info-circle me-2"></i>Saisonnalité détectée :</strong>
+          <p class="text-sm mb-0 mt-2">
+            Le système détecte automatiquement si vos ventes varient significativement selon les mois.
+            Par exemple, une pharmacie peut avoir :
+          </p>
+          <ul class="text-sm mb-0 mt-2 ps-3">
+            <li><strong>Mois pic :</strong> Décembre-Janvier (grippes, virus hivernaux)</li>
+            <li><strong>Mois creux :</strong> Juillet-Août (départs en vacances)</li>
+          </ul>
+          <p class="text-sm mb-0 mt-2">
+            Si l'alerte s'affiche, utilisez la méthode "Saisonnier" pour des prévisions plus précises.
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter ces prévisions
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Planification des stocks</p>
+            <p class="text-xs text-muted mb-0">
+              Utilisez les prévisions 3-6 mois pour anticiper les besoins en produits.
+              Augmentez les stocks avant les mois de forte demande prévue.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Gestion de la trésorerie</p>
+            <p class="text-xs text-muted mb-0">
+              Les prévisions 6-12 mois permettent d'anticiper les besoins de financement
+              et de planifier les investissements (rénovation, nouveau matériel, etc.).
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Négociation avec les fournisseurs</p>
+            <p class="text-xs text-muted mb-0">
+              Si une forte croissance est prévue, négociez des contrats-cadres ou des remises
+              sur volumes avec vos fournisseurs principaux.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Détection d'anomalies</p>
+            <p class="text-xs text-muted mb-0">
+              Si le CA réel s'écarte fortement de la prévision (hors intervalle de confiance),
+              analysez les causes : nouvelle concurrence, changement réglementaire, etc.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples pratiques
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 1 : Prévision 3M = 15M FCFA, Précision 85%</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Planifiez vos commandes pour maintenir un stock de 3 mois.
+              Fiabilité élevée, vous pouvez vous baser sur cette prévision en toute confiance.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 2 : Saisonnalité détectée, mois pic = Décembre</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Augmentez vos stocks en novembre. Prévoyez du personnel
+              supplémentaire en décembre. Utilisez la méthode "Saisonnier" pour affiner.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 3 : Précision du modèle < 60%</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Prévisions peu fiables. Vos ventes sont probablement trop erratiques.
+              Basez-vous sur l'intervalle de confiance et préparez un plan B.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conseils -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-check-circle me-2"></i>Conseils d'utilisation
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li>Comparez les prévisions des 3 méthodes pour identifier la plus pertinente</li>
+          <li>Mettez à jour les prévisions mensuellement pour intégrer les dernières données</li>
+          <li>En cas de changement majeur (rénovation, concurrence), recalculez les prévisions</li>
+          <li>Utilisez la prévision 3M pour les stocks, 6M pour la trésorerie, 12M pour la stratégie</li>
+          <li>L'intervalle de confiance est votre marge de sécurité : prévoyez le scénario pessimiste</li>
+        </ul>
+      </div>
+    </div>
+  </p-drawer>
 </div>

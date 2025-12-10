@@ -40,10 +40,14 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 
 ## Quick Reference Documentation
 
-- **[HOW-TO-CONFIGURE-BACKEND.md](HOW-TO-CONFIGURE-BACKEND.md)** - Simple guide for configuring backend URL (non-technical users)
-- **[LOGS-QUICK-REFERENCE.md](LOGS-QUICK-REFERENCE.md)** - Quick guide to finding and reading backend logs
-- **[CUSTOM-TITLEBAR.md](CUSTOM-TITLEBAR.md)** - Custom titlebar implementation and customization guide
-- **[TAURI_BACKEND_SETUP.md](TAURI_BACKEND_SETUP.md)** - Complete Tauri backend integration guide (technical)
+- **[HOW-TO-CONFIGURE-BACKEND.md](HOW-TO-CONFIGURE-BACKEND.md)** - Simple guide for configuring
+  backend URL (non-technical users)
+- **[LOGS-QUICK-REFERENCE.md](LOGS-QUICK-REFERENCE.md)** - Quick guide to finding and reading
+  backend logs
+- **[CUSTOM-TITLEBAR.md](CUSTOM-TITLEBAR.md)** - Custom titlebar implementation and customization
+  guide
+- **[TAURI_BACKEND_SETUP.md](TAURI_BACKEND_SETUP.md)** - Complete Tauri backend integration guide (
+  technical)
 
 ## Build & Development Commands
 
@@ -287,7 +291,7 @@ const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./entity.component').then(m => m.EntityComponent),
-    data: { authorities: [Authority.ADMIN] },
+    data: {authorities: [Authority.ADMIN]},
     canActivate: [UserRouteAccessService],
   },
 ];
@@ -440,7 +444,9 @@ Set profile with: `./mvnw -Dspring.profiles.active=prod` or via environment vari
 
 ### Java Version
 
-This project uses **Java 25** for development. However, the Tauri bundled backend only checks for Java/JRE availability without enforcing a specific version. Ensure your JDK is properly configured with `JAVA_HOME` set correctly.
+This project uses **Java 25** for development. However, the Tauri bundled backend only checks for
+Java/JRE availability without enforcing a specific version. Ensure your JDK is properly configured
+with `JAVA_HOME` set correctly.
 
 ### Node Version
 

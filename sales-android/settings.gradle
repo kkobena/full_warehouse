@@ -21,4 +21,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Pharma Smart Sales"
+rootProject.name = "PharmaSmartSimpleSale"

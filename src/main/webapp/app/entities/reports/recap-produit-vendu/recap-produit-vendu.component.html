@@ -1,0 +1,738 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-bar"></i>
+      <span class="pharma-toolbar-title">Récapitulatif Produits Vendus</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters  py-1">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              (onSelect)="onFilterChange()"
+              [(ngModel)]="startDate"
+              [showIcon]="true"
+              [style]="{ 'max-width': '160px' }"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="startDate"
+            />
+            <label for="startDate">Date début</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="endDate"
+              [showIcon]="true"
+              [style]="{ 'max-width': '160px' }"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+
+            />
+            <label for="endDate">Date fin</label>
+          </p-floatlabel>
+          <input
+            [(ngModel)]="searchTerm"
+            class="p-inputtext p-component"
+            pInputText
+            placeholder="Rechercher un produit..."
+            type="text"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            (onClick)="toggleFiltersDrawer()"
+            [outlined]="true"
+            icon="pi pi-filter"
+            label="Filtres avancés"
+            severity="secondary"
+            size="small"
+          >
+          </p-button>
+          <p-button
+            (onClick)="toggleHelpDrawer()"
+            [hidden]="true"
+            [outlined]="true"
+            icon="pi pi-question-circle"
+            label="Aide"
+            severity="secondary"
+            size="small"
+          />
+          <p-splitbutton
+            [model]="actionsMenuItems()"
+            icon="pi pi-cog"
+            label="Actions"
+            severity="info"
+            size="small"
+          />
+          <p-splitbutton
+
+            [model]="exportMenuItems()"
+            icon="pi pi-file-pdf"
+            label="Exporter"
+            severity="danger"
+            size="small"
+          />
+          <p-button
+            (onClick)="onClearFilters()"
+            icon="pi pi-filter-slash"
+            label="Effacer filtres"
+            severity="secondary"
+            size="small"
+          />
+          <p-button
+            (onClick)="loadData()"
+            icon="pi pi-refresh"
+            label="Rafraîchir"
+            severity="primary"
+            size="small"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (summary()) {
+    <div class="row mt-3">
+      <div class="col-xl-3 col-md-6 mb-2">
+        <div class="card h-100 kpi-card primary-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Quantité Vendue</p>
+                <h4 class="kpi-value">
+                  <span>{{ summary()!.quantitySold || 0 | number }}</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-primary-subtle text-primary">Unités</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-primary">
+                <i class="pi pi-shopping-cart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-2">
+        <div class="card h-100 kpi-card danger-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Quantité Avoir</p>
+                <h4 class="kpi-value">
+                  <span>{{ summary()!.quantityAvoir || 0 | number }}</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-danger-subtle text-danger">Retours</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-danger">
+                <i class="pi pi-replay"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-2">
+        <div class="card h-100 kpi-card success-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">CA Total</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatCurrency(summary()!.totalSalesAmount) }}</span>
+                  <span class="value-suffix">FCFA</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-success-subtle text-success">Ventes</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-success">
+                <i class="pi pi-money-bill"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-2">
+        <div class="card h-100 kpi-card warning-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Coût d'Achat</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatCurrency(summary()!.totalPurchaseAmount) }}</span>
+                  <span class="value-suffix">FCFA</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-warning-subtle text-warning">Achats</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-warning">
+                <i class="pi pi-dollar"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Products Table -->
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-table text-info"></i>
+            Produits Vendus
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            (onPage)="onPageChange($event)"
+            [lazy]="true"
+            [loading]="isLoading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
+            [rows]="itemsPerPage"
+            [showCurrentPageReport]="true"
+            [totalRecords]="totalItems"
+            [value]="products()"
+            class="p-datatable-sm pharma-table"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Produit</th>
+                <th>Code CIP</th>
+                <th>Code EAN</th>
+                <th>Rayon</th>
+                <th class="text-end">Qté Vendue</th>
+                <th class="text-end">Qté Avoir</th>
+                <th class="text-end">Stock</th>
+                <th class="text-end">CA Ventes</th>
+                <th class="text-end">Coût Achat</th>
+                <th class="text-end">Marge %</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-product>
+              <tr>
+                <td>{{ product.libelle }}</td>
+                <td><span class="pharma-code">{{ product.codeCip }}</span></td>
+                <td><span class="pharma-code">{{ product.codeEanLaboratoire }}</span></td>
+                <td>{{ product.rayonName }}</td>
+                <td class="text-end pharma-qty-value">{{ product.quantitySold || 0 | number }}</td>
+                <td class="text-end pharma-qty-avoir">{{ product.quantityAvoir || 0 | number }}</td>
+                <td class="text-end">
+                  <span
+                    [ngClass]="{
+                      'bg-success-subtle text-success': (product.stock || 0) > 50,
+                      'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                      'bg-danger-subtle text-danger': (product.stock || 0) <= 10
+                    }"
+                    class="px-2 py-1 rounded fw-semibold"
+                  >
+                    {{ product.stock || 0 | number }}
+                  </span>
+                </td>
+                <td class="text-end pharma-total">{{
+                    product.totalSalesAmount || 0 | number:'1.0-0'
+                  }} F
+                </td>
+                <td class="text-end pharma-price">{{
+                    product.totalPurchaseAmount || 0 | number:'1.0-0'
+                  }} F
+                </td>
+                <td class="text-end">
+                  <p-chip
+                    [label]="(getMarginPercentage(product) | number:'1.2-2') + '%'"
+                    [severity]="getMarginSeverity(getMarginPercentage(product))"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+              <tr>
+                <td class="text-center p-4" colspan="10">
+                  <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                  <p class="mt-3 text-muted">Aucun produit trouvé</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Filters Drawer -->
+  <p-drawer [(visible)]="filtersDrawerVisible" [style]="{ width: '500px' }" position="right">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-filter text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Filtres Avancés</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Time Range Section -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-clock me-2"></i>Période de temps
+        </h6>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label text-sm">Heure début</label>
+            <input
+              [(ngModel)]="startTime"
+              class="p-inputtext p-component w-100"
+              pInputText
+              placeholder="HH:mm"
+              type="time"
+            />
+          </div>
+          <div class="col-6">
+            <label class="form-label text-sm">Heure fin</label>
+            <input
+              [(ngModel)]="endTime"
+              class="p-inputtext p-component w-100"
+              pInputText
+              placeholder="HH:mm"
+              type="time"
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Selection Filters Section -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-filter-fill me-2"></i>Filtres de sélection
+        </h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label text-sm">Utilisateur</label>
+            <p-select
+              [(ngModel)]="selectedUser"
+              [options]="userOptions()"
+              [showClear]="true"
+              appendTo="body"
+              class="w-100"
+              dataKey="id"
+              optionLabel="abbrName"
+              placeholder="Sélectionner un utilisateur"
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label text-sm">Rayon</label>
+            <p-select
+              (onChange)="onFilterChange()"
+              [(ngModel)]="selectedRayon"
+              [options]="rayonOptions()"
+              [showClear]="true"
+              appendTo="body"
+              class="w-100"
+              dataKey="id"
+              optionLabel="libelle"
+              placeholder="Sélectionner un rayon"
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label text-sm">Fournisseur</label>
+            <p-select
+              [(ngModel)]="selectedFournisseur"
+              [options]="fournisseurOptions()"
+              [showClear]="true"
+              appendTo="body"
+              class="w-100"
+              dataKey="id"
+              optionLabel="libelle"
+              placeholder="Sélectionner un fournisseur"
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Threshold Filters Section -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-sliders-h me-2"></i>Filtres de seuil
+        </h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label text-sm">Filtre de seuil</label>
+            <p-select
+              [(ngModel)]="selectedSeuilFilter"
+              [options]="seuilFilterOptions()"
+              [showClear]="true"
+              appendTo="body"
+              class="w-100"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Sélectionner un filtre de seuil"
+            />
+          </div>
+          @if (selectedSeuilFilter()) {
+            <div class="col-12">
+              <label class="form-label text-sm">Valeur du seuil</label>
+              <p-inputNumber
+                [(ngModel)]="seuilValue"
+                [min]="0"
+                class="w-100"
+                placeholder="Entrez la valeur"></p-inputNumber>
+            </div>
+          }
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Stock Filters Section -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-box me-2"></i>Filtres de stock
+        </h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label text-sm">Filtre de stock</label>
+            <p-select
+              [(ngModel)]="selectedStockFilter"
+              [options]="stockFilterOptions()"
+              [showClear]="true"
+              appendTo="body"
+              class="w-100"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Sélectionner un filtre de stock"
+            />
+          </div>
+          @if (selectedStockFilter() && selectedStockFilter() !== 'OUT_OF_STOCK') {
+            <div class="col-12">
+              <label class="form-label text-sm">Valeur du stock</label>
+              <p-inputNumber
+                [(ngModel)]="stockValue"
+                class="w-100"></p-inputNumber>
+            </div>
+          }
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Quantity & Price Filters Section -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-shopping-cart me-2"></i>Filtres de quantité et prix
+        </h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label text-sm">Quantité minimale vendue</label>
+            <p-inputNumber
+              [(ngModel)]="minQuantitySold"
+              class="w-100"
+            ></p-inputNumber>
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <p-checkbox
+                (onChange)="onFilterChange()"
+                [(ngModel)]="unitPriceLessThanPurchasePrice"
+                [binary]="true"
+                inputId="unitPriceLessThanPurchasePrice"
+              />
+              <label class="form-check-label ms-2 text-sm" for="unitPriceLessThanPurchasePrice">
+                Prix unitaire < Prix d'achat
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-2">
+        <p-button
+          (onClick)="onClearFilters()"
+          [outlined]="true"
+          class="flex-fill"
+          icon="pi pi-filter-slash"
+          label="Réinitialiser"
+          severity="secondary"
+        />
+        <p-button
+          (onClick)="toggleFiltersDrawer()"
+          class="flex-fill"
+          icon="pi pi-check"
+          label="Appliquer"
+          severity="primary"
+        />
+      </div>
+    </div>
+  </p-drawer>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" [style]="{ width: '600px' }" position="right">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide - Récapitulatif Produits Vendus</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que le Récapitulatif Produits Vendus ?
+        </h6>
+        <p class="text-sm text-muted">
+          Le <strong>récapitulatif des produits vendus</strong> vous permet d'analyser en détail les
+          ventes de chaque produit
+          sur une période donnée. Cet outil est essentiel pour <strong>piloter vos
+          approvisionnements</strong>,
+          <strong>identifier les produits performants</strong> et <strong>optimiser votre
+          stock</strong>.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Métriques clés -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Quantité Vendue</p>
+          <p class="text-sm text-muted mb-2">
+            Nombre total d'unités vendues sur la période sélectionnée.
+            <strong>Utilisez cette métrique</strong> pour identifier vos produits les plus demandés.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Quantité Avoir (Retours)</p>
+          <p class="text-sm text-muted mb-2">
+            Nombre d'unités retournées par les clients (avoirs, péremptions, erreurs).
+            <strong>Un taux élevé</strong> peut indiquer un problème de qualité ou une inadéquation
+            produit/client.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Stock Actuel</p>
+          <p class="text-sm text-muted mb-2">
+            Quantité en stock au moment de la consultation.
+            Les couleurs indiquent le niveau :
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li><span class="text-success">Vert</span> : Stock > 50 unités (bon niveau)</li>
+            <li><span class="text-warning">Orange</span> : Stock 10-50 unités (surveillance
+              nécessaire)
+            </li>
+            <li><span class="text-danger">Rouge</span> : Stock ≤ 10 unités (risque de rupture)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Marge %</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> ((CA Ventes - Coût Achat) / CA Ventes) × 100<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 30% : Excellente marge (vert)</li>
+            <li>20-30% : Bonne marge (bleu)</li>
+            <li>10-20% : Marge faible (orange)</li>
+            <li>< 10% : Marge critique (rouge) - Revoir prix ou fournisseur</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Fonctionnalités -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-cog me-2"></i>Fonctionnalités avancées
+        </h6>
+
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+          <p class="fw-bold mb-2"><i class="pi pi-lightbulb me-2"></i>Créer Suggestion</p>
+          <p class="text-sm mb-0">
+            Génère automatiquement des suggestions de commande basées sur les quantités vendues.
+            Le système calcule les besoins en fonction de l'historique de vente et du stock actuel.
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <p class="fw-bold mb-2"><i class="pi pi-warehouse me-2"></i>Créer Inventaire</p>
+          <p class="text-sm mb-0">
+            Crée une fiche d'inventaire pour les produits listés, facilitant le contrôle physique du
+            stock.
+            Utile avant une commande importante ou pour vérifier la cohérence stock théorique/réel.
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <p class="fw-bold mb-2"><i class="pi pi-file-export me-2"></i>Exports multiples</p>
+          <p class="text-sm mb-0">
+            Exportez vos données en <strong>PDF</strong> (rapport imprimable),
+            <strong>Excel</strong> (analyse approfondie),
+            ou <strong>CSV</strong> (intégration avec d'autres outils).
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter ce rapport
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Planification des commandes</p>
+            <p class="text-xs text-muted mb-0">
+              Analysez les quantités vendues pour prévoir vos besoins. Utilisez la fonction "Créer
+              Suggestion"
+              pour générer automatiquement des propositions de commande basées sur l'historique.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Détection des ruptures potentielles</p>
+            <p class="text-xs text-muted mb-0">
+              Filtrez par "Stock < Valeur" pour identifier les produits à forte vente avec stock
+              faible.
+              Commandez en priorité pour éviter les ruptures.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Analyse de la rentabilité</p>
+            <p class="text-xs text-muted mb-0">
+              Triez par marge % pour identifier les produits peu rentables. Pour les produits à
+              forte vente mais faible marge,
+              négociez de meilleurs prix d'achat ou ajustez les prix de vente.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Gestion des retours</p>
+            <p class="text-xs text-muted mb-0">
+              Un produit avec beaucoup d'avoirs nécessite une analyse : péremption proche ?
+              Inadaptation à votre clientèle ?
+              Problème qualité fournisseur ? Prenez des mesures correctives.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples de scénarios
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Scénario 1 : Forte vente, stock faible</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Situation :</strong> Produit vendu 150 unités/mois, stock actuel 20
+              unités<br />
+              <strong>Action :</strong> Commande urgente, augmentez le stock de sécurité à 100
+              unités minimum
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Scénario 2 : Ventes faibles, stock élevé</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Situation :</strong> Produit vendu 5 unités/mois, stock actuel 200
+              unités<br />
+              <strong>Action :</strong> Arrêter les commandes, promotion pour écouler le stock,
+              vérifier date de péremption
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Scénario 3 : Taux de retour élevé (>10%)</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Situation :</strong> 100 ventes, 15 retours<br />
+              <strong>Action :</strong> Enquête client, vérification qualité fournisseur, envisager
+              changement de référence
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best practices -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-check-circle me-2"></i>Bonnes pratiques
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li>Consultez ce rapport <strong>hebdomadairement</strong> pour anticiper les besoins</li>
+          <li>Utilisez la période "30 derniers jours" pour des décisions tactiques de commande</li>
+          <li>Analysez sur 3-6 mois pour identifier les tendances saisonnières</li>
+          <li>Croisez avec le rapport "Rotation du Stock" pour une vision complète</li>
+          <li>Exportez en Excel pour des analyses croisées (par rayon, fournisseur, etc.)</li>
+          <li>Utilisez "Créer Suggestion" avant chaque commande fournisseur</li>
+        </ul>
+      </div>
+
+      <!-- Alertes -->
+      <div class="mb-3">
+        <div class="alert alert-warning">
+          <strong><i class="pi pi-exclamation-triangle me-2"></i>Points de vigilance :</strong>
+          <ul class="mb-0 mt-2 ps-3 text-sm">
+            <li>Produits à forte vente mais marge < 10% : Renégociez ou augmentez prix de vente</li>
+            <li>Stock < 10 unités pour produits vendant > 20/mois : Risque de rupture imminent</li>
+            <li>Taux retour > 5% : Problème qualité ou inadéquation produit/marché</li>
+            <li>Stock dormant (0 vente) : Vérifiez péremption et envisagez déréférencement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </p-drawer>
+</div>
+<jhi-spinner #spinner></jhi-spinner>
+<jhi-toast-alert #alert></jhi-toast-alert>

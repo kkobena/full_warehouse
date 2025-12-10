@@ -26,10 +26,33 @@ android {
     buildConfigField "String", "ACCOUNT_ENDPOINT", "\"/api/account\""
   }
 
+  signingConfigs {
+    release {
+
+      storeFile file('release.jks')
+      storePassword RELEASE_STORE_PASSWORD
+      keyAlias RELEASE_KEY_ALIAS
+      keyPassword RELEASE_KEY_PASSWORD
+    }
+    internal {
+      storeFile file('internal-release.jks')
+      storePassword INTERNAL_STORE_PASSWORD
+      keyAlias INTERNAL_KEY_ALIAS
+      keyPassword INTERNAL_KEY_PASSWORD
+    }
+  }
+
   buildTypes {
     release {
-      minifyEnabled true
+      minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      signingConfig signingConfigs.release
+      debuggable false
+    }
+    internal {
+      initWith(buildTypes.release)
+      applicationIdSuffix ".internal"
+      signingConfig signingConfigs.internal
     }
     debug {
       minifyEnabled false

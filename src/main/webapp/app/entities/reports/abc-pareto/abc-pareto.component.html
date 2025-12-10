@@ -36,6 +36,13 @@
       <ng-template #end>
         <div class="flex gap-2">
           <p-button
+            label="Aide"
+            icon="pi pi-question-circle"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleHelpDrawer()"
+          />
+          <p-button
             label="Top 50 Contributeurs"
             icon="pi pi-star"
             severity="info"
@@ -245,4 +252,172 @@
       </div>
     </div>
   </div>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide d'utilisation - Analyse ABC Pareto</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que l'analyse ABC Pareto ?
+        </h6>
+        <p class="text-sm text-muted">
+          L'analyse ABC Pareto (règle 80/20) est une méthode de classification qui permet d'identifier les produits les plus rentables.
+          Elle repose sur le principe que <strong>20% des produits génèrent environ 80% du chiffre d'affaires</strong>.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Classification -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-chart-pie me-2"></i>Classification des produits
+        </h6>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-chip label="A" severity="success" />
+            <span class="fw-bold">Classe A - Produits stratégiques</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Représentent :</strong> ~20% des produits = 80% du CA cumulé</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Surveillance quotidienne des stocks</li>
+            <li>Négociation prioritaire avec fournisseurs</li>
+            <li>Éviter les ruptures de stock à tout prix</li>
+            <li>Prévoir des stocks de sécurité élevés</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-chip label="B" severity="info" />
+            <span class="fw-bold">Classe B - Produits intermédiaires</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Représentent :</strong> ~30% des produits = 15% du CA (80-95% cumulé)</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Surveillance hebdomadaire des stocks</li>
+            <li>Gestion optimisée des commandes</li>
+            <li>Maintenir un stock de sécurité modéré</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-chip label="C" severity="warn" />
+            <span class="fw-bold">Classe C - Produits occasionnels</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Représentent :</strong> ~50% des produits = 5% du CA (95-100% cumulé)</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Commandes à la demande</li>
+            <li>Réduire les stocks dormants</li>
+            <li>Envisager le déréférencement si rotation trop faible</li>
+            <li>Stock minimal ou sur commande uniquement</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Métriques -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Rang</p>
+          <p class="text-sm text-muted mb-2">Position du produit dans le classement par CA décroissant (1 = meilleur contributeur).</p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">CA Total</p>
+          <p class="text-sm text-muted mb-2">Chiffre d'affaires généré par le produit sur la période analysée.</p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Contribution %</p>
+          <p class="text-sm text-muted mb-2">
+            <strong>Formule :</strong> (CA du produit / CA global) × 100<br />
+            Part du produit dans le CA total de la pharmacie.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">CA Cumulé %</p>
+          <p class="text-sm text-muted mb-2">
+            <strong>Formule :</strong> Somme des contributions du rang 1 jusqu'au rang actuel<br />
+            Permet d'identifier les seuils 80%, 95% et 100% pour la classification ABC.
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse
+        </h6>
+
+        <div class="alert alert-warning">
+          <strong><i class="pi pi-exclamation-triangle me-2"></i>Points d'attention :</strong>
+          <ul class="mb-0 mt-2 ps-3 text-sm">
+            <li>Concentrez 80% de votre attention sur les produits de classe A</li>
+            <li>Surveillez les ruptures de stock sur la classe A (impact majeur sur le CA)</li>
+            <li>Optimisez la trésorerie en réduisant le stock des produits classe C</li>
+            <li>Renégociez les conditions d'achat avec vos fournisseurs pour les produits classe A</li>
+            <li>Utilisez le filtre "Top 50 Contributeurs" pour une vue focalisée</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples pratiques
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit classe A en rupture</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action immédiate :</strong> Commander en urgence, proposer une alternative au client,
+              augmenter le stock de sécurité pour éviter toute rupture future.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit classe C avec stock élevé</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Organiser une promotion pour écouler le stock,
+              réduire la quantité commandée, voire envisager le déréférencement.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Négociation fournisseur</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Stratégie :</strong> Utilisez l'analyse pour négocier de meilleurs prix sur les produits classe A
+              (volumes importants = pouvoir de négociation).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-drawer>
 </div>

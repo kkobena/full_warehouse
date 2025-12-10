@@ -18,6 +18,7 @@ import { ABCParetoReportService } from '../services/abc-pareto-report.service';
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Drawer } from 'primeng/drawer';
 import { formatCurrency } from 'app/shared/utils/format-utils';
 
 @Component({
@@ -37,7 +38,8 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
     WarehouseCommonModule,
     InputText,
     IconField,
-    InputIcon
+    InputIcon,
+    Drawer
   ]
 })
 export default class ABCParetoComponent implements OnInit {
@@ -46,6 +48,7 @@ export default class ABCParetoComponent implements OnInit {
   isLoading = signal<boolean>(false);
   selectedCategorie = signal<string | null>(null);
   selectedClassePareto = signal<ClassePareto | null>(null);
+  helpDrawerVisible = signal<boolean>(false);
 
   categorieOptions = signal<Array<{ label: string; value: string }>>([]);
   classeParetoOptions = signal<Array<{ label: string; value: ClassePareto }>>([
@@ -196,6 +199,10 @@ export default class ABCParetoComponent implements OnInit {
     if (caCumulePct <= 80) return 'success';
     if (caCumulePct <= 95) return 'info';
     return 'warn';
+  }
+
+  toggleHelpDrawer(): void {
+    this.helpDrawerVisible.update(value => !value);
   }
 
   // Format methods using shared utilities

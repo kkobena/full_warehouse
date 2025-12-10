@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Tag } from 'primeng/tag';
+import { Drawer } from 'primeng/drawer';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 import { ISalesForecast, IForecastSummary, ForecastMethod, FORECAST_METHOD_LABELS } from 'app/shared/model/report/sales-forecast.model';
@@ -30,7 +31,7 @@ interface PeriodOption {
   selector: 'jhi-sales-forecast',
   templateUrl: './sales-forecast.component.html',
   styleUrl: './sales-forecast.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule, Tag],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule, Tag, Drawer],
 })
 export default class SalesForecastComponent implements OnInit {
 
@@ -42,6 +43,7 @@ export default class SalesForecastComponent implements OnInit {
   protected forecasts = signal<ISalesForecast[]>([]);
   protected seasonalityDetected = signal<boolean>(false);
   protected isLoading = signal<boolean>(false);
+  protected helpDrawerVisible = signal<boolean>(false);
 
   // Charts
 
@@ -276,5 +278,9 @@ protected  onMethodChange(): void {
 
   protected getTotalForecastedCA(): number {
     return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA || 0), 0);
+  }
+
+  protected toggleHelpDrawer(): void {
+    this.helpDrawerVisible.update(value => !value);
   }
 }

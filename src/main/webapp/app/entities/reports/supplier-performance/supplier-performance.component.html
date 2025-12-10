@@ -31,6 +31,13 @@
       <ng-template #end>
         <div class="flex gap-2">
           <p-button
+            label="Aide"
+            icon="pi pi-question-circle"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleHelpDrawer()"
+          />
+          <p-button
             label="Exporter PDF"
             icon="pi pi-file-pdf"
             severity="warn"
@@ -294,4 +301,256 @@
       </div>
     </div>
   </div>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide d'utilisation - Performance Fournisseurs</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Pourquoi évaluer la performance des fournisseurs ?
+        </h6>
+        <p class="text-sm text-muted">
+          L'évaluation des fournisseurs permet d'<strong>optimiser votre chaîne d'approvisionnement</strong>,
+          de <strong>réduire les risques de rupture</strong>, d'<strong>améliorer la qualité des produits reçus</strong>
+          et de <strong>négocier de meilleures conditions</strong> avec vos partenaires stratégiques.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Score de performance -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-star me-2"></i>Score de Performance (sur 100)
+        </h6>
+
+        <p class="text-sm text-muted mb-3">
+          Le score global prend en compte plusieurs critères pondérés :
+        </p>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <p class="fw-bold mb-2">Performance Excellente (Score ≥ 70)</p>
+          <p class="text-sm mb-0">
+            Fournisseurs fiables, respect des délais, bonne conformité. À privilégier et fidéliser.
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <p class="fw-bold mb-2">Performance Moyenne (50 ≤ Score < 70)</p>
+          <p class="text-sm mb-0">
+            Fournisseurs acceptables mais à surveiller. Possibilité d'amélioration par négociation.
+          </p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFEBEE; border-left: 4px solid #F44336;">
+          <p class="fw-bold mb-2">Performance Faible (Score < 50)</p>
+          <p class="text-sm mb-0">
+            Problèmes récurrents. Envisager un plan d'action ou rechercher des alternatives.
+          </p>
+        </div>
+
+        <div class="alert alert-info mt-3">
+          <p class="text-sm mb-0">
+            <strong>Formule du score :</strong><br />
+            Score = (40% Délai livraison) + (40% Conformité) + (20% Volume d'achats)
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Métriques clés -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Délai Moyen de Livraison</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> Moyenne (Date réception - Date commande) sur les 12 derniers mois<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≤ 7 jours : Excellent (vert)</li>
+            <li>7-14 jours : Acceptable (orange)</li>
+            <li>> 14 jours : Problématique (rouge)</li>
+          </ul>
+          <p class="text-sm text-muted mb-0">
+            <strong>Impact :</strong> Un délai long immobilise de la trésorerie et risque des ruptures de stock.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Taux de Conformité (%)</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> (Produits conformes / Total produits reçus) × 100<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 95% : Excellente qualité (vert)</li>
+            <li>85-95% : Qualité acceptable (orange)</li>
+            <li>< 85% : Problèmes qualité (rouge)</li>
+          </ul>
+          <p class="text-sm text-muted mb-0">
+            <strong>Impact :</strong> Une faible conformité génère des retours, litiges et perte de temps.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Volume d'Achats 12 Mois</p>
+          <p class="text-sm text-muted mb-2">
+            Montant total des achats sur l'année écoulée. Permet d'identifier vos fournisseurs stratégiques
+            et votre pouvoir de négociation.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Nombre de Commandes</p>
+          <p class="text-sm text-muted mb-2">
+            Fréquence de commande. Un nombre élevé sur 30j indique une forte dépendance ou des commandes fractionnées.
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter ce rapport
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Identifier les fournisseurs stratégiques</p>
+            <p class="text-xs text-muted mb-0">
+              Utilisez le filtre "Top 10 par volume" pour identifier vos principaux fournisseurs.
+              Concentrez vos efforts de négociation et de relation sur ces partenaires clés.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Optimiser les délais de livraison</p>
+            <p class="text-xs text-muted mb-0">
+              Pour les fournisseurs avec délais > 14 jours : négociez des délais plus courts,
+              commandez en plus grandes quantités pour espacer les commandes, ou trouvez un fournisseur alternatif.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Améliorer la conformité</p>
+            <p class="text-xs text-muted mb-0">
+              Pour les fournisseurs avec conformité < 95% : rencontre pour discuter des problèmes,
+              mise en place d'un plan d'action qualité, ou recherche d'alternatives si pas d'amélioration.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #F44336;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Diversifier les sources d'approvisionnement</p>
+            <p class="text-xs text-muted mb-0">
+              Si un seul fournisseur concentre > 40% de vos achats, vous êtes en situation de dépendance.
+              Identifiez des fournisseurs alternatifs pour réduire le risque.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples d'actions concrètes
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M FCFA/an</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise de fidélité,
+              proposez un contrat annuel avec engagement de volumes pour sécuriser les approvisionnements.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 2 : Fournisseur délai 20j, conformité 75%</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Organisez une réunion pour expliquer les problèmes. Demandez un plan d'action
+              avec échéances. Si pas d'amélioration sous 3 mois, cherchez un remplaçant.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">Cas 3 : 15 commandes en 30j chez même fournisseur</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Action :</strong> Trop de commandes = perte de temps et coûts administratifs.
+              Regroupez vos commandes (1-2 par semaine max) pour optimiser la logistique.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres utiles -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li><strong>Top 10 par volume :</strong> Identifiez vos fournisseurs stratégiques</li>
+          <li><strong>Performance excellente :</strong> Fournisseurs à privilégier et fidéliser</li>
+          <li><strong>Performance faible :</strong> Fournisseurs nécessitant un plan d'action urgent</li>
+          <li><strong>Problèmes de livraison :</strong> Fournisseurs avec délais > 14 jours à surveiller</li>
+        </ul>
+      </div>
+
+      <!-- Bonnes pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-check-circle me-2"></i>Bonnes pratiques
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li>Révisez ce rapport trimestriellement pour suivre l'évolution des fournisseurs</li>
+          <li>Organisez des réunions annuelles avec vos fournisseurs stratégiques (Top 10)</li>
+          <li>Documentez les litiges et problèmes pour justifier vos décisions futures</li>
+          <li>Maintenez au moins 2-3 fournisseurs par catégorie de produits pour la sécurité</li>
+          <li>Utilisez le score comme base de négociation : "Votre score est de X, améliorez Y pour Z"</li>
+          <li>Partagez le rapport avec vos fournisseurs pour une relation transparente</li>
+        </ul>
+      </div>
+
+      <!-- Indicateurs d'alerte -->
+      <div class="mb-3">
+        <div class="alert alert-danger">
+          <strong><i class="pi pi-exclamation-triangle me-2"></i>Signaux d'alerte :</strong>
+          <ul class="mb-0 mt-2 ps-3 text-sm">
+            <li>Un fournisseur représente > 40% de vos achats (dépendance excessive)</li>
+            <li>Augmentation soudaine des délais de livraison (problèmes chez le fournisseur ?)</li>
+            <li>Baisse du taux de conformité sur 2-3 mois consécutifs</li>
+            <li>Nombre de commandes qui explose sans hausse du volume (inefficacité)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </p-drawer>
 </div>

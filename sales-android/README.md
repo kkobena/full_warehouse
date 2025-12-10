@@ -1,15 +1,18 @@
 # Pharma Smart - Sales Android Module
 
-Android Kotlin module for the Pharma Smart pharmacy management system. This module provides a native Android interface for sales management with JWT authentication.
+Android Kotlin module for the Pharma Smart pharmacy management system. This module provides a native
+Android interface for sales management with JWT authentication.
 
 ## Overview
 
-This is a standalone Android module built with Kotlin that connects to the Pharma Smart Spring Boot backend. It implements the same authentication logic as the web application, using JWT tokens for secure API access.
+This is a standalone Android module built with Kotlin that connects to the Pharma Smart Spring Boot
+backend. It implements the same authentication logic as the web application, using JWT tokens for
+secure API access.
 
 ## Technology Stack
 
 - **Language**: Kotlin
-- **Min SDK**: 30 
+- **Min SDK**: 30
 - **Target SDK**: 34 (Android 14)
 - **Architecture**: MVVM (Model-View-ViewModel)
 - **Libraries**:
@@ -106,6 +109,7 @@ buildConfigField "String", "BASE_URL", "\"http://YOUR_SERVER_IP:8080/\""
 ```
 
 **Important**:
+
 - Use your machine's local IP address (not `localhost`) for device testing
 - Ensure backend is accessible from the Android device/emulator
 - Backend must be running on the specified port (default: 8080)
@@ -148,11 +152,13 @@ buildConfigField "String", "BASE_URL", "\"http://YOUR_SERVER_IP:8080/\""
 
 - **POST** `/api/auth/login` - Login with username/password
   - Request: `{ "username": "...", "password": "..." }`
-  - Response: `{ "accessToken": "...", "refreshToken": "...", "tokenType": "Bearer", "expiresIn": 28800 }`
+  - Response:
+    `{ "accessToken": "...", "refreshToken": "...", "tokenType": "Bearer", "expiresIn": 28800 }`
 
 - **GET** `/api/account` - Get current user account details
   - Headers: `Authorization: Bearer {accessToken}`
-  - Response: `{ "id": 1, "login": "...", "firstName": "...", "lastName": "...", "authorities": [...] }`
+  - Response:
+    `{ "id": 1, "login": "...", "firstName": "...", "lastName": "...", "authorities": [...] }`
 
 - **POST** `/api/auth/refresh` - Refresh access token
   - Request: `{ "refreshToken": "..." }`
@@ -194,19 +200,19 @@ buildConfigField "String", "BASE_URL", "\"http://YOUR_SERVER_IP:8080/\""
 ### Common Issues
 
 1. **Connection Refused**
-   - Check backend is running
-   - Verify BASE_URL in build.gradle
-   - Use local IP, not localhost for device testing
+  - Check backend is running
+  - Verify BASE_URL in build.gradle
+  - Use local IP, not localhost for device testing
 
 2. **401 Unauthorized**
-   - Token may be expired
-   - Try logging out and logging in again
-   - Check token storage in TokenManager
+  - Token may be expired
+  - Try logging out and logging in again
+  - Check token storage in TokenManager
 
 3. **Build Errors**
-   - Run `./gradlew clean`
-   - Sync Gradle files
-   - Invalidate caches and restart Android Studio
+  - Run `./gradlew clean`
+  - Sync Gradle files
+  - Invalidate caches and restart Android Studio
 
 ### Debugging
 
@@ -221,4 +227,23 @@ Proprietary - Pharma Smart Warehouse Management System
 
 ## Support
 
-For issues or questions, contact the development team or refer to the main project documentation in the parent directory.
+For issues or questions, contact the development team or refer to the main project documentation in
+the parent directory.
+
+## build release
+
+./gradlew assembleRelease and ./gradlew assembleInternal
+
+gradle wrapper --gradle-version 8.13
+
+Cela va créer automatiquement :
+
+gradle/wrapper/gradle-wrapper.jar
+
+gradle/wrapper/gradle-wrapper.properties (déjà présent, sera mis à jour si besoin)
+
+gradlew et gradlew.bat (si manquant)
+
+
+keytool -genkey -v -keystore internal-release.jks -storepass 2802_pharma_smart_simple_sale -alias internal_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048 -validity 9131
+keytool -genkey -v -keystore release.jks -storepass 2802_pharma_smart_simple_sale -alias release_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048 -validity 9131

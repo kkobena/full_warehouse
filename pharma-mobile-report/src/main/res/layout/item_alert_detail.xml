@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.PharmaReport.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Severity Indicator -->
+        <View
+            android:id="@+id/viewSeverityIndicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/error" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Alert Type -->
+            <TextView
+                android:id="@+id/tvAlertType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="Rupture de stock" />
+
+            <!-- Alert Title -->
+            <TextView
+                android:id="@+id/tvAlertTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Paracétamol 500mg" />
+
+            <!-- Alert Description -->
+            <TextView
+                android:id="@+id/tvAlertDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                tools:text="Stock actuel: 0 | Seuil minimum: 50" />
+
+            <!-- Alert Date -->
+            <TextView
+                android:id="@+id/tvAlertDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/text_hint"
+                android:textSize="11sp"
+                tools:text="Détecté il y a 2 heures" />
+
+        </LinearLayout>
+
+        <!-- Action Button -->
+        <ImageView
+            android:id="@+id/ivAction"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_chevron_right"
+            android:contentDescription="@string/action_view_details"
+            app:tint="@color/gray_400" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -7,4 +7,5 @@ public enum StockFilterType {
     LESS_THAN_OR_EQUAL_TO,
     GREATER_THAN_OR_EQUAL_TO,
     NOT_EQUAL_TO,
+    OUT_OF_STOCK,
 }

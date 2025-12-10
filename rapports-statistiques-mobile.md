@@ -1,4 +1,5 @@
 # Rapports Statistiques - Application Mobile
+
 ## Pharma-Smart Mobile Analytics
 
 ---
@@ -18,9 +19,11 @@
 
 ## Introduction
 
-Ce document définit la roadmap des rapports statistiques pour l'application mobile Pharma-Smart. L'approche mobile privilégie :
+Ce document définit la roadmap des rapports statistiques pour l'application mobile Pharma-Smart.
+L'approche mobile privilégie :
 
 ### Principes Directeurs
+
 - **📱 Mobile-First** : Interface optimisée pour écrans tactiles
 - **⚡ Temps Réel** : Données à jour avec synchronisation intelligente
 - **🔔 Proactif** : Alertes et notifications push pertinentes
@@ -30,24 +33,29 @@ Ce document définit la roadmap des rapports statistiques pour l'application mob
 
 ### Différences Web vs Mobile
 
-| Critère | Application Web | Application Mobile |
-|---------|----------------|-------------------|
-| **Cas d'usage** | Analyse détaillée, création rapports | Consultation rapide, supervision |
-| **Interface** | Tableaux complexes, filtres multiples | Cards, listes scrollables, graphiques simples |
-| **Interactions** | Clics, hover, filtres | Swipe, tap, pull-to-refresh |
-| **Export** | PDF, Excel détaillés | Partage rapide, captures d'écran |
-| **Notifications** | Emails planifiés | Push notifications temps réel |
-| **Connexion** | Online requis | Offline-first avec sync |
+| Critère           | Application Web                       | Application Mobile                            |
+|-------------------|---------------------------------------|-----------------------------------------------|
+| **Cas d'usage**   | Analyse détaillée, création rapports  | Consultation rapide, supervision              |
+| **Interface**     | Tableaux complexes, filtres multiples | Cards, listes scrollables, graphiques simples |
+| **Interactions**  | Clics, hover, filtres                 | Swipe, tap, pull-to-refresh                   |
+| **Export**        | PDF, Excel détaillés                  | Partage rapide, captures d'écran              |
+| **Notifications** | Emails planifiés                      | Push notifications temps réel                 |
+| **Connexion**     | Online requis                         | Offline-first avec sync                       |
 
 ---
 
 ## Architecture Technique Mobile
 
+### Utilise la même charte graphique que le module ``` D:\projet\full_warehouse\sales-android```
+
+- la même interface de login
+- Implement le code dans le module ```D:\projet\full_warehouse\pharma-mobile-report```
+
 ### Architecture Globale
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│         Application Mobile (React Native / Flutter)     │
+│         Application Mobile (kotlin/flutter)     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
 │  │  Dashboard   │  │   Alerts     │  │   Widgets    │  │
 │  │  Screens     │  │   Service    │  │   Home       │  │
@@ -75,19 +83,23 @@ Ce document définit la roadmap des rapports statistiques pour l'application mob
 ---
 
 ## Phase 1 : MVP Mobile Essentiel
+
 **Durée estimée : 2-3 sprints | Priorité : Critique**
 
 ### 🎯 Objectif
+
 Fournir aux gérants une vue rapide et actionnable de l'activité de la pharmacie en mobilité.
 
 ---
 
 ### 1.1 Dashboard Quotidien du Gérant
+
 **Priorité : P0 - Critique**
 
 #### Fonctionnalités
 
 **Écran principal (Home Dashboard) :**
+
 ```
 ┌────────────────────────────────┐
 │  Pharma-Smart     🔔(3)   👤  │
@@ -121,54 +133,8 @@ Fournir aux gérants une vue rapide et actionnable de l'activité de la pharmaci
 └────────────────────────────────┘
 ```
 
-**Composants (React Native) :**
-```typescript
-// screens/DashboardScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, RefreshControl } from 'react-native';
-import { Card, Text, ProgressBar } from 'react-native-paper';
-import { useDashboard } from '../hooks/useDashboard';
-
-export const DashboardScreen: React.FC = () => {
-  const { data, loading, refresh } = useDashboard();
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setRefreshing(false);
-  };
-
-  return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      {/* CA du Jour Card */}
-      <CACard
-        amount={data.dailyCA}
-        target={data.dailyTarget}
-        variation={data.variation}
-      />
-
-      {/* Ventes du Jour Card */}
-      <SalesCard
-        transactions={data.transactionsCount}
-        averageBasket={data.averageBasket}
-      />
-
-      {/* Alertes Card */}
-      <AlertsCard alerts={data.alerts} />
-
-      {/* Top Produits Card */}
-      <TopProductsCard products={data.topProducts} />
-    </ScrollView>
-  );
-};
-```
-
 **API Backend (GraphQL pour optimisation mobile) :**
+
 ```graphql
 # schema.graphql
 type DashboardData {
@@ -210,6 +176,7 @@ query GetDashboard {
 ```
 
 **Avantage GraphQL :**
+
 - **Une seule requête** au lieu de 5 REST calls
 - **Payload réduit** (uniquement les champs demandés)
 - **Économie de batterie** et de data
@@ -219,107 +186,136 @@ query GetDashboard {
 #### Graphiques Interactifs (Évolution CA)
 
 **Chart Card - CA des 7 derniers jours :**
-```typescript
-import { LineChart } from 'react-native-chart-kit';
 
-const CATrendChart: React.FC = ({ data }) => {
+```typescript
+import {LineChart} from 'react-native-chart-kit';
+
+const CATrendChart: React.FC = ({data}) => {
   return (
     <Card>
-      <Card.Title>Évolution CA (7 jours)</Card.Title>
-      <Card.Content>
-        <LineChart
-          data={{
-            labels: data.labels, // ["Lun", "Mar", "Mer", ...]
-            datasets: [{
-              data: data.values,
-              color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
-              strokeWidth: 2
-            }]
-          }}
-          width={320}
-          height={180}
-          chartConfig={{
-            backgroundColor: '#fff',
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          }}
-          bezier
-          style={{ borderRadius: 16 }}
-        />
-      </Card.Content>
-    </Card>
-  );
+      <Card.Title>Évolution
+  CA(7
+  jours
+)
+  </Card.Title>
+  < Card.Content >
+  <LineChart
+    data = {
+  {
+    labels: data.labels, // ["Lun", "Mar", "Mer", ...]
+      datasets
+  :
+    [{
+      data: data.values,
+      color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
+      strokeWidth: 2
+    }]
+  }
+}
+  width = {320}
+  height = {180}
+  chartConfig = {
+  {
+    backgroundColor: '#fff',
+      backgroundGradientFrom
+  :
+    '#fff',
+      backgroundGradientTo
+  :
+    '#fff',
+      decimalPlaces
+  :
+    0,
+      color
+  :
+    (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  }
+}
+  bezier
+  style = {
+  {
+    borderRadius: 16
+  }
+}
+  />
+  < /Card.Content>
+  < /Card>
+)
+  ;
 };
 ```
 
 ---
 
 ### 1.2 Système d'Alertes Critiques
+
 **Priorité : P0 - Critique**
 
 #### Notifications Push
 
 **Types d'alertes :**
+
 1. **🔴 Ruptures de stock** (temps réel)
 2. **🟠 Péremptions imminentes** (< 30 jours)
 3. **🟡 Écarts de caisse** (> seuil)
 4. **🔵 Factures impayées** (> 90 jours)
 
 **Backend - Service de Notifications :**
+
 ```java
+
 @Service
 public class MobilePushNotificationService {
 
-    private final FirebaseMessaging firebaseMessaging;
-    private final UserDeviceRepository userDeviceRepository;
+  private final FirebaseMessaging firebaseMessaging;
+  private final UserDeviceRepository userDeviceRepository;
 
-    public void sendStockAlert(StockAlert alert) {
-        List<UserDevice> devices = userDeviceRepository
-            .findByUserAuthorityAndNotificationsEnabled("ROLE_MANAGER", true);
+  public void sendStockAlert(StockAlert alert) {
+    List<UserDevice> devices = userDeviceRepository
+      .findByUserAuthorityAndNotificationsEnabled("ROLE_MANAGER", true);
 
-        Message message = Message.builder()
-            .setNotification(Notification.builder()
-                .setTitle("🔴 Rupture de stock")
-                .setBody(alert.getProductName() + " - Stock épuisé")
-                .build())
-            .putData("type", "STOCK_ALERT")
-            .putData("productId", alert.getProductId().toString())
-            .putData("action", "VIEW_PRODUCT")
-            .build();
+    Message message = Message.builder()
+      .setNotification(Notification.builder()
+        .setTitle("🔴 Rupture de stock")
+        .setBody(alert.getProductName() + " - Stock épuisé")
+        .build())
+      .putData("type", "STOCK_ALERT")
+      .putData("productId", alert.getProductId().toString())
+      .putData("action", "VIEW_PRODUCT")
+      .build();
 
-        devices.forEach(device -> {
-            try {
-                message.setToken(device.getFcmToken());
-                firebaseMessaging.send(message);
-            } catch (FirebaseMessagingException e) {
-                log.error("Failed to send notification to device: {}", device.getId(), e);
-            }
-        });
+    devices.forEach(device -> {
+      try {
+        message.setToken(device.getFcmToken());
+        firebaseMessaging.send(message);
+      } catch (FirebaseMessagingException e) {
+        log.error("Failed to send notification to device: {}", device.getId(), e);
+      }
+    });
+  }
+
+  @Scheduled(cron = "0 0 9 * * *") // Tous les jours à 9h
+  public void checkExpiringProducts() {
+    List<Lot> expiringLots = lotRepository.findExpiringInDays(30);
+
+    if (!expiringLots.isEmpty()) {
+      sendBatchNotification(
+        "EXPIRY_ALERT",
+        "⚠️ Produits proches de péremption",
+        expiringLots.size() + " produits expirent dans moins de 30 jours",
+        Map.of("count", String.valueOf(expiringLots.size()))
+      );
     }
-
-    @Scheduled(cron = "0 0 9 * * *") // Tous les jours à 9h
-    public void checkExpiringProducts() {
-        List<Lot> expiringLots = lotRepository.findExpiringInDays(30);
-
-        if (!expiringLots.isEmpty()) {
-            sendBatchNotification(
-                "EXPIRY_ALERT",
-                "⚠️ Produits proches de péremption",
-                expiringLots.size() + " produits expirent dans moins de 30 jours",
-                Map.of("count", String.valueOf(expiringLots.size()))
-            );
-        }
-    }
+  }
 }
 ```
 
 **Mobile - Gestion des Notifications :**
+
 ```typescript
 // services/PushNotificationService.ts
 import messaging from '@react-native-firebase/messaging';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 export class PushNotificationService {
 
@@ -347,13 +343,13 @@ export class PushNotificationService {
   handleNotificationAction(data: any) {
     switch (data.type) {
       case 'STOCK_ALERT':
-        navigation.navigate('ProductDetail', { id: data.productId });
+        navigation.navigate('ProductDetail', {id: data.productId});
         break;
       case 'CASH_DISCREPANCY':
-        navigation.navigate('CashRegister', { date: data.date });
+        navigation.navigate('CashRegister', {date: data.date});
         break;
       case 'INVOICE_OVERDUE':
-        navigation.navigate('Invoices', { filter: 'overdue' });
+        navigation.navigate('Invoices', {filter: 'overdue'});
         break;
     }
   }
@@ -364,43 +360,8 @@ export class PushNotificationService {
 
 #### Écran des Alertes
 
-```typescript
-// screens/AlertsScreen.tsx
-const AlertsScreen: React.FC = () => {
-  const { alerts } = useAlerts();
-
-  return (
-    <ScrollView>
-      <FilterChips
-        filters={['Toutes', 'Stock', 'Péremptions', 'Caisse', 'Factures']}
-      />
-
-      {alerts.map(alert => (
-        <Swipeable
-          key={alert.id}
-          renderRightActions={() => (
-            <TouchableOpacity onPress={() => resolveAlert(alert.id)}>
-              <View style={styles.resolveButton}>
-                <Text>✓ Résoudre</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        >
-          <AlertCard
-            type={alert.type}
-            severity={alert.severity}
-            message={alert.message}
-            timestamp={alert.createdAt}
-            onTap={() => handleAlertTap(alert)}
-          />
-        </Swipeable>
-      ))}
-    </ScrollView>
-  );
-};
-```
-
 **Fonctionnalités :**
+
 - **Swipe pour résoudre** : Glisser vers la droite pour marquer comme résolu
 - **Filtres rapides** : Chips pour filtrer par type
 - **Badge de notification** : Nombre d'alertes non lues
@@ -409,61 +370,10 @@ const AlertsScreen: React.FC = () => {
 ---
 
 ### 1.3 Vue Rapide Stock (Recherche + Scan)
+
 **Priorité : P0 - Critique**
 
 #### Recherche Rapide de Produit
-
-```typescript
-// screens/StockSearchScreen.tsx
-import { Camera, useCameraDevice } from 'react-native-vision-camera';
-import { BarcodeScanner } from 'react-native-barcode-scanner';
-
-const StockSearchScreen: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [scannerActive, setScannerActive] = useState(false);
-  const device = useCameraDevice('back');
-
-  const onBarCodeScanned = async (barcodes) => {
-    const code = barcodes[0].displayValue;
-    const product = await searchProductByCode(code);
-    showProductModal(product);
-    setScannerActive(false);
-  };
-
-  return (
-    <View>
-      {/* Barre de recherche */}
-      <Searchbar
-        placeholder="Rechercher un produit..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        icon="barcode-scan"
-        onIconPress={() => setScannerActive(true)}
-      />
-
-      {/* Scanner de code-barre */}
-      {scannerActive && (
-        <Modal visible={scannerActive}>
-          <Camera
-            device={device}
-            isActive={true}
-            codeScanner={{
-              codeTypes: ['ean-13', 'code-128'],
-              onCodeScanned: onBarCodeScanned
-            }}
-          />
-          <Button onPress={() => setScannerActive(false)}>
-            Annuler
-          </Button>
-        </Modal>
-      )}
-
-      {/* Résultats de recherche */}
-      <ProductSearchResults query={searchQuery} />
-    </View>
-  );
-};
-```
 
 #### Modal Détail Produit
 
@@ -507,28 +417,33 @@ const StockSearchScreen: React.FC = () => {
 ```
 
 **API Endpoint :**
+
 ```java
+
 @GetMapping("/api/mobile/products/{id}/quick-info")
 public ResponseEntity<ProductQuickInfoDTO> getProductQuickInfo(@PathVariable Long id) {
-    ProductQuickInfoDTO info = productService.getQuickInfo(id);
-    return ResponseEntity.ok(info);
+  ProductQuickInfoDTO info = productService.getQuickInfo(id);
+  return ResponseEntity.ok(info);
 }
 
 // DTO optimisé pour mobile (payload minimal)
 public record ProductQuickInfoDTO(
-    Long id,
-    String name,
-    String codeCIP,
-    StockInfo stock,
-    PriceInfo price,
-    List<LotInfo> lots,
-    SalesStats salesStats
-) {}
+  Long id,
+  String name,
+  String codeCIP,
+  StockInfo stock,
+  PriceInfo price,
+  List<LotInfo> lots,
+  SalesStats salesStats
+) {
+
+}
 ```
 
 ---
 
 ### 1.4 Liste d'Actions Prioritaires
+
 **Priorité : P1 - Important**
 
 #### Écran "À Faire Aujourd'hui"
@@ -536,99 +451,135 @@ public record ProductQuickInfoDTO(
 ```typescript
 // screens/TodoScreen.tsx
 const TodoScreen: React.FC = () => {
-  const { todos, loading } = useTodos();
+  const {todos, loading} = useTodos();
 
   return (
     <ScrollView>
       <SectionList
-        sections={[
-          { title: 'Urgent', data: todos.urgent, color: 'red' },
-          { title: 'Important', data: todos.important, color: 'orange' },
-          { title: 'Normal', data: todos.normal, color: 'blue' }
-        ]}
-        renderSectionHeader={({ section }) => (
-          <SectionHeader title={section.title} color={section.color} />
-        )}
-        renderItem={({ item }) => (
-          <TodoCard
-            todo={item}
-            onAction={() => handleAction(item)}
-            onSwipeLeft={() => dismissTodo(item.id)}
-          />
-        )}
-      />
-    </ScrollView>
-  );
+        sections = {
+      [
+        {title: 'Urgent', data: todos.urgent, color: 'red'},
+  {
+    title: 'Important', data
+  :
+    todos.important, color
+  :
+    'orange'
+  }
+,
+  {
+    title: 'Normal', data
+  :
+    todos.normal, color
+  :
+    'blue'
+  }
+]
+}
+  renderSectionHeader = {({section})
+=>
+  (
+    <SectionHeader title = {section.title}
+  color = {section.color}
+  />
+)
+}
+  renderItem = {({item})
+=>
+  (
+    <TodoCard
+      todo = {item}
+  onAction = {()
+=>
+  handleAction(item)
+}
+  onSwipeLeft = {()
+=>
+  dismissTodo(item.id)
+}
+  />
+)
+}
+  />
+  < /ScrollView>
+)
+  ;
 };
 ```
 
 **Types d'actions :**
 
 1. **Produits à commander (Ruptures/Alerte stock)**
-   - Bouton CTA : "📦 Commander maintenant"
-   - Ouvre un formulaire de commande pré-rempli
+
+- Bouton CTA : "📦 Commander maintenant"
+- Ouvre un formulaire de commande pré-rempli
 
 2. **Factures à relancer (> 60 jours)**
-   - Bouton CTA : "📞 Appeler le client"
-   - Ouvre le dialer avec le numéro du tiers-payant
+
+- Bouton CTA : "📞 Appeler le client"
+- Ouvre le dialer avec le numéro du tiers-payant
 
 3. **Produits à démarquer (Péremption < 90j)**
-   - Bouton CTA : "🏷️ Créer promotion"
-   - Ouvre un formulaire de remise
+
+- Bouton CTA : "🏷️ Créer promotion"
+- Ouvre un formulaire de remise
 
 4. **Inventaires en retard**
-   - Bouton CTA : "📋 Démarrer inventaire"
-   - Navigation vers module inventaire
+
+- Bouton CTA : "📋 Démarrer inventaire"
+- Navigation vers module inventaire
 
 **Backend - Génération des Todos :**
+
 ```java
+
 @Service
 public class MobileTodoService {
 
-    public MobileTodoListDTO getTodoList(Long userId) {
-        List<TodoItem> urgent = new ArrayList<>();
-        List<TodoItem> important = new ArrayList<>();
-        List<TodoItem> normal = new ArrayList<>();
+  public MobileTodoListDTO getTodoList(Long userId) {
+    List<TodoItem> urgent = new ArrayList<>();
+    List<TodoItem> important = new ArrayList<>();
+    List<TodoItem> normal = new ArrayList<>();
 
-        // 1. Produits en rupture (Urgent)
-        List<StockProduit> outOfStock = stockRepository.findByQuantity(0);
-        outOfStock.forEach(stock -> {
-            urgent.add(new TodoItem(
-                "REORDER",
-                "Commander " + stock.getProduit().getLibelle(),
-                "Rupture de stock",
-                TodoPriority.URGENT,
-                Map.of("productId", stock.getProduit().getId())
-            ));
-        });
+    // 1. Produits en rupture (Urgent)
+    List<StockProduit> outOfStock = stockRepository.findByQuantity(0);
+    outOfStock.forEach(stock -> {
+      urgent.add(new TodoItem(
+        "REORDER",
+        "Commander " + stock.getProduit().getLibelle(),
+        "Rupture de stock",
+        TodoPriority.URGENT,
+        Map.of("productId", stock.getProduit().getId())
+      ));
+    });
 
-        // 2. Factures impayées > 90j (Urgent)
-        List<FactureTiersPayant> overdueInvoices =
-            factureRepository.findOverdue(90);
-        overdueInvoices.forEach(facture -> {
-            urgent.add(new TodoItem(
-                "CALL_CLIENT",
-                "Relancer " + facture.getGroupeTiersPayant().getLibelle(),
-                "Facture impayée depuis " + facture.getDaysOverdue() + " jours",
-                TodoPriority.URGENT,
-                Map.of("invoiceId", facture.getId(), "phone", facture.getPhone())
-            ));
-        });
+    // 2. Factures impayées > 90j (Urgent)
+    List<FactureTiersPayant> overdueInvoices =
+      factureRepository.findOverdue(90);
+    overdueInvoices.forEach(facture -> {
+      urgent.add(new TodoItem(
+        "CALL_CLIENT",
+        "Relancer " + facture.getGroupeTiersPayant().getLibelle(),
+        "Facture impayée depuis " + facture.getDaysOverdue() + " jours",
+        TodoPriority.URGENT,
+        Map.of("invoiceId", facture.getId(), "phone", facture.getPhone())
+      ));
+    });
 
-        // 3. Produits proches péremption < 3 mois (Important)
-        List<Lot> expiringLots = lotRepository.findExpiringInDays(90);
-        expiringLots.forEach(lot -> {
-            important.add(new TodoItem(
-                "CREATE_DISCOUNT",
-                "Démarquer " + lot.getProduit().getLibelle(),
-                "Expire le " + lot.getExpiryDate(),
-                TodoPriority.IMPORTANT,
-                Map.of("lotId", lot.getId(), "productId", lot.getProduit().getId())
-            ));
-        });
+    // 3. Produits proches péremption < 3 mois (Important)
+    List<Lot> expiringLots = lotRepository.findExpiringInDays(90);
+    expiringLots.forEach(lot -> {
+      important.add(new TodoItem(
+        "CREATE_DISCOUNT",
+        "Démarquer " + lot.getProduit().getLibelle(),
+        "Expire le " + lot.getExpiryDate(),
+        TodoPriority.IMPORTANT,
+        Map.of("lotId", lot.getId(), "productId", lot.getProduit().getId())
+      ));
+    });
 
-        return new MobileTodoListDTO(urgent, important, normal);
-    }
+    return new MobileTodoListDTO(urgent, important, normal);
+  }
 }
 ```
 
@@ -648,14 +599,17 @@ public class MobileTodoService {
 ---
 
 ## Phase 2 : Analytics & Notifications
+
 **Durée estimée : 3-4 sprints | Priorité : Important**
 
 ### 🎯 Objectif
+
 Ajouter des rapports analytiques et des notifications intelligentes.
 
 ---
 
 ### 2.1 Rapports de Performance (Semaine/Mois)
+
 **Priorité : P1 - Important**
 
 #### Écran "Performances"
@@ -695,71 +649,117 @@ Ajouter des rapports analytiques et des notifications intelligentes.
 ```
 
 **Swipeable Tabs (Semaine / Mois / Année) :**
+
 ```typescript
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
 const Tab = createMaterialTopTabNavigator();
 
 const PerformanceScreen: React.FC = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
-        tabBarScrollEnabled: true,
-        tabBarIndicatorStyle: { backgroundColor: 'blue' }
-      }}
-    >
-      <Tab.Screen name="Semaine" component={WeeklyPerformance} />
-      <Tab.Screen name="Mois" component={MonthlyPerformance} />
-      <Tab.Screen name="Année" component={YearlyPerformance} />
-    </Tab.Navigator>
-  );
+      screenOptions = {
+  {
+    tabBarScrollEnabled: true,
+      tabBarIndicatorStyle
+  :
+    {
+      backgroundColor: 'blue'
+    }
+  }
+}
+>
+  <Tab.Screen name = "Semaine"
+  component = {WeeklyPerformance}
+  />
+  < Tab.Screen
+  name = "Mois"
+  component = {MonthlyPerformance}
+  />
+  < Tab.Screen
+  name = "Année"
+  component = {YearlyPerformance}
+  />
+  < /Tab.Navigator>
+)
+  ;
 };
 ```
 
 ---
 
 ### 2.2 Graphiques Interactifs Avancés
+
 **Priorité : P1 - Important**
 
 **Bibliothèque recommandée : Victory Native (React Native)**
 
 ```typescript
-import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
+import {VictoryBar, VictoryChart, VictoryTheme, VictoryAxis} from 'victory-native';
 
-const SalesChartCard: React.FC<{ data }> = ({ data }) => {
+const SalesChartCard: React.FC<{ data }> = ({data}) => {
   return (
     <Card>
-      <Card.Title>CA des 30 derniers jours</Card.Title>
-      <Card.Content>
-        <VictoryChart theme={VictoryTheme.material} height={250}>
-          <VictoryAxis
-            tickFormat={(x) => `${x}`}
-            style={{ tickLabels: { fontSize: 10 } }}
-          />
-          <VictoryAxis
-            dependentAxis
-            tickFormat={(y) => `${y / 1000}K`}
-          />
-          <VictoryBar
-            data={data}
-            x="day"
-            y="amount"
-            style={{
-              data: { fill: "#3b82f6" }
-            }}
-            animate={{
-              duration: 500,
-              onLoad: { duration: 300 }
-            }}
-          />
-        </VictoryChart>
-      </Card.Content>
-    </Card>
-  );
+      <Card.Title>CA
+  des
+  30
+  derniers
+  jours < /Card.Title>
+  < Card.Content >
+  <VictoryChart theme = {VictoryTheme.material}
+  height = {250} >
+  <VictoryAxis
+    tickFormat = {(x)
+=>
+  `${x}`
+}
+  style = {
+  {
+    tickLabels: {
+      fontSize: 10
+    }
+  }
+}
+  />
+  < VictoryAxis
+  dependentAxis
+  tickFormat = {(y)
+=>
+  `${y / 1000}K`
+}
+  />
+  < VictoryBar
+  data = {data}
+  x = "day"
+  y = "amount"
+  style = {
+  {
+    data: {
+      fill: "#3b82f6"
+    }
+  }
+}
+  animate = {
+  {
+    duration: 500,
+      onLoad
+  :
+    {
+      duration: 300
+    }
+  }
+}
+  />
+  < /VictoryChart>
+  < /Card.Content>
+  < /Card>
+)
+  ;
 };
 ```
 
 **Interactions tactiles :**
+
 - **Pinch to zoom** : Zoomer sur une période spécifique
 - **Tap on bar** : Afficher détails du jour
 - **Swipe** : Naviguer entre différentes périodes
@@ -767,112 +767,119 @@ const SalesChartCard: React.FC<{ data }> = ({ data }) => {
 ---
 
 ### 2.3 Notifications Push Avancées
+
 **Priorité : P1 - Important**
 
 #### Notifications Intelligentes
 
 **1. Notifications personnalisées par rôle :**
+
 ```java
+
 @Service
 public class SmartNotificationService {
 
-    public void sendDailyDigest() {
-        // Pour les gérants
-        List<User> managers = userRepository.findByAuthority("ROLE_MANAGER");
-        managers.forEach(manager -> {
-            DailyDigestDTO digest = reportService.generateDailyDigest(LocalDate.now());
+  public void sendDailyDigest() {
+    // Pour les gérants
+    List<User> managers = userRepository.findByAuthority("ROLE_MANAGER");
+    managers.forEach(manager -> {
+      DailyDigestDTO digest = reportService.generateDailyDigest(LocalDate.now());
 
-            sendNotification(manager, NotificationTemplate.builder()
-                .title("📊 Résumé quotidien")
-                .body(String.format(
-                    "CA: %s FCFA (+%.1f%%) | %d ventes | %d alertes",
-                    digest.getTotalCA(),
-                    digest.getVariation(),
-                    digest.getTransactionCount(),
-                    digest.getAlertsCount()
-                ))
-                .data(Map.of("type", "DAILY_DIGEST", "date", LocalDate.now().toString()))
-                .build()
-            );
-        });
+      sendNotification(manager, NotificationTemplate.builder()
+        .title("📊 Résumé quotidien")
+        .body(String.format(
+          "CA: %s FCFA (+%.1f%%) | %d ventes | %d alertes",
+          digest.getTotalCA(),
+          digest.getVariation(),
+          digest.getTransactionCount(),
+          digest.getAlertsCount()
+        ))
+        .data(Map.of("type", "DAILY_DIGEST", "date", LocalDate.now().toString()))
+        .build()
+      );
+    });
 
-        // Pour les vendeurs
-        List<User> sellers = userRepository.findByAuthority("ROLE_USER");
-        sellers.forEach(seller -> {
-            UserPerformanceDTO perf = reportService.getUserPerformance(seller.getId(), LocalDate.now());
+    // Pour les vendeurs
+    List<User> sellers = userRepository.findByAuthority("ROLE_USER");
+    sellers.forEach(seller -> {
+      UserPerformanceDTO perf = reportService.getUserPerformance(seller.getId(), LocalDate.now());
 
-            sendNotification(seller, NotificationTemplate.builder()
-                .title("💪 Votre performance du jour")
-                .body(String.format(
-                    "CA: %s FCFA | %d ventes | Panier moyen: %s FCFA",
-                    perf.getTotalCA(),
-                    perf.getSalesCount(),
-                    perf.getAverageBasket()
-                ))
-                .build()
-            );
-        });
-    }
+      sendNotification(seller, NotificationTemplate.builder()
+        .title("💪 Votre performance du jour")
+        .body(String.format(
+          "CA: %s FCFA | %d ventes | Panier moyen: %s FCFA",
+          perf.getTotalCA(),
+          perf.getSalesCount(),
+          perf.getAverageBasket()
+        ))
+        .build()
+      );
+    });
+  }
 
-    @Scheduled(cron = "0 0 18 * * *") // Tous les jours à 18h
-    public void sendDailyDigest() {
-        sendDailyDigest();
-    }
+  @Scheduled(cron = "0 0 18 * * *") // Tous les jours à 18h
+  public void sendDailyDigest() {
+    sendDailyDigest();
+  }
 }
 ```
 
 **2. Notifications contextuelles :**
+
 ```java
 // Notification quand objectif atteint
 @EventListener
 public void onSalesTargetReached(SalesTargetReachedEvent event) {
-    sendNotification(
-        "TARGET_REACHED",
-        "🎯 Objectif atteint!",
-        "Bravo! L'objectif de CA quotidien a été dépassé.",
-        Map.of("ca", event.getAmount(), "target", event.getTarget())
-    );
+  sendNotification(
+    "TARGET_REACHED",
+    "🎯 Objectif atteint!",
+    "Bravo! L'objectif de CA quotidien a été dépassé.",
+    Map.of("ca", event.getAmount(), "target", event.getTarget())
+  );
 }
 
 // Notification en cas de vente importante
 @EventListener
 public void onHighValueSale(HighValueSaleEvent event) {
-    if (event.getAmount() > 500_000) {
-        sendNotification(
-            "HIGH_VALUE_SALE",
-            "💰 Grosse vente!",
-            String.format("Vente de %s FCFA enregistrée", event.getAmount()),
-            Map.of("saleId", event.getSaleId())
-        );
-    }
+  if (event.getAmount() > 500_000) {
+    sendNotification(
+      "HIGH_VALUE_SALE",
+      "💰 Grosse vente!",
+      String.format("Vente de %s FCFA enregistrée", event.getAmount()),
+      Map.of("saleId", event.getSaleId())
+    );
+  }
 }
 ```
 
 **3. Groupement intelligent :**
+
 ```java
 // Grouper plusieurs alertes du même type
 public void sendBatchedAlerts() {
-    Map<AlertType, List<Alert>> groupedAlerts = alertRepository
-        .findUnsentAlerts()
-        .stream()
-        .collect(Collectors.groupingBy(Alert::getType));
+  Map<AlertType, List<Alert>> groupedAlerts = alertRepository
+    .findUnsentAlerts()
+    .stream()
+    .collect(Collectors.groupingBy(Alert::getType));
 
-    groupedAlerts.forEach((type, alerts) -> {
-        if (alerts.size() == 1) {
-            sendSingleAlert(alerts.get(0));
-        } else {
-            sendBatchedAlert(type, alerts.size());
-        }
-    });
+  groupedAlerts.forEach((type, alerts) -> {
+    if (alerts.size() == 1) {
+      sendSingleAlert(alerts.get(0));
+    } else {
+      sendBatchedAlert(type, alerts.size());
+    }
+  });
 }
 ```
 
 ---
 
 ### 2.4 Widgets Home Screen
+
 **Priorité : P2 - Souhaitable**
 
 **iOS Widget (Swift UI) :**
+
 ```swift
 // PharmaSmartWidget.swift
 import WidgetKit
@@ -918,36 +925,37 @@ struct PharmaSmartWidget: Widget {
 ```
 
 **Android Widget (Jetpack Glance) :**
+
 ```kotlin
 // PharmaSmartWidget.kt
 @Composable
 fun CAWidget(data: CAData) {
-    Column(
-        modifier = GlanceModifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "CA Aujourd'hui",
-            style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.Gray))
-        )
-        Spacer(modifier = GlanceModifier.height(8.dp))
-        Text(
-            text = "${data.amount} FCFA",
-            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        )
-        Row {
-            Icon(
-                imageVector = if (data.isUp) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                tint = if (data.isUp) Color.Green else Color.Red
-            )
-            Text(
-                text = "${data.variation}%",
-                style = TextStyle(fontSize = 12.sp)
-            )
-        }
+  Column(
+    modifier = GlanceModifier
+      .fillMaxSize()
+      .background(Color.White)
+      .padding(16.dp)
+  ) {
+    Text(
+      text = "CA Aujourd'hui",
+      style = TextStyle(fontSize = 12.sp, color = ColorProvider(Color.Gray))
+    )
+    Spacer(modifier = GlanceModifier.height(8.dp))
+    Text(
+      text = "${data.amount} FCFA",
+      style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    )
+    Row {
+      Icon(
+        imageVector = if (data.isUp) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+        tint = if (data.isUp) Color.Green else Color.Red
+      )
+      Text(
+        text = "${data.variation}%",
+        style = TextStyle(fontSize = 12.sp)
+      )
     }
+  }
 }
 ```
 
@@ -965,14 +973,17 @@ fun CAWidget(data: CAData) {
 ---
 
 ## Phase 3 : Intelligence & Offline
+
 **Durée estimée : 4-5 sprints | Priorité : Innovation**
 
 ### 🎯 Objectif
+
 Ajouter des fonctionnalités avancées : prévisions, mode offline complet, et optimisations.
 
 ---
 
 ### 3.1 Prévisions de Ventes (ML Mobile)
+
 **Priorité : P2 - Innovation**
 
 **Approche : TensorFlow Lite sur Mobile**
@@ -1026,6 +1037,7 @@ export class MobileForecastingService {
 ```
 
 **Écran Prévisions :**
+
 ```typescript
 const ForecastScreen: React.FC = () => {
   const [forecast, setForecast] = useState<ForecastData | null>(null);
@@ -1049,46 +1061,66 @@ const ForecastScreen: React.FC = () => {
   return (
     <ScrollView>
       <Card>
-        <Card.Title>Prévisions CA (7 prochains jours)</Card.Title>
-        <Card.Content>
-          <LineChart
-            data={{
-              labels: ['J+1', 'J+2', 'J+3', 'J+4', 'J+5', 'J+6', 'J+7'],
-              datasets: [
-                {
-                  data: forecast?.historical.slice(-7) || [],
-                  color: () => 'gray',
-                  strokeDashArray: [5, 5] // Ligne pointillée
-                },
-                {
-                  data: forecast?.predicted || [],
-                  color: () => 'blue'
-                }
-              ]
-            }}
-          />
-          <Text>Niveau de confiance: {(forecast?.confidence * 100).toFixed(0)}%</Text>
-        </Card.Content>
-      </Card>
+        <Card.Title>Prévisions
+  CA(7
+  prochains
+  jours
+)
+  </Card.Title>
+  < Card.Content >
+  <LineChart
+    data = {
+  {
+    labels: ['J+1', 'J+2', 'J+3', 'J+4', 'J+5', 'J+6', 'J+7'],
+      datasets
+  :
+    [
+      {
+        data: forecast?.historical.slice(-7) || [],
+        color: () => 'gray',
+        strokeDashArray: [5, 5] // Ligne pointillée
+      },
+      {
+        data: forecast?.predicted || [],
+        color: () => 'blue'
+      }
+    ]
+  }
+}
+  />
+  < Text > Niveau
+  de
+  confiance: {
+    (forecast?.confidence * 100).toFixed(0)
+  }
+%
+  </Text>
+  < /Card.Content>
+  < /Card>
 
-      <Card>
-        <Card.Title>Recommandations</Card.Title>
-        <List>
-          <List.Item
-            title="Augmenter le stock de Paracétamol"
-            description="Ventes prévues: +25% cette semaine"
-            left={() => <Icon name="trending-up" />}
-          />
-        </List>
-      </Card>
-    </ScrollView>
-  );
+  < Card >
+  <Card.Title>Recommandations < /Card.Title>
+  < List >
+  <List.Item
+    title = "Augmenter le stock de Paracétamol"
+  description = "Ventes prévues: +25% cette semaine"
+  left = {()
+=>
+  <Icon name = "trending-up" / >
+}
+  />
+  < /List>
+  < /Card>
+  < /ScrollView>
+)
+  ;
 };
 ```
 
 ---
 
 ### 3.2 Mode Offline Complet
+
 **Priorité : P1 - Important**
 
 **Architecture Offline-First :**
@@ -1124,7 +1156,7 @@ const ForecastScreen: React.FC = () => {
 
 ```typescript
 // database/schema.ts
-import { appSchema, tableSchema } from '@nozbe/watermelondb';
+import {appSchema, tableSchema} from '@nozbe/watermelondb';
 
 export const schema = appSchema({
   version: 1,
@@ -1132,20 +1164,20 @@ export const schema = appSchema({
     tableSchema({
       name: 'cached_reports',
       columns: [
-        { name: 'report_type', type: 'string' },
-        { name: 'report_date', type: 'number' },
-        { name: 'data', type: 'string' }, // JSON
-        { name: 'cached_at', type: 'number' },
-        { name: 'expires_at', type: 'number' }
+        {name: 'report_type', type: 'string'},
+        {name: 'report_date', type: 'number'},
+        {name: 'data', type: 'string'}, // JSON
+        {name: 'cached_at', type: 'number'},
+        {name: 'expires_at', type: 'number'}
       ]
     }),
     tableSchema({
       name: 'pending_actions',
       columns: [
-        { name: 'action_type', type: 'string' },
-        { name: 'payload', type: 'string' }, // JSON
-        { name: 'created_at', type: 'number' },
-        { name: 'retry_count', type: 'number' }
+        {name: 'action_type', type: 'string'},
+        {name: 'payload', type: 'string'}, // JSON
+        {name: 'created_at', type: 'number'},
+        {name: 'retry_count', type: 'number'}
       ]
     })
   ]
@@ -1237,6 +1269,7 @@ export class OfflineManager {
 ```
 
 **Stratégie de synchronisation :**
+
 ```typescript
 // App.tsx
 import NetInfo from '@react-native-community/netinfo';
@@ -1256,11 +1289,12 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  return <RootNavigator />;
+  return <RootNavigator / >;
 };
 ```
 
 **Indicateur de mode offline :**
+
 ```typescript
 const OfflineBanner: React.FC = () => {
   const isOffline = useNetworkStatus();
@@ -1269,68 +1303,104 @@ const OfflineBanner: React.FC = () => {
 
   return (
     <Banner
-      visible={true}
-      icon="wifi-off"
-      actions={[
+      visible = {true}
+  icon = "wifi-off"
+  actions = {
+      [
         {
           label: 'Réessayer',
           onPress: () => checkConnectivity()
         }
-      ]}
+        ]
+    }
     >
-      Vous êtes hors ligne. Les modifications seront synchronisées automatiquement.
-    </Banner>
-  );
+    Vous
+  êtes
+  hors
+  ligne.Les
+  modifications
+  seront
+  synchronisées
+  automatiquement.
+  < /Banner>
+)
+  ;
 };
 ```
 
 ---
 
 ### 3.3 Rapports Personnalisables
+
 **Priorité : P2 - Avancé**
 
 **Builder de rapports simple :**
+
 ```typescript
 const CustomReportBuilder: React.FC = () => {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week');
 
   const availableMetrics = [
-    { id: 'ca', label: 'Chiffre d\'affaires', icon: 'currency-usd' },
-    { id: 'transactions', label: 'Nombre de ventes', icon: 'cart' },
-    { id: 'basket', label: 'Panier moyen', icon: 'basket' },
-    { id: 'margin', label: 'Marge brute', icon: 'percent' },
-    { id: 'top_products', label: 'Top produits', icon: 'star' }
+    {id: 'ca', label: 'Chiffre d\'affaires', icon: 'currency-usd'},
+    {id: 'transactions', label: 'Nombre de ventes', icon: 'cart'},
+    {id: 'basket', label: 'Panier moyen', icon: 'basket'},
+    {id: 'margin', label: 'Marge brute', icon: 'percent'},
+    {id: 'top_products', label: 'Top produits', icon: 'star'}
   ];
 
   return (
     <ScrollView>
-      <Text>Sélectionnez les indicateurs à afficher :</Text>
+      <Text>Sélectionnez
+  les
+  indicateurs
+  à
+  afficher :</Text>
 
-      {availableMetrics.map(metric => (
-        <Checkbox.Item
-          key={metric.id}
-          label={metric.label}
-          status={selectedMetrics.includes(metric.id) ? 'checked' : 'unchecked'}
-          onPress={() => toggleMetric(metric.id)}
-        />
-      ))}
+  {
+    availableMetrics.map(metric => (
+      <Checkbox.Item
+        key = {metric.id}
+    label = {metric.label}
+    status = {selectedMetrics.includes(metric.id) ? 'checked' : 'unchecked'}
+    onPress = {()
+  =>
+    toggleMetric(metric.id)
+  }
+    />
+  ))
+  }
 
-      <SegmentedButtons
-        value={period}
-        onValueChange={setPeriod}
-        buttons={[
-          { value: 'day', label: 'Jour' },
-          { value: 'week', label: 'Semaine' },
-          { value: 'month', label: 'Mois' }
-        ]}
-      />
+  <SegmentedButtons
+    value = {period}
+  onValueChange = {setPeriod}
+  buttons = {
+    [
+      {value: 'day', label: 'Jour'},
+  {
+    value: 'week', label
+  :
+    'Semaine'
+  }
+,
+  {
+    value: 'month', label
+  :
+    'Mois'
+  }
+]
+}
+  />
 
-      <Button onPress={saveCustomReport}>
-        Créer le rapport
-      </Button>
-    </ScrollView>
-  );
+  < Button
+  onPress = {saveCustomReport} >
+    Créer
+  le
+  rapport
+  < /Button>
+  < /ScrollView>
+)
+  ;
 };
 ```
 
@@ -1354,6 +1424,7 @@ const CustomReportBuilder: React.FC = () => {
 **Recommandation : React Native** (pour code partagé iOS/Android)
 
 #### Alternative : Flutter
+
 Si l'équipe préfère Dart ou veut des performances légèrement meilleures.
 
 ```json
@@ -1364,35 +1435,27 @@ Si l'équipe préfère Dart ou veut des performances légèrement meilleures.
     "react-native": "0.73.0",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/material-top-tabs": "^6.6.5",
-
     // UI
     "react-native-paper": "^5.11.3",
     "react-native-vector-icons": "^10.0.3",
-
     // Charts
     "react-native-chart-kit": "^6.12.0",
     "victory-native": "^36.9.1",
-
     // State Management
     "@reduxjs/toolkit": "^2.0.1",
     "react-redux": "^9.0.4",
-
     // Offline & Database
     "@nozbe/watermelondb": "^0.27.1",
     "@react-native-community/netinfo": "^11.2.1",
-
     // Push Notifications
     "@react-native-firebase/app": "^19.0.1",
     "@react-native-firebase/messaging": "^19.0.1",
-
     // Camera & Barcode
     "react-native-vision-camera": "^3.6.17",
     "react-native-barcode-scanner": "^1.5.0",
-
     // ML
     "@tensorflow/tfjs": "^4.15.0",
     "@tensorflow/tfjs-react-native": "^0.8.0",
-
     // Utils
     "date-fns": "^3.0.6",
     "react-native-reanimated": "^3.6.1",
@@ -1423,38 +1486,41 @@ Si l'équipe préfère Dart ou veut des performances légèrement meilleures.
 ```
 
 **Schema GraphQL :**
+
 ```graphql
 # src/main/resources/graphql/schema.graphqls
 type Query {
-    dashboard(date: Date!): DashboardData!
-    alerts(types: [AlertType!]): [Alert!]!
-    productQuickInfo(id: ID!): ProductQuickInfo!
-    performance(period: Period!): PerformanceData!
+  dashboard(date: Date!): DashboardData!
+  alerts(types: [AlertType!]): [Alert!]!
+  productQuickInfo(id: ID!): ProductQuickInfo!
+  performance(period: Period!): PerformanceData!
 }
 
 type Mutation {
-    resolveAlert(id: ID!): Boolean!
-    createOrder(input: CreateOrderInput!): Order!
+  resolveAlert(id: ID!): Boolean!
+  createOrder(input: CreateOrderInput!): Order!
 }
 
 type Subscription {
-    alertAdded: Alert!
-    salesUpdated: SalesUpdate!
+  alertAdded: Alert!
+  salesUpdated: SalesUpdate!
 }
 ```
 
 **Resolver :**
+
 ```java
+
 @Component
 public class MobileQueryResolver implements GraphQLQueryResolver {
 
-    public DashboardData dashboard(LocalDate date) {
-        return dashboardService.getDashboardData(date);
-    }
+  public DashboardData dashboard(LocalDate date) {
+    return dashboardService.getDashboardData(date);
+  }
 
-    public List<Alert> alerts(List<AlertType> types) {
-        return alertService.getAlerts(types);
-    }
+  public List<Alert> alerts(List<AlertType> types) {
+    return alertService.getAlerts(types);
+  }
 }
 ```
 
@@ -1474,27 +1540,29 @@ public class MobileQueryResolver implements GraphQLQueryResolver {
 ```
 
 **Configuration :**
+
 ```java
+
 @Configuration
 public class FirebaseConfig {
 
-    @Bean
-    public FirebaseApp initializeFirebase() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream(
-            "src/main/resources/firebase-service-account.json"
-        );
+  @Bean
+  public FirebaseApp initializeFirebase() throws IOException {
+    FileInputStream serviceAccount = new FileInputStream(
+      "src/main/resources/firebase-service-account.json"
+    );
 
-        FirebaseOptions options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-            .build();
+    FirebaseOptions options = FirebaseOptions.builder()
+      .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+      .build();
 
-        return FirebaseApp.initializeApp(options);
-    }
+    return FirebaseApp.initializeApp(options);
+  }
 
-    @Bean
-    public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
-        return FirebaseMessaging.getInstance(firebaseApp);
-    }
+  @Bean
+  public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
+    return FirebaseMessaging.getInstance(firebaseApp);
+  }
 }
 ```
 
@@ -1512,7 +1580,8 @@ export class ReportRepository {
     private api: ApiClient,
     private cache: CacheManager,
     private offline: OfflineManager
-  ) {}
+  ) {
+  }
 
   async getDashboard(date: string): Promise<DashboardData> {
     // 1. Vérifier le cache
@@ -1548,7 +1617,7 @@ export class ReportRepository {
 
 ```typescript
 // stores/DashboardStore.ts (MobX)
-import { makeAutoObservable } from 'mobx';
+import {makeAutoObservable} from 'mobx';
 
 export class DashboardStore {
   data: DashboardData | null = null;
@@ -1580,21 +1649,24 @@ export class DashboardStore {
 
 // Usage dans composant
 const DashboardScreen = observer(() => {
-  const { dashboardStore } = useStores();
+  const {dashboardStore} = useStores();
 
   useEffect(() => {
     dashboardStore.loadDashboard(today);
   }, []);
 
   if (dashboardStore.loading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner / >;
   }
 
   return (
     <View>
-      <CACard amount={dashboardStore.data.dailyCA} variation={dashboardStore.caVariation} />
-    </View>
-  );
+      <CACard amount = {dashboardStore.data.dailyCA}
+  variation = {dashboardStore.caVariation}
+  />
+  < /View>
+)
+  ;
 });
 ```
 
@@ -1611,8 +1683,8 @@ interface ExportStrategy {
 class PDFExportStrategy implements ExportStrategy {
   async export(data: any) {
     const html = generateHTML(data);
-    const pdf = await RNHTMLtoPDF.convert({ html });
-    await Share.open({ url: pdf.filePath });
+    const pdf = await RNHTMLtoPDF.convert({html});
+    await Share.open({url: pdf.filePath});
   }
 }
 
@@ -1629,12 +1701,12 @@ class CSVExportStrategy implements ExportStrategy {
     const csv = convertToCSV(data);
     const path = `${RNFS.DocumentDirectoryPath}/report.csv`;
     await RNFS.writeFile(path, csv);
-    await Share.open({ url: `file://${path}` });
+    await Share.open({url: `file://${path}`});
   }
 }
 
 // Usage
-const ExportButton: React.FC = ({ data, format }) => {
+const ExportButton: React.FC = ({data, format}) => {
   const strategies = {
     pdf: new PDFExportStrategy(),
     image: new ImageExportStrategy(),
@@ -1645,7 +1717,7 @@ const ExportButton: React.FC = ({ data, format }) => {
     await strategies[format].export(data);
   };
 
-  return <Button onPress={handleExport}>Exporter ({format.toUpperCase()})</Button>;
+  return <Button onPress = {handleExport} > Exporter({format.toUpperCase()}) < /Button>;
 };
 ```
 
@@ -1656,28 +1728,37 @@ const ExportButton: React.FC = ({ data, format }) => {
 ### 1. Optimisation Performances
 
 #### Lazy Loading & Code Splitting
+
 ```typescript
 // Navigation avec lazy loading
-import { lazy, Suspense } from 'react';
+import {lazy, Suspense} from 'react';
 
 const DashboardScreen = lazy(() => import('./screens/DashboardScreen'));
 const PerformanceScreen = lazy(() => import('./screens/PerformanceScreen'));
 
 const RootNavigator = () => (
   <NavigationContainer>
-    <Suspense fallback={<LoadingScreen />}>
-      <Stack.Navigator>
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Performance" component={PerformanceScreen} />
-      </Stack.Navigator>
-    </Suspense>
-  </NavigationContainer>
-);
+    <Suspense fallback = { < LoadingScreen / >
+}>
+<Stack.Navigator>
+  <Stack.Screen name = "Dashboard"
+component = {DashboardScreen}
+/>
+< Stack.Screen
+name = "Performance"
+component = {PerformanceScreen}
+/>
+< /Stack.Navigator>
+< /Suspense>
+< /NavigationContainer>
+)
+;
 ```
 
 ---
 
 #### Pagination Infinie (FlatList optimisée)
+
 ```typescript
 const AlertsList: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -1696,19 +1777,27 @@ const AlertsList: React.FC = () => {
 
   return (
     <FlatList
-      data={alerts}
-      renderItem={({ item }) => <AlertCard alert={item} />}
-      keyExtractor={item => item.id}
-      onEndReached={loadMore}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={loading ? <ActivityIndicator /> : null}
-      initialNumToRender={10}
-      maxToRenderPerBatch={10}
-      windowSize={5}
-      removeClippedSubviews={true}
-    />
-  );
-};
+      data = {alerts}
+  renderItem = {({item})
+=>
+  <AlertCard alert = {item}
+  />}
+  keyExtractor = {item
+=>
+  item.id
+}
+  onEndReached = {loadMore}
+  onEndReachedThreshold = {0.5}
+  ListFooterComponent = {loading ? <ActivityIndicator / > : null}
+  initialNumToRender = {10}
+  maxToRenderPerBatch = {10}
+  windowSize = {5}
+  removeClippedSubviews = {true}
+  />
+)
+  ;
+}
+  ;
 ```
 
 ---
@@ -1717,7 +1806,7 @@ const AlertsList: React.FC = () => {
 
 ```typescript
 // Ajuster la fréquence de sync selon le niveau de batterie
-import { Battery } from 'react-native-battery';
+import {Battery} from 'react-native-battery';
 
 export class SmartSyncService {
 
@@ -1796,12 +1885,12 @@ export const secureStorage = {
   },
 
   async getToken(): Promise<string | null> {
-    const credentials = await Keychain.getGenericPassword({ service: 'pharma-smart' });
+    const credentials = await Keychain.getGenericPassword({service: 'pharma-smart'});
     return credentials ? credentials.password : null;
   },
 
   async deleteToken() {
-    await Keychain.resetGenericPassword({ service: 'pharma-smart' });
+    await Keychain.resetGenericPassword({service: 'pharma-smart'});
   }
 };
 
@@ -1822,6 +1911,7 @@ if (JailMonkey.isJailBroken()) {
 ## Conclusion
 
 Cette roadmap mobile est conçue pour offrir :
+
 - **📱 Expérience mobile native** optimisée
 - **⚡ Performance maximale** (offline-first, cache intelligent)
 - **🔔 Notifications pertinentes** (pas de spam)
@@ -1831,18 +1921,21 @@ Cette roadmap mobile est conçue pour offrir :
 ### Priorisation Recommandée
 
 **Phase 1 (MVP) - 2-3 sprints :**
+
 - Dashboard quotidien
 - Alertes critiques + Push
 - Recherche stock + Scan
 - Actions prioritaires
 
 **Phase 2 - 3-4 sprints :**
+
 - Rapports performance
 - Graphiques interactifs
 - Notifications avancées
 - Widgets
 
 **Phase 3 - 4-5 sprints :**
+
 - Prévisions ML
 - Mode offline complet
 - Rapports personnalisables

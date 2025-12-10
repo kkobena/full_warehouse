@@ -1,10 +1,9 @@
 package com.kobe.warehouse.sales.utils
 
 import android.content.Context
-import com.kobe.warehouse.sales.BuildConfig
+import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit
  */
 object ApiClient {
 
-    private const val DEFAULT_BASE_URL = BuildConfig.BASE_URL
+    private const val DEFAULT_BASE_URL = com.kobe.warehouse.sales.BuildConfig.BASE_URL
     private var applicationContext: Context? = null
 
     /**
@@ -43,11 +42,11 @@ object ApiClient {
         val finalBaseUrl = baseUrl
             ?: tokenManagerUrl.takeIf { it.isNotEmpty() }
             ?: DEFAULT_BASE_URL
-
+        val gson = GsonBuilder().create()
         return Retrofit.Builder()
             .baseUrl(finalBaseUrl)
             .client(createOkHttpClient(tokenManager))
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -140,7 +139,7 @@ object ApiClient {
      */
     private fun createLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) {
+            level = if (com.kobe.warehouse.sales.BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
                 HttpLoggingInterceptor.Level.NONE

@@ -1,0 +1,12 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.pharma-qty-avoir {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.p-floatlabel {
+  min-width: 90px !important;
+}

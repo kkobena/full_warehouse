@@ -4,22 +4,31 @@
     border-bottom: 0.5px solid #3989c6;
     font-size: 9px;
   }
-
+  #page-data:before {
+    content: counter(page) '/' counter(pages);
+  }
   @page {
     size: A4;
-    margin-top: 25mm;
-    margin-right: 20px;
-    margin-left: 20px;
-    margin-bottom: 15mm;
-
+    margin: 25mm 20px 15mm;
     @bottom-center {
-      content: "Page " counter(page) " sur " counter(pages);
+      content: [(${footer})];
       border-top: 0.5px solid #3989c6;
       text-align: center;
+      white-space: pre-wrap;
       font-size: 8px;
       font-style: italic;
-      padding-top: 5px;
+      padding-top: 2px;
+      margin-bottom: 10mm;
+      vertical-align: top;
     }
+    /*@bottom-center {*/
+    /*  content: "Page " counter(page) "/" counter(pages);*/
+    /*  border-top: 0.5px solid #3989c6;*/
+    /*  text-align: center;*/
+    /*  font-size: 8px;*/
+    /*  font-style: italic;*/
+    /*  padding-top: 5px;*/
+    /*}*/
 
     @top-left {
       content: element(header);

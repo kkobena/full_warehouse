@@ -10,6 +10,7 @@ import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
 import { Tag } from 'primeng/tag';
+import { Drawer } from 'primeng/drawer';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 import { IStockRotation, CategorieABC } from 'app/shared/model/report/stock-rotation.model';
@@ -29,7 +30,8 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
     ToolbarModule,
     DividerModule,
     WarehouseCommonModule,
-    Tag
+    Tag,
+    Drawer
   ]
 })
 export default class StockRotationComponent implements OnInit {
@@ -39,6 +41,7 @@ export default class StockRotationComponent implements OnInit {
   selectedCategorie = signal<string | null>(null);
   selectedABC = signal<CategorieABC | null>(null);
   showSlowMovingOnly = signal<boolean>(false);
+  helpDrawerVisible = signal<boolean>(false);
 
   categorieOptions = signal<Array<{ label: string; value: string }>>([]);
   abcOptions = [
@@ -191,6 +194,10 @@ export default class StockRotationComponent implements OnInit {
     if (rate >= 3) return 'info';
     if (rate >= 1) return 'warn';
     return 'danger';
+  }
+
+  toggleHelpDrawer(): void {
+    this.helpDrawerVisible.update(value => !value);
   }
 
   // Format methods using shared utilities

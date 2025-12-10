@@ -41,6 +41,14 @@
         <div class="flex gap-2">
           <p-button
             size="small"
+            label="Aide"
+            icon="pi pi-question-circle"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleHelpDrawer()"
+          />
+          <p-button
+            size="small"
             label="Effacer les filtres"
             icon="pi pi-filter-slash"
             severity="secondary"
@@ -242,4 +250,210 @@
       </div>
     </div>
   </div>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <span class="fw-bold fs-5">Guide d'utilisation - Rotation du Stock</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que la rotation du stock ?
+        </h6>
+        <p class="text-sm text-muted">
+          La rotation du stock mesure la vitesse à laquelle un produit se vend et se renouvelle dans votre pharmacie.
+          Une bonne gestion de la rotation permet d'<strong>optimiser la trésorerie</strong>, de <strong>réduire les stocks dormants</strong>
+          et d'<strong>éviter les péremptions</strong>.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Classification ABC -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-chart-pie me-2"></i>Classification ABC de rotation
+        </h6>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag label="A" severity="success" />
+            <span class="fw-bold">Classe A - Forte rotation (z ≥ 1.96)</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits qui se vendent rapidement et régulièrement</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Maintenir un stock suffisant pour éviter les ruptures</li>
+            <li>Commander fréquemment avec des quantités adaptées</li>
+            <li>Surveiller quotidiennement les niveaux de stock</li>
+            <li>Négocier de bons prix (volumes importants)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag label="B" severity="info" />
+            <span class="fw-bold">Classe B - Rotation moyenne (1.65 ≤ z < 1.96)</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits avec une vente régulière mais modérée</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Commandes hebdomadaires ou bimensuelles</li>
+            <li>Stock de sécurité modéré</li>
+            <li>Surveillance hebdomadaire</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag label="C" severity="warn" />
+            <span class="fw-bold">Classe C - Faible rotation (z < 1.65)</span>
+          </div>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits à vente lente ou occasionnelle</p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Réduire les quantités en stock</li>
+            <li>Commander à la demande si possible</li>
+            <li>Surveiller les dates de péremption</li>
+            <li>Envisager promotions ou déréférencement</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Formules et métriques -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Formules et métriques clés
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Taux de rotation annuel</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> Quantité vendue (12 mois) / Stock moyen<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≥ 6x/an : Excellente rotation (vert)</li>
+            <li>3-6x/an : Bonne rotation (bleu)</li>
+            <li>1-3x/an : Rotation lente (orange)</li>
+            <li>< 1x/an : Stock dormant (rouge)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Jours en stock (Days of Supply)</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> (Stock actuel / Vente moyenne quotidienne) = Nombre de jours avant épuisement<br />
+            <strong>Interprétation :</strong>
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>≤ 30 jours : Stock optimal (vert)</li>
+            <li>30-60 jours : Stock acceptable (bleu)</li>
+            <li>60-90 jours : Stock excessif (orange)</li>
+            <li>> 90 jours : Stock dormant - risque de péremption (rouge)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Valeur du stock</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> Quantité en stock × Prix d'achat unitaire HT<br />
+            <strong>Utilité :</strong> Calculer le capital immobilisé dans les stocks
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Classification ABC (Score Z)</p>
+          <p class="text-sm text-muted mb-1">
+            La classification utilise un <strong>score statistique (Z-score)</strong> basé sur la quantité vendue
+            et sa variabilité pour classer les produits de manière objective :
+          </p>
+          <ul class="text-sm text-muted mb-2 ps-3">
+            <li>z ≥ 1.96 : Classe A (forte rotation, top 2.5%)</li>
+            <li>1.65 ≤ z < 1.96 : Classe B (rotation moyenne)</li>
+            <li>z < 1.65 : Classe C (faible rotation)</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Exploitation -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse
+        </h6>
+
+        <div class="alert alert-info">
+          <strong><i class="pi pi-info-circle me-2"></i>Indicateurs d'alerte :</strong>
+          <ul class="mb-0 mt-2 ps-3 text-sm">
+            <li><strong>Produit classe A avec > 60 jours en stock :</strong> Baisse de la demande ? Ajuster les commandes</li>
+            <li><strong>Produit classe C avec rotation < 1x/an :</strong> Envisager le déréférencement</li>
+            <li><strong>Stock élevé + faible CA 30j :</strong> Risque de péremption, organiser une promotion</li>
+            <li><strong>Taux rotation < 1 sur produits chers :</strong> Capital immobilisé inutilement</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Exemples pratiques -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples pratiques
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit rotation 8x/an, 25 jours en stock</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Analyse :</strong> Excellente rotation, stock optimal. Continuer la gestion actuelle.
+              Maintenir un stock de sécurité pour éviter les ruptures.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit rotation 0.5x/an, 120 jours en stock</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Analyse :</strong> Stock dormant. Actions : Vérifier date de péremption,
+              organiser une promotion, réduire drastiquement les commandes ou déréférencer.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #2196F3;">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : CA 12m élevé mais rotation faible</p>
+            <p class="text-xs text-muted mb-0">
+              <strong>Analyse :</strong> Produit cher mais à rotation lente. Optimiser les quantités commandées
+              pour libérer de la trésorerie sans impacter les ventes.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best practices -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-check-circle me-2"></i>Bonnes pratiques
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li>Analyser ce rapport mensuellement pour détecter les tendances</li>
+          <li>Croiser avec l'analyse ABC Pareto pour une vision globale</li>
+          <li>Adapter les quantités de commande selon le taux de rotation</li>
+          <li>Utiliser le filtre "Produits à faible rotation" pour identifier les stocks dormants</li>
+          <li>Privilégier les commandes fréquentes en petites quantités pour les produits classe A</li>
+        </ul>
+      </div>
+    </div>
+  </p-drawer>
 </div>

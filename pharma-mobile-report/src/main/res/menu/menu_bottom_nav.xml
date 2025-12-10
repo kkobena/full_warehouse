@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="@string/dashboard_title" />
+
+    <item
+        android:id="@+id/nav_alerts"
+        android:icon="@drawable/ic_alerts"
+        android:title="@string/alerts_title" />
+
+    <item
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_search"
+        android:title="Recherche" />
+
+    <item
+        android:id="@+id/nav_todos"
+        android:icon="@drawable/ic_todos"
+        android:title="@string/todos_title" />
+
+    <item
+        android:id="@+id/nav_performance"
+        android:icon="@drawable/ic_chart"
+        android:title="@string/performance_title" />
+
+</menu>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="8dp">
+
+    <!-- Severity Indicator -->
+    <TextView
+        android:id="@+id/tvSeverityEmoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        tools:text="🔴" />
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/tvAlertMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        tools:text="5 ruptures de stock" />
+
+    <!-- Count Badge -->
+    <TextView
+        android:id="@+id/tvAlertCount"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_badge"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        tools:text="5" />
+
+</LinearLayout>

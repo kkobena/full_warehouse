@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { lastValueFrom, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../app.constants';
 import { IRayon } from '../../shared/model/rayon.model';
 import { createRequestOptions } from '../../shared/util/request-util';
@@ -13,7 +13,7 @@ type EntityArrayResponseType = HttpResponse<IRayon[]>;
   providedIn: 'root',
 })
 export class RayonService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   private readonly resourceUrl = SERVER_API_URL + 'api/rayons';
 
@@ -36,11 +36,6 @@ export class RayonService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  async queryPromise(req?: any): Promise<IRayon[]> {
-    const options = createRequestOptions(req);
-    return await lastValueFrom(this.http.get<IRayon[]>(this.resourceUrl, { params: options }));
   }
 
   uploadFile(file: any, storageId: number): Observable<HttpResponse<IResponseDto>> {

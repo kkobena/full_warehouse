@@ -1,131 +1,207 @@
-<p-table class="pharma-table" [scrollable]="true" [value]="entites" [showGridlines]="true">
-  <ng-template #header>
-    <tr class="pharma-table-head">
-      <th rowspan="2">Date</th>
-      <th rowspan="2">Qté.init</th>
-      <th class="text-center" colspan="5">Sortie</th>
-      @if (hasDepot()) {
-        <th class="text-center" colspan="5">Entrée</th>
-      } @else {
-        <th class="text-center" colspan="4">Entrée</th>
-      }
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-history"></i>
+      <span class="pharma-toolbar-title">Transactions</span>
+    </div>
 
-      <th rowspan="2">Qté.inv</th>
-      <th rowspan="2">Ecart.inv</th>
-      <th rowspan="2">Stock</th>
-    </tr>
-    <tr class="pharma-table-head">
-      <th>Vente</th>
-      <th>Retour.four</th>
-      <th>Qté.périmée</th>
-      <th>Qté.ajustée</th>
-      <th>Qté.décon</th>
-      <th>Qté.entrée</th>
-      <th>Qté.ajustée</th>
-      <th>Qté.décon</th>
-      <th>Qté.annullée</th>
-      @if (hasDepot()) {
-        <th>Retour.dépôt</th>
-      }
-    </tr>
-  </ng-template>
-  <ng-template let-columns="columns" let-elRow #body>
-    <tr [pSelectableRow]="elRow">
-      <td class="text-center">{{ elRow.mvtDate | date: 'dd/MM/yyyy' }}</td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.initStock | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.saleQuantity }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.retourFournisseurQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.perimeQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.ajustementNegatifQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.deconNegatifQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.deleveryQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.ajustementPositifQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.deconPositifQuantity | number }}</span>
-      </td>
-      <td class="text-right text-danger">
-        <span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span>
-      </td>
-      @if (hasDepot()) {
-        <td class="text-right">
-          <span class="pharma-qty-value">{{ elRow.retourDepot | number }}</span>
-        </td>
-      }
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div style="min-width: 300px; flex: 1 1 auto">
+            <jhi-produit-autocomplete
+              (onClear)="onClear($event)"
+              (selectedProduit)="onSelect($event)"
+              [(ngModel)]="produit"
+              [autofocus]="true"
+              [includeDetails]="true"
+              [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+            />
+          </div>
 
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.storeInventoryQuantity | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-qty-value">{{ elRow.inventoryGap | number }}</span>
-      </td>
-      <td class="text-right">
-        <span class="pharma-total">{{ elRow.afterStock | number }}</span>
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template #footer>
-    @if (entites && entites.length > 0) {
-      <tr class="pharma-table-footer">
-        <td colspan="2"><span class="pharma-footer-label">TOTAUX</span></td>
+          <jhi-date-picker
+            #dateDebut
+            [disabled]="false"
+            [id]="'du'"
+            [label]="'warehouseApp.labels.du'"
+            [max]="toDate"
+            [style]="{ 'max-width': '150px' }"
+          />
+          <jhi-date-picker
+            #dateFin
+            (onSelect)="updateParam()"
+            [defaultDate]="defaultDate"
+            [disabled]="false"
+            [id]="'au'"
+            [label]="'warehouseApp.labels.au'"
+            [min]="fromDate"
+            [style]="{ 'max-width': '150px' }"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="load()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            @if (produit) {
+              <p-button
+                (click)="exportPdf()"
+                [raised]="true"
+                icon="pi pi-file-pdf"
+                label="Imprimer"
+                pTooltip="Imprimer"
+                severity="warn"
+                tooltipPosition="top"
+                type="button"
+              />
+            }
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+  <p-table [scrollable]="true" [showGridlines]="true" [value]="entites" class="pharma-table">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th rowspan="2">Date</th>
+        <th rowspan="2">Qté.init</th>
+        <th class="text-center" colspan="5">Sortie</th>
+        @if (hasDepot()) {
+          <th class="text-center" colspan="5">Entrée</th>
+        } @else {
+          <th class="text-center" colspan="4">Entrée</th>
+        }
+
+        <th rowspan="2">Qté.inv</th>
+        <th rowspan="2">Ecart.inv</th>
+        <th rowspan="2">Stock</th>
+      </tr>
+      <tr class="pharma-table-head">
+        <th>Vente</th>
+        <th>Retour.four</th>
+        <th>Qté.périmée</th>
+        <th>Qté.ajustée</th>
+        <th>Qté.décon</th>
+        <th>Qté.entrée</th>
+        <th>Qté.ajustée</th>
+        <th>Qté.décon</th>
+        <th>Qté.annullée</th>
+        @if (hasDepot()) {
+          <th>Retour.dépôt</th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #body let-columns="columns" let-elRow>
+      <tr [pSelectableRow]="elRow">
+        <td class="text-center">{{ elRow.mvtDate | date: 'dd/MM/yyyy' }}</td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ saleQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.initStock | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ retourFournisseurQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.saleQuantity }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ perimeQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.retourFournisseurQuantity | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ ajustementNegatifQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.perimeQuantity | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.ajustementNegatifQuantity | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ deleveryQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.deconNegatifQuantity | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ ajustementPositifQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.deleveryQuantity | number }}</span>
         </td>
         <td class="text-right">
-          <span class="pharma-footer-value">{{ deconPositifQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.ajustementPositifQuantity | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ elRow.deconPositifQuantity | number }}</span>
         </td>
         <td class="text-right text-danger">
-          <span class="pharma-footer-value">{{ canceledQuantity | number }}</span>
+          <span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span>
         </td>
         @if (hasDepot()) {
-          <td class="text-right text-danger">
-            <span class="pharma-footer-value">{{ retourDepot | number }}</span>
+          <td class="text-right">
+            <span class="pharma-qty-value">{{ elRow.retourDepot | number }}</span>
           </td>
         }
-        <td colspan="3"></td>
+
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ elRow.storeInventoryQuantity | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ elRow.inventoryGap | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-total">{{ elRow.afterStock | number }}</span>
+        </td>
       </tr>
-    }
-  </ng-template>
-  <ng-template let-columns #emptymessage>
-    <tr>
-      @if (hasDepot()) {
-        <td [attr.colspan]="15">Aucune donnée trouvée</td>
-      } @else {
-        <td [attr.colspan]="14">Aucune donnée trouvée</td>
+    </ng-template>
+    <ng-template #footer>
+      @if (entites && entites.length > 0) {
+        <tr class="pharma-table-footer">
+          <td colspan="2"><span class="pharma-footer-label">TOTAUX</span></td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ saleQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ retourFournisseurQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ perimeQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ ajustementNegatifQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ deleveryQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ ajustementPositifQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ deconPositifQuantity | number }}</span>
+          </td>
+          <td class="text-right text-danger">
+            <span class="pharma-footer-value">{{ canceledQuantity | number }}</span>
+          </td>
+          @if (hasDepot()) {
+            <td class="text-right text-danger">
+              <span class="pharma-footer-value">{{ retourDepot | number }}</span>
+            </td>
+          }
+          <td colspan="3"></td>
+        </tr>
       }
-    </tr>
-  </ng-template>
-</p-table>
+    </ng-template>
+    <ng-template #emptymessage let-columns>
+      <tr>
+        @if (hasDepot()) {
+          <td [attr.colspan]="15">Aucune donnée trouvée</td>
+        } @else {
+          <td [attr.colspan]="14">Aucune donnée trouvée</td>
+        }
+      </tr>
+    </ng-template>
+  </p-table>
+
+
+</div>

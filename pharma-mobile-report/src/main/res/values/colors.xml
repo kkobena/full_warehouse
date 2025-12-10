@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors (Pharma Theme) - Same as sales-android -->
+    <color name="primary">#5B89A6</color>
+    <color name="primary_dark">#4A7189</color>
+    <color name="primary_light">#E8F4F8</color>
+    <color name="primary_variant">#3D5A73</color>
+
+    <!-- Secondary/Accent Colors -->
+    <color name="secondary">#00A86B</color>
+    <color name="secondary_variant">#008F5B</color>
+    <color name="accent">#00A86B</color>
+
+    <!-- Status Colors -->
+    <color name="success">#28A745</color>
+    <color name="success_light">#D4EDDA</color>
+    <color name="error">#DC3545</color>
+    <color name="error_light">#F8D7DA</color>
+    <color name="warning">#FFC107</color>
+    <color name="warning_light">#FFF3CD</color>
+    <color name="info">#17A2B8</color>
+    <color name="info_light">#D1ECF1</color>
+
+    <!-- Gray Scale (Tailwind-like) -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#9CA3AF</color>
+    <color name="gray_500">#6B7280</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_800">#1F2937</color>
+    <color name="gray_900">#111827</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#9CA3AF</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_secondary">#FFFFFF</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#F9FAFB</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F3F4F6</color>
+
+    <!-- Card Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_stroke">#E5E7EB</color>
+    <color name="divider">#E5E7EB</color>
+
+    <!-- Alert Colors for Cards -->
+    <color name="alert_critical_bg">#FEE2E2</color>
+    <color name="alert_critical_text">#991B1B</color>
+    <color name="alert_warning_bg">#FEF3C7</color>
+    <color name="alert_warning_text">#92400E</color>
+    <color name="alert_info_bg">#DBEAFE</color>
+    <color name="alert_info_text">#1E40AF</color>
+    <color name="alert_success_bg">#D1FAE5</color>
+    <color name="alert_success_text">#065F46</color>
+
+    <!-- Chart Colors -->
+    <color name="chart_primary">#3B82F6</color>
+    <color name="chart_secondary">#10B981</color>
+    <color name="chart_tertiary">#F59E0B</color>
+    <color name="chart_quaternary">#EF4444</color>
+    <color name="chart_grid">#E5E7EB</color>
+
+    <!-- Basic Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="background">#F9FAFB</color>
+
+    <!-- Launcher Icon Colors -->
+    <color name="ic_launcher_background">#5B89A6</color>
+</resources>

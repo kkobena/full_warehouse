@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgbNavChangeEvent, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -46,6 +47,7 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
   imports: [
     CommonModule,
     FormsModule,
+    NgbNavModule,
     TableModule,
     ButtonModule,
     SelectModule,
@@ -65,10 +67,13 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 })
 export default class RecapProduitVenduComponent implements OnInit {
   protected products = signal<IRecapProduitVendu[]>([]);
+  protected unsoldProducts = signal<IRecapProduitVendu[]>([]);
   protected summary = signal<IRecapProduitVenduSummary | null>(null);
+  protected unsoldSummary = signal<IRecapProduitVenduSummary | null>(null);
   protected isLoading = signal<boolean>(false);
   protected helpDrawerVisible = signal<boolean>(false);
   protected filtersDrawerVisible = signal<boolean>(false);
+  protected activeTab = signal<string>('vendus');
 
   // Basic Filters
   protected startDate = signal<Date | null>(this.getFirstDayOfMonth());
@@ -149,6 +154,19 @@ export default class RecapProduitVenduComponent implements OnInit {
     },
   ]);
 
+  protected exportInvenduMenuItems = signal<MenuItem[]>([
+    {
+      label: 'Excel',
+      icon: 'pi pi-file-excel',
+      command: () => this.exportInvenduToExcel(),
+    },
+    {
+      label: 'CSV',
+      icon: 'pi pi-file',
+      command: () => this.exportInvenduToCsv(),
+    },
+  ]);
+
   protected rayonOptions = signal<IRayon[]>([]);
   protected fournisseurOptions = signal<IFournisseur[]>([]);
   protected userOptions = signal<IUser[]>([]);
@@ -171,6 +189,14 @@ export default class RecapProduitVenduComponent implements OnInit {
     this.loadFournisseur();
 
     this.loadData();
+  }
+
+  protected onTabChange(event: NgbNavChangeEvent): void {
+    this.activeTab.set(event.nextId);
+    if (event.nextId === 'invendus') {
+      this.loadUnsoldProducts();
+      this.loadUnsoldSummary();
+    }
   }
   loadUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
@@ -398,6 +424,79 @@ export default class RecapProduitVenduComponent implements OnInit {
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurOptions.set(res.body || []);
+      });
+  }
+
+  protected loadUnsoldProducts(): void {
+    this.isLoading.set(true);
+    const requestParam = this.buildRequestParam();
+
+    this.recapService
+      .getRecapProduitInvenduReport({
+        ...requestParam,
+        page: this.page - 1,
+        size: this.itemsPerPage,
+      })
+      .subscribe({
+        next: (res: HttpResponse<IRecapProduitVendu[]>) => {
+          this.unsoldProducts.set(res.body ?? []);
+          this.totalItems = Number(res.headers.get('X-Total-Count')) || 0;
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  protected loadUnsoldSummary(): void {
+    const requestParam = this.buildRequestParam();
+    this.recapService.getRecapProduitInvenduSummary(requestParam).subscribe({
+      next: (res: HttpResponse<IRecapProduitVenduSummary>) => {
+        this.unsoldSummary.set(res.body ?? null);
+      },
+    });
+  }
+
+  protected exportInvenduToExcel(): void {
+    const requestParam = this.buildRequestParam();
+    this.spinner().show();
+    this.recapService
+      .exportInvenduToExcel(requestParam)
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<Blob>) => {
+          if (res.body) {
+            const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `recap-produit-invendu-${new Date().getTime()}.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          }
+        },
+      });
+  }
+
+  protected exportInvenduToCsv(): void {
+    const requestParam = this.buildRequestParam();
+    this.spinner().show();
+    this.recapService
+      .exportInvenduToCsv(requestParam)
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<Blob>) => {
+          if (res.body) {
+            const blob = new Blob([res.body], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `recap-produit-invendu-${new Date().getTime()}.csv`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          }
+        },
       });
   }
 

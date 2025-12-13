@@ -6,9 +6,11 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.kobe.warehouse.reports.BuildConfig
 import com.kobe.warehouse.reports.PharmaReportApplication
 import com.kobe.warehouse.reports.R
 import com.kobe.warehouse.reports.ui.activity.AlertsActivity
@@ -23,6 +25,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Firebase Cloud Messaging service for handling push notifications.
+ * Can be enabled/disabled via BuildConfig.FIREBASE_ENABLED
  */
 class PharmaFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -30,6 +33,7 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
     companion object {
+        private const val TAG = "PharmaFCM"
         private const val CHANNEL_NAME_ALERTS = "Alertes"
         private const val CHANNEL_NAME_DAILY = "Resume quotidien"
 
@@ -59,6 +63,13 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
+
+        // Check if Firebase is enabled
+        if (!BuildConfig.FIREBASE_ENABLED) {
+            Log.d(TAG, "Firebase is disabled. Ignoring FCM token.")
+            return
+        }
+
         // Save token locally
         TokenManager.getInstance(applicationContext).saveFcmToken(token)
 
@@ -67,8 +78,10 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
             try {
                 val repository = PharmaReportApplication.getRepository()
                 repository.registerFcmToken(token)
+                Log.d(TAG, "FCM token registered successfully")
             } catch (e: Exception) {
                 // Token will be registered on next login
+                Log.e(TAG, "Failed to register FCM token", e)
                 e.printStackTrace()
             }
         }
@@ -76,6 +89,12 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
+
+        // Check if Firebase is enabled
+        if (!BuildConfig.FIREBASE_ENABLED) {
+            Log.d(TAG, "Firebase is disabled. Ignoring push notification.")
+            return
+        }
 
         // Handle notification payload
         remoteMessage.notification?.let { notification ->

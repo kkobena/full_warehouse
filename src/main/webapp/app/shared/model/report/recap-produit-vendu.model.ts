@@ -12,10 +12,12 @@ export interface IRecapProduitVendu {
 }
 
 export interface IRecapProduitVenduSummary {
+  totalProducts?: number;
   quantitySold?: number;
   quantityAvoir?: number;
   totalSalesAmount?: number;
   totalPurchaseAmount?: number;
+  totalStock?: number;
 }
 
 export enum SeuilFilterType {

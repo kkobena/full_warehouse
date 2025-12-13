@@ -1,10 +1,12 @@
 package com.kobe.warehouse.web.rest.reassort;
 
+import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.dto.ManualRepartitionRequest;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -12,9 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,8 +58,8 @@ public class RepartitionStockResource {
         @RequestParam(required = false) Integer storageId,
         @RequestParam(required = false) Integer userId,
         @RequestParam(required = false) String searchTerm,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
         @RequestParam(required = false) String typeRepartition,
         @RequestParam(required = false) Integer stockProduitId,
         Pageable pageable
@@ -65,7 +72,7 @@ public class RepartitionStockResource {
             searchTerm,
             dateDebut,
             dateFin,
-            typeRepartition != null ? com.kobe.warehouse.domain.enumeration.TypeRepartition.valueOf(typeRepartition) : null,
+            typeRepartition != null ? TypeRepartition.valueOf(typeRepartition) : null,
             stockProduitId
         );
 

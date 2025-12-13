@@ -11,13 +11,21 @@ import java.io.IOException;
 public interface RecapProduitVenduService {
     Page<RecapProduitVendu> getRecapProduitVenduReport(RecapProduitVenduRequestParam requestParam, Pageable pageable);
 
+    Page<RecapProduitVendu> getRecapProduitInvenduReport(RecapProduitVenduRequestParam requestParam, Pageable pageable);
+
     RecapProduitVenduSummary getRecapProduitVenduSummary(RecapProduitVenduRequestParam requestParam);
+
+    RecapProduitVenduSummary getRecapProduitInvenduSummary(RecapProduitVenduRequestParam requestParam);
 
     byte[] exportToPdf(RecapProduitVenduRequestParam requestParam);
 
     byte[] exportToExcel(RecapProduitVenduRequestParam requestParam) throws IOException;
 
     byte[] exportToCsv(RecapProduitVenduRequestParam requestParam) throws IOException;
+
+    byte[] exportInvenduToExcel(RecapProduitVenduRequestParam requestParam) throws IOException;
+
+    byte[] exportInvenduToCsv(RecapProduitVenduRequestParam requestParam) throws IOException;
 
     int createSuggestionFromRecapProduitVendu(RecapProduitVenduRequestParam requestParam);
 

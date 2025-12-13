@@ -30,6 +30,22 @@ export class RecapProduitVenduService {
   }
 
   /**
+   * Get paginated recap produit invendu report
+   */
+  getRecapProduitInvenduReport(requestParam: IRecapProduitVenduRequestParam): Observable<EntityArrayResponseType> {
+    const params = createRequestOptions(requestParam);
+    return this.http.get<IRecapProduitVendu[]>(`${this.resourceUrl}/invendus`, { params, observe: 'response' });
+  }
+
+  /**
+   * Get summary for unsold products
+   */
+  getRecapProduitInvenduSummary(requestParam: IRecapProduitVenduRequestParam): Observable<SummaryResponseType> {
+    const params = createRequestOptions(requestParam);
+    return this.http.get<IRecapProduitVenduSummary>(`${this.resourceUrl}/invendus/summary`, { params, observe: 'response' });
+  }
+
+  /**
    * Export to PDF
    */
   exportToPdf(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
@@ -51,7 +67,23 @@ export class RecapProduitVenduService {
   exportToCsv(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
     const params = createRequestOptions(requestParam);
 
-    return this.http.get(`${this.resourceUrl}/export/csv`, { params, responseType: 'blob', observe: 'response' });
+    return this.http.get(`${this.resourceUrl}/csv`, { params, responseType: 'blob', observe: 'response' });
+  }
+
+  /**
+   * Export unsold products to Excel
+   */
+  exportInvenduToExcel(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
+    const params = createRequestOptions(requestParam);
+    return this.http.get(`${this.resourceUrl}/invendus/excel`, { params, responseType: 'blob', observe: 'response' });
+  }
+
+  /**
+   * Export unsold products to CSV
+   */
+  exportInvenduToCsv(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
+    const params = createRequestOptions(requestParam);
+    return this.http.get(`${this.resourceUrl}/invendus/csv`, { params, responseType: 'blob', observe: 'response' });
   }
 
   /**

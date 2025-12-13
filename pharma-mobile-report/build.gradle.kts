@@ -21,6 +21,9 @@ android {
 
         // Default base URL for API calls
         buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9080/\"")
+
+        // Firebase configuration
+        buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
     }
 
     signingConfigs {
@@ -45,6 +48,9 @@ android {
 
             // Production API URL
             buildConfigField("String", "BASE_URL", "\"https://api.pharmasmart.com/\"")
+
+            // Firebase enabled in production by default
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
         }
         debug {
             isMinifyEnabled = false
@@ -53,6 +59,9 @@ android {
 
             // Debug API URL (emulator)
             buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9080/\"")
+
+            // Firebase can be disabled in debug for testing
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
         }
     }
 

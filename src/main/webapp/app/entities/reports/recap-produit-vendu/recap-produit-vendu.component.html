@@ -187,17 +187,25 @@
     </div>
   }
 
-  <!-- Products Table -->
+  <!-- Tabs -->
   <div class="row mt-3">
-    <div class="col-12 mb-2">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-table text-info"></i>
-            Produits Vendus
-          </h5>
-        </div>
-        <div class="card-body p-0">
+    <div class="col-12">
+      <ul [ngbNav]="nav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs" orientation="horizontal">
+        <li [ngbNavItem]="'vendus'">
+          <a ngbNavLink>
+            <i class="pi pi-shopping-cart me-2"></i>
+            <span>Produits Vendus</span>
+          </a>
+          <ng-template ngbNavContent>
+            <!-- Products Table -->
+            <div class="card h-100 data-card mt-3">
+              <div class="card-header">
+                <h5 class="card-title">
+                  <i class="pi pi-table text-info"></i>
+                  Produits Vendus
+                </h5>
+              </div>
+              <div class="card-body p-0">
           <p-table
             (onPage)="onPageChange($event)"
             [lazy]="true"
@@ -272,8 +280,144 @@
               </tr>
             </ng-template>
           </p-table>
-        </div>
-      </div>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+
+        <li [ngbNavItem]="'invendus'">
+          <a ngbNavLink>
+            <i class="pi pi-times-circle me-2"></i>
+            <span>Produits Invendus</span>
+          </a>
+          <ng-template ngbNavContent>
+            <!-- Unsold Summary Cards -->
+            @if (unsoldSummary()) {
+              <div class="row g-3 mb-3 mt-2">
+              <div class="col-md-6">
+                <div class="card pharma-stat-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <p class="text-muted mb-1 small">Nombre de produits</p>
+                        <h4 class="mb-0 fw-bold">{{ unsoldSummary()?.totalProducts | number }}</h4>
+                      </div>
+                      <div class="pharma-stat-icon bg-info-subtle">
+                        <i class="pi pi-box text-info"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card pharma-stat-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <p class="text-muted mb-1 small">Stock Total</p>
+                        <h4 class="mb-0 fw-bold">{{ unsoldSummary()?.totalStock | number }}</h4>
+                      </div>
+                      <div class="pharma-stat-icon bg-warning-subtle">
+                        <i class="pi pi-database text-warning"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            }
+
+            <!-- Export Buttons for Unsold -->
+            <div class="d-flex justify-content-end gap-2 mb-3">
+              <p-splitbutton
+                [model]="exportInvenduMenuItems()"
+                icon="pi pi-file-excel"
+                label="Exporter"
+                severity="success"
+                size="small"
+              />
+            </div>
+
+            <!-- Unsold Products Table -->
+            <div class="card h-100 data-card">
+              <div class="card-header">
+                <h5 class="card-title">
+                  <i class="pi pi-table text-warning"></i>
+                  Produits Invendus
+                </h5>
+              </div>
+              <div class="card-body p-0">
+                <p-table
+                  (onPage)="onPageChange($event)"
+                  [lazy]="true"
+                  [loading]="isLoading()"
+                  [paginator]="true"
+                  [rowsPerPageOptions]="[10, 20, 50, 100]"
+                  [rows]="itemsPerPage"
+                  [showCurrentPageReport]="true"
+                  [totalRecords]="totalItems"
+                  [value]="unsoldProducts()"
+                  class="p-datatable-sm pharma-table"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>Produit</th>
+                      <th>Code CIP</th>
+                      <th>Code EAN</th>
+                      <th>Rayon</th>
+                      <th class="text-end">Stock</th>
+                      <th class="text-end">Seuil Mini</th>
+                      <th class="text-end">Prix Vente</th>
+                      <th class="text-end">Coût Achat</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template #body let-product>
+                    <tr>
+                      <td>{{ product.libelle }}</td>
+                      <td><span class="pharma-code">{{ product.codeCip }}</span></td>
+                      <td><span class="pharma-code">{{ product.codeEanLaboratoire }}</span></td>
+                      <td>{{ product.rayonName }}</td>
+                      <td class="text-end">
+                        <span
+                          [ngClass]="{
+                            'bg-success-subtle text-success': (product.stock || 0) > 50,
+                            'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                            'bg-danger-subtle text-danger': (product.stock || 0) <= 10
+                          }"
+                          class="px-2 py-1 rounded fw-semibold"
+                        >
+                          {{ product.stock || 0 | number }}
+                        </span>
+                      </td>
+                      <td class="text-end">{{ product.seuilMini || 0 | number }}</td>
+                      <td class="text-end pharma-price">{{
+                          product.unitPrice || 0 | number:'1.0-0'
+                        }} F
+                      </td>
+                      <td class="text-end pharma-price">{{
+                          product.purchasePrice || 0 | number:'1.0-0'
+                        }} F
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template #emptymessage>
+                    <tr>
+                      <td class="text-center p-4" colspan="8">
+                        <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="mt-3 text-muted">Aucun produit invendu trouvé</p>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
 

@@ -1,0 +1,72 @@
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { IRepartitionStockProduit } from '../repartition-stock.model';
+import { RepartitionStockService } from '../repartition-stock.service';
+import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+
+
+@Component({
+  selector: 'jhi-repartition-list',
+  templateUrl: './repartition-list.component.html',
+  styleUrls: ['./repartition-list.component.scss'],
+  imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
+})
+export class RepartitionListComponent implements OnInit {
+  @Input() searchTerm = '';
+  @Input() fromDate?: Date;
+  @Input() toDate?: Date;
+
+  protected repartitionService = inject(RepartitionStockService);
+  protected modalService = inject(NgbModal);
+  protected rowData: IRepartitionStockProduit[] = [];
+  protected loading = false;
+  protected totalItems = 0;
+  protected itemsPerPage = 20;
+  protected page = 0;
+
+  ngOnInit(): void {
+    this.loadAll();
+  }
+
+  onSearch(): void {
+    this.page = 0;
+    this.loadAll();
+  }
+
+  protected loadAll(): void {
+    this.loading = true;
+    this.repartitionService
+      .query({
+        page: this.page,
+        size: this.itemsPerPage,
+        searchTerm: this.searchTerm,
+        dateDebut: this.fromDate,
+        dateFin: this.toDate,
+      })
+      .subscribe({
+        next: (res: HttpResponse<IRepartitionStockProduit[]>) => {
+          this.onSuccess(res.body, res.headers);
+        },
+        error: () => {
+          this.loading = false;
+        },
+      });
+  }
+
+  protected onSuccess(data: IRepartitionStockProduit[] | null, headers: any): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.rowData = data ?? [];
+    this.loading = false;
+  }
+
+  protected onPageChange(event: any): void {
+    this.page = event.page;
+    this.itemsPerPage = event.rows;
+    this.loadAll();
+  }
+}

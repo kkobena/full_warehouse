@@ -79,7 +79,7 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
         cashSale.setCustomer(uninsuredCustomer);
         List<SalesLine> saleLines = salesLineService.createSaleLinesFromDTO(cashSale,
             dto.getSalesLines(),
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         cashSale.setSalesLines(Set.copyOf(saleLines));
         prevalideSale(cashSale);
@@ -89,7 +89,7 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
         finalizeSale(cashSale, dto);
         CashSale sale = cashSaleRepository.save(cashSale);
         paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto);
-        salesLineService.saveAllSalesLines(cashSale.getSalesLines(), user, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.saveAllSalesLines(cashSale.getSalesLines(), user, storageService.getDefaultConnectedUserMainStorage().getId());
 
 
         return new FinalyseSaleDTO(sale.getId(), true);

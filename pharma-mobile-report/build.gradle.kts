@@ -23,16 +23,36 @@ android {
         buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9080/\"")
     }
 
+    signingConfigs {
+        create("release") {
+            // For production, use environment variables or gradle.properties
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "keystore/release.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pharmasmart"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "pharma-report"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "pharmasmart"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+
+            // Production API URL
+            buildConfigField("String", "BASE_URL", "\"https://api.pharmasmart.com/\"")
         }
         debug {
             isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
+
+            // Debug API URL (emulator)
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9080/\"")
         }
     }
 
@@ -49,6 +69,17 @@ android {
         viewBinding = true
         dataBinding = true
         buildConfig = true
+    }
+
+    packaging {
+        resources {
+            excludes += listOf(
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt"
+            )
+        }
     }
 }
 
@@ -99,10 +130,19 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
 
+    // WorkManager (for background sync)
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
+
+    // TensorFlow Lite (ML Forecasting)
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
 
     // Testing
     testImplementation(libs.junit)

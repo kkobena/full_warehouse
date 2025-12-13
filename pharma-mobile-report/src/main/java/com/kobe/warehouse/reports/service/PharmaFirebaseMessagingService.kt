@@ -30,8 +30,6 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
     companion object {
-        private const val CHANNEL_ID_ALERTS = "pharma_alerts"
-        private const val CHANNEL_ID_DAILY = "pharma_daily"
         private const val CHANNEL_NAME_ALERTS = "Alertes"
         private const val CHANNEL_NAME_DAILY = "Resume quotidien"
 
@@ -53,6 +51,10 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
         const val KEY_SALE_ID = "saleId"
         const val KEY_DATE = "date"
         const val KEY_ACTION = "action"
+
+        // Make channels publicly accessible
+        const val CHANNEL_ID_ALERTS = "pharma_alerts"
+        const val CHANNEL_ID_DAILY = "pharma_daily"
     }
 
     override fun onNewToken(token: String) {
@@ -92,65 +94,38 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun handleDataMessage(data: Map<String, String>) {
         val type = data[KEY_TYPE] ?: return
+        val groupManager = NotificationGroupManager.getInstance(applicationContext)
 
-        when (type) {
+        val (title, body) = when (type) {
             TYPE_STOCK_RUPTURE, TYPE_STOCK_LOW -> {
-                showNotification(
-                    title = "Alerte Stock",
-                    body = data["message"] ?: "Verifiez le stock",
-                    data = data,
-                    channelId = CHANNEL_ID_ALERTS
-                )
+                Pair("Alerte Stock", data["message"] ?: "Verifiez le stock")
             }
             TYPE_EXPIRY -> {
-                showNotification(
-                    title = "Peremption proche",
-                    body = data["message"] ?: "Produits a verifier",
-                    data = data,
-                    channelId = CHANNEL_ID_ALERTS
-                )
+                Pair("Peremption proche", data["message"] ?: "Produits a verifier")
             }
             TYPE_CASH_DISCREPANCY -> {
-                showNotification(
-                    title = "Ecart de caisse",
-                    body = data["message"] ?: "Verifiez la caisse",
-                    data = data,
-                    channelId = CHANNEL_ID_ALERTS
-                )
+                Pair("Ecart de caisse", data["message"] ?: "Verifiez la caisse")
             }
             TYPE_INVOICE_OVERDUE -> {
-                showNotification(
-                    title = "Facture impayee",
-                    body = data["message"] ?: "Facture a relancer",
-                    data = data,
-                    channelId = CHANNEL_ID_ALERTS
-                )
+                Pair("Facture impayee", data["message"] ?: "Facture a relancer")
             }
             TYPE_DAILY_DIGEST -> {
-                showNotification(
-                    title = "Resume quotidien",
-                    body = data["message"] ?: "Votre resume du jour",
-                    data = data,
-                    channelId = CHANNEL_ID_DAILY
-                )
+                Pair("Resume quotidien", data["message"] ?: "Votre resume du jour")
             }
             TYPE_TARGET_REACHED -> {
-                showNotification(
-                    title = "Objectif atteint!",
-                    body = data["message"] ?: "Bravo!",
-                    data = data,
-                    channelId = CHANNEL_ID_DAILY
-                )
+                Pair("Objectif atteint!", data["message"] ?: "Bravo!")
             }
             TYPE_HIGH_VALUE_SALE -> {
-                showNotification(
-                    title = "Grosse vente!",
-                    body = data["message"] ?: "Nouvelle vente importante",
-                    data = data,
-                    channelId = CHANNEL_ID_DAILY
-                )
+                Pair("Grosse vente!", data["message"] ?: "Nouvelle vente importante")
             }
+            else -> return
         }
+
+        // Use NotificationGroupManager for intelligent grouping
+        groupManager.addNotification(title, body, type, data)
+
+        // Update badge count
+        updateBadgeCount(groupManager.getTotalBadgeCount())
     }
 
     private fun showNotification(
@@ -242,6 +217,23 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
 
             notificationManager.createNotificationChannel(alertsChannel)
             notificationManager.createNotificationChannel(dailyChannel)
+        }
+    }
+
+    /**
+     * Update app badge count.
+     */
+    private fun updateBadgeCount(count: Int) {
+        try {
+            // Update badge using ShortcutBadger or native method
+            val intent = Intent("android.intent.action.BADGE_COUNT_UPDATE")
+            intent.putExtra("badge_count", count)
+            intent.putExtra("badge_count_package_name", applicationContext.packageName)
+            intent.putExtra("badge_count_class_name", "${applicationContext.packageName}.ui.activity.DashboardActivity")
+            applicationContext.sendBroadcast(intent)
+        } catch (e: Exception) {
+            // Badge update not supported on all launchers
+            e.printStackTrace()
         }
     }
 

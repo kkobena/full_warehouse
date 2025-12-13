@@ -1,0 +1,260 @@
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/table-common';
+
+.repartition-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.stock-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 200px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+
+  &.source-card {
+    border-color: #3498db;
+    background: linear-gradient(135deg, #ebf5fb 0%, #d6eaf8 100%);
+  }
+
+  &.destination-card {
+    border-color: #2ecc71;
+    background: linear-gradient(135deg, #eafaf1 0%, #d5f4e6 100%);
+  }
+
+  .stock-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+
+    .stock-storage-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+    }
+
+    .stock-type-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #3498db;
+      color: white;
+
+      &.reserve-badge {
+        background: #e67e22;
+      }
+    }
+  }
+
+  .stock-card-body {
+    .produit-info {
+      margin-bottom: 1rem;
+
+      .produit-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+      }
+
+      .produit-code {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+    }
+
+    .stock-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      .stock-detail-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        label {
+          font-size: 0.85rem;
+          color: #7f8c8d;
+          font-weight: 500;
+          margin: 0;
+        }
+
+        .stock-value {
+          font-size: 1.1rem;
+          font-weight: 700;
+          padding: 0.25rem 0.75rem;
+          border-radius: 6px;
+
+          &.available {
+            background: #d5f4e6;
+            color: #27ae60;
+          }
+
+          &.current {
+            background: #fef5e7;
+            color: #f39c12;
+          }
+
+          &.after {
+            background: #d5f4e6;
+            color: #27ae60;
+          }
+        }
+
+        &.quantity-input {
+          padding: 0.5rem;
+          background: white;
+          border-radius: 6px;
+          border: 1px solid #dee2e6;
+        }
+
+        &.transfer-arrow {
+          justify-content: center;
+
+          i {
+            font-size: 1.5rem;
+            color: #3498db;
+          }
+        }
+      }
+    }
+  }
+}
+
+.select-destination {
+  padding: 2rem;
+  text-align: center;
+  background: white;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-destination {
+  padding: 2rem;
+  text-align: center;
+  color: #95a5a6;
+  font-style: italic;
+  background: white;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.destination-option {
+  padding: 0.5rem 0;
+
+  .destination-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+  }
+
+  .destination-type {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-bottom: 0.25rem;
+  }
+
+  .destination-stock {
+    font-size: 0.85rem;
+    color: #3498db;
+    font-weight: 500;
+  }
+}
+
+.change-destination {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.invalid-row {
+  background-color: #fff5f5 !important;
+
+  .stock-card {
+    border-color: #e74c3c !important;
+  }
+}
+
+.error-row {
+  background-color: #fff5f5;
+  padding: 0.5rem 1rem !important;
+
+  small {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+  }
+}
+
+.summary-footer {
+  .alert {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #95a5a6;
+
+  i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  h4 {
+    font-weight: 600;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #95a5a6;
+    font-size: 0.95rem;
+  }
+}
+
+::ng-deep {
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background-color: #2c3e50;
+      color: white;
+      font-weight: 600;
+      border-bottom: none;
+      padding: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 1rem;
+      vertical-align: top;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .p-datatable-tbody > tr:hover {
+      background-color: transparent;
+    }
+  }
+}

@@ -1,28 +1,38 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "repartition_stock_produit")
+@Table(name = "repartition_stock_produit",
+    indexes = {@Index(columnList = "type_repartition", name = "type_repartition_index")
+    }
+)
 public class RepartitionStockProduit implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    @ManyToOne(optional = false)
-    @NotNull
+    @ManyToOne
     @JoinColumn(name = "stock_produit_source_id", referencedColumnName = "id")
     private StockProduit stockProduitSource;
 
@@ -30,14 +40,6 @@ public class RepartitionStockProduit implements Serializable {
     @NotNull
     @JoinColumn(name = "stock_produit_destination_id", referencedColumnName = "id")
     private StockProduit stockProduitDestination;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    private Produit produit;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -51,12 +53,10 @@ public class RepartitionStockProduit implements Serializable {
     @Column(name = "qty_mvt", nullable = false)
     private Integer qtyMvt;
 
-    @NotNull
-    @Column(name = "source_init_stock", nullable = false)
+    @Column(name = "source_init_stock")
     private Integer sourceInitStock;
 
-    @NotNull
-    @Column(name = "source_final_stock", nullable = false)
+    @Column(name = "source_final_stock")
     private Integer sourceFinalStock;
 
     @NotNull
@@ -66,104 +66,97 @@ public class RepartitionStockProduit implements Serializable {
     @NotNull
     @Column(name = "dest_final_stock", nullable = false)
     private Integer destFinalStock;
-
-    public @NotNull StockProduit getStockProduitSource() {
-        return stockProduitSource;
-    }
-
-    public RepartitionStockProduit setStockProduitSource(StockProduit stockProduitSource) {
-        this.stockProduitSource = stockProduitSource;
-        return this;
-    }
-
-    public @NotNull StockProduit getStockProduitDestination() {
-        return stockProduitDestination;
-    }
-
-    public RepartitionStockProduit setStockProduitDestination(StockProduit stockProduitDestination) {
-        this.stockProduitDestination = stockProduitDestination;
-        return this;
-    }
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "type_repartition", nullable = false)
+    private TypeRepartition typeRepartition;
 
     public Integer getId() {
         return id;
     }
 
-    public RepartitionStockProduit setId(Integer id) {
+    public void setId(Integer id) {
         this.id = id;
-        return this;
     }
 
-    public @NotNull Produit getProduit() {
-        return produit;
+    public StockProduit getStockProduitSource() {
+        return stockProduitSource;
     }
 
-    public RepartitionStockProduit setProduit(Produit produit) {
-        this.produit = produit;
-        return this;
+    public void setStockProduitSource(StockProduit stockProduitSource) {
+        this.stockProduitSource = stockProduitSource;
     }
 
-    public @NotNull AppUser getUser() {
+    public StockProduit getStockProduitDestination() {
+        return stockProduitDestination;
+    }
+
+    public void setStockProduitDestination(StockProduit stockProduitDestination) {
+        this.stockProduitDestination = stockProduitDestination;
+    }
+
+    public AppUser getUser() {
         return user;
     }
 
-    public RepartitionStockProduit setUser(AppUser user) {
+    public void setUser(AppUser user) {
         this.user = user;
-        return this;
     }
 
-    public @NotNull LocalDateTime getCreated() {
+    public LocalDateTime getCreated() {
         return created;
     }
 
-    public RepartitionStockProduit setCreated(LocalDateTime created) {
+    public void setCreated(LocalDateTime created) {
         this.created = created;
-        return this;
     }
 
-    public @NotNull Integer getQtyMvt() {
+    public Integer getQtyMvt() {
         return qtyMvt;
     }
 
-    public RepartitionStockProduit setQtyMvt(Integer qtyMvt) {
+    public void setQtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;
-        return this;
     }
 
-    public @NotNull Integer getSourceInitStock() {
+    public Integer getSourceInitStock() {
         return sourceInitStock;
     }
 
-    public RepartitionStockProduit setSourceInitStock(Integer sourceInitStock) {
+    public void setSourceInitStock(Integer sourceInitStock) {
         this.sourceInitStock = sourceInitStock;
-        return this;
     }
 
-    public @NotNull Integer getSourceFinalStock() {
+    public Integer getSourceFinalStock() {
         return sourceFinalStock;
     }
 
-    public RepartitionStockProduit setSourceFinalStock(Integer sourceFinalStock) {
+    public void setSourceFinalStock(Integer sourceFinalStock) {
         this.sourceFinalStock = sourceFinalStock;
-        return this;
     }
 
-    public @NotNull Integer getDestInitStock() {
+    public Integer getDestInitStock() {
         return destInitStock;
     }
 
-    public RepartitionStockProduit setDestInitStock(Integer destInitStock) {
+    public void setDestInitStock(Integer destInitStock) {
         this.destInitStock = destInitStock;
-        return this;
     }
 
-    public @NotNull Integer getDestFinalStock() {
+    public Integer getDestFinalStock() {
         return destFinalStock;
     }
 
-    public RepartitionStockProduit setDestFinalStock(Integer destFinalStock) {
+    public void setDestFinalStock(Integer destFinalStock) {
         this.destFinalStock = destFinalStock;
-        return this;
+    }
+
+    public TypeRepartition getTypeRepartition() {
+        return typeRepartition;
+    }
+
+    public void setTypeRepartition(TypeRepartition typeRepartition) {
+        this.typeRepartition = typeRepartition;
     }
 
     @Override

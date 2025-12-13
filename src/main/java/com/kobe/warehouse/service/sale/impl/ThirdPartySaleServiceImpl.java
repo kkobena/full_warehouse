@@ -170,7 +170,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
         thirdPartySales.getSalesLines().add(saleLine);
@@ -313,7 +313,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         ThirdPartySales thirdPartySales;
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
@@ -361,7 +361,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         salesLineService.updateItemQuantityRequested(
             saleLineDTO,
             salesLine,
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
@@ -378,7 +378,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
 
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
@@ -413,7 +413,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                     sales.getSalesLines(),
                     copy,
                     user,
-                    storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+                    storageService.getDefaultConnectedUserMainStorage().getId()
                 );
                 findAllBySaleId(id).forEach(thirdPartySaleLine -> {
                     ThirdPartySaleLine thirdPartySaleLineClone = clone(thirdPartySaleLine, copy);
@@ -511,7 +511,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
         ThirdPartySales thirdPartySales = (ThirdPartySales) salesLine.getSales();
         thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());

@@ -26,18 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class StorageService {
 
     private final StorageRepository storageRepository;
-    private final AppConfigurationService appConfigurationService;
     private final UserRepository userRepository;
     private final UserService userService;
 
     public StorageService(
         StorageRepository storageRepository,
-        AppConfigurationService appConfigurationService,
         UserRepository userRepository,
         UserService userService
     ) {
         this.storageRepository = storageRepository;
-        this.appConfigurationService = appConfigurationService;
         this.userRepository = userRepository;
         this.userService = userService;
     }
@@ -64,14 +61,7 @@ public class StorageService {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
-    @Cacheable(value = EntityConstant.POINT_DE_VENTE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
-    public Storage getDefaultConnectedUserPointOfSaleStorage() {
-        if (appConfigurationService.isMono()) {
-            return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
-        }
 
-        return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.POINT_DE_VENTE);
-    }
 
     @Cacheable(value = EntityConstant.USER_RESERVE_STORAGE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserReserveStorage() {

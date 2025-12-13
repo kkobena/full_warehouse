@@ -1,0 +1,81 @@
+@if (rowData?.length > 0) {
+  <p-table
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="itemsPerPage"
+    [rowsPerPageOptions]="[10, 20, 30, 50]"
+    [stripedRows]="true"
+    [totalRecords]="totalItems"
+    [value]="rowData"
+    (onLazyLoad)="onPageChange($event)"
+    class="pharma-table"
+    dataKey="id"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 10%">Date</th>
+        <th style="width: 15%">Opérateur</th>
+        <th>Produit</th>
+        <th style="width: 12%">Code CIP</th>
+        <th style="width: 15%">Source</th>
+        <th style="width: 15%">Destination</th>
+        <th class="text-right" style="width: 8%">Quantité</th>
+        <th class="text-right" style="width: 8%">Stock Src</th>
+        <th class="text-right" style="width: 8%">Stock Dest</th>
+      </tr>
+    </ng-template>
+    <ng-template let-item #body>
+      <tr>
+        <td>
+          <span class="pharma-entity-name">{{ item.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ item.userFullName }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ item.produitName }}</span>
+        </td>
+        <td>
+          <span class="pharma-code">{{ item.produitCode }}</span>
+        </td>
+        <td>
+          @if (item.stockProduitSrc) {
+            <p-tag [value]="item.stockProduitSrc.storageName" severity="secondary" />
+          } @else {
+            <span class="text-muted">-</span>
+          }
+        </td>
+        <td>
+          <p-tag [value]="item.stockProduitDest?.storageName" severity="primary" />
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ item.mvtQty | number }}</span>
+        </td>
+        <td class="text-right">
+          @if (item.sourceInitStock !== null && item.sourceInitStock !== undefined) {
+            <div>
+              <span class="text-muted">{{ item.sourceInitStock | number }}</span>
+              <i class="pi pi-arrow-right text-muted mx-1"></i>
+              <span class="pharma-qty-value">{{ item.sourceFinalStock | number }}</span>
+            </div>
+          } @else {
+            <span class="text-muted">-</span>
+          }
+        </td>
+        <td class="text-right">
+          <div>
+            <span class="text-muted">{{ item.destInitStock | number }}</span>
+            <i class="pi pi-arrow-right text-muted mx-1"></i>
+            <span class="pharma-qty-value">{{ item.destFinalStock | number }}</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+} @else {
+  <div class="alert alert-warning">
+    <i class="pi pi-info-circle"></i>
+    Aucune répartition de stock trouvée
+  </div>
+}

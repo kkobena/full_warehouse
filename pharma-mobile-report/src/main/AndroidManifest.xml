@@ -101,6 +101,29 @@
             android:screenOrientation="fullSensor"
             android:parentActivityName=".ui.activity.LoginActivity" />
 
+        <!-- Firebase Cloud Messaging Service -->
+        <service
+            android:name=".service.PharmaFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Dashboard Widget -->
+        <receiver
+            android:name=".widget.DashboardWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.kobe.warehouse.reports.ACTION_WIDGET_REFRESH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_dashboard_info" />
+        </receiver>
+
     </application>
 
 </manifest>

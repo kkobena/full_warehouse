@@ -3,7 +3,7 @@ import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { createRequestOption } from '../../shared/util/request-util';
+import { createRequestOption, createRequestOptions } from '../../shared/util/request-util';
 import { Storage } from './storage.model';
 
 type EntityResponseType = HttpResponse<Storage>;
@@ -21,14 +21,12 @@ export class StorageService {
   }
 
   fetchStorages(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<Storage[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
-  fetchUserStorages(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+  fetchUserStorages(): Observable<EntityArrayResponseType> {
     return this.http.get<Storage[]>(this.resourceUrl + '/user-storages', {
-      params: options,
       observe: 'response',
     });
   }

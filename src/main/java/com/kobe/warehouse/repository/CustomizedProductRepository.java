@@ -215,7 +215,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         StockProduit stockProduit = produit
             .getStockProduits()
             .stream()
-            .filter(stock -> stock.getStorage().getId().equals(storageService.getDefaultConnectedUserPointOfSaleStorage().getId()))
+            .filter(stock -> stock.getStorage().getId().equals(storageService.getDefaultConnectedUserMainStorage().getId()))
             .findFirst()
             .orElseThrow();
 
@@ -301,9 +301,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
             produitCriteria.setMagasinId(magasin.getId());
         }
 
-        Storage userStorage = magasin.getPointOfSale();
+        Storage userStorage = magasin.getPrimaryStorage();
 
-        //  storageService.getDefaultConnectedUserPointOfSaleStorage();
+        //  storageService.getDefaultConnectedUserMainStorage();
 
         long total = 0;
         if (pageable.isPaged()) {
@@ -353,7 +353,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     public Optional<ProduitDTO> findOneById(Integer produitId) {
         Magasin magasin = storageService.getConnectedUserMagasin();
-        Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+        Storage userStorage = storageService.getDefaultConnectedUserMainStorage();
         return produitRepository
             .findById(produitId)
             .map(p ->
@@ -626,7 +626,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Transactional(readOnly = true)
     public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
         Magasin magasin = storageService.getConnectedUserMagasin();
-        Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
+        Storage userStorage = storageService.getDefaultConnectedUserMainStorage();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
         Root<Produit> root = cq.from(Produit.class);

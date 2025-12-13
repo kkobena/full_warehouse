@@ -25,4 +25,30 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
         value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId "
     )
     Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
+
+    /**
+     * Search stock produits by storage and product criteria
+     * Fetches all stocks with their associated produit and storage information
+     */
+    @Query("""
+        SELECT DISTINCT sp FROM StockProduit sp
+        LEFT JOIN FETCH sp.produit p
+        LEFT JOIN FETCH sp.storage s
+        LEFT JOIN FETCH p.stockProduits
+        LEFT JOIN FETCH p.fournisseurProduitPrincipal fp
+        WHERE s.id = :storageId
+        AND s.magasin.id = :magasinId
+        AND (
+            LOWER(p.libelle) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+            OR LOWER(fp.codeCip) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
+        )
+        AND sp.qtyStock > 0
+        ORDER BY p.libelle
+        """)
+    List<StockProduit> searchStockProduitsForRepartition(
+        @Param("storageId") Integer storageId,
+        @Param("magasinId") Integer magasinId,
+        @Param("searchTerm") String searchTerm
+    );
+
 }

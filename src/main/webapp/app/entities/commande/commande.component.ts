@@ -34,6 +34,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { RetourBonStatut } from '../../shared/model/enumerations/retour-bon-statut.model';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
+import { RepartitionStockComponent } from '../repartition-stock/repartition-stock.component';
 
 @Component({
   selector: 'jhi-commande',
@@ -63,6 +64,7 @@ import { PrimeNG } from 'primeng/config';
     RetourBonListComponent,
     DatePicker,
     FloatLabel,
+    RepartitionStockComponent,
   ],
   styleUrl: './commande.component.scss',
 })

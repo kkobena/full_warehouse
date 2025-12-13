@@ -12,14 +12,8 @@ public final class Constants {
     public static final String DEFAULT_LANGUAGE = "fr";
     public static final String ANONYMOUS_USER = "Anonymous";
     public static final String ANONYMOUS_USER_2 = "anonymoususer";
-
-    public static final int REFERENCE_TYPE_COMMANDE = 1;
-    public static final int REFERENCE_TYPE_VENTE = 0;
-    public static final int REFERENCE_PREVENTE_VENTE = 2;
     public static final String MODE_ESP = "CASH";
     public static final String NUMERIC_PATTERN = "^[0-9]*$";
-    public static final int REFERENCE_TYPE_SUGGESTION = 3;
-    public static final int REFERENCE_TYPE_TRANSACTION = 4;
 
     public static final String PR_MOBILE_ADMIN = "mobile_admin";
     public static final String PR_MOBILE_USER = "mobile_user";

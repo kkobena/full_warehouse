@@ -1,0 +1,238 @@
+<p-toast />
+
+<div class="pharma-smart-content p-3">
+  <!-- Toolbar -->
+  <div class="pharma-toolbar mb-3">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-sync"></i>
+      <span class="pharma-toolbar-title">Répartition Manuelle de Stock</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-select
+            [(ngModel)]="selectedStorageId"
+            (onChange)="onStorageChange()"
+            [options]="storages"
+            [showClear]="true"
+            [style]="{ 'min-width': '250px' }"
+            appendTo="body"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sélectionner un emplacement"
+          />
+
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                [(ngModel)]="searchTerm"
+                (keyup.enter)="onSearchProduct()"
+                pInputText
+                placeholder="Rechercher un produit (code, libellé)"
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+
+          <p-button (onClick)="onSearchProduct()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-button (onClick)="reset()" [text]="true" icon="pi pi-refresh" label="Réinitialiser" severity="secondary" />
+          <p-button
+            (onClick)="save()"
+            [disabled]="!isFormValid || isSaving"
+            [loading]="isSaving"
+            [raised]="true"
+            icon="pi pi-check"
+            label="Valider ({{ repartitionRows.filter(r => r.isValid).length }})"
+            severity="success"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Table with two columns: Source and Destination -->
+  @if (repartitionRows.length > 0) {
+    <div class="repartition-table-container">
+      <p-table [scrollable]="true" [value]="repartitionRows" scrollHeight="calc(100vh - 300px)" class="p-datatable-sm">
+        <ng-template #header>
+          <tr>
+            <th style="width: 45%">
+              <i class="pi pi-arrow-circle-right me-2"></i>
+              Stock Source
+            </th>
+            <th style="width: 45%">
+              <i class="pi pi-arrow-circle-left me-2"></i>
+              Stock Destination
+            </th>
+            <th style="width: 10%">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row let-ri="rowIndex">
+          <tr [class.invalid-row]="!row.isValid">
+            <!-- Stock Source Column -->
+            <td>
+              <div class="stock-card source-card">
+                <div class="stock-card-header">
+                  <span class="stock-storage-name">
+                    <i class="pi pi-building me-2"></i>
+                    {{ row.stockSource?.storage?.name }}
+                  </span>
+                  <span class="stock-type-badge" [class.reserve-badge]="row.stockSource?.storage?.storageType === 'SAFETY_STOCK'">
+                    {{ row.stockSource?.storage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
+                  </span>
+                </div>
+
+                <div class="stock-card-body">
+                  <div class="produit-info">
+                    <div class="produit-name">{{ row.stockSource?.produit?.libelle }}</div>
+                    <div class="produit-code">Code: {{ row.stockSource?.produit?.codeCip }}</div>
+                  </div>
+
+                  <div class="stock-details">
+                    <div class="stock-detail-item">
+                      <label>Stock disponible:</label>
+                      <span class="stock-value available">{{ row.stockSource?.qtyStock || 0 }}</span>
+                    </div>
+
+                    <div class="stock-detail-item quantity-input">
+                      <label>Quantité à transférer:</label>
+                      <p-inputNumber
+                        [(ngModel)]="row.quantity"
+                        (ngModelChange)="onQuantityChange(row)"
+                        [max]="maxQuantityForRow(row)"
+                        [min]="1"
+                        [showButtons]="true"
+                        [style]="{ width: '150px' }"
+                        mode="decimal"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Stock Destination Column -->
+            <td>
+              <div class="stock-card destination-card">
+                @if (row.availableDestinations.length === 0) {
+                  <div class="no-destination">
+                    <i class="pi pi-info-circle me-2"></i>
+                    Aucune destination disponible
+                  </div>
+                } @else if (!row.stockDestination) {
+                  <div class="select-destination">
+                    <p-select
+                      [(ngModel)]="row.stockDestination"
+                      (onChange)="onDestinationChange(row, $event.value.id)"
+                      [options]="row.availableDestinations"
+                      [style]="{ width: '100%' }"
+                      appendTo="body"
+                      optionLabel="storage.name"
+                      placeholder="Sélectionner la destination"
+                    >
+                      <ng-template #item let-stock>
+                        <div class="destination-option">
+                          <div class="destination-name">
+                            <i class="pi pi-building me-2"></i>
+                            {{ stock.storage?.name }}
+                          </div>
+                          <div class="destination-type">
+                            {{ stock.storage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
+                          </div>
+                          <div class="destination-stock">Stock actuel: {{ stock.qtyStock || 0 }}</div>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                  </div>
+                } @else {
+                  <div class="stock-card-header">
+                    <span class="stock-storage-name">
+                      <i class="pi pi-building me-2"></i>
+                      {{ row.stockDestination.storage?.name }}
+                    </span>
+                    <span class="stock-type-badge" [class.reserve-badge]="row.stockDestination.storage?.storageType === 'SAFETY_STOCK'">
+                      {{ row.stockDestination.storage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
+                    </span>
+                  </div>
+
+                  <div class="stock-card-body">
+                    <div class="stock-details">
+                      <div class="stock-detail-item">
+                        <label>Stock actuel:</label>
+                        <span class="stock-value current">{{ row.stockDestination.qtyStock || 0 }}</span>
+                      </div>
+
+                      <div class="stock-detail-item transfer-arrow">
+                        <i class="pi pi-arrow-right"></i>
+                      </div>
+
+                      <div class="stock-detail-item">
+                        <label>Stock après transfert:</label>
+                        <span class="stock-value after">{{ (row.stockDestination.qtyStock || 0) + row.quantity }}</span>
+                      </div>
+                    </div>
+
+                    <div class="change-destination mt-2">
+                      <p-button
+                        (onClick)="row.stockDestination = undefined"
+                        [text]="true"
+                        icon="pi pi-refresh"
+                        label="Changer"
+                        severity="secondary"
+                        size="small"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+            </td>
+
+            <!-- Actions Column -->
+            <td class="text-center">
+              <p-button
+                (onClick)="removeRow(row)"
+                [text]="true"
+                icon="pi pi-trash"
+                pTooltip="Supprimer cette ligne"
+                severity="danger"
+                tooltipPosition="left"
+              />
+            </td>
+          </tr>
+
+          @if (!row.isValid && row.errors.length > 0) {
+            <tr>
+              <td colspan="3" class="error-row">
+                <small class="text-danger">
+                  <i class="pi pi-exclamation-circle me-1"></i>
+                  {{ row.errors.join(', ') }}
+                </small>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </p-table>
+
+      <!-- Summary Footer -->
+      <div class="summary-footer mt-3">
+        <div class="alert alert-info mb-0">
+          <i class="pi pi-info-circle me-2"></i>
+          <strong>{{ repartitionRows.length }}</strong> ligne(s) - <strong>{{ repartitionRows.filter(r => r.isValid).length }}</strong> valide(s)
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <i class="pi pi-search"></i>
+      <h4>Aucune répartition en cours</h4>
+      <p>Recherchez un produit pour commencer une répartition de stock</p>
+    </div>
+  }
+</div>

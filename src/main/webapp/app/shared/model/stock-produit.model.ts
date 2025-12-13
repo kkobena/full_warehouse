@@ -1,3 +1,5 @@
+import { IStorage } from './magasin.model';
+
 export interface IStockProduit {
   id?: number;
   qtyStock?: number;
@@ -12,7 +14,18 @@ export interface IStockProduit {
   produitId?: number;
   storageId?: number;
   storageName?: string;
-  storageType?: string;
+  storageType?: string;//libelle
+  type?: string;//code type
+  seuilMini?: number;
+  storage?: IStorage;
+  produit?: IProduitBasic;
+}
+
+export interface IProduitBasic {
+  id?: number;
+  libelle?: string;
+  codeCip?: string;
+  stockProduits?: IStockProduit[];
 }
 
 export class StockProduit implements IStockProduit {

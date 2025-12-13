@@ -79,7 +79,7 @@ public class DeconditionService {
         Produit parent = produitRepository.getReferenceById(deconditionDTO.getProduitId());
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
             deconditionDTO.getProduitId(),
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         int stock = stockProduit.getQtyStock();
         AppUser user = storageService.getUser();
@@ -90,7 +90,7 @@ public class DeconditionService {
             Produit detail = parent.getProduits().getFirst();
             StockProduit stockDetail = stockProduitRepository.findOneByProduitIdAndStockageId(
                 detail.getId(),
-                storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+                storageService.getDefaultConnectedUserMainStorage().getId()
             );
             int stockDetailInit = stockDetail.getQtyStock();
             int stockDetailFinal = (deconditionDTO.getQtyMvt() * parent.getItemQty()) + stockDetailInit;

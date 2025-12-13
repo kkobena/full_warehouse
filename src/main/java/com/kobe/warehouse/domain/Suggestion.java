@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A Commande.
+ * A Suggestion.
  */
 @Entity
 @Table(name = "suggestion", indexes = { @Index(columnList = "type_suggession", name = "type_suggession_index") })

@@ -22,7 +22,7 @@ public class MagasinDTO implements Serializable {
     private String compteContribuable;
     private String numComptable;
     private StorageDTO primaryStorage;
-    private StorageDTO pointOfSale;
+    private StorageDTO stockageReserve;
     private String welcomeMessage;
     private String fullName;
     private String compteBancaire;
@@ -43,7 +43,7 @@ public class MagasinDTO implements Serializable {
         compteContribuable = magasin.getCompteContribuable();
         numComptable = magasin.getNumComptable();
         primaryStorage = new StorageDTO(magasin.getPrimaryStorage());
-        pointOfSale = new StorageDTO(magasin.getPointOfSale());
+        stockageReserve = new StorageDTO(magasin.getStockageReserve());
         welcomeMessage = magasin.getWelcomeMessage();
         fullName = magasin.getFullName();
         typeMagasin = magasin.getTypeMagasin();
@@ -145,12 +145,12 @@ public class MagasinDTO implements Serializable {
         this.primaryStorage = primaryStorage;
     }
 
-    public StorageDTO getPointOfSale() {
-        return pointOfSale;
+    public StorageDTO getStockageReserve() {
+        return stockageReserve;
     }
 
-    public void setPointOfSale(StorageDTO pointOfSale) {
-        this.pointOfSale = pointOfSale;
+    public void setStockageReserve(StorageDTO stockageReserve) {
+        this.stockageReserve = stockageReserve;
     }
 
     public String getManagerFirstName() {

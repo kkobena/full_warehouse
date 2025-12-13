@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/warning_light"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/offline_mode"
+        android:src="@drawable/ic_wifi_off"
+        android:tint="@color/warning_dark" />
+
+    <TextView
+        android:id="@+id/tv_offline_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:textColor="@color/warning_dark"
+        android:textSize="13sp"
+        tools:text="Vous êtes hors ligne. 3 action(s) en attente." />
+
+    <ProgressBar
+        android:id="@+id/progress_sync"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="8dp"
+        android:indeterminateTint="@color/warning_dark"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btn_retry"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:text="@string/retry"
+        android:textColor="@color/warning_dark"
+        android:textSize="12sp" />
+</LinearLayout>

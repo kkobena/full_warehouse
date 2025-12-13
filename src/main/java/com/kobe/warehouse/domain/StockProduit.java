@@ -67,6 +67,16 @@ public class StockProduit implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Storage storage;
+    @NotAudited
+    @Min(value = 0)
+    @Column(name = "stock_reassort", comment = "Quantite de reassort pour reconstituer pour reconstitution de stock")
+    private Integer stockReassort;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
+    // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
+    @NotAudited
+    @Min(value = 0)
+    @Column(name = "seuil_mini", comment = "Seuil minimum de stock pour reassortiment automatique ou suggestion de commande")
+    private Integer seuilMini;
+
 
     @NotAudited
     @Formula("qty_ug+qty_stock")
@@ -139,6 +149,22 @@ public class StockProduit implements Serializable {
     public StockProduit setStorage(Storage storage) {
         this.storage = storage;
         return this;
+    }
+
+    public Integer getStockReassort() {
+        return stockReassort;
+    }
+
+    public void setStockReassort(Integer stockReassort) {
+        this.stockReassort = stockReassort;
+    }
+
+    public Integer getSeuilMini() {
+        return seuilMini;
+    }
+
+    public void setSeuilMini(Integer seuilMini) {
+        this.seuilMini = seuilMini;
     }
 
     public Integer getTotalStockQuantity() {

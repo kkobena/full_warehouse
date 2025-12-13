@@ -2,7 +2,10 @@ flyway:
   enabled: true
   schemas: pharma_smart
   table: pharma_smart_history
-
+firebase:
+  database-url: https://pharma-smart-default-rtdb.firebaseio.com
+  service-account-file: classpath:firebase/pharma-smart-firebase-adminsdk.json
+  enabled: false
 spring:
   application:
     name: pharma-smart

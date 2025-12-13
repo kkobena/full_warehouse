@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.enumeration.StorageType;
+
 import java.time.LocalDateTime;
 
 public class StockProduitDTO {
@@ -18,7 +20,9 @@ public class StockProduitDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String produitLibelle;
-
+    private StorageType type;
+    private Integer stockReassort;
+    private Integer seuilMini;
     public StockProduitDTO(StockProduit s) {
         this.id = s.getId();
         this.qtyStock = s.getQtyStock();
@@ -33,6 +37,8 @@ public class StockProduitDTO {
         this.createdAt = p.getCreatedAt();
         this.updatedAt = p.getUpdatedAt();
         this.produitLibelle = p.getLibelle();
+        this.stockReassort = s.getStockReassort();
+        this.seuilMini = s.getSeuilMini();
     }
 
     public StockProduitDTO() {}
@@ -71,6 +77,14 @@ public class StockProduitDTO {
     public StockProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
+    }
+
+    public StorageType getType() {
+        return type;
+    }
+
+    public void setType(StorageType type) {
+        this.type = type;
     }
 
     public String getStorageType() {
@@ -129,6 +143,22 @@ public class StockProduitDTO {
 
     public Integer getId() {
         return id;
+    }
+
+    public Integer getStockReassort() {
+        return stockReassort;
+    }
+
+    public void setStockReassort(Integer stockReassort) {
+        this.stockReassort = stockReassort;
+    }
+
+    public Integer getSeuilMini() {
+        return seuilMini;
+    }
+
+    public void setSeuilMini(Integer seuilMini) {
+        this.seuilMini = seuilMini;
     }
 
     public StockProduitDTO setId(Integer id) {

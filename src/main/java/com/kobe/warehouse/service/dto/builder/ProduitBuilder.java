@@ -24,22 +24,21 @@ import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.time.LocalDate;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 public final class ProduitBuilder {
 
     private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
-    private ProduitBuilder() {}
+    private ProduitBuilder() {
+    }
 
     public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
         Produit produit = new Produit();
@@ -202,11 +201,15 @@ public final class ProduitBuilder {
 
     public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit) {
         produitDTO.setStockProduits(produit.getStockProduits().stream().map(StockProduitDTO::new).collect(Collectors.toSet()));
-        StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
-        if (stockProduitPointOfSale != null) {
-            produitDTO.setStockProduit(new StockProduitDTO(stockProduitPointOfSale));
-            produitDTO.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
+        Set<StockProduitDTO> stockProduits = produitDTO.getStockProduits();
+        StockProduitDTO stockProduitPointOfSale;
+        if (stockProduits.size() > 1) {
+            stockProduitPointOfSale = stockProduits.stream().filter(s -> s.getType() == StorageType.PRINCIPAL).findFirst().orElse(null);
+        } else {
+            stockProduitPointOfSale = stockProduits.stream().findFirst().orElse(null);
         }
+        produitDTO.setStockProduit(stockProduitPointOfSale);
+        produitDTO.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
         return produitDTO;
     }
 
@@ -349,7 +352,7 @@ public final class ProduitBuilder {
         dto.setTypeProduit(produit.getTypeProduit());
         dto.setRegularUnitPrice(produit.getRegularUnitPrice());
         dto.setNetUnitPrice(produit.getNetUnitPrice());
-        StockProduit stockProduitPointOfSale = produit.getStockProduitPointOfSale();
+        StockProduit stockProduitPointOfSale = produit.getStockProduits().stream().filter(s -> s.getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().orElse(null);;
         if (stockProduitPointOfSale != null) {
             dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
             dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
@@ -363,7 +366,8 @@ public final class ProduitBuilder {
                     .getRayon();
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
-            } catch (Exception _) {}
+            } catch (Exception _) {
+            }
         }
         dto.setCodeEan(produit.getCodeEanLaboratoire());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();

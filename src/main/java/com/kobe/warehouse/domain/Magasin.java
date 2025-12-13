@@ -65,8 +65,8 @@ public class Magasin implements Serializable {
     private Storage primaryStorage;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type='POINT_DE_VENTE' AND s.magasin_id=id LIMIT 1)")
-    private Storage pointOfSale;
+    @JoinFormula("(SELECT s.id FROM storage s WHERE s.storage_type='SAFETY_STOCK' AND s.magasin_id=id LIMIT 1)")
+    private Storage stockageReserve;
 
     @Column(name = "welcome_message")
     private String welcomeMessage;
@@ -143,12 +143,12 @@ public class Magasin implements Serializable {
         return this;
     }
 
-    public Storage getPointOfSale() {
-        return pointOfSale;
+    public Storage getStockageReserve() {
+        return stockageReserve;
     }
 
-    public void setPointOfSale(Storage pointOfSale) {
-        this.pointOfSale = pointOfSale;
+    public void setStockageReserve(Storage pointOfSale) {
+        this.stockageReserve = pointOfSale;
     }
 
     public String getWelcomeMessage() {

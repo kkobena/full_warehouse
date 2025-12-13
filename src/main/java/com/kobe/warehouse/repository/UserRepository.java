@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
+import com.kobe.warehouse.domain.enumeration.AuthorityEnum;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -40,6 +43,16 @@ public interface UserRepository extends JpaRepository<AppUser, Integer>, JpaSpec
     boolean existsByLoginEqualsAndPasswordEquals(String login, String password);
 
     Optional<AppUser> findOneByActionAuthorityKey(String actionAuthorityKey);
+
+    /**
+     * Find all users with a specific authority (role).
+     * Used for mobile push notifications targeting specific roles.
+     *
+     * @param authority The authority enum
+     * @return List of users with the specified authority
+     */
+    @Query("SELECT u FROM AppUser u JOIN u.authorities a WHERE a.name = :authorityName AND u.activated = true")
+    List<AppUser> findByAuthority(@Param("authorityName") AuthorityEnum authority);
 
     default Specification<AppUser> findspecialisation() {
         return (root, query, cb) ->

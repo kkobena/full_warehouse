@@ -107,7 +107,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         venteDepot.getSalesLines().add(saleLine);
         upddateAmounts(venteDepot);
@@ -126,7 +126,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         salesLineService.updateItemQuantityRequested(
             saleLineDTO,
             salesLine,
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
@@ -135,7 +135,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
     }
@@ -143,7 +143,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
     }
@@ -162,7 +162,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
@@ -244,7 +244,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             venteDepot.getSalesLines(),
             copy,
             user,
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
     }
 
@@ -330,7 +330,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             cashRegister = cashRegisterService.openCashRegister(user, user);
         }
         c.setCashRegister(cashRegister);
-        int id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int id = storageService.getDefaultConnectedUserMainStorage().getId();
         salesLineService.save(c.getSalesLines(), user, id);
         updateDepotStockOnSaleFinalization(c);
         c.setStatut(SalesStatut.CLOSED);

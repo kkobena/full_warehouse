@@ -227,7 +227,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         cashSale.setOrigineVente(OrigineVente.DIRECT);
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         cashSale.getSalesLines().add(saleLine);
         upddateCashSaleAmounts(cashSale);
@@ -253,7 +253,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         salesLineService.updateItemQuantityRequested(
             saleLineDTO,
             salesLine,
-            storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+            storageService.getDefaultConnectedUserMainStorage().getId()
         );
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
@@ -262,7 +262,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
     }
@@ -270,7 +270,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
+        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleLineUpdate(salesLine);
         return new SaleLineDTO(salesLine);
     }
@@ -289,7 +289,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
@@ -390,7 +390,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                     sales.getSalesLines(),
                     copy,
                     user,
-                    storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
+                    storageService.getDefaultConnectedUserMainStorage().getId()
                 );
             });
     }

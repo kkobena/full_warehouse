@@ -145,6 +145,7 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @NotAudited
@@ -196,10 +197,7 @@ public class Produit implements Serializable {
     @JoinColumn(name = "fournisseur_produit_principal_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduitPrincipal;
 
-    @NotAudited
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinFormula("(SELECT o.id FROM stock_produit o WHERE  o.storage_id=2 AND o.produit_id=id LIMIT  1)")
-    private StockProduit stockProduitPointOfSale;
+
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
@@ -235,13 +233,7 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public @Min(value = 0) Integer getSeuilReassort() {
-        return seuilReassort;
-    }
 
-    public void setSeuilReassort(@Min(value = 0) Integer seuilReassort) {
-        this.seuilReassort = seuilReassort;
-    }
 
     public @Min(value = 0) Integer getSeuilDeconditionnement() {
         return seuilDeconditionnement;
@@ -260,15 +252,6 @@ public class Produit implements Serializable {
         return this;
     }
 
-    /*
-    public List<ParcoursProduit> getParcoursProduits() {
-    return parcoursProduits;
-  }
-
-  public Produit setParcoursProduits(List<ParcoursProduit> parcoursProduits) {
-    this.parcoursProduits = parcoursProduits;
-    return this;
-  }*/
 
     public List<OptionPrixProduit> getOptionPrixProduit() {
         return optionPrixProduit;
@@ -507,14 +490,6 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public StockProduit getStockProduitPointOfSale() {
-        return stockProduitPointOfSale;
-    }
-
-    public Produit setStockProduitPointOfSale(StockProduit stockProduitPointOfSale) {
-        this.stockProduitPointOfSale = stockProduitPointOfSale;
-        return this;
-    }
 
     public Set<RayonProduit> getRayonProduits() {
         return rayonProduits;

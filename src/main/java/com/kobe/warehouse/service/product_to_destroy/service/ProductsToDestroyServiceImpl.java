@@ -311,7 +311,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         if (!stockProduits.isEmpty()) {
             Map<Boolean, List<StockProduit>> partiton = stockProduits
                 .stream()
-                .collect(Collectors.partitioningBy(s -> s.getStorage().getStorageType() == StorageType.POINT_DE_VENTE));
+                .collect(Collectors.partitioningBy(s -> s.getStorage().getStorageType() == StorageType.PRINCIPAL));
             List<StockProduit> stockOfPointOfSale = partiton.get(true);
             if (!CollectionUtils.isEmpty(stockOfPointOfSale)) {
                 StockProduit stockProduit = stockOfPointOfSale.getFirst();

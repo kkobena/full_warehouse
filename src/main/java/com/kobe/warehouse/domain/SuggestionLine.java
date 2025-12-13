@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * A OrderLine.
+ * A SuggestionLine.
  */
 @Entity
 @Table(name = "suggestion_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "suggestion_id", "fournisseur_produit_id" }) })

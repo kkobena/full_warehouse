@@ -270,7 +270,7 @@ public class SaleCommonService {
             cashRegister = cashRegisterService.openCashRegister(user, user);
         }
         c.setCashRegister(cashRegister);
-        int id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int id = storageService.getDefaultConnectedUserMainStorage().getId();
         getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());

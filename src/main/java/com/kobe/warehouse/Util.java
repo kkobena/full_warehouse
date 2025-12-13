@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//@ConditionalOnProperty(name = "sarenov.act.convertion.enable", havingValue = "true")
+
 public final class Util {
 
     private static final Logger log = LoggerFactory.getLogger(Util.class);

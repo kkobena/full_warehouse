@@ -170,4 +170,14 @@
     <string name="format_days">%d jours</string>
     <string name="format_variation_positive">+%.1f%%</string>
     <string name="format_variation_negative">%.1f%%</string>
+
+    <!-- Widget -->
+    <string name="widget_title">CA Aujourd\'hui</string>
+    <string name="widget_description">Affiche le chiffre d\'affaires du jour et les alertes</string>
+    <string name="widget_loading">Chargement…</string>
+    <string name="widget_error_message">Impossible de charger les données</string>
+    <string name="widget_alerts">alertes</string>
+    <string name="variation">Variation</string>
+    <string name="refresh">Actualiser</string>
+    <string name="alerts">Alertes</string>
 </resources>

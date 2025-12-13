@@ -1,115 +1,45 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
-    <!-- Modern Pharma Toolbar -->
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-sync"></i>
-        <span class="pharma-toolbar-title">Gestion de répartition de stock</span>
-      </div>
-
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            @if (activeTab === 'historique') {
-              <div class="pharma-search-input mr-1">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
-                  <input
-                    (keyup.enter)="onSearch()"
-                    [(ngModel)]="search"
-                    id="searchTerm"
-                    pInputText
-                    placeholder="Rechercher un produit..."
-                    type="text"
-                  />
-                </p-iconfield>
-              </div>
-
-              <div class="mr-2">
-                <jhi-date-picker [(ngModel)]="fromDate" [id]="'dateDebut'" [label]="'Du'" />
-              </div>
-
-              <div class="mr-2">
-                <jhi-date-picker [(ngModel)]="toDate" [id]="'dateFin'" [label]="'Au'" />
-              </div>
-            }
-          </div>
+    <ul ngbNav #nav="ngbNav"  [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs">
+      <li [ngbNavItem]="'historique'">
+        <a ngbNavLink>
+          <i class="pi pi-history me-2"></i>
+          <span>Traçabilité</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-repartition-list [fromDate]="dtStart()" [searchTerm]="search()" [toDate]="dtEnd()"></jhi-repartition-list>
         </ng-template>
+      </li>
 
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              @if (activeTab === 'historique') {
-                <p-button
-                  (click)="onSearch()"
-                  [raised]="true"
-                  icon="pi pi-search"
-                  label="Rechercher"
-                  pTooltip="Rechercher"
-                  severity="info"
-                  tooltipPosition="top"
-                />
-              }
-
-              <p-button
-                (click)="onRefreshHistory()"
-                [raised]="true"
-                icon="pi pi-refresh"
-                label="Actualiser"
-                pTooltip="Actualiser la liste"
-                severity="secondary"
-                tooltipPosition="top"
-              />
-            </div>
-          </div>
+      <li [ngbNavItem]="'rayon'">
+        <a ngbNavLink>
+          <i class="pi pi-shopping-cart me-2"></i>
+          <span>Réassort suggéré – Rayon</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'"></jhi-suggestion-reassort>
         </ng-template>
-      </p-toolbar>
-    </div>
+      </li>
 
-    <!-- Tabs for different views -->
-    <div class="mt-3">
-      <ul [ngbNav]="nav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs">
-        <li [ngbNavItem]="'historique'">
-          <a ngbNavLink>
-            <i class="pi pi-history me-2"></i>
-            <span>Historique</span>
-          </a>
-          <ng-template ngbNavContent>
-            <jhi-repartition-list [fromDate]="fromDate" [searchTerm]="search" [toDate]="toDate"></jhi-repartition-list>
-          </ng-template>
-        </li>
+      <li [ngbNavItem]="'reserve'">
+        <a ngbNavLink>
+          <i class="pi pi-warehouse me-2"></i>
+          <span>Réassort suggéré – Réserve</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'"></jhi-suggestion-reassort>
+        </ng-template>
+      </li>
 
-        <li [ngbNavItem]="'rayon'">
-          <a ngbNavLink>
-            <i class="pi pi-shopping-cart me-2"></i>
-            <span>Suggestions Rayon</span>
-          </a>
-          <ng-template ngbNavContent>
-            <jhi-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'"></jhi-suggestion-reassort>
-          </ng-template>
-        </li>
-
-        <li [ngbNavItem]="'reserve'">
-          <a ngbNavLink>
-            <i class="pi pi-warehouse me-2"></i>
-            <span>Suggestions Réserve</span>
-          </a>
-          <ng-template ngbNavContent>
-            <jhi-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'"></jhi-suggestion-reassort>
-          </ng-template>
-        </li>
-
-        <li [ngbNavItem]="'manual'">
-          <a ngbNavLink>
-            <i class="pi pi-cog me-2"></i>
-            <span>Répartition Manuelle</span>
-          </a>
-          <ng-template ngbNavContent>
-            <jhi-manual-repartition></jhi-manual-repartition>
-          </ng-template>
-        </li>
-      </ul>
-      <div [ngbNavOutlet]="nav" class="mt-3"></div>
-    </div>
+      <li [ngbNavItem]="'manual'">
+        <a ngbNavLink>
+          <i class="pi pi-cog me-2"></i>
+          <span>Transfert manuel Rayon / Réserve</span>
+        </a>
+        <ng-template ngbNavContent>
+          <jhi-manual-repartition></jhi-manual-repartition>
+        </ng-template>
+      </li>
+    </ul>
+    <div [ngbNavOutlet]="nav" class="mt-3"></div>
   </div>
-</div>
+

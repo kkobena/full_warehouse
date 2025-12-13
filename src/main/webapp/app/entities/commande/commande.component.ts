@@ -35,6 +35,7 @@ import { RetourBonStatut } from '../../shared/model/enumerations/retour-bon-stat
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { RepartitionStockComponent } from '../repartition-stock/repartition-stock.component';
+import { SuggestionReassortComponent } from '../repartition-stock/suggestion-reassort/suggestion-reassort.component';
 
 @Component({
   selector: 'jhi-commande',
@@ -95,11 +96,12 @@ export class CommandeComponent implements OnInit {
   protected selectedFilter = 'REQUESTED';
   protected loading!: boolean;
   protected readonly menuTileAndIcon = [
-    { title: 'Commandes en cours', icon: 'pi pi-spin pi-spinner', menuId: 'REQUESTED' },
+    { title: 'Commandes en cours', icon: 'pi pi-cart-plus', menuId: 'REQUESTED' },
     { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb', menuId: 'SUGGESTIONS' },
     { title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS' },
     { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' },
     { title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR' },
+    { title: 'Pilotage des stocks', icon: 'pi pi-sync', menuId: 'REPARTITION_STOCK' },
   ];
 
   private readonly router = inject(Router);
@@ -111,6 +113,8 @@ export class CommandeComponent implements OnInit {
   private readonly enCoursComponent = viewChild(BonEnCoursComponent);
   private readonly listBonsComponent = viewChild(ListBonsComponent);
   private readonly retourBonListComponent = viewChild(RetourBonListComponent);
+  private readonly repartitionStockComponent =  viewChild('repartitionStock', { read: RepartitionStockComponent });
+
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);

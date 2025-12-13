@@ -12,8 +12,9 @@ import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.compon
 import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component';
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
 import { Authority } from '../shared/constants/authority.constants';
-import CustomizableDashboardComponent
-  from '../entities/dashboard/customizable-dashboard/customizable-dashboard.component';
+import CustomizableDashboardComponent from '../entities/dashboard/customizable-dashboard/customizable-dashboard.component';
+import { ResponsableCommandeDashboardComponent } from './responsable-commande-dashboard/responsable-commande-dashboard.component';
+import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
 
 @Component({
   selector: 'jhi-home',
@@ -28,8 +29,10 @@ import CustomizableDashboardComponent
     MonthlyDataComponent,
     WeeklyDataComponent,
     DailyDataComponent,
-    CustomizableDashboardComponent
-  ]
+    CustomizableDashboardComponent,
+    ResponsableCommandeDashboardComponent,
+    CaissierDashboardComponent,
+  ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);
@@ -44,15 +47,7 @@ export default class HomeComponent implements OnInit, OnDestroy {
       .getAuthenticationState()
       .pipe(takeUntil(this.destroy$))
       .subscribe(account => this.account.set(account));
-    if (!this.isAdmin()) {
-      if (this.isCaissier() || this.isVendeur) {
-        this.router.navigate(['/sales']);
-      } else if (this.isResponsableCommande()) {
-        this.router.navigate(['/commande']);
-      } else {
-        this.router.navigate(['/account/settings']);
-      }
-    }
+    // Pas de redirection - chaque profil voit son dashboard
   }
 
   login(): void {

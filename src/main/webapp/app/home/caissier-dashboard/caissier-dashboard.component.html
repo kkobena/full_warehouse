@@ -1,0 +1,423 @@
+<p-toast></p-toast>
+
+<div class="caissier-dashboard">
+  <!-- Header with Quick Actions -->
+  <div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="dashboard-title">
+          <fa-icon [icon]="faCashRegister" class="me-2"></fa-icon>
+          Tableau de Bord Caisse
+        </h2>
+        @if (lastRefresh()) {
+          <p class="dashboard-subtitle">Dernière actualisation : {{ lastRefresh() | date: 'short' }}</p>
+        }
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions d-flex gap-2">
+        <p-button
+          type="button"
+          label="Nouvelle Vente"
+          icon="pi pi-shopping-cart"
+          severity="success"
+          size="large"
+          (click)="nouvelleVente()"
+        ></p-button>
+
+        @if (!isCaisseOuverte()) {
+          <p-button
+            type="button"
+            label="Ouvrir Caisse"
+            icon="pi pi-unlock"
+            severity="warning"
+            (click)="ouvrirCaisse()"
+          ></p-button>
+        } @else {
+          <p-button
+            type="button"
+            label="Fermer Caisse"
+            icon="pi pi-lock"
+            severity="danger"
+            (click)="fermerCaisse()"
+          ></p-button>
+        }
+
+        <p-button
+          type="button"
+          label="Imprimer Rapport"
+          icon="pi pi-print"
+          severity="info"
+          (click)="imprimerRapport()"
+        ></p-button>
+
+        <p-button
+          type="button"
+          label="Consulter Ventes"
+          icon="pi pi-list"
+          severity="secondary"
+          (click)="consulterVentes()"
+        ></p-button>
+
+        @if (totalAlertes() > 0) {
+          <p-button
+            type="button"
+            icon="pi pi-exclamation-triangle"
+            severity="danger"
+            [badge]="totalAlertes().toString()"
+            (click)="gererAlertes()"
+          ></p-button>
+        }
+
+        <p-button
+          type="button"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [loading]="isLoading()"
+          (click)="refreshDashboard()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statut Caisse Alert -->
+  @if (caisseStatus()) {
+    <div class="mb-4">
+      @if (caisseStatus()!.etat === 'OUVERTE') {
+        <div class="alert alert-success caisse-status-alert">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <fa-icon [icon]="faCashRegister" class="me-2"></fa-icon>
+              <strong>Caisse Ouverte</strong> - Solde actuel : <strong>{{ formatCurrency(caisseStatus()!.soldeActuel) }}</strong>
+              @if (caisseStatus()!.ecart !== 0) {
+                <span class="ms-3 badge" [class.bg-danger]="caisseStatus()!.ecart < 0" [class.bg-warning]="caisseStatus()!.ecart > 0">
+                  Écart : {{ formatCurrency(caisseStatus()!.ecart) }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="alert alert-warning caisse-status-alert">
+          <fa-icon [icon]="faCashRegister" class="me-2"></fa-icon>
+          <strong>Caisse Fermée</strong>
+          @if (caisseStatus()!.derniereFermeture) {
+            - Dernière fermeture : {{ caisseStatus()!.derniereFermeture | date: 'short' }}
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- KPIs Row -->
+  <div class="row g-3 mb-4">
+    <!-- KPI 1: Ventes du Jour -->
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <div class="kpi-icon bg-success">
+            <fa-icon [icon]="faMoneyBillWave"></fa-icon>
+          </div>
+          <div class="kpi-info">
+            <h6 class="kpi-title">Ventes du Jour</h6>
+            @if (ventesJour()) {
+              <h3 class="kpi-value">{{ formatCurrency(ventesJour()!.montantTotal) }}</h3>
+              <p class="kpi-subtitle">{{ ventesJour()!.nombreVentes }} vente(s) • Ticket moyen : {{ formatCurrency(ventesJour()!.ticketMoyen) }}</p>
+              @if (ventesJour()!.objectifJour) {
+                <div class="mt-2">
+                  <small class="text-muted">Objectif : {{ formatCurrency(ventesJour()!.objectifJour) }}</small>
+                  <p-progressBar
+                    [value]="ventesJour()!.tauxAtteinte || 0"
+                    [showValue]="true"
+                    [style]="{ height: '8px' }"
+                    styleClass="mt-1"
+                  ></p-progressBar>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 2: Statistiques Rapides - Ventes en Cours -->
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <div class="kpi-icon bg-info">
+            <fa-icon [icon]="faShoppingCart"></fa-icon>
+          </div>
+          <div class="kpi-info">
+            <h6 class="kpi-title">Ventes en Cours</h6>
+            @if (statistiquesRapides()) {
+              <h3 class="kpi-value">{{ statistiquesRapides()!.ventesEnCours }}</h3>
+              <p class="kpi-subtitle">Produits vendus : {{ formatNumber(statistiquesRapides()!.produitsVendus) }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 3: Clients Servis -->
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <div class="kpi-icon bg-primary">
+            <fa-icon [icon]="faUsers"></fa-icon>
+          </div>
+          <div class="kpi-info">
+            <h6 class="kpi-title">Clients Servis</h6>
+            @if (statistiquesRapides()) {
+              <h3 class="kpi-value">{{ statistiquesRapides()!.clientsServis }}</h3>
+              <p class="kpi-subtitle">Aujourd'hui</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI 4: Temps Moyen Vente -->
+    <div class="col-lg-3 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <div class="kpi-icon bg-warning">
+            <fa-icon [icon]="faClock"></fa-icon>
+          </div>
+          <div class="kpi-info">
+            <h6 class="kpi-title">Temps Moyen</h6>
+            @if (statistiquesRapides()) {
+              <h3 class="kpi-value">{{ statistiquesRapides()!.tempsMoyenVente }} min</h3>
+              <p class="kpi-subtitle">Par vente</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Row -->
+  <div class="row g-4">
+    <!-- Left Column: Ventes Récentes + Top Produits -->
+    <div class="col-lg-8">
+      <!-- Ventes Récentes -->
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h5 class="data-card-title">
+            <fa-icon [icon]="faShoppingCart" class="me-2"></fa-icon>
+            Ventes Récentes
+          </h5>
+          <p-badge [value]="ventesRecentes().length.toString()" severity="success"></p-badge>
+        </div>
+        <div class="data-card-body">
+          @if (ventesRecentes().length > 0) {
+            <p-table [value]="ventesRecentes()" [scrollable]="true" scrollHeight="400px" styleClass="pharma-table-dark">
+              <ng-template pTemplate="header">
+                <tr class="pharma-table-head">
+                  <th>N° Reçu</th>
+                  <th>Montant</th>
+                  <th>Date/Heure</th>
+                  <th>Mode Paiement</th>
+                  <th>Vendeur</th>
+                  <th>Lignes</th>
+                  <th>Statut</th>
+                  <th>Action</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-vente>
+                <tr>
+                  <td>{{ vente.numeroRecu }}</td>
+                  <td class="text-end fw-bold text-success">{{ formatCurrency(vente.montant) }}</td>
+                  <td>{{ vente.dateVente | date: 'short' }}</td>
+                  <td>
+                    <p-tag [value]="vente.modePaiement" severity="info"></p-tag>
+                  </td>
+                  <td>{{ vente.vendeur || '-' }}</td>
+                  <td class="text-center">{{ vente.nombreLignes }}</td>
+                  <td>
+                    <p-tag [value]="vente.statut" [severity]="vente.statut === 'PAYEE' ? 'success' : 'warning'"></p-tag>
+                  </td>
+                  <td>
+                    <p-button
+                      type="button"
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      (click)="voirDetailVente(vente)"
+                    ></p-button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          } @else {
+            <div class="text-center text-muted py-4">
+              <fa-icon [icon]="faShoppingCart" size="3x" class="mb-3"></fa-icon>
+              <p>Aucune vente récente</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Top Produits -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <h5 class="data-card-title">
+            <fa-icon [icon]="faChartLine" class="me-2"></fa-icon>
+            Top 10 Produits du Jour
+          </h5>
+        </div>
+        <div class="data-card-body">
+          @if (topProduits().length > 0) {
+            <p-table [value]="topProduits()" styleClass="pharma-table-dark">
+              <ng-template pTemplate="header">
+                <tr class="pharma-table-head">
+                  <th>#</th>
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Qté Vendue</th>
+                  <th>Montant Total</th>
+                  <th>Nb Ventes</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-produit let-i="rowIndex">
+                <tr>
+                  <td class="text-center">
+                    <p-badge [value]="(i + 1).toString()" [severity]="i < 3 ? 'success' : 'secondary'"></p-badge>
+                  </td>
+                  <td class="fw-bold">{{ produit.produitLibelle }}</td>
+                  <td>{{ produit.codeCip || '-' }}</td>
+                  <td class="text-end">{{ formatNumber(produit.quantiteVendue) }}</td>
+                  <td class="text-end fw-bold text-success">{{ formatCurrency(produit.montantTotal) }}</td>
+                  <td class="text-center">{{ produit.nombreVentes }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          } @else {
+            <div class="text-center text-muted py-4">
+              <fa-icon [icon]="faChartLine" size="3x" class="mb-3"></fa-icon>
+              <p>Aucune donnée de produit</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Répartition Paiements + Performance Vendeurs + Alertes -->
+    <div class="col-lg-4">
+      <!-- Répartition des Modes de Paiement -->
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h5 class="data-card-title">
+            <fa-icon [icon]="faMoneyBillWave" class="me-2"></fa-icon>
+            Modes de Paiement
+          </h5>
+        </div>
+        <div class="data-card-body">
+          @if (repartitionPaiementsData()) {
+            <div style="height: 300px">
+              <p-chart type="doughnut" [data]="repartitionPaiementsData()!" [options]="chartOptions"></p-chart>
+            </div>
+            <div class="mt-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Espèces</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantEspeces) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>CB</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantCB) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Chèque</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantCheque) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Mobile Money</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantMobileMoney) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Virement</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantVirement) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Assurance</span>
+                <strong class="text-success">{{ formatCurrency(ventesJour()!.montantAssurance) }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Performance Vendeurs -->
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <h5 class="data-card-title">
+            <fa-icon [icon]="faUsers" class="me-2"></fa-icon>
+            Performance Vendeurs
+          </h5>
+        </div>
+        <div class="data-card-body">
+          @if (performanceVendeurs().length > 0) {
+            <div class="performance-list">
+              @for (vendeur of performanceVendeurs(); track vendeur.vendeurId) {
+                <div class="performance-item">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h6 class="mb-0">{{ vendeur.vendeurNom }}</h6>
+                      <small class="text-muted">{{ vendeur.nombreVentes }} vente(s)</small>
+                    </div>
+                    <strong class="text-success">{{ formatCurrency(vendeur.montantTotal) }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between text-sm">
+                    <span>Ticket moyen: {{ formatCurrency(vendeur.ticketMoyen) }}</span>
+                    <span>Remise: {{ vendeur.tauxRemise }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center text-muted py-4">
+              <fa-icon [icon]="faUsers" size="3x" class="mb-3"></fa-icon>
+              <p>Aucune donnée de performance</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Alertes et Notifications -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <h5 class="data-card-title">
+            <fa-icon [icon]="faExclamationTriangle" class="me-2"></fa-icon>
+            Alertes
+          </h5>
+          @if (totalAlertes() > 0) {
+            <p-badge [value]="totalAlertes().toString()" severity="danger"></p-badge>
+          }
+        </div>
+        <div class="data-card-body">
+          @if (alertes().length > 0) {
+            <div class="alerts-list">
+              @for (alerte of alertes(); track alerte.horodatage) {
+                <div class="alert-item" [class]="'alert-' + getSeverityByType(alerte.type)">
+                  <div class="d-flex align-items-start">
+                    <fa-icon [icon]="faExclamationTriangle" class="me-2 mt-1"></fa-icon>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{ alerte.titre }}</h6>
+                      <p class="mb-1">{{ alerte.message }}</p>
+                      <small class="text-muted">{{ alerte.horodatage | date: 'short' }}</small>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center text-muted py-4">
+              <fa-icon [icon]="faExclamationTriangle" size="3x" class="mb-3"></fa-icon>
+              <p>Aucune alerte</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

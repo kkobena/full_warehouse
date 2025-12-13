@@ -2,7 +2,7 @@
 
 <div class="container-fluid">
   <div class="row">
-    :ù<div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
+    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
       <!-- Modern Navigation Sidebar -->
       <div class="pharma-nav-sidebar">
         <div class="pharma-nav-sidebar-card">
@@ -22,7 +22,7 @@
             >
               <ng-container ngbNavItem="REQUESTED">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-spin pi-spinner"></i>
+                  <i class="pi pi-cart-plus"></i>
                   <span>Commande en cours</span>
                   <span class="link-arrow">›</span>
                 </a>
@@ -54,8 +54,8 @@
                 </a>
                 <ng-template ngbNavContent>
                   <jhi-list-bons
-                    [search]="search"
                     [fournisseurId]="selectFournisseurId"
+                    [search]="search"
                     [dtStart]="dtStart"
                     [dtEnd]="dtEnd"
                   ></jhi-list-bons>
@@ -75,6 +75,20 @@
                   ></jhi-suggestion>
                 </ng-template>
               </ng-container>
+              <ng-container ngbNavItem="REPARTITION_STOCK">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-sync"></i>
+                <span>Pilotage des stocks</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-repartition-stock
+                  [search]="search"
+                  [dtStart]="dtStart"
+                  [dtEnd]="dtEnd"
+                  #repartitionStock></jhi-repartition-stock>
+              </ng-template>
+            </ng-container>
 
               <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -92,16 +106,7 @@
                 </ng-template>
               </ng-container>
 
-              <ng-container ngbNavItem="REPARTITION_STOCK">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-sync"></i>
-                  <span>Répartition Stock</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <jhi-repartition-stock></jhi-repartition-stock>
-                </ng-template>
-              </ng-container>
+
             </div>
           </div>
         </div>
@@ -157,7 +162,7 @@
                   </p-floatlabel>
                 }
 
-                @if (active === 'RETOUR_FOURNISSEUR' || active === 'LIST_BONS') {
+                @if (active === 'RETOUR_FOURNISSEUR' || active === 'LIST_BONS' || active === 'REPARTITION_STOCK') {
                   <p-floatlabel variant="on">
                     <p-datePicker
                       [style]="{ 'max-width': '150px' }"

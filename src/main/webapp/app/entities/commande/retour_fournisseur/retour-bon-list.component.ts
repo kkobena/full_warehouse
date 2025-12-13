@@ -1,7 +1,6 @@
 import { Component, inject, input, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
@@ -35,27 +34,25 @@ export type ExpandMode = 'single' | 'multiple';
     ToastModule,
     ConfirmDialogModule,
     RippleModule,
-    WarehouseCommonModule,
+    WarehouseCommonModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './retour-bon-list.component.html',
-  styleUrl: './retour-bon-list.component.scss',
+  styleUrl: './retour-bon-list.component.scss'
 })
 export class RetourBonListComponent implements OnInit {
   private readonly retourBonService = inject(RetourBonService);
-  private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly modalService = inject(NgbModal);
 
   @ViewChild('dt') table: Table | undefined;
 
   // Inputs from parent component
-  readonly search = input('');
+
   readonly selectedStatut = input<RetourBonStatut | null>(null);
   readonly dtStart = input<Date | null>(null);
   readonly dtEnd = input<Date | null>(null);
-
+  readonly search = input('');
   protected retourBons = signal<IRetourBon[]>([]);
   protected loading = signal<boolean>(false);
   protected totalRecords = signal<number>(0);
@@ -73,7 +70,7 @@ export class RetourBonListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage,
+      size: this.itemsPerPage
     };
 
     if (this.dtStart()) {
@@ -100,7 +97,7 @@ export class RetourBonListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      },
+      }
     });
   }
 
@@ -113,7 +110,7 @@ export class RetourBonListComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours',
+      detail: 'Erreur lors du chargement des retours'
     });
   }
 
@@ -133,14 +130,14 @@ export class RetourBonListComponent implements OnInit {
       SupplierResponseModalComponent,
       {
         retourBon: retourBon,
-        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`,
+        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`
       },
       (reponseRetourBon: IReponseRetourBon) => {
         if (reponseRetourBon) {
           this.saveSupplierResponse(reponseRetourBon);
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -151,7 +148,7 @@ export class RetourBonListComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Réponse fournisseur enregistrée avec succès',
+          detail: 'Réponse fournisseur enregistrée avec succès'
         });
         this.loadAll();
       },
@@ -159,10 +156,10 @@ export class RetourBonListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: "Erreur lors de l'enregistrement de la réponse fournisseur",
+          detail: 'Erreur lors de l\'enregistrement de la réponse fournisseur'
         });
         this.loading.set(false);
-      },
+      }
     });
   }
 

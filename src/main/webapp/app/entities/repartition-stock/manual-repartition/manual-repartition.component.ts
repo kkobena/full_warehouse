@@ -276,4 +276,8 @@ export class ManualRepartitionComponent implements OnInit {
     this.repartitionRows = [];
     this.searchTerm = '';
   }
+
+  get validRowsCount(): number {
+    return this.repartitionRows?.filter(r => r.isValid)?.length ?? 0;
+  }
 }

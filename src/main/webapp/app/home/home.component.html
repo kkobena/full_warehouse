@@ -1,4 +1,5 @@
 @if (account() !== null) {
+  <!-- Dashboard Admin avec navigation -->
   @if (isAdmin()) {
     <div class="container-fluid">
       <div class="row">
@@ -13,8 +14,6 @@
 
               <div class="pharma-nav-sidebar-content">
                 <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
-
-
                   <ng-container ngbNavItem="daily">
                     <a class="pharma-nav-vertical-link" ngbNavLink>
                       <i class="pi pi-calendar"></i>
@@ -80,7 +79,6 @@
                       <jhi-customizable-dashboard></jhi-customizable-dashboard>
                     </ng-template>
                   </ng-container>
-
                 </div>
               </div>
             </div>
@@ -90,6 +88,29 @@
         <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content">
           <div [ngbNavOutlet]="nav"></div>
         </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dashboard Responsable Commande -->
+  @if (isResponsableCommande() && !isAdmin()) {
+    <jhi-responsable-commande-dashboard></jhi-responsable-commande-dashboard>
+  }
+
+  <!-- Dashboard Caissier -->
+  @if (isCaissier() && !isAdmin() && !isResponsableCommande()) {
+    <jhi-caissier-dashboard></jhi-caissier-dashboard>
+  }
+
+  <!-- Dashboard Vendeur (TODO: à implémenter) -->
+  @if (isVendeur() && !isAdmin() && !isResponsableCommande() && !isCaissier()) {
+    <div class="container-fluid p-4">
+      <div class="alert alert-info">
+        <h4>
+          <i class="pi pi-info-circle me-2"></i>
+          Dashboard Vendeur
+        </h4>
+        <p class="mb-0">Le dashboard spécifique pour les vendeurs sera bientôt disponible.</p>
       </div>
     </div>
   }

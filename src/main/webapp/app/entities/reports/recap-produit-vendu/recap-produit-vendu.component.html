@@ -190,7 +190,7 @@
   <!-- Tabs -->
   <div class="row mt-3">
     <div class="col-12">
-      <ul [ngbNav]="nav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs" orientation="horizontal">
+      <ul #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" ngbNav class="nav-tabs" orientation="horizontal">
         <li [ngbNavItem]="'vendus'">
           <a ngbNavLink>
             <i class="pi pi-shopping-cart me-2"></i>

@@ -7,7 +7,9 @@
       <i class="pi pi-sync"></i>
       <span class="pharma-toolbar-title">Répartition Manuelle de Stock</span>
     </div>
-
+<!-- appliquer le meme style de toolbar que productSearch de la vente -->
+<!-- Permetre la création en meme temps lorsque le produit n'a pas de reserve crée en amont -->
+<!-- rendre repartition-table-container plus compact -->
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
@@ -49,7 +51,7 @@
             [loading]="isSaving"
             [raised]="true"
             icon="pi pi-check"
-            label="Valider ({{ repartitionRows.filter(r => r.isValid).length }})"
+            label="Valider ({{ validRowsCount }})"
             severity="success"
           />
         </div>
@@ -224,7 +226,7 @@
       <div class="summary-footer mt-3">
         <div class="alert alert-info mb-0">
           <i class="pi pi-info-circle me-2"></i>
-          <strong>{{ repartitionRows.length }}</strong> ligne(s) - <strong>{{ repartitionRows.filter(r => r.isValid).length }}</strong> valide(s)
+          <strong>{{ repartitionRows.length }}</strong> ligne(s) - <strong>{{validRowsCount}}</strong> valide(s)
         </div>
       </div>
     </div>

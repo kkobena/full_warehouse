@@ -1,0 +1,420 @@
+<p-toast></p-toast>
+
+<div class="responsable-commande-dashboard dark-theme">
+  <!-- Header avec Quick Actions -->
+  <div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="dashboard-title mb-1">
+          <fa-icon [icon]="faWarehouse" class="me-2 text-warning"></fa-icon>
+          Tableau de Bord Responsable Commande
+        </h2>
+        @if (lastRefresh()) {
+          <p class="text-muted small mb-0">
+            <fa-icon [icon]="faClock" class="me-1"></fa-icon>
+            Dernière actualisation: {{ lastRefresh() | date: 'dd/MM/yyyy HH:mm:ss' }}
+          </p>
+        }
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions d-flex gap-2">
+        <p-button
+          type="button"
+          label="Nouvelle Commande"
+          icon="pi pi-file-edit"
+          severity="warning"
+          size="large"
+          (click)="nouvelleCommande()"
+        ></p-button>
+        <p-button
+          type="button"
+          label="Analyser Stock"
+          icon="pi pi-search"
+          severity="info"
+          (click)="analyserStock()"
+        ></p-button>
+        <p-button type="button" label="Inventaire" icon="pi pi-clipboard" severity="secondary" (click)="lancerInventaire()"></p-button>
+        <p-button
+          type="button"
+          label="Alertes"
+          icon="pi pi-exclamation-triangle"
+          severity="danger"
+          [badge]="totalAlertes().toString()"
+          (click)="gererAlertes()"
+        ></p-button>
+        <p-button type="button" icon="pi pi-refresh" [rounded]="true" [loading]="isLoading()" (click)="refreshDashboard()"></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards Row -->
+  <div class="row kpi-row mb-4">
+    <!-- Carte 1: Alertes Stock Critiques -->
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="kpi-card alert-card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="kpi-icon text-danger">
+              <fa-icon [icon]="faExclamationTriangle" size="2x"></fa-icon>
+            </div>
+            <p-badge [value]="totalAlertes().toString()" severity="danger" size="large"></p-badge>
+          </div>
+          <h5 class="kpi-label text-muted mb-3">Alertes Stock</h5>
+          @if (stockAlerts(); as alerts) {
+            <div class="kpi-details">
+              <div class="alert-item mb-2">
+                <span class="badge bg-danger me-2">{{ alerts.rupture }}</span>
+                <span class="text-light small">Rupture</span>
+              </div>
+              <div class="alert-item mb-2">
+                <span class="badge bg-warning me-2">{{ alerts.stockCritique }}</span>
+                <span class="text-light small">Stock critique</span>
+              </div>
+              <div class="alert-item mb-2">
+                <span class="badge bg-info me-2">{{ alerts.bientotEnRupture }}</span>
+                <span class="text-light small">Bientôt en rupture</span>
+              </div>
+              <div class="alert-item">
+                <span class="badge bg-secondary me-2">{{ alerts.reassortStockRayon }}</span>
+                <span class="text-light small">Réassort rayon</span>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="card-footer">
+          <p-button type="button" label="Action requise" icon="pi pi-exclamation-circle" class="p-button-sm p-button-danger w-100"></p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 2: Commandes en Cours -->
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="kpi-card commande-card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="kpi-icon text-info">
+              <fa-icon [icon]="faBoxes" size="2x"></fa-icon>
+            </div>
+            @if (commandesEnCours(); as commandes) {
+              <p-badge [value]="(commandes.enAttente + commandes.aReceptionner).toString()" severity="info" size="large"></p-badge>
+            }
+          </div>
+          <h5 class="kpi-label text-muted mb-3">Commandes en Cours</h5>
+          @if (commandesEnCours(); as commandes) {
+            <div class="kpi-details">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-light small">En attente</span>
+                <span class="fw-bold text-warning">{{ commandes.enAttente }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-light small">À réceptionner</span>
+                <span class="fw-bold text-success">{{ commandes.aReceptionner }}</span>
+              </div>
+              <div class="total-amount">
+                <span class="text-muted small">Total</span>
+                <h4 class="text-primary mb-0">{{ commandes.totalMontant | number }} FCFA</h4>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 3: Péremptions Proches -->
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="kpi-card peremption-card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="kpi-icon text-warning">
+              <fa-icon [icon]="faClock" size="2x"></fa-icon>
+            </div>
+            @if (peremptions(); as perems) {
+              <p-badge [value]="(perems.unMois + perems.unATroisMois + perems.troisASixMois).toString()" severity="warning" size="large"></p-badge>
+            }
+          </div>
+          <h5 class="kpi-label text-muted mb-3">Péremptions</h5>
+          @if (peremptions(); as perems) {
+            <div class="kpi-details">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-light small">&lt; 1 mois</span>
+                <span class="fw-bold text-danger">{{ perems.unMois }} produits</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-light small">1-3 mois</span>
+                <span class="fw-bold text-warning">{{ perems.unATroisMois }} produits</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-light small">3-6 mois</span>
+                <span class="fw-bold text-info">{{ perems.troisASixMois }} produits</span>
+              </div>
+              <div class="total-amount">
+                <span class="text-muted small">Valeur à risque</span>
+                <h5 class="text-warning mb-0">{{ perems.valeurTotale | number }} FCFA</h5>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 4: Rotation Stock -->
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="kpi-card rotation-card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="kpi-icon text-success">
+              <fa-icon [icon]="faSync" size="2x"></fa-icon>
+            </div>
+          </div>
+          <h5 class="kpi-label text-muted mb-3">Rotation Stock</h5>
+          @if (rotationStock(); as rotation) {
+            <div class="kpi-details">
+              <div class="rotation-moyenne mb-3">
+                <span class="text-muted small">Rotation moyenne</span>
+                <h3 [class]="'text-' + getRotationColor(rotation.rotationMoyenne) + ' mb-0'">{{ rotation.rotationMoyenne }}x/mois</h3>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-light small">🟢 Rapide (&gt;4x)</span>
+                <span class="fw-bold text-success">{{ rotation.rapide }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-light small">🟡 Normal (2-4x)</span>
+                <span class="fw-bold text-warning">{{ rotation.normal }}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-light small">🔴 Lent (&lt;2x)</span>
+                <span class="fw-bold text-danger">{{ rotation.lent }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Suggestions de Réapprovisionnement -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card data-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <fa-icon [icon]="faClipboardList" class="me-2 text-warning"></fa-icon>
+            Suggestions Intelligentes de Réapprovisionnement
+          </h5>
+          <div>
+            <small class="text-muted me-3">Basé sur: Historique 3 mois, Tendances, Saisonnalité</small>
+            @if (selectedSuggestions().length > 0) {
+              <span class="badge bg-warning me-2">{{ selectedSuggestions().length }} sélectionnés</span>
+              <span class="badge bg-info">{{ totalMontantSuggestions() | number }} FCFA</span>
+            }
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <p-table [value]="suggestions()" [scrollable]="true" scrollHeight="400px" class="p-datatable-sm">
+            <ng-template #header>
+              <tr>
+                <th style="width: 3rem">
+                  <p-checkbox [binary]="true" (onChange)="toggleAllSuggestions()"></p-checkbox>
+                </th>
+                <th>Produit</th>
+                <th>Code CIP</th>
+                <th class="text-end">Stock</th>
+                <th class="text-end">Cons. moy./j</th>
+                <th class="text-end">Qté suggérée</th>
+                <th>Fournisseur</th>
+                <th class="text-end">Prix Unit.</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-suggestion>
+              <tr>
+                <td>
+                  <p-checkbox [(ngModel)]="suggestion.selected" [binary]="true" (onChange)="toggleSuggestion(suggestion)"></p-checkbox>
+                </td>
+                <td>{{ suggestion.produitLibelle }}</td>
+                <td><span class="pharma-code">{{ suggestion.codeCip }}</span></td>
+                <td class="text-end">
+                  <span [class]="suggestion.stockActuel < 10 ? 'text-danger fw-bold' : ''">{{ suggestion.stockActuel }}</span>
+                </td>
+                <td class="text-end">{{ suggestion.consommationMoyenne }}</td>
+                <td class="text-end">
+                  <span class="badge bg-primary">{{ suggestion.quantiteSuggeree }}</span>
+                </td>
+                <td>{{ suggestion.fournisseurName }}</td>
+                <td class="text-end">{{ suggestion.prixUnitaire | number }}</td>
+                <td class="text-end fw-bold text-success">{{ (suggestion.prixUnitaire || 0) * suggestion.quantiteSuggeree | number }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #footer>
+              <tr>
+                <td colspan="9" class="p-3">
+                  <div class="d-flex justify-content-end gap-2">
+                    <p-button
+                      pButton
+                      type="button"
+                      label="Tout sélectionner"
+                      icon="pi pi-check-square"
+                      class="p-button-sm p-button-secondary"
+                      (click)="toggleAllSuggestions()"
+                    ></p-button>
+                    <p-button
+                      pButton
+                      type="button"
+                      label="Générer commande"
+                      icon="pi pi-file-export"
+                      class="p-button-sm p-button-warning"
+                      [disabled]="selectedSuggestions().length === 0"
+                      (click)="genererCommande()"
+                    ></p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Analyse ABC & Performance Fournisseurs -->
+  <div class="row mb-4">
+    <!-- Analyse ABC -->
+    <div class="col-lg-6 mb-3">
+      <div class="card data-card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <fa-icon [icon]="faChartBar" class="me-2 text-info"></fa-icon>
+            Analyse ABC du Stock (Loi de Pareto)
+          </h5>
+        </div>
+        <div class="card-body">
+          @if (analyseABC(); as abc) {
+            <!-- Classe A -->
+            <div class="abc-item mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <h6 class="text-success mb-0">Classe A ({{ abc.classeA.pourcentageProduits }}% produits = {{ abc.classeA.pourcentageCA }}% CA)</h6>
+                <span class="badge bg-success">{{ abc.classeA.nombreProduits }} références</span>
+              </div>
+              <p-progressBar [value]="abc.classeA.pourcentageCA" [showValue]="false" severity="success"></p-progressBar>
+              <p class="text-muted small mt-1 mb-0">Valeur: {{ abc.classeA.valeur | number }} FCFA</p>
+            </div>
+
+            <!-- Classe B -->
+            <div class="abc-item mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <h6 class="text-warning mb-0">Classe B ({{ abc.classeB.pourcentageProduits }}% produits = {{ abc.classeB.pourcentageCA }}% CA)</h6>
+                <span class="badge bg-warning">{{ abc.classeB.nombreProduits }} références</span>
+              </div>
+              <p-progressBar [value]="abc.classeB.pourcentageCA" [showValue]="false" severity="warning"></p-progressBar>
+              <p class="text-muted small mt-1 mb-0">Valeur: {{ abc.classeB.valeur | number }} FCFA</p>
+            </div>
+
+            <!-- Classe C -->
+            <div class="abc-item">
+              <div class="d-flex justify-content-between mb-2">
+                <h6 class="text-danger mb-0">Classe C ({{ abc.classeC.pourcentageProduits }}% produits = {{ abc.classeC.pourcentageCA }}% CA)</h6>
+                <span class="badge bg-danger">{{ abc.classeC.nombreProduits }} références</span>
+              </div>
+              <p-progressBar [value]="abc.classeC.pourcentageCA" [showValue]="false" severity="danger"></p-progressBar>
+              <p class="text-muted small mt-1 mb-0">Valeur: {{ abc.classeC.valeur | number }} FCFA</p>
+            </div>
+          }
+        </div>
+        <div class="card-footer">
+          <div class="d-flex gap-2">
+            <p-button type="button" label="Voir détails" icon="pi pi-eye" class="p-button-sm p-button-outlined"></p-button>
+            <p-button type="button" label="Exporter" icon="pi pi-download" class="p-button-sm p-button-outlined"></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Fournisseurs -->
+    <div class="col-lg-6 mb-3">
+      <div class="card data-card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <fa-icon [icon]="faTruck" class="me-2 text-primary"></fa-icon>
+            Performance Fournisseurs (Top 5)
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <p-table [value]="performanceFournisseurs()" styleClass="p-datatable-sm">
+            <ng-template #header>
+              <tr>
+                <th>Fournisseur</th>
+                <th class="text-center">Cdes</th>
+                <th class="text-center">Délai moy.</th>
+                <th class="text-center">Taux conf.</th>
+                <th class="text-end">CA YTD</th>
+                <th class="text-center">Note</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-fournisseur>
+              <tr>
+                <td class="fw-bold">{{ fournisseur.fournisseurName }}</td>
+                <td class="text-center">{{ fournisseur.nombreCommandes }}</td>
+                <td class="text-center">{{ fournisseur.delaiMoyenJours }} jours</td>
+                <td class="text-center">
+                  <span
+                    class="badge"
+                    [class.bg-success]="fournisseur.tauxConformite >= 95"
+                    [class.bg-warning]="fournisseur.tauxConformite >= 90 && fournisseur.tauxConformite < 95"
+                    [class.bg-danger]="fournisseur.tauxConformite < 90"
+                  >
+                    {{ fournisseur.tauxConformite }}%
+                  </span>
+                </td>
+                <td class="text-end">{{ fournisseur.caAnnuel | number }}</td>
+                <td class="text-center">
+                  @for (star of getStarArray(fournisseur.note); track $index) {
+                    <fa-icon [icon]="faStar" [class]="star === 1 ? 'text-warning' : 'text-muted'" size="sm"></fa-icon>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Notifications & Alertes -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card data-card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <fa-icon [icon]="faBell" class="me-2 text-warning"></fa-icon>
+            Notifications & Alertes
+          </h5>
+        </div>
+        <div class="card-body">
+          @for (notification of notifications(); track $index) {
+            <div class="notification-item mb-3 p-3 border-start border-4" [class]="'border-' + getSeverityByType(notification.type)">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center mb-2">
+                    <p-tag [severity]="getSeverityByType(notification.type)" [value]="notification.type"></p-tag>
+                    @if (notification.count) {
+                      <span class="badge bg-secondary ms-2">{{ notification.count }}</span>
+                    }
+                  </div>
+                  <p class="mb-2 text-light">{{ notification.message }}</p>
+                  @if (notification.actions && notification.actions.length > 0) {
+                    <div class="d-flex gap-2">
+                      @for (action of notification.actions; track $index) {
+                        <p-button type="button" [label]="action.label" class="p-button-sm p-button-outlined"></p-button>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,7 +6,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'jhi-pie-chart-widget',
-  standalone: true,
+
   imports: [CommonModule],
   template: `
     <div class="pie-chart-widget">

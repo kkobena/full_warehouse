@@ -53,6 +53,7 @@ export interface IStorage {
   id?: number;
   name?: string;
   storageType?: string;
+  type?: string;
   magasin?: IMagasin;
 }
 

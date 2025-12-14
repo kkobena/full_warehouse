@@ -127,6 +127,8 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
 // Filter section (left side)
 .pharma-toolbar-filters {
+  padding-top: .25rem ;
+  padding-bottom: .25rem ;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -342,6 +344,9 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
 // Standard input field width (for lot number, etc.)
 .pharma-toolbar-filters {
+  padding-top: .25rem !important;
+  padding-bottom: .25rem !important;
+
   ::ng-deep p-floatlabel {
     min-width: 180px;
     flex-shrink: 1;

@@ -30,7 +30,6 @@
       >
         <ng-template #header>
           <tr class="pharma-table-head">
-            <th style="width: 80px">ID</th>
             <th>Libellé</th>
             <th style="width: 150px; text-align: center">Actions</th>
           </tr>
@@ -38,7 +37,6 @@
 
         <ng-template #body let-motif>
           <tr>
-            <td>{{ motif.id }}</td>
             <td>
               <span class="motif-label">{{ motif.libelle }}</span>
             </td>

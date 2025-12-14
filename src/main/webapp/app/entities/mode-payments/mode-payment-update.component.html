@@ -15,13 +15,12 @@
         </div>
       </ng-template>
       <div class="form-grid-compact">
-        <div class="form-field form-field-full">
+        <div [hidden]="true" class="form-field form-field-full">
           <label class="form-control-label" for="field_code">Code<span
             class="required">*</span></label>
           <input #codeField
-                 [hidden]="true"
+
                  autocomplete="off"
-                 class="form-control"
                  formControlName="code"
                  id="field_code"
                  maxlength="50"
@@ -48,7 +47,6 @@
             class="required">*</span></label>
           <input
             autocomplete="off"
-            class="form-control"
             formControlName="libelle"
             id="field_libelle"
             name="libelle"
@@ -70,7 +68,6 @@
             class="required">*</span></label>
           <input
             autocomplete="off"
-            class="form-control"
             formControlName="order"
             id="field_order"
             min="0"
@@ -134,7 +131,7 @@
     <p-button
       (click)="cancel()"
       [raised]="true"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
@@ -143,7 +140,7 @@
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [raised]="true"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-check"
       label="Enregistrer"
       severity="success"

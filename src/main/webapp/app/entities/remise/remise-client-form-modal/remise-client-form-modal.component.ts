@@ -31,7 +31,7 @@ import { ErrorService } from '../../../shared/error.service';
     Card,
   ],
   templateUrl: './remise-client-form-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./remise-client-form-form.scss'],
 })
 export class RemiseClientFormModalComponent implements AfterViewInit {
   remiseValue = viewChild.required<ElementRef>('remiseValue');

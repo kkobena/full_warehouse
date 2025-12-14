@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { FamilleProduitService } from '../famille-produit.service';
@@ -18,10 +18,10 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card],
+  styleUrls: ['./form-famille.scss'],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card]
 })
-export class FormFamilleComponent implements OnInit {
+export class FormFamilleComponent implements OnInit,AfterViewInit {
   familleProduit?: IFamilleProduit;
   header: string = '';
   protected isSaving = false;
@@ -31,12 +31,15 @@ export class FormFamilleComponent implements OnInit {
     id: [],
     code: [null, [Validators.required]],
     libelle: [null, [Validators.required]],
-    categorieId: [null, [Validators.required]],
+    categorieId: [null, [Validators.required]]
   });
   protected categorieProduitService = inject(CategorieService);
   private readonly entityService = inject(FamilleProduitService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
+  private readonly libelle = viewChild.required<ElementRef>('libelle');
 
   ngOnInit(): void {
     this.populateAssurrance();
@@ -44,13 +47,18 @@ export class FormFamilleComponent implements OnInit {
       this.updateForm(this.familleProduit);
     }
   }
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.libelle().nativeElement.focus();
+    }, 100);
+  }
 
   protected updateForm(entity: IFamilleProduit): void {
     this.editForm.patchValue({
       id: entity.id,
       code: entity.code,
       libelle: entity.libelle,
-      categorieId: entity.categorieId,
+      categorieId: entity.categorieId
     });
   }
 
@@ -58,7 +66,7 @@ export class FormFamilleComponent implements OnInit {
     this.categorieProduitService.query({ search: '' }).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
         this.categorieproduits = res.body;
-      },
+      }
     });
   }
 
@@ -76,6 +84,20 @@ export class FormFamilleComponent implements OnInit {
     this.activeModal.dismiss();
   }
 
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
+  }
+
   protected onSaveError(): void {
     this.isSaving = false;
     this.alert().showError();
@@ -84,7 +106,7 @@ export class FormFamilleComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IFamilleProduit>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -98,7 +120,7 @@ export class FormFamilleComponent implements OnInit {
       id: this.editForm.get(['id']).value,
       code: this.editForm.get(['code']).value,
       libelle: this.editForm.get(['libelle']).value,
-      categorieId: this.editForm.get(['categorieId']).value,
+      categorieId: this.editForm.get(['categorieId']).value
     };
   }
 }

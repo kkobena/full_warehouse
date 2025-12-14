@@ -48,13 +48,15 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -376,7 +378,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 CashSale copy = (CashSale) sales.clone();
-                  copySale(sales, copy);
+                copySale(sales, copy);
                 setId(copy);
                 copy.setSaleDate(LocalDate.now());
                 sales.setEffectiveUpdateDate(LocalDateTime.now());
@@ -447,4 +449,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate) {
         return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate);
     }
+
+
 }

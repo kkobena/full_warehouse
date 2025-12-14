@@ -15,7 +15,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-laboratoire.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-laboratoire.scss'],
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormLaboratoireComponent implements OnInit, AfterViewInit {

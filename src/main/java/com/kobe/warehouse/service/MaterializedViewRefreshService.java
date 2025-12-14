@@ -203,6 +203,7 @@ public class MaterializedViewRefreshService {
             // Use REFRESH MATERIALIZED VIEW CONCURRENTLY to avoid locking
             // This requires a unique index on the view (which all our views have)
             String sql = "REFRESH MATERIALIZED VIEW CONCURRENTLY " + viewName;
+            //c.k.w.s.MaterializedViewRefreshService   : Failed to refresh materialized view: mv_dashboard_ca_payment_methods
             entityManager.createNativeQuery(sql).executeUpdate();
 
             LocalDateTime endTime = LocalDateTime.now();

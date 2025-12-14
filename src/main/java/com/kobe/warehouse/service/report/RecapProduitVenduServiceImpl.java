@@ -77,9 +77,9 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             where.append(" AND s.caissier_id = :userId");
             params.put("userId", requestParam.userId());
         }
-        if (requestParam.searchTerm() != null && !requestParam.searchTerm().isBlank()) {
+        if (StringUtils.hasText(requestParam.searchTerm())) {
             where.append(
-                " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_laboratoire) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
+                " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_labo) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
             );
             params.put("q", requestParam.searchTerm().toUpperCase() + "%");
         }
@@ -160,13 +160,13 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         QuerySpec spec = buildWhereClause(requestParam);
 
         // Base joins (using explicit joins in FROM for better control)
-        sb.append("SELECT p.id, p.libelle, p.code_ean_laboratoire, ")
+        sb.append("SELECT p.id, p.libelle, p.code_ean_labo, ")
             .append(" COALESCE(MIN(fp.code_cip), '') AS code_cip, ")
             .append(" COALESCE(MIN(r.libelle), '') AS rayon_name, ")
             .append(" SUM(sl.quantity_sold) AS quantity_sold, ")
             .append(" SUM(sl.quantity_avoir) AS quantity_avoir, ")
             .append(" SUM(sl.sales_amount) AS total_sales_amount, ")
-            .append(" SUM(sl.cost_amount) AS total_purchase_amount ")
+            .append(" SUM(sl.cost_amount*sl.quantity_requested) AS total_purchase_amount, ")
             .append(" SUM(st.qty_stock+st.qty_ug) AS total_total_stock ")
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
@@ -176,7 +176,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
 
-        String groupBy = " GROUP BY p.id, p.libelle, p.code_ean_laboratoire";
+        String groupBy = " GROUP BY p.id, p.libelle, p.code_ean_labo";
 
         String baseFromWhere = sb + spec.where;
 
@@ -219,13 +219,13 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClauseForUnsold(requestParam);
 
-        sb.append("SELECT p.id, p.libelle, p.code_ean_laboratoire, ")
+        sb.append("SELECT p.id, p.libelle, p.code_ean_labo, ")
             .append(" COALESCE(MIN(fp.code_cip), '') AS code_cip, ")
             .append(" COALESCE(MIN(r.libelle), '') AS rayon_name, ")
             .append(" 0 AS quantity_sold, ")
             .append(" 0 AS quantity_avoir, ")
-            .append(" 0 AS total_sales_amount, ")
-            .append(" 0 AS total_purchase_amount, ")
+            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.regular_unit_price), 0)  AS total_sales_amount, ")
+            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.cost_amount), 0) AS total_purchase_amount, ")
             .append(" COALESCE(SUM(st.qty_stock + st.qty_ug), 0) AS total_stock ")
             .append(" FROM produit p ")
             .append(" JOIN stock_produit st ON st.produit_id = p.id ")
@@ -247,7 +247,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
         // Add additional filters
         sb.append(spec.where);
-        sb.append(" GROUP BY p.id, p.libelle, p.code_ean_laboratoire");
+        sb.append(" GROUP BY p.id, p.libelle, p.code_ean_labo");
         sb.append(" ORDER BY p.libelle");
 
         String dataSql = sb.toString();
@@ -275,12 +275,10 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             String codeEanLaboratoire = (String) r[2];
             String codeCip = (String) r[3];
             String rayonName = (String) r[4];
-            Integer qtySold = 0;
-            Integer qtyAvoir = 0;
-            Integer totalSales = 0;
-            Integer totalPurchase = 0;
+            Integer totalSales =  r[7] != null ? ((Number) r[7]).intValue() : 0;
+            Integer totalPurchase =  r[8] != null ? ((Number) r[8]).intValue() : 0;
             Integer totalStock = r[9] != null ? ((Number) r[9]).intValue() : 0;
-            content.add(new RecapProduitVendu(id, libelle, codeCip, codeEanLaboratoire, rayonName, qtySold, qtyAvoir, totalSales, totalPurchase, totalStock));
+            content.add(new RecapProduitVendu(id, libelle, codeCip, codeEanLaboratoire, rayonName, 0, 0, totalSales, totalPurchase, totalStock));
         }
 
         return new PageImpl<>(content, pageable, totalElements);
@@ -295,7 +293,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" COALESCE(SUM(sl.quantity_sold),0) AS quantity_sold, ")
             .append(" COALESCE(SUM(sl.quantity_avoir),0) AS quantity_avoir, ")
             .append(" COALESCE(SUM(sl.sales_amount),0) AS total_sales_amount, ")
-            .append(" COALESCE(SUM(sl.cost_amount),0) AS total_purchase_amount, ")
+            .append(" COALESCE(SUM(sl.cost_amount*sl.quantity_requested),0) AS total_purchase_amount, ")
             .append(" COALESCE(SUM(st.qty_stock + st.qty_ug),0) AS total_stock ")
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
@@ -387,7 +385,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
         if (requestParam.searchTerm() != null && !requestParam.searchTerm().isBlank()) {
             where.append(
-                " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_laboratoire) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
+                " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_labo) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
             );
             params.put("q", requestParam.searchTerm().toUpperCase() + "%");
         }
@@ -553,7 +551,9 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
         sb.append("SELECT ")
             .append(" COUNT(DISTINCT p.id) AS total_products, ")
-            .append(" COALESCE(SUM(st.qty_stock + st.qty_ug), 0) AS total_stock ")
+            .append(" COALESCE(SUM(st.qty_stock + st.qty_ug), 0) AS total_stock, ")
+            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.cost_amount), 0) AS total_purchase_amount, ")
+            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.regular_unit_price), 0) AS total_sales_amount ")
             .append(" FROM produit p ")
             .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
@@ -585,8 +585,8 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             ((Number) result[0]).longValue(),
             0,
             0,
-            0L,
-            0L,
+            ((Number) result[3]).longValue(),
+            ((Number) result[2]).longValue(),
             ((Number) result[1]).longValue()
         );
     }

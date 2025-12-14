@@ -22,7 +22,7 @@ import { Storage } from '../../storage/storage.model';
 @Component({
   selector: 'jhi-form-rayon',
   templateUrl: './form-rayon.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./rayon-form.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -124,11 +124,10 @@ export class FormRayonComponent implements OnInit, AfterViewInit {
 
       .subscribe((res: HttpResponse<Storage[]>) => {
         this.storages = res.body;
-
         if (this.entity) {
           this.updateForm(this.entity);
         } else {
-          const storage = this.storages.find(s => s.storageType === 'Stockage principal');
+          const storage = this.storages.find(s => s.type === 'PRINCIPAL');
           this.editForm.get('storageId')?.setValue(storage?.id);
         }
       });

@@ -6,7 +6,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'jhi-bar-chart-widget',
-  standalone: true,
+
   imports: [CommonModule],
   template: `
     <div class="bar-chart-widget">

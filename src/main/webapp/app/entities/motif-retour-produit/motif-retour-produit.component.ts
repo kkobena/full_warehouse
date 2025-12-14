@@ -19,7 +19,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
 
 @Component({
   selector: 'jhi-motif-retour-produit',
-  standalone: true,
+
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputTextModule, ConfirmDialogModule, ToastModule, Tooltip],
   providers: [ConfirmationService, MessageService],
   templateUrl: './motif-retour-produit.component.html',

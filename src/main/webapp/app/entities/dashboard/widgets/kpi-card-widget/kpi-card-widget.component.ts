@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'jhi-kpi-card-widget',
-  standalone: true,
+
   imports: [CommonModule],
   template: `
     <div class="kpi-card">

@@ -16,7 +16,7 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
   selector: 'jhi-form-tva',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tva.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-tva.scss'],
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
   header: string = '';

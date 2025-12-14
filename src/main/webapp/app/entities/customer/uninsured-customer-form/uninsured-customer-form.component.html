@@ -19,14 +19,15 @@
       </ng-template>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_firstName">Nom<span class="required">*</span></label>
+          <label for="field_firstName">Nom<span class="required">*</span></label>
           <input
             #firstName
             autocomplete="off"
-            class="form-control"
+
             formControlName="firstName"
             id="field_firstName"
             name="firstName"
+            class="w-full"
             pInputText
             type="text"
           />
@@ -40,13 +41,13 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_lastName">Prénom(s)<span class="required">*</span></label>
+          <label  for="field_lastName">Prénom(s)<span class="required">*</span></label>
           <input
             autocomplete="off"
-            class="form-control"
             formControlName="lastName"
             id="field_lastName"
             name="lastName"
+            class="w-full"
             pInputText
             type="text"
           />
@@ -60,10 +61,10 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_phone">Téléphone<span class="required">*</span></label>
+          <label  for="field_phone">Téléphone<span class="required">*</span></label>
           <input
             autocomplete="off"
-            class="form-control"
+            class="w-full"
             formControlName="phone"
             id="field_phone"
             name="phone"
@@ -91,8 +92,8 @@
       </ng-template>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_email">E-mail</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
+          <label for="field_email">E-mail</label>
+          <input autocomplete="off" class="w-full" formControlName="email" id="field_email" name="email" pInputText type="email" />
         </div>
       </div>
     </p-card>

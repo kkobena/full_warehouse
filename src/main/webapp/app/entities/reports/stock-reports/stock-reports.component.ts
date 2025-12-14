@@ -6,7 +6,6 @@ import StockAlertsComponent from '../stock-alerts/stock-alerts.component';
 import StockValuationComponent from '../stock-valuation/stock-valuation.component';
 import StockRotationComponent from '../stock-rotation/stock-rotation.component';
 import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
-import RecapProduitVenduComponent from '../recap-produit-vendu/recap-produit-vendu.component';
 
 @Component({
   selector: 'jhi-stock-reports',
@@ -16,11 +15,11 @@ import RecapProduitVenduComponent from '../recap-produit-vendu/recap-produit-ven
     StockAlertsComponent,
     StockValuationComponent,
     StockRotationComponent,
-    ABCParetoComponent,
-    RecapProduitVenduComponent,
+    ABCParetoComponent
+
   ],
   templateUrl: './stock-reports.component.html',
-  styleUrl: './stock-reports.component.scss',
+  styleUrl: './stock-reports.component.scss'
 })
 export default class StockReportsComponent {
   active = signal<string>('stock-alerts');

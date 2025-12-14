@@ -10,7 +10,7 @@ import {
   OnInit,
   PLATFORM_ID,
   signal,
-  viewChild,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
@@ -27,10 +27,17 @@ import { ITypePrescription } from '../../../shared/model/prescription-vente.mode
 import { ICustomer } from '../../../shared/model/customer.model';
 import { ProduitSearch } from '../../../shared/model/produit.model';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import { FinalyseSale, InputToFocus, ISales, SaleId, SaveResponse, StockError } from '../../../shared/model/sales.model';
+import {
+  FinalyseSale,
+  InputToFocus,
+  ISales,
+  SaleId,
+  SaveResponse,
+  StockError
+} from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
-import { EMPTY, Observable, of } from 'rxjs';
+import { EMPTY, interval, Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { SalesService } from '../sales.service';
 import { CustomerService } from '../../customer/customer.service';
@@ -78,14 +85,16 @@ import {
   isVo,
   SaleType,
   showCommonError,
-  translateSalesLabel,
+  translateSalesLabel
 } from './sale-helper';
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
 import { DeconditionnementService } from '../validator/deconditionnement.service';
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
-import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
+import {
+  ProduitSearchAutocompleteScannerComponent
+} from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { SellingHomeShortcutsService } from './racourci/selling-home-shortcuts.service';
 import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
@@ -116,10 +125,10 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
     ConfirmDialogComponent,
     ToastAlertComponent,
     QuantiteProdutSaisieComponent,
-    ProduitSearchAutocompleteScannerComponent,
+    ProduitSearchAutocompleteScannerComponent
   ],
   templateUrl: './selling-home.component.html',
-  styleUrl: './selling-home.component.scss',
+  styleUrl: './selling-home.component.scss'
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
@@ -163,6 +172,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected showInsuranceDataBar = signal(true);
   protected showInsuranceTogle = signal(false);
   protected sidebarCollapsed = signal(false);
+  protected countPendingSales = signal(0);
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
@@ -253,7 +263,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.salesService
         .addCustommerToCashSale({
           id: this.currentSaleService.currentSale().saleId,
-          value: this.selectedCustomerService.selectedCustomerSignal().id,
+          value: this.selectedCustomerService.selectedCustomerSignal().id
         })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
@@ -325,6 +335,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isPresale = params.get('isPresale') === 'true';
       }
     });
+    this.fetchCountPendingSales();
+    interval(60000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.reloadPendingSalesCount();
+      });
   }
 
   ngAfterViewInit(): void {
@@ -386,10 +402,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           },
           this.translateLabel('venteSansBonHeader'),
-          this.translateLabel('venteSansBon'),
+          this.translateLabel('venteSansBon')
         );
       } else {
-        this.confimDialog().onWarn(() => {}, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
+        this.confimDialog().onWarn(() => {
+        }, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
       }
     } else {
       if (this.isAssurance()) {
@@ -440,7 +457,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onCommonError(err);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -453,7 +470,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.voSalesService
       .changeCustomer({
         id: curr.saleId,
-        value: cust.id,
+        value: cust.id
       })
       .pipe(
         switchMap(() => this.voSalesService.find(curr.saleId)),
@@ -462,7 +479,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onChangeCustomerError(err, oldCustomer);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -483,7 +500,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             } else {
               this.assuranceComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
               );
             }
           } else if (this.isCartnet()) {
@@ -492,7 +509,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             } else {
               this.carnetComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
               );
             }
           }
@@ -564,6 +581,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Clear and reset customer display to welcome message
     this.clearCustomerDisplay();
     this.showWelcomeMessage();
+    this.reloadPendingSalesCount();
   }
 
   onChangeCashSaleToVo(): void {
@@ -571,7 +589,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.salesService
       .transform({
         natureVente: 'ASSURANCE',
-        saleId: this.currentSaleService.currentSale().id,
+        saleId: this.currentSaleService.currentSale().id
       })
       .pipe(
         switchMap(res => this.salesService.find(res.body)),
@@ -580,7 +598,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           if (res.body.customer) {
             return this.customerService.find(res.body.customer.id).pipe(
               tap((resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)),
-              tap(() => this.onLoadPrevente(res.body, false)),
+              tap(() => this.onLoadPrevente(res.body, false))
             );
           } else {
             this.onLoadPrevente(res.body, false);
@@ -591,7 +609,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onCommonError(error);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -601,7 +619,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.salesService
       .transform({
         natureVente: 'CARNET',
-        saleId: this.currentSaleService.currentSale().id,
+        saleId: this.currentSaleService.currentSale().id
       })
       .pipe(
         switchMap(res => this.salesService.find(res.body)),
@@ -610,7 +628,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           if (res.body.customer) {
             return this.customerService.find(res.body.customer.id).pipe(
               tap((resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)),
-              tap(() => this.onLoadPrevente(res.body, false)),
+              tap(() => this.onLoadPrevente(res.body, false))
             );
           } else {
             this.onLoadPrevente(res.body, false);
@@ -621,7 +639,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onCommonError(error);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -687,8 +705,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onNavChange(evt: NgbNavChangeEvent): void {
     const currentSale = this.currentSaleService.currentSale();
+
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (currentSale) {
+    if (currentSale && currentSale.salesLines?.length > 0) {
       evt.preventDefault();
       const message = this.getMessateOnNavChange(evt);
       this.confimDialog().onConfirm(
@@ -714,8 +733,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.translateLabel('modificationTypeVente'),
         message,
         null,
-        () => evt.preventDefault(),
+        () => evt.preventDefault()
       );
+    } else {
+      this.currentSaleService.setCurrentSale(null);
     }
   }
 
@@ -777,7 +798,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherMaxCanContinue'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'deconditionnement':
@@ -788,7 +809,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           null,
           this.onAddProduit.bind(this),
           this.processQtyRequested.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'forceStock':
@@ -797,7 +818,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherThanStock'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'stockInsuffisant':
@@ -921,7 +942,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onStockError(salesLine, error);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -929,7 +950,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -961,7 +982,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.onStockError(salesLine, error);
           return EMPTY;
         }),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -982,7 +1003,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.translateLabel('quantityGreatherThanStock'),
             this.confimDialog(),
             this.processQtyRequested.bind(this),
-            this.updateProduitQtyBox.bind(this),
+            this.updateProduitQtyBox.bind(this)
           );
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
@@ -1007,7 +1028,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 salesLine,
                 this.onAddProduit.bind(this),
                 this.processQtyRequested.bind(this),
-                this.updateProduitQtyBox.bind(this),
+                this.updateProduitQtyBox.bind(this)
               );
             } else {
               this.openInfoDialog(this.translateLabel('stockInsuffisant'));
@@ -1105,7 +1126,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       saleId: this.currentSaleService.currentSale()?.id,
       quantitySold: quantitySold > 0 ? quantitySold : 0,
       quantityRequested,
-      sales: this.currentSaleService.currentSale(),
+      sales: this.currentSaleService.currentSale()
     };
   }
 
@@ -1192,7 +1213,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Product actions
       //addProduct: () => this.onAddProduit(),
-      addProduct: () => {},
+      addProduct: () => {
+      },
       removeSelectedLine: () => {
         if (this.isComptant()) {
           //   this.comptantComponent()?.removeSelectedItem();
@@ -1280,7 +1302,29 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Tauri-specific (optional, only if user has permission)
-      forceStock: this.canForceStock ? () => {} : undefined,
+      forceStock: this.canForceStock ? () => {
+      } : undefined
+    });
+  }
+
+  private reloadPendingSalesCount(): void {
+    if (this.currentSaleService.currentSale() == null) {
+      this.fetchCountPendingSales();
+    }
+
+  }
+
+  private fetchCountPendingSales(): void {
+    const userId = this.userCaissier?.id;
+    this.salesService.countPendingSales({
+      userId
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res: HttpResponse<number>) => {
+        this.countPendingSales.set(res.body || 0);
+      },
+      error: err => {
+        this.onCommonError(err);
+      }
     });
   }
 }

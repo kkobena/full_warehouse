@@ -1023,7 +1023,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'jhi-shortcuts-help-modal',
-  standalone: true,
+
   imports: [CommonModule],
   templateUrl: './shortcuts-help-modal.component.html',
   styleUrls: ['./shortcuts-help-modal.component.scss']

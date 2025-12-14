@@ -16,7 +16,7 @@ import { KeyFilter } from 'primeng/keyfilter';
 @Component({
   selector: 'jhi-form-gamme',
   templateUrl: './form-gamme.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-gamme.scss'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, KeyFilter],
 })
 export class FormGammeComponent implements OnInit, AfterViewInit {

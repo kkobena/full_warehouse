@@ -201,7 +201,10 @@ export class SalesService {
   addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
-
+  countPendingSales(req?: any): Observable< HttpResponse<number>> {
+    const options = createRequestOptions(req);
+    return this.http.get<number>(this.resourceUrl+'/vente-en-attente-count', { params: options, observe: 'response' });
+  }
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,

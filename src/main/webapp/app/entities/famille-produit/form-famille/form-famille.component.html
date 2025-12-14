@@ -6,15 +6,15 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      <div class="p-col-12">
+      <div class="form-grid-compact">
         <div [hidden]="!editForm.get('id')!.value" class="form-group">
           <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
         </div>
 
-        <div class="p-fluid p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label class="col-auto col-form-label">Libellé<span style="font-weight: 900; color: red">*</span></label>
-            <input autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText type="text" />
+        <div class="form-field form-field-full">
+            <label for="libelle">Libellé<span
+              class="required">*</span></label>
+            <input #libelle autocomplete="off" class="w-full"formControlName="libelle" name="libelle" pInputText type="text" />
             @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {
@@ -22,12 +22,12 @@
                 }
               </div>
             }
-          </div>
+
         </div>
-        <div class="p-fluid p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label class="col-auto col-form-label">Code<span style="font-weight: 900; color: red">*</span></label>
-            <input autocomplete="off" class="form-control" formControlName="code" name="code" pInputText type="text" />
+        <div class="form-field form-field-full">
+            <label for="code">Code<span
+              class="required">*</span></label>
+            <input autocomplete="off" class="w-full"formControlName="code" name="code" pInputText type="text" />
             @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
               <div>
                 @if (editForm.get('code')?.errors?.required) {
@@ -35,13 +35,14 @@
                 }
               </div>
             }
-          </div>
         </div>
-        <div class="p-fluid p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label class="col-auto col-form-label">Catégorie<span style="font-weight: 900; color: red">*</span></label>
+        <div class="form-field form-field-full">
+            <label for="categorieId">Catégorie<span
+              class="required">*</span></label>
 
             <p-select
+              (onShow)="onDropdownShow($event)"
+              (onHide)="onDropdownHide($event)"
               [filter]="false"
               [fluid]="true"
               [options]="categorieproduits"
@@ -60,7 +61,6 @@
                 }
               </div>
             }
-          </div>
         </div>
       </div>
     </p-card>

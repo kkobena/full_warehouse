@@ -78,7 +78,7 @@ export class TvaComponent implements OnInit {
       () => {
         this.loadPage();
       },
-      'sm',
+      'lg',
     );
   }
 

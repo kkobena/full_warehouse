@@ -1,13 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import {
   CATEGORY_INVENTORY,
   InventoryCategory,
   InventoryCategoryType,
   IStoreInventory,
-  StoreInventory,
+  StoreInventory
 } from '../../../shared/model/store-inventory.model';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { StoreInventoryService } from '../store-inventory.service';
 import { Observable } from 'rxjs';
@@ -28,10 +28,14 @@ import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-init-inventory',
   templateUrl: './inventory-form.component.html',
+  styleUrls: ['./inventory-form.scss'],
+  providers: [MessageService],
   imports: [
     WarehouseCommonModule,
     ConfirmDialogModule,
@@ -46,11 +50,11 @@ import { InputText } from 'primeng/inputtext';
     ReactiveFormsModule,
     Select,
     InputText,
-  ],
+    Card
+  ]
 })
-export class InventoryFormComponent implements OnInit {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
+export class InventoryFormComponent implements OnInit  ,AfterViewInit{
+  protected description = viewChild.required<ElementRef>('description');
   protected isSaving = false;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected storages: Storage[];
@@ -64,19 +68,42 @@ export class InventoryFormComponent implements OnInit {
   private readonly storageService = inject(StorageService);
   private readonly rayonService = inject(RayonService);
   private readonly spinner = inject(NgxSpinnerService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
 
   ngOnInit(): void {
     this.initForm();
-    this.entity = this.config.data.entity;
+
     if (this.entity) {
       this.updateForm(this.entity);
-      this.loadRayons(this.entity.storage.id);
+      this.loadRayons(this.entity.storage?.id);
     }
     this.populate();
   }
 
-  cancel(): void {
-    this.ref.destroy();
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected cancel(): void {
+    this.activeModal.dismiss();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.description().nativeElement.focus();
+    }, 100);
   }
 
   protected save(): void {
@@ -94,7 +121,7 @@ export class InventoryFormComponent implements OnInit {
     result.subscribe({
       next: (res: HttpResponse<IStoreInventory>) => this.onSaveSuccess(res.body),
       error: () => this.onSaveError(),
-      complete: () => this.spinner.hide(),
+      complete: () => this.spinner.hide()
     });
   }
 
@@ -138,13 +165,13 @@ export class InventoryFormComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
+      detail: 'Enregistrement a échoué'
     });
   }
 
   private onSaveSuccess(response: IStoreInventory | null): void {
     this.spinner.hide();
-    this.ref.close(response);
+    this.activeModal.close(response);
   }
 
   private createFromForm(): IStoreInventory {
@@ -154,7 +181,7 @@ export class InventoryFormComponent implements OnInit {
         ...new StoreInventory(),
         id: this.editForm.get(['id']).value,
         description: this.editForm.get(['description']).value,
-        inventoryCategory,
+        inventoryCategory
       };
     }
     return {
@@ -163,7 +190,7 @@ export class InventoryFormComponent implements OnInit {
       id: this.editForm.get(['id']).value,
       storage: this.editForm.get(['storage']).value?.id,
       rayon: this.editForm.get(['rayon']).value?.id,
-      inventoryCategory,
+      inventoryCategory
     };
   }
 
@@ -173,7 +200,7 @@ export class InventoryFormComponent implements OnInit {
       storage: entity.storage.id,
       rayon: entity.rayon.id,
       inventoryCategory: entity.inventoryCategory.name,
-      description: entity.description,
+      description: entity.description
     });
   }
 
@@ -188,7 +215,7 @@ export class InventoryFormComponent implements OnInit {
       this.rayonService
         .query({
           storageId,
-          size: 9999,
+          size: 9999
         })
         .subscribe((res: HttpResponse<IRayon[]>) => {
           this.rayons = res.body || [];
@@ -201,12 +228,12 @@ export class InventoryFormComponent implements OnInit {
       id: new FormControl<number | null>(null, {}),
       description: new FormControl<string | null>(null, {
         validators: [Validators.required, Validators.maxLength(255)],
-        nonNullable: true,
+        nonNullable: true
       }),
       inventoryCategory: new FormControl<InventoryCategory | null>(this.categories[0], {
         validators: [Validators.required],
-        nonNullable: true,
-      }),
+        nonNullable: true
+      })
     });
   }
 
@@ -215,8 +242,8 @@ export class InventoryFormComponent implements OnInit {
       'storage',
       new FormControl<number | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
-      }),
+        nonNullable: true
+      })
     );
   }
 
@@ -229,8 +256,8 @@ export class InventoryFormComponent implements OnInit {
       'rayon',
       new FormControl<number | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
-      }),
+        nonNullable: true
+      })
     );
   }
 

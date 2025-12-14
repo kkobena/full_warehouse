@@ -5,7 +5,6 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-titlebar',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './titlebar.component.html',
   styleUrls: ['./titlebar.component.scss'],

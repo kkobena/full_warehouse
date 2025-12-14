@@ -72,7 +72,7 @@
       <!-- Pending Sales Button -->
       <p-button
         (click)="openPindingSide()"
-        [badge]="'1'"
+        [badge]="countPendingSales()"
         [disabled]="currentSaleService.currentSale() || isPresale"
         [outlined]="true"
         badgeSeverity="danger"

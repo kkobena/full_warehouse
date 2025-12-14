@@ -1,4 +1,5 @@
 <div class="container-fluid">
+  <!-- TODO: uiliser le style commun pour les horizontal navBar pharma-nav-tabs-container ex: C:\Users\k.kobena\Documents\full_warehouse\src\main\webapp\app\entities\produit\stat-sales\stat-sales.component.html -->
     <ul ngbNav #nav="ngbNav"  [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs">
       <li [ngbNavItem]="'historique'">
         <a ngbNavLink>
@@ -40,6 +41,6 @@
         </ng-template>
       </li>
     </ul>
-    <div [ngbNavOutlet]="nav" class="mt-3"></div>
+    <div [ngbNavOutlet]="nav" class="mt-1"></div>
   </div>
 

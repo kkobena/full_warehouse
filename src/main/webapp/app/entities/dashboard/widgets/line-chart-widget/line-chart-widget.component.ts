@@ -6,7 +6,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'jhi-line-chart-widget',
-  standalone: true,
+
   imports: [CommonModule],
   template: `
     <div class="line-chart-widget">

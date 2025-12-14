@@ -69,15 +69,13 @@ export class ComptantFacadeService implements OnDestroy {
     currentSale.type = 'VNO';
     currentSale.avoir = avoir;
     currentSale.commentaire = commentaire;
-
-    if (currentSale.avoir && !currentSale.customerId) {
-      this.openUninsuredCustomerSubject.next({ isVenteDefferee: false, putsOnStandby });
-      return;
-    }
-
     if (putsOnStandby) {
       this.putCurrentCashSaleOnHold();
     } else {
+      if (currentSale.avoir && !currentSale.customerId) {
+        this.openUninsuredCustomerSubject.next({ isVenteDefferee: false, putsOnStandby });
+        return;
+      }
       this.saveCashSale(entryAmount);
     }
   }

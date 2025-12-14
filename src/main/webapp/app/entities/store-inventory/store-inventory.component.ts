@@ -7,10 +7,8 @@ import { CATEGORY_INVENTORY, InventoryCategory, IStoreInventory } from 'app/shar
 
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { StoreInventoryService } from './store-inventory.service';
-import { StoreInventoryDeleteDialogComponent } from './store-inventory-delete-dialog.component';
 import { IUser, User } from '../../core/user/user.model';
 import { UserService } from '../../core/user/user.service';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InventoryFormComponent } from './inventory-form/inventory-form.component';
 import { Router } from '@angular/router';
@@ -26,11 +24,12 @@ import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
 import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
 
 @Component({
   selector: 'jhi-store-inventory',
   templateUrl: './store-inventory.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
+  providers: [ConfirmationService, MessageService],
   styleUrls: ['./store-inventory.scss'],
   imports: [
     WarehouseCommonModule,
@@ -43,8 +42,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     EnCoursComponent,
     CloturesComponent,
     Select,
-    FloatLabel,
-  ],
+    FloatLabel
+  ]
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];
@@ -65,16 +64,15 @@ export class StoreInventoryComponent implements OnInit {
   protected active = 'CREATE';
   protected readonly menuTileAndIcon = [
     { title: 'Inventaires en cours', icon: 'pi pi-spin pi-cog', menuId: 'CREATE' },
-    { title: 'Inventaires clôturés', icon: 'pi pi-lock', menuId: 'CLOSED' },
+    { title: 'Inventaires clôturés', icon: 'pi pi-lock', menuId: 'CLOSED' }
   ];
 
-  protected ref?: DynamicDialogRef;
+
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected inventoryCategories?: InventoryCategory[];
   private storeInventoryService = inject(StoreInventoryService);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
   private userService = inject(UserService);
-  private dialogService = inject(DialogService);
   private router = inject(Router);
 
   constructor() {
@@ -83,7 +81,7 @@ export class StoreInventoryComponent implements OnInit {
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;
     this.links = {
-      last: 0,
+      last: 0
     };
     this.predicate = 'id';
     this.ascending = true;
@@ -94,7 +92,7 @@ export class StoreInventoryComponent implements OnInit {
         sortable: true,
         filter: 'agTextColumnFilter',
         minWidth: 300,
-        flex: 1.2,
+        flex: 1.2
       },
       {
         headerName: 'Stock initial',
@@ -102,22 +100,22 @@ export class StoreInventoryComponent implements OnInit {
         type: ['rightAligned', 'numericColumn'],
         editable: true,
         width: 120,
-        valueFormatter: this.formatNumber,
+        valueFormatter: this.formatNumber
       },
       {
         headerName: 'Quantité saisie',
         width: 140,
         field: 'quantityOnHand',
         editable: true,
-        type: ['rightAligned', 'numericColumn'],
+        type: ['rightAligned', 'numericColumn']
       },
       {
         headerName: 'Ecart',
         width: 80,
         type: ['rightAligned', 'numericColumn'],
         valueGetter: this.setGap,
-        cellStyle: this.cellClass,
-      },
+        cellStyle: this.cellClass
+      }
     ];
   }
 
@@ -156,13 +154,6 @@ export class StoreInventoryComponent implements OnInit {
     this.loadAll();
   }
 
-  delete(storeInventory: IStoreInventory): void {
-    const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
-    });
-    modalRef.componentInstance.storeInventory = storeInventory;
-  }
 
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
@@ -179,12 +170,18 @@ export class StoreInventoryComponent implements OnInit {
   }
 
   onCreateNew(): void {
-    this.ref = this.dialogService.open(InventoryFormComponent, {
-      data: { entity: null },
-      width: '40%',
-      header: 'Nouvel inventaire',
-    });
-    this.ref.onClose.subscribe((res: IStoreInventory) => this.goTo(res));
+    showCommonModal(
+      this.modalService,
+      InventoryFormComponent,
+      {},
+      (res: IStoreInventory) => {
+        if (res) {
+          this.goTo(res);
+        }
+      },
+      'lg'
+    );
+
   }
 
   goTo(entity: IStoreInventory): void {
@@ -199,7 +196,7 @@ export class StoreInventoryComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -207,7 +204,8 @@ export class StoreInventoryComponent implements OnInit {
     this.loadAll();
   }
 
-  protected onSaveError(): void {}
+  protected onSaveError(): void {
+  }
 
   protected onSuccess(data: IStoreInventory[] | null): void {
     if (data) {
@@ -225,14 +223,17 @@ export class StoreInventoryComponent implements OnInit {
     });
   }
 
-  protected onSearch(): void {}
+  protected onSearch(): void {
+  }
 
   protected onSelectUser(): void {
     this.onSearch();
   }
+
   protected get title(): string {
     return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';
   }
+
   protected get icon(): string {
     return this.menuTileAndIcon.find(m => m.menuId === this.active)?.icon || '';
   }

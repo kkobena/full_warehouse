@@ -206,12 +206,6 @@ public class Produit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Tableau tableau;
 
-    /*
-    seuil minimun en point de vente pour declencher un reassort
-     */
-    @Min(value = 0)
-    @Column(name = "seuil_reassort", comment = "seuil minimun en point de vente pour declencher un reassort")
-    private Integer seuilReassort;
 
     /*
     seuil minimun du detail en point de vente pour declencher un deconditionnement

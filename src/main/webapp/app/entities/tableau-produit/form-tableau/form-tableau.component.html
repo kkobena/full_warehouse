@@ -8,23 +8,23 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
+      <div class="form-grid-compact">
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
-      <div class="ui-g form-group">
+
+        <div class="form-field form-field-full">
         <label for="code">Code tableau</label>
-        <div class="ui-g-12" style="margin-bottom: 10px">
+
           <input
             [autofocus]="true"
             autocomplete="off"
-            class="form-control"
             formControlName="code"
             id="code"
             name="code"
             pInputText
-            style="width: 100%"
           />
-        </div>
+
         @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
           <div>
             @if (editForm.get('code')?.errors?.required) {
@@ -33,9 +33,8 @@
           </div>
         }
       </div>
-      <div class="ui-g form-group">
+        <div class="form-field form-field-full">
         <label for="field_value">Montant tableau</label>
-        <div class="ui-g-12">
           <input
             autocomplete="off"
             formControlName="value"
@@ -43,10 +42,9 @@
             name="value"
             pInputText
             pKeyFilter="int"
-            style="width: 100%"
             type="text"
           />
-        </div>
+
         @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get('value')!.touched)) {
           <div>
             @if (editForm.get('value')?.errors?.required) {
@@ -54,13 +52,13 @@
             }
           </div>
         }
-      </div>
+        </div></div>
     </p-card>
   </div>
   <div class="modal-footer">
     <p-button
       (click)="cancel()"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-times"
       label="Annuler"
       raised="true"

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, ElementRef, inject, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -6,20 +6,23 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { InputNumber } from 'primeng/inputnumber';
 import { FormsModule } from '@angular/forms';
-import { ISuggestionReassort, ILigneReassort } from '../repartition-stock.model';
+import { ILigneReassort, ISuggestionReassort } from '../repartition-stock.model';
 import { RepartitionStockService } from '../repartition-stock.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Tooltip } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
   selector: 'jhi-suggestion-reassort',
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.component.scss'],
-  imports: [CommonModule, TableModule, ButtonModule, TagModule, InputNumber, FormsModule, ToastModule, ConfirmDialogModule],
-  providers: [ConfirmationService, MessageService],
+  imports: [CommonModule, TableModule, ButtonModule, TagModule, InputNumber, FormsModule, ToastModule, ConfirmDialogModule, Tooltip],
+  providers: [ConfirmationService, MessageService]
 })
 export class SuggestionReassortComponent implements OnInit {
+  //TODO: remplacer par signal inputs quand angular 20+ sera la norme
   @Input() typeReassort = 'RAYON';
   @ViewChildren('qtyInput') qtyInputs!: QueryList<ElementRef>;
 
@@ -45,7 +48,7 @@ export class SuggestionReassortComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      },
+      }
     });
   }
 
@@ -71,7 +74,7 @@ export class SuggestionReassortComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'La quantité ne peut pas dépasser le stock disponible',
+          detail: 'La quantité ne peut pas dépasser le stock disponible'
         });
         this.onRowEditCancel(ligne, -1);
         return;
@@ -84,7 +87,7 @@ export class SuggestionReassortComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
-            detail: 'Quantité mise à jour',
+            detail: 'Quantité mise à jour'
           });
 
           // Move to next row if requested
@@ -97,9 +100,9 @@ export class SuggestionReassortComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: 'Erreur lors de la mise à jour',
+            detail: 'Erreur lors de la mise à jour'
           });
-        },
+        }
       });
     }
   }
@@ -171,8 +174,8 @@ export class SuggestionReassortComponent implements OnInit {
       message: 'Êtes-vous sûr de vouloir supprimer cette ligne?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (ligne.id) {
           this.repartitionService.deleteLigne(ligne.id).subscribe({
@@ -181,19 +184,19 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Ligne supprimée',
+                detail: 'Ligne supprimée'
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la suppression',
+                detail: 'Erreur lors de la suppression'
               });
-            },
+            }
           });
         }
-      },
+      }
     });
   }
 
@@ -202,8 +205,8 @@ export class SuggestionReassortComponent implements OnInit {
       message: 'Êtes-vous sûr de vouloir valider cette suggestion? Cette action déplacera le stock.',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (suggestion.id) {
           this.repartitionService.validateSuggestion(suggestion.id).subscribe({
@@ -211,7 +214,7 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Suggestion validée et stock déplacé',
+                detail: 'Suggestion validée et stock déplacé'
               });
               this.loadSuggestions();
             },
@@ -219,12 +222,12 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la validation',
+                detail: 'Erreur lors de la validation'
               });
-            },
+            }
           });
         }
-      },
+      }
     });
   }
 
@@ -233,8 +236,8 @@ export class SuggestionReassortComponent implements OnInit {
       message: 'Êtes-vous sûr de vouloir supprimer cette suggestion?',
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
       accept: () => {
         if (suggestion.id) {
           this.repartitionService.deleteSuggestion(suggestion.id).subscribe({
@@ -243,19 +246,19 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Suggestion supprimée',
+                detail: 'Suggestion supprimée'
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la suppression',
+                detail: 'Erreur lors de la suppression'
               });
-            },
+            }
           });
         }
-      },
+      }
     });
   }
 }

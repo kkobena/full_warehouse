@@ -17,7 +17,7 @@ import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-depot',
-  standalone: true,
+
   imports: [
     WarehouseCommonModule,
     RouterModule,

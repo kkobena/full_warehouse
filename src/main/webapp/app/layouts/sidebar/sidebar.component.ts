@@ -16,7 +16,7 @@ import { NavigationService } from '../../core/config/navigation.service';
 
 @Component({
   selector: 'jhi-sidebar',
-  standalone: true,
+
   imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',

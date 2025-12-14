@@ -17,6 +17,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
 })
 export class RepartitionListComponent implements OnInit {
+  //TODO: remplacer par signal inputs quand angular 20+ sera la norme
   @Input() searchTerm = '';
   @Input() fromDate?: Date;
   @Input() toDate?: Date;

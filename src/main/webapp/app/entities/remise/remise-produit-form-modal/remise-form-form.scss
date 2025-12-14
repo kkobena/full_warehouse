@@ -1,12 +1,9 @@
-
-@import '../../shared/scss/modal-theme';
-@import '../../shared/scss/form-styles';
+@import '../../../shared/scss/modal-theme';
+@import '../../../shared/scss/form-styles';
 
 :host {
   @include modal-theme;
 }
-
-
 .modal-body.overflow-visible {
   overflow-y: visible !important;
   overflow-x: visible !important;

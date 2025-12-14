@@ -9,7 +9,7 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <div style="min-width: 300px; flex: 1 1 auto">
+          <div style="min-width: 430px; flex: 1 1 auto">
             <jhi-produit-autocomplete
               (onClear)="onClear($event)"
               (selectedProduit)="onSelect($event)"
@@ -26,7 +26,7 @@
             [id]="'du'"
             [label]="'warehouseApp.labels.du'"
             [max]="toDate"
-            [style]="{ 'max-width': '150px' }"
+            [style]="{ 'max-width': '145px' }"
           />
           <jhi-date-picker
             #dateFin
@@ -36,7 +36,7 @@
             [id]="'au'"
             [label]="'warehouseApp.labels.au'"
             [min]="fromDate"
-            [style]="{ 'max-width': '150px' }"
+            [style]="{ 'max-width': '145px' }"
           />
         </div>
       </ng-template>

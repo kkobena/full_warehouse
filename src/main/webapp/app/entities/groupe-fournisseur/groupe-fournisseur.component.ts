@@ -61,7 +61,6 @@ export class GroupeFournisseurComponent implements OnInit {
   protected page = 0;
   protected loading = false;
   protected isSaving = false;
-  protected displayDialog?: boolean;
   private readonly entityService = inject(GroupeFournisseurService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');

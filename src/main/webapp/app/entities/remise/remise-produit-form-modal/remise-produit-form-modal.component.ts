@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
@@ -19,11 +19,13 @@ import { Select } from 'primeng/select';
 
   imports: [ReactiveFormsModule, ToastModule, MessageModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
   templateUrl: './remise-produit-form-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./remise-form-form.scss'],
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   libelle = viewChild.required<ElementRef>('libelle');
   protected fb = inject(FormBuilder);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
@@ -120,7 +122,19 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       this.subscribeToSaveResponse(this.entityService.create(entity));
     }
   }
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
 
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
+  }
   protected updateForm(entity: IRemise): void {
     this.editForm.patchValue({
       id: entity.id,

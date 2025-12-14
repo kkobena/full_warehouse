@@ -12,14 +12,6 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +22,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Spring Data repository for the Sales entity.
@@ -155,6 +155,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     @Query(value = "SELECT fetch_product_quantity_sold_json(:startDate, :endDate)", nativeQuery = true)
     String fetchProductQuantitySold(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+
     default Specification<Sales> filterByCustomerId(Integer customerId) {
         if (customerId == null) {
             return null;
@@ -191,6 +192,13 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         return (root, query, cb) -> cb.between(root.get(Sales_.saleDate), fromDate, toDate);
     }
 
+    default Specification<Sales> toDay() {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.saleDate), LocalDate.now());
+    }
+    default Specification<Sales> isActif() {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE);
+    }
+
     default Specification<Sales> hasStatut(EnumSet<SalesStatut> statut) {
         return (root, query, cb) -> root.get(Sales_.statut).in(statut);
     }
@@ -218,4 +226,6 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     default Specification<Sales> hasCategorieCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
         return (root, query, cb) -> root.get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
+
+
 }

@@ -38,7 +38,6 @@ export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);
   active = 'daily';
   private readonly destroy$ = new Subject<void>();
-
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
 

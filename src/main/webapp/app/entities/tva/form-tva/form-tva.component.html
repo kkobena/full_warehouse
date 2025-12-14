@@ -4,23 +4,22 @@
 
   <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
-<!-- formulaire de creation et d edition-->
+
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_taux">Taux tva</label>
-        <div class="ui-g-12" style="margin-bottom: 10px">
+      <div class="form-grid-compact">
+        <div [hidden]="!editForm.get('id')!.value" class="form-group">
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+        </div>
+        <div class="form-field form-field-full">
+          <label for="field_taux">Taux tva<span
+            class="required">*</span></label>
+
           <input
             #taux
             autocomplete="off"
-            class="form-control"
+            class="w-full"
             formControlName="taux"
             id="field_taux"
             name="taux"
@@ -29,24 +28,26 @@
             style="width: 100%"
             type="text"
           />
+
+          @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
+            <div>
+              @if (editForm.get('taux')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+              <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger" style="color: red">
+                Ce champ doit être un nombre.
+              </small>
+            </div>
+          }
         </div>
-        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
-          <div>
-            @if (editForm.get('taux')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-            }
-            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger" style="color: red">
-              Ce champ doit être un nombre.
-            </small>
-          </div>
-        }
       </div>
+
     </p-card>
   </div>
   <div class="modal-footer">
     <p-button
       (click)="cancel()"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-times"
       label="Annuler"
       raised="true"
@@ -55,7 +56,7 @@
     ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-check"
       label="Enregistrer"
       raised="true"

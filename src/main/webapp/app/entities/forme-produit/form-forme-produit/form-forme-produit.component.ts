@@ -17,7 +17,7 @@ import { ErrorService } from '../../../shared/error.service';
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-forme-produit.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-forme.scss'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card],
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {

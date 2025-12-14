@@ -7,7 +7,7 @@ interface TableRow {
 
 @Component({
   selector: 'jhi-table-widget',
-  standalone: true,
+
   imports: [CommonModule],
   template: `
     <div class="table-widget">

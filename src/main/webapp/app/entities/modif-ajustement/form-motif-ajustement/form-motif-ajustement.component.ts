@@ -15,7 +15,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-motif-ajustement.scss'],
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormMotifAjustementComponent implements OnInit, AfterViewInit {

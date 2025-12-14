@@ -15,7 +15,7 @@ export interface LotSelection {
 
 @Component({
   selector: 'jhi-lot-selection-dialog',
-  standalone: true,
+
   imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule],
   template: `
     <div class="modal-header">

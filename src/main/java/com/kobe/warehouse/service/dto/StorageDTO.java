@@ -2,12 +2,14 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 
 public class StorageDTO {
 
     private String name;
     private Integer id;
     private String storageType;
+    private StorageType type;
     private String magasinName;
     private Integer magasinId;
 
@@ -18,10 +20,19 @@ public class StorageDTO {
             this.name = storage.getName();
             this.id = storage.getId();
             this.storageType = storage.getStorageType().getValue();
+            this.type = storage.getStorageType();
             Magasin magasin = storage.getMagasin();
             this.magasinName = magasin.getName();
             this.magasinId = magasin.getId();
         }
+    }
+
+    public StorageType getType() {
+        return type;
+    }
+
+    public void setType(StorageType type) {
+        this.type = type;
     }
 
     public String getName() {

@@ -7,11 +7,6 @@ import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -25,6 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -152,5 +153,10 @@ public class SalesDataResource {
             log.error("Error generating ESC/POS receipt for Tauri client", e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/sales/vente-en-attente-count")
+    public ResponseEntity<Long> getVenteEnAttenteCount(@RequestParam(name = "userId", required = false) Integer userId) {
+        return ResponseEntity.ok(saleDataService.countPendingSales(userId));
     }
 }

@@ -746,4 +746,13 @@ public class SaleDataService {
         TypedQuery<StockDepotExportDTO> q = em.createQuery(cq);
         return q.getResultList();
     }
+
+
+    public long countPendingSales(Integer cashRegisterId) {
+        Specification<Sales> specification = salesRepository.isActif().and(salesRepository.toDay());
+        if (cashRegisterId != null) {
+            specification = specification.and(salesRepository.hasCaissier(storageService.getUser()));
+        }
+        return salesRepository.count(specification);
+    }
 }

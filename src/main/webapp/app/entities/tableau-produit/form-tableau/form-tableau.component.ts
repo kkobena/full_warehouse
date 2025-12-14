@@ -16,7 +16,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-tableau',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tableau.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-tableau.scss'],
 })
 export class FormTableauComponent implements OnInit {
   entity: ITableau | null = null;

@@ -5,37 +5,37 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_libelle">Libellé</label>
-        <div class="ui-g-12" style="margin-bottom: 10px">
-          <input
-            #libelleInput
-            autocomplete="off"
-            class="form-control"
-            formControlName="libelle"
-            id="field_libelle"
-            name="libelle"
-            pInputText
-            style="width: 100%"
-          />
+
+      <div class="form-grid-compact">
+        <div [hidden]="!editForm.get('id')!.value" class="form-group">
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+        </div>
+        <div class="form-field form-field-full">
+          <label for="field_libelle">Libellé<span class="required">*</span></label>
+
+            <input
+              #libelleInput
+              autocomplete="off" class="w-full"
+              formControlName="libelle"
+              id="field_libelle"
+              name="libelle"
+              pInputText
+            />
+
+
+          @let libelle = editForm.get('libelle');
+          @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
+            <div>
+              @if (libelle?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
         </div>
 
-        @let libelle = editForm.get('libelle');
-        @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
-          <div>
-            @if (libelle?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-            }
-          </div>
-        }
-      </div>
+        <div class="form-field form-field-full">
+          <label for="field_urlPharmaMl">Url PharmaMl</label>
 
-      <div class="ui-g form-group">
-        <label for="field_urlPharmaMl">Url PharmaMl</label>
-        <div class="ui-g-12">
           <input
             [pKeyFilter]="blockSpace"
             autocomplete="off"
@@ -43,15 +43,15 @@
             id="field_urlPharmaMl"
             name="urlPharmaMl"
             pInputText
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
-        </div>
-      </div>
 
-      <div class="ui-g form-group">
-        <label for="field_codeOfficePharmaMl">Code officine PharmaMl</label>
-        <div class="ui-g-12">
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_codeOfficePharmaMl">Code officine PharmaMl</label>
+
           <input
             [pKeyFilter]="blockSpace"
             autocomplete="off"
@@ -59,15 +59,15 @@
             id="field_codeOfficePharmaMl"
             name="codeOfficePharmaMl"
             pInputText
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
-        </div>
-      </div>
 
-      <div class="ui-g form-group">
-        <label for="field_codeRecepteurPharmaMl">Code recepteur PharmaMl</label>
-        <div class="ui-g-12">
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_codeRecepteurPharmaMl">Code recepteur PharmaMl</label>
+
           <input
             [pKeyFilter]="blockSpace"
             autocomplete="off"
@@ -75,14 +75,14 @@
             id="field_codeRecepteurPharmaMl"
             name="codeRecepteurPharmaMl"
             pInputText
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
+
         </div>
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_odre">Orde de priorité</label>
-        <div class="ui-g-12">
+        <div class="form-field form-field-full">
+          <label for="field_odre">Orde de priorité</label>
+
           <input
             autocomplete="off"
             formControlName="odre"
@@ -90,14 +90,14 @@
             name="odre"
             pInputText
             pKeyFilter="int"
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
+
         </div>
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_tel">Téléphone</label>
-        <div class="ui-g-12">
+        <div class="form-field form-field-full">
+          <label for="field_tel">Téléphone</label>
+
           <input
             autocomplete="off"
             formControlName="tel"
@@ -105,28 +105,35 @@
             name="tel"
             pInputText
             pKeyFilter="int"
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
+
         </div>
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_addresspostale">Adresse postale</label>
-        <div class="ui-g-12">
+        <div class="form-field form-field-full">
+          <label for="field_addresspostale">Adresse postale</label>
+
           <input
             autocomplete="off"
             formControlName="addresspostale"
             id="field_addresspostale"
             name="addresspostale"
             pInputText
-            style="width: 100%"
+            class="w-full"
             type="text"
           />
+
         </div>
       </div>
+
+
+
+
+
     </p-card>
   </div>
   <div class="modal-footer">
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
     <p-button
       (click)="save()"
       [disabled]="editForm.invalid || isSaving"
@@ -137,7 +144,7 @@
       severity="primary"
       type="submit"
     ></p-button>
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
+
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

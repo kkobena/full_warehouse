@@ -13,7 +13,7 @@ export interface InlineLotSelection {
 
 @Component({
   selector: 'jhi-inline-lot-selection',
-  standalone: true,
+
   imports: [CommonModule, FormsModule, ButtonModule, Tooltip],
   template: `
     <div class="inline-lot-selection">

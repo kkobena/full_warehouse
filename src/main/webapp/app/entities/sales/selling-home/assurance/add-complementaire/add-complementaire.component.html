@@ -7,121 +7,133 @@
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <div class="modal-body p-3">
-    <p-card class="p-2">
-      <!-- Hidden fields -->
-      <input formControlName="id" type="hidden" />
-      <input formControlName="categorie" type="hidden" />
-      <input formControlName="tiersPayantFullName" type="hidden" />
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+        <!-- Hidden fields -->
+        <input formControlName="id" type="hidden" />
+        <input formControlName="categorie" type="hidden" />
+        <input formControlName="tiersPayantFullName" type="hidden" />
+        <div class="form-field form-field-full">
+          <label class="form-label fw-semibold" for="tiersPayant">
+            <i class="pi pi-building me-1"></i>
+            Tiers payant <span class="text-danger">*</span>
+          </label>
+          <p-select
+            #tiersPayant
+            (onChange)="onSelect($event)"
+            [autofocus]="true"
+            [fluid]="true"
+            [options]="getTiersPayants()"
+            dataKey="id"
+            formControlName="tiersPayant"
+            id="tiersPayant"
+            optionLabel="tiersPayantFullName"
+            optionValue="id"
+            placeholder="Choisir un tiers payant"
+          />
+        </div>
+        <div class="form-field form-field-full">
+          <label class="form-label fw-semibold" for="numBon">
+            <i class="pi pi-ticket me-1"></i>
+            Numéro de bon
+          </label>
+          <input
+            #numBon
+            autocomplete="off"
+            formControlName="numBon"
+            id="numBon"
+            pInputText
+            pKeyFilter="alphanum"
+            placeholder="Saisir le numéro de bon"
+            type="text"
+          />
+        </div>
 
-      <!-- Tiers Payant Selection -->
-      <div class="mb-2">
-        <label class="form-label fw-semibold" for="tiersPayant">
-          <i class="pi pi-building me-1"></i>
-          Tiers payant <span class="text-danger">*</span>
-        </label>
-        <p-select
-          #tiersPayant
-          (onChange)="onSelect($event)"
-          [autofocus]="true"
-          [fluid]="true"
-          [options]="getTiersPayants()"
-          dataKey="id"
-          formControlName="tiersPayant"
-          id="tiersPayant"
-          optionLabel="tiersPayantFullName"
-          optionValue="id"
-          placeholder="Choisir un tiers payant"
-        />
-      </div>
 
-      <!-- Numero de Bon -->
-      <div class="mb-2">
-        <label class="form-label fw-semibold" for="numBon">
-          <i class="pi pi-ticket me-1"></i>
-          Numéro de bon
-        </label>
-        <input
-          #numBon
-          autocomplete="off"
-          class="form-control"
-          formControlName="numBon"
-          id="numBon"
-          pInputText
-          pKeyFilter="alphanum"
-          placeholder="Saisir le numéro de bon"
-          type="text"
-        />
-      </div>
 
-      @if (selectedTiersPayant) {
-        <div class="border-top pt-2 mt-2">
-          <!-- Taux and Matricule in one row -->
-          <div class="row mb-2">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" for="taux">
-                <i class="pi pi-percentage me-1"></i>
-                Taux (%)
-              </label>
-              <input
-                class="form-control"
-                formControlName="taux"
-                id="taux"
-                max="100"
-                min="5"
-                pInputText
-                placeholder="Taux"
-                type="number"
-              />
-              <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" for="num">
-                <i class="pi pi-id-card me-1"></i>
-                Matricule
-              </label>
-              <input
-                autocomplete="off"
-                class="form-control"
-                formControlName="num"
-                id="num"
-                pInputText
-                pKeyFilter="alphanum"
-                placeholder="Matricule"
-                type="text"
-              />
-              <small class="text-muted">Initial: {{ selectedTiersPayant.num  }}</small>
-            </div>
-          </div>
-
-          <!-- Priorite -->
-          @if (showPrioriteSwitch) {
-            <div class="mb-2 p-2 bg-light rounded">
-              <label class="form-label fw-semibold mb-1">
-                <i class="pi pi-star-fill me-1"></i>
-                Passer en tiers payant principal
-              </label>
-              <div class="d-flex align-items-center gap-2">
-                <p-toggleswitch
-                  (onChange)="onPrioriteToggle($event)"
-                  [(ngModel)]="isPrioriteEnabled"
-                  [disabled]="selectedTiersPayant.categorie === 0"
-                  [ngModelOptions]="{standalone: true}"
-                  inputId="prioriteSwitch"
-                />
-                <input
-                  [(ngModel)]="prioriteValue"
-                  [ngModelOptions]="{standalone: true}"
-                  id="priorite"
-                  type="hidden"
-                />
+        @if (selectedTiersPayant) {
+          <div class="border-top pt-2 mt-2">
+            <!-- Taux and Matricule in one row -->
+            <div class="row mb-2">
+              <div class="col-md-6">
+                <div class="form-field form-field-full">
+                  <label class="form-label fw-semibold" for="taux">
+                    <i class="pi pi-percentage me-1"></i>
+                    Taux (%)
+                  </label>
+                  <input
+                    formControlName="taux"
+                    id="taux"
+                    max="100"
+                    min="5"
+                    pInputText
+                    placeholder="Taux"
+                    type="number"
+                  />
+                  <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
+                </div>
 
               </div>
+              <div class="col-md-6">
+                <div class="form-field form-field-full">
+                  <label class="form-label fw-semibold" for="num">
+                    <i class="pi pi-id-card me-1"></i>
+                    Matricule
+                  </label>
+                  <input
+                    autocomplete="off"
+                    formControlName="num"
+                    id="num"
+                    pInputText
+                    pKeyFilter="alphanum"
+                    placeholder="Matricule"
+                    type="text"
+                  />
+                  <small class="text-muted">Initial: {{ selectedTiersPayant.num  }}</small>
 
+
+
+                </div>
+
+
+
+              </div>
             </div>
-          }
-        </div>
-      }
+
+            <!-- Priorite -->
+            @if (showPrioriteSwitch) {
+              <div class="mb-2 p-2 bg-light rounded">
+                <label class="form-label fw-semibold mb-1">
+                  <i class="pi pi-star-fill me-1"></i>
+                  Passer en tiers payant principal
+                </label>
+                <div class="d-flex align-items-center gap-2">
+                  <p-toggleswitch
+                    (onChange)="onPrioriteToggle($event)"
+                    [(ngModel)]="isPrioriteEnabled"
+                    [disabled]="selectedTiersPayant.categorie === 0"
+                    [ngModelOptions]="{standalone: true}"
+                    inputId="prioriteSwitch"
+                  />
+                  <input
+                    [(ngModel)]="prioriteValue"
+                    [ngModelOptions]="{standalone: true}"
+                    id="priorite"
+                    type="hidden"
+                  />
+
+                </div>
+
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+
+
+
     </p-card>
   </div>
 

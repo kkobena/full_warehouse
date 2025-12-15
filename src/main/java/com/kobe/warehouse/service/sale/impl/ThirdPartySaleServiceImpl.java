@@ -201,8 +201,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .findFirst()
                 .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
             if (dto.getNumBon() != null && checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
-                    throw new NumBonAlreadyUseException(dto.getNumBon());
-                }
+                throw new NumBonAlreadyUseException(dto.getNumBon());
+            }
 
             ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
                 dto.getNumBon(),
@@ -478,6 +478,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
+        if (CollectionUtils.isEmpty(thirdPartySales.getSalesLines())) {
+            response.setSuccess(true);
+            thirdPartySaleRepository.delete(thirdPartySales);
+            return response;
+        }
         //  paymentService.buildPaymentFromFromPaymentDTO(thirdPartySales, dto, storageService.getUser());
         thirdPartySaleRepository.save(thirdPartySales);
         response.setSuccess(true);

@@ -301,6 +301,7 @@ $border-radius-sm: 6px;
 
 .ayant-droit-card {
   .card-header {
+    padding: 0;
     background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
     border-bottom-color: lighten($pharma-success, 30%);
 

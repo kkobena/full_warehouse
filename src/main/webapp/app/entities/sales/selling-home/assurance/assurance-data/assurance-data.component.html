@@ -31,9 +31,8 @@
               <i class="pi pi-user-shield"></i>
               <span>Assuré</span>
             </div>
-
-            <p-splitbutton [model]="assureBtnActions" [text]="true" icon="pi pi-user-edit" label="Gérer" severity="info" size="small">
-            </p-splitbutton>
+            <p-button (onClick)="editAssuredCustomer()" pTooltip="Modifier les infos du client" icon="pi pi-user-edit"
+                      severity="info" size="small" [rounded]="true" />
           </div>
           <div class="card-body">
             <div class="info-row">
@@ -60,12 +59,19 @@
                 <i class="pi pi-users"></i>
                 <span>Ayant droit</span>
               </div>
-              @if (ayantDroit?.id === selectedCustomerService.selectedCustomerSignal().id) {
-                <p-button (click)="loadAyantDoits()" [variant]="'text'" icon="pi pi-users" label="Remplacer" size="small" class="edit-btn">
-                </p-button>
+              @if (ayantDroit) {
+                <p-buttonGroup>
+                  <p-button (onClick)="editAyantDroit()" icon="pi pi-user-edit" [rounded]="true"
+                            size="small" severity="info" pTooltip="Modifier les infos de l'ayant droit" />
+
+                  <p-button (onClick)="loadAyantDoits()" icon="pi pi-users" [rounded]="true"
+                            size="small" severity="danger" pTooltip="Choisir un autre ayant droit" />
+                </p-buttonGroup>
+
               } @else {
-                <p-splitbutton [model]="items" [text]="true" icon="pi pi-user-edit" label="Gérer" severity="info" size="small">
-                </p-splitbutton>
+                <p-button (onClick)="loadAyantDoits()" icon="pi pi-user-edit" [rounded]="true"
+                          size="small" severity="info" pTooltip="Ajouter un ayant droit" />
+
               }
             </div>
             @if (ayantDroit) {
@@ -138,11 +144,9 @@
                     </p-button>
                   </p-inputgroup-addon>
                 }
-                @if (
-                  selectedCustomerService.selectedCustomerSignal() &&
-                  selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
-                  currentSaleService.typeVo() === 'ASSURANCE'
-                ) {
+                @if (selectedCustomerService.selectedCustomerSignal() &&
+                selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
+                currentSaleService.typeVo() === 'ASSURANCE') {
                   <p-inputgroup-addon>
                     <p-button
                       (click)="addComplementaire()"

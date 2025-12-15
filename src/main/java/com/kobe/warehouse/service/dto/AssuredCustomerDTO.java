@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import jakarta.validation.constraints.PastOrPresent;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,6 +49,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
         this.remise = customer.getRemiseClient();
         this.sexe = customer.getSexe();
         this.numAyantDroit = customer.getNumAyantDroit();
+        this.num = customer.getNumAyantDroit();
         this.tiersPayants = clientTiersPayants
             .stream()
             .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))

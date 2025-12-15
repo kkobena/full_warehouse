@@ -67,6 +67,4 @@ public interface SaleService {
     void removeRemiseFromCashSale(SaleId saleId);
 
     List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
-
-
 }

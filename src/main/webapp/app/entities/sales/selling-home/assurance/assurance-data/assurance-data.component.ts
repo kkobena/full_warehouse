@@ -42,6 +42,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { showCommonModal } from '../../sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-carnet.component';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-assurance-data',
@@ -58,7 +59,8 @@ import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-ca
     InputGroupModule,
     InputGroupAddonModule,
     Button,
-    TooltipModule
+    TooltipModule,
+    ButtonGroup
   ],
   templateUrl: './assurance-data.component.html',
   styleUrls: ['./assurance-data.component.scss']
@@ -242,6 +244,9 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     }
   }
 
+  protected editAyantDroit(): void {
+    this.openAyantDroitForm(this.ayantDroit!);
+  }
   protected addAyantDroit(ayantDroit: ICustomer): void {
     this.openAyantDroitForm(ayantDroit);
   }
@@ -290,7 +295,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     this.customerService
       .queryAssuredCustomer({
         search: this.search,
-        size: 2,
+        size: 5,
         typeTiersPayant: saleType
       })
       .subscribe({
@@ -313,6 +318,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   private handleSingleCustomerFound(customer: ICustomer, saleType: string): void {
     this.selectedCustomerService.setCustomer(customer);
+    this.ayantDroit=null;
     this.setTiersPayantsForSaleType(customer, saleType);
     this.firstRefBonFocus();
     this.clearSearch();

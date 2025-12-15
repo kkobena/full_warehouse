@@ -49,9 +49,9 @@ import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -339,6 +339,11 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     public ResponseDTO putCashSaleOnHold(CashSaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         CashSale cashSale = findOne(dto.getSaleId());
+        if (CollectionUtils.isEmpty(cashSale.getSalesLines())) {
+            response.setSuccess(true);
+            salesRepository.delete(cashSale);
+            return response;
+        }
         //  paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);

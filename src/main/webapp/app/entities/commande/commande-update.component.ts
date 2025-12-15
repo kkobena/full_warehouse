@@ -571,9 +571,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         delivery: this.commande,
         header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`,
       },
-      result => {
-        console.log(result);
-      },
+      null,
       'xl',
     );
   }

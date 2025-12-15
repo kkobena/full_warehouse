@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +37,7 @@ public class CommandeReportReportService extends CommonReportService {
     public String printCommandeEnCours(CommandeDTO commande) {
         this.commande = commande;
         Magasin magasin = storageService.getUser().getMagasin();
-        List<OrderLineDTO> orderLineDTOList = this.commande.getOrderLines();
+        List<OrderLineDTO> orderLineDTOList = getItems();
         orderLineDTOList.sort(Comparator.comparing(OrderLineDTO::getProduitLibelle));
         this.templateFile = Constant.COMMANDE_EN_COURS_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
@@ -58,7 +60,7 @@ public class CommandeReportReportService extends CommonReportService {
 
     @Override
     protected List<OrderLineDTO> getItems() {
-        return this.commande.getOrderLines();
+        return  new ArrayList<>(this.commande.getOrderLines());
     }
 
     @Override

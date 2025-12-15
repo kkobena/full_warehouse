@@ -2,9 +2,9 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
-// PrimeNG imports
+
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
@@ -14,9 +14,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
-// Font Awesome
+
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faCashRegister,

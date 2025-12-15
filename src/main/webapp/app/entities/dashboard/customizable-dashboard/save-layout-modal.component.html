@@ -12,26 +12,12 @@
       <label for="layout-name">Nom du layout <span class="required">*</span></label>
       <input
         type="text"
-        class="form-control"
         id="layout-name"
         [(ngModel)]="layoutName"
         placeholder="Mon Dashboard"
         pInputText
       />
     </div>
-
-    <div class="form-field">
-      <label for="layout-description">Description</label>
-      <textarea
-        class="form-control"
-        id="layout-description"
-        [(ngModel)]="layoutDescription"
-        rows="3"
-        placeholder="Description du layout..."
-        pInputText
-      ></textarea>
-    </div>
-
     <div class="form-field">
       <label for="layout-scope">Visibilité</label>
       <p-select
@@ -40,9 +26,20 @@
         optionLabel="label"
         optionValue="value"
         [fluid]="true"
-        appendTo="body"
       />
     </div>
+    <div class="form-field">
+      <label for="layout-description">Description</label>
+      <textarea
+        id="layout-description"
+        [(ngModel)]="layoutDescription"
+        rows="3"
+        placeholder="Description du layout..."
+        pInputText
+      ></textarea>
+    </div>
+
+
   </div>
 </div>
 

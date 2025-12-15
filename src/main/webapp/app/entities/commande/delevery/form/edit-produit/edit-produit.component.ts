@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -27,7 +27,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
-  styleUrls: ['../../../../common-modal.component.scss'],
+  styleUrls: ['./form-edition-produit.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -39,8 +39,8 @@ import { Card } from 'primeng/card';
     InputMaskModule,
     Select,
     ToastAlertComponent,
-    Card,
-  ],
+    Card
+  ]
 })
 export class EditProduitComponent implements OnInit {
   deliveryItem: IOrderLine | null;
@@ -60,8 +60,7 @@ export class EditProduitComponent implements OnInit {
     rayonId: [null, [Validators.required]],
     prixAchat: [null, [Validators.required]],
     prixUni: [null, [Validators.required]],
-    codeEan: [],
-    expirationDate: [],
+    codeEan: []
     //    principal: [],
   });
   private readonly produitService = inject(ProduitService);
@@ -70,6 +69,8 @@ export class EditProduitComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
 
   save(): void {
     this.isSaving = true;
@@ -83,7 +84,7 @@ export class EditProduitComponent implements OnInit {
         this.produit = this.fournisseurPrduit.produit;
         this.updateForm(this.fournisseurPrduit);
         this.populate();
-      },
+      }
     });
   }
 
@@ -96,9 +97,8 @@ export class EditProduitComponent implements OnInit {
       codeCip: initialFormData.produitCip,
       principal: produitFournisseur.principal,
       codeEan: this.produit.codeEan,
-      expirationDate: this.produit.expirationDate,
       tvaId: this.produit.tvaId,
-      rayonId: this.produit.rayonId,
+      rayonId: this.produit.rayonId
     });
   }
 
@@ -109,7 +109,7 @@ export class EditProduitComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
@@ -128,10 +128,24 @@ export class EditProduitComponent implements OnInit {
     this.activeModal.close();
   }
 
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
+  }
+
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
 
@@ -155,11 +169,10 @@ export class EditProduitComponent implements OnInit {
       produitId: this.produit.id,
       produit: {
         codeEan: this.editForm.get(['codeEan']).value,
-        expirationDate: this.editForm.get(['expirationDate']).value,
         tvaId: this.editForm.get(['tvaId']).value,
         rayonId: this.editForm.get(['rayonId']).value,
-        id: this.produit.id,
-      },
+        id: this.produit.id
+      }
     };
   }
 

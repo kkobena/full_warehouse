@@ -56,7 +56,7 @@ public class Fournisseur implements Serializable {
     @Column(name = "code")
     private String code;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @NotNull
     @JoinColumn(name = "groupe_pournisseur_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)

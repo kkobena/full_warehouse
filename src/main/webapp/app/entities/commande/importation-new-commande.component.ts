@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { CommandeService } from './commande.service';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { Select } from 'primeng/select';
 import { Button } from 'primeng/button';
-import { SpinerService } from '../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
@@ -20,8 +19,8 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
-  styleUrls: ['../common-modal.component.scss'],
-  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent],
+  styleUrls: ['./form-import-new.scss'],
+  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent]
 })
 export class ImportationNewCommandeComponent implements OnInit {
   header: string = '';
@@ -39,6 +38,8 @@ export class ImportationNewCommandeComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
 
   constructor() {
     this.models = [
@@ -47,7 +48,7 @@ export class ImportationNewCommandeComponent implements OnInit {
       { label: 'DPCI', value: 'DPCI' },
       { label: 'TEDIS', value: 'TEDIS' },
       { label: 'Cip  quantité', value: 'CIP_QTE' },
-      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' },
+      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' }
     ];
   }
 
@@ -68,7 +69,7 @@ export class ImportationNewCommandeComponent implements OnInit {
         finalize(() => {
           this.spinner().hide();
           this.isSaving = false;
-        }),
+        })
       )
       .subscribe({
         next: res => {
@@ -77,13 +78,27 @@ export class ImportationNewCommandeComponent implements OnInit {
         },
         error: error => {
           this.onCommonError(error);
-        },
+        }
       });
   }
 
   protected uploadHandler(event: any, fileUpload: any): void {
     this.file = event.files[0];
     fileUpload.clear();
+  }
+
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
   }
 
   protected cancel(): void {

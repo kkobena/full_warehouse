@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -22,12 +22,12 @@ import { DatePicker } from 'primeng/datepicker';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../../shared/error.service';
-import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-form-delivery',
   templateUrl: './delivery-modal.component.html',
-  styleUrls: ['../../../common-modal.component.scss'],
+  styleUrls: ['./form-delevery.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -41,8 +41,9 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     InputTextModule,
     DatePicker,
     ToastAlertComponent,
-    SpinnerComponent,
-  ],
+    NgxSpinnerModule
+
+  ]
 })
 export class DeliveryModalComponent implements OnInit {
   header = '';
@@ -56,27 +57,29 @@ export class DeliveryModalComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     receiptReference: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     receiptDate: new FormControl<Date | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required]
     }),
     receiptAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     taxAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
   private readonly entityService = inject(DeliveryService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly alert = viewChild('alert', { read: ToastAlertComponent });
   private readonly errorService = inject(ErrorService);
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
 
   constructor() {
     this.translate.use('fr');
@@ -102,14 +105,28 @@ export class DeliveryModalComponent implements OnInit {
       receiptReference: entity.receiptReference,
       receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
-      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
+      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null
     });
+  }
+
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
   }
 
   save(): void {
     this.isSaving = true;
     const entity = this.createFrom();
-    this.spinner().show();
+    this.spinner.show();
     if (this.isEdit) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
     } else {
@@ -125,13 +142,13 @@ export class DeliveryModalComponent implements OnInit {
     result
       .pipe(
         finalize(() => {
-          this.spinner().hide();
+          this.spinner.hide();
           this.isSaving = false;
-        }),
+        })
       )
       .subscribe({
         next: (res: HttpResponse<IDelivery>) => this.onSaveSuccess(res.body),
-        error: err => this.onSaveError(err),
+        error: err => this.onSaveError(err)
       });
   }
 
@@ -152,7 +169,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
-      orderReference: this.commande.orderReference,
+      orderReference: this.commande.orderReference
     };
   }
 }

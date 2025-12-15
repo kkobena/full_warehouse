@@ -122,7 +122,7 @@ export class AuditingComponent implements OnInit {
   }
 
   fetchSum(): void {
-    this.produitStatService.fetchTransactionsSum(this.buidParams()).subscribe({
+    this.produitStatService.fetchTransactionsSum(this.buildQuery()).subscribe({
       next: (res: HttpResponse<ProduitAuditingSum[]>) => {
         this.summaries = res.body || [];
         this.computeTotaux();
@@ -134,7 +134,7 @@ export class AuditingComponent implements OnInit {
   }
 
   exportPdf(): void {
-    this.produitStatService.exportToPdf(this.buidParams()).subscribe({
+    this.produitStatService.exportToPdf(this.buildQuery()).subscribe({
       next: blod => {
         // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
         // saveAs(blod, 'suivi_mvt_article_' + fileName);
@@ -175,7 +175,7 @@ export class AuditingComponent implements OnInit {
   private loadPage(): void {
     this.produitStatService
       .fetchTransactions({
-        ...this.buidParams(),
+        ...this.buildQuery(),
       })
       .subscribe({
         next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body),
@@ -183,8 +183,8 @@ export class AuditingComponent implements OnInit {
       });
   }
 
-  private buidParams(): ProduitAuditingParam {
-    const param = this.produitAuditingParamService.produitAuditingParam;
+  private buidParamscc(): ProduitAuditingParam {
+    const param = this.buildQuery();
     return {
       produitId: param.produitId,
       fromDate: param.fromDate,

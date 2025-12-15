@@ -19,7 +19,6 @@
           <!-- Save Button -->
           <p-button
             (click)="onCreateBon()"
-            [outlined]="false"
             class="action-btn"
             icon="pi pi-truck"
             label="Créer le bon"
@@ -29,17 +28,27 @@
           </p-button>
 
           <!-- Import Response Button -->
-          <p-button
-            (click)="fileDialog = true"
-            [outlined]="true"
-            class="action-btn"
-            icon="pi pi-download"
-            label="Importer"
-            severity="info"
-            size="small">
+          <p-button [hidden]="true"
+                    (click)="fileDialog = true"
+                    class="action-btn"
+                    icon="pi pi-download"
+                    label="Importer"
+                    severity="info"
+                    size="small">
           </p-button>
 
-
+          @if (selectedEl!.length > 0) {
+            <!-- Delete Button -->
+            <p-button
+              (click)="confirmDeleteAll()"
+              class="action-btn"
+              icon="pi pi-times"
+              label="Supprimer"
+              severity="danger"
+              size="small"
+            >
+            </p-button>
+          }
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
@@ -22,7 +22,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-lot.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -72,7 +72,8 @@ export class FormLotComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
-
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -134,6 +135,19 @@ export class FormLotComponent implements OnInit {
     this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id);
     if (this.numLotAlreadyExist) {
       this.alert().showError(`Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`);
+    }
+  }
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
     }
   }
 

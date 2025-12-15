@@ -104,7 +104,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     @Override
     public List<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam) {
         var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : LocalDate.now();
-        var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : LocalDate.now();
+        var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : startDate;
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return fetchMouvementProduit(produitAuditingParam.produitId(), magasinId, startDate, endDate);
@@ -157,8 +157,8 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
     @Override
     public List<ProduitAuditingSum> fetchProduitDailyTransactionSum(ProduitAuditingParam produitAuditingParam) {
-        var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : null;
-        var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : null;
+        var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : LocalDate.now();
+        var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : startDate;
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(

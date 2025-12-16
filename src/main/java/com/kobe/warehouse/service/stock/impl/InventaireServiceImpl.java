@@ -21,6 +21,7 @@ import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.dto.CreateInventoryFromProduitIds;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
@@ -345,6 +346,11 @@ public class InventaireServiceImpl implements InventaireService {
             new StoreInventoryDTO(this.storeInventoryRepository.getReferenceById(inventoryExportRecord.filterRecord().storeInventoryId()))
         );
         return inventoryExportWrapper;
+    }
+
+    @Override
+    public int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException {
+        return 0;
     }
 
     private Map<String, InventoryExportSummary> buildSummaries(List<StoreInventoryGroupExport> datas) {

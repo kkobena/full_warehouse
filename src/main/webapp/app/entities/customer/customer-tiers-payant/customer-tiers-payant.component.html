@@ -34,7 +34,8 @@
             @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty || editForm.get('tiersPayant')!.touched)) {
               <div>
                 @if (editForm.get('tiersPayant')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -43,7 +44,6 @@
             <label for="field_num">Numéro <span class="required">*</span></label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="num"
               id="field_num"
               name="num"
@@ -54,7 +54,8 @@
             @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -65,7 +66,6 @@
 
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="num"
               id="field_num"
               name="num"
@@ -76,7 +76,8 @@
             @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -86,7 +87,6 @@
             <label for="field_taux">Taux(%) <span class="required">*</span></label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="taux"
               id="field_taux"
               name="taux"
@@ -97,7 +97,8 @@
             @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -116,7 +117,6 @@
             <label for="plafondJournalier">Plafond de vente</label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="plafondJournalier"
               id="plafondJournalier"
               name="plafondJournalier"
@@ -130,7 +130,6 @@
             <label for="plafondConso">Plafond consommation</label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="plafondConso"
               id="plafondConso"
               name="plafondConso"
@@ -154,7 +153,7 @@
     <p-button
       (click)="cancel()"
       [raised]="true"
-      class="p-mr-2"
+      class="mr-2"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
@@ -163,7 +162,6 @@
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [raised]="true"
-      class="p-mr-2"
       icon="pi pi-check"
       label="Enregistrer"
       severity="success"

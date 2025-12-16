@@ -22,6 +22,15 @@ public record RecapProduitVenduRequestParam(
     Integer stockValue,
     Integer quantitySold,
     Boolean unitPriceLessThanPurchasePrice,
-    Boolean suggerQuantitySold
+    Boolean suggerQuantitySold,
+
+    /**
+     * uniquement pour la creation d'inventaire
+     */
+    Integer storage,
+    Integer rayon,
+    String inventoryCategory,
+    Integer famillyId,
+    String description
 ) {
 }

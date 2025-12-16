@@ -47,10 +47,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     KeyFilterModule,
     InputMaskModule,
     ToggleSwitch,
-    Card,
+    Card
   ],
   templateUrl: './customer-tiers-payant.component.html',
-  styleUrls: ['./customer-tiers-payant-component.scss'],
+  styleUrls: ['./customer-tiers-payant-component.scss']
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   title: string = '';
@@ -66,7 +66,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     num: [null, [Validators.required]],
     plafondConso: [],
     plafondJournalier: [],
-    plafondAbsolu: [],
+    plafondAbsolu: []
   });
   protected isSaving = false;
   protected isValid = true;
@@ -114,7 +114,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query,
+        search: query
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -133,7 +133,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       plafondConso: clientTiersPayant.plafondConso,
       plafondJournalier: clientTiersPayant.plafondJournalier,
       plafondAbsolu: clientTiersPayant.plafondAbsolu,
-      taux: clientTiersPayant.taux,
+      taux: clientTiersPayant.taux
     });
   }
 
@@ -148,14 +148,14 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       plafondJournalier: this.editForm.get('plafondJournalier')?.value,
       plafondAbsolu: this.editForm.get('plafondAbsolu')?.value,
       taux: this.editForm.get('taux')?.value,
-      priorite: this.computePriorite(),
+      priorite: this.computePriorite()
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-      error: (error: any) => this.onSaveError(error),
+      error: (error: any) => this.onSaveError(error)
     });
   }
 
@@ -173,14 +173,14 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: translatedErrorMessage,
+            detail: translatedErrorMessage
           });
         });
     } else {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
+        detail: 'Erreur interne du serveur.'
       });
     }
   }

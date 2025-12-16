@@ -25,7 +25,6 @@
             <input
               #firstName
               autocomplete="off"
-              class="form-control"
               formControlName="firstName"
               id="field_firstName"
               name="firstName"
@@ -35,7 +34,8 @@
             @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
               <div>
                 @if (editForm.get('firstName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -45,7 +45,6 @@
             <label for="field_lastName">Prénom(s) <span class="required">*</span> </label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="lastName"
               id="field_lastName"
               name="lastName"
@@ -55,13 +54,14 @@
             @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
               <div>
                 @if (editForm.get('lastName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="tiersPayantId">Tiers-payant<span class="required">*</span></label>
+            <label for="tiersPayantId">Tiers-payant<span class="required">*</span></label>
 
             <p-autoComplete
               (completeMethod)="searchTiersPayant($event)"
@@ -79,21 +79,19 @@
             >
             </p-autoComplete>
 
-            @if (
-              editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)
-            ) {
+            @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)) {
               <div>
                 @if (editForm.get('tiersPayantId')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="field_num">Numéro de sécurité <span class="required">*</span> </label>
+            <label for="field_num">Numéro de sécurité <span class="required">*</span> </label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="num"
               id="field_num"
               name="num"
@@ -104,17 +102,17 @@
             @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
           </div>
 
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="field_taux">Taux(%)<span class="required">*</span></label>
+            <label for="field_taux">Taux(%)<span class="required">*</span></label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="taux"
               id="field_taux"
               name="taux"
@@ -125,7 +123,8 @@
             @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -141,10 +140,9 @@
         </ng-template>
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="field_phone">Téléphone</label>
+            <label for="field_phone">Téléphone</label>
             <input
               autocomplete="off"
-              class="form-control"
               formControlName="phone"
               id="field_phone"
               name="phone"
@@ -156,8 +154,9 @@
 
           @let datNaiss = editForm.get('datNaiss');
           <div class="form-field form-field-full">
-            <label class="form-control-label">Date de naissance</label>
-            <input [style]="{ width: '100%' }" formControlName="datNaiss" jhiDateNaiss pInputText placeholder="jj/mm/aaaa" />
+            <label for="datNaiss">Date de naissance</label>
+            <input id="datNaiss" name="datNaiss" formControlName="datNaiss" jhiDateNaiss pInputText
+                   placeholder="jj/mm/aaaa" />
             @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
               <div>
                 @let errors = datNaiss?.errors;
@@ -169,15 +168,17 @@
           </div>
 
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="email">E-mail</label>
-            <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email" pInputText type="email" />
+            <label for="email" for="email">E-mail</label>
+            <input autocomplete="off" formControlName="email" id="email" name="email" pInputText type="email" />
           </div>
           <div class="form-field form-field-full">
             <label>Sexe</label>
             <div class="radio-group">
-              <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
+              <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
+                             value="M"></p-radioButton>
               <label for="masculin" class="radio-label">Masculin</label>
-              <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radioButton>
+              <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe"
+                             value="F"></p-radioButton>
               <label for="feminin" class="radio-label">Feminin</label>
             </div>
           </div>

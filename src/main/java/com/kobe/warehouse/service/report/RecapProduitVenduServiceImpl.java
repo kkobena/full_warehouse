@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
@@ -47,15 +48,17 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     private final EntityManager entityManager;
     private final ReportExcelExportService excelExportService;
     private final CsvExportService csvExportService;
+    private final InventaireService inventaireService;
 
-    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService) {
+    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService, InventaireService inventaireService) {
         this.entityManager = entityManager;
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
+        this.inventaireService = inventaireService;
     }
 
     private QuerySpec buildWhereClause(RecapProduitVenduRequestParam requestParam) {
-        StringBuilder where = new StringBuilder(" WHERE COALESCE(s.canceled, false) = false");
+        StringBuilder where = new StringBuilder(" WHERE COALESCE(s.canceled, false) = false AND s.statut = 'CLOSED' ");
         Map<String, Object> params = new HashMap<>();
 
         // Date/time filtering
@@ -67,6 +70,8 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             where.append(" AND sl.created_at BETWEEN :fromDateTime AND :toDateTime");
             params.put("fromDateTime", LocalDateTime.of(startDate, startTime));
             params.put("toDateTime", LocalDateTime.of(endDate, endTime));
+            where.append(" AND s.sale_date >= :startDate ");
+            params.put("startDate", startDate);// à cause la partition postgresql sur sale_date
         } else if (startDate != null && endDate != null) {
             where.append(" AND s.sale_date BETWEEN :startDate AND :endDate");
             params.put("startDate", startDate);
@@ -235,7 +240,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" WHERE p.id NOT IN (")
             .append("   SELECT DISTINCT sl.produit_id FROM sales_line sl ")
             .append("   JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append("   WHERE COALESCE(s.canceled, false) = false ");
+            .append("   WHERE COALESCE(s.canceled, false) = false AND s.statut = 'CLOSED' ");
 
         // Add date filtering for the subquery
         LocalDate startDate = requestParam.startDate();
@@ -368,6 +373,8 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     @Override
     public int createInventoryFromRecapProduitVendu(RecapProduitVenduRequestParam requestParam) {
+        Set<Integer> ids= getProduitIds( requestParam);
+      //  inventaireService.createInventoryFromFrom()
         return 0;
     }
 
@@ -383,7 +390,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         StringBuilder where = new StringBuilder("");
         Map<String, Object> params = new HashMap<>();
 
-        if (requestParam.searchTerm() != null && !requestParam.searchTerm().isBlank()) {
+        if (StringUtils.hasText(requestParam.searchTerm())) {
             where.append(
                 " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_labo) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
             );

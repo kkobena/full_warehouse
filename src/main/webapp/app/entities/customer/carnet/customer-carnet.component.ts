@@ -44,10 +44,10 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     CardModule,
     DateNaissDirective,
     Button,
-    ToastAlertComponent,
+    ToastAlertComponent
   ],
   templateUrl: './customer-carnet.component.html',
-  styleUrls: ['./customer-carnet-component.scss'],
+  styleUrls: ['./customer-carnet-component.scss']
 })
 export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;
@@ -72,7 +72,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
     adresse: [],
     sexe: [],
     datNaiss: [],
-    remiseId: [],
+    remiseId: []
   });
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -110,7 +110,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       {
         entity: null,
         categorie: this.categorie,
-        title: 'FORMULAIRE DE CREATION DE CARNET',
+        title: 'FORMULAIRE DE CREATION DE CARNET'
       },
       (resp: ITiersPayant) => {
         if (resp) {
@@ -119,7 +119,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
         }
       },
       'xl',
-      'modal-dialog-70',
+      'modal-dialog-70'
     );
   }
 
@@ -152,7 +152,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
         page: 0,
         size: 10,
         type: this.categorie,
-        search: query,
+        search: query
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -184,7 +184,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       datNaiss: this.editForm.get('datNaiss')?.value,
       sexe: this.editForm.get('sexe')?.value,
       tiersPayantId: this.editForm.get('tiersPayantId')?.value?.id,
-      taux: this.editForm.get('taux')?.value,
+      taux: this.editForm.get('taux')?.value
     };
   }
 
@@ -199,14 +199,14 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,
-      taux: customer.taux,
+      taux: customer.taux
     });
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-      error: (error: any) => this.onSaveError(error),
+      error: (error: any) => this.onSaveError(error)
     });
   }
 

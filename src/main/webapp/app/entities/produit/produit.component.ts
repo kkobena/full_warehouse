@@ -292,12 +292,7 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
-    this.jsonDialog = false;
-    this.onErrorOccur = false;
-  }
+
 
   onSearch(event: any): void {
     this.search = event.target.value;

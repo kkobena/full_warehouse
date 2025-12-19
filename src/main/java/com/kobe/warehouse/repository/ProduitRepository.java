@@ -1,9 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -20,16 +16,19 @@ import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * Spring Data repository for the Produit entity.
@@ -56,6 +55,9 @@ public interface ProduitRepository
 
     @Query(value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)", nativeQuery = true)
     String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin, @Param("limitResult") Integer limitResult);
+
+    @Query(value = "SELECT search_produits_by_storage_json(:qtext, :storageId, :limitResult)", nativeQuery = true)
+    String searchProductsByStorage(@Param("qtext") String qtext, @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);
 
     Produit findFirstByParentId(Integer parentId);
 

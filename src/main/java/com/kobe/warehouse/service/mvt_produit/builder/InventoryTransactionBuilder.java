@@ -5,17 +5,24 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
+import org.springframework.data.util.Pair;
+
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Set;
 
 public class InventoryTransactionBuilder {
 
@@ -50,15 +57,17 @@ public class InventoryTransactionBuilder {
                 .setMagasin(appUser.getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
         } else if (entity instanceof Ajustement ajustement) {
-            Produit produit = ajustement.getProduit();
+            StockProduit stockProduit = ajustement.getStockProduit();
+            Produit produit = stockProduit.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+            Pair<Integer, Integer> socktPair = determineBeforeAfterStock(stockProduit.getStorage().getMagasin(), produit, ajustement.getStockBefore(), ajustement.getStockAfter(), stockProduit);
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(ajustement.getDateMtv())
                 .setProduit(produit)
                 .setMouvementType(ajustement.getQtyMvt() > 0 ? MouvementProduit.AJUSTEMENT_IN : MouvementProduit.AJUSTEMENT_OUT)
                 .setQuantity(ajustement.getQtyMvt())
-                .setQuantityBefor(ajustement.getStockBefore())
-                .setQuantityAfter(ajustement.getStockAfter())
+                .setQuantityBefor(socktPair.getFirst())
+                .setQuantityAfter(socktPair.getSecond())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
                 .setEntityId(Long.parseLong(ajustement.getId() + ""))
                 .setUser(ajustement.getAjust().getUser())
@@ -113,7 +122,7 @@ public class InventoryTransactionBuilder {
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
-        } else if (entity instanceof StoreInventoryLine storeInventoryLine) {
+        } else if (entity instanceof StoreInventoryLine storeInventoryLine) { //TODO: adapter la gestion des stocks multi emplacements
             Produit produit = storeInventoryLine.getProduit();
             StoreInventory storeInventory = storeInventoryLine.getStoreInventory();
             AppUser user = storeInventory.getUser();
@@ -149,5 +158,28 @@ public class InventoryTransactionBuilder {
 
     public InventoryTransaction build() {
         return this.inventoryTransaction;
+    }
+
+
+    private Pair<Integer, Integer> determineBeforeAfterStock(Magasin magasin, Produit produit, Integer before, Integer after, StockProduit usedStockProduit) {
+        Set<StockProduit> stockProduits = produit.getStockProduits();
+        if (stockProduits.size() == 1) {
+            return Pair.of(before, after);
+        }
+
+
+        int otherStock = stockProduits.stream().filter(stockProduit -> !Objects.equals(stockProduit, usedStockProduit) && Objects.equals(stockProduit.getStorage().getMagasin(), magasin))
+            .mapToInt(StockProduit::getQtyStock)
+            .sum();
+        return Pair.of(before + otherStock, after + otherStock);
+    }
+
+    private Pair<Integer, Integer> calculerStockAvantApresVente(AppUser user, Produit produit, Integer before, Integer after) {
+        Set<StockProduit> stockProduits = produit.getStockProduits();
+        if (stockProduits.size() == 1) {
+            return Pair.of(before, after);
+        }
+        Magasin magasin = user.getMagasin();
+        return determineBeforeAfterStock(magasin, produit, before, after, stockProduits.stream().filter(stockProduit -> (stockProduit.getStorage().getStorageType() == StorageType.PRINCIPAL) && Objects.equals(stockProduit.getStorage().getMagasin(), magasin)).findFirst().orElse(null));
     }
 }

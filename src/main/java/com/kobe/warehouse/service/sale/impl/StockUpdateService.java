@@ -11,6 +11,8 @@ import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import java.time.LocalDateTime;
+
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,22 +27,24 @@ public class StockUpdateService {
 
     private final StockProduitRepository stockProduitRepository;
     private final LogsService logsService;
+    private final SuggestionReassortService suggestionReassortService;
 
-    public StockUpdateService(StockProduitRepository stockProduitRepository, LogsService logsService) {
+    public StockUpdateService(StockProduitRepository stockProduitRepository, LogsService logsService, SuggestionReassortService suggestionReassortService) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
+        this.suggestionReassortService = suggestionReassortService;
     }
 
     /**
      * Updates stock for a sales line and returns quantity information.
      *
      * @param salesLine the sales line containing product and quantity information
-     * @param storageId the storage location ID
+     * @param stockProduit the stock product to be updated
      * @return StockUpdateResult containing quantity before and after the update
      */
-    public StockUpdateResult updateStock(SalesLine salesLine, Integer storageId) {
+    public StockUpdateResult updateStock(SalesLine salesLine,StockProduit stockProduit) {
         Produit produit = salesLine.getProduit();
-        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storageId);
+
 
         int quantityBefore = stockProduit.getTotalStockQuantity();
         int quantityAfter = quantityBefore - salesLine.getQuantityRequested();
@@ -59,6 +63,7 @@ public class StockUpdateService {
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduitRepository.save(stockProduit);
+        suggestionReassortService.createSuggestionReassort(stockProduit);
 
         return new StockUpdateResult(quantityBefore, quantityAfter);
     }
@@ -109,29 +114,14 @@ public class StockUpdateService {
         newStockProduit.setQtyUG(0);
         newStockProduit.setQtyVirtual(0);
         newStockProduit.setCreatedAt(LocalDateTime.now());
-        newStockProduit.setUpdatedAt(LocalDateTime.now());
+        newStockProduit.setUpdatedAt(newStockProduit.getCreatedAt());
         return newStockProduit;
     }
 
     /**
-     * Result of a stock update operation containing quantity information.
-     */
-    public static class StockUpdateResult {
+         * Result of a stock update operation containing quantity information.
+         */
+        public record StockUpdateResult(int quantityBefore, int quantityAfter) {
 
-        private final int quantityBefore;
-        private final int quantityAfter;
-
-        public StockUpdateResult(int quantityBefore, int quantityAfter) {
-            this.quantityBefore = quantityBefore;
-            this.quantityAfter = quantityAfter;
-        }
-
-        public int getQuantityBefore() {
-            return quantityBefore;
-        }
-
-        public int getQuantityAfter() {
-            return quantityAfter;
-        }
     }
 }

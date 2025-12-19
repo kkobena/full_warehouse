@@ -14,24 +14,26 @@ import com.kobe.warehouse.repository.AjustRepository;
 import com.kobe.warehouse.repository.AjustementRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.settings.FileResourceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Service Implementation for managing {@link Ajustement}.
@@ -44,15 +46,16 @@ public class AjustementService extends FileResourceService {
 
     private final AjustementRepository ajustementRepository;
     private final ProduitRepository produitRepository;
-    private final UserRepository userRepository;
     private final AjustRepository ajustRepository;
     private final StorageService storageService;
     private final StockProduitRepository stockProduitRepository;
     private final LogsService logsService;
     private final InventoryTransactionService inventoryTransactionService;
+    private final SuggestionReassortService suggestionReassortService;
+
 
     private final BiPredicate<Ajustement, String> searchPredicate = (ajustement, s) -> {
-        Produit produit = ajustement.getProduit();
+        Produit produit = ajustement.getStockProduit().getProduit();
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         return produit.getLibelle().toUpperCase().contains(s.toUpperCase()) || fournisseurProduit.getCodeCip().contains(s);
     };
@@ -60,25 +63,24 @@ public class AjustementService extends FileResourceService {
     public AjustementService(
         AjustementRepository ajustementRepository,
         ProduitRepository produitRepository,
-        UserRepository userRepository,
         AjustRepository ajustRepository,
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
         LogsService logsService,
-        InventoryTransactionService inventoryTransactionService
+        InventoryTransactionService inventoryTransactionService, SuggestionReassortService suggestionReassortService
     ) {
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
-        this.userRepository = userRepository;
         this.ajustRepository = ajustRepository;
         this.storageService = storageService;
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
         this.inventoryTransactionService = inventoryTransactionService;
+        this.suggestionReassortService = suggestionReassortService;
     }
 
     private AppUser getUser() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElseThrow();
+        return storageService.getUser();
     }
 
     public AjustDTO createAjsut(AjustDTO ajustDto) {
@@ -86,26 +88,23 @@ public class AjustementService extends FileResourceService {
         ajust.setCommentaire(ajustDto.getCommentaire());
         ajust.setUser(getUser());
         ajust.setDateMtv(LocalDateTime.now());
-        if (Objects.nonNull(ajustDto.getStorageId())) {
-            ajust.setStorage(storageService.getOne(ajustDto.getStorageId()));
-        } else {
-            ajust.setStorage(storageService.getDefaultConnectedUserMainStorage());
-        }
+
         ajust = ajustRepository.save(ajust);
         create(ajustDto.getAjustements().getFirst(), ajust);
         return new AjustDTO(ajust);
     }
 
     private void create(AjustementDTO ajustementDTO, Ajust ajust) {
+        Integer storageId = nonNull(ajustementDTO.getStorageId()) ? ajustementDTO.getStorageId() : storageService.getDefaultConnectedUserMainStorage().getId();
+
         Produit produit = produitRepository.getReferenceById(ajustementDTO.getProduitId());
-        int stock = stockProduitRepository
-            .findStockProduitByStorageIdAndProduitId(ajust.getStorage().getId(), ajustementDTO.getProduitId())
-            .get()
-            .getQtyStock();
+        StockProduit stockProduit = produit.getStockProduits().stream().filter(stockP -> Objects.equals(stockP.getStorage().getId(), storageId)).findFirst().orElseThrow(() ->
+            new GenericError("Le produit " + produit.getLibelle() + " n'a pas de stock dans le magasin selectionné"));
+        int stock = stockProduit.getTotalStockQuantity();
         Ajustement ajustement = new Ajustement();
         ajustement.setAjust(ajust);
         ajustement.setMotifAjustement(fromMotifId(ajustementDTO.getMotifAjustementId()));
-        ajustement.setProduit(produit);
+        ajustement.setStockProduit(stockProduit);
         ajustement.setDateMtv(LocalDateTime.now());
         ajustement.setQtyMvt(ajustementDTO.getQtyMvt());
         ajustement.setStockBefore(stock);
@@ -123,7 +122,7 @@ public class AjustementService extends FileResourceService {
     }
 
     public void createOrUpdate(AjustementDTO ajustementDTO) {
-        Optional<Ajustement> optionalAjustement = ajustementRepository.findFirstByAjustIdAndProduitId(
+        Optional<Ajustement> optionalAjustement = ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(
             ajustementDTO.getAjustId(),
             ajustementDTO.getProduitId()
         );
@@ -131,12 +130,11 @@ public class AjustementService extends FileResourceService {
         if (optionalAjustement.isEmpty()) {
             create(ajustementDTO, ajust);
         } else {
-            int stock = stockProduitRepository
-                .findStockProduitByStorageIdAndProduitId(ajust.getStorage().getId(), ajustementDTO.getProduitId())
-                .get()
-                .getQtyStock();
+
 
             Ajustement ajustement = optionalAjustement.get();
+            StockProduit stockProduit = ajustement.getStockProduit();
+            int stock = stockProduit.getTotalStockQuantity();
             ajustement.setDateMtv(LocalDateTime.now());
             ajustement.setQtyMvt(ajustement.getQtyMvt() + ajustementDTO.getQtyMvt());
             ajustement.setStockBefore(stock);
@@ -155,11 +153,9 @@ public class AjustementService extends FileResourceService {
 
     private void saveItems(List<Ajustement> ajustements) {
         for (Ajustement ajustement : ajustements) {
-            StockProduit p = stockProduitRepository
-                .findStockProduitByStorageIdAndProduitId(ajustement.getAjust().getStorage().getId(), ajustement.getProduit().getId())
-                .get();
+            StockProduit p = ajustement.getStockProduit();
             Produit produit = p.getProduit();
-            int initStock = p.getQtyStock();
+            int initStock = p.getTotalStockQuantity();
             AjustType ajustType = AjustType.AJUSTEMENT_OUT;
             TransactionType transactionType = TransactionType.AJUSTEMENT_OUT;
             if (ajustement.getQtyMvt() >= 0) {
@@ -170,6 +166,7 @@ public class AjustementService extends FileResourceService {
             ajustement.setStockBefore(initStock);
             p.setQtyStock(p.getQtyStock() + ajustement.getQtyMvt());
             p.setQtyVirtual(p.getQtyStock());
+            p.setQtyUG(0);
             ajustement.setStockAfter(p.getQtyStock());
             ajustement = this.ajustementRepository.save(ajustement);
             stockProduitRepository.save(p);
@@ -183,15 +180,15 @@ public class AjustementService extends FileResourceService {
                 p.getQtyStock()
             );
             inventoryTransactionService.save(ajustement);
+            suggestionReassortService.createSuggestionReassort(p);
+
             logsService.create(transactionType, desc, ajustement.getId().toString());
         }
     }
 
     public AjustementDTO update(AjustementDTO ajustementDTO) {
         Ajustement ajustement = ajustementRepository.getReferenceById(ajustementDTO.getId());
-        StockProduit stockProduit = stockProduitRepository
-            .findStockProduitByStorageIdAndProduitId(ajustement.getAjust().getStorage().getId(), ajustement.getProduit().getId())
-            .get();
+        StockProduit stockProduit = ajustement.getStockProduit();
         int stock = stockProduit.getQtyStock();
         ajustement.setDateMtv(LocalDateTime.now());
         ajustement.setQtyMvt(ajustementDTO.getQtyMvt());

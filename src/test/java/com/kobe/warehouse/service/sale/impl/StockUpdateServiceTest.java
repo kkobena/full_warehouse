@@ -15,6 +15,8 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,8 @@ class StockUpdateServiceTest {
 
     @Mock
     private StockProduitRepository stockProduitRepository;
-
+    @Mock
+    private  SuggestionReassortService suggestionReassortService;
     @Mock
     private LogsService logsService;
 
@@ -37,7 +40,7 @@ class StockUpdateServiceTest {
 
     @BeforeEach
     void setUp() {
-        stockUpdateService = new StockUpdateService(stockProduitRepository, logsService);
+        stockUpdateService = new StockUpdateService(stockProduitRepository, logsService,suggestionReassortService);
     }
 
     @Test
@@ -56,11 +59,11 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
+        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
-        assertEquals(110, result.getQuantityBefore(), "Quantity before should be sum of stock and UG");
-        assertEquals(105, result.getQuantityAfter(), "Quantity after should be reduced by requested amount");
+        assertEquals(110, result.quantityBefore(), "Quantity before should be sum of stock and UG");
+        assertEquals(105, result.quantityAfter(), "Quantity after should be reduced by requested amount");
 
         verify(stockProduitRepository).save(
             argThat(
@@ -87,11 +90,11 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
+        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
-        assertEquals(5, result.getQuantityBefore());
-        assertEquals(-5, result.getQuantityAfter());
+        assertEquals(5, result.quantityBefore());
+        assertEquals(-5, result.quantityAfter());
 
         verify(logsService).create(eq(TransactionType.FORCE_STOCK), eq(TransactionType.FORCE_STOCK.getValue()), anyString());
     }
@@ -112,7 +115,7 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        stockUpdateService.updateStock(salesLine, storageId);
+        stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
         ArgumentCaptor<String> descriptionCaptor = ArgumentCaptor.forClass(String.class);
@@ -140,7 +143,7 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        stockUpdateService.updateStock(salesLine, storageId);
+        stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
         verify(logsService, never()).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), anyString(), anyString());
@@ -162,7 +165,7 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        stockUpdateService.updateStock(salesLine, storageId);
+        stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
         verify(stockProduitRepository).save(
@@ -186,7 +189,7 @@ class StockUpdateServiceTest {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
-        stockUpdateService.updateStock(salesLine, storageId);
+        stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
         verify(stockProduitRepository).save(

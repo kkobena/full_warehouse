@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 public record ProduitSearch(
     Integer id,
@@ -14,6 +15,8 @@ public record ProduitSearch(
     boolean deconditionnable,
     Integer itemqty,
     Integer vatrate,
+    Integer regularunitprice,
+    Integer costamount,
     List<ProduitFournisseurSearch> fournisseurs,
 
     List<ProduitRayonSearch> rayons,
@@ -26,7 +29,7 @@ public record ProduitSearch(
 
     @JsonProperty("fournisseurProduit")
     public ProduitFournisseurSearch fournisseurProduit() {
-        return fournisseurs.stream().filter(e -> e.id().equals(codecipprincipalid)).findFirst().orElse(fournisseurs.getFirst());
+        return fournisseurs.stream().filter(e -> Objects.equals(codecipprincipalid, e.id())).findFirst().orElse(fournisseurs.getFirst());
     }
 
     @JsonProperty("regularUnitPrice")
@@ -66,5 +69,15 @@ public record ProduitSearch(
     @JsonProperty("parentId")
     public Integer parentId() {
         return parentid;
+    }
+
+    @JsonProperty("costAmount")
+    public Integer costAmount() {
+        return costamount;
+    }
+
+    @JsonProperty("baseRegularUnitPrice")
+    public Integer baseRegularUnitPrice() {
+        return regularunitprice;
     }
 }

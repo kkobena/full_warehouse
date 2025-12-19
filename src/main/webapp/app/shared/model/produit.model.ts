@@ -36,7 +36,6 @@ export interface IProduit {
   qtyAppro?: number;
   qtySeuilMini?: number;
   chiffre?: boolean;
-  dateperemption?: boolean;
   exclude?: boolean;
   deconditionnable?: boolean;
   prixMnp?: number;
@@ -68,13 +67,14 @@ export interface IProduit {
   qtyStatus?: string;
   fournisseurId?: number;
   rayonId?: number;
-  expirationDate?: string;
   displayField?: string;
   rayonProduits?: IRayonProduit[];
   tableau?: ITableau;
   remiseCode?: string;
   etatProduit?: EtatProduit;
   dciId?: number;
+  stockReassort?: number;
+  seuilMini?: number;
   categorie?: string; //categorie ABC
   codeEanLaboratoire?: string; //categorie ABC
 }
@@ -104,7 +104,6 @@ export class Produit implements IProduit {
     public qtyAppro?: number,
     public qtySeuilMini?: number,
     public chiffre?: boolean,
-    public dateperemption?: boolean,
     public exclude?: boolean,
     public deconditionnable?: boolean,
     public prixMnp?: number,
@@ -134,12 +133,12 @@ export class Produit implements IProduit {
     public lastInventoryDate?: Moment,
     public qtyStatus?: string,
     public codeCip?: string,
-    fournisseurId?: number,
+    public fournisseurId?: number,
     public rayonId?: number,
-    public expirationDate?: string,
     public displayField?: string,
-    public rayonProduits?: IRayonProduit[],
-  ) {}
+    public rayonProduits?: IRayonProduit[]
+  ) {
+  }
 }
 
 export class Dci {

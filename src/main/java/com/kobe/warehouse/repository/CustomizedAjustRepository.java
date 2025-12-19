@@ -9,6 +9,8 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
@@ -77,7 +79,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
     private List<AjustementDTO> items(Integer id) {
         try {
             TypedQuery<Ajustement> q = em.createQuery(
-                "SELECT o FROM Ajustement o WHERE o.ajust.id=?1 ORDER BY o.produit.fournisseurProduitPrincipal.codeCip",
+                "SELECT o FROM Ajustement o WHERE o.ajust.id=?1 ORDER BY o.stockProduit.produit.fournisseurProduitPrincipal.codeCip",
                 Ajustement.class
             );
             q.setParameter(1, id);
@@ -103,7 +105,8 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(ajustementFilterRecord.search())) {
             String search = ajustementFilterRecord.search() + "%";
-            Join<Ajustement, Produit> produitJoin = root.join(Ajustement_.produit);
+            Join<Ajustement, StockProduit> produitStockJoin = root.join(Ajustement_.stockProduit);
+            Join<StockProduit, Produit> produitJoin = produitStockJoin.join(StockProduit_.produit);
             SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(

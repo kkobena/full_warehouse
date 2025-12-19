@@ -351,7 +351,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         for (SalesLine salesLine : salesLines) {
             StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(salesLine, storage);
             venteDepotTransactionRecords.add(
-                new VenteDepotTransactionRecord(result.getQuantityBefore(), result.getQuantityAfter(), salesLine)
+                new VenteDepotTransactionRecord(result.quantityBefore(), result.quantityAfter(), salesLine)
             );
         }
         inventoryTransactionService.saveVenteDepotExtensionInventoryTransactions(depot, venteDepotTransactionRecords);

@@ -27,6 +27,20 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,19 +57,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -105,6 +106,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public void suggerer(List<QuantitySuggestion> quantitySuggestions) {
         if (!CollectionUtils.isEmpty(quantitySuggestions)) {
+
+            Magasin magasin = storageService.getConnectedUserMagasin();
             AtomicBoolean suggestionExist = new AtomicBoolean(false);
             quantitySuggestions
                 .stream()
@@ -112,20 +115,27 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 .forEach((four, values) -> {
                     Suggestion suggestion = getSuggestion(four, suggestionExist);
                     values.forEach(quantitySuggestion -> {
-                        StockProduit stockProduit = quantitySuggestion.stockProduit();
+                       // StockProduit stockProduit = quantitySuggestion.stockProduit();
                         Produit produit = quantitySuggestion.produit();
-
                         if (etatProduitService.canSuggere(produit.getId())) {
                             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-
+                            boolean isDetail = false;
                             int quantitySold = quantitySuggestion.quantitySold();
                             if (produit.getTypeProduit() == TypeProduit.DETAIL) {
+                                isDetail = true;
                                 produit = produit.getParent();
                                 quantitySold = Math.ceilDiv(quantitySold, produit.getItemQty());
                             }
-                            int currentStock = stockProduit.getTotalStockQuantity() - quantitySold;
-                            if (currentStock <= produit.getQtySeuilMini()) {
-                                saveSuggestionLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist.get());
+                            int produitAllSock = produit.getStockProduits().stream().filter(stock -> stock.getStorage().getMagasin().equals(magasin)).mapToInt(StockProduit::getTotalStockQuantity).sum();
+                            LOG.info("********** produitAllSock {} *****************", produitAllSock);
+                            if (isDetail) {
+                                produitAllSock = produitAllSock - quantitySold;
+                                LOG.info("********** produitAllSock after detail {} *****************", produitAllSock);
+                            }
+
+                            //   int currentStock = produitAllSock - quantitySold; on aura deja mis a jour le stock avant de lancer la suggestion
+                            if (produitAllSock <= produit.getQtySeuilMini()) {
+                                saveSuggestionLine(produit, produitAllSock, fournisseurProduit, suggestion, suggestionExist.get());
                             }
                         }
                     });
@@ -142,7 +152,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void suggerer(Produit produit) {}
+    public void suggerer(Produit produit) {
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -369,44 +380,34 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return suggestion;
     }
 
-    private Optional<FournisseurProduit> getFournisseurProduit(Produit produit) {
-        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-        if (Objects.isNull(fournisseurProduit)) {
-            List<FournisseurProduit> fournisseurProduits = fournisseurProduitRepository.findAllByProduitId(produit.getId());
-            if (!CollectionUtils.isEmpty(fournisseurProduits)) {
-                fournisseurProduit = fournisseurProduits.getFirst();
-            }
-            LOG.info("********** Ce produit n'a pas de fournisseur principal {} *****************", produit.getLibelle());
-        }
-        return Optional.ofNullable(fournisseurProduit);
-    }
+
 
     private void saveSuggestionLine(
         Produit produit,
-        StockProduit stockProduit,
+        int produitTotalStockQuantity,
         FournisseurProduit fournisseurProduit,
         Suggestion suggestion,
         boolean suggestionExist
     ) {
         this.suggestionLineRepository.findBySuggestionTypeSuggessionAndFournisseurProduitId(
-                TypeSuggession.AUTO,
-                fournisseurProduit.getId()
-            ).ifPresentOrElse(
-                line -> updateLine(produit, stockProduit, line),
-                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
-            );
+            TypeSuggession.AUTO,
+            fournisseurProduit.getId()
+        ).ifPresentOrElse(
+            line -> updateLine(produit, produitTotalStockQuantity, line),
+            () -> buildLine(produit, produitTotalStockQuantity, fournisseurProduit, suggestion, suggestionExist)
+        );
     }
 
     private void buildLine(
         Produit produit,
-        StockProduit stockProduit,
+        int produitTotalStockQuantity,
         FournisseurProduit fournisseurProduit,
         Suggestion suggestion,
         boolean suggestionExist
     ) {
         SuggestionLine line = new SuggestionLine();
         line.setCreatedAt(LocalDateTime.now());
-        line.setQuantity(computeQtyReappro(produit, stockProduit));
+        line.setQuantity(computeQtyReappro(produit, produitTotalStockQuantity));
         line.setFournisseurProduit(fournisseurProduit);
         line.setSuggestion(suggestion);
         if (suggestionExist) {
@@ -416,24 +417,24 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         suggestion.getSuggestionLines().add(line);
     }
 
-    private void updateLine(Produit produit, StockProduit stockProduit, SuggestionLine line) {
-        line.setQuantity(computeQtyReappro(produit, stockProduit));
+    private void updateLine(Produit produit, int produitTotalStockQuantity, SuggestionLine line) {
+        line.setQuantity(computeQtyReappro(produit, produitTotalStockQuantity));
         this.suggestionLineRepository.save(line);
     }
 
-    private int computeQtyReappro(Produit produit, StockProduit stockProduit) {
+    private int computeQtyReappro(Produit produit, int produitTotalStockQuantity) {
         int qtyReappro = Objects.requireNonNullElse(produit.getQtyAppro(), 1);
-        return (produit.getQtySeuilMini() - stockProduit.getTotalStockQuantity()) + qtyReappro;
+        return (produit.getQtySeuilMini() - produitTotalStockQuantity) + qtyReappro;
     }
 
     private String exportToCsv(Suggestion suggestion) {
         String filename =
             this.fileStorageLocation.resolve(
                     "suggestion_" +
-                    suggestion.getSuggessionReference() +
-                    "_" +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                    ".csv"
+                        suggestion.getSuggessionReference() +
+                        "_" +
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
+                        ".csv"
                 )
                 .toFile()
                 .getAbsolutePath();
@@ -457,7 +458,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
             printer.flush();
         } catch (final IOException e) {
-            throw new RuntimeException("Csv writing error: " + e.getMessage());
+            throw new GenericError("Csv writing error: " + e.getMessage());
         }
         return filename;
     }

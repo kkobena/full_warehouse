@@ -71,6 +71,14 @@ export class RecapProduitVenduService {
   }
 
   /**
+   * Export unsold products to PDF
+   */
+  exportInvenduToPdf(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
+    const params = createRequestOptions(requestParam);
+    return this.http.get(`${this.resourceUrl}/invendus/pdf`, { params, responseType: 'blob', observe: 'response' });
+  }
+
+  /**
    * Export unsold products to Excel
    */
   exportInvenduToExcel(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {

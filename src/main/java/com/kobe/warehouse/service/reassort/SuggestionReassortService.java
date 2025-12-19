@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reassort;
 
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
@@ -28,8 +27,11 @@ public interface SuggestionReassortService {
      * crée une ligne de suggestion de réassort pour le stockProduit donné
      * Pendant la vente en magasin, on peut détecter qu'un produit doit être réassorti.
      * Pendant l'ajustement de stock, on peut détecter qu'un produit doit être réassorti.
+     *
      * @param stockProduit
      */
-    void createSuggestionReassort(StockProduit stockProduit, AppUser user);
+    void createSuggestionReassort(StockProduit stockProduit);
+
+   // void createSuggestionReassort(List<StockProduit> stockProduits, AppUser user);
 
 }

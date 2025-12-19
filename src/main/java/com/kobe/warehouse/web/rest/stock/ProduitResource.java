@@ -230,4 +230,13 @@ public class ProduitResource extends ProduitResourceProxy {
     ) {
         return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
     }
+
+    @GetMapping("/produits/search-by-storage")
+    public ResponseEntity<List<ProduitSearch>> searchByStorage(
+        @RequestParam(name = "search") String search,
+        @RequestParam(name = "storageId") Integer storageId,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok().body(produitService.searchProductsByStorage(storageId, search, pageable));
+    }
 }

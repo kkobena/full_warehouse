@@ -6,9 +6,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
@@ -20,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -39,21 +43,20 @@ public class ProduitServiceImpl implements ProduitService {
     private final CustomizedProductService customizedProductService;
     private final RayonRepository rayonRepository;
     private final JsonMapper objectMapper;
-    private final AppConfigurationService appConfigurationService;
+    private final StorageService storageService;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
-        JsonMapper objectMapper,
-        AppConfigurationService appConfigurationService
-    ) {
+        JsonMapper objectMapper, StorageService storageService
+        ) {
 
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
         this.rayonRepository = rayonRepository;
         this.objectMapper = objectMapper;
-        this.appConfigurationService = appConfigurationService;
+        this.storageService = storageService;
     }
 
     /**
@@ -66,6 +69,7 @@ public class ProduitServiceImpl implements ProduitService {
     public void save(ProduitDTO produitDTO) {
         LOG.debug("Request to save Produit : {}", produitDTO);
         try {
+
             customizedProductService.save(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
         } catch (Exception e) {
             LOG.error("Request to save Produit : {}", e);
@@ -216,10 +220,27 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public List<ProduitSearch> searchProducts(String search, Integer magasinId, Pageable pageable) {
         if (isNull(magasinId)) {
-            magasinId = appConfigurationService.getMagasin().getId();
+            magasinId = storageService.getConnectedUserMagasin().getId();
         }
 
         String jsonResult = produitRepository.searchProduitsJson(search, magasinId, pageable.getPageSize());
+
+        try {
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search,  Pageable pageable) {
+        if (isNull(storageId)) {
+           return List.of();
+        }
+
+        String jsonResult = produitRepository.searchProductsByStorage(search, storageId, pageable.getPageSize());
 
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});

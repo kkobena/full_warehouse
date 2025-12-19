@@ -1,46 +1,49 @@
 <div class="container-fluid">
-  <!-- TODO: uiliser le style commun pour les horizontal navBar pharma-nav-tabs-container ex: C:\Users\k.kobena\Documents\full_warehouse\src\main\webapp\app\entities\produit\stat-sales\stat-sales.component.html -->
-    <ul ngbNav #nav="ngbNav"  [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav-tabs">
-      <li [ngbNavItem]="'historique'">
-        <a ngbNavLink>
-          <i class="pi pi-history me-2"></i>
+  <div class="pharma-nav-tabs-container">
+    <div #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+      <ng-container ngbNavItem="historique">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-history"></i>
           <span>Traçabilité</span>
         </a>
         <ng-template ngbNavContent>
           <jhi-repartition-list [fromDate]="dtStart()" [searchTerm]="search()" [toDate]="dtEnd()"></jhi-repartition-list>
         </ng-template>
-      </li>
+      </ng-container>
 
-      <li [ngbNavItem]="'rayon'">
-        <a ngbNavLink>
-          <i class="pi pi-shopping-cart me-2"></i>
+      <ng-container ngbNavItem="rayon">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-shopping-cart"></i>
           <span>Réassort suggéré – Rayon</span>
         </a>
         <ng-template ngbNavContent>
           <jhi-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'"></jhi-suggestion-reassort>
         </ng-template>
-      </li>
+      </ng-container>
 
-      <li [ngbNavItem]="'reserve'">
-        <a ngbNavLink>
-          <i class="pi pi-warehouse me-2"></i>
+      <ng-container ngbNavItem="reserve">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-warehouse"></i>
           <span>Réassort suggéré – Réserve</span>
         </a>
         <ng-template ngbNavContent>
           <jhi-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'"></jhi-suggestion-reassort>
         </ng-template>
-      </li>
+      </ng-container>
 
-      <li [ngbNavItem]="'manual'">
-        <a ngbNavLink>
-          <i class="pi pi-cog me-2"></i>
+      <ng-container ngbNavItem="manual">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-cog"></i>
           <span>Transfert manuel Rayon / Réserve</span>
         </a>
         <ng-template ngbNavContent>
           <jhi-manual-repartition></jhi-manual-repartition>
         </ng-template>
-      </li>
-    </ul>
-    <div [ngbNavOutlet]="nav" class="mt-1"></div>
+      </ng-container>
+    </div>
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
   </div>
+</div>
 

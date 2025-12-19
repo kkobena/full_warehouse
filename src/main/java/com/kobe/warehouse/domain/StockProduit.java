@@ -59,17 +59,17 @@ public class StockProduit implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @NotNull
     private Storage storage;
     @NotAudited
     @Min(value = 0)
-    @Column(name = "stock_reassort", comment = "Quantite de reassort pour reconstituer pour reconstitution de stock")
+    @Column(name = "stock_reassort", comment = "Quantite de reassort pour la reconstitution de stock")
     private Integer stockReassort;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
     // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
     @NotAudited

@@ -24,7 +24,7 @@ public class RayonProduitDTO {
         this.codeRayon = rayon.getCode();
         this.libelleRayon = rayon.getLibelle();
         this.libelleStorage = storage.getName();
-        this.storageType = storage.getStorageType().value;
+        this.storageType = storage.getStorageType().getValue();
         this.magasin = thatmagasin.getName();
         this.magasinId = thatmagasin.getId();
         this.rayonId = rayon.getId();

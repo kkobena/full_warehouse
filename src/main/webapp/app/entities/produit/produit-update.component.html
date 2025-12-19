@@ -325,49 +325,45 @@
               </div>
             </ng-template>
 
-            <div class="form-grid-compact">
-              <!-- Quantité réappro -->
-              <div class="form-field">
-                <label for="qtyAppro">Quantité de réapprovisionnement</label>
-                <input pInputText pKeyFilter="int" id="qtyAppro" formControlName="qtyAppro" class="w-full" autocomplete="off" />
-              </div>
 
-              <!-- Quantité seuil mini -->
-              <div class="form-field">
-                <label for="qtySeuilMini">Quantité seuil minimum</label>
-                <input pInputText pKeyFilter="int" id="qtySeuilMini" formControlName="qtySeuilMini" class="w-full" autocomplete="off" />
-              </div>
+              <div class="row">
+                <div class="col-md-6 form-grid-compact">
+                  <!-- Quantité réappro -->
+                  <div class="form-field form-field-full">
+                    <label for="qtyAppro">Quantité de réapprovisionnement</label>
+                    <input pInputText pKeyFilter="int"    class="w-full" id="qtyAppro" formControlName="qtyAppro"  autocomplete="off" />
+                  </div>
+                </div>
+                <div class="col-md-6 form-grid-compact">
+                  <!-- Quantité seuil mini -->
+                  <div class="form-field form-field-full">
+                    <label for="qtySeuilMini">Quantité seuil minimum</label>
+                    <input pInputText pKeyFilter="int" id="qtySeuilMini"    class="w-full" formControlName="qtySeuilMini"  autocomplete="off" />
+                  </div>
+                </div>
 
-              <!-- Date péremption checkbox -->
-              <div class="form-field">
-                <div class="checkbox-field">
-                  <p-checkbox
-                    #datePeremptionCheckbox
-                    inputId="dateperemption"
-                    formControlName="dateperemption"
-                    (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
-                    [binary]="true"
-                  >
-                  </p-checkbox>
-                  <label for="dateperemption">Observer la date de péremption ?</label>
+
+
+
+
+
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 form-grid-compact">
+                <!-- Quantité Reassort -->
+                <div class="form-field form-field-full">
+                  <label for="stockReassort">Quantité de réssort du stock rayon</label>
+                  <input pInputText pKeyFilter="int"    class="w-full" id="stockReassort" formControlName="stockReassort"  autocomplete="off" />
                 </div>
               </div>
-
-              @if (isDatePeremptionChecked) {
-                <!-- Date de péremption -->
-                <div class="form-field">
-                  <label for="field_perimeAt">Date de péremption</label>
-                  <p-inputmask
-                    id="field_perimeAt"
-                    formControlName="expirationDate"
-                    mask="99/99/9999"
-                    slotChar="jj/mm/aaaa"
-                    styleClass="w-full"
-                    autocomplete="off"
-                  >
-                  </p-inputmask>
+              <div class="col-md-6 form-grid-compact">
+                <!-- Quantité seuil mini reserve-->
+                <div class="form-field form-field-full">
+                  <label for="seuilMini">Quanité mininum du stock de réserve</label>
+                  <input pInputText pKeyFilter="int" id="seuilMini"    class="w-full" formControlName="seuilMini"  autocomplete="off" />
                 </div>
-              }
+              </div>
             </div>
           </p-card>
 

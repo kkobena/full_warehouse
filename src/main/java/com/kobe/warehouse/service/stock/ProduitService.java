@@ -5,11 +5,13 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -77,4 +79,6 @@ public interface ProduitService {
     Produit findReferenceById(Integer id);
 
     List<ProduitSearch> searchProducts(String search, Integer magasinId, Pageable pageable);
+
+    List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId,String search,  Pageable pageable);
 }

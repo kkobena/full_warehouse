@@ -25,6 +25,7 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.utils.DateUtil;
@@ -76,6 +77,7 @@ public class CommandServiceImpl implements CommandService {
     private final ExportationCsvService exportationCsvService;
     private final ImportationEchoueService importationEchoueService;
     private final CommandeIdGeneratorService commandeIdGeneratorService;
+    private final SuggestionReassortService suggestionReassortService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -84,7 +86,7 @@ public class CommandServiceImpl implements CommandService {
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
         ImportationEchoueService importationEchoueService,
-        CommandeIdGeneratorService commandeIdGeneratorService
+        CommandeIdGeneratorService commandeIdGeneratorService, SuggestionReassortService suggestionReassortService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -93,6 +95,7 @@ public class CommandServiceImpl implements CommandService {
         this.exportationCsvService = exportationCsvService;
         this.importationEchoueService = importationEchoueService;
         this.commandeIdGeneratorService = commandeIdGeneratorService;
+        this.suggestionReassortService = suggestionReassortService;
     }
 
     static void addModelLaborexLigneExistant(

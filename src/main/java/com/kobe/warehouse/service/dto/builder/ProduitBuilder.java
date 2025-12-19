@@ -33,14 +33,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class ProduitBuilder {
+import static java.util.Objects.nonNull;
 
-    private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
+public final class ProduitBuilder {
 
     private ProduitBuilder() {
     }
 
-    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
+    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon,Storage reserveStorage) {
         Produit produit = new Produit();
         produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
@@ -65,7 +65,6 @@ public final class ProduitBuilder {
         }
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
-        produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
@@ -75,7 +74,10 @@ public final class ProduitBuilder {
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
+        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage(),produitDTO));
+        if(nonNull(reserveStorage) && nonNull(produitDTO.getSeuilMini())){
+            produit.addStockProduit(createReserve(reserveStorage,produitDTO));
+        }
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
         if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())) {
             produit.setCategorie(CategorieABC.valueOf(produitDTO.getCategorie()));
@@ -85,35 +87,6 @@ public final class ProduitBuilder {
         return produit;
     }
 
-    public static Produit fromDTO(ProduitDTO produitDTO, StockProduit stockProduit, List<FournisseurProduit> fournisseurProduit) {
-        Produit produit = new Produit();
-        produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
-        produit.setNetUnitPrice(0);
-        if (produitDTO.getTypeProduit() == TypeProduit.DETAIL) {
-            produit.setParent(fromId(produitDTO.getProduitId()));
-        }
-        produit.setTypeProduit(produitDTO.getTypeProduit());
-        produit.setCreatedAt(LocalDateTime.now());
-        produit.setUpdatedAt(produit.getCreatedAt());
-        produit.setCostAmount(produitDTO.getCostAmount());
-        produit.setItemCostAmount(produitDTO.getItemCostAmount());
-        produit.setItemQty(produitDTO.getItemQty());
-        produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
-        produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
-        produit.setCheckExpiryDate(produitDTO.getDateperemption());
-        produit.setDeconditionnable(produitDTO.getDeconditionnable());
-        produit.setQtyAppro(produitDTO.getQtyAppro());
-        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        produit.setTva(tvaFromId(produitDTO.getTvaId()));
-        produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
-        produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
-        produit.setGamme(gammeFromId(produitDTO.getGammeId()));
-        produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-        produit.addStockProduit(stockProduit);
-        fournisseurProduit.forEach(produit::addFournisseurProduit);
-        return produit;
-    }
 
     public static Produit fromId(Integer produitId) {
         if (produitId == null) {
@@ -186,8 +159,22 @@ public final class ProduitBuilder {
                 .map(StockProduitDTO::new)
                 .collect(Collectors.toSet())
         );
-        produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
+        updateStockQuantity( produitDTO);
+       // produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
         return produitDTO;
+    }
+
+    private static void updateStockQuantity(ProduitDTO produitDTO) {
+        for (StockProduitDTO stockProduitDTO : produitDTO.getStockProduits()) {
+            produitDTO.setTotalQuantity((stockProduitDTO.getQtyStock() + stockProduitDTO.getQtyUG()) + produitDTO.getTotalQuantity());
+            if (stockProduitDTO.getType() == StorageType.PRINCIPAL) {
+                produitDTO.setSaleOfPointStock(stockProduitDTO.getQtyStock() + stockProduitDTO.getQtyUG());
+                produitDTO.setStockReassort(stockProduitDTO.getStockReassort());
+            } else {
+                produitDTO.setSeuilMini(stockProduitDTO.getSeuilMini());
+            }
+        }
+
     }
 
     public static ProduitDTO stockProduit(ProduitDTO produitDTO, StockProduit stockProduitPointOfSale) {
@@ -232,7 +219,7 @@ public final class ProduitBuilder {
 
     private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
         FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
-        if (Objects.nonNull(fournisseurProduit)) {
+        if (nonNull(fournisseurProduit)) {
             produitDTO
                 .setCodeCip(fournisseurProduit.getCodeCip())
                 .setFournisseurId(fournisseurProduit.getFournisseurId())
@@ -288,9 +275,9 @@ public final class ProduitBuilder {
             .setItemQuantity(produit.getProduits().stream().mapToInt(Produit::getItemQty).sum())
             .setItemCostAmount(produit.getItemCostAmount())
             .setItemRegularUnitPrice(produit.getItemRegularUnitPrice())
-            .setProduitId(Objects.nonNull(parent) ? parent.getId() : null)
+            .setProduitId(nonNull(parent) ? parent.getId() : null)
             .setTypeProduit(produit.getTypeProduit())
-            .setProduitLibelle(Objects.nonNull(parent) ? parent.getLibelle() : null);
+            .setProduitLibelle(nonNull(parent) ? parent.getLibelle() : null);
         produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
         produitDTO.setDateperemption(produit.getCheckExpiryDate());
         produitDTO.setChiffre(produit.getChiffre());
@@ -301,7 +288,6 @@ public final class ProduitBuilder {
         if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())) {
             produitDTO.setLastInventoryDate(produitDTO.getHistoriqueProduitInventaires().getFirst().dateInventaire());
         }
-
         return produitDTO;
     }
 
@@ -352,7 +338,8 @@ public final class ProduitBuilder {
         dto.setTypeProduit(produit.getTypeProduit());
         dto.setRegularUnitPrice(produit.getRegularUnitPrice());
         dto.setNetUnitPrice(produit.getNetUnitPrice());
-        StockProduit stockProduitPointOfSale = produit.getStockProduits().stream().filter(s -> s.getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().orElse(null);;
+        StockProduit stockProduitPointOfSale = produit.getStockProduits().stream().filter(s -> s.getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().orElse(null);
+        ;
         if (stockProduitPointOfSale != null) {
             dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
             dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
@@ -441,7 +428,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static StockProduit stockProduitFromProduitDTO(Storage storage) {
+    public static StockProduit stockProduitFromProduitDTO(Storage storage,ProduitDTO produitDTO) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(0);
         stockProduit.setQtyVirtual(0);
@@ -449,6 +436,19 @@ public final class ProduitBuilder {
         stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
         stockProduit.setQtyUG(0);
         stockProduit.setStorage(storage);
+        stockProduit.setSeuilMini(produitDTO.getQtySeuilMini());
+        stockProduit.setStockReassort(produitDTO.getStockReassort());
+        return stockProduit;
+    }
+    public static StockProduit createReserve(Storage storage,ProduitDTO produitDTO) {
+        StockProduit stockProduit = new StockProduit();
+        stockProduit.setQtyStock(0);
+        stockProduit.setQtyVirtual(0);
+        stockProduit.setCreatedAt(LocalDateTime.now());
+        stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
+        stockProduit.setQtyUG(0);
+        stockProduit.setStorage(storage);
+        stockProduit.setSeuilMini(produitDTO.getSeuilMini());
         return stockProduit;
     }
 
@@ -526,7 +526,7 @@ public final class ProduitBuilder {
     public static String buildDisplayName(ProduitDTO produitDTO) {
         FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
         TableauDTO tableau = produitDTO.getTableau();
-        if (Objects.nonNull(fournisseurProduitDTO)) {
+        if (nonNull(fournisseurProduitDTO)) {
             return String.format(
                 "%s %s %s ",
                 produitDTO.getLibelle(),
@@ -553,7 +553,7 @@ public final class ProduitBuilder {
     public static void setUnitPrice(ProduitDTO produitDTO) {
         FournisseurProduitDTO fournisseurProduitDTO = produitDTO.getFournisseurProduit();
 
-        if (Objects.nonNull(fournisseurProduitDTO)) {
+        if (nonNull(fournisseurProduitDTO)) {
             produitDTO.setUnitPrice(
                 Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + fournisseurProduitDTO.getPrixUni())
@@ -581,7 +581,7 @@ public final class ProduitBuilder {
     }
 
     public static String buildDisplayName(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-        if (Objects.nonNull(fournisseurProduit)) {
+        if (nonNull(fournisseurProduit)) {
             return String.format(
                 "%s %s %s ",
                 produitDTO.getLibelle(),
@@ -606,7 +606,7 @@ public final class ProduitBuilder {
     }
 
     public static void setUnitPrice(ProduitDTO produitDTO, FournisseurProduit fournisseurProduit) {
-        if (Objects.nonNull(fournisseurProduit)) {
+        if (nonNull(fournisseurProduit)) {
             produitDTO.setUnitPrice(
                 Optional.ofNullable(produitDTO.getTableau())
                     .map(t -> t.getValue() + fournisseurProduit.getPrixUni())

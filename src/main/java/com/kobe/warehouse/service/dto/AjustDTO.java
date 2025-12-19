@@ -11,7 +11,7 @@ public class AjustDTO {
 
     private LocalDateTime dateMtv;
     private Integer id;
-    private Integer storageId;
+
     private String commentaire;
     private String storageLibelle;
     private Integer userId;
@@ -23,12 +23,7 @@ public class AjustDTO {
     public AjustDTO(Ajust ajust) {
         this.dateMtv = ajust.getDateMtv();
         this.id = ajust.getId();
-        Storage storage = ajust.getStorage();
         this.commentaire = ajust.getCommentaire();
-        if (storage != null) {
-            this.storageId = storage.getId();
-            this.storageLibelle = storage.getName();
-        }
         AppUser user = ajust.getUser();
         this.userId = user.getId();
         this.userFullName = user.getFirstName().concat(" ") + user.getLastName();
@@ -52,14 +47,6 @@ public class AjustDTO {
         return this;
     }
 
-    public Integer getStorageId() {
-        return storageId;
-    }
-
-    public AjustDTO setStorageId(Integer storageId) {
-        this.storageId = storageId;
-        return this;
-    }
 
     public String getCommentaire() {
         return commentaire;

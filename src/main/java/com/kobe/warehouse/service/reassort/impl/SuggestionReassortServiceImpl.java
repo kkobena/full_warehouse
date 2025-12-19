@@ -20,6 +20,7 @@ import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.reassort.dto.LigneReassortDto;
 import com.kobe.warehouse.service.reassort.dto.ReassortRecord;
 import com.kobe.warehouse.service.reassort.dto.SuggestionReassortDto;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -219,8 +220,8 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
     }
 
     @Override
-    @Async
-    public void createSuggestionReassort(StockProduit stockProduit, AppUser user) {
+  //  @Async
+    public void createSuggestionReassort(@NotNull StockProduit stockProduit ) {
         if (stockProduit.getTotalStockQuantity() > Objects.requireNonNullElse(stockProduit.getSeuilMini(), 0)) {
             return;
         }
@@ -230,6 +231,7 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             LOG.info("Le produit {} n'est stocke que dans un seul stockage, pas de suggestion de reassort possible", produit.getId());
             return;
         }
+        AppUser user= getCurrentUser();
         Magasin magasin = user.getMagasin();
         TypeReassort typeReassort;
         Storage storage = stockProduit.getStorage();

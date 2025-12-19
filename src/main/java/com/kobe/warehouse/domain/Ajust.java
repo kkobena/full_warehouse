@@ -33,10 +33,6 @@ public class Ajust implements Serializable {
     @Column(name = "statut", nullable = false, length = 8)
     private AjustementStatut statut = AjustementStatut.PENDING;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private Storage storage;
-
     @Column(name = "commentaire")
     private String commentaire;
 
@@ -69,14 +65,7 @@ public class Ajust implements Serializable {
         return this;
     }
 
-    public @NotNull Storage getStorage() {
-        return storage;
-    }
 
-    public Ajust setStorage(Storage storage) {
-        this.storage = storage;
-        return this;
-    }
 
     public @NotNull AjustementStatut getStatut() {
         return statut;

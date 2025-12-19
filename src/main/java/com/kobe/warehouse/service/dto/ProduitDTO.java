@@ -66,16 +66,14 @@ public class ProduitDTO {
     private Integer qtySeuilMini = 0;
     private int totalQuantity;
     private int qtyReserve;
+    private Integer seuilMini;
+    private Integer stockReassort;
     private Boolean deconditionnable = false;
     private String codeEan;
     private String rayonLibelle;
     private Integer rayonId;
     private Integer storageId;
     private List<PrixReferenceDTO> prixReference = new ArrayList<>();
-
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate perimeAt;
 
     private String codeEanLaboratoire;
     private int status;
@@ -773,6 +771,24 @@ public class ProduitDTO {
 
     public ProduitDTO setUnitPrice(int unitPrice) {
         this.unitPrice = unitPrice;
+        return this;
+    }
+
+    public Integer getStockReassort() {
+        return stockReassort;
+    }
+
+    public ProduitDTO setStockReassort(Integer stockReassort) {
+        this.stockReassort = stockReassort;
+        return this;
+    }
+
+    public Integer getSeuilMini() {
+        return seuilMini;
+    }
+
+    public ProduitDTO setSeuilMini(Integer seuilMini) {
+        this.seuilMini = seuilMini;
         return this;
     }
 

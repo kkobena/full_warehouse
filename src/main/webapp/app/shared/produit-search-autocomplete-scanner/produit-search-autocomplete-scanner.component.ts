@@ -1,4 +1,15 @@
-import { Component, effect, forwardRef, inject, input, OnDestroy, OnInit, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -17,10 +28,10 @@ import { ScanDetectorService } from '../scan-detector.service';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ProduitSearchAutocompleteScannerComponent),
-      multi: true,
-    },
+      multi: true
+    }
   ],
-  templateUrl: './produit-search-autocomplete-scanner.component.html',
+  templateUrl: './produit-search-autocomplete-scanner.component.html'
 })
 export class ProduitSearchAutocompleteScannerComponent implements ControlValueAccessor, OnDestroy, OnInit {
   produits = signal<ProduitSearch[]>([]);
@@ -30,6 +41,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
   pageSize = input<number>(5);
+  storageId = input<number>(null);
   style = input<{}>({ width: '100%' });
   inputStyle = input<{}>({ width: '100%' });
   enableScanner = input<boolean>(true);
@@ -128,9 +140,11 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     }, 50);
   }
 
-  private onChange: (_: any) => void = () => {};
+  private onChange: (_: any) => void = () => {
+  };
 
-  private onTouched: () => void = () => {};
+  private onTouched: () => void = () => {
+  };
 
   private setupBarcodeScanner(): void {
     // OFFLINE CAPABILITY: The barcode scanner detection works entirely offline
@@ -197,7 +211,8 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
         page: 0,
         size: 1,
         search: barcode,
-      })
+        storageId: this.storageId()
+      }, this.storageId() !== null)
       .subscribe(res => {
         const result = res.body || [];
         if (result.length === 1) {
@@ -224,7 +239,8 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
         page: 0,
         size: this.pageSize(),
         search,
-      })
+        storageId: this.storageId()
+      }, this.storageId() !== null)
       .subscribe(res => {
         const result = res.body || [];
         this.produits.set(result);

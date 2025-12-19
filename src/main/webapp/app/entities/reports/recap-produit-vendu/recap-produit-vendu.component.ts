@@ -165,10 +165,10 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected fournisseurOptions = signal<IFournisseur[]>([]);
   protected userOptions = signal<IUser[]>([]);
 
-  // Pagination
-  protected page = 1;
-  protected itemsPerPage = 20;
-  protected totalItems = 0;
+  // Pagination - separate for each tab
+  protected page = signal<number>(1);
+  protected itemsPerPage = signal<number>(20);
+  protected totalItems = signal<number>(0);
   // Format methods
   protected formatCurrency = formatCurrency;
   private readonly recapService = inject(RecapProduitVenduService);
@@ -183,15 +183,14 @@ export default class RecapProduitVenduComponent implements OnInit {
     this.loadUsers();
     this.loadFournisseur();
 
-    this.loadData();
+    // Load data for the current active tab
+    this.loadCurrentTabData();
   }
 
   protected onTabChange(event: NgbNavChangeEvent): void {
     this.activeTab.set(event.nextId);
-    if (event.nextId === 'invendus') {
-      this.loadUnsoldProducts();
-      this.loadUnsoldSummary();
-    }
+    this.page.set(1); // Reset pagination when switching tabs
+    this.loadCurrentTabData();
   }
 
   loadUsers(): void {
@@ -213,33 +212,61 @@ export default class RecapProduitVenduComponent implements OnInit {
       });
   }
 
-//TODO: refactorise pour adapter la recherche selon l'onglet actif, adapter aussi les autres methodes d'export et de creation de suggestion/inventaire,adater la pagination aussi
-  protected loadData(): void {
+  /**
+   * Load data based on the active tab (vendus or invendus)
+   */
+  protected loadCurrentTabData(): void {
+    if (this.activeTab() === 'invendus') {
+      this.loadUnsoldProducts();
+      this.loadUnsoldSummary();
+    } else {
+      this.loadSoldProducts();
+      this.loadSoldSummary();
+    }
+  }
+
+  /**
+   * Load sold products data
+   */
+  protected loadSoldProducts(): void {
     this.isLoading.set(true);
     const requestParam = this.buildRequestParam();
 
     this.recapService
       .getRecapProduitVenduReport({
         ...requestParam,
-        page: this.page - 1,
-        size: this.itemsPerPage
+        page: this.page() - 1,
+        size: this.itemsPerPage()
       })
       .subscribe({
         next: (res: HttpResponse<IRecapProduitVendu[]>) => {
           this.products.set(res.body ?? []);
-          this.totalItems = Number(res.headers.get('X-Total-Count')) || 0;
+          this.totalItems.set(Number(res.headers.get('X-Total-Count')) || 0);
           this.isLoading.set(false);
         },
         error: () => {
           this.isLoading.set(false);
         }
       });
+  }
 
+  /**
+   * Load sold products summary
+   */
+  protected loadSoldSummary(): void {
+    const requestParam = this.buildRequestParam();
     this.recapService.getRecapProduitVenduSummary(requestParam).subscribe({
       next: (res: HttpResponse<IRecapProduitVenduSummary>) => {
         this.summary.set(res.body ?? null);
       }
     });
+  }
+
+  /**
+   * @deprecated Use loadCurrentTabData() instead
+   */
+  protected loadData(): void {
+    this.loadCurrentTabData();
   }
 
   protected buildRequestParam(): IRecapProduitVenduRequestParam {
@@ -263,8 +290,8 @@ export default class RecapProduitVenduComponent implements OnInit {
   }
 
   protected onFilterChange(): void {
-    this.page = 1;
-    this.loadData();
+    this.page.set(1);
+    this.loadCurrentTabData();
   }
 
   protected onClearFilters(): void {
@@ -287,12 +314,15 @@ export default class RecapProduitVenduComponent implements OnInit {
     this.unitPriceLessThanPurchasePrice.set(false);
     this.suggerQuantitySold.set(false);
 
-    this.loadData();
+    this.page.set(1);
+    this.loadCurrentTabData();
   }
 
   protected toggleFiltersDrawer(): void {
     this.filtersDrawerVisible.update(value => !value);
-    this.loadData();
+    if (!this.filtersDrawerVisible()) {
+      this.loadCurrentTabData();
+    }
   }
 
   protected getActiveFiltersCount(): number {
@@ -311,17 +341,35 @@ export default class RecapProduitVenduComponent implements OnInit {
     return count;
   }
 
+  /**
+   * Handle pagination change for both tabs
+   */
   protected onPageChange(event: any): void {
-    this.page = event.page + 1;
-    this.itemsPerPage = event.rows;
-    this.loadData();
+    console.log('onPageChange called with event:', event);
+    if (event && typeof event.first === 'number' && typeof event.rows === 'number') {
+      const newPage = Math.floor(event.first / event.rows) + 1;
+      console.log('Changing to page:', newPage, 'rows:', event.rows);
+      this.page.set(newPage);
+      this.itemsPerPage.set(event.rows);
+      this.loadCurrentTabData();
+    }
   }
 
+  /**
+   * Export to PDF based on active tab
+   */
   protected exportToPdf(): void {
     const requestParam = this.buildRequestParam();
+    const isInvendu = this.activeTab() === 'invendus';
+    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
+
     this.spinner().show();
-    this.recapService
-      .exportToPdf(requestParam)
+
+    const exportObservable = isInvendu
+      ? this.recapService.exportInvenduToPdf(requestParam)
+      : this.recapService.exportToPdf(requestParam);
+
+    exportObservable
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<Blob>) => {
@@ -330,81 +378,132 @@ export default class RecapProduitVenduComponent implements OnInit {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `recap-produit-vendu-${new Date().getTime()}.pdf`;
+            link.download = `${fileName}-${new Date().getTime()}.pdf`;
             link.click();
             window.URL.revokeObjectURL(url);
           }
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de l\'export PDF');
         }
       });
   }
 
+  /**
+   * Export to Excel based on active tab
+   */
   protected exportToExcel(): void {
-    if (this.activeTab() === 'invendus') {
-      this.exportInvenduToExcel();
-    } else {
-      const requestParam = this.buildRequestParam();
-      this.spinner().show();
-      this.recapService
-        .exportToExcel(requestParam)
-        .pipe(finalize(() => this.spinner().hide()))
-        .subscribe({
-          next: (res: HttpResponse<Blob>) => {
-            if (res.body) {
-              const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-              const url = window.URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `recap-produit-vendu-${new Date().getTime()}.xlsx`;
-              link.click();
-              window.URL.revokeObjectURL(url);
-            }
-          }
-        });
-    }
+    const requestParam = this.buildRequestParam();
+    const isInvendu = this.activeTab() === 'invendus';
+    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
 
+    this.spinner().show();
+
+    const exportObservable = isInvendu
+      ? this.recapService.exportInvenduToExcel(requestParam)
+      : this.recapService.exportToExcel(requestParam);
+
+    exportObservable
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<Blob>) => {
+          if (res.body) {
+            const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${fileName}-${new Date().getTime()}.xlsx`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+          }
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de l\'export Excel');
+        }
+      });
   }
 
+  /**
+   * Export to CSV based on active tab
+   */
   protected exportToCsv(): void {
-    if (this.activeTab() === 'invendus') {
-      this.exportInvenduToCsv();
-    } else {
-      const requestParam = this.buildRequestParam();
-      this.spinner().show();
-      this.recapService
-        .exportToCsv(requestParam)
-        .pipe(finalize(() => this.spinner().hide()))
-        .subscribe({
-          next: (res: HttpResponse<Blob>) => {
-            if (res.body) {
-              const blob = new Blob([res.body], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `recap-produit-vendu-${new Date().getTime()}.csv`;
-              link.click();
-              window.URL.revokeObjectURL(url);
-            }
+    const requestParam = this.buildRequestParam();
+    const isInvendu = this.activeTab() === 'invendus';
+    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
+
+    this.spinner().show();
+
+    const exportObservable = isInvendu
+      ? this.recapService.exportInvenduToCsv(requestParam)
+      : this.recapService.exportToCsv(requestParam);
+
+    exportObservable
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<Blob>) => {
+          if (res.body) {
+            const blob = new Blob([res.body], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${fileName}-${new Date().getTime()}.csv`;
+            link.click();
+            window.URL.revokeObjectURL(url);
           }
-        });
-    }
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de l\'export CSV');
+        }
+      });
   }
 
+  /**
+   * Create suggestion based on active tab data
+   */
   protected createSuggestion(): void {
+    const isInvendu = this.activeTab() === 'invendus';
+
+    if (isInvendu && !this.suggerQuantitySold()) {
+      this.alert().showWarn('La création de suggestion de réapprovisionnement est disponible pour les produits invendus.');
+    }
+
     const requestParam = this.buildRequestParam();
-    this.recapService.createSuggestionFromRecap(requestParam).subscribe({
-      next: (res: HttpResponse<number>) => {
-        this.alert().showInfo(`Nombre de produits suggérés ${res.body}`);
-      }
-    });
+    this.spinner().show();
+
+    this.recapService.createSuggestionFromRecap(requestParam)
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<number>) => {
+          const productType = isInvendu ? 'invendus' : 'vendus';
+          const suggestionType = this.suggerQuantitySold() ? 'quantités vendues' : 'réapprovisionnement';
+          this.alert().showInfo(`${res.body} produit(s) ${productType} suggéré(s) pour ${suggestionType}`);
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de la création de la suggestion');
+        }
+      });
   }
 
+  /**
+   * Create inventory based on active tab data
+   */
   protected createInventory(): void {
+    const isInvendu = this.activeTab() === 'invendus';
+    const productType = isInvendu ? 'invendus' : 'vendus';
+
     const requestParam = this.buildRequestParam();
-    this.recapService.createInventoryFromRecap(requestParam).subscribe({
-      next: (res: HttpResponse<number>) => {
-        this.alert().showInfo(`Nombre de produits pris en compte ${res.body}`);
-      }
-    });
+    this.spinner().show();
+
+    this.recapService.createInventoryFromRecap(requestParam)
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: (res: HttpResponse<number>) => {
+          this.alert().showInfo(`${res.body} produit(s) ${productType} pris en compte pour l'inventaire`);
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de la création de l\'inventaire');
+        }
+      });
   }
 
 
@@ -431,6 +530,9 @@ export default class RecapProduitVenduComponent implements OnInit {
       });
   }
 
+  /**
+   * Load unsold products data
+   */
   protected loadUnsoldProducts(): void {
     this.isLoading.set(true);
     const requestParam = this.buildRequestParam();
@@ -438,13 +540,13 @@ export default class RecapProduitVenduComponent implements OnInit {
     this.recapService
       .getRecapProduitInvenduReport({
         ...requestParam,
-        page: this.page - 1,
-        size: this.itemsPerPage
+        page: this.page() - 1,
+        size: this.itemsPerPage()
       })
       .subscribe({
         next: (res: HttpResponse<IRecapProduitVendu[]>) => {
           this.unsoldProducts.set(res.body ?? []);
-          this.totalItems = Number(res.headers.get('X-Total-Count')) || 0;
+          this.totalItems.set(Number(res.headers.get('X-Total-Count')) || 0);
           this.isLoading.set(false);
         },
         error: () => {
@@ -453,6 +555,9 @@ export default class RecapProduitVenduComponent implements OnInit {
       });
   }
 
+  /**
+   * Load unsold products summary
+   */
   protected loadUnsoldSummary(): void {
     const requestParam = this.buildRequestParam();
     this.recapService.getRecapProduitInvenduSummary(requestParam).subscribe({
@@ -460,48 +565,6 @@ export default class RecapProduitVenduComponent implements OnInit {
         this.unsoldSummary.set(res.body ?? null);
       }
     });
-  }
-
-  protected exportInvenduToExcel(): void {
-    const requestParam = this.buildRequestParam();
-    this.spinner().show();
-    this.recapService
-      .exportInvenduToExcel(requestParam)
-      .pipe(finalize(() => this.spinner().hide()))
-      .subscribe({
-        next: (res: HttpResponse<Blob>) => {
-          if (res.body) {
-            const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `recap-produit-invendu-${new Date().getTime()}.xlsx`;
-            link.click();
-            window.URL.revokeObjectURL(url);
-          }
-        }
-      });
-  }
-
-  protected exportInvenduToCsv(): void {
-    const requestParam = this.buildRequestParam();
-    this.spinner().show();
-    this.recapService
-      .exportInvenduToCsv(requestParam)
-      .pipe(finalize(() => this.spinner().hide()))
-      .subscribe({
-        next: (res: HttpResponse<Blob>) => {
-          if (res.body) {
-            const blob = new Blob([res.body], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `recap-produit-invendu-${new Date().getTime()}.csv`;
-            link.click();
-            window.URL.revokeObjectURL(url);
-          }
-        }
-      });
   }
 
   private getFirstDayOfMonth(): Date {

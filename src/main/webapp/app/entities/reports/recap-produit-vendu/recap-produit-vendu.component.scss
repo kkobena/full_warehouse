@@ -1,3 +1,4 @@
+@import 'app/shared/scss/pharma-nav';
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
@@ -9,4 +10,53 @@
 
 .p-floatlabel {
   min-width: 90px !important;
+}
+
+// Accent styles for pharma-stat-card (similar to kpi-card)
+.pharma-stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--accent-color-start), var(--accent-color-end));
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+
+    &::before {
+      width: 8px;
+    }
+  }
+
+  // Accent color variants
+  &.primary-accent {
+    --accent-color-start: #008cba;
+    --accent-color-end: #5bc0de;
+  }
+
+  &.danger-accent {
+    --accent-color-start: #f04124;
+    --accent-color-end: #ff6b6b;
+  }
+
+  &.success-accent {
+    --accent-color-start: #43ac6a;
+    --accent-color-end: #52c41a;
+  }
+
+  &.warning-accent {
+    --accent-color-start: #e99002;
+    --accent-color-end: #ffa940;
+  }
 }

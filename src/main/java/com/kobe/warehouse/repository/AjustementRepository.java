@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface AjustementRepository extends JpaRepository<Ajustement, Integer> {
     List<Ajustement> findAllByAjustId(Integer id);
 
-    Optional<Ajustement> findFirstByAjustIdAndProduitId(Integer ajustId, Integer produitId);
+    Optional<Ajustement> findFirstByAjustIdAndStockProduitProduitId(Integer ajustId, Integer produitId);
 }

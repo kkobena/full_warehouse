@@ -32,6 +32,7 @@ public class StockProduitDTO {
         this.storageId = r.getId();
         this.storageName = r.getName();
         this.storageType = r.getStorageType().getValue();
+        this.type = r.getStorageType();
         Produit p = s.getProduit();
         this.produitId = p.getId();
         this.createdAt = p.getCreatedAt();

@@ -50,14 +50,13 @@ import { Toolbar } from 'primeng/toolbar';
     SelectModule,
     Card,
     Checkbox,
-    Toolbar,
-  ],
+    Toolbar
+  ]
 })
 export class ProduitUpdateComponent implements OnInit {
   protected isSaving = false;
   protected isValid = true;
   protected isDeconditionnable = false;
-  protected isDatePeremptionChecked = false;
   protected formeProduits: IFormProduit[] = [];
   protected familleProduits: IFamilleProduit[] = [];
   protected laboratoires: ILaboratoire[] = [];
@@ -70,7 +69,7 @@ export class ProduitUpdateComponent implements OnInit {
   protected categories = [
     { code: 'A', libelle: 'Produits à forte rotation', z: 1.96 },
     { code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65 },
-    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 },
+    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 }
   ];
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -93,14 +92,14 @@ export class ProduitUpdateComponent implements OnInit {
     formeId: [],
     laboratoireId: [],
     deconditionnable: [false],
-    dateperemption: [false],
     itemQty: [],
     itemCostAmount: [],
     itemRegularUnitPrice: [],
-    expirationDate: [],
     dciId: [],
     categorie: [],
     codeEanLaboratoire: [],
+    stockReassort: [],
+    seuilMini: []
   });
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -132,15 +131,13 @@ export class ProduitUpdateComponent implements OnInit {
       if (produit.deconditionnable) {
         this.isDeconditionnable = true;
       }
-      if (produit.dateperemption) {
-        this.isDatePeremptionChecked = true;
-      }
+
     }
 
     this.tvaService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<ITva[]>) => {
         this.tvas = res.body;
@@ -149,7 +146,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body;
@@ -157,7 +154,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body;
@@ -168,7 +165,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.gammeProduitService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IGammeProduit[]>) => {
         this.gammes = res.body || [];
@@ -176,7 +173,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.familleService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
         this.familleProduits = res.body;
@@ -184,7 +181,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.formeProduitService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFormProduit[]>) => {
         this.formeProduits = res.body;
@@ -219,11 +216,12 @@ export class ProduitUpdateComponent implements OnInit {
       gammeId: produit.gammeId,
       laboratoireId: produit.laboratoireId,
       deconditionnable: produit.deconditionnable,
-      dateperemption: produit.dateperemption,
-      expirationDate: produit.expirationDate,
       formeId: produit.formeId,
       dciId: produit.dciId,
       categorie: produit.categorie,
+      stockReassort: produit.stockReassort,
+      seuilMini: produit.seuilMini,
+      codeEanLaboratoire: produit.codeEanLaboratoire
     });
   }
 
@@ -280,19 +278,9 @@ export class ProduitUpdateComponent implements OnInit {
     this.isValid = itemCostAmount < Number(value);
   }
 
-  onDatePeremtionCheck(value: boolean): void {
-    this.isDatePeremptionChecked = value;
-    if (this.isDatePeremptionChecked) {
-      this.editForm.get('perimeAt').setValidators([Validators.required, Validators.min(1)]);
-      this.editForm.get('perimeAt').updateValueAndValidity();
-    } else {
-      this.editForm.get('perimeAt').clearValidators();
-      this.editForm.get('perimeAt').updateValueAndValidity();
-    }
-  }
 
   onDeconditionnable(value: boolean): void {
-    console.log(value);
+
     this.isDeconditionnable = value;
     if (this.isDeconditionnable) {
       this.editForm.get('itemRegularUnitPrice').setValidators([Validators.required, Validators.min(1)]);
@@ -314,7 +302,7 @@ export class ProduitUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -351,12 +339,12 @@ export class ProduitUpdateComponent implements OnInit {
       fournisseurId: this.editForm.get(['fournisseurId']).value,
       laboratoireId: this.editForm.get(['laboratoireId']).value,
       deconditionnable: this.editForm.get(['deconditionnable']).value,
-      dateperemption: this.editForm.get(['dateperemption']).value,
-      expirationDate: this.editForm.get(['expirationDate']).value,
       formeId: this.editForm.get(['formeId']).value,
       dciId: this.editForm.get(['dciId']).value,
       categorie: this.editForm.get(['categorie']).value,
       codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value,
+      stockReassort: this.editForm.get(['stockReassort']).value,
+      seuilMini: this.editForm.get(['seuilMini']).value
     };
   }
 }

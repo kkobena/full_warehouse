@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
  * A Ajustement.
  */
 @Entity
-@Table(name = "ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "ajust_id", "produit_id" }) })
+@Table(name = "ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "ajust_id", "stock_produit_id" }) })
 public class Ajustement implements Serializable {
 
     @Serial
@@ -57,7 +57,8 @@ public class Ajustement implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
-    private Produit produit;
+    @JoinColumn(name = "stock_produit_id", referencedColumnName = "id")
+    private StockProduit stockProduit;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
@@ -117,13 +118,7 @@ public class Ajustement implements Serializable {
         this.stockAfter = stockAfter;
     }
 
-    public @NotNull Produit getProduit() {
-        return produit;
-    }
 
-    public void setProduit(Produit produit) {
-        this.produit = produit;
-    }
 
     public @NotNull Ajust getAjust() {
         return ajust;
@@ -152,8 +147,12 @@ public class Ajustement implements Serializable {
         return this;
     }
 
-    public Ajustement produit(Produit produit) {
-        this.produit = produit;
+    public StockProduit getStockProduit() {
+        return stockProduit;
+    }
+
+    public Ajustement setStockProduit(StockProduit stockProduit) {
+        this.stockProduit = stockProduit;
         return this;
     }
 

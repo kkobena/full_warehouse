@@ -1,11 +1,13 @@
 package com.kobe.warehouse.domain.enumeration;
 
-/** The TypeMagasin enumeration. */
+/**
+ * The TypeMagasin enumeration.
+ */
 public enum StorageType {
     PRINCIPAL("Stock rayon"),
     SAFETY_STOCK("Reserve");
 
-    public final String value;
+    private final String value;
 
     StorageType(String value) {
         this.value = value;

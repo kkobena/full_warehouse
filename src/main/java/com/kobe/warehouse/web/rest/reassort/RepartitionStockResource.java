@@ -2,7 +2,6 @@ package com.kobe.warehouse.web.rest.reassort;
 
 import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
-import com.kobe.warehouse.service.reassort.dto.ManualRepartitionRequest;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
@@ -88,18 +87,10 @@ public class RepartitionStockResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)}
      */
     @PostMapping("/manual")
-    public ResponseEntity<Void> processManualRepartition(@RequestBody List<ManualRepartitionRequest> requests) {
+    public ResponseEntity<Void> processManualRepartition(@RequestBody List<RepartionQueryDto> requests) {
         LOG.debug("REST request to manually process {} stock repartitions", requests.size());
 
-        List<RepartionQueryDto> queryDtos = requests.stream()
-            .map(request -> new RepartionQueryDto(
-                request.stockSourceId(),
-                request.stockDestinationId(),
-                request.quantity()
-            ))
-            .toList();
-
-        repartitionStockService.process(queryDtos);
+        repartitionStockService.process(requests);
         return ResponseEntity.ok().build();
     }
 }

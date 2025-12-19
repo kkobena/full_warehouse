@@ -92,104 +92,77 @@
 
 
   <!-- Tabs -->
-  <!-- TODO: uiliser le style commun pour les horizontal navBar pharma-nav-tabs-container ex: C:\Users\k.kobena\Documents\full_warehouse\src\main\webapp\app\entities\produit\stat-sales\stat-sales.component.html -->
-  <div class="row mt-1">
-    <div class="col-12">
-      <ul #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" ngbNav class="nav-tabs"
-          orientation="horizontal">
-        <li [ngbNavItem]="'vendus'">
-          <a ngbNavLink>
-            <i class="pi pi-shopping-cart me-2"></i>
-            <span>Produits Vendus</span>
-          </a>
-          <ng-template ngbNavContent>
+  <div class="pharma-nav-tabs-container">
+    <div #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav
+         orientation="horizontal">
+      <ng-container ngbNavItem="vendus">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-shopping-cart"></i>
+          <span>Produits Vendus</span>
+        </a>
+        <ng-template ngbNavContent>
 
-            <!-- Summary Cards -->
-            <!-- TODO: plus compact pour optimiser l'espace . c'est la liste qui la donnée la plus importante pour ce menu-->
-            <!-- TODO: harmoniser le style des summary des deux tab produits vendu et invendu-->
-
+            <!-- Summary Cards - Compact Version -->
             @if (summary()) {
-              <div class="row mt-1">
-                <div class="col-xl-3 col-md-6 mb-2">
-                  <div class="card h-100 kpi-card primary-accent">
-                    <div class="card-body">
-                      <div class="kpi-header">
-                        <div class="kpi-content">
-                          <p class="kpi-label">Quantité Vendue</p>
-                          <h4 class="kpi-value">
-                            <span>{{ summary()!.quantitySold || 0 | number }}</span>
-                          </h4>
-                          <div class="kpi-badges">
-                            <span class="badge bg-primary-subtle text-primary">Unités</span>
-                          </div>
+              <div class="row g-2 mb-1 mt-0">
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card primary-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">Quantité Vendue</p>
+                          <h5 class="mb-0 fw-bold">{{ summary()!.quantitySold || 0 | number }}</h5>
                         </div>
-                        <div class="kpi-icon text-primary">
-                          <i class="pi pi-shopping-cart"></i>
+                        <div class="pharma-stat-icon bg-primary-subtle">
+                          <i class="pi pi-shopping-cart text-primary"></i>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6 mb-2">
-                  <div class="card h-100 kpi-card danger-accent">
-                    <div class="card-body">
-                      <div class="kpi-header">
-                        <div class="kpi-content">
-                          <p class="kpi-label">Quantité Avoir</p>
-                          <h4 class="kpi-value">
-                            <span>{{ summary()!.quantityAvoir || 0 | number }}</span>
-                          </h4>
-                          <div class="kpi-badges">
-                            <span class="badge bg-danger-subtle text-danger">Retours</span>
-                          </div>
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card danger-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">Quantité Avoir</p>
+                          <h5 class="mb-0 fw-bold">{{ summary()!.quantityAvoir || 0 | number }}</h5>
                         </div>
-                        <div class="kpi-icon text-danger">
-                          <i class="pi pi-replay"></i>
+                        <div class="pharma-stat-icon bg-danger-subtle">
+                          <i class="pi pi-replay text-danger"></i>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6 mb-2">
-                  <div class="card h-100 kpi-card success-accent">
-                    <div class="card-body">
-                      <div class="kpi-header">
-                        <div class="kpi-content">
-                          <p class="kpi-label">CA Total</p>
-                          <h4 class="kpi-value">
-                            <span>{{ formatCurrency(summary()!.totalSalesAmount) }}</span>
-                            <span class="value-suffix">FCFA</span>
-                          </h4>
-                          <div class="kpi-badges">
-                            <span class="badge bg-success-subtle text-success">Ventes</span>
-                          </div>
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card success-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">CA Total</p>
+                          <h5 class="mb-0 fw-bold">{{ formatCurrency(summary()!.totalSalesAmount) }}</h5>
                         </div>
-                        <div class="kpi-icon text-success">
-                          <i class="pi pi-money-bill"></i>
+                        <div class="pharma-stat-icon bg-success-subtle">
+                          <i class="pi pi-money-bill text-success"></i>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6 mb-2">
-                  <div class="card h-100 kpi-card warning-accent">
-                    <div class="card-body">
-                      <div class="kpi-header">
-                        <div class="kpi-content">
-                          <p class="kpi-label">Coût d'Achat</p>
-                          <h4 class="kpi-value">
-                            <span>{{ formatCurrency(summary()!.totalPurchaseAmount) }}</span>
-                            <span class="value-suffix">FCFA</span>
-                          </h4>
-                          <div class="kpi-badges">
-                            <span class="badge bg-warning-subtle text-warning">Achats</span>
-                          </div>
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card warning-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">Coût d'Achat</p>
+                          <h5 class="mb-0 fw-bold">{{ formatCurrency(summary()!.totalPurchaseAmount) }}</h5>
                         </div>
-                        <div class="kpi-icon text-warning">
-                          <i class="pi pi-dollar"></i>
+                        <div class="pharma-stat-icon bg-warning-subtle">
+                          <i class="pi pi-dollar text-warning"></i>
                         </div>
                       </div>
                     </div>
@@ -213,9 +186,9 @@
                   [loading]="isLoading()"
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 20, 50, 100]"
-                  [rows]="itemsPerPage"
+                  [rows]="itemsPerPage()"
                   [showCurrentPageReport]="true"
-                  [totalRecords]="totalItems"
+                  [totalRecords]="totalItems()"
                   [value]="products()"
                   class="p-datatable-sm pharma-table"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
@@ -283,27 +256,25 @@
                 </p-table>
               </div>
             </div>
-          </ng-template>
-        </li>
+        </ng-template>
+      </ng-container>
 
-        <li [ngbNavItem]="'invendus'">
-          <a ngbNavLink>
-            <i class="pi pi-times-circle me-2"></i>
-            <span>Produits Invendus</span>
-          </a>
-          <ng-template ngbNavContent>
-            <!-- Unsold Summary Cards -->
-            <!-- TODO: ajout card totalSalesAmount et totalSalesAmount -->
-            <!-- TODO: fixer la pargination qui ne marche pas -->
+      <ng-container ngbNavItem="invendus">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-times-circle"></i>
+          <span>Produits Invendus</span>
+        </a>
+        <ng-template ngbNavContent>
+            <!-- Unsold Summary Cards - Harmonized with Sold Products -->
             @if (unsoldSummary()) {
-              <div class="row g-3 mb-2 mt-sm-1">
-                <div class="col-md-6">
-                  <div class="card pharma-stat-card">
-                    <div class="card-body">
+              <div class="row g-2 mb-1 mt-0">
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card primary-accent">
+                    <div class="card-body p-2">
                       <div class="d-flex justify-content-between align-items-center">
                         <div>
                           <p class="text-muted mb-1 small">Nombre de produits</p>
-                          <h4 class="mb-0 fw-bold">{{ unsoldSummary()?.totalProducts | number }}</h4>
+                          <h5 class="mb-0 fw-bold">{{ unsoldSummary()?.totalProducts | number }}</h5>
                         </div>
                         <div class="pharma-stat-icon bg-info-subtle">
                           <i class="pi pi-box text-info"></i>
@@ -312,16 +283,49 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="card pharma-stat-card">
-                    <div class="card-body">
+
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card warning-accent">
+                    <div class="card-body p-2">
                       <div class="d-flex justify-content-between align-items-center">
                         <div>
                           <p class="text-muted mb-1 small">Stock Total</p>
-                          <h4 class="mb-0 fw-bold">{{ unsoldSummary()?.totalStock | number }}</h4>
+                          <h5 class="mb-0 fw-bold">{{ unsoldSummary()?.totalStock | number }}</h5>
                         </div>
                         <div class="pharma-stat-icon bg-warning-subtle">
                           <i class="pi pi-database text-warning"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card success-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">Valeur Vente</p>
+                          <h5 class="mb-0 fw-bold">{{ formatCurrency(unsoldSummary()?.totalSalesAmount || 0) }}</h5>
+                        </div>
+                        <div class="pharma-stat-icon bg-success-subtle">
+                          <i class="pi pi-money-bill text-success"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                  <div class="card pharma-stat-card danger-accent">
+                    <div class="card-body p-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <p class="text-muted mb-1 small">Coût d'Achat</p>
+                          <h5 class="mb-0 fw-bold">{{ formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0) }}</h5>
+                        </div>
+                        <div class="pharma-stat-icon bg-primary-subtle">
+                          <i class="pi pi-dollar text-primary"></i>
                         </div>
                       </div>
                     </div>
@@ -345,9 +349,9 @@
                   [loading]="isLoading()"
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 20, 50, 100]"
-                  [rows]="itemsPerPage"
+                  [rows]="itemsPerPage()"
                   [showCurrentPageReport]="true"
-                  [totalRecords]="totalItems"
+                  [totalRecords]="totalItems()"
                   [value]="unsoldProducts()"
                   class="p-datatable-sm pharma-table"
                   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
@@ -406,9 +410,10 @@
                 </p-table>
               </div>
             </div>
-          </ng-template>
-        </li>
-      </ul>
+        </ng-template>
+      </ng-container>
+    </div>
+    <div class="pharma-nav-tabs-outlet">
       <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>

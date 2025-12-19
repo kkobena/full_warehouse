@@ -34,7 +34,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
         SuggestionProduitService suggestionProduitService,
         LotService lotService,
         InventoryTransactionService inventoryTransactionService,
-        SaleLineIdGeneratorService saleLineIdGeneratorService
+        SaleLineIdGeneratorService saleLineIdGeneratorService,
+         StockUpdateService stockUpdateService
     ) {
         super(
             produitRepository,
@@ -44,7 +45,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
             suggestionProduitService,
             lotService,
             inventoryTransactionService,
-            saleLineIdGeneratorService
+            saleLineIdGeneratorService,
+            stockUpdateService
         );
     }
 

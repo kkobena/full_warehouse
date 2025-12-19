@@ -50,6 +50,8 @@ class SalesLineServiceBaseImplTest {
 
     @Mock
     private SaleLineIdGeneratorService saleLineIdGeneratorService;
+    @Mock
+    private  StockUpdateService stockUpdateService;
 
     private SalesLineServiceBaseImpl salesLineService;
 
@@ -63,7 +65,8 @@ class SalesLineServiceBaseImplTest {
             suggestionProduitService,
             lotService,
             inventoryTransactionService,
-            saleLineIdGeneratorService
+            saleLineIdGeneratorService,
+            stockUpdateService
         );
     }
 

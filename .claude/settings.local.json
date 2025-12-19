@@ -36,7 +36,8 @@
       "Bash(nul)",
       "Bash(findstr:*)",
       "Bash(./mvnw.cmd:*)",
-      "Bash(./gradlew compileDebugKotlin:*)"
+      "Bash(./gradlew compileDebugKotlin:*)",
+      "Bash(mvnw.cmd flyway:info:*)"
     ],
     "deny": [],
     "ask": []

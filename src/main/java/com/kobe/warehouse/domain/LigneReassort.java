@@ -41,6 +41,10 @@ public class LigneReassort implements Serializable {
     @JoinColumn(name = "stock_produit_id", referencedColumnName = "id")
     private StockProduit stockProduit;
 
+    @ManyToOne
+    @JoinColumn(name = "stock_src_produit_id", referencedColumnName = "id")
+    private StockProduit stockProduitSrc;
+
     public Integer getId() {
         return id;
     }
@@ -79,6 +83,15 @@ public class LigneReassort implements Serializable {
 
     public void setStockProduit(StockProduit stockProduit) {
         this.stockProduit = stockProduit;
+    }
+
+    public StockProduit getStockProduitSrc() {
+        return stockProduitSrc;
+    }
+
+    public LigneReassort setStockProduitSrc(StockProduit stockProduitSrc) {
+        this.stockProduitSrc = stockProduitSrc;
+        return this;
     }
 
     @Override

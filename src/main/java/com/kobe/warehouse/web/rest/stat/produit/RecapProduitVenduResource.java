@@ -98,6 +98,26 @@ public class RecapProduitVenduResource {
 
     /**
      * @param requestParam request parameters
+     * @return PDF file
+     */
+    @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> exportToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
+        try {
+            byte[] pdfData = recapProduitVenduService.exportToPdf(requestParam);
+            String filename = "recap_produit_vendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfData);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * @param requestParam request parameters
      * @return Excel file (.xlsx) for unsold products
      */
     @GetMapping(value = "/invendus/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -133,6 +153,26 @@ public class RecapProduitVenduResource {
                 .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
                 .body(csvData);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * @param requestParam request parameters
+     * @return PDF file for unsold products
+     */
+    @GetMapping(value = "/invendus/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> exportInvenduToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
+        try {
+            byte[] pdfData = recapProduitVenduService.exportInvenduToPdf(requestParam);
+            String filename = "recap_produit_invendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

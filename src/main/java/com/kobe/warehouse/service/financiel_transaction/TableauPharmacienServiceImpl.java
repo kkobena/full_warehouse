@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -57,7 +57,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final TableauPharmacienReportReportService reportService;
     private final ExcelExportService excelExportService;
     private final AppConfigurationService appConfigurationService;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private final SalesRepository salesRepository;
     private final CommandeDataService commandeDataService;
     private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
@@ -67,7 +67,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         TableauPharmacienReportReportService reportService,
         ExcelExportService excelExportService,
         AppConfigurationService appConfigurationService,
-        JsonMapper objectMapper,
+        ObjectMapper objectMapper,
         SalesRepository salesRepository,
         CommandeDataService commandeDataService,
         ReponseRetourBonItemRepository reponseRetourBonItemRepository

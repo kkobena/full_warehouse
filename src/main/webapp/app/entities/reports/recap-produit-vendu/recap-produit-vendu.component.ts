@@ -39,6 +39,8 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-recap-produit-vendu',
@@ -167,7 +169,7 @@ export default class RecapProduitVenduComponent implements OnInit {
 
   // Pagination - separate for each tab
   protected page = signal<number>(1);
-  protected itemsPerPage = signal<number>(20);
+  protected itemsPerPage = signal<number>(10);
   protected totalItems = signal<number>(0);
   // Format methods
   protected formatCurrency = formatCurrency;
@@ -177,7 +179,7 @@ export default class RecapProduitVenduComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   ngOnInit(): void {
     this.loadRayons();
     this.loadUsers();
@@ -262,12 +264,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     });
   }
 
-  /**
-   * @deprecated Use loadCurrentTabData() instead
-   */
-  protected loadData(): void {
-    this.loadCurrentTabData();
-  }
+
 
   protected buildRequestParam(): IRecapProduitVenduRequestParam {
     return {
@@ -325,30 +322,13 @@ export default class RecapProduitVenduComponent implements OnInit {
     }
   }
 
-  protected getActiveFiltersCount(): number {
-    let count = 0;
-    if (this.searchTerm()) count++;
-    if (this.startTime()) count++;
-    if (this.endTime()) count++;
-    if (this.selectedUser()) count++;
-    if (this.selectedRayon()) count++;
-    if (this.selectedFournisseur()) count++;
-    if (this.selectedSeuilFilter()) count++;
-    if (this.selectedStockFilter()) count++;
-    if (this.minQuantitySold()) count++;
-    if (this.unitPriceLessThanPurchasePrice()) count++;
-    if (this.suggerQuantitySold()) count++;
-    return count;
-  }
 
   /**
    * Handle pagination change for both tabs
    */
   protected onPageChange(event: any): void {
-    console.log('onPageChange called with event:', event);
     if (event && typeof event.first === 'number' && typeof event.rows === 'number') {
       const newPage = Math.floor(event.first / event.rows) + 1;
-      console.log('Changing to page:', newPage, 'rows:', event.rows);
       this.page.set(newPage);
       this.itemsPerPage.set(event.rows);
       this.loadCurrentTabData();
@@ -375,12 +355,11 @@ export default class RecapProduitVenduComponent implements OnInit {
         next: (res: HttpResponse<Blob>) => {
           if (res.body) {
             const blob = new Blob([res.body], { type: 'application/pdf' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${fileName}-${new Date().getTime()}.pdf`;
-            link.click();
-            window.URL.revokeObjectURL(url);
+            if (this.tauriPrinterService.isRunningInTauri()) {
+              handleBlobForTauri(blob, fileName);
+            } else {
+              window.open(URL.createObjectURL(blob));
+            }
           }
         },
         error: () => {
@@ -409,12 +388,16 @@ export default class RecapProduitVenduComponent implements OnInit {
         next: (res: HttpResponse<Blob>) => {
           if (res.body) {
             const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${fileName}-${new Date().getTime()}.xlsx`;
-            link.click();
-            window.URL.revokeObjectURL(url);
+            if (this.tauriPrinterService.isRunningInTauri()) {
+              handleBlobForTauri(blob, `${fileName}.xlsx`);
+            } else {
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `${fileName}-${new Date().getTime()}.xlsx`;
+              link.click();
+              window.URL.revokeObjectURL(url);
+            }
           }
         },
         error: () => {
@@ -443,12 +426,16 @@ export default class RecapProduitVenduComponent implements OnInit {
         next: (res: HttpResponse<Blob>) => {
           if (res.body) {
             const blob = new Blob([res.body], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${fileName}-${new Date().getTime()}.csv`;
-            link.click();
-            window.URL.revokeObjectURL(url);
+            if (this.tauriPrinterService.isRunningInTauri()) {
+              handleBlobForTauri(blob, `${fileName}.csv`);
+            } else {
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `${fileName}-${new Date().getTime()}.csv`;
+              link.click();
+              window.URL.revokeObjectURL(url);
+            }
           }
         },
         error: () => {

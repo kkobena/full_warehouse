@@ -50,7 +50,7 @@ export class RecapProduitVenduService {
    */
   exportToPdf(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
     const params = createRequestOptions(requestParam);
-    return this.http.get(`${this.resourceUrl}/export/pdf`, { params, responseType: 'blob', observe: 'response' });
+    return this.http.get(`${this.resourceUrl}/pdf`, { params, responseType: 'blob', observe: 'response' });
   }
 
   /**
@@ -58,7 +58,7 @@ export class RecapProduitVenduService {
    */
   exportToExcel(requestParam: IRecapProduitVenduRequestParam): Observable<HttpResponse<Blob>> {
     const params = createRequestOptions(requestParam);
-    return this.http.get(`${this.resourceUrl}/export/excel`, { params, responseType: 'blob', observe: 'response' });
+    return this.http.get(`${this.resourceUrl}/excel`, { params, responseType: 'blob', observe: 'response' });
   }
 
   /**

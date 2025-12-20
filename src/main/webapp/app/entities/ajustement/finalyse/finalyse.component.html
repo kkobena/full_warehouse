@@ -6,10 +6,11 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      <div class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col">
-          <label class="col-auto col-form-label">Commentaire<span style="font-weight: 900; color: red">*</span></label>
-          <input pInputText type="text" #commentaire class="form-control" formControlName="commentaire" name="commentaire" />
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label>Commentaire<span
+            class="required">*</span></label>
+          <input pInputText  type="text" #commentaire formControlName="commentaire" name="commentaire" />
           @if (editForm.get('commentaire')!.invalid && (editForm.get('commentaire')!.dirty || editForm.get('commentaire')!.touched)) {
             <div>
               @if (editForm.get('commentaire')?.errors?.required) {
@@ -31,7 +32,7 @@
       raised="true"
       severity="secondary"
       type="button"
-    ></p-button>
+    />
     <p-button
       [disabled]="editForm.invalid || isSaving"
       icon="pi pi-check"
@@ -39,7 +40,7 @@
       raised="true"
       severity="success"
       type="submit"
-    ></p-button>
+    />
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

@@ -70,6 +70,8 @@ export class AuditingComponent implements OnInit {
   protected totalItems = 0;
   protected defaultDate: Date = new Date();
   protected produit: IProduit | null = null;
+  protected fromDate: Date = new Date();
+  protected toDate: Date = new Date();
   protected produits: IProduit[] = [];
   protected event: any;
   protected hasDepot = signal<boolean>(false);
@@ -79,7 +81,7 @@ export class AuditingComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
   private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
-
+/*
   protected get fromDate(): Date | null {
     return this.dateDebut().value;
   }
@@ -87,7 +89,7 @@ export class AuditingComponent implements OnInit {
   protected get toDate(): Date | null {
     return this.dateFin().value;
   }
-
+*/
   onSelect(event: any): void {
     this.event = event;
     this.load();
@@ -146,7 +148,7 @@ export class AuditingComponent implements OnInit {
 
   protected buildQuery(): ProduitAuditingParam {
     const params: ProduitAuditingParam = {
-      produitId: this.produit.id,
+      produitId: this.produit?.id,
       fromDate: this.dateDebut()?.submitValue,
       toDate: this.dateFin()?.submitValue,
     };

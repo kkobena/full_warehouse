@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.financiel_transaction;
 import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
@@ -52,7 +52,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
 
     // Configuration
     private final AppConfigurationService appConfigurationService;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     // Specialized services
     private final GroupeFournisseurManager groupeFournisseurManager;
@@ -66,7 +66,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
         CommandeDataService commandeDataService,
         ReponseRetourBonItemRepository reponseRetourBonItemRepository,
         AppConfigurationService appConfigurationService,
-        JsonMapper objectMapper,
+        ObjectMapper objectMapper,
         GroupeFournisseurManager groupeFournisseurManager,
         TableauPharmacienCalculator calculator,
         TableauPharmacienAggregator aggregator,

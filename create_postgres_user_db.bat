@@ -10,7 +10,6 @@ echo.
 set "DEFAULT_PG_ADMIN_USER=postgres"
 set "DEFAULT_DB_NAME=pharma_smart"
 set "DEFAULT_USER=pharma_smart"
-
 :: Demander les informations d'identification de l'administrateur
 set /p "PG_ADMIN_USER=Entrez le nom d'utilisateur administrateur PostgreSQL [%DEFAULT_PG_ADMIN_USER%]: Valider pour la valeur par defaut. "
 if not defined PG_ADMIN_USER set "PG_ADMIN_USER=%DEFAULT_PG_ADMIN_USER%"

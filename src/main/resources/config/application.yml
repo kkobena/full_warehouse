@@ -15,6 +15,7 @@ spring:
   jmx:
     enabled: false
   jackson:
+    default-property-inclusion: non_null
     deserialization:
       fail-on-null-for-primitives: false
       fail-on-unknown-properties: false

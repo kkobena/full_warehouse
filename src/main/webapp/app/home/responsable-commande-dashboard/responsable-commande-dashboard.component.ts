@@ -251,43 +251,22 @@ export class ResponsableCommandeDashboardComponent implements OnInit {
 
   // Quick Actions Methods
   protected nouvelleCommande(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la page de nouvelle commande...',
-    });
-    // TODO: Navigate to new order page
-    // this.router.navigate(['/commande/new']);
+
+     this.router.navigate(['/commande/new']);
   }
 
   protected analyserStock(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers l\'analyse de stock...',
-    });
-    // TODO: Navigate to stock analysis page
-    // this.router.navigate(['/stock/analyse']);
+    this.router.navigate(['/stock/analyse']);
   }
 
   protected lancerInventaire(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la page d\'inventaire...',
-    });
-    // TODO: Navigate to inventory page
-    // this.router.navigate(['/inventaire']);
+
+    this.router.navigate(['/inventaire']);
   }
 
   protected gererAlertes(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la gestion des alertes...',
-    });
-    // TODO: Navigate to alerts management page
-    // this.router.navigate(['/alertes']);
+
+     this.router.navigate(['/alertes']);
   }
 
   protected exporterRapport(): void {

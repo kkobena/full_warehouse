@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
+import com.kobe.warehouse.service.report.pdf.RecapProduitInvenduPdfService;
+import com.kobe.warehouse.service.report.pdf.RecapProduitVenduPdfService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
@@ -49,12 +51,16 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     private final ReportExcelExportService excelExportService;
     private final CsvExportService csvExportService;
     private final InventaireService inventaireService;
+    private final RecapProduitVenduPdfService recapProduitVenduPdfService;
+    private final RecapProduitInvenduPdfService recapProduitInvenduPdfService;
 
-    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService, InventaireService inventaireService) {
+    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService, InventaireService inventaireService, RecapProduitVenduPdfService recapProduitVenduPdfService, RecapProduitInvenduPdfService recapProduitInvenduPdfService) {
         this.entityManager = entityManager;
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
         this.inventaireService = inventaireService;
+        this.recapProduitVenduPdfService = recapProduitVenduPdfService;
+        this.recapProduitInvenduPdfService = recapProduitInvenduPdfService;
     }
 
     private QuerySpec buildWhereClause(RecapProduitVenduRequestParam requestParam) {
@@ -324,7 +330,9 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     @Override
     @Transactional(readOnly = true)
     public byte[] exportToPdf(RecapProduitVenduRequestParam requestParam) {
-        return new byte[0];
+        Page<RecapProduitVendu> data = getRecapProduitVenduReport(requestParam, Pageable.unpaged());
+        RecapProduitVenduSummary summary = getRecapProduitVenduSummary(requestParam);
+        return recapProduitVenduPdfService.export(data, summary, requestParam);
     }
 
     @Override
@@ -666,6 +674,14 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         }
 
         return csvExportService.createSimpleCsvReport(title, headersInvendu, rows);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportInvenduToPdf(RecapProduitVenduRequestParam requestParam) {
+        Page<RecapProduitVendu> data = getRecapProduitInvenduReport(requestParam, Pageable.unpaged());
+        RecapProduitVenduSummary summary = getRecapProduitInvenduSummary(requestParam);
+        return recapProduitInvenduPdfService.export(data, summary, requestParam);
     }
 
     private record QuerySpec(String where, Map<String, Object> params) {

@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
@@ -48,7 +48,7 @@ class TableauPharmacienServiceRefactoredTest {
     private AppConfigurationService appConfigurationService;
 
     @Mock
-    private JsonMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @Mock
     private GroupeFournisseurManager groupeFournisseurManager;

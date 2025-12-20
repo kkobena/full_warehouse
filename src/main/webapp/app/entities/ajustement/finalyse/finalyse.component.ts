@@ -18,7 +18,7 @@ import { InputText } from 'primeng/inputtext';
 @Component({
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./finalyse-ajustement.scss'],
 
   imports: [
     WarehouseCommonModule,

@@ -113,6 +113,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final TiersPayantCalculationService tiersPayantCalculationService;
     private final SaleIdGeneratorService idGeneratorService;
     private final ConsommationService consommationService;
+    private final ObjectMapper objectMapper ;
 
     public ThirdPartySaleServiceImpl(
         ThirdPartySaleLineService ThirdPartySaleLineService,
@@ -135,7 +136,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         LogsService logService,
         TiersPayantCalculationService tiersPayantCalculationService,
         SaleIdGeneratorService idGeneratorService,
-        ConsommationService consommationService
+        ConsommationService consommationService, ObjectMapper objectMapper
     ) {
         super(
             referenceService,
@@ -163,6 +164,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.logService = logService;
         this.tiersPayantCalculationService = tiersPayantCalculationService;
         this.consommationService = consommationService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -799,7 +801,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         });
 
         thirdPartySaleRepository.save(thirdPartySales);
-        ObjectMapper objectMapper = new ObjectMapper();
+
         this.logService.create(
             TransactionType.MODIFICATION_INFO_CLIENT,
             TransactionType.MODIFICATION_INFO_CLIENT.getValue(),

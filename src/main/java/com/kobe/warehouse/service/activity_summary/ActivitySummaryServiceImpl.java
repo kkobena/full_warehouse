@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.activity_summary;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -55,7 +55,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     private final SalePaymentRepository paymentRepository;
     private final SalesRepository salesRepository;
     private final ActivitySummaryReportService activitySummaryReportService;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public ActivitySummaryServiceImpl(
         TiersPayantService payantService,
@@ -65,7 +65,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         SalePaymentRepository paymentRepository,
         SalesRepository salesRepository,
         ActivitySummaryReportService activitySummaryReportService,
-        JsonMapper objectMapper
+        ObjectMapper objectMapper
     ) {
         this.payantService = payantService;
         this.invoicePaymentRepository = invoicePaymentRepository;

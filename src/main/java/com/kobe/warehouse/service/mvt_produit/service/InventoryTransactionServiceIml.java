@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.mvt_produit.service;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
@@ -44,14 +44,14 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryTransactionSpec inventoryTransactionSpec;
     private final MvtProduitIdGeneratorService mvtProduitIdGeneratorService;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private final StorageService storageService;
 
     public InventoryTransactionServiceIml(
         InventoryTransactionRepository inventoryTransactionRepository,
         InventoryTransactionSpec inventoryTransactionSpec,
         MvtProduitIdGeneratorService mvtProduitIdGeneratorService,
-        JsonMapper objectMapper,
+        ObjectMapper objectMapper,
         StorageService storageService
     ) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;

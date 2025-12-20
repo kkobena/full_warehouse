@@ -1,0 +1,58 @@
+<table class="main-table">
+  <thead>
+    <tr>
+      <th>ID Produit</th>
+      <th>Libellé Produit</th>
+      <th>Code CIP</th>
+      <th>Code EAN Labo</th>
+      <th>Rayon</th>
+      <th class="text-right">Stock Actuel</th>
+      <th class="text-right">Valeur Vente</th>
+      <th class="text-right">Coût Achat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:class="${itmStat.last}?'last-item':''" th:each="itm,itmStat : ${items}">
+      <td class="text-left" th:text="${itm.id}"></td>
+      <td class="text-left" th:text="${itm.libelle}"></td>
+      <td class="text-left" th:text="${itm.codeCip}"></td>
+      <td class="text-left" th:text="${itm.codeEanLaboratoire}"></td>
+      <td class="text-left" th:text="${itm.rayonName}"></td>
+
+      <td class="text-right" th:if="${itm.stock ge 1000}" th:text="${#numbers.formatInteger(itm.stock,3,'WHITESPACE')}"></td>
+      <td class="text-right" th:if="${itm.stock lt 1000}" th:text="${itm.stock}"></td>
+
+      <td class="text-right" th:if="${itm.totalSalesAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalSalesAmount,3,'WHITESPACE')}"></td>
+      <td class="text-right" th:if="${itm.totalSalesAmount lt 1000}" th:text="${itm.totalSalesAmount}"></td>
+
+      <td class="text-right" th:if="${itm.totalPurchaseAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalPurchaseAmount,3,'WHITESPACE')}"></td>
+      <td class="text-right" th:if="${itm.totalPurchaseAmount lt 1000}" th:text="${itm.totalPurchaseAmount}"></td>
+    </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+    <tr class="tr-footer">
+      <td colspan="5"><strong>TOTAUX</strong></td>
+
+      <td class="text-right">
+        <strong>
+          <span th:if="${totalStock ge 1000}" th:text="${#numbers.formatInteger(totalStock,3,'WHITESPACE')}"></span>
+          <span th:if="${totalStock lt 1000}" th:text="${totalStock}"></span>
+        </strong>
+      </td>
+
+      <td class="text-right">
+        <strong>
+          <span th:if="${totalSalesAmount ge 1000}" th:text="${#numbers.formatInteger(totalSalesAmount,3,'WHITESPACE')}"></span>
+          <span th:if="${totalSalesAmount lt 1000}" th:text="${totalSalesAmount}"></span>
+        </strong>
+      </td>
+
+      <td class="text-right">
+        <strong>
+          <span th:if="${totalPurchaseAmount ge 1000}" th:text="${#numbers.formatInteger(totalPurchaseAmount,3,'WHITESPACE')}"></span>
+          <span th:if="${totalPurchaseAmount lt 1000}" th:text="${totalPurchaseAmount}"></span>
+        </strong>
+      </td>
+    </tr>
+  </tfoot>
+</table>

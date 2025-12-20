@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.stock.impl;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
@@ -42,14 +42,14 @@ public class ProduitServiceImpl implements ProduitService {
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
     private final RayonRepository rayonRepository;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private final StorageService storageService;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
-        JsonMapper objectMapper, StorageService storageService
+        ObjectMapper objectMapper, StorageService storageService
         ) {
 
         this.produitRepository = produitRepository;

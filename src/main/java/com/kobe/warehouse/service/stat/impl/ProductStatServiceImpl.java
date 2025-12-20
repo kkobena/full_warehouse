@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.stat.impl;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -66,7 +66,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     private final OrderLineRepository orderLineRepository;
     private final InventoryTransactionService inventoryTransactionService;
     private final ProduitRepository produitRepository;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public ProductStatServiceImpl(
         ProduitAuditingReportSevice produitAuditingReportSevice,
@@ -75,7 +75,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         OrderLineRepository orderLineRepository,
         InventoryTransactionService inventoryTransactionService,
         ProduitRepository produitRepository,
-        JsonMapper objectMapper
+        ObjectMapper objectMapper
     ) {
         this.produitAuditingReportSevice = produitAuditingReportSevice;
         this.salesLineRepository = salesLineRepository;

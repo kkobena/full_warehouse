@@ -23,9 +23,11 @@
           <jhi-date-picker
             #dateDebut
             [disabled]="false"
+            [(ngModel)]="fromDate"
             [id]="'du'"
             [label]="'warehouseApp.labels.du'"
             [max]="toDate"
+            [defaultDate]="defaultDate"
             [style]="{ 'max-width': '145px' }"
           />
           <jhi-date-picker
@@ -33,6 +35,7 @@
             (onSelect)="updateParam()"
             [defaultDate]="defaultDate"
             [disabled]="false"
+            [(ngModel)]="toDate"
             [id]="'au'"
             [label]="'warehouseApp.labels.au'"
             [min]="fromDate"

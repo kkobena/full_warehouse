@@ -23,6 +23,8 @@ public interface RecapProduitVenduService {
 
     byte[] exportToCsv(RecapProduitVenduRequestParam requestParam) throws IOException;
 
+    byte[] exportInvenduToPdf(RecapProduitVenduRequestParam requestParam);
+
     byte[] exportInvenduToExcel(RecapProduitVenduRequestParam requestParam) throws IOException;
 
     byte[] exportInvenduToCsv(RecapProduitVenduRequestParam requestParam) throws IOException;

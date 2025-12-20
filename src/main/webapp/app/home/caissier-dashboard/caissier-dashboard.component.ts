@@ -1,23 +1,23 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {Component, OnInit, inject, signal, computed} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {HttpResponse} from '@angular/common/http';
+import {Router} from '@angular/router';
 
 
-import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { BadgeModule } from 'primeng/badge';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import {TableModule} from 'primeng/table';
+import {ChartModule} from 'primeng/chart';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {BadgeModule} from 'primeng/badge';
+import {TooltipModule} from 'primeng/tooltip';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {TagModule} from 'primeng/tag';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {
   faCashRegister,
   faMoneyBillWave,
@@ -32,7 +32,7 @@ import {
   faPrint,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { CaissierDashboardService } from './caissier-dashboard.service';
+import {CaissierDashboardService} from './caissier-dashboard.service';
 import {
   ICaissierDashboard,
   IVentesJour,
@@ -143,7 +143,7 @@ export class CaissierDashboardComponent implements OnInit {
         position: 'bottom',
         labels: {
           color: '#cbd5e1',
-          font: { size: 12 },
+          font: {size: 12},
         },
       },
     },
@@ -208,7 +208,7 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected formatCurrency(value: number): string {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(value);
+    return new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'XOF'}).format(value);
   }
 
   protected formatNumber(value: number): string {
@@ -217,13 +217,8 @@ export class CaissierDashboardComponent implements OnInit {
 
   // Quick Actions Methods
   protected nouvelleVente(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la page de nouvelle vente...',
-    });
-    // TODO: Navigate to new sale page
-    // this.router.navigate(['/sales/new']);
+
+    this.router.navigate(['/sales/new']);
   }
 
   protected ouvrirCaisse(): void {
@@ -280,15 +275,11 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected imprimerRapport(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Impression',
-      detail: 'Génération du rapport en cours...',
-    });
+
     this.dashboardService.imprimerRapportCaisse().subscribe({
       next: (res) => {
         if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
+          const blob = new Blob([res.body], {type: 'application/pdf'});
           const url = window.URL.createObjectURL(blob);
           window.open(url);
           this.messageService.add({
@@ -309,32 +300,15 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected consulterVentes(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la liste des ventes...',
-    });
-    // TODO: Navigate to sales list
-    // this.router.navigate(['/sales']);
+    this.router.navigate(['/sales']);
   }
 
   protected gererAlertes(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: 'Redirection vers la gestion des alertes...',
-    });
-    // TODO: Navigate to alerts management
-    // this.router.navigate(['/alertes']);
+
+    this.router.navigate(['/alertes']);
   }
 
   protected voirDetailVente(vente: IVenteRecente): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Navigation',
-      detail: `Redirection vers le détail de la vente ${vente.numeroRecu}...`,
-    });
-    // TODO: Navigate to sale detail
-    // this.router.navigate(['/sales', vente.saleId]);
+    this.router.navigate(['/sales', vente.saleId]);
   }
 }

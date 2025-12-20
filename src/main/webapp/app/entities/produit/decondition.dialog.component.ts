@@ -9,11 +9,13 @@ import { Decondition, IDecondition } from '../../shared/model/decondition.model'
 import { DeconditionService } from '../decondition/decondition.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { InputText } from 'primeng/inputtext';
+import {Card} from "primeng/card";
+import {Button} from "primeng/button";
 
 @Component({
   selector: 'jhi-decondition',
   templateUrl: 'decondition-dialog.component.html',
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText],
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, Card, Button],
 })
 export class DeconditionDialogComponent {
   activeModal = inject(NgbActiveModal);

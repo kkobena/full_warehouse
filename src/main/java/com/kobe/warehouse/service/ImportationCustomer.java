@@ -21,11 +21,13 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ public class ImportationCustomer {
     private final UninsuredCustomerRepository uninsuredCustomerRepository;
     private final ImportationRepository importationRepository;
     private final TransactionTemplate transactionTemplate;
+    private final ObjectMapper objectMapper;
 
     public ImportationCustomer(
         TiersPayantRepository tiersPayantRepository,
@@ -52,7 +55,7 @@ public class ImportationCustomer {
         AssuredCustomerRepository assuredCustomerRepository,
         UninsuredCustomerRepository uninsuredCustomerRepository,
         ImportationRepository importationRepository,
-        TransactionTemplate transactionTemplate
+        TransactionTemplate transactionTemplate, ObjectMapper objectMapper
     ) {
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
@@ -60,15 +63,17 @@ public class ImportationCustomer {
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
         this.importationRepository = importationRepository;
         this.transactionTemplate = transactionTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public ResponseDTO updateStocFromJSON(InputStream input) throws IOException {
         ResponseDTO response = new ResponseDTO();
-        ObjectMapper mapper = new ObjectMapper();
+
         AppUser user = this.storageService.getUserFormImport();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<CustomerDTO> list = mapper.readValue(input, new TypeReference<>() {});
+        List<CustomerDTO> list = objectMapper.readValue(input, new TypeReference<>() {
+        });
         int totalSize = list.size();
         response.setTotalSize(totalSize);
         log.info("size===>> {}", list.size());

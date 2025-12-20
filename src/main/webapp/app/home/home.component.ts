@@ -15,6 +15,7 @@ import { Authority } from '../shared/constants/authority.constants';
 import CustomizableDashboardComponent from '../entities/dashboard/customizable-dashboard/customizable-dashboard.component';
 import { ResponsableCommandeDashboardComponent } from './responsable-commande-dashboard/responsable-commande-dashboard.component';
 import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
+import { VendeurDashboardComponent } from './vendeur-dashboard/vendeur-dashboard.component';
 
 @Component({
   selector: 'jhi-home',
@@ -32,6 +33,7 @@ import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashbo
     CustomizableDashboardComponent,
     ResponsableCommandeDashboardComponent,
     CaissierDashboardComponent,
+    VendeurDashboardComponent,
   ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {

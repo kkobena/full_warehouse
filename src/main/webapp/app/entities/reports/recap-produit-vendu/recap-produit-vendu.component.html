@@ -9,6 +9,13 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters  py-1">
+          <input
+            [(ngModel)]="searchTerm"
+            class="p-inputtext p-component"
+            pInputText
+            placeholder="Rechercher un produit..."
+            type="text"
+          />
           <p-floatlabel variant="on">
             <p-datePicker
               (onSelect)="onFilterChange()"
@@ -32,13 +39,7 @@
             />
             <label for="endDate">Date fin</label>
           </p-floatlabel>
-          <input
-            [(ngModel)]="searchTerm"
-            class="p-inputtext p-component"
-            pInputText
-            placeholder="Rechercher un produit..."
-            type="text"
-          />
+
         </div>
       </ng-template>
 
@@ -54,7 +55,7 @@
           />
 
           <p-button
-            (onClick)="loadData()"
+            (onClick)="loadCurrentTabData()"
             icon="pi pi-refresh"
             label="Rechercher"
             severity="primary"

@@ -202,10 +202,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSelectUser(evt: { value: number | null }): void {
-    this.selectedUserId = evt.value;
-    this.searchSubject.next();
-  }
+
 
   ngAfterViewInit(): void {
     this.userControl().value = this.selectedUserId;

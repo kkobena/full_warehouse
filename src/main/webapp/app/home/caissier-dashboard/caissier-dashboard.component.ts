@@ -222,57 +222,10 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected ouvrirCaisse(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Ouverture Caisse',
-      detail: 'Fonction d\'ouverture de caisse en développement...',
-    });
-    // TODO: Show dialog to open cash register
-    // const montantOuverture = 50000; // Example
-    // this.dashboardService.ouvrirCaisse(montantOuverture).subscribe({
-    //   next: () => {
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Succès',
-    //       detail: 'Caisse ouverte avec succès',
-    //     });
-    //     this.loadDashboardData();
-    //   },
-    //   error: () => {
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Erreur',
-    //       detail: 'Erreur lors de l\'ouverture de la caisse',
-    //     });
-    //   },
-    // });
+    //my-cash-register
+    this.router.navigate(['/my-cash-register']);
   }
 
-  protected fermerCaisse(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Fermeture Caisse',
-      detail: 'Fonction de fermeture de caisse en développement...',
-    });
-    // TODO: Show dialog to close cash register
-    // this.dashboardService.fermerCaisse().subscribe({
-    //   next: () => {
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Succès',
-    //       detail: 'Caisse fermée avec succès',
-    //     });
-    //     this.loadDashboardData();
-    //   },
-    //   error: () => {
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Erreur',
-    //       detail: 'Erreur lors de la fermeture de la caisse',
-    //     });
-    //   },
-    // });
-  }
 
   protected imprimerRapport(): void {
 

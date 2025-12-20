@@ -8,28 +8,16 @@
         <div class="quick-actions-buttons d-flex gap-2 flex-wrap">
           <p-button
             icon="pi pi-shopping-cart"
-            label="VENDRE"
+            label="Nouvelle pré-vente"
             severity="info"
             size="small"
-            [routerLink]="['/sales']"
+            [routerLink]="['/sales/true/new']"
           />
-          <p-button
-            icon="pi pi-user-plus"
-            label="NOUVEAU CLIENT"
-            severity="success"
-            size="small"
-            [routerLink]="['/customer/new']"
-          />
-          <p-button
-            icon="pi pi-search"
-            label="INFO PRODUIT"
-            severity="help"
-            size="small"
-            [routerLink]="['/produit']"
-          />
+
+
           <p-button
             icon="pi pi-chart-bar"
-            label="MES STATS"
+            label="Mes statistiques"
             severity="warn"
             size="small"
             [routerLink]="['/sales/my-stats']"
@@ -304,45 +292,6 @@
       </div>
     </div>
 
-    <!-- Opportunités de Vente -->
-    @if (opportunites().length > 0) {
-      <div class="row mb-2">
-        <div class="col-12">
-          <div class="card h-100 data-card">
-            <div class="card-header">
-              <h5 class="card-title">
-                <i class="pi pi-lightbulb me-2"></i>
-                OPPORTUNITÉS DE VENTE
-              </h5>
-            </div>
-            <div class="card-body">
-              <div class="row g-3">
-                @for (opp of opportunites(); track opp.type) {
-                  <div class="col-md-4">
-                    <div class="opportunite-card">
-                      <div class="d-flex align-items-start gap-3">
-                        <i [class]="getOpportuniteIcon(opp.type) + ' text-warning fs-3'"></i>
-                        <div class="flex-grow-1">
-                          <h6 class="mb-1">{{ opp.titre }}</h6>
-                          <p class="text-sm mb-2">{{ opp.description }}</p>
-                          <div class="d-flex justify-content-between">
-                            <span class="text-sm">
-                              <i class="pi pi-users me-1"></i>
-                              {{ opp.nombreClients }} clients
-                            </span>
-                            <span class="fw-bold text-success">{{ formatCurrency(opp.potentielCA) }}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
 
     <!-- Objectifs Mensuels -->
     @if (objectifsMensuels().length > 0) {

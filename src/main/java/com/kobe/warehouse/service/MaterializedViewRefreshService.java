@@ -74,7 +74,7 @@ public class MaterializedViewRefreshService {
      * TIER 1: Refresh high-priority views every 15 minutes during business hours (8am-8pm).
      * These views are used in real-time dashboards and require fresh data.
      */
-    @Scheduled(cron = "0 */1 8-20 * * *")// Every 15 minutes between 8am and 8pm
+    @Scheduled(cron = "0 */15 8-20 * * *")// Every 15 minutes between 8am and 8pm
     @Transactional
     public void refreshTier1ViewsScheduled() {
         LOG.info("Starting scheduled TIER 1 materialized views refresh");
@@ -85,7 +85,7 @@ public class MaterializedViewRefreshService {
      * TIER 2: Refresh medium-priority views every hour.
      * These views contain analytical data that can tolerate slight delays.
      */
-    @Scheduled(cron = "0 */2 * * * *") // Every hour at minute 0
+    @Scheduled(cron = "0 0 * * * *") // Every hour at minute 0
     @Transactional
     public void refreshTier2ViewsScheduled() {
         LOG.info("Starting scheduled TIER 2 materialized views refresh");
@@ -95,9 +95,11 @@ public class MaterializedViewRefreshService {
     /**
      * TIER 3: Refresh low-priority views every 6 hours.
      * These are complex analytical views that are less time-sensitive.
+     *
+     * For testing purposes, this is set to every 3 minutes.
      */
-    @Scheduled(cron = "0 */3 * * * *")
-    // @Scheduled(cron = "0 0 9,12,15,18 * * *") // At 2am, 8am, 2pm, 8pm
+   //  @Scheduled(cron = "0 */3 * * * *")
+     @Scheduled(cron = "0 0 9,12,15,18 * * *") // At 2am, 8am, 2pm, 8pm
     @Transactional
     public void refreshTier3ViewsScheduled() {
         LOG.info("Starting scheduled TIER 3 materialized views refresh");

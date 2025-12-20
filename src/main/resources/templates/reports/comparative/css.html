@@ -1,9 +1,24 @@
 <style th:fragment="css" th:inline="css">
+
+
   header {
     position: running(header);
     border-bottom: 0.5px solid #3989c6;
     font-size: 9px;
   }
+
+  div.page-footer {
+  }
+
+
+
+  .header-counter:before {
+    content: counter(page) '/' counter(pages);
+  }
+
+  /* ========================================
+     PAGE CONFIGURATION - Landscape Mode
+     ======================================== */
 
   @page {
     size: A4 landscape;
@@ -19,6 +34,9 @@
       font-size: 8px;
       font-style: italic;
       padding-top: 5px;
+      margin-bottom: 10mm;
+      vertical-align: top;
+      white-space: pre-wrap;
     }
 
     @top-left {
@@ -26,12 +44,50 @@
     }
   }
 
+  /* ========================================
+     BASE INVOICE STYLES
+     ======================================== */
+
   .invoice {
     padding: 0;
     font-size: 10px;
     line-height: 1.4;
     font-family: sans-serif;
   }
+
+  header .row {
+    padding: 3px 0;
+    margin-bottom: 5px;
+  }
+
+  .invoice .company-details {
+    text-align: left;
+  }
+
+  .invoice .company-details .name {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .invoice-details {
+    text-align: right;
+  }
+
+  .invoice-details .invoice-id {
+    color: #3989c6;
+  }
+
+  main {
+    display: block;
+  }
+
+  main .notices .notice {
+    font-size: 1.2em;
+  }
+
+  /* ========================================
+     COMPARATIVE REPORT SPECIFIC
+     ======================================== */
 
   .report-title {
     text-align: center;
@@ -41,6 +97,10 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #3989c6;
+  }
+
+  td.report-title {
+    font-size: 11px;
   }
 
   .summary-section {
@@ -89,12 +149,29 @@
     margin-top: 3px;
   }
 
+
+
+  table.page-header,
   table.main-table {
     width: 100%;
     border-collapse: collapse;
+    border-spacing: 0;
+    -fs-table-paginate: paginate;
+  }
+
+  table.main-table {
     margin-bottom: 15px;
   }
 
+  table.footer-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-bottom: 10px;
+    -fs-table-paginate: paginate;
+  }
+
+  /* Table Headers - Comparative Style */
   table.main-table thead tr th {
     background-color: #3989c6;
     color: white;
@@ -105,6 +182,13 @@
     border: 0.5px solid #2c6fa3;
   }
 
+  table.page-header tr th {
+    white-space: nowrap;
+    font-weight: 400;
+    font-size: 9px;
+  }
+
+  /* Table Body */
   table.main-table tbody tr td {
     padding: 6px 8px;
     font-size: 9px;
@@ -115,21 +199,97 @@
     background-color: #f9f9f9;
   }
 
+  table.main-table tr td {
+    padding: 0.2rem 1rem;
+  }
+
+  /* Table Footer */
   table.main-table tfoot tr td {
     padding: 8px;
     font-weight: bold;
     font-size: 10px;
     border-top: 2px solid #3989c6;
     background-color: #f5f5f5;
+    background: 0 0;
+    border-bottom: none;
+    white-space: nowrap;
   }
 
-  .text-right {
+  table thead tr th {
+    border-top: 0.5px solid #4d4d4d;
+    border-bottom: 0.5px solid #4d4d4d;
+    padding: 0.2rem 1rem;
+    font-weight: 600;
+  }
+
+  .total-item {
+    margin-left: 100px !important;
+  }
+
+  table .qty,
+  table .total,
+  table .unit {
     text-align: right;
   }
 
-  .text-center {
-    text-align: center;
+  .tbody-footer tr td {
+    font-weight: bold;
   }
+
+  .tbody-footer tr td:first-child {
+    width: 70%;
+  }
+
+  .tbody-footer tr td:last-child {
+    text-align: right;
+  }
+
+  .page-footer {
+    width: 100%;
+  }
+
+  .footer-table,
+  .footer-table-tr {
+    width: 100%;
+  }
+
+  .footer-table-tr .footer-table-td {
+    border: 0.5px solid #4d4d4d;
+  }
+
+  .footer-table-td table {
+    width: 100%;
+  }
+
+  .footer-table thead tr th {
+    border: 0.5px solid #4d4d4d;
+  }
+
+  .sub-table-totaux tbody tr td:last-child {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  .sub-table-totaux tbody tr td:first-child {
+    text-align: left;
+  }
+
+  .footer-table {
+    page-break-inside: avoid;
+    -fs-page-break-inside: avoid;
+    white-space: nowrap;
+  }
+
+  .invoice footer,
+  .invoice footer div {
+    width: 100%;
+    text-align: center;
+    color: #777;
+    border-top: 1px solid #aaa;
+    padding: 9px 0;
+  }
+
+
 
   .evolution-positive {
     color: #4CAF50;
@@ -145,6 +305,10 @@
     color: #888;
   }
 
+  /* ========================================
+     SECTION TITLES
+     ======================================== */
+
   .section-title {
     font-size: 12px;
     font-weight: bold;
@@ -155,13 +319,20 @@
     border-bottom: 1px solid #3989c6;
   }
 
+  /* ========================================
+     BADGES - All Types
+     ======================================== */
+
   .badge {
-    padding: 2px 6px;
-    border-radius: 3px;
+    display: inline-block;
+    padding: 3px 8px;
     font-size: 8px;
-    font-weight: bold;
+    font-weight: 600;
+    border-radius: 3px;
+    text-align: center;
   }
 
+  /* Standard Badges */
   .badge-success {
     background-color: #4CAF50;
     color: white;
@@ -177,7 +348,104 @@
     color: white;
   }
 
-  tr, tfoot {
+  /* Alert Stock Badges */
+  .badge-rupture {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .badge-alerte {
+    background-color: #fd7e14;
+    color: white;
+  }
+
+  .badge-peremption {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  /* ========================================
+     ALERT SUMMARY (from common)
+     ======================================== */
+
+  .alert-summary {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .summary-item {
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .summary-item.rupture {
+    color: #dc3545;
+  }
+
+  .summary-item.alerte {
+    color: #fd7e14;
+  }
+
+  .summary-item.peremption {
+    color: #0d6efd;
+  }
+
+
+
+  .col-6 {
+    width: 50%;
+  }
+
+  a.logo {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  div.logo-container {
+    float: left;
+  }
+
+  .text-left {
+    text-align: left;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: 15px;
+    margin-left: 15px;
+  }
+
+  .row table {
+    width: 100%;
+    font-weight: bold;
+  }
+
+
+
+  .page-break {
+    page-break-after: always;
+  }
+
+  tr,
+  tfoot {
     page-break-inside: avoid;
   }
 </style>

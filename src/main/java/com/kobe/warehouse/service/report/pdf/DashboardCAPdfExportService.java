@@ -126,7 +126,7 @@ public class DashboardCAPdfExportService extends AbstractStatistiqueReportServic
         this.getParameters().put("totalTopProductsCA", totalTopProductsCA);
         this.getParameters().put("startDate", startDate);
         this.getParameters().put("endDate", endDate);
-        this.getParameters().put("reportTitle", "Dashboard CA et Performance des Ventes");
+        this.getParameters().put("reportTitle", "");
 
         super.getCommonParameters();
         return super.exportReportToPdf();

@@ -5,6 +5,7 @@ import {
   faChartBar,
   faChartLine,
   faChartPie,
+  faClock,
   faCommentsDollar,
   faCreditCard,
   faShippingFast,
@@ -41,6 +42,9 @@ import {
 } from '../../shared/chart-color-helper';
 import { ToggleStateService } from './toggle-state.service';
 import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { BadgeModule } from 'primeng/badge';
+import { Router } from '@angular/router';
 
 interface TopSelection {
   label: string;
@@ -49,7 +53,7 @@ interface TopSelection {
 
 @Component({
   selector: 'jhi-home-base',
-  imports: [CommonModule, FormsModule, DecimalPipe, TableModule, FaIconComponent, ChartModule, ToggleButtonModule, SelectModule],
+  imports: [CommonModule, FormsModule, DecimalPipe, TableModule, FaIconComponent, ChartModule, ToggleButtonModule, SelectModule, ButtonModule, BadgeModule],
   templateUrl: './home-base.component.html',
   styleUrl: './home-base.component.scss'
 })
@@ -62,7 +66,15 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected readonly faChartLine = faChartLine;
   protected readonly faChartPie = faChartPie;
   protected readonly faCreditCard = faCreditCard;
+  protected readonly faClock = faClock;
   protected readonly tops: TopSelection[] = TOPS;
+
+  // Alert counters
+  protected peremptionCount = 0;
+  protected ruptureCount = 0;
+  protected entreeCount = 0;
+  protected ajustementCount = 0;
+  protected prixModifCount = 0;
 
   protected venteRecord: VenteRecord | null = null;
   protected canceled: VenteRecord | null = null;
@@ -103,6 +115,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly router = inject(Router);
 
   private documentStyle: CSSStyleDeclaration;
   private textColor: string;
@@ -118,10 +131,12 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeChartStyles();
     this.loadDashboardData();
+    this.loadAlertCounts();
     interval(120000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadDashboardData();
+        this.loadAlertCounts();
       });
   }
 
@@ -438,5 +453,45 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         }
       }
     };
+  }
+
+  // Alert/Notification Actions Methods
+  protected voirPeremptions(): void {
+    this.router.navigate(['/produit'], { queryParams: { peremption: true } });
+  }
+
+  protected voirRuptures(): void {
+    this.router.navigate(['/produit'], { queryParams: { rupture: true } });
+  }
+
+  protected voirEntrees(): void {
+    this.router.navigate(['/stock-entree']);
+  }
+
+  protected voirAjustements(): void {
+    this.router.navigate(['/ajustement']);
+  }
+
+  protected voirModifPrix(): void {
+    this.router.navigate(['/produit'], { queryParams: { prixModif: true } });
+  }
+
+  private loadAlertCounts(): void {
+    this.dashboardService.getAlertCounts().subscribe({
+      next: res => {
+        const alertCounts = res.body;
+        if (alertCounts) {
+          this.peremptionCount = alertCounts.peremptionCount;
+          this.ruptureCount = alertCounts.ruptureCount;
+          this.entreeCount = alertCounts.entreeCount;
+          this.ajustementCount = alertCounts.ajustementCount;
+          this.prixModifCount = alertCounts.prixModifCount;
+        }
+      },
+      error: () => {
+        // En cas d'erreur, garder les valeurs par défaut (0)
+        console.error('Erreur lors du chargement des compteurs d\'alertes');
+      },
+    });
   }
 }

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.service.DashboardAlertService;
 import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardResource {
 
     private final DashboardService dashboardService;
+    private final DashboardAlertService dashboardAlertService;
 
-    public DashboardResource(DashboardService dashboardService) {
+    public DashboardResource(DashboardService dashboardService, DashboardAlertService dashboardAlertService) {
         this.dashboardService = dashboardService;
+        this.dashboardAlertService = dashboardAlertService;
     }
 
     @GetMapping("/dashboard/ca")
@@ -47,5 +50,17 @@ public class DashboardResource {
     @GetMapping("/dashboard/ca-by-periode")
     public ResponseEntity<List<VentePeriodeRecord>> getCaGroupingByPeriode(@Valid VenteRecordParamDTO venteRecordParam) {
         return ResponseEntity.ok().body(dashboardService.getCaGroupingByPeriode(venteRecordParam));
+    }
+
+    /**
+     * GET /dashboard/alert-counts : Get all dashboard alert counts
+     * Returns counts for: péremptions, ruptures stock, entrées stock, ajustements, modifications prix
+     *
+     * @return the ResponseEntity with status 200 (OK) and the alert counts in body
+     */
+    @GetMapping("/dashboard/alert-counts")
+    public ResponseEntity<DashboardAlertCountDTO> getAlertCounts() {
+        DashboardAlertCountDTO alertCounts = dashboardAlertService.getAlertCounts();
+        return ResponseEntity.ok().body(alertCounts);
     }
 }

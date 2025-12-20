@@ -7,6 +7,7 @@ import { VenteByTypeRecord, VenteModePaimentRecord, VentePeriodeRecord, VenteRec
 import { VenteRecordParam } from '../shared/model/vente-record-param.model';
 import { AchatRecordParam } from '../shared/model/achat-record-param.model';
 import { AchatRecord } from '../shared/model/achat-record.model';
+import { IDashboardAlertCount } from '../shared/model/dashboard-alert-count.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,6 +52,16 @@ export class DashboardService {
     const options = createRequestOptions(achatRecordParam);
     return this.http.get<AchatRecord>(`${this.resourceUrl}/ca-achats`, {
       params: options,
+      observe: 'response',
+    });
+  }
+
+  /**
+   * Get all dashboard alert counts
+   * Returns counts for: péremptions, ruptures stock, entrées stock, ajustements, modifications prix
+   */
+  getAlertCounts(): Observable<HttpResponse<IDashboardAlertCount>> {
+    return this.http.get<IDashboardAlertCount>(`${this.resourceUrl}/alert-counts`, {
       observe: 'response',
     });
   }

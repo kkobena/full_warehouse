@@ -38,7 +38,12 @@ public class AppConfigurationService {
 
     @Transactional(readOnly = true)
     public Optional<AppConfiguration> findOneById(String id) {
-        return appConfigurationRepository.findById(id);
+        try {
+            return Optional.of(appConfigurationRepository.getReferenceById(id));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 
     @Transactional(readOnly = true)

@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Service de calcul SEMOIS (Stock Économique Mensuel d'Objectif Interne de Sécurité).
@@ -57,12 +58,12 @@ import static java.util.Objects.isNull;
 public class SemoisCalculationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SemoisCalculationService.class);
-
     /**
-     * Taille du batch pour le traitement par lots des recalculs SEMOIS.
-     * Configurable via application.yml.
-     * Par défaut: 100 produits par batch.
+     * Clé de configuration pour la date du dernier calcul SEMOIS.
      */
+    private final static String APP_LAST_DAY_SEMOIS_CALCULATION = "APP_LAST_DAY_SEMOIS_CALCULATION";
+
+
     @Value("${pharma-smart.semois.batch-size:100}")
     private int batchSize;
 
@@ -273,16 +274,16 @@ public class SemoisCalculationService {
 
     /**
      * Récupère toutes les suggestions SEMOIS depuis la vue matérialisée mv_semois_suggestion.
-     *
+     * <p>
      * Cette méthode lit directement depuis la vue matérialisée au lieu de recalculer à la volée.
      * BEAUCOUP plus performant: 1 seule requête SQL vs N calculs en temps réel.
-     *
+     * <p>
      * IMPORTANT: La vue est rafraîchie quotidiennement à 3h du matin après le recalcul SEMOIS.
      * Les données peuvent avoir jusqu'à 24h de retard par rapport au calcul en temps réel.
      *
-     * @param search Recherche texte dans libellé ou code CIP (optionnel)
+     * @param search          Recherche texte dans libellé ou code CIP (optionnel)
      * @param classeCriticite Filtre par classe de criticité (optionnel)
-     * @param pageable Pagination et tri
+     * @param pageable        Pagination et tri
      * @return Page de suggestions depuis la vue matérialisée
      */
     @Transactional(readOnly = true)
@@ -349,17 +350,22 @@ public class SemoisCalculationService {
      * - Logs de progression détaillés
      * - Rafraîchissement de la vue matérialisée à la fin
      */
-    @Scheduled(fixedDelayString = "${pharma-smart.semois.recalculation-delay-ms:86400000}")
+    @Scheduled(cron = "0 */15 12-14 * * *")
     @Transactional(propagation = Propagation.NOT_SUPPORTED) // Pas de transaction globale
     public void recalculateAllConfigurations() {
-        // N'exécute que si le modèle SEMOIS est configuré
-        ModelReapprovisionnement model = getConfiguredModel();
-        if (model != ModelReapprovisionnement.SEMOIS) {
-            LOG.info("Modèle {} configuré, scheduler SEMOIS ignoré", model);
+        Optional<AppConfiguration> semoisConfig = getLastSemoisCalculationDate();
+        LocalDate lastSemoisCalculationDate = semoisConfig
+            .map(config -> LocalDate.parse(config.getValue()))
+            .orElse(null);
+        if (lastSemoisCalculationDate != null && lastSemoisCalculationDate.isEqual(LocalDate.now())) {
+            LOG.info("Recalcul SEMOIS déjà effectué aujourd'hui ({}), skip", lastSemoisCalculationDate);
             return;
         }
+        ModelReapprovisionnement model = getConfiguredModel();
+        boolean isSemoisModel = model == ModelReapprovisionnement.SEMOIS;
 
-        LocalDate lastReapproDate = getLastReapproDate()
+        Optional<AppConfiguration> lastReapproConfigOpt = getLastReapproDate();
+        LocalDate lastReapproDate = lastReapproConfigOpt
             .map(config -> LocalDate.parse(config.getValue()))
             .orElse(null);
 
@@ -416,10 +422,10 @@ public class SemoisCalculationService {
         refreshMaterializedView();
 
         // Mettre à jour la date du dernier recalcul
-        if (canUpdateProduitReapproInfo) {
-            updateLastReapproDate();
+        if (canUpdateProduitReapproInfo && isSemoisModel) {
+            updateAppConfigurationDate(lastReapproConfigOpt.orElse(null));
         }
-
+        updateAppConfigurationDate(semoisConfig.orElse(null));
         long duration = System.currentTimeMillis() - startTime;
         LOG.info("Recalcul SEMOIS terminé en {}ms - Total: {} produits - Succès: {}, Erreurs: {}",
             duration, totalCount, totalSuccess.get(), totalErrors.get());
@@ -429,7 +435,7 @@ public class SemoisCalculationService {
      * Traite un batch de configurations SEMOIS dans une transaction indépendante.
      * Permet le commit après chaque batch pour éviter les timeouts de transaction.
      *
-     * @param configs                      Liste des configurations à traiter
+     * @param configs                     Liste des configurations à traiter
      * @param canUpdateProduitReapproInfo Si true, met à jour qtyAppro et qtySeuilMini du produit
      * @return Résultat du traitement (nombre de succès et erreurs)
      */
@@ -633,7 +639,6 @@ public class SemoisCalculationService {
 
     private ReapproCalculationResult recalculateProduit(SemoisConfiguration config) {
 
-
         Produit produit = config.getProduit();
         Integer produitId = produit.getId();
         int vmm = calculateVMM(produitId, config.getNbMoisHistorique());
@@ -665,7 +670,9 @@ public class SemoisCalculationService {
         return appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO);
     }
 
-
+    private Optional<AppConfiguration> getLastSemoisCalculationDate() {
+        return appConfigurationService.findOneById(APP_LAST_DAY_SEMOIS_CALCULATION);
+    }
 
     private SemoisSuggestionDTO getSuggestionForProduct(SemoisConfiguration config) {
         Produit produit = config.getProduit();
@@ -695,8 +702,6 @@ public class SemoisCalculationService {
             config.getDateDernierCalcul()
         );
     }
-
-
 
 
     @Transactional(readOnly = true)
@@ -731,9 +736,26 @@ public class SemoisCalculationService {
             .map(this::mapToDTO)
             .toList();
     }
+
     private SemoisSuggestionDTO mapToDTO(Object[] row) {
         // Mapper résultats de la vue matérialisée vers DTO
         // Implementation selon structure de mv_semois_suggestion
         return null; // TODO: Implement mapping
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    protected void updateAppConfigurationDate(AppConfiguration config) {
+
+        try {
+            if (nonNull(config)) {
+                config.setValue(LocalDate.now().toString());
+                config.setUpdated(LocalDateTime.now());
+                appConfigurationService.update(config);
+            }
+
+            LOG.info("Date dernier recalcul mise à jour: {}", LocalDate.now());
+        } catch (Exception e) {
+            LOG.error(" Erreur mise à jour date dernier recalcul", e);
+        }
     }
 }

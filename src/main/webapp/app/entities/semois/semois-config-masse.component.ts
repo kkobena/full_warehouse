@@ -68,9 +68,8 @@ export default class SemoisConfigMasseComponent implements OnInit {
   ngOnInit(): void {
     this.loadAggregationStatus();
   }
-
-  goBack(): void {
-    this.router.navigate(['/semois/suggestions']);
+  previousState(): void {
+    window.history.back();
   }
 
 

@@ -1,0 +1,18 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/dashboard-common';
+.table-danger {
+  background-color: rgba(255, 235, 238, 0.3) !important;
+
+  &:hover {
+    background-color: rgba(255, 235, 238, 0.5) !important;
+  }
+}
+
+.table-warning {
+  background-color: rgba(255, 243, 224, 0.3) !important;
+
+  &:hover {
+    background-color: rgba(255, 243, 224, 0.5) !important;
+  }
+}

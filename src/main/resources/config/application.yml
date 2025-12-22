@@ -134,6 +134,20 @@ info:
   display-ribbon-on-profiles: 'dev'
 
 pharma-smart:
+  semois:
+    # Délai de gel des agrégations mensuelles (en jours)
+    # Fenêtre de correction pour annulations tardives après fin de mois
+    freeze-delay-days: 30
+
+    # Agrégation quotidienne des ventes mensuelles (2h du matin)
+    # Format cron: secondes minutes heures jour mois jour-semaine
+    aggregation-cron: '0 0 2 * * *'
+
+    # Recalcul quotidien SEMOIS pour tous les produits (3h du matin)
+    # Exécuté après l'agrégation des ventes
+    recalculation-cron: '0 0 3 * * *'
+    recalculation-delay-ms: 86400000 # Délai de 24 heure avant le recalcul
+    batch-size: 100 # Taille du lot pour le traitement par lots
   clientApp:
     name: 'pharma-smart'
   # OAuth2 Authorization Server settings
@@ -151,7 +165,8 @@ pharma-smart:
       mobile: 7776000 # 90 days
       desktop: 31536000 # 365 days
 
-# application:
+
+
 port-com:
 legacy-url: http://localhost:9090/laborex
 mail:

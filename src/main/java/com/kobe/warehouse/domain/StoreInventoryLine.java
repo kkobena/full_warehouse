@@ -85,9 +85,8 @@ public class StoreInventoryLine implements Serializable {
         return lastUnitPrice;
     }
 
-    public StoreInventoryLine setLastUnitPrice(Integer lastUnitPrice) {
+    public void setLastUnitPrice(Integer lastUnitPrice) {
         this.lastUnitPrice = lastUnitPrice;
-        return this;
     }
 
     public Integer getQuantityOnHand() {

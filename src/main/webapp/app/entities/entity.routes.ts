@@ -177,6 +177,11 @@ const routes: Routes = [
     data: { pageTitle: 'Rapports' },
     loadChildren: () => import('./reports/reports.route'),
   },
+  {
+    path: 'semois',
+    data: { pageTitle: 'SEMOIS - Gestion Stock' },
+    loadChildren: () => import('./semois/semois.route'),
+  },
 ];
 
 export default routes;

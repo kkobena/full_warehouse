@@ -33,6 +33,7 @@ import com.kobe.warehouse.service.utils.FileUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -490,12 +491,15 @@ public class CommandServiceImpl implements CommandService {
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
 
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord csvRecord : parser) {
                 if (totalItemCount > 0) {
@@ -577,11 +581,15 @@ public class CommandServiceImpl implements CommandService {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord csvRecord : parser) {
                 if (totalItemCount > 0) {
@@ -662,12 +670,16 @@ public class CommandServiceImpl implements CommandService {
         int totalItemCount = 0;
         int succesCount = 0;
 
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
-        ) {
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
+        ){
             for (CSVRecord csvRecord : parser) {
                 String codeProduit = csvRecord.get(1);
                 totalItemCount++;
@@ -731,13 +743,16 @@ public class CommandServiceImpl implements CommandService {
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
 
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
-        ) {
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
+        ){
             for (CSVRecord csvRecord : parser) {
                 String codeProduit = csvRecord.get(2);
                 totalItemCount++;
@@ -944,11 +959,15 @@ public class CommandServiceImpl implements CommandService {
 
     private VerificationResponseCommandeDTO verificationCommandeCsv(MultipartFile multipartFile, Commande commande) {
         List<Pair<String, Integer>> records = new ArrayList<>();
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord record : parser) {
                 String code = record.get(0);
@@ -1139,11 +1158,15 @@ public class CommandServiceImpl implements CommandService {
         int totalItemCount = 0;
         int succesCount = 0;
         int isFirstLigne;
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord csvRecord : parser) {
                 isFirstLigne = skipFirstLigne(csvRecord, totalItemCount);
@@ -1221,11 +1244,15 @@ public class CommandServiceImpl implements CommandService {
         int totalItemCount = 0;
         int succesCount = 0;
         int isFirstLigne;
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').get()
-            )
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord csvRecord : parser) {
                 isFirstLigne = skipFirstLigne(csvRecord, totalItemCount);

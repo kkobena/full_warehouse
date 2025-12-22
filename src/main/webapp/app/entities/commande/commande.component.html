@@ -70,6 +70,7 @@
                 <ng-template ngbNavContent>
                   <jhi-suggestion
                     (selectionLength)="updateSelectionLength($event)"
+                    (activeTabChange)="onSuggestionTabChange($event)"
                     [fournisseurId]="selectFournisseurId"
                     [selectedtypeSuggession]="selectedtypeSuggession"
                   ></jhi-suggestion>
@@ -191,7 +192,7 @@
                   </p-floatlabel>
                 }
 
-                @if (active === 'SUGGESTIONS') {
+                @if (active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-commandes') {
                   <p-select
                     [style]="{ 'max-width': '170px' }"
                     (onChange)="onTypeSuggestionChange($event)"
@@ -204,7 +205,7 @@
                     appendTo="body"
                   />
                 }
-                @if (active === 'SUGGESTIONS' || active === 'LIST_BONS') {
+                @if ((active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-commandes') || active === 'LIST_BONS') {
                   <p-select
                     (onChange)="onFournisseurChange($event)"
                     [filter]="false"
@@ -215,6 +216,31 @@
                     placeholder="Séléctionner un fournisseur"
                     appendTo="body"
                   />
+                }
+
+                <!-- Filtres SEMOIS -->
+                @if (active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-semois') {
+                  <p-select
+                    [(ngModel)]="semoisSelectedClasse"
+                    [options]="semoisClasseOptions"
+                    placeholder="Toutes les classes"
+                    optionLabel="label"
+                    optionValue="value"
+                    appendTo="body"
+                    [showClear]="true"
+                    (onChange)="onSemoisFilterChange()"
+                  />
+                  <p-select
+                    [(ngModel)]="semoisUrgenceFilter"
+                    [options]="semoisUrgenceOptions"
+                    placeholder="Tous les niveaux"
+                    optionLabel="label"
+                    optionValue="value"
+                    appendTo="body"
+                    [showClear]="true"
+                    (onChange)="onSemoisFilterChange()"
+                  />
+
                 }
               </div>
             </ng-template>
@@ -291,6 +317,32 @@
                       label="Supprimer"
                       pTooltip="Supprimer"
                       severity="danger"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+
+                  <!-- Boutons SEMOIS -->
+                  @if (active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-semois') {
+
+                    <p-button
+                      (click)="onSemoisMassConfigClick()"
+                      [raised]="true"
+                      icon="pi pi-cog"
+                      label="Configuration en masse"
+                      pTooltip="Configuration SEMOIS en masse"
+                      severity="secondary"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+
+                    <p-button
+                      (click)="onSemoisHelpClick()"
+                      [raised]="true"
+                      icon="pi pi-question-circle"
+                      label="Aide"
+                      pTooltip="Aide"
+                      severity="secondary"
                       tooltipPosition="top"
                       type="button"
                     />

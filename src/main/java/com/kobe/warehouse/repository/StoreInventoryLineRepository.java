@@ -2,9 +2,12 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventoryLine;
+
 import java.util.List;
 import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +25,7 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
 
     void deleteAllByStoreInventoryId(Long storeInventoryId);
 
+    @Modifying
     @Procedure(name = "StoreInventoryLine.proc_close_inventory")
     int procCloseInventory(@Param("store_inventory_id") Integer inventoryId);
 

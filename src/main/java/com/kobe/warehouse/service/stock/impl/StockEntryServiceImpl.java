@@ -42,6 +42,7 @@ import com.kobe.warehouse.service.utils.ServiceUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -625,13 +626,16 @@ public class StockEntryServiceImpl implements StockEntryService {
         int totalItemCount = 0;
         int succesCount = 0;
         int fournisseurId = commande.getFournisseur().getId();
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
 
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
-            )
-        ) {
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
+        ){
             for (CSVRecord csvRecord : parser) {
                 OrderItem orderItem = recordParser.apply(csvRecord, totalItemCount);
                 totalItemCount++;

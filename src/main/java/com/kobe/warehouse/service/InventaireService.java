@@ -60,7 +60,9 @@ public interface InventaireService {
     List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId);
 
     void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
+    InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord);
 
+    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException;
     default String buildBaseQuery(String baseQuery, StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
         if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
             if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
@@ -145,7 +147,5 @@ public interface InventaireService {
         };
     }
 
-    InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord);
 
-    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException;
 }

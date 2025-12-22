@@ -1,0 +1,179 @@
+<div class="pharma-smart-content p-2">
+  <!-- Toolbar Header -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-cog"></i>
+      <span class="pharma-toolbar-title">Configuration du Modèle de Réapprovisionnement</span>
+    </div>
+    <p-toolbar>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true" (click)="goBack()"> </p-button>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Messages -->
+  @if (saveSuccess()) {
+    <div class="alert alert-success mt-3">
+      <i class="pi pi-check-circle me-2"></i>
+      <strong>Succès !</strong> La configuration a été enregistrée avec succès.
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger mt-3">
+      <i class="pi pi-times-circle me-2"></i>
+      <strong>Erreur !</strong> {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Configuration Card -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <h5 class="card-title mb-4">
+        <i class="pi pi-sliders-h me-2 text-primary"></i>
+        Choix du Modèle de Calcul
+      </h5>
+
+      <div class="alert alert-info mb-4">
+        <strong><i class="pi pi-info-circle me-2"></i>Information :</strong>
+        <p class="mb-0 mt-2">
+          Le modèle de réapprovisionnement détermine comment sont calculés les seuils de stock minimum (<strong>qtySeuilMini</strong>) et les quantités de
+          réapprovisionnement (<strong>qtyAppro</strong>) pour vos produits.
+        </p>
+        <p class="mb-0 mt-2">
+          Cette configuration s'applique globalement à tous les produits lors du calcul automatique quotidien (entre 9h et 11h).
+        </p>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center p-5">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+          <p class="mt-3 text-muted">Chargement de la configuration...</p>
+        </div>
+      } @else {
+        <div class="mb-4">
+          <p class="text-muted mb-3">Sélectionnez le modèle à utiliser :</p>
+
+          <div class="model-options">
+            @for (model of availableModels(); track model.value) {
+              <div class="model-option-card" [class.selected]="selectedModel() === model.value">
+                <div class="model-option-header">
+                  <p-radioButton
+                    name="modelReappro"
+                    [value]="model.value"
+                    [(ngModel)]="selectedModel"
+                    [inputId]="'model-' + model.value"
+                  />
+                  <label [for]="'model-' + model.value" class="model-option-label">
+                    {{ model.label }}
+                  </label>
+                  @if (currentModel() === model.value) {
+                    <span class="badge bg-success ms-2">Actuel</span>
+                  }
+                </div>
+                <p class="model-option-description">{{ model.description }}</p>
+
+                @if (model.value === 'CLASSIQUE') {
+                  <div class="model-option-details">
+                    <p class="mb-2"><strong>Fonctionnement :</strong></p>
+                    <ul class="mb-0">
+                      <li>Calcul basé sur les ventes des 3 derniers mois</li>
+                      <li>Moyenne simple des quantités vendues</li>
+                      <li>Stock mini = Moyenne × Nombre de jours de stock</li>
+                      <li>Quantité réappro = Moyenne × Délai de réapprovisionnement</li>
+                    </ul>
+                  </div>
+                }
+
+                @if (model.value === 'SEMOIS') {
+                  <div class="model-option-details">
+                    <p class="mb-2"><strong>Fonctionnement :</strong></p>
+                    <ul class="mb-0">
+                      <li>Ventes Mensuelles Moyennes (VMM) avec pondération</li>
+                      <li>Classification par criticité (A+, A, B, C, D)</li>
+                      <li>Marge de sécurité = VMM × (Délai × Coefficient / 30) × Facteur saisonnier</li>
+                      <li>Stock objectif = VMM + Marge de sécurité</li>
+                      <li>Stock mini = Marge de sécurité</li>
+                      <li>Quantité réappro = Stock objectif</li>
+                    </ul>
+                    <div class="alert alert-warning mt-2 mb-0">
+                      <i class="pi pi-exclamation-triangle me-2"></i>
+                      <strong>Prérequis :</strong> Nécessite la configuration SEMOIS pour chaque produit (classe de criticité, délai de livraison, etc.).
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-end gap-2">
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="goBack()" [disabled]="isSaving()" />
+          <p-button
+            label="Enregistrer"
+            icon="pi pi-save"
+            severity="primary"
+            (onClick)="saveConfiguration()"
+            [loading]="isSaving()"
+            [disabled]="!hasChanges()"
+          />
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Info complémentaires -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <h6 class="text-primary mb-3">
+        <i class="pi pi-question-circle me-2"></i>
+        Quand utiliser chaque modèle ?
+      </h6>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card border-primary h-100">
+            <div class="card-body">
+              <h6 class="card-title text-primary">Modèle Classique</h6>
+              <p class="card-text">
+                <strong>Recommandé si :</strong>
+              </p>
+              <ul class="text-sm">
+                <li>Vous débutez avec le système</li>
+                <li>Vos produits ont des ventes régulières</li>
+                <li>Vous n'avez pas le temps de configurer SEMOIS</li>
+                <li>Vous voulez un système simple et automatique</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <div class="card border-success h-100">
+            <div class="card-body">
+              <h6 class="card-title text-success">Modèle SEMOIS</h6>
+              <p class="card-text">
+                <strong>Recommandé si :</strong>
+              </p>
+              <ul class="text-sm">
+                <li>Vous avez des produits avec des criticités différentes</li>
+                <li>Vous voulez optimiser vos stocks selon l'importance des produits</li>
+                <li>Vous gérez des produits à forte saisonnalité</li>
+                <li>Vous voulez minimiser les ruptures sur les produits critiques</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-secondary mb-0">
+        <strong><i class="pi pi-calendar me-2"></i>Calcul automatique :</strong>
+        Le réapprovisionnement est recalculé automatiquement tous les jours entre 9h et 11h. Le modèle sélectionné sera appliqué lors du prochain calcul.
+      </div>
+    </div>
+  </div>
+</div>

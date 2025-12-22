@@ -20,4 +20,38 @@ public enum CategorieABC {
     public double getZ() {
         return z;
     }
+
+    /**
+     * Convertit CategorieABC vers ClasseCriticite avec mapping intelligent.
+     * Par défaut: A → A, B → B, C → C
+     * Peut être surchargé par configuration produit.
+     *
+     * @return La classe de criticité équivalente
+     */
+    public ClasseCriticite toClasseCriticite() {
+        return switch (this) {
+            case A -> ClasseCriticite.A;
+            case B -> ClasseCriticite.B;
+            case C -> ClasseCriticite.C;
+        };
+    }
+
+    /**
+     * Convertit ClasseCriticite vers CategorieABC (perte d'information possible).
+     * Mapping: A+ → A, A → A, B → B, C → C, D → C
+     *
+     * @param classeCriticite La classe de criticité à convertir
+     * @return La catégorie ABC équivalente
+     */
+    public static CategorieABC fromClasseCriticite(ClasseCriticite classeCriticite) {
+        if (classeCriticite == null) {
+            return C; // Par défaut
+        }
+
+        return switch (classeCriticite) {
+            case A_PLUS, A -> A;
+            case B -> B;
+            case C, D -> C;
+        };
+    }
 }

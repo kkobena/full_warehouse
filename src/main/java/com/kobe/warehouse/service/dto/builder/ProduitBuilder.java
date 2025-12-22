@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
+import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -80,7 +81,7 @@ public final class ProduitBuilder {
         }
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
         if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())) {
-            produit.setCategorie(CategorieABC.valueOf(produitDTO.getCategorie()));
+            produit.setClasseCriticite(ClasseCriticite.valueOf(produitDTO.getCategorie()));
         }
         produit.setDci(dciFromId(produitDTO.getDciId()));
 
@@ -114,8 +115,8 @@ public final class ProduitBuilder {
     }
 
     private static void updateCategorieABC(ProduitDTO produitDTO, Produit produit) {
-        if (produit.getCategorie() != null) {
-            produitDTO.setCategorie(produit.getCategorie().name());
+        if (produit.getClasseCriticite() != null) {
+            produitDTO.setCategorie(produit.getClasseCriticite().name());
         }
     }
 

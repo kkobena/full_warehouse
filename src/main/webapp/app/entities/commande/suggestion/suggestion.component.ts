@@ -2,7 +2,7 @@ import { Component, inject, input, OnDestroy, OnInit, output, viewChild } from '
 import { SuggestionService } from './suggestion.service';
 import { Suggestion } from './model/suggestion.model';
 import { RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -17,16 +17,20 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import SemoisSuggestionsComponent from '../../semois/semois-suggestions.component';
+import { ClasseCriticite } from '../../../shared/model/semois/classe-criticite.model';
 
 @Component({
   selector: 'jhi-suggestion',
-  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent],
+  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent, NgbNavModule, SemoisSuggestionsComponent],
   templateUrl: './suggestion.component.html',
   styleUrl: './suggestion.component.scss',
 })
 export class SuggestionComponent implements OnInit, OnDestroy {
+  activeTab = 'suggestions-commandes'; // Tab actif par défaut
   readonly search = input('');
   readonly selectionLength = output<number>();
+  readonly activeTabChange = output<string>(); // Émet le changement de tab vers le parent
   readonly selectedtypeSuggession = input<string>('ALL');
   readonly fournisseurId = input<number>(null);
   protected suggestions: Suggestion[] = [];
@@ -47,9 +51,15 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NgbModal);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly semoisComponent = viewChild(SemoisSuggestionsComponent);
 
   constructor() {
     this.rowExpandMode = 'single';
+  }
+
+  // Méthodes pour accéder au composant SEMOIS (appelées depuis le parent)
+  getSemoisComponent(): SemoisSuggestionsComponent | undefined {
+    return this.semoisComponent();
   }
 
   ngOnDestroy(): void {
@@ -59,6 +69,13 @@ export class SuggestionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.onSearch();
+    // Émettre le tab actif initial
+    this.activeTabChange.emit(this.activeTab);
+  }
+
+  onTabChange(event: any): void {
+    this.activeTab = event.nextId;
+    this.activeTabChange.emit(this.activeTab);
   }
 
   loadPage(page?: number): void {

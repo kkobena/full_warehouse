@@ -1,95 +1,122 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 
-@if (suggestions && suggestions.length > 0) {
-  <p-table
-    class="pharma-table"
-    (onLazyLoad)="lazyLoading($event)"
-    (onRowSelect)="onRowSelected()"
-    (onRowUnselect)="onRowUnselect()"
-    [(selection)]="selections"
-    [lazy]="true"
-    [loading]="loading"
-    [paginator]="true"
-    [rowExpandMode]="rowExpandMode"
-    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [showCurrentPageReport]="false"
-    [totalRecords]="totalItems"
-    [value]="suggestions"
-    dataKey="id"
-    stripedRows="true"
-    selectionMode="multiple"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Type</th>
-        <th>Fournisseur</th>
-        <th>Référence</th>
-        <th>Date</th>
-        <th>Statut</th>
-        <th class="table-all-checkbos">
-          <p-tableHeaderCheckbox (click)="selectAllClik()"></p-tableHeaderCheckbox>
-        </th>
-        <th style="width: 20%"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-suggestion #body>
-      <tr>
-        <td>
-          <span class="pharma-badge pharma-badge-info">{{ suggestion.typeSuggession }}</span>
-        </td>
-        <td class="pharma-entity-name">{{ suggestion.fournisseurLibelle }}</td>
-        <td>{{ suggestion.suggessionReference }}</td>
-        <td>{{ suggestion.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td>
-          <span class="pharma-badge pharma-badge-info">{{ suggestion.statutLibelle }}</span>
-        </td>
-        <td class="text-center">
-          <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
-        </td>
-        <td class="text-right">
-          <div class="btn-group">
-            <p-button
-              [routerLink]="['/commande', suggestion.id, 'suggestion']"
-              severity="success"
-              icon="pi pi-pencil"
-              [rounded]="true"
-              pTooltip="Editer"
-              [text]="true"
-            >
-            </p-button>
-            <p-button
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-fast-forward"
-              severity="info"
-              type="button"
-              pTooltip="Commander"
-            ></p-button>
-            <p-button
-              (click)="sanitize(suggestion.id)"
-              [rounded]="true"
-              severity="warn"
-              icon="pi pi-times"
-              pTooltip="Supprimer les produits désactivés"
-              [text]="true"
-            />
-            <p-button
-              (click)="delete(suggestion.id)"
-              [rounded]="true"
-              severity="danger"
-              icon="pi pi-trash"
-              pTooltip="Supprimer"
-              [text]="true"
-            />
+<div class="pharma-nav-tabs-container">
+  <div #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+    <!-- Onglet 1: Suggestions Commandes (par défaut) -->
+    <ng-container ngbNavItem="suggestions-commandes">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-lightbulb me-2"></i>
+        <span>Suggestions Commandes</span>
+      </a>
+      <ng-template ngbNavContent>
+        @if (suggestions && suggestions.length > 0) {
+          <p-table
+            class="pharma-table"
+            (onLazyLoad)="lazyLoading($event)"
+            (onRowSelect)="onRowSelected()"
+            (onRowUnselect)="onRowUnselect()"
+            [(selection)]="selections"
+            [lazy]="true"
+            [loading]="loading"
+            [paginator]="true"
+            [rowExpandMode]="rowExpandMode"
+            [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+            [rows]="itemsPerPage"
+            [showCurrentPageReport]="false"
+            [totalRecords]="totalItems"
+            [value]="suggestions"
+            dataKey="id"
+            stripedRows="true"
+            selectionMode="multiple"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Type</th>
+                <th>Fournisseur</th>
+                <th>Référence</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th class="table-all-checkbos">
+                  <p-tableHeaderCheckbox (click)="selectAllClik()"></p-tableHeaderCheckbox>
+                </th>
+                <th style="width: 20%"></th>
+              </tr>
+            </ng-template>
+            <ng-template let-suggestion #body>
+              <tr>
+                <td>
+                  <span class="pharma-badge pharma-badge-info">{{ suggestion.typeSuggession }}</span>
+                </td>
+                <td class="pharma-entity-name">{{ suggestion.fournisseurLibelle }}</td>
+                <td>{{ suggestion.suggessionReference }}</td>
+                <td>{{ suggestion.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                <td>
+                  <span class="pharma-badge pharma-badge-info">{{ suggestion.statutLibelle }}</span>
+                </td>
+                <td class="text-center">
+                  <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
+                </td>
+                <td class="text-right">
+                  <div class="btn-group">
+                    <p-button
+                      [routerLink]="['/commande', suggestion.id, 'suggestion']"
+                      severity="success"
+                      icon="pi pi-pencil"
+                      [rounded]="true"
+                      pTooltip="Editer"
+                      [text]="true"
+                    >
+                    </p-button>
+                    <p-button
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-fast-forward"
+                      severity="info"
+                      type="button"
+                      pTooltip="Commander"
+                    ></p-button>
+                    <p-button
+                      (click)="sanitize(suggestion.id)"
+                      [rounded]="true"
+                      severity="warn"
+                      icon="pi pi-times"
+                      pTooltip="Supprimer les produits désactivés"
+                      [text]="true"
+                    />
+                    <p-button
+                      (click)="delete(suggestion.id)"
+                      [rounded]="true"
+                      severity="danger"
+                      icon="pi pi-trash"
+                      pTooltip="Supprimer"
+                      [text]="true"
+                    />
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        } @else {
+          <div class="alert alert-warning" id="no-result">
+            <span>Aucune donnée trouvée</span>
           </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-} @else {
-  <div class="alert alert-warning" id="no-result">
-    <span>Aucune donnée trouvée</span>
+        }
+        <jhi-spinner #spinner></jhi-spinner>
+      </ng-template>
+    </ng-container>
+
+    <!-- Onglet 2: Suggestions SEMOIS -->
+    <ng-container ngbNavItem="suggestions-semois">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-chart-line me-2"></i>
+        <span>Suggestions SEMOIS</span>
+      </a>
+      <ng-template ngbNavContent>
+        <jhi-semois-suggestions></jhi-semois-suggestions>
+      </ng-template>
+    </ng-container>
   </div>
-}
-<jhi-spinner #spinner></jhi-spinner>
+
+  <!-- Tab content -->
+  <div [ngbNavOutlet]="nav" class="pharma-nav-tabs-outlet mt-2"></div>
+</div>

@@ -1,0 +1,84 @@
+import { ClasseCriticite } from './classe-criticite.model';
+
+/**
+ * Configuration SEMOIS pour un produit
+ */
+export interface ISemoisConfiguration {
+  id?: number;
+  produitId?: number;
+  classeCriticite?: ClasseCriticite;
+  coefficientSecurite?: number;
+  nbMoisHistorique?: number;
+  delaiLivraisonJours?: number;
+  facteurSaisonnierActuel?: number;
+  limitePeremption?: boolean;
+  vmmCalcule?: number;
+  stockObjectifCalcule?: number;
+  dateDernierCalcul?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class SemoisConfiguration implements ISemoisConfiguration {
+  constructor(
+    public id?: number,
+    public produitId?: number,
+    public classeCriticite?: ClasseCriticite,
+    public coefficientSecurite?: number,
+    public nbMoisHistorique?: number,
+    public delaiLivraisonJours?: number,
+    public facteurSaisonnierActuel?: number,
+    public limitePeremption?: boolean,
+    public vmmCalcule?: number,
+    public stockObjectifCalcule?: number,
+    public dateDernierCalcul?: Date,
+    public createdAt?: Date,
+    public updatedAt?: Date
+  ) {
+    this.limitePeremption = this.limitePeremption ?? false;
+    this.facteurSaisonnierActuel = this.facteurSaisonnierActuel ?? 1.0;
+    this.nbMoisHistorique = this.nbMoisHistorique ?? 6;
+    this.delaiLivraisonJours = this.delaiLivraisonJours ?? 7;
+  }
+}
+
+/**
+ * Request pour initialiser une configuration
+ */
+export interface IInitConfigurationRequest {
+  produitId: number;
+  classeCriticite?: ClasseCriticite;
+}
+
+/**
+ * Request pour import historique
+ */
+export interface IImportHistoricalRequest {
+  nbMois: number;
+}
+
+/**
+ * Statut de l'agrégation mensuelle
+ */
+export interface IAggregationStatus {
+  currentMonth: string;
+  currentMonthProductCount: number;
+  lastMonth: string;
+  lastMonthProductCount: number;
+  lastMonthFrozen: boolean;
+  freezeDelayDays: number;
+}
+
+/**
+ * Response générique
+ */
+export interface IMessageResponse {
+  message: string;
+}
+
+/**
+ * Response initialisation en masse
+ */
+export interface IInitAllResponse {
+  configurationsCreated: number;
+}

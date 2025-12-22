@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.stock.impl;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.HistoriqueInventaire;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
@@ -14,6 +15,7 @@ import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.StoreInventory_;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
+import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
@@ -52,8 +54,10 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -68,6 +72,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -99,9 +104,8 @@ public class InventaireServiceImpl implements InventaireService {
     private final RayonRepository rayonRepository;
     private final InventoryReportReportService inventoryReportService;
     private final EntityManager em;
-    private final ProduitService produitService;
     private final HistoriqueInventaireService historiqueInventaireService;
-    private final InventoryTransactionService inventoryTransactionService;
+
 
     public InventaireServiceImpl(
         UserService userService,
@@ -112,9 +116,7 @@ public class InventaireServiceImpl implements InventaireService {
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
         EntityManager em,
-        ProduitService produitService,
-        HistoriqueInventaireService historiqueInventaireService,
-        InventoryTransactionService inventoryTransactionService
+        HistoriqueInventaireService historiqueInventaireService
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -124,9 +126,7 @@ public class InventaireServiceImpl implements InventaireService {
         this.rayonRepository = rayonRepository;
         this.inventoryReportService = inventoryReportService;
         this.em = em;
-        this.produitService = produitService;
         this.historiqueInventaireService = historiqueInventaireService;
-        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     @Override
@@ -165,11 +165,15 @@ public class InventaireServiceImpl implements InventaireService {
     @Override
     public void importDetail(Long storeInventoryId, MultipartFile multipartFile) {
         Map<String, Integer> codeCipQuantity = new HashMap<>();
-        try (
-            CSVParser parser = new CSVParser(
-                new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
-            )
+        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+            .setDelimiter(';')
+            .get();
+
+        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
+             CSVParser parser = CSVParser.builder()
+                 .setReader(reader)
+                 .setFormat(csvFormat)
+                 .get()
         ) {
             for (CSVRecord record : parser) {
                 String code = record.get(0);
@@ -350,7 +354,28 @@ public class InventaireServiceImpl implements InventaireService {
 
     @Override
     public int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException {
-        return 0;
+        StoreInventory storeInventory = buildStoreInventory(createInventoryFromProduitIds.storeInventoryRecord());
+        storeInventory = this.storeInventoryRepository.save(storeInventory);
+        AtomicInteger count = new AtomicInteger(0);
+        StoreInventory finalStoreInventory = storeInventory;
+        createInventoryFromProduitIds.produitIds()
+            .forEach(id -> {
+                buildStoreInventoryLineFromProduit(new Produit().id(id), finalStoreInventory);
+                count.getAndIncrement();
+            });
+        storeInventoryLineRepository.saveAll(storeInventory.getStoreInventoryLines());
+        return count.get();
+    }
+
+    private void buildStoreInventoryLineFromProduit(Produit produit, StoreInventory storeInventory) {
+        StoreInventoryLine storeInventoryLine = new StoreInventoryLine();
+        storeInventoryLine.setStoreInventory(storeInventory);
+        storeInventoryLine.setProduit(produit);
+        storeInventoryLine.setQuantityInit(0);
+        storeInventoryLine.setQuantityOnHand(0);
+        storeInventoryLine.setGap(0);
+        storeInventoryLine.setUpdatedAt(LocalDateTime.now());
+        storeInventory.getStoreInventoryLines().add(storeInventoryLine);
     }
 
     private Map<String, InventoryExportSummary> buildSummaries(List<StoreInventoryGroupExport> datas) {
@@ -511,7 +536,7 @@ public class InventaireServiceImpl implements InventaireService {
 
         storeInventoryLine = storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
         return new StoreInventoryLineRecord(
-            storeInventoryLineDTO.getProduitId().intValue(),
+            storeInventoryLineDTO.getProduitId(),
             storeInventoryLineDTO.getProduitCip(),
             storeInventoryLineDTO.getProduitEan(),
             storeInventoryLineDTO.getProduitLibelle(),
@@ -533,6 +558,13 @@ public class InventaireServiceImpl implements InventaireService {
 
     @Override
     public StoreInventoryDTO create(StoreInventoryRecord storeInventoryRecord) {
+        StoreInventory storeInventory = buildStoreInventory(storeInventoryRecord);
+        storeInventory = this.storeInventoryRepository.saveAndFlush(storeInventory);
+        insertItems(storeInventory, storeInventoryRecord);
+        return new StoreInventoryDTO(storeInventory);
+    }
+
+    private StoreInventory buildStoreInventory(StoreInventoryRecord storeInventoryRecord) {
         StoreInventory storeInventory = new StoreInventory();
         storeInventory.createdAt(LocalDateTime.now());
         storeInventory.updatedAt(storeInventory.getCreatedAt());
@@ -557,25 +589,25 @@ public class InventaireServiceImpl implements InventaireService {
         if (Objects.isNull(storeInventory.getStorage())) {
             storeInventory.setStorage(this.storageService.getOne(storeInventoryRecord.storage()));
         }
-        storeInventory = this.storeInventoryRepository.saveAndFlush(storeInventory);
-        insertItems(storeInventory, storeInventoryRecord);
-        return new StoreInventoryDTO(storeInventory);
+        return storeInventory;
     }
 
     private String buildInsertQuery(StoreInventory storeInventory, StoreInventoryRecord storeInventoryRecord) {
         return switch (storeInventory.getInventoryCategory()) {
-            case MAGASIN -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
-                "{famille_close}",
-                ""
-            );
+            case MAGASIN ->
+                String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
+                    "{famille_close}",
+                    ""
+                );
             case RAYON -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId()) +
-            String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
+                String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
             case STORAGE -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId()) +
-            String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
-            case FAMILLY -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
-                "{famille_close}",
-                String.format(" AND p.famille_id=%d", storeInventoryRecord.famillyId())
-            );
+                String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
+            case FAMILLY ->
+                String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
+                    "{famille_close}",
+                    String.format(" AND p.famille_id=%d", storeInventoryRecord.famillyId())
+                );
         };
     }
 
@@ -715,14 +747,14 @@ public class InventaireServiceImpl implements InventaireService {
     private void updateAll() {
         AtomicInteger atomicInteger = new AtomicInteger(5);
         this.storeInventoryLineRepository.findAllByStoreInventoryId(-1L).forEach(storeInventory -> {
-                StoreInventoryLineDTO dto = new StoreInventoryLineDTO();
-                dto.setId(storeInventory.getId());
-                dto.setQuantitySold(0);
-                dto.setQuantityInit(0);
-                dto.setProduitId(0);
-                dto.setQuantityOnHand(atomicInteger.getAndIncrement());
-                updateQuantityOnHand(dto);
-            });
+            StoreInventoryLineDTO dto = new StoreInventoryLineDTO();
+            dto.setId(storeInventory.getId());
+            dto.setQuantitySold(0);
+            dto.setQuantityInit(0);
+            dto.setProduitId(0);
+            dto.setQuantityOnHand(atomicInteger.getAndIncrement());
+            updateQuantityOnHand(dto);
+        });
     }
 
     // @EventListener(ApplicationReadyEvent.class)

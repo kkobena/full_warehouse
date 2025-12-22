@@ -10,8 +10,7 @@ public final class EntityConstant {
     public static final long SANS_EMPLACEMENT = 1;
     public static final int DEFAULT_STORAGE = 1;
     public static final String DEFAULT_MAIN_STORAGE = "DEFAULT_MAIN_STORAGE";
-    public static final long POINT_OF_STORAGE = 2L;
-    public static final long DEFAULT_MAGASIN = 1L;
+    public static final long DEFAULT_MAGASIN = 1;
     public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
     public static final String APP_MONO_STOCK = "APP_MONO_STOCK";
     public static final String APP_MODE_PAYMENTS = "APP_MODE_PAYMENTS";
@@ -38,6 +37,7 @@ public final class EntityConstant {
     public static final String APP_LIMIT_NBR_DAY_REAPPRO = "APP_LIMIT_NBR_DAY_REAPPRO";
     public static final String APP_LAST_DAY_REAPPRO = "APP_LAST_DAY_REAPPRO";
     public static final String APP_DENOMINATEUR_REAPPRO = "APP_DENOMINATEUR_REAPPRO";
+    public static final String APP_MODEL_REAPPRO = "APP_MODEL_REAPPRO"; // Modèle de calcul du réapprovisionnement (CLASSIQUE ou SEMOIS)
     public static final int APP_DAY_STOCK_DEFAULT_VALUE = 10;
     public static final int APP_LIMIT_NBR_DAY_REAPPRO_DEFAULT_VALUE = 8;
     public static final int APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE = 84;

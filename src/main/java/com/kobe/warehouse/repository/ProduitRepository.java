@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
+import com.kobe.warehouse.service.dto.projection.Id;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.StringUtils.hasText;

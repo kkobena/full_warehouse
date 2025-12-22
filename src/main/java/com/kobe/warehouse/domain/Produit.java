@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
+import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -25,6 +26,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -32,7 +34,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
@@ -49,7 +53,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Entity
 @Table(
     name = "produit",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "type_produit" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
     indexes = {
         @Index(columnList = "libelle", name = "libelle_index"),
         @Index(columnList = "code_ean_labo", name = "code_ean_labo_index"),
@@ -123,7 +127,7 @@ public class Produit implements Serializable {
     private Integer itemRegularUnitPrice = 0;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
@@ -140,11 +144,11 @@ public class Produit implements Serializable {
     private Produit parent;
 
     @NotAudited
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<StockProduit> stockProduits = new HashSet<>();
 
@@ -182,13 +186,12 @@ public class Produit implements Serializable {
     @Column(name = "status", nullable = false, length = 10)
     private Status status = Status.ENABLE;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "categorie", nullable = false, length = 2)
-    private CategorieABC categorie = CategorieABC.C;
+    @Column(name = "classe_criticite", length = 10)
+    private ClasseCriticite classeCriticite = ClasseCriticite.B;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
@@ -198,9 +201,8 @@ public class Produit implements Serializable {
     private FournisseurProduit fournisseurProduitPrincipal;
 
 
-
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -228,7 +230,6 @@ public class Produit implements Serializable {
     }
 
 
-
     public @Min(value = 0) Integer getSeuilDeconditionnement() {
         return seuilDeconditionnement;
     }
@@ -237,15 +238,27 @@ public class Produit implements Serializable {
         this.seuilDeconditionnement = seuilDeconditionnement;
     }
 
-    public CategorieABC getCategorie() {
-        return categorie;
+
+    public ClasseCriticite getClasseCriticite() {
+        return classeCriticite;
     }
 
-    public Produit setCategorie(CategorieABC categorie) {
-        this.categorie = categorie;
+    public Produit setClasseCriticite(ClasseCriticite classeCriticite) {
+        this.classeCriticite = classeCriticite;
         return this;
     }
 
+    /**
+     * Retourne la classe de criticité à utiliser pour les calculs SEMOIS.
+     * Si classeCriticite est défini (override), l'utiliser.
+     * Sinon, convertir depuis categorie ABC.
+     *
+     * @return La classe de criticité effective
+     */
+    public ClasseCriticite getEffectiveClasseCriticite() {
+        return Objects.requireNonNullElse(classeCriticite, ClasseCriticite.B);
+
+    }
 
     public List<OptionPrixProduit> getOptionPrixProduit() {
         return optionPrixProduit;

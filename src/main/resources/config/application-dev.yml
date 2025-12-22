@@ -1,16 +1,28 @@
 logging:
   level:
-    ROOT: DEBUG
-    org.hibernate.SQL: DEBUG # Affiche toutes les requêtes SQL générées
-    org.hibernate.type.descriptor.sql: DEBUG
-
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG # Affiche les valeurs des paramètres liés
-    org.springframework: DEBUG
-    com.kobe.warehouse: DEBUG
     javax:
       management:
         remote:
           rmi: OFF
+    com.kobe.warehouse.service: INFO
+
+    # Logs SQL (DEBUG pour voir les requêtes en détail)
+    # ATTENTION: Très verbeux, à n'activer qu'en dev
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+
+    # Logs transaction (pour debug)
+    org.springframework.transaction: WARN
+    org.springframework.orm.jpa: WARN
+    org.hibernate.type.descriptor.sql: WARN
+
+    org.springframework: OFF
+
+
+  # Pattern de log avec timing
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
 spring:
   graphql:
     graphiql:

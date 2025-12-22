@@ -3,10 +3,14 @@ package com.kobe.warehouse.service.settings;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -163,5 +167,73 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
             .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
             .orElse(false);
+    }
+
+    /**
+     * Récupère la configuration du modèle de réapprovisionnement et les options disponibles.
+     *
+     * @return Map contenant le modèle actuel et les options disponibles
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getModelReapproConfiguration() {
+        Map<String, Object> response = new HashMap<>();
+
+        // Récupère le modèle configuré
+        String currentModel = appConfigurationRepository
+            .findById(EntityConstant.APP_MODEL_REAPPRO)
+            .map(AppConfiguration::getValue)
+            .orElse(ModelReapprovisionnement.CLASSIQUE.name());
+
+        // Liste des modèles disponibles avec leurs descriptions
+        List<Map<String, String>> availableModels = Arrays.asList(
+            Map.of(
+                "value", ModelReapprovisionnement.CLASSIQUE.name(),
+                "label", "Modèle Classique",
+                "description", "Calcul basé sur la moyenne des ventes des 3 derniers mois"
+            ),
+            Map.of(
+                "value", ModelReapprovisionnement.SEMOIS.name(),
+                "label", "Modèle SEMOIS",
+                "description", "Stock Économique Mensuel avec VMM pondéré, marge de sécurité et classe de criticité"
+            )
+        );
+
+        response.put("currentModel", currentModel);
+        response.put("availableModels", availableModels);
+
+        return response;
+    }
+
+    /**
+     * Met à jour le modèle de réapprovisionnement.
+     *
+     * @param model Le nouveau modèle (CLASSIQUE ou SEMOIS)
+     * @throws IllegalArgumentException Si le modèle est invalide
+     */
+    @Transactional
+    public void updateModelReappro(String model) {
+        // Valide que le modèle est valide
+        ModelReapprovisionnement.valueOf(model);
+
+        // Met à jour ou crée la configuration
+        Optional<AppConfiguration> configOpt = appConfigurationRepository.findById(EntityConstant.APP_MODEL_REAPPRO);
+
+        if (configOpt.isPresent()) {
+            AppConfiguration config = configOpt.get();
+            config.setValue(model);
+            config.setUpdated(LocalDateTime.now());
+            config.setValidatedBy(userService.getUser());
+            appConfigurationRepository.save(config);
+        } else {
+            // Crée la configuration si elle n'existe pas
+            AppConfiguration newConfig = new AppConfiguration();
+            newConfig.setName(EntityConstant.APP_MODEL_REAPPRO);
+            newConfig.setDescription("Modèle de calcul du réapprovisionnement");
+            newConfig.setValue(model);
+            newConfig.setCreated(LocalDateTime.now());
+            newConfig.setUpdated(LocalDateTime.now());
+            newConfig.setValidatedBy(userService.getUser());
+            appConfigurationRepository.save(newConfig);
+        }
     }
 }

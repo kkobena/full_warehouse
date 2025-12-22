@@ -34,6 +34,11 @@ import { SelectModule } from 'primeng/select';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { Toolbar } from 'primeng/toolbar';
+import { RouterLink } from '@angular/router';
+import { signal } from '@angular/core';
+import { SemoisService } from '../semois/semois.service';
+import { ISemoisConfiguration } from 'app/shared/model/semois/semois-configuration.model';
+import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -50,7 +55,8 @@ import { Toolbar } from 'primeng/toolbar';
     SelectModule,
     Card,
     Checkbox,
-    Toolbar
+    Toolbar,
+    RouterLink
   ]
 })
 export class ProduitUpdateComponent implements OnInit {
@@ -112,6 +118,19 @@ export class ProduitUpdateComponent implements OnInit {
   private readonly tvaService = inject(TvaService);
   private readonly remiseService = inject(RemiseService);
   private readonly dciService = inject(DciService);
+  private readonly semoisService = inject(SemoisService);
+
+  // SEMOIS Configuration
+  semoisConfig = signal<ISemoisConfiguration | null>(null);
+  isSavingSemois = signal<boolean>(false);
+  semoisClasseValue: ClasseCriticite | null = null;
+  semoisClasseOptions = [
+    { label: 'A+ - Produits vitaux', value: ClasseCriticite.A_PLUS },
+    { label: 'A - Forte rotation', value: ClasseCriticite.A },
+    { label: 'B - Rotation moyenne', value: ClasseCriticite.B },
+    { label: 'C - Faible rotation', value: ClasseCriticite.C },
+    { label: 'D - Très faible rotation', value: ClasseCriticite.D },
+  ];
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
@@ -123,6 +142,11 @@ export class ProduitUpdateComponent implements OnInit {
 
       this.updateForm(produit);
       this.populate(produit);
+
+      // Charger la configuration SEMOIS si le produit existe
+      if (produit.id) {
+        this.loadSemoisConfig(produit.id);
+      }
     });
   }
 
@@ -346,5 +370,55 @@ export class ProduitUpdateComponent implements OnInit {
       stockReassort: this.editForm.get(['stockReassort']).value,
       seuilMini: this.editForm.get(['seuilMini']).value
     };
+  }
+
+  // ==================== Méthodes SEMOIS ====================
+
+  loadSemoisConfig(produitId: number): void {
+    this.semoisService.getConfiguration(produitId).subscribe({
+      next: res => {
+        if (res.body) {
+          this.semoisConfig.set(res.body);
+          this.semoisClasseValue = res.body.classeCriticite ?? null;
+        }
+      },
+      error: () => {
+        // Pas de configuration SEMOIS pour ce produit (normal)
+        this.semoisConfig.set(null);
+      },
+    });
+  }
+
+  onSemoisClasseChange(): void {
+    const config = this.semoisConfig();
+    if (config && this.semoisClasseValue) {
+      config.classeCriticite = this.semoisClasseValue;
+      const info = getClasseCriticiteInfo(this.semoisClasseValue);
+      config.coefficientSecurite = info.coefficientDefaut;
+      this.semoisConfig.set({ ...config }); // Trigger signal update
+    }
+  }
+
+  saveSemoisConfig(): void {
+    const config = this.semoisConfig();
+    const produitId = this.editForm.get(['id'])?.value;
+
+    if (!config || !produitId) {
+      return;
+    }
+
+    this.isSavingSemois.set(true);
+
+    this.semoisService.updateConfiguration(produitId, config).subscribe({
+      next: res => {
+        this.semoisConfig.set(res.body);
+        this.isSavingSemois.set(false);
+        alert('Configuration SEMOIS enregistrée avec succès');
+      },
+      error: () => {
+        this.isSavingSemois.set(false);
+        alert('Erreur lors de l\'enregistrement de la configuration SEMOIS');
+      },
+    });
   }
 }

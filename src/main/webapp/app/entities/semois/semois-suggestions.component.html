@@ -1,0 +1,482 @@
+<!-- KPI Cards -->
+<div class="row mt-2">
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Produits urgents</p>
+              <h4 class="kpi-value">
+                <span>{{ urgentCount() }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-danger-subtle text-danger">Stock < Marge sécurité</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-exclamation-triangle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Produits à commander</p>
+              <h4 class="kpi-value">
+                <span>{{ normalCount() }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-warning-subtle text-warning">Stock < Objectif</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-shopping-bag"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Produits OK</p>
+              <h4 class="kpi-value">
+                <span>{{ okCount() }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-success-subtle text-success">Stock optimal</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-check-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Total produits SEMOIS</p>
+              <h4 class="kpi-value">
+                <span>{{ suggestions().length }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-primary-subtle text-primary">Configurés</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-box"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggestions Table -->
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-shopping-cart text-primary"></i>
+            Suggestions de Réapprovisionnement SEMOIS
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="overflow-x-auto">
+            <p-table
+              [value]="suggestions()"
+              [loading]="isLoading()"
+              [lazy]="true"
+              [paginator]="true"
+              [rows]="itemsPerPage()"
+              [totalRecords]="totalItems()"
+              [first]="page() * itemsPerPage()"
+              class="pharma-table"
+              [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+              [tableStyle]="{ 'min-width': '120rem' }"
+              (onPage)="onPageChange($event)"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Urgence</th>
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Classe</th>
+                  <th class="text-end">VMM</th>
+                  <th class="text-end">Marge Séc.</th>
+                  <th class="text-end">Stock Obj.</th>
+                  <th class="text-end">Stock Act.</th>
+                  <th class="text-end">Qté à Cmd</th>
+                  <th class="text-end">Couverture</th>
+                  <th class="text-end">Jours restants</th>
+                  <th class="text-end">Délai livr.</th>
+                  <th>Dernier calcul</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-suggestion>
+                <tr [ngClass]="getRowClass(suggestion)">
+                  <td>
+                    <p-tag [severity]="getUrgenceSeverity(suggestion)">
+                      {{ getUrgenceLabel(suggestion) }}
+                    </p-tag>
+                  </td>
+                  <td>{{ suggestion.libelle }}</td>
+                  <td>{{ suggestion.codeCip }}</td>
+                  <td>
+                    <p-tag [severity]="getClasseSeverity(suggestion.classeCriticite)">
+                      {{ getClasseLabel(suggestion.classeCriticite) }}
+                    </p-tag>
+                  </td>
+                  <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
+                  <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
+                  <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
+                  <td class="text-end" [ngClass]="getStockActuelClass(suggestion)">
+                    {{ suggestion.stockActuel || 0 }}
+                  </td>
+                  <td class="text-end fw-bold pharma-price">
+                    {{ suggestion.quantiteACommander || 0 }}
+                  </td>
+                  <td class="text-end">
+                    <span class="px-2 py-1 rounded fw-semibold" [ngClass]="getCouvertureClass(suggestion)">
+                      {{ getCouvertureMois(suggestion) | number: '1.1-1' }} mois
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <span class="px-2 py-1 rounded fw-semibold" [ngClass]="getJoursRestantsClass(suggestion)">
+                      {{ getJoursRestants(suggestion) }} jours
+                    </span>
+                  </td>
+                  <td class="text-end">{{ suggestion.delaiLivraisonJours || 0 }}j</td>
+                  <td>
+                    @if (suggestion.dateDernierCalcul) {
+                      <small class="text-muted">
+                        {{ suggestion.dateDernierCalcul | date: 'dd/MM/yyyy HH:mm' }}
+                      </small>
+                    } @else {
+                      <small class="text-danger">Jamais calculé</small>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="13" class="text-center p-4">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                    <p class="mt-3 text-muted">Aucune suggestion disponible</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Drawer -->
+  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '700px' }">
+    <ng-template #header>
+      <div class="d-flex align-items-center gap-2">
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
+        <span class="fw-bold fs-5">Guide d'utilisation - SEMOIS</span>
+      </div>
+    </ng-template>
+
+    <div class="p-3">
+      <!-- Introduction -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que SEMOIS ?
+        </h6>
+        <p class="text-sm text-muted">
+          <strong>SEMOIS</strong> (Stock Économique Mensuel d'Objectif Interne de Sécurité) est une méthode de gestion de stock
+          <strong>spécialement adaptée aux pharmacies</strong>. Elle calcule automatiquement les quantités optimales à commander
+          en tenant compte de votre historique de ventes, des délais de livraison et de la criticité des produits.
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Formules SEMOIS -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-calculator me-2"></i>Formules et Métriques Clés
+        </h6>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">VMM - Ventes Mensuelles Moyennes</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> Moyenne pondérée des ventes sur N mois (par défaut 6 mois)<br />
+            <strong>Pondération :</strong> Les mois récents comptent plus que les anciens<br />
+            <em>Exemple : Mois M-1 = poids 6, M-2 = poids 5, ..., M-6 = poids 1</em>
+          </p>
+          <div class="alert alert-info mt-2 p-2 text-xs">
+            <strong>Interprétation :</strong> Le VMM représente votre demande mensuelle typique.
+            Un VMM de 50 signifie que vous vendez environ 50 unités par mois de ce produit.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Marge de Sécurité</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> VMM × (Délai livraison × Coefficient sécurité / 30) × Facteur saisonnier<br />
+            <strong>Coefficient sécurité :</strong> Varie selon la classe de criticité (0.2 à 1.5)<br />
+            <strong>Facteur saisonnier :</strong> Ajustement pour périodes spéciales (grippe, etc.)
+          </p>
+          <div class="alert alert-warning mt-2 p-2 text-xs">
+            <strong>Rôle :</strong> La marge de sécurité évite les ruptures de stock pendant le délai de livraison.
+            Elle protège contre les variations de demande et les retards fournisseur.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Stock Objectif</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> VMM + Marge de Sécurité<br />
+            <strong>Option péremption :</strong> Si activée, limité à MAX(Stock Obj, VMM × 3)
+          </p>
+          <div class="alert alert-success mt-2 p-2 text-xs">
+            <strong>Objectif :</strong> Le niveau de stock idéal à maintenir. Il couvre votre demande mensuelle
+            tout en assurant un matelas de sécurité.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Quantité à Commander</p>
+          <p class="text-sm text-muted mb-1">
+            <strong>Formule :</strong> MAX(0, Stock Objectif - Stock Actuel)<br />
+            <strong>Note :</strong> Toujours positif ou zéro (pas de commande si surstock)
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Classification Criticité -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-chart-pie me-2"></i>Classification par Criticité
+        </h6>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #d32f2f">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag value="A+" severity="danger" />
+            <span class="fw-bold">Classe A+ - Produits Vitaux (coeff. 1.5)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Exemples :</strong> Insuline, Adrénaline, Ventoline, Atropine
+          </p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Marge de sécurité maximale (×1.5)</li>
+            <li>Stock toujours disponible, rupture interdite</li>
+            <li>Surveillance quotidienne recommandée</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #388e3c">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag value="A" severity="success" />
+            <span class="fw-bold">Classe A - Forte Rotation (coeff. 1.0)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Top 20% des ventes, forte demande régulière
+          </p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Commandes fréquentes, stock suffisant</li>
+            <li>Suivi hebdomadaire, éviter ruptures</li>
+            <li>Négocier prix (volumes importants)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #1976d2">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag value="B" severity="info" />
+            <span class="fw-bold">Classe B - Rotation Moyenne (coeff. 0.7)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> Ventes régulières mais modérées (classe par défaut)
+          </p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Commandes hebdomadaires/bimensuelles</li>
+            <li>Stock de sécurité modéré</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #f57c00">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag value="C" severity="warn" />
+            <span class="fw-bold">Classe C - Faible Rotation (coeff. 0.4)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> VMM < 5 unités/mois, vente occasionnelle
+          </p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Réduire les stocks, commander à la demande</li>
+            <li>Surveiller dates de péremption</li>
+          </ul>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #fafafa; border-left: 4px solid #757575">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-tag value="D" severity="secondary" />
+            <span class="fw-bold">Classe D - Très Faible Rotation (coeff. 0.2)</span>
+          </div>
+          <p class="text-sm mb-2">
+            <strong>Caractéristiques :</strong> VMM < 2 unités/mois ou nul
+          </p>
+          <p class="text-sm mb-0"><strong>Actions :</strong></p>
+          <ul class="text-sm mb-0 ps-3">
+            <li>Stock minimal, commande sur demande uniquement</li>
+            <li>Envisager déréférencement</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Niveaux d'urgence -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-bell me-2"></i>Niveaux d'Urgence
+        </h6>
+
+        <div class="mb-2 p-2 rounded" style="background-color: #ffebee">
+          <span class="badge bg-danger me-2">URGENT</span>
+          <span class="text-sm fw-semibold">Stock Actuel < Marge de Sécurité</span>
+          <p class="text-xs text-muted mb-0 mt-1">
+            ⚠️ Risque de rupture imminent ! Commander en priorité absolue.
+          </p>
+        </div>
+
+        <div class="mb-2 p-2 rounded" style="background-color: #fff3e0">
+          <span class="badge bg-warning me-2">NORMAL</span>
+          <span class="text-sm fw-semibold">Stock Actuel < Stock Objectif</span>
+          <p class="text-xs text-muted mb-0 mt-1">Réapprovisionner lors de la prochaine commande.</p>
+        </div>
+
+        <div class="mb-2 p-2 rounded" style="background-color: #e8f5e9">
+          <span class="badge bg-success me-2">OK</span>
+          <span class="text-sm fw-semibold">Stock Actuel ≥ Stock Objectif</span>
+          <p class="text-xs text-muted mb-0 mt-1">Stock optimal, pas de commande nécessaire.</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Utilisation pratique -->
+      <div class="mb-4">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-lightbulb me-2"></i>Comment Utiliser SEMOIS
+        </h6>
+
+        <div class="alert alert-info">
+          <strong><i class="pi pi-info-circle me-2"></i>Workflow Recommandé :</strong>
+          <ol class="mb-0 mt-2 ps-3 text-sm">
+            <li>
+              <strong>Configuration initiale :</strong>
+              <ul class="ps-3">
+                <li>Utiliser "Configuration en masse" pour classer tous vos produits</li>
+                <li>Ajuster les classes A+, A, C, D selon analyse ABC</li>
+                <li>Configurer délais de livraison par fournisseur</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Commandes quotidiennes :</strong>
+              <ul class="ps-3">
+                <li>Filtrer par "URGENT" → Commander immédiatement</li>
+                <li>Filtrer par classe A/A+ → Vérifier stock quotidiennement</li>
+                <li>Grouper commandes classe B/C par fournisseur</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Ajustements saisonniers :</strong>
+              <ul class="ps-3">
+                <li>Augmenter facteur saisonnier pour produits hiver (grippe, etc.)</li>
+                <li>Activer "Limite péremption" pour produits DLU courte</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Surveillance :</strong>
+              <ul class="ps-3">
+                <li>Vérifier cohérence VMM vs réalité tous les mois</li>
+                <li>Détecter anomalies (VMM élevé mais stock toujours plein = baisse demande)</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Exemples -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-book me-2"></i>Exemples Pratiques
+        </h6>
+
+        <div class="card mb-2" style="border-left: 3px solid #d32f2f">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Insuline (Classe A+)</p>
+            <p class="text-xs text-muted mb-0">
+              VMM=15, Délai=5j, Coeff=1.5 → Marge=15×(5×1.5/30)=3.75≈4 → Stock Obj=15+4=19<br />
+              <strong>Stock actuel=3 → URGENT (< marge 4)</strong> → Commander 16 unités immédiatement
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2" style="border-left: 3px solid #388e3c">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Paracétamol (Classe A)</p>
+            <p class="text-xs text-muted mb-0">
+              VMM=120, Délai=7j, Coeff=1.0 → Marge=120×(7×1.0/30)=28 → Stock Obj=148<br />
+              <strong>Stock actuel=100 → NORMAL</strong> → Commander 48 unités prochaine commande
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #f57c00">
+          <div class="card-body p-2">
+            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Produit rare (Classe C)</p>
+            <p class="text-xs text-muted mb-0">
+              VMM=2, Délai=7j, Coeff=0.4 → Marge=2×(7×0.4/30)=0.18≈1 → Stock Obj=3<br />
+              <strong>Stock actuel=5 → OK (surstock)</strong> → Pas de commande, attendre écoulement
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Practices -->
+      <div class="mb-3">
+        <h6 class="text-primary fw-bold mb-3">
+          <i class="pi pi-check-circle me-2"></i>Bonnes Pratiques
+        </h6>
+
+        <ul class="text-sm text-muted ps-3">
+          <li>Laisser le système agréger les ventes quotidiennement (2h du matin)</li>
+          <li>Recalcul automatique SEMOIS tous les jours (3h du matin)</li>
+          <li>Ne pas modifier manuellement les agrégations mensuelles</li>
+          <li>Ajuster les classes de criticité tous les 3-6 mois selon évolution ABC</li>
+          <li>Utiliser facteur saisonnier pour événements prévisibles (grippe, allergies)</li>
+          <li>Activer limite péremption pour sérums, vaccins, produits DLU < 6 mois</li>
+        </ul>
+      </div>
+    </div>
+  </p-drawer>

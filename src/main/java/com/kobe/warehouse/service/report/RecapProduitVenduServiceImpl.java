@@ -1,6 +1,9 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.service.InventaireService;
+import com.kobe.warehouse.service.dto.CreateInventoryFromProduitIds;
+import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.report.pdf.RecapProduitInvenduPdfService;
@@ -286,8 +289,8 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             String codeEanLaboratoire = (String) r[2];
             String codeCip = (String) r[3];
             String rayonName = (String) r[4];
-            Integer totalSales =  r[7] != null ? ((Number) r[7]).intValue() : 0;
-            Integer totalPurchase =  r[8] != null ? ((Number) r[8]).intValue() : 0;
+            Integer totalSales = r[7] != null ? ((Number) r[7]).intValue() : 0;
+            Integer totalPurchase = r[8] != null ? ((Number) r[8]).intValue() : 0;
             Integer totalStock = r[9] != null ? ((Number) r[9]).intValue() : 0;
             content.add(new RecapProduitVendu(id, libelle, codeCip, codeEanLaboratoire, rayonName, 0, 0, totalSales, totalPurchase, totalStock));
         }
@@ -381,10 +384,27 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     @Override
     public int createInventoryFromRecapProduitVendu(RecapProduitVenduRequestParam requestParam) {
-        Set<Integer> ids= getProduitIds( requestParam);
-      //  inventaireService.createInventoryFromFrom()
-        return 0;
+        Set<Integer> ids = getProduitIds(requestParam);
+        return inventaireService.createInventoryFromFrom(new CreateInventoryFromProduitIds(
+            ids,
+            buildStoreInventoryRecord(requestParam)
+        ));
+
     }
+
+    private StoreInventoryRecord buildStoreInventoryRecord(RecapProduitVenduRequestParam requestParam) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String title = "Inventaire des produits invendus du " + requestParam.startDate().format(formatter) + " au " + requestParam.endDate().format(formatter);
+        return new StoreInventoryRecord(
+           null,
+           null,
+           null,
+            InventoryCategory.MAGASIN.name(),
+           null,
+            title
+       );
+    }
+
 
     private String buildHavingClause(RecapProduitVenduRequestParam requestParam) {
         // Having clause for seuil mini atteint

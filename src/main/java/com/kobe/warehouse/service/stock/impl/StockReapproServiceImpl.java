@@ -6,6 +6,7 @@ import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.dto.ProduitQuantitySold;
@@ -49,15 +50,35 @@ public class StockReapproServiceImpl {
     ) {
         this.entityManager = entityManager;
         this.appConfigurationService = appConfigurationService;
-
         this.transactionTemplate = transactionTemplate;
         this.salesRepository = salesRepository;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Scheduler pour le calcul classique du réapprovisionnement.
+     * Exécuté tous les jours entre 9h et 11h uniquement si le modèle CLASSIQUE est configuré.
+     */
     @Scheduled(cron = "0 0 9-11 * * *")
     //  @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
+        // Récupère le modèle de réapprovisionnement configuré
+        ModelReapprovisionnement model = getConfiguredModel();
+
+        // N'exécute que si le modèle CLASSIQUE est configuré
+        // Le modèle SEMOIS utilise son propre scheduler dans SemoisCalculationService
+        if (model == ModelReapprovisionnement.CLASSIQUE) {
+            log.info("Démarrage du calcul de réapprovisionnement avec le modèle CLASSIQUE");
+            computeClassiqueReapprovisionnement();
+        } else {
+            log.info("Modèle {} configuré, scheduler CLASSIQUE ignoré", model);
+        }
+    }
+
+    /**
+     * Calcul classique du réapprovisionnement (ancien système).
+     */
+    private void computeClassiqueReapprovisionnement() {
         Optional<AppConfiguration> appConfiguration = getLastReapproDate();
         appConfiguration.ifPresent(configuration -> {
             boolean computeReappro = true;
@@ -74,9 +95,31 @@ public class StockReapproServiceImpl {
                 appConfigurationService.update(configuration);
                 LocalDateTime end = LocalDateTime.now();
                 long period = TimeUnit.SECONDS.convert(Duration.between(start, end));
-                log.info("Temps passé en seconde {} app {}", period, appConfiguration);
+                log.info("Calcul CLASSIQUE réapprovisionnement terminé en {} secondes", period);
             }
         });
+    }
+
+    /**
+     * Récupère le modèle de réapprovisionnement configuré.
+     * Par défaut, utilise CLASSIQUE si non configuré.
+     *
+     * @return Le modèle configuré
+     */
+    private ModelReapprovisionnement getConfiguredModel() {
+        return appConfigurationService
+            .findOneById(EntityConstant.APP_MODEL_REAPPRO)
+            .map(AppConfiguration::getValue)
+            .filter(StringUtils::isNotEmpty)
+            .map(value -> {
+                try {
+                    return ModelReapprovisionnement.valueOf(value);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Modèle de réapprovisionnement invalide '{}', utilisation du modèle CLASSIQUE par défaut", value);
+                    return ModelReapprovisionnement.CLASSIQUE;
+                }
+            })
+            .orElse(ModelReapprovisionnement.CLASSIQUE);
     }
 
     private void compute() {

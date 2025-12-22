@@ -12,6 +12,7 @@ import { FormParamettreComponent } from './form-paramettre/form-paramettre.compo
 import { Toolbar } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'jhi-parametre',
@@ -24,7 +25,7 @@ export class ParametreComponent implements OnInit {
   protected search = '';
   private readonly configurationService = inject(ConfigurationService);
   private readonly modalService = inject(NgbModal);
-
+  private readonly router = inject(Router);
   ngOnInit(): void {
     this.loadAll();
   }
@@ -40,18 +41,24 @@ export class ParametreComponent implements OnInit {
   }
 
   protected onEdit(entity: IConfiguration): void {
-    showCommonModal(
-      this.modalService,
-      FormParamettreComponent,
-      {
-        entity: entity,
-        header: 'Modification de [ ' + entity.name + ' ]',
-      },
-      () => {
-        this.loadAll();
-      },
-      'lg',
-    );
+    //APP_MODEL_REAPPRO
+    if (entity.name === 'APP_MODEL_REAPPRO') {
+      this.router.navigate(['/semois/model-config']);
+    }else{
+      showCommonModal(
+        this.modalService,
+        FormParamettreComponent,
+        {
+          entity: entity,
+          header: 'Modification de [ ' + entity.name + ' ]',
+        },
+        () => {
+          this.loadAll();
+        },
+        'lg',
+      );
+    }
+
   }
 
   protected loadAll(): void {

@@ -1,17 +1,15 @@
-import {Component, OnInit, inject, signal} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import {ButtonModule} from 'primeng/button';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {Card} from 'primeng/card';
-import {Message} from 'primeng/message';
-import {ToolbarModule} from 'primeng/toolbar';
+import { ButtonModule } from 'primeng/button';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { ToolbarModule } from 'primeng/toolbar';
 
-import {ApplicationConfigService} from 'app/core/config/application-config.service';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 
 interface ModelReapproOption {
   value: string;
@@ -28,7 +26,7 @@ interface ModelReapproConfig {
   selector: 'jhi-semois-model-config',
   templateUrl: './semois-model-config.component.html',
   styleUrl: './semois-model-config.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule, WarehouseCommonModule],
+  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule, WarehouseCommonModule]
 })
 export default class SemoisModelConfigComponent implements OnInit {
   currentModel = signal<string>('CLASSIQUE');
@@ -51,8 +49,9 @@ export default class SemoisModelConfigComponent implements OnInit {
     this.isLoading.set(true);
     const url = this.applicationConfigService.getEndpointFor('api/app/model-reappro');
 
-    this.http.get<ModelReapproConfig>(url, {observe: 'response'}).subscribe({
+    this.http.get<ModelReapproConfig>(url, { observe: 'response' }).subscribe({
       next: (res: HttpResponse<ModelReapproConfig>) => {
+        console.log(res);
         if (res.body) {
           this.currentModel.set(res.body.currentModel);
           this.selectedModel.set(res.body.currentModel);
@@ -63,7 +62,7 @@ export default class SemoisModelConfigComponent implements OnInit {
       error: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Erreur lors du chargement de la configuration');
-      },
+      }
     });
   }
 
@@ -74,7 +73,7 @@ export default class SemoisModelConfigComponent implements OnInit {
 
     const url = this.applicationConfigService.getEndpointFor('api/app/model-reappro');
 
-    this.http.put<void>(url, null, {params: {model: this.selectedModel()}, observe: 'response'}).subscribe({
+    this.http.put<void>(url, null, { params: { model: this.selectedModel() }, observe: 'response' }).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.saveSuccess.set(true);
@@ -88,7 +87,7 @@ export default class SemoisModelConfigComponent implements OnInit {
       error: () => {
         this.isSaving.set(false);
         this.errorMessage.set('Erreur lors de la sauvegarde de la configuration');
-      },
+      }
     });
   }
 

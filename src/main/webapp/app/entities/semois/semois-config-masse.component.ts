@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,6 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { Card } from 'primeng/card';
 
 import { SemoisService } from './semois.service';
 import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
@@ -41,9 +40,8 @@ interface IPreviewClassificationItem {
     TableModule,
     Tag,
     InputTextModule,
-    Card,
-    WarehouseCommonModule,
-  ],
+    WarehouseCommonModule
+  ]
 })
 export default class SemoisConfigMasseComponent implements OnInit {
   activeTab = 'classification-abc'; // Tab actif par défaut
@@ -57,7 +55,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
   // Configuration auto
   autoConfig = {
     includeNoSales: false,
-    overwriteExisting: false,
+    overwriteExisting: false
   };
 
   importNbMois = 12;
@@ -75,7 +73,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
     this.router.navigate(['/semois/suggestions']);
   }
 
-  // ==================== Classification Automatique ====================
+
 
   previewAutoClassification(): void {
     this.isPreviewLoading.set(true);
@@ -121,7 +119,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
             abcRotation,
             rotationRate,
             classeSemoisProposee: classeSemois,
-            coefficientSecurite,
+            coefficientSecurite
           });
         });
 
@@ -131,7 +129,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
       error: () => {
         this.isPreviewLoading.set(false);
         alert('Erreur lors du chargement de la prévisualisation. Vérifiez que l\'analyse ABC de rotation est disponible.');
-      },
+      }
     });
   }
 
@@ -144,7 +142,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
     if (
       !confirm(
         `Confirmer la création/mise à jour de ${this.previewData()!.length} configurations SEMOIS basées sur l'analyse ABC ?\n\n` +
-          `${this.autoConfig.overwriteExisting ? 'ATTENTION : Les configurations existantes seront écrasées.' : 'Les configurations existantes seront préservées.'}`
+        `${this.autoConfig.overwriteExisting ? 'ATTENTION : Les configurations existantes seront écrasées.' : 'Les configurations existantes seront préservées.'}`
       )
     ) {
       return;
@@ -161,7 +159,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
       this.semoisService
         .initializeConfiguration({
           produitId: item.produitId,
-          classeCriticite: item.classeSemoisProposee,
+          classeCriticite: item.classeSemoisProposee
         })
         .subscribe({
           next: () => {
@@ -179,7 +177,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
               alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
               this.previewData.set(null);
             }
-          },
+          }
         });
     });
   }
@@ -189,7 +187,6 @@ export default class SemoisConfigMasseComponent implements OnInit {
     return this.previewData()!.filter(p => p.classeSemoisProposee === classe).length;
   }
 
-  // ==================== Initialisation Manuelle ====================
 
   confirmInitAll(): void {
     if (!confirm('Confirmer l\'initialisation de tous les produits actifs sans configuration SEMOIS ?\n\nClasse par défaut : B (Rotation moyenne)')) {
@@ -205,18 +202,17 @@ export default class SemoisConfigMasseComponent implements OnInit {
       error: () => {
         this.isProcessing.set(false);
         alert('Erreur lors de l\'initialisation.');
-      },
+      }
     });
   }
 
-  // ==================== Import Historique ====================
 
   confirmImportHistorique(): void {
     if (
       !confirm(
         `Confirmer l'import de ${this.importNbMois} mois de données historiques ?\n\n` +
-          `Cette opération peut prendre plusieurs minutes.\n` +
-          `Les mois importés seront gelés automatiquement.`
+        `Cette opération peut prendre plusieurs minutes.\n` +
+        `Les mois importés seront gelés automatiquement.`
       )
     ) {
       return;
@@ -232,11 +228,11 @@ export default class SemoisConfigMasseComponent implements OnInit {
       error: () => {
         this.isProcessing.set(false);
         alert('Erreur lors de l\'import historique.');
-      },
+      }
     });
   }
 
-  // ==================== Statut Système ====================
+
 
   loadAggregationStatus(): void {
     this.semoisService.getAggregationStatus().subscribe({
@@ -245,11 +241,10 @@ export default class SemoisConfigMasseComponent implements OnInit {
       },
       error: () => {
         console.error('Erreur lors du chargement du statut d\'agrégation');
-      },
+      }
     });
   }
 
-  // ==================== Méthodes Utilitaires ====================
 
   getClasseLabel(classe?: ClasseCriticite): string {
     return getClasseCriticiteInfo(classe).label;

@@ -190,6 +190,13 @@ public class Produit implements Serializable {
     @Column(name = "classe_criticite", length = 10)
     private ClasseCriticite classeCriticite = ClasseCriticite.B;
 
+    /**
+     * Si TRUE, la classe de criticité ne sera pas modifiée par la reclassification automatique.
+     * Permet aux administrateurs de forcer une classe spécifique.
+     */
+    @Column(name = "is_classification_overridden", columnDefinition = "boolean default false")
+    private Boolean isClassificationOverridden = false;
+
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -258,6 +265,15 @@ public class Produit implements Serializable {
     public ClasseCriticite getEffectiveClasseCriticite() {
         return Objects.requireNonNullElse(classeCriticite, ClasseCriticite.B);
 
+    }
+
+    public Boolean getIsClassificationOverridden() {
+        return isClassificationOverridden;
+    }
+
+    public Produit setIsClassificationOverridden(Boolean isClassificationOverridden) {
+        this.isClassificationOverridden = isClassificationOverridden;
+        return this;
     }
 
     public List<OptionPrixProduit> getOptionPrixProduit() {

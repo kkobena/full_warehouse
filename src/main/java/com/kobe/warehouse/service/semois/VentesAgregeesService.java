@@ -2,8 +2,6 @@ package com.kobe.warehouse.service.semois;
 
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,17 +30,14 @@ public class VentesAgregeesService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VentesAgregeesService.class);
 
-    private final EntityManager entityManager;
     private final VentesMensuellesAgregeesRepository ventesAgregeesRepository;
 
     @Value("${pharma-smart.semois.freeze-delay-days:7}")
     private int freezeDelayDays;
 
     public VentesAgregeesService(
-        EntityManager entityManager,
         VentesMensuellesAgregeesRepository ventesAgregeesRepository
     ) {
-        this.entityManager = entityManager;
         this.ventesAgregeesRepository = ventesAgregeesRepository;
     }
 
@@ -100,96 +95,7 @@ public class VentesAgregeesService {
         LocalDate debut = mois.atDay(1);
         LocalDate fin = mois.plusMonths(1).atDay(1);
 
-        String sql = """
-            WITH sales_base AS (
-
-                SELECT
-                    sli.produit_id,
-                    SUM(sli.quantity_requested) AS qty_sold,
-                    SUM(sli.sales_amount) AS montant_ca,
-                    COUNT(DISTINCT s.id) AS nombre_ventes
-                FROM sales_line sli
-                JOIN sales s ON s.id = sli.sales_id
-                WHERE s.sale_date >= :debut
-                  AND s.sale_date < :fin
-                  AND s.statut = 'CLOSED'
-                  AND s.canceled = FALSE
-                GROUP BY sli.produit_id
-            ),
-            sales_detail AS (
-
-                SELECT
-                    pd.parent_id,
-                    SUM(sli.quantity_requested) AS qty_sold_detail
-                FROM sales_line sli
-                JOIN sales s ON s.id = sli.sales_id
-                JOIN produit pd ON pd.id = sli.produit_id
-                WHERE s.sale_date >= :debut
-                  AND s.sale_date < :fin
-                  AND s.statut = 'CLOSED'
-                  AND s.canceled = FALSE
-                  AND pd.type_produit = 'DETAIL'
-                GROUP BY pd.parent_id
-            )
-            INSERT INTO ventes_mensuelles_agregees (
-                produit_id,
-                annee_mois,
-                quantite_vendue,
-                montant_ca,
-                nombre_ventes,
-                is_frozen,
-                freeze_date,
-                created_at,
-                updated_at
-            )
-            SELECT
-                p.id,
-                :anneeMois,
-
-                COALESCE(sb.qty_sold, 0) +
-                COALESCE(CEIL(sd.qty_sold_detail::numeric / NULLIF(p.item_qty, 0)), 0) AS quantite_vendue,
-                COALESCE(sb.montant_ca, 0) AS montant_ca,
-                COALESCE(sb.nombre_ventes, 0) AS nombre_ventes,
-                :freeze,
-                CASE WHEN :freeze = TRUE THEN NOW() ELSE NULL END,
-                NOW(),
-                NOW()
-            FROM produit p
-            LEFT JOIN sales_base sb ON sb.produit_id = p.id
-            LEFT JOIN sales_detail sd ON sd.parent_id = p.id
-            WHERE p.status = 'ENABLE'
-              AND p.type_produit = 'PACKAGE'
-              AND (sb.qty_sold IS NOT NULL OR sd.qty_sold_detail IS NOT NULL)
-
-            ON CONFLICT (produit_id, annee_mois)
-            DO UPDATE SET
-                quantite_vendue = CASE
-                    WHEN ventes_mensuelles_agregees.is_frozen = TRUE
-                    THEN ventes_mensuelles_agregees.quantite_vendue
-                    ELSE EXCLUDED.quantite_vendue
-                END,
-                montant_ca = CASE
-                    WHEN ventes_mensuelles_agregees.is_frozen = TRUE
-                    THEN ventes_mensuelles_agregees.montant_ca
-                    ELSE EXCLUDED.montant_ca
-                END,
-                nombre_ventes = CASE
-                    WHEN ventes_mensuelles_agregees.is_frozen = TRUE
-                    THEN ventes_mensuelles_agregees.nombre_ventes
-                    ELSE EXCLUDED.nombre_ventes
-                END,
-                is_frozen = EXCLUDED.is_frozen,
-                freeze_date = EXCLUDED.freeze_date,
-                updated_at = NOW()
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("anneeMois", anneeMois);
-        query.setParameter("debut", debut);
-        query.setParameter("fin", fin);
-        query.setParameter("freeze", freeze);
-
-        int rowsAffected = query.executeUpdate();
+        int rowsAffected = ventesAgregeesRepository.aggregateOrUpdateMonth(anneeMois, debut, fin, freeze);
 
         LOG.info("Mois {} : {} produits agrégés (freeze={})",
                  anneeMois, rowsAffected, freeze);
@@ -204,18 +110,7 @@ public class VentesAgregeesService {
      */
     @Transactional
     public void unfreezeMonth(YearMonth mois, String reason) {
-        String sql = """
-            UPDATE ventes_mensuelles_agregees
-            SET is_frozen = FALSE,
-                freeze_date = NULL,
-                updated_at = NOW()
-            WHERE annee_mois = :anneeMois
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("anneeMois", mois.toString());
-
-        int rows = query.executeUpdate();
+        int rows = ventesAgregeesRepository.unfreezeMonth(mois.toString());
 
         LOG.warn("⚠️ DÉGEL EXCEPTIONNEL mois {} : {} produits dégelés. Raison: {}",
                  mois, rows, reason);

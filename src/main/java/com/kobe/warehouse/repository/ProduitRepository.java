@@ -160,4 +160,17 @@ public interface ProduitRepository
     default Specification<Produit> specialisationTypeProduit(TypeProduit typeProduit) {
         return (root, query, cb) -> cb.equal(root.get(Produit_.typeProduit), typeProduit);
     }
+
+    /**
+     * Compte les produits actifs par classe de criticité
+     *
+     * @return Liste de [classe_criticite, count]
+     */
+    @Query(value = """
+        SELECT p.classe_criticite, COUNT(*)
+        FROM produit p
+        WHERE p.status = 'ENABLE' AND p.type_produit != 'DETAIL'
+        GROUP BY p.classe_criticite
+        """, nativeQuery = true)
+    List<Object[]> countByClasseCriticite();
 }

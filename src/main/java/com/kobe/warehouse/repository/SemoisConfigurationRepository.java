@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -176,5 +177,41 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
         Pageable pageable
     );
 
-
+    /**
+     * Initialise les configurations SEMOIS pour tous les produits actifs sans configuration.
+     * Utilise la classe B par défaut.
+     *
+     * @return Nombre de configurations créées
+     */
+    @Modifying
+    @Query(value = """
+        INSERT INTO semois_configuration (
+            produit_id,
+            classe_criticite,
+            coefficient_securite,
+            nb_mois_historique,
+            delai_livraison_jours,
+            facteur_saisonnier_actuel,
+            limite_peremption,
+            created_at,
+            updated_at
+        )
+        SELECT
+            p.id,
+            'B',
+            1.0,
+            6,
+            7,
+            1.0,
+            FALSE,
+            NOW(),
+            NOW()
+        FROM produit p
+        WHERE p.status = 'ENABLE'
+          AND p.type_produit != 'DETAIL'
+          AND NOT EXISTS (
+              SELECT 1 FROM semois_configuration sc WHERE sc.produit_id = p.id
+          )
+        """, nativeQuery = true)
+    int initializeAllMissingConfigurations();
 }

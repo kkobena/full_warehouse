@@ -11,12 +11,12 @@ import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
+import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import org.apache.commons.lang3.StringUtils;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +71,7 @@ public class SemoisCalculationService {
     private final SemoisSuggestionViewRepository semoisSuggestionViewRepository;
     private final VentesMensuellesAgregeesRepository ventesAgregeesRepository;
     private final ProduitRepository produitRepository;
+    private final StockProduitRepository stockProduitRepository;
     private final EntityManager entityManager;
     private final AppConfigurationService appConfigurationService;
 
@@ -80,6 +81,7 @@ public class SemoisCalculationService {
         SemoisSuggestionViewRepository semoisSuggestionViewRepository,
         VentesMensuellesAgregeesRepository ventesAgregeesRepository,
         ProduitRepository produitRepository,
+        StockProduitRepository stockProduitRepository,
         EntityManager entityManager,
         AppConfigurationService appConfigurationService
     ) {
@@ -87,6 +89,7 @@ public class SemoisCalculationService {
         this.semoisSuggestionViewRepository = semoisSuggestionViewRepository;
         this.ventesAgregeesRepository = ventesAgregeesRepository;
         this.produitRepository = produitRepository;
+        this.stockProduitRepository = stockProduitRepository;
         this.entityManager = entityManager;
         this.appConfigurationService = appConfigurationService;
     }
@@ -216,19 +219,9 @@ public class SemoisCalculationService {
      * @return Stock actuel total
      */
     private int getStockActuel(Integer produitId) {
-        String sql = """
-            SELECT COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0)
-            FROM stock_produit sp JOIN storage s ON sp.storage_id = s.id
-            JOIN magasin m ON s.magasin_id = m.id
-            WHERE sp.produit_id = :produitId AND m.id=:magasinId
-
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("produitId", produitId);
-        query.setParameter("magasinId", EntityConstant.DEFAULT_MAGASIN);
-
-        return ((Number) query.getSingleResult()).intValue();
+        Integer stock = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(
+            (int) EntityConstant.DEFAULT_MAGASIN, produitId);
+        return stock != null ? stock : 0;
     }
 
     /**
@@ -578,38 +571,7 @@ public class SemoisCalculationService {
     public int initializeAllMissingConfigurations() {
         LOG.info("🔄 Initialisation configurations SEMOIS manquantes...");
 
-        String sql = """
-            INSERT INTO semois_configuration (
-                produit_id,
-                classe_criticite,
-                coefficient_securite,
-                nb_mois_historique,
-                delai_livraison_jours,
-                facteur_saisonnier_actuel,
-                limite_peremption,
-                created_at,
-                updated_at
-            )
-            SELECT
-                p.id,
-                'B',
-                1.0,
-                6,
-                7,
-                1.0,
-                FALSE,
-                NOW(),
-                NOW()
-            FROM produit p
-            WHERE p.status = 'ENABLE'
-              AND p.type_produit != 'DETAIL'
-              AND NOT EXISTS (
-                  SELECT 1 FROM semois_configuration sc WHERE sc.produit_id = p.id
-              )
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        int created = query.executeUpdate();
+        int created = semoisConfigRepository.initializeAllMissingConfigurations();
 
         LOG.info("{} configurations SEMOIS initialisées", created);
         return created;
@@ -701,46 +663,6 @@ public class SemoisCalculationService {
             config.getFacteurSaisonnierActuel(),
             config.getDateDernierCalcul()
         );
-    }
-
-
-    @Transactional(readOnly = true)
-    public List<SemoisSuggestionDTO> getAllSuggestions(String search, String classeCriticite) {
-        // Utiliser la vue matérialisée pour performance optimale
-        String sql = "SELECT * FROM mv_semois_suggestion WHERE 1=1";
-
-        if (search != null && !search.isBlank()) {
-            sql += " AND (LOWER(libelle) LIKE LOWER(:search) OR LOWER(code_cip) LIKE LOWER(:search))";
-        }
-
-        if (classeCriticite != null && !classeCriticite.isBlank()) {
-            sql += " AND classe_criticite = :classe";
-        }
-
-        sql += " ORDER BY quantite_a_commander DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        if (search != null && !search.isBlank()) {
-            query.setParameter("search", "%" + search + "%");
-        }
-
-        if (classeCriticite != null && !classeCriticite.isBlank()) {
-            query.setParameter("classe", classeCriticite);
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return results.stream()
-            .map(this::mapToDTO)
-            .toList();
-    }
-
-    private SemoisSuggestionDTO mapToDTO(Object[] row) {
-        // Mapper résultats de la vue matérialisée vers DTO
-        // Implementation selon structure de mv_semois_suggestion
-        return null; // TODO: Implement mapping
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

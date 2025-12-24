@@ -240,7 +240,7 @@ public class ClassificationCriticiteService {
      * Reclassifie tous les produits selon leurs métriques de rotation
      * Exécuté mensuellement après le gel du mois précédent
      */
-    @Scheduled(cron = "0 0 4 8 * ?") // 8e jour de chaque mois à 4h du matin
+    @Scheduled(cron = "0 0 4 8 * ?") // il  faut que ce soit lancé une fois en debut du mois
     @Transactional
     public ReclassificationResult reclassifierTousProduits();
 

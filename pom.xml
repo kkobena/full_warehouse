@@ -11,7 +11,6 @@
           <artifactId>spring-boot-maven-plugin</artifactId>
           <configuration>
             <mainClass>${start-class}</mainClass>
-
           </configuration>
           <executions>
             <execution>
@@ -410,11 +409,12 @@
     <dependency>
       <artifactId>spring-boot-loader-tools</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>4.0.0</version>
+      <version>4.0.1</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-aop</artifactId>
@@ -593,7 +593,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
   </parent>
   <profiles>
 

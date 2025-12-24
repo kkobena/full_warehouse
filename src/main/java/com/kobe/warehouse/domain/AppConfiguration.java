@@ -11,11 +11,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "app_configuration")
@@ -56,9 +62,20 @@ public class AppConfiguration implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "value_type", nullable = false, length = 11)
     private ParametreValueType valueType;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "options")
+    private List<AppOption> options = new ArrayList<>();
 
     public String getOtherValue() {
         return otherValue;
+    }
+
+    public List<AppOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<AppOption> options) {
+        this.options = options;
     }
 
     public AppConfiguration setOtherValue(String otherValue) {

@@ -1,44 +1,39 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import {Component, inject, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
 import moment from 'moment';
-import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
-import { Dci, IProduit, Produit } from 'app/shared/model/produit.model';
-import { ProduitService } from './produit.service';
-import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
-import { IFournisseur } from '../../shared/model/fournisseur.model';
-import { IRayon } from '../../shared/model/rayon.model';
-import { IFamilleProduit } from '../../shared/model/famille-produit.model';
-import { ITva } from '../../shared/model/tva.model';
-import { CodeRemise } from '../../shared/model/remise.model';
-import { IFormProduit } from '../../shared/model/form-produit.model';
-import { IGammeProduit } from '../../shared/model/gamme-produit.model';
-import { ILaboratoire } from '../../shared/model/laboratoire.model';
-import { RayonService } from '../rayon/rayon.service';
-import { LaboratoireProduitService } from '../laboratoire-produit/laboratoire-produit.service';
-import { FormeProduitService } from '../forme-produit/forme-produit.service';
-import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { FamilleProduitService } from '../famille-produit/famille-produit.service';
-import { GammeProduitService } from '../gamme-produit/gamme-produit.service';
-import { TvaService } from '../tva/tva.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputMaskModule } from 'primeng/inputmask';
-import { RemiseService } from '../remise/remise.service';
-import { DciService } from '../dci/dci.service';
-import { SelectModule } from 'primeng/select';
-import { Card } from 'primeng/card';
-import { Checkbox } from 'primeng/checkbox';
-import { Toolbar } from 'primeng/toolbar';
-import { RouterLink } from '@angular/router';
-import { signal } from '@angular/core';
-import { SemoisService } from '../semois/semois.service';
-import { ISemoisConfiguration } from 'app/shared/model/semois/semois-configuration.model';
-import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
+import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
+import {Dci, IProduit, Produit} from 'app/shared/model/produit.model';
+import {ProduitService} from './produit.service';
+import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
+import {IFournisseur} from '../../shared/model/fournisseur.model';
+import {IRayon} from '../../shared/model/rayon.model';
+import {IFamilleProduit} from '../../shared/model/famille-produit.model';
+import {ITva} from '../../shared/model/tva.model';
+import {CodeRemise} from '../../shared/model/remise.model';
+import {IFormProduit} from '../../shared/model/form-produit.model';
+import {IGammeProduit} from '../../shared/model/gamme-produit.model';
+import {ILaboratoire} from '../../shared/model/laboratoire.model';
+import {RayonService} from '../rayon/rayon.service';
+import {LaboratoireProduitService} from '../laboratoire-produit/laboratoire-produit.service';
+import {FormeProduitService} from '../forme-produit/forme-produit.service';
+import {FournisseurService} from '../fournisseur/fournisseur.service';
+import {FamilleProduitService} from '../famille-produit/famille-produit.service';
+import {GammeProduitService} from '../gamme-produit/gamme-produit.service';
+import {TvaService} from '../tva/tva.service';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {InputMaskModule} from 'primeng/inputmask';
+import {RemiseService} from '../remise/remise.service';
+import {DciService} from '../dci/dci.service';
+import {SelectModule} from 'primeng/select';
+import {Card} from 'primeng/card';
+import {Checkbox} from 'primeng/checkbox';
+import {Toolbar} from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -55,8 +50,7 @@ import { ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois
     SelectModule,
     Card,
     Checkbox,
-    Toolbar,
-    RouterLink
+    Toolbar
   ]
 })
 export class ProduitUpdateComponent implements OnInit {
@@ -73,9 +67,9 @@ export class ProduitUpdateComponent implements OnInit {
   protected remisesCodes: CodeRemise[] = [];
   protected dcis: Dci[] = [];
   protected categories = [
-    { code: 'A', libelle: 'Produits à forte rotation', z: 1.96 },
-    { code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65 },
-    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 }
+    {code: 'A', libelle: 'Produits à forte rotation', z: 1.96},
+    {code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65},
+    {code: 'C', libelle: 'Produits à faible rotation', z: 1.28}
   ];
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -102,7 +96,6 @@ export class ProduitUpdateComponent implements OnInit {
     itemCostAmount: [],
     itemRegularUnitPrice: [],
     dciId: [],
-    categorie: [],
     codeEanLaboratoire: [],
     stockReassort: [],
     seuilMini: []
@@ -118,22 +111,10 @@ export class ProduitUpdateComponent implements OnInit {
   private readonly tvaService = inject(TvaService);
   private readonly remiseService = inject(RemiseService);
   private readonly dciService = inject(DciService);
-  private readonly semoisService = inject(SemoisService);
 
-  // SEMOIS Configuration
-  semoisConfig = signal<ISemoisConfiguration | null>(null);
-  isSavingSemois = signal<boolean>(false);
-  semoisClasseValue: ClasseCriticite | null = null;
-  semoisClasseOptions = [
-    { label: 'A+ - Produits vitaux', value: ClasseCriticite.A_PLUS },
-    { label: 'A - Forte rotation', value: ClasseCriticite.A },
-    { label: 'B - Rotation moyenne', value: ClasseCriticite.B },
-    { label: 'C - Faible rotation', value: ClasseCriticite.C },
-    { label: 'D - Très faible rotation', value: ClasseCriticite.D },
-  ];
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ produit }) => {
+    this.activatedRoute.data.subscribe(({produit}) => {
       if (!produit.id) {
         const today = moment().startOf('day');
         produit.createdAt = today;
@@ -142,11 +123,6 @@ export class ProduitUpdateComponent implements OnInit {
 
       this.updateForm(produit);
       this.populate(produit);
-
-      // Charger la configuration SEMOIS si le produit existe
-      if (produit.id) {
-        this.loadSemoisConfig(produit.id);
-      }
     });
   }
 
@@ -242,7 +218,6 @@ export class ProduitUpdateComponent implements OnInit {
       deconditionnable: produit.deconditionnable,
       formeId: produit.formeId,
       dciId: produit.dciId,
-      categorie: produit.categorie,
       stockReassort: produit.stockReassort,
       seuilMini: produit.seuilMini,
       codeEanLaboratoire: produit.codeEanLaboratoire
@@ -365,60 +340,11 @@ export class ProduitUpdateComponent implements OnInit {
       deconditionnable: this.editForm.get(['deconditionnable']).value,
       formeId: this.editForm.get(['formeId']).value,
       dciId: this.editForm.get(['dciId']).value,
-      categorie: this.editForm.get(['categorie']).value,
       codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value,
       stockReassort: this.editForm.get(['stockReassort']).value,
       seuilMini: this.editForm.get(['seuilMini']).value
     };
   }
 
-  // ==================== Méthodes SEMOIS ====================
 
-  loadSemoisConfig(produitId: number): void {
-    this.semoisService.getConfiguration(produitId).subscribe({
-      next: res => {
-        if (res.body) {
-          this.semoisConfig.set(res.body);
-          this.semoisClasseValue = res.body.classeCriticite ?? null;
-        }
-      },
-      error: () => {
-        // Pas de configuration SEMOIS pour ce produit (normal)
-        this.semoisConfig.set(null);
-      },
-    });
-  }
-
-  onSemoisClasseChange(): void {
-    const config = this.semoisConfig();
-    if (config && this.semoisClasseValue) {
-      config.classeCriticite = this.semoisClasseValue;
-      const info = getClasseCriticiteInfo(this.semoisClasseValue);
-      config.coefficientSecurite = info.coefficientDefaut;
-      this.semoisConfig.set({ ...config }); // Trigger signal update
-    }
-  }
-
-  saveSemoisConfig(): void {
-    const config = this.semoisConfig();
-    const produitId = this.editForm.get(['id'])?.value;
-
-    if (!config || !produitId) {
-      return;
-    }
-
-    this.isSavingSemois.set(true);
-
-    this.semoisService.updateConfiguration(produitId, config).subscribe({
-      next: res => {
-        this.semoisConfig.set(res.body);
-        this.isSavingSemois.set(false);
-        alert('Configuration SEMOIS enregistrée avec succès');
-      },
-      error: () => {
-        this.isSavingSemois.set(false);
-        alert('Erreur lors de l\'enregistrement de la configuration SEMOIS');
-      },
-    });
-  }
 }

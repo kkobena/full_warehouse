@@ -77,7 +77,7 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected activeTab = signal<string>('vendus');
 
   // Basic Filters
-  protected startDate = signal<Date | null>(this.getFirstDayOfMonth());
+  protected startDate = signal<Date | null>(new Date());
   protected endDate = signal<Date | null>(new Date());
   protected searchTerm = signal<string>('');
 
@@ -293,7 +293,7 @@ export default class RecapProduitVenduComponent implements OnInit {
 
   protected onClearFilters(): void {
     // Basic filters
-    this.startDate.set(this.getFirstDayOfMonth());
+    this.startDate.set(new Date());
     this.endDate.set(new Date());
     this.searchTerm.set('');
 
@@ -481,7 +481,10 @@ export default class RecapProduitVenduComponent implements OnInit {
     const requestParam = this.buildRequestParam();
     this.spinner().show();
 
-    this.recapService.createInventoryFromRecap(requestParam)
+    this.recapService.createInventoryFromRecap({
+      ...requestParam,
+      isInvendu: isInvendu
+    })
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<number>) => {
@@ -552,11 +555,6 @@ export default class RecapProduitVenduComponent implements OnInit {
         this.unsoldSummary.set(res.body ?? null);
       }
     });
-  }
-
-  private getFirstDayOfMonth(): Date {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), 1);
   }
 
 }

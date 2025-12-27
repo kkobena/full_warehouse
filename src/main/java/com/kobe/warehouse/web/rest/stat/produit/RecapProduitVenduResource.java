@@ -177,4 +177,14 @@ public class RecapProduitVenduResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/create-inventory")
+    public ResponseEntity<Integer> createInventoryFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
+        return ResponseEntity.ok().body(recapProduitVenduService.createInventoryFromRecapProduitVendu(requestParam));
+    }
+
+    @GetMapping("/create-suggestion")
+    public ResponseEntity<Integer> createSuggestionFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
+        return ResponseEntity.ok().body(recapProduitVenduService.createSuggestionFromRecapProduitVendu(requestParam));
+    }
 }

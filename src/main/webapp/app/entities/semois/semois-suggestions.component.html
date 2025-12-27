@@ -92,7 +92,7 @@
         <div class="card-header">
           <h5 class="card-title">
             <i class="pi pi-shopping-cart text-primary"></i>
-            Suggestions de Réapprovisionnement SEMOIS
+            Articles en Situation de Criticité
           </h5>
         </div>
         <div class="card-body p-0">
@@ -194,27 +194,15 @@
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
-        <span class="fw-bold fs-5">Guide d'utilisation - SEMOIS</span>
+        <span class="fw-bold fs-5">Guide d'utilisation</span>
       </div>
     </ng-template>
 
     <div class="p-3">
-      <!-- Introduction -->
-      <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2">
-          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que SEMOIS ?
-        </h6>
-        <p class="text-sm text-muted">
-          <strong>SEMOIS</strong> (Stock Économique Mensuel d'Objectif Interne de Sécurité) est une méthode de gestion de stock
-          <strong>spécialement adaptée aux pharmacies</strong>. Elle calcule automatiquement les quantités optimales à commander
-          en tenant compte de votre historique de ventes, des délais de livraison et de la criticité des produits.
-        </p>
-      </div>
 
-      <hr />
 
       <!-- Formules SEMOIS -->
-      <div class="mb-4">
+      <div class="mb-4" [hidden]="true">
         <h6 class="text-primary fw-bold mb-3">
           <i class="pi pi-calculator me-2"></i>Formules et Métriques Clés
         </h6>
@@ -277,14 +265,14 @@
         <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #d32f2f">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-tag value="A+" severity="danger" />
-            <span class="fw-bold">Classe A+ - Produits Vitaux (coeff. 1.5)</span>
+            <span class="fw-bold">Classe A+ - Produits Vitaux</span>
           </div>
           <p class="text-sm mb-2">
             <strong>Exemples :</strong> Insuline, Adrénaline, Ventoline, Atropine
           </p>
           <p class="text-sm mb-0"><strong>Actions :</strong></p>
           <ul class="text-sm mb-0 ps-3">
-            <li>Marge de sécurité maximale (×1.5)</li>
+<!--            <li>Marge de sécurité maximale (×1.5)</li>-->
             <li>Stock toujours disponible, rupture interdite</li>
             <li>Surveillance quotidienne recommandée</li>
           </ul>
@@ -293,7 +281,7 @@
         <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #388e3c">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-tag value="A" severity="success" />
-            <span class="fw-bold">Classe A - Forte Rotation (coeff. 1.0)</span>
+            <span class="fw-bold">Classe A - Forte Rotation</span>
           </div>
           <p class="text-sm mb-2">
             <strong>Caractéristiques :</strong> Top 20% des ventes, forte demande régulière
@@ -309,7 +297,7 @@
         <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #1976d2">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-tag value="B" severity="info" />
-            <span class="fw-bold">Classe B - Rotation Moyenne (coeff. 0.7)</span>
+            <span class="fw-bold">Classe B - Rotation Moyenne</span>
           </div>
           <p class="text-sm mb-2">
             <strong>Caractéristiques :</strong> Ventes régulières mais modérées (classe par défaut)
@@ -324,7 +312,7 @@
         <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #f57c00">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-tag value="C" severity="warn" />
-            <span class="fw-bold">Classe C - Faible Rotation (coeff. 0.4)</span>
+            <span class="fw-bold">Classe C - Faible Rotation</span>
           </div>
           <p class="text-sm mb-2">
             <strong>Caractéristiques :</strong> VMM < 5 unités/mois, vente occasionnelle
@@ -339,7 +327,7 @@
         <div class="mb-3 p-3 rounded" style="background-color: #fafafa; border-left: 4px solid #757575">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-tag value="D" severity="secondary" />
-            <span class="fw-bold">Classe D - Très Faible Rotation (coeff. 0.2)</span>
+            <span class="fw-bold">Classe D - Très Faible Rotation</span>
           </div>
           <p class="text-sm mb-2">
             <strong>Caractéristiques :</strong> VMM < 2 unités/mois ou nul
@@ -384,7 +372,7 @@
       <hr />
 
       <!-- Utilisation pratique -->
-      <div class="mb-4">
+      <div [hidden]="true" class="mb-4">
         <h6 class="text-primary fw-bold mb-3">
           <i class="pi pi-lightbulb me-2"></i>Comment Utiliser SEMOIS
         </h6>
@@ -427,7 +415,7 @@
       </div>
 
       <!-- Exemples -->
-      <div class="mb-3">
+      <div class="mb-3" [hidden]="true">
         <h6 class="text-primary fw-bold mb-3">
           <i class="pi pi-book me-2"></i>Exemples Pratiques
         </h6>
@@ -464,7 +452,7 @@
       </div>
 
       <!-- Best Practices -->
-      <div class="mb-3">
+      <div class="mb-3" [hidden]="true">
         <h6 class="text-primary fw-bold mb-3">
           <i class="pi pi-check-circle me-2"></i>Bonnes Pratiques
         </h6>

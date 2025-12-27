@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -46,16 +47,24 @@ public class VentesAgregeesService {
      * Exécuté selon le cron configuré dans application.yml.
      * Par défaut: tous les jours à 2h du matin (heure creuse).
      */
-    @Scheduled(cron = "${pharma-smart.semois.aggregation-cron:0 0 2 * * *}")
+    @Scheduled(cron = "${pharma-smart.semois.aggregation-cron:0 /59 12-14 * * *'}")
     public void aggregateMonthlySalesDaily() {
         LOG.info("🔄 Début agrégation quotidienne des ventes mensuelles SEMOIS");
 
+        boolean canContinue = getLastUpdateTime().map(lastUpdate ->
+            lastUpdate.toLocalDate().isBefore(LocalDate.now())
+        ).orElse(true);
         YearMonth now = YearMonth.now();
+        if (!canContinue) {
+            LOG.warn("Agrégation quotidienne SEMOIS annulée: déjà exécutée aujourd'hui à {}",
+                getLastUpdateTime().get());
+            return;
+        }
 
         try {
             // 1. Toujours recalculer le mois en cours (volatile)
             aggregateOrUpdateMonth(now, false);
-            LOG.info("✅ Mois en cours {} mis à jour", now);
+            LOG.info("Mois en cours {} mis à jour", now);
 
             // 2. Gérer le mois précédent avec fenêtre de stabilisation
             YearMonth lastMonth = now.minusMonths(1);
@@ -65,19 +74,19 @@ public class VentesAgregeesService {
             if (daysSinceEnd <= freezeDelayDays) {
                 // Encore dans la fenêtre de correction
                 aggregateOrUpdateMonth(lastMonth, false);
-                LOG.info("⏳ Mois {} mis à jour (fenêtre stabilisation: J+{})",
-                         lastMonth, daysSinceEnd);
+                LOG.info("Mois {} mis à jour (fenêtre stabilisation: J+{})",
+                    lastMonth, daysSinceEnd);
             } else if (daysSinceEnd == freezeDelayDays + 1) {
                 // Dernier recalcul puis gel définitif
                 aggregateOrUpdateMonth(lastMonth, true);
-                LOG.warn("🔒 GEL DÉFINITIF du mois {}", lastMonth);
+                LOG.warn("GEL DÉFINITIF du mois {}", lastMonth);
             } else {
                 LOG.debug("Mois {} déjà gelé, ignoré", lastMonth);
             }
 
-            LOG.info("✅ Agrégation quotidienne SEMOIS terminée avec succès");
+            LOG.info("Agrégation quotidienne SEMOIS terminée avec succès");
         } catch (Exception e) {
-            LOG.error("❌ Erreur lors de l'agrégation quotidienne SEMOIS", e);
+            LOG.error("Erreur lors de l'agrégation quotidienne SEMOIS", e);
             throw e;
         }
     }
@@ -87,7 +96,7 @@ public class VentesAgregeesService {
      * Utilise INSERT ... ON CONFLICT pour gérer les updates.
      * Prend en compte les ventes de produits DETAIL (enfants) en les convertissant en quantité parent.
      *
-     * @param mois Le mois à agréger (format YearMonth)
+     * @param mois   Le mois à agréger (format YearMonth)
      * @param freeze Si true, gèle définitivement le mois
      */
     public void aggregateOrUpdateMonth(YearMonth mois, boolean freeze) {
@@ -98,22 +107,22 @@ public class VentesAgregeesService {
         int rowsAffected = ventesAgregeesRepository.aggregateOrUpdateMonth(anneeMois, debut, fin, freeze);
 
         LOG.info("Mois {} : {} produits agrégés (freeze={})",
-                 anneeMois, rowsAffected, freeze);
+            anneeMois, rowsAffected, freeze);
     }
 
     /**
      * Dégel exceptionnel d'un mois (usage admin uniquement).
      * Utilisé uniquement en cas de correction exceptionnelle.
      *
-     * @param mois Le mois à dégeler
+     * @param mois   Le mois à dégeler
      * @param reason Raison du dégel (pour audit)
      */
     @Transactional
     public void unfreezeMonth(YearMonth mois, String reason) {
         int rows = ventesAgregeesRepository.unfreezeMonth(mois.toString());
 
-        LOG.warn("⚠️ DÉGEL EXCEPTIONNEL mois {} : {} produits dégelés. Raison: {}",
-                 mois, rows, reason);
+        LOG.warn("DÉGEL EXCEPTIONNEL mois {} : {} produits dégelés. Raison: {}",
+            mois, rows, reason);
     }
 
     /**
@@ -131,7 +140,7 @@ public class VentesAgregeesService {
      * Récupère l'agrégation pour un produit et un mois donnés.
      *
      * @param produitId ID du produit
-     * @param mois Le mois
+     * @param mois      Le mois
      * @return L'agrégation si elle existe
      */
     @Transactional(readOnly = true)
@@ -185,5 +194,9 @@ public class VentesAgregeesService {
      */
     public int getFreezeDelayDays() {
         return freezeDelayDays;
+    }
+
+    private Optional<LocalDateTime> getLastUpdateTime() {
+        return Optional.ofNullable(ventesAgregeesRepository.findTop1UpdatedAt());
     }
 }

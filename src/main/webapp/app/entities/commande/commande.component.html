@@ -325,7 +325,7 @@
                   <!-- Boutons SEMOIS -->
                   @if (active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-semois') {
 
-                    <p-button
+                    <p-button [hidden]="true"
                       (click)="onSemoisMassConfigClick()"
                       [raised]="true"
                       icon="pi pi-cog"

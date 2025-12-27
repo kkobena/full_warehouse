@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock;
 
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
@@ -11,16 +10,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface SuggestionProduitService {
     void suggerer(List<QuantitySuggestion> quantitySuggestions);
-
-    int suggererListProduits(List<Produit> produits);
-
-    void suggerer(Produit produit);
 
     Page<SuggestionProjection> getAllSuggestion(String search, Integer fournisseurId, TypeSuggession typeSuggession, Pageable pageable);
 
@@ -43,4 +40,6 @@ public interface SuggestionProduitService {
     void updateSuggestionLinQuantity(SuggestionLineDTO suggestionLine);
 
     Resource exportToCsv(Integer id) throws IOException;
+
+    int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus, Boolean suggerQuantitySold);
 }

@@ -8,6 +8,8 @@ import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.report.pdf.RecapProduitInvenduPdfService;
 import com.kobe.warehouse.service.report.pdf.RecapProduitVenduPdfService;
+import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
@@ -56,14 +58,16 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     private final InventaireService inventaireService;
     private final RecapProduitVenduPdfService recapProduitVenduPdfService;
     private final RecapProduitInvenduPdfService recapProduitInvenduPdfService;
+    private final SuggestionProduitService suggestionProduitService;
 
-    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService, InventaireService inventaireService, RecapProduitVenduPdfService recapProduitVenduPdfService, RecapProduitInvenduPdfService recapProduitInvenduPdfService) {
+    public RecapProduitVenduServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService, InventaireService inventaireService, RecapProduitVenduPdfService recapProduitVenduPdfService, RecapProduitInvenduPdfService recapProduitInvenduPdfService, SuggestionProduitService suggestionProduitService) {
         this.entityManager = entityManager;
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
         this.inventaireService = inventaireService;
         this.recapProduitVenduPdfService = recapProduitVenduPdfService;
         this.recapProduitInvenduPdfService = recapProduitInvenduPdfService;
+        this.suggestionProduitService = suggestionProduitService;
     }
 
     private QuerySpec buildWhereClause(RecapProduitVenduRequestParam requestParam) {
@@ -379,12 +383,12 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     @Override
     public int createSuggestionFromRecapProduitVendu(RecapProduitVenduRequestParam requestParam) {
-        return 0;
+        return suggestionProduitService.suggestionQuantiteProduitVendus(getProduitIdQuantities(requestParam), requestParam.suggerQuantitySold());
     }
 
     @Override
     public int createInventoryFromRecapProduitVendu(RecapProduitVenduRequestParam requestParam) {
-        Set<Integer> ids = getProduitIds(requestParam);
+        Set<Integer> ids = requestParam.isInvendu() ? getProduitInvenduIds(requestParam) : getProduitIds(requestParam);
         return inventaireService.createInventoryFromFrom(new CreateInventoryFromProduitIds(
             ids,
             buildStoreInventoryRecord(requestParam)
@@ -396,13 +400,13 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String title = "Inventaire des produits invendus du " + requestParam.startDate().format(formatter) + " au " + requestParam.endDate().format(formatter);
         return new StoreInventoryRecord(
-           null,
-           null,
-           null,
+            null,
+            null,
+            null,
             InventoryCategory.MAGASIN.name(),
-           null,
+            null,
             title
-       );
+        );
     }
 
 
@@ -496,11 +500,11 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         return "Recapitulatif des Produits Vendus du " + startDate.format(formatter) + " au " + endDate.format(formatter);
     }
 
-    private List<ProdduitIdQuantity> getProduitIdQuantities(RecapProduitVenduRequestParam requestParam) {
+    private List<QauntiteProduitVendus> getProduitIdQuantities(RecapProduitVenduRequestParam requestParam) {
         StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClause(requestParam);
 
-        sb.append("SELECT DISTINCT p.id, SUM(sl.quantity_sold) AS quantity_sold ")
+        sb.append("SELECT DISTINCT p.id, SUM(sl.quantity_requested) AS quantity_sold,p.qty_appro, p.qty_seuil_mini ")
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
             .append(" JOIN produit p ON p.id = sl.produit_id ")
@@ -509,18 +513,18 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
 
-        String groupBy = " GROUP BY p.id";
+        String groupBy = " GROUP BY p.id,p.qty_appro, p.qty_seuil_mini";
 
         String sql = sb + spec.where + groupBy + buildHavingClause(requestParam);
         Query q = entityManager.createNativeQuery(sql);
         spec.params.forEach(q::setParameter);
         @SuppressWarnings("unchecked")
         List<Object[]> rows = q.getResultList();
-        List<ProdduitIdQuantity> produitIdQuantities = new ArrayList<>();
+        List<QauntiteProduitVendus> produitIdQuantities = new ArrayList<>();
         for (Object[] r : rows) {
             Integer produitId = r[0] != null ? ((Number) r[0]).intValue() : null;
             Integer quantitySold = r[1] != null ? ((Number) r[1]).intValue() : 0;
-            produitIdQuantities.add(new ProdduitIdQuantity(produitId, quantitySold));
+            produitIdQuantities.add(new QauntiteProduitVendus(produitId, quantitySold, ((Number) r[2]).intValue(), ((Number) r[3]).intValue()));
         }
         return produitIdQuantities;
     }
@@ -539,6 +543,41 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
 
         String sql = sb + spec.where + buildHavingClause(requestParam);
+        Query q = entityManager.createNativeQuery(sql);
+        spec.params.forEach(q::setParameter);
+        @SuppressWarnings("unchecked")
+        List<Number> rows = q.getResultList();
+        Set<Integer> produitIds = new HashSet<>();
+        for (Number r : rows) {
+            produitIds.add(r.intValue());
+        }
+        return produitIds;
+    }
+
+    private Set<Integer> getProduitInvenduIds(RecapProduitVenduRequestParam requestParam) {
+        StringBuilder sb = new StringBuilder();
+        QuerySpec spec = buildWhereClauseForUnsold(requestParam);
+
+
+        sb.append("SELECT DISTINCT p.id FROM produit p ")
+            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
+            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
+            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
+            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ")
+            .append(" WHERE p.id NOT IN (")
+            .append("   SELECT DISTINCT sl.produit_id FROM sales_line sl ")
+            .append("   JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
+            .append("   WHERE COALESCE(s.canceled, false) = false ");
+
+        LocalDate startDate = requestParam.startDate();
+        LocalDate endDate = requestParam.endDate();
+        if (startDate != null && endDate != null) {
+            sb.append(" AND s.sale_date BETWEEN :startDate AND :endDate ");
+        }
+        sb.append(" ) ");
+        sb.append(spec.where);
+
+        String sql = sb.toString();
         Query q = entityManager.createNativeQuery(sql);
         spec.params.forEach(q::setParameter);
         @SuppressWarnings("unchecked")
@@ -707,8 +746,6 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     private record QuerySpec(String where, Map<String, Object> params) {
     }
 
-    private record ProdduitIdQuantity(Integer produitId, Integer quantitySold) {
-    }
 
     private record ProduitSeuilMini(Integer produitId, Integer seuilMini) {
 

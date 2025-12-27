@@ -31,6 +31,7 @@ public record RecapProduitVenduRequestParam(
     Integer rayon,
     String inventoryCategory,
     Integer famillyId,
-    String description
+    String description,
+    boolean isInvendu
 ) {
 }

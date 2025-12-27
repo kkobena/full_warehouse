@@ -343,7 +343,8 @@ public class SemoisCalculationService {
      * - Logs de progression détaillés
      * - Rafraîchissement de la vue matérialisée à la fin
      */
-    @Scheduled(cron = "0 */15 12-14 * * *")
+
+    @Scheduled(cron = "${pharma-smart.semois.recalculation-cron:0 */59 12-14 * * *}")
     @Transactional(propagation = Propagation.NOT_SUPPORTED) // Pas de transaction globale
     public void recalculateAllConfigurations() {
         Optional<AppConfiguration> semoisConfig = getLastSemoisCalculationDate();
@@ -569,7 +570,7 @@ public class SemoisCalculationService {
      */
     @Transactional
     public int initializeAllMissingConfigurations() {
-        LOG.info("🔄 Initialisation configurations SEMOIS manquantes...");
+        LOG.info("initialisation configurations SEMOIS manquantes...");
 
         int created = semoisConfigRepository.initializeAllMissingConfigurations();
 

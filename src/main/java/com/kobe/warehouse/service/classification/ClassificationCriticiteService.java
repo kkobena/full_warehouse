@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @Transactional
 public class ClassificationCriticiteService {
-
+private static final String AUTO_DESCRIPTION = "Reclassification mensuelle automatique";
     private static final Logger LOG = LoggerFactory.getLogger(ClassificationCriticiteService.class);
 
     @Value("${pharma-smart.classification.batch-size:100}")
@@ -108,7 +109,8 @@ public class ClassificationCriticiteService {
         if (dto.nbMoisAnalyse() != null) config.setNbMoisAnalyse(dto.nbMoisAnalyse());
         if (dto.nbMoisMinNouveauProduit() != null) config.setNbMoisMinNouveauProduit(dto.nbMoisMinNouveauProduit());
         if (dto.changementMinScore() != null) config.setChangementMinScore(dto.changementMinScore());
-        if (dto.autoClassificationEnabled() != null) config.setAutoClassificationEnabled(dto.autoClassificationEnabled());
+        if (dto.autoClassificationEnabled() != null)
+            config.setAutoClassificationEnabled(dto.autoClassificationEnabled());
 
         config = configRepository.save(config);
         return ClassificationConfigDTO.fromEntity(config);
@@ -153,8 +155,8 @@ public class ClassificationCriticiteService {
         // Calculer le score total pondéré
         int scoreTotal = (int) Math.round(
             config.getPoidsCa().doubleValue() * scoreCA +
-            config.getPoidsRotation().doubleValue() * scoreRotation +
-            config.getPoidsFrequence().doubleValue() * scoreFrequence
+                config.getPoidsRotation().doubleValue() * scoreRotation +
+                config.getPoidsFrequence().doubleValue() * scoreFrequence
         );
 
         // Déterminer la classe suggérée
@@ -189,7 +191,7 @@ public class ClassificationCriticiteService {
     /**
      * Détermine la classe de criticité basée sur le score.
      *
-     * @param score Score total (0-100)
+     * @param score  Score total (0-100)
      * @param config Configuration des seuils
      * @return Classe de criticité correspondante
      */
@@ -210,11 +212,11 @@ public class ClassificationCriticiteService {
     /**
      * Applique un changement de classe avec logging.
      *
-     * @param produit  produit
+     * @param produit        produit
      * @param nouvelleClasse Nouvelle classe à appliquer
-     * @param score Score de classification
-     * @param raison Raison du changement
-     * @param type Type de classification
+     * @param score          Score de classification
+     * @param raison         Raison du changement
+     * @param type           Type de classification
      */
 
     private void appliquerChangementClasse(
@@ -265,9 +267,9 @@ public class ClassificationCriticiteService {
     /**
      * Override manuel de la classe d'un produit.
      *
-     * @param produitId ID du produit
+     * @param produitId      ID du produit
      * @param nouvelleClasse Classe à forcer
-     * @param raison Raison de l'override
+     * @param raison         Raison de l'override
      */
     @Transactional
     public void overrideClasse(Integer produitId, ClasseCriticite nouvelleClasse, String raison) {
@@ -289,10 +291,10 @@ public class ClassificationCriticiteService {
      *
      * @return Résultat de la reclassification
      */
-    @Scheduled(cron = "${pharma-smart.classification.cron:0 0 4 8 * ?}")
+    @Scheduled(cron = "${pharma-smart.classification.cron:0 0 * 1-8 * ?}")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public ReclassificationResultDTO reclassifierTousProduits() {
-        return reclassifierTousProduits("Reclassification mensuelle automatique");
+        return reclassifierTousProduits(AUTO_DESCRIPTION);
     }
 
     /**
@@ -313,6 +315,14 @@ public class ClassificationCriticiteService {
             LOG.warn("Classification automatique désactivée");
             return ReclassificationResultDTO.builder()
                 .raison("Classification automatique désactivée")
+                .dateExecution(LocalDateTime.now())
+                .build();
+        }
+        if (raison.equals(AUTO_DESCRIPTION) && config.getUpdatedAt().getMonth()== LocalDate.now().getMonth()) {
+
+            LOG.warn("Reclassification automatique déjà exécutée ce mois-ci");
+            return ReclassificationResultDTO.builder()
+                .raison("Reclassification automatique déjà exécutée ce mois-ci")
                 .dateExecution(LocalDateTime.now())
                 .build();
         }
@@ -379,7 +389,7 @@ public class ClassificationCriticiteService {
             LOG.warn("ALERTE: Pourcentage de changements anormalement élevé: {:.1f}%",
                 result.getPourcentageChangements());
         }
-
+        updateConfig(config);
         return result;
     }
 
@@ -465,7 +475,7 @@ public class ClassificationCriticiteService {
      * Récupère les logs d'un produit.
      *
      * @param produitId ID du produit
-     * @param pageable Pagination
+     * @param pageable  Pagination
      * @return Page de logs
      */
     public Page<ClassificationLogDTO> getLogsProduit(Integer produitId, Pageable pageable) {
@@ -570,5 +580,10 @@ public class ClassificationCriticiteService {
 
     private List<Integer> getProduitsEligiblesIds(Pageable pageable) {
         return metriquesRepository.findAllProduitIds(pageable);
+    }
+
+    private void updateConfig(ClassificationConfig config) {
+        config.setUpdatedAt(LocalDateTime.now());
+        configRepository.save(config);
     }
 }

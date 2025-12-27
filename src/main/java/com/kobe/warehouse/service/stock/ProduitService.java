@@ -21,7 +21,6 @@ public interface ProduitService {
      * Save a produit.
      *
      * @param produitDTO the entity to save.
-     * @return the persisted entity.
      */
     void save(ProduitDTO produitDTO);
 

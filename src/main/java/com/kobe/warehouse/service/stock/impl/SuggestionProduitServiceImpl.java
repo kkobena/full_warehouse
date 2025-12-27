@@ -27,6 +27,7 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -146,14 +147,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         }
     }
 
-    @Override
-    public int suggererListProduits(List<Produit> produits) {
-        return 0;
-    }
-
-    @Override
-    public void suggerer(Produit produit) {
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -349,6 +342,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public Resource exportToCsv(Integer id) throws IOException {
         return new UrlResource(Paths.get(exportToCsv(this.suggestionRepository.getReferenceById(id))).toUri());
+    }
+
+    @Override
+    public int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus, Boolean suggerQuantitySold) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        return 0;
     }
 
     private Suggestion getSuggestion(Fournisseur fournisseur, AtomicBoolean suggestionExist) {

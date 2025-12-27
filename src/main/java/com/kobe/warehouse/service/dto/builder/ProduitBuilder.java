@@ -41,7 +41,7 @@ public final class ProduitBuilder {
     private ProduitBuilder() {
     }
 
-    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon,Storage reserveStorage) {
+    public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon, Storage reserveStorage) {
         Produit produit = new Produit();
         produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
@@ -67,19 +67,20 @@ public final class ProduitBuilder {
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
-        produit.setQtyAppro(produitDTO.getQtyAppro());
-        produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
+        produit.setQtyAppro(Math.max(1, produitDTO.getQtyAppro()));
+        produit.setQtySeuilMini(Math.max(1, produitDTO.getQtySeuilMini()));
 
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
         produit.setGamme(gammeFromId(produitDTO.getGammeId()));
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
-        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage(),produitDTO));
-        if(nonNull(reserveStorage) && nonNull(produitDTO.getSeuilMini())){
-            produit.addStockProduit(createReserve(reserveStorage,produitDTO));
+        produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage(), produitDTO));
+        if (nonNull(reserveStorage) && nonNull(produitDTO.getSeuilMini())) {
+            produit.addStockProduit(createReserve(reserveStorage, produitDTO));
         }
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
+        produit.setFournisseurProduitPrincipal(produit.getFournisseurProduits().iterator().next());
         if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())) {
             produit.setClasseCriticite(ClasseCriticite.valueOf(produitDTO.getCategorie()));
         }
@@ -89,14 +90,7 @@ public final class ProduitBuilder {
     }
 
 
-    public static Produit fromId(Integer produitId) {
-        if (produitId == null) {
-            return null;
-        }
-        Produit produit = new Produit();
-        produit.setId(produitId);
-        return produit;
-    }
+
 
     private static ProduitDTO laboratoire(ProduitDTO produitDTO, Produit produit) {
         Laboratoire laboratoire = produit.getLaboratoire();
@@ -160,8 +154,8 @@ public final class ProduitBuilder {
                 .map(StockProduitDTO::new)
                 .collect(Collectors.toSet())
         );
-        updateStockQuantity( produitDTO);
-       // produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
+        updateStockQuantity(produitDTO);
+        // produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
         return produitDTO;
     }
 
@@ -429,7 +423,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static StockProduit stockProduitFromProduitDTO(Storage storage,ProduitDTO produitDTO) {
+    public static StockProduit stockProduitFromProduitDTO(Storage storage, ProduitDTO produitDTO) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(0);
         stockProduit.setQtyVirtual(0);
@@ -441,7 +435,8 @@ public final class ProduitBuilder {
         stockProduit.setStockReassort(produitDTO.getStockReassort());
         return stockProduit;
     }
-    public static StockProduit createReserve(Storage storage,ProduitDTO produitDTO) {
+
+    public static StockProduit createReserve(Storage storage, ProduitDTO produitDTO) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(0);
         stockProduit.setQtyVirtual(0);

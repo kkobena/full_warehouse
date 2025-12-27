@@ -100,14 +100,14 @@ public class Produit implements Serializable {
     @Column(name = "item_qty", nullable = false)
     private Integer itemQty = 1;
 
-    @Column(name = "qty_appro", columnDefinition = "int default '0'")
-    private Integer qtyAppro;
+    @Column(name = "qty_appro", columnDefinition = "int default '1'")
+    private Integer qtyAppro = 1;
 
-    @Column(name = "qty_seuil_mini", columnDefinition = "int default '0'")
-    private Integer qtySeuilMini;
+    @Column(name = "qty_seuil_mini", columnDefinition = "int default '1'")
+    private Integer qtySeuilMini = 1;
 
     @Column(name = "check_expiry_date", columnDefinition = "boolean default false")
-    private Boolean checkExpiryDate;
+    private Boolean checkExpiryDate= false;
 
     @NotAudited
     @Column(name = "chiffre", columnDefinition = "boolean default true")

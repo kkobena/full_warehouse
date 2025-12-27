@@ -76,7 +76,7 @@ export interface IProduit {
   stockReassort?: number;
   seuilMini?: number;
   categorie?: string; //categorie ABC
-  codeEanLaboratoire?: string; //categorie ABC
+  codeEanLaboratoire?: string;
 }
 
 export class Produit implements IProduit {

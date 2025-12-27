@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.Modifying;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -240,4 +241,16 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
         @Param("fin") java.time.LocalDate fin,
         @Param("freeze") boolean freeze
     );
+
+    /**
+     * Récupère la date de la dernière mise à jour dans la table
+     *
+     * @return Date et heure de la dernière mise à jour
+     */
+
+    @Query(
+        value = "SELECT v.updated_at FROM ventes_mensuelles_agregees v ORDER BY v.updated_at DESC LIMIT 1",
+        nativeQuery = true
+    )
+    LocalDateTime findTop1UpdatedAt();
 }

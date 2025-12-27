@@ -57,4 +57,5 @@ export interface IRecapProduitVenduRequestParam {
   suggerQuantitySold?: boolean;
   page?: number;
   size?: number;
+  isInvendu?: boolean;
 }

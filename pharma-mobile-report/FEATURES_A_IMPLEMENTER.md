@@ -167,13 +167,38 @@ Le fichier `google-services.json` actuel est un placeholder.
 
 ## 7. Notes techniques
 
-### Dépendances déjà configurées
-```kotlin
-// TensorFlow Lite (dans build.gradle.kts)
-implementation("org.tensorflow:tensorflow-lite:2.14.0")
-implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
-implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+### TensorFlow Lite - DÉSACTIVÉ (28/12/2024)
+
+**Raison:** Incompatibilité avec les appareils Android 15+ utilisant des pages de 16KB.
+
+Les bibliothèques TensorFlow Lite 2.14.0 ne sont pas alignées sur les limites de 16KB, ce qui génère l'erreur:
 ```
+APK is not compatible with 16 KB devices. Some libraries have LOAD segments not aligned at 16 KB boundaries:
+- lib/x86_64/libtensorflowlite_gpu_jni.so
+- lib/x86_64/libtensorflowlite_jni.so
+```
+
+**Fichiers supprimés:**
+- `service/ForecastingService.kt` - Service de prévisions ML
+
+**Dépendances commentées dans build.gradle.kts:**
+```kotlin
+// TensorFlow Lite (ML Forecasting) - Disabled until 16KB page size support
+// implementation("org.tensorflow:tensorflow-lite:2.14.0")
+// implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+// implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+// implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+```
+
+**Solution future:**
+- Attendre TensorFlow Lite 2.16.0+ qui devrait supporter les pages 16KB
+- Surveiller: https://github.com/tensorflow/tensorflow/issues
+- Date limite Google Play: **1er novembre 2025** pour les apps ciblant Android 15+
+
+**Fichiers conservés (réutilisables):**
+- `data/model/ForecastData.kt` - Classes de données pour les prévisions
+
+---
 
 ### Versions mises à jour pour compilation
 - Kotlin: `2.2.0`
@@ -181,6 +206,3 @@ implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
 - AGP: `8.13.2`
 
 ---
-
-*Document créé le: 2024-12-28*
-*Dernière mise à jour: 2024-12-28*

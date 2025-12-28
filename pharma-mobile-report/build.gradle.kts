@@ -147,11 +147,11 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
 
-    // TensorFlow Lite (ML Forecasting)
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
-    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
-    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
-    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+    // TensorFlow Lite (ML Forecasting) - Disabled until 16KB page size support
+    // implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    // implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    // implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    // implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
 
     // Shimmer loading effect
     implementation("com.facebook.shimmer:shimmer:0.5.0")

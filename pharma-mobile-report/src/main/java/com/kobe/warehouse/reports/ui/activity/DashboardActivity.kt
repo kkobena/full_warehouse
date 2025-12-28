@@ -210,12 +210,16 @@ class DashboardActivity : BaseActivity() {
                     navigateToAlerts()
                     true
                 }
+                R.id.nav_reports -> {
+                    navigateToReports()
+                    true
+                }
                 R.id.nav_todos -> {
                     navigateToTodos()
                     true
                 }
-                R.id.nav_performance -> {
-                    navigateToPerformance()
+                R.id.nav_search -> {
+                    navigateToProducts()
                     true
                 }
                 else -> false
@@ -453,6 +457,11 @@ class DashboardActivity : BaseActivity() {
 
     private fun navigateToTvaReport() {
         val intent = Intent(this, TvaReportActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToReports() {
+        val intent = Intent(this, ReportsActivity::class.java)
         startActivity(intent)
     }
 

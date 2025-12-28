@@ -59,7 +59,7 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
                 String codeCip = (String) row[2];
                 Integer stockQuantity = row[3] != null ? ((Number) row[3]).intValue() : 0;
                 Integer seuilMin = row[4] != null ? ((Number) row[4]).intValue() : 0;
-                LocalDate expiryDate = row[5] != null ? ((Date) row[5]).toLocalDate() : null;
+                LocalDate expiryDate = row[5] != null ? LocalDate.parse(row[5].toString()): null;
                 String alertTypeStr = (String) row[6];
 
                 StockAlertDTO.StockAlertType alertType = alertTypeStr != null ? StockAlertDTO.StockAlertType.valueOf(alertTypeStr) : null;

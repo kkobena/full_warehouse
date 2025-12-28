@@ -53,7 +53,7 @@ public class MobileCashBalanceService {
         params.setStatuts(Set.of(SalesStatut.CLOSED));
 
         // Get balance from existing service
-        BalanceCaisseWrapper wrapper = balanceCaisseService.getBalanceCaisse(params);
+        BalanceCaisseWrapper wrapper = balanceCaisseService.getBalanceCaisse(params.build());
 
         if (wrapper == null) {
             return MobileCashBalanceDTO.empty(fromDate, toDate, buildPeriodLabel(fromDate, toDate));

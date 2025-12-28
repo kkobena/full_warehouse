@@ -28,8 +28,9 @@ import java.time.ZoneId
 
 /**
  * Pharmacist Dashboard activity - displays Tableau Pharmacien report.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class PharmacistDashboardActivity : AppCompatActivity() {
+class PharmacistDashboardActivity : BaseActivity() {
 
     private lateinit var binding: ActivityPharmacistDashboardBinding
     private lateinit var viewModel: PharmacistDashboardViewModel

@@ -12,9 +12,9 @@
         android:title="@string/alerts_title" />
 
     <item
-        android:id="@+id/nav_search"
-        android:icon="@drawable/ic_search"
-        android:title="Recherche" />
+        android:id="@+id/nav_reports"
+        android:icon="@drawable/ic_reports"
+        android:title="@string/nav_reports" />
 
     <item
         android:id="@+id/nav_todos"
@@ -22,8 +22,8 @@
         android:title="@string/todos_title" />
 
     <item
-        android:id="@+id/nav_performance"
-        android:icon="@drawable/ic_chart"
-        android:title="@string/performance_title" />
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_search"
+        android:title="Recherche" />
 
 </menu>

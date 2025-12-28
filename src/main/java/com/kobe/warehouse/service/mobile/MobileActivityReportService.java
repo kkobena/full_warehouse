@@ -163,12 +163,12 @@ public class MobileActivityReportService {
         }
 
         long total = recettes.stream()
-            .mapToLong(r -> toLong(r.realAmount()))
+            .mapToLong(Recette::realAmount)
             .sum();
 
         return recettes.stream()
             .map(r -> {
-                long montant = toLong(r.realAmount());
+                long montant = r.realAmount();
                 double percent = total > 0 ? (montant * 100.0 / total) : 0.0;
                 return new RecetteMobileDTO(
                     r.code(),

@@ -20,8 +20,9 @@ import com.kobe.warehouse.reports.ui.viewmodel.AlertsViewModelFactory
 
 /**
  * Alerts activity - displays all alerts with filtering.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class AlertsActivity : AppCompatActivity() {
+class AlertsActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAlertsBinding
     private lateinit var viewModel: AlertsViewModel

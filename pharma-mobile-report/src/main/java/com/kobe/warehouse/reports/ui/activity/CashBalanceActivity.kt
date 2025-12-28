@@ -31,8 +31,9 @@ import java.time.ZoneId
 
 /**
  * Cash Balance Activity - displays Balance Caisse report.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class CashBalanceActivity : AppCompatActivity() {
+class CashBalanceActivity : BaseActivity() {
 
     private lateinit var binding: ActivityCashBalanceBinding
     private lateinit var viewModel: CashBalanceViewModel

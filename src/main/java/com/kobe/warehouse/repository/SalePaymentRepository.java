@@ -36,8 +36,8 @@ public interface SalePaymentRepository
     List<SalePayment> findAllBySaleIdAndSaleSaleDate(Long id, LocalDate date);
 
     @Query(
-        value = "SELECT  SUM(p.reel_amount) AS montantReel,SUM(p.paid_amount) AS montantPaye,pm.libelle AS modePaimentLibelle,pm.code AS modePaimentCode FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +
-        "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND s.sale_date BETWEEN :fromDate AND :toDate GROUP BY pm.code",
+        value = "SELECT  SUM(p.reel_amount) AS realAmount,SUM(p.paid_amount) AS paidAmount,pm.libelle AS libelle,pm.code AS code FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +
+        "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED') AND s.sale_date BETWEEN :fromDate AND :toDate GROUP BY pm.code",
         nativeQuery = true
     )
     List<Recette> findRecettes(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);

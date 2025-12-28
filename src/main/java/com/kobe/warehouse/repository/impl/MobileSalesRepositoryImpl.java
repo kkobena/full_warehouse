@@ -234,7 +234,7 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
         List<DailyCATrendProjection> trend = new ArrayList<>();
         for (Object[] row : results) {
             trend.add(new DailyCATrendProjection(
-                ((java.sql.Date) row[0]).toLocalDate(),
+                LocalDate.parse(row[0].toString()),
                 ((Number) row[1]).longValue(),
                 ((Number) row[2]).intValue()
             ));

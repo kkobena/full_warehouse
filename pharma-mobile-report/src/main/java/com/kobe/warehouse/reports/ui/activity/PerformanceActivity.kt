@@ -29,8 +29,9 @@ import com.kobe.warehouse.reports.ui.viewmodel.PerformanceViewModelFactory
 
 /**
  * Performance activity - displays performance analytics.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class PerformanceActivity : AppCompatActivity() {
+class PerformanceActivity : BaseActivity() {
 
     private lateinit var binding: ActivityPerformanceBinding
     private lateinit var viewModel: PerformanceViewModel

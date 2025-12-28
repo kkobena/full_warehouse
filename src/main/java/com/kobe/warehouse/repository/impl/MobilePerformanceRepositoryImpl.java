@@ -220,7 +220,7 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
 
         List<DataPointProjection> dataPoints = new ArrayList<>();
         for (Object[] row : results) {
-            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+            LocalDate date = LocalDate.parse(row[0].toString());
             dataPoints.add(new DataPointProjection(
                 date,
                 ((Number) row[1]).longValue(),

@@ -21,8 +21,9 @@ import java.time.ZoneId
 
 /**
  * Cash Summary Activity - displays Ticket Z / Récapitulatif Caisse report.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class CashSummaryActivity : AppCompatActivity() {
+class CashSummaryActivity : BaseActivity() {
 
     private lateinit var binding: ActivityCashSummaryBinding
     private lateinit var viewModel: CashSummaryViewModel

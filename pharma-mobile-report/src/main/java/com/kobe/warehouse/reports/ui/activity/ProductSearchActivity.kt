@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
 import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,8 +20,9 @@ import com.kobe.warehouse.reports.ui.viewmodel.ProductSearchViewModelFactory
 
 /**
  * Activity for searching products.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class ProductSearchActivity : AppCompatActivity() {
+class ProductSearchActivity : BaseActivity() {
 
     private lateinit var binding: ActivityProductSearchBinding
     private lateinit var viewModel: ProductSearchViewModel

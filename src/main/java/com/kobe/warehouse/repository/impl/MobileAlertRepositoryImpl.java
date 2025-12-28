@@ -127,7 +127,7 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
                 ((Number) row[1]).longValue(),
                 (String) row[2],
                 (String) row[3],
-                ((java.sql.Date) row[4]).toLocalDate(),
+                LocalDate.parse( row[4].toString()),
                 ((Number) row[5]).intValue(),
                 ((Number) row[6]).intValue()
             ));
@@ -212,7 +212,7 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         for (Object[] row : results) {
             projections.add(new OverdueInvoiceProjection(
                 ((Number) row[0]).longValue(),
-                ((java.sql.Date) row[1]).toLocalDate(),
+                LocalDate.parse( row[1].toString()),
                 (String) row[2],
                 (String) row[3],
                 ((Number) row[4]).longValue(),

@@ -28,8 +28,9 @@ import java.time.ZoneId
 
 /**
  * TVA Report Activity - displays Rapport TVA.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class TvaReportActivity : AppCompatActivity() {
+class TvaReportActivity : BaseActivity() {
 
     private lateinit var binding: ActivityTvaReportBinding
     private lateinit var viewModel: TvaReportViewModel

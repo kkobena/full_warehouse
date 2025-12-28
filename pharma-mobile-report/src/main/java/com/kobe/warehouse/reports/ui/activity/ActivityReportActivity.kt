@@ -26,8 +26,9 @@ import java.time.ZoneId
 
 /**
  * Activity Report Activity - displays Rapport d'Activité report.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class ActivityReportActivity : AppCompatActivity() {
+class ActivityReportActivity : BaseActivity() {
 
     private lateinit var binding: ActivityActivityReportBinding
     private lateinit var viewModel: ActivityReportViewModel

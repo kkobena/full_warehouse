@@ -19,8 +19,9 @@ import com.kobe.warehouse.reports.ui.viewmodel.TodosViewModelFactory
 
 /**
  * Todos activity - displays prioritized action items.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class TodosActivity : AppCompatActivity() {
+class TodosActivity : BaseActivity() {
 
     private lateinit var binding: ActivityTodosBinding
     private lateinit var viewModel: TodosViewModel

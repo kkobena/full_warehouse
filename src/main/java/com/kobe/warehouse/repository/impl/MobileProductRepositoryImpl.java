@@ -190,7 +190,7 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
             lots.add(new LotInfoProjection(
                 ((Number) row[0]).longValue(),
                 (String) row[1],
-                ((java.sql.Date) row[2]).toLocalDate(),
+                LocalDate.parse((String) row[2]),
                 ((Number) row[3]).intValue(),
                 ((Number) row[4]).intValue()
             ));

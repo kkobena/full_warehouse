@@ -487,7 +487,7 @@ public class VendeurDashboardServiceImpl implements VendeurDashboardService {
             String categorie = (String) row[2];
             double montantTotal = ((BigDecimal) row[3]).doubleValue();
             int nombreVisites = ((BigDecimal) row[4]).intValue();
-            LocalDate derniereVisite = ((java.sql.Date) row[5]).toLocalDate();
+            LocalDate derniereVisite =LocalDate.parse  ( row[5].toString());
 
             clients.add(new ClientFideleDTO(clientId, nom, categorie, montantTotal, nombreVisites, derniereVisite));
         }

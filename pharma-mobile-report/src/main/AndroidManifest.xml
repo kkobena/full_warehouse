@@ -125,6 +125,14 @@
             android:screenOrientation="fullSensor"
             android:parentActivityName=".ui.activity.DashboardActivity" />
 
+        <!-- Reports Menu Activity -->
+        <activity
+            android:name=".ui.activity.ReportsActivity"
+            android:exported="false"
+            android:label="@string/nav_reports"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
         <!-- Barcode Scanner Activity -->
         <activity
             android:name=".ui.activity.BarcodeScannerActivity"

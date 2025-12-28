@@ -18,7 +18,7 @@ public record DailySalesDTO(
      * Create from query result array
      */
     public static DailySalesDTO fromQueryResult(Object[] row) {
-        LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+        LocalDate date =  LocalDate.parse  (row[0].toString());
         Long amount = ((Number) row[1]).longValue();
         Integer count = ((Number) row[2]).intValue();
         Integer customers = row.length > 3 ? ((Number) row[3]).intValue() : 0;

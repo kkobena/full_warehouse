@@ -10,6 +10,12 @@ import kotlinx.coroutines.withContext
  * Repository for report data access.
  * Handles API calls with proper error handling.
  */
+/**
+ * Companion object providing singleton access.
+ */
+@Suppress("unused")
+private var instance: ReportRepository? = null
+
 class ReportRepository(
     private val apiService: ReportApiService,
     private val tokenManager: TokenManager
@@ -133,11 +139,15 @@ class ReportRepository(
     // =========================================================================
 
     /**
-     * Get alerts list.
+     * Get alerts list with optional pagination.
      */
-    suspend fun getAlerts(types: List<String>? = null): Result<List<Alert>> = withContext(Dispatchers.IO) {
+    suspend fun getAlerts(
+        types: List<String>? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Result<List<Alert>> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getAlerts(types)
+            val response = apiService.getAlerts(types, page, size)
 
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
@@ -213,6 +223,43 @@ class ReportRepository(
         }
     }
 
+    /**
+     * Get todo items with pagination.
+     */
+    suspend fun getTodoItems(
+        page: Int = 0,
+        size: Int = 20
+    ): Result<List<com.kobe.warehouse.reports.data.model.TodoItem>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getTodoItems(page, size)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get todo counts by priority.
+     */
+    suspend fun getTodoCounts(): Result<com.kobe.warehouse.reports.data.api.TodoCounts> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getTodoCounts()
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
     // =========================================================================
     // PERFORMANCE
     // =========================================================================
@@ -226,6 +273,135 @@ class ReportRepository(
     ): Result<Performance> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getPerformance(period, date)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // =========================================================================
+    // PHARMACIST REPORTS
+    // =========================================================================
+
+    /**
+     * Get pharmacist dashboard (Tableau Pharmacien) data.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd), defaults to fromDate if null
+     */
+    suspend fun getPharmacistDashboard(
+        fromDate: String,
+        toDate: String? = null
+    ): Result<PharmacistDashboard> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getPharmacistDashboard(fromDate, toDate)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get cash summary (Ticket Z / Récapitulatif Caisse) data.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd), defaults to fromDate if null
+     * @param fromTime Start time for intra-day filtering (format: HH:mm:ss)
+     * @param toTime End time for intra-day filtering (format: HH:mm:ss)
+     * @param userIds Filter by specific user IDs
+     * @param onlyVente If true, only include sales payments
+     */
+    suspend fun getCashSummary(
+        fromDate: String,
+        toDate: String? = null,
+        fromTime: String? = null,
+        toTime: String? = null,
+        userIds: List<Int>? = null,
+        onlyVente: Boolean = false
+    ): Result<CashSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getCashSummary(fromDate, toDate, fromTime, toTime, userIds, onlyVente)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get activity report (Rapport d'Activité) data.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd), defaults to fromDate if null
+     */
+    suspend fun getActivityReport(
+        fromDate: String,
+        toDate: String? = null
+    ): Result<ActivityReport> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getActivityReport(fromDate, toDate)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get cash balance (Balance Caisse) data.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd), defaults to fromDate if null
+     */
+    suspend fun getCashBalance(
+        fromDate: String,
+        toDate: String? = null
+    ): Result<CashBalance> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getCashBalance(fromDate, toDate)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get TVA report data.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd), defaults to fromDate if null
+     * @param groupByDate Whether to group results by date
+     */
+    suspend fun getTvaReport(
+        fromDate: String,
+        toDate: String? = null,
+        groupByDate: Boolean = false
+    ): Result<TvaReport> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getTvaReport(fromDate, toDate, groupByDate)
 
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
@@ -293,6 +469,58 @@ class ReportRepository(
         }
     }
 
+    // =========================================================================
+    // ACTIONS
+    // =========================================================================
+
+    /**
+     * Resolve/dismiss an alert.
+     */
+    suspend fun resolveAlert(alertId: Long): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.resolveAlert(alertId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Mark a todo item as done.
+     */
+    suspend fun markTodoDone(todoId: Long): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.markTodoDone(todoId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Register FCM token.
+     */
+    suspend fun registerFcmToken(fcmToken: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.registerFcmToken(FcmTokenRequest(fcmToken))
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
     private fun handleException(e: Exception): Exception {
         return when (e) {
             is java.net.UnknownHostException -> Exception("Serveur inaccessible - vérifiez votre connexion")
@@ -301,4 +529,21 @@ class ReportRepository(
             else -> Exception("Erreur: ${e.message}")
         }
     }
+
+    companion object {
+        @Volatile
+        private var INSTANCE: ReportRepository? = null
+
+        fun getInstance(context: android.content.Context): ReportRepository {
+            return INSTANCE ?: synchronized(this) {
+                val tokenManager = com.kobe.warehouse.reports.utils.TokenManager(context)
+                val apiService = ApiClient.create(tokenManager = tokenManager)
+                    .create(ReportApiService::class.java)
+                val instance = ReportRepository(apiService, tokenManager)
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+
 }

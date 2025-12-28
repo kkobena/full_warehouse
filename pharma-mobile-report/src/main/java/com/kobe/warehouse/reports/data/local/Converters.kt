@@ -1,6 +1,7 @@
 package com.kobe.warehouse.reports.data.local
 
 import androidx.room.TypeConverter
+import java.util.Date
 
 /**
  * Type converters for Room database.
@@ -8,12 +9,12 @@ import androidx.room.TypeConverter
 class Converters {
 
     @TypeConverter
-    fun fromTimestamp(value: Long?): Long? {
-        return value
+    fun fromTimestamp(value: Long?): Date? {
+        return value?.let { Date(it) }
     }
 
     @TypeConverter
-    fun dateToTimestamp(date: Long?): Long? {
-        return date
+    fun dateToTimestamp(date: Date?): Long? {
+        return date?.time
     }
 }

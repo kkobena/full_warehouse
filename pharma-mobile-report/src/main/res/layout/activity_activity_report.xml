@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white"
+            app:title="@string/report_activity"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ViewFlipper
+            android:id="@+id/viewFlipper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- SKELETON STATE (index 0) -->
+            <include layout="@layout/skeleton_activity_report" />
+
+            <!-- CONTENT STATE (index 1) -->
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Period Label -->
+                    <TextView
+                        android:id="@+id/tvPeriodLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        tools:text="Aujourd'hui" />
+
+                    <!-- Period Selector Chips -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:scrollbars="none">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupPeriod"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipToday"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="@string/period_today" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipYesterday"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/period_yesterday" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipThisWeek"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/period_this_week" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipThisMonth"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/period_this_month" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipCustom"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/period_custom"
+                                app:chipIcon="@drawable/ic_date_range"
+                                app:chipIconVisible="true" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                    </HorizontalScrollView>
+
+                    <!-- Chiffre d'Affaires Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardChiffreAffaire"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Header -->
+                            <LinearLayout
+                                android:id="@+id/headerChiffreAffaire"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="?attr/selectableItemBackground"
+                                android:orientation="horizontal"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_trending_up"
+                                    app:tint="@color/primary" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_weight="1"
+                                    android:text="@string/chiffre_affaires"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvCaTotalHeader"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:textColor="@color/success"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="2 500 000 FCFA" />
+
+                                <ImageView
+                                    android:id="@+id/iconCaExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_less"
+                                    app:tint="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <!-- Content -->
+                            <LinearLayout
+                                android:id="@+id/contentChiffreAffaire"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="16dp"
+                                android:paddingBottom="16dp">
+
+                                <include
+                                    android:id="@+id/rowMontantTtc"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                                <include
+                                    android:id="@+id/rowMontantHt"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                                <include
+                                    android:id="@+id/rowMontantTva"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                                <include
+                                    android:id="@+id/rowRemise"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                                <include
+                                    android:id="@+id/rowMontantNet"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginVertical="8dp"
+                                    android:background="@color/divider" />
+
+                                <include
+                                    android:id="@+id/rowMarge"
+                                    layout="@layout/item_summary_row"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Recettes Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardRecettes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Header -->
+                            <LinearLayout
+                                android:id="@+id/headerRecettes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="?attr/selectableItemBackground"
+                                android:orientation="horizontal"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_payments"
+                                    app:tint="@color/success" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_weight="1"
+                                    android:text="@string/recettes_par_mode"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvRecettesTotalHeader"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:textColor="@color/success"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="2 500 000 FCFA" />
+
+                                <ImageView
+                                    android:id="@+id/iconRecettesExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_less"
+                                    app:tint="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <!-- Content -->
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rvRecettes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                android:paddingHorizontal="16dp"
+                                android:paddingBottom="16dp"
+                                tools:itemCount="4"
+                                tools:listitem="@layout/item_recette" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Mouvements de Caisse Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardMouvements"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Header -->
+                            <LinearLayout
+                                android:id="@+id/headerMouvements"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="?attr/selectableItemBackground"
+                                android:orientation="horizontal"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_swap_vert"
+                                    app:tint="@color/info" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_weight="1"
+                                    android:text="@string/mouvements_caisse"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/iconMouvementsExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_more"
+                                    app:tint="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <!-- Content -->
+                            <LinearLayout
+                                android:id="@+id/contentMouvements"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="16dp"
+                                android:paddingBottom="16dp"
+                                android:visibility="gone"
+                                tools:visibility="visible">
+
+                                <!-- Entrees/Sorties Summary -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="12dp"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_success_light"
+                                        android:gravity="center"
+                                        android:orientation="vertical"
+                                        android:padding="12dp">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/entrees"
+                                            android:textColor="@color/success"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalEntrees"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/success"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold"
+                                            tools:text="500 000 FCFA" />
+
+                                    </LinearLayout>
+
+                                    <View
+                                        android:layout_width="8dp"
+                                        android:layout_height="match_parent" />
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_error_light"
+                                        android:gravity="center"
+                                        android:orientation="vertical"
+                                        android:padding="12dp">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/sorties"
+                                            android:textColor="@color/error"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalSorties"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/error"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold"
+                                            tools:text="150 000 FCFA" />
+
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rvMouvements"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:nestedScrollingEnabled="false"
+                                    tools:itemCount="3"
+                                    tools:listitem="@layout/item_mouvement" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Achats Fournisseurs Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardAchats"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Header -->
+                            <LinearLayout
+                                android:id="@+id/headerAchats"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="?attr/selectableItemBackground"
+                                android:orientation="horizontal"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_shopping_cart"
+                                    app:tint="@color/warning" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_weight="1"
+                                    android:text="@string/achats_fournisseurs"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvAchatsTotalHeader"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="8dp"
+                                    android:textColor="@color/warning"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="1 200 000 FCFA" />
+
+                                <ImageView
+                                    android:id="@+id/iconAchatsExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_more"
+                                    app:tint="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <!-- Content -->
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rvAchats"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                android:paddingHorizontal="16dp"
+                                android:paddingBottom="16dp"
+                                android:visibility="gone"
+                                tools:itemCount="4"
+                                tools:listitem="@layout/item_achat_fournisseur"
+                                tools:visibility="visible" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Tiers Payants Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardTiersPayants"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/card_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Header -->
+                            <LinearLayout
+                                android:id="@+id/headerTiersPayants"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="?attr/selectableItemBackground"
+                                android:orientation="horizontal"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_business"
+                                    app:tint="@color/purple_500" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_weight="1"
+                                    android:text="@string/tiers_payants"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/iconTiersPayantsExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_more"
+                                    app:tint="@color/text_secondary" />
+
+                            </LinearLayout>
+
+                            <!-- Content -->
+                            <LinearLayout
+                                android:id="@+id/contentTiersPayants"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="16dp"
+                                android:paddingBottom="16dp"
+                                android:visibility="gone"
+                                tools:visibility="visible">
+
+                                <!-- Reglements Summary -->
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="8dp"
+                                    android:text="@string/reglements"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="12dp"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/facture"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalFacture"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/text_primary"
+                                            android:textStyle="bold"
+                                            tools:text="800 000" />
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/regle"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalRegle"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/success"
+                                            android:textStyle="bold"
+                                            tools:text="500 000" />
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/restant"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalRestant"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/warning"
+                                            android:textStyle="bold"
+                                            tools:text="300 000" />
+
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rvReglements"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="16dp"
+                                    android:nestedScrollingEnabled="false"
+                                    tools:itemCount="3"
+                                    tools:listitem="@layout/item_reglement_tp" />
+
+                                <!-- Achats Tiers Payants -->
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="8dp"
+                                    android:text="@string/achats_tiers_payants"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="12dp"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/bons"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalBons"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/text_primary"
+                                            android:textStyle="bold"
+                                            tools:text="45" />
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/montant"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalMontantAchats"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/text_primary"
+                                            android:textStyle="bold"
+                                            tools:text="1 500 000" />
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/clients"
+                                            android:textColor="@color/text_secondary"
+                                            android:textSize="12sp" />
+
+                                        <TextView
+                                            android:id="@+id/tvTotalClients"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textColor="@color/text_primary"
+                                            android:textStyle="bold"
+                                            tools:text="32" />
+
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rvAchatsTp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:nestedScrollingEnabled="false"
+                                    tools:itemCount="3"
+                                    tools:listitem="@layout/item_achat_tp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </ViewFlipper>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="16dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_reports"
+            app:tint="@color/gray_400" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/no_data_for_period"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <!-- Loading Overlay -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80FFFFFF"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary" />
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

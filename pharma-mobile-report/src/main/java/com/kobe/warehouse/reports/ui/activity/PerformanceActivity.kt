@@ -3,7 +3,7 @@ package com.kobe.warehouse.reports.ui.activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -145,7 +145,11 @@ class PerformanceActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.loadingOverlay.isVisible = isLoading
+            if (isLoading) {
+                showSkeleton()
+            }
+            // Hide loadingOverlay (kept for compatibility)
+            binding.loadingOverlay.isVisible = false
         }
 
         viewModel.isRefreshing.observe(this) { isRefreshing ->
@@ -154,14 +158,35 @@ class PerformanceActivity : AppCompatActivity() {
 
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
+                showContent()
                 showError(it)
                 viewModel.clearError()
             }
         }
 
         viewModel.performance.observe(this) { performance ->
+            showContent()
             updateUI(performance)
         }
+    }
+
+    /**
+     * Show skeleton loading view.
+     */
+    private fun showSkeleton() {
+        binding.viewFlipper.displayedChild = VIEW_SKELETON
+    }
+
+    /**
+     * Show actual content view.
+     */
+    private fun showContent() {
+        binding.viewFlipper.displayedChild = VIEW_CONTENT
+    }
+
+    companion object {
+        private const val VIEW_SKELETON = 0
+        private const val VIEW_CONTENT = 1
     }
 
     private fun updateUI(performance: Performance) {

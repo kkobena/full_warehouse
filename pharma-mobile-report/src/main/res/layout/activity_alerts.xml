@@ -26,121 +26,132 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content -->
-    <LinearLayout
+    <!-- Main Content with ViewFlipper for skeleton -->
+    <ViewFlipper
+        android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Filter Chips -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none">
+        <!-- Child 0: Skeleton Loading -->
+        <include layout="@layout/skeleton_alerts" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupFilters"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAll"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/alerts_filter_all" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipStockRupture"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alerts_filter_stock_rupture" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipExpiry"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alerts_filter_expiry" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipCash"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alerts_filter_cash" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInvoice"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alerts_filter_invoice" />
-
-            </com.google.android.material.chip.ChipGroup>
-
-        </HorizontalScrollView>
-
-        <!-- Alerts List with Pull-to-Refresh -->
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAlerts"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:padding="16dp"
-                tools:listitem="@layout/item_alert_detail" />
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        <!-- Empty State -->
+        <!-- Child 1: Actual Content -->
         <LinearLayout
-            android:id="@+id/emptyState"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:alpha="0.5"
-                android:src="@drawable/ic_check_circle"
-                android:contentDescription="@string/alerts_empty_title" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Filter Chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/alerts_empty_title"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:scrollbars="none">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/alerts_empty_message"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupFilters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAll"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/alerts_filter_all" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipStockRupture"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alerts_filter_stock_rupture" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipExpiry"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alerts_filter_expiry" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCash"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alerts_filter_cash" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipInvoice"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alerts_filter_invoice" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
+
+            <!-- Alerts List with Pull-to-Refresh -->
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefresh"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvAlerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:padding="16dp"
+                    tools:listitem="@layout/item_alert_detail" />
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/emptyState"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:alpha="0.5"
+                    android:src="@drawable/ic_check_circle"
+                    android:contentDescription="@string/alerts_empty_title" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/alerts_empty_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/alerts_empty_message"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </ViewFlipper>
 
     <!-- Loading Overlay -->
     <FrameLayout

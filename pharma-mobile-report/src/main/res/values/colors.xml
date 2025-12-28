@@ -76,4 +76,15 @@
 
     <!-- Launcher Icon Colors -->
     <color name="ic_launcher_background">#5B89A6</color>
+
+    <!-- Shimmer / Skeleton Colors -->
+    <color name="shimmer_background">#E5E7EB</color>
+
+    <!-- Rank Colors for Top Lists -->
+    <color name="rank_gold">#FFD700</color>
+    <color name="rank_silver">#C0C0C0</color>
+    <color name="rank_bronze">#CD7F32</color>
+    <color name="border">#E5E7EB</color>
+    <color name="purple_500">#8B5CF6</color>
+    <color name="warning_dark">#B45309</color>
 </resources>

@@ -57,11 +57,17 @@ interface ReportApiService {
     // =========================================================================
 
     /**
-     * Get detailed list of alerts.
+     * Get detailed list of alerts with pagination.
      * @param types Optional list of alert types to filter
+     * @param page Page number (0-indexed)
+     * @param size Page size
      */
     @GET("api/mobile/alerts")
-    suspend fun getAlerts(@Query("types") types: List<String>? = null): Response<List<Alert>>
+    suspend fun getAlerts(
+        @Query("types") types: List<String>? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<List<Alert>>
 
     // =========================================================================
     // PRODUCTS (Phase 1)
@@ -92,6 +98,23 @@ interface ReportApiService {
     @GET("api/mobile/todos")
     suspend fun getTodoList(): Response<TodoList>
 
+    /**
+     * Get all todo items as a flat list with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     */
+    @GET("api/mobile/todos/items")
+    suspend fun getTodoItems(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<List<com.kobe.warehouse.reports.data.model.TodoItem>>
+
+    /**
+     * Get todo counts by priority.
+     */
+    @GET("api/mobile/todos/counts")
+    suspend fun getTodoCounts(): Response<TodoCounts>
+
     // =========================================================================
     // PERFORMANCE (Phase 2)
     // =========================================================================
@@ -106,6 +129,98 @@ interface ReportApiService {
         @Query("period") period: String = "WEEK",
         @Query("date") date: String? = null
     ): Response<Performance>
+
+    // =========================================================================
+    // PHARMACIST REPORTS (Phase 3)
+    // =========================================================================
+
+    /**
+     * Get pharmacist dashboard (Tableau Pharmacien) data.
+     * Provides comprehensive sales vs purchases analysis.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd)
+     */
+    @GET("api/mobile/reports/pharmacist-dashboard")
+    suspend fun getPharmacistDashboard(
+        @Query("fromDate") fromDate: String,
+        @Query("toDate") toDate: String? = null
+    ): Response<PharmacistDashboard>
+
+    /**
+     * Get cash summary (Ticket Z / Récapitulatif Caisse) data.
+     * Provides comprehensive cash summary with per-cashier breakdown.
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd)
+     * @param fromTime Start time for intra-day filtering (format: HH:mm:ss)
+     * @param toTime End time for intra-day filtering (format: HH:mm:ss)
+     * @param userIds Filter by specific user IDs
+     * @param onlyVente If true, only include sales payments
+     */
+    @GET("api/mobile/reports/cash-summary")
+    suspend fun getCashSummary(
+        @Query("fromDate") fromDate: String,
+        @Query("toDate") toDate: String? = null,
+        @Query("fromTime") fromTime: String? = null,
+        @Query("toTime") toTime: String? = null,
+        @Query("userIds") userIds: List<Int>? = null,
+        @Query("onlyVente") onlyVente: Boolean = false
+    ): Response<CashSummary>
+
+    /**
+     * Get activity report (Rapport d'Activité) data.
+     * Provides comprehensive activity summary with:
+     * - Chiffre d'affaires (revenue summary)
+     * - Recettes by payment mode
+     * - Mouvements de caisse
+     * - Achats by supplier group
+     * - Tiers payants summary
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd)
+     */
+    @GET("api/mobile/reports/activity")
+    suspend fun getActivityReport(
+        @Query("fromDate") fromDate: String,
+        @Query("toDate") toDate: String? = null
+    ): Response<ActivityReport>
+
+    /**
+     * Get cash balance (Balance Caisse) data.
+     * Provides comprehensive cash balance with:
+     * - Totals (TTC, HT, Net, Remise, TVA)
+     * - Payment breakdown (cash, cards, mobile money, etc.)
+     * - Category balances (VO, VNO)
+     * - Cash movements (entries/exits)
+     * - Margin and ratio analysis
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd)
+     */
+    @GET("api/mobile/reports/cash-balance")
+    suspend fun getCashBalance(
+        @Query("fromDate") fromDate: String,
+        @Query("toDate") toDate: String? = null
+    ): Response<CashBalance>
+
+    /**
+     * Get TVA (VAT) report data.
+     * Provides comprehensive TVA breakdown with:
+     * - Totals (HT, TVA, TTC, Net)
+     * - Breakdown by TVA rate
+     * - Chart data for visualization
+     *
+     * @param fromDate Start date of the period (format: yyyy-MM-dd)
+     * @param toDate End date of the period (format: yyyy-MM-dd)
+     * @param groupByDate Whether to group results by date
+     */
+    @GET("api/mobile/reports/tva")
+    suspend fun getTvaReport(
+        @Query("fromDate") fromDate: String,
+        @Query("toDate") toDate: String? = null,
+        @Query("groupByDate") groupByDate: Boolean = false
+    ): Response<TvaReport>
 
     // =========================================================================
     // FORECASTING (Phase 4)
@@ -185,6 +300,28 @@ interface ReportApiService {
      */
     @GET("api/mobile/health")
     suspend fun healthCheck(): Response<HealthResponse>
+    // =========================================================================
+    // ACTIONS
+    // =========================================================================
+
+    /**
+     * Resolve/dismiss an alert.
+     */
+    @PUT("api/mobile/alerts/{id}/resolve")
+    suspend fun resolveAlert(@Path("id") alertId: Long): retrofit2.Response<Unit>
+
+    /**
+     * Mark a todo item as done.
+     */
+    @PUT("api/mobile/todos/{id}/done")
+    suspend fun markTodoDone(@Path("id") todoId: Long): retrofit2.Response<Unit>
+
+    /**
+     * Register FCM token.
+     */
+    @POST("api/mobile/devices/fcm-token")
+    suspend fun registerFcmToken(@Body request: FcmTokenRequest): retrofit2.Response<Unit>
+
 }
 
 // =========================================================================
@@ -272,17 +409,17 @@ data class CustomReportMetric(
     val metricName: String,
     val value: String,
     val trend: Double? = null,
-    val chartData: List<ChartDataPoint>? = null,
+    val chartData: List<ApiChartDataPoint>? = null,
     val details: String? = null
 )
 
 /**
- * Chart data point.
+ * Chart data point for custom reports.
  */
-data class ChartDataPoint(
+data class ApiChartDataPoint(
     val label: String,
     val value: Double,
-    val color: Int? = null
+    val color: String? = null
 )
 
 /**
@@ -350,4 +487,24 @@ data class DeviceStatusResponse(
     val isRegistered: Boolean,
     val deviceId: Long?,
     val notificationsEnabled: Boolean
+)
+
+/**
+ * Todo counts by priority.
+ */
+data class TodoCounts(
+    val urgent: Int,
+    val important: Int,
+    val normal: Int
+) {
+    val total: Int get() = urgent + important + normal
+}
+
+// Extension methods for missing endpoints
+
+/**
+ * FCM token registration request.
+ */
+data class FcmTokenRequest(
+    val fcmToken: String
 )

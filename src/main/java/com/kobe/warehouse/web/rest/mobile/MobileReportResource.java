@@ -1,18 +1,31 @@
 package com.kobe.warehouse.web.rest.mobile;
 
+import com.kobe.warehouse.service.dto.mobile.MobileActivityReportDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileAlertDetailDTO;
+import com.kobe.warehouse.service.dto.mobile.MobileCashBalanceDTO;
+import com.kobe.warehouse.service.dto.mobile.MobileCashSummaryDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileDashboardDTO;
 import com.kobe.warehouse.service.dto.mobile.MobilePerformanceDTO;
+import com.kobe.warehouse.service.dto.mobile.MobilePharmacistDashboardDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileProductQuickInfoDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileTodoDTO;
+import com.kobe.warehouse.service.dto.mobile.MobileTvaReportDTO;
+import com.kobe.warehouse.service.mobile.MobileActivityReportService;
 import com.kobe.warehouse.service.mobile.MobileAlertService;
+import com.kobe.warehouse.service.mobile.MobileCashBalanceService;
+import com.kobe.warehouse.service.mobile.MobileCashSummaryService;
 import com.kobe.warehouse.service.mobile.MobileDashboardService;
 import com.kobe.warehouse.service.mobile.MobilePerformanceService;
+import com.kobe.warehouse.service.mobile.MobilePharmacistDashboardService;
 import com.kobe.warehouse.service.mobile.MobileProductService;
 import com.kobe.warehouse.service.mobile.MobileTodoService;
+import com.kobe.warehouse.service.mobile.MobileTvaReportService;
+import com.kobe.warehouse.service.mobile.util.PaginationHelper;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -45,19 +58,34 @@ public class MobileReportResource {
     private final MobileProductService productService;
     private final MobileTodoService todoService;
     private final MobilePerformanceService performanceService;
+    private final MobilePharmacistDashboardService pharmacistDashboardService;
+    private final MobileCashSummaryService cashSummaryService;
+    private final MobileActivityReportService activityReportService;
+    private final MobileCashBalanceService cashBalanceService;
+    private final MobileTvaReportService tvaReportService;
 
     public MobileReportResource(
         MobileDashboardService dashboardService,
         MobileAlertService alertService,
         MobileProductService productService,
         MobileTodoService todoService,
-        MobilePerformanceService performanceService
+        MobilePerformanceService performanceService,
+        MobilePharmacistDashboardService pharmacistDashboardService,
+        MobileCashSummaryService cashSummaryService,
+        MobileActivityReportService activityReportService,
+        MobileCashBalanceService cashBalanceService,
+        MobileTvaReportService tvaReportService
     ) {
         this.dashboardService = dashboardService;
         this.alertService = alertService;
         this.productService = productService;
         this.todoService = todoService;
         this.performanceService = performanceService;
+        this.pharmacistDashboardService = pharmacistDashboardService;
+        this.cashSummaryService = cashSummaryService;
+        this.activityReportService = activityReportService;
+        this.cashBalanceService = cashBalanceService;
+        this.tvaReportService = tvaReportService;
     }
 
     // =========================================================================
@@ -91,17 +119,27 @@ public class MobileReportResource {
 
     /**
      * GET /api/mobile/alerts
-     * Get detailed list of alerts.
+     * Get detailed list of alerts with pagination.
      *
      * @param types Optional filter by alert types (comma-separated)
-     * @return List of detailed alerts
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 20)
+     * @return List of detailed alerts with pagination headers
      */
     @GetMapping("/alerts")
-    public ResponseEntity<List<MobileAlertDetailDTO>> getAlerts(@RequestParam(required = false) List<String> types) {
-        LOG.debug("REST request to get mobile alerts with types: {}", types);
+    public ResponseEntity<List<MobileAlertDetailDTO>> getAlerts(
+        @RequestParam(required = false) List<String> types,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        LOG.debug("REST request to get mobile alerts with types: {}, page: {}, size: {}", types, page, size);
 
-        List<MobileAlertDetailDTO> alerts = alertService.getAlerts(types);
-        return ResponseEntity.ok(alerts);
+        return PaginationHelper.createPaginatedResponse(
+            () -> alertService.getAlerts(types, page, size),
+            () -> alertService.getAlertsCount(types),
+            page,
+            size
+        );
     }
 
     /**
@@ -156,6 +194,44 @@ public class MobileReportResource {
 
         MobileTodoDTO todos = todoService.getTodoList();
         return ResponseEntity.ok(todos);
+    }
+
+    /**
+     * GET /api/mobile/todos/items
+     * Get all todo items as a flat list with pagination.
+     * Items are ordered by priority: URGENT first, then IMPORTANT, then NORMAL.
+     *
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 20)
+     * @return List of todo items with pagination headers
+     */
+    @GetMapping("/todos/items")
+    public ResponseEntity<List<MobileTodoDTO.TodoItemDTO>> getTodoItems(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        LOG.debug("REST request to get mobile todo items with page: {}, size: {}", page, size);
+
+        return PaginationHelper.createPaginatedResponse(
+            () -> todoService.getAllTodoItems(page, size),
+            () -> todoService.getTodoItemsCount(),
+            page,
+            size
+        );
+    }
+
+    /**
+     * GET /api/mobile/todos/counts
+     * Get todo counts by priority.
+     *
+     * @return Counts for urgent, important, and normal items
+     */
+    @GetMapping("/todos/counts")
+    public ResponseEntity<MobileTodoService.TodoCountsDTO> getTodoCounts() {
+        LOG.debug("REST request to get mobile todo counts");
+
+        MobileTodoService.TodoCountsDTO counts = todoService.getTodoCounts();
+        return ResponseEntity.ok(counts);
     }
 
     // =========================================================================
@@ -213,6 +289,154 @@ public class MobileReportResource {
             .toList();
 
         return ResponseEntity.ok(trend);
+    }
+
+    // =========================================================================
+    // PHASE 3: PHARMACIST REPORTS ENDPOINTS
+    // =========================================================================
+
+    /**
+     * GET /api/mobile/reports/pharmacist-dashboard
+     * Get pharmacist dashboard (Tableau Pharmacien) data.
+     *
+     * <p>Returns comprehensive sales vs purchases analysis:
+     * - Sales totals (comptant, credit, remise, net, TTC)
+     * - Purchases totals by supplier
+     * - Ratios (ventes/achats, achats/ventes)
+     * - Margin calculation
+     * - Trend charts
+     *
+     * @param fromDate Start date of the period
+     * @param toDate End date of the period (defaults to fromDate if not specified)
+     * @return Complete pharmacist dashboard data
+     */
+    @GetMapping("/reports/pharmacist-dashboard")
+    public ResponseEntity<MobilePharmacistDashboardDTO> getPharmacistDashboard(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        LocalDate endDate = toDate != null ? toDate : fromDate;
+        LOG.debug("REST request to get pharmacist dashboard from {} to {}", fromDate, endDate);
+
+        MobilePharmacistDashboardDTO dashboard = pharmacistDashboardService.getPharmacistDashboard(fromDate, endDate);
+        return ResponseEntity.ok(dashboard);
+    }
+
+    /**
+     * GET /api/mobile/reports/cash-summary
+     * Get cash summary (Ticket Z / Récapitulatif Caisse) data.
+     *
+     * <p>Returns comprehensive cash summary with:
+     * - Global summary by payment mode
+     * - Per-cashier breakdown
+     * - Totals by payment type (cash, cards, mobile money, etc.)
+     *
+     * @param fromDate Start date of the period
+     * @param toDate End date of the period (defaults to fromDate if not specified)
+     * @param fromTime Start time for intra-day filtering (optional)
+     * @param toTime End time for intra-day filtering (optional)
+     * @param userIds Filter by specific user IDs (optional)
+     * @param onlyVente If true, only include sales payments (default: false)
+     * @return Complete cash summary data
+     */
+    @GetMapping("/reports/cash-summary")
+    public ResponseEntity<MobileCashSummaryDTO> getCashSummary(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime fromTime,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime toTime,
+        @RequestParam(required = false) Set<Integer> userIds,
+        @RequestParam(defaultValue = "false") boolean onlyVente
+    ) {
+        LocalDate endDate = toDate != null ? toDate : fromDate;
+        LOG.debug("REST request to get cash summary from {} to {}, time: {} to {}, users: {}, onlyVente: {}",
+            fromDate, endDate, fromTime, toTime, userIds, onlyVente);
+
+        MobileCashSummaryDTO cashSummary = cashSummaryService.getCashSummary(
+            fromDate, endDate, fromTime, toTime, userIds, onlyVente
+        );
+        return ResponseEntity.ok(cashSummary);
+    }
+
+    /**
+     * GET /api/mobile/reports/activity
+     * Get activity report (Rapport d'Activité) data.
+     *
+     * <p>Returns comprehensive activity summary with:
+     * - Chiffre d'affaires (revenue summary)
+     * - Recettes by payment mode
+     * - Mouvements de caisse
+     * - Achats by supplier group
+     * - Tiers payants summary
+     *
+     * @param fromDate Start date of the period
+     * @param toDate End date of the period (defaults to fromDate if not specified)
+     * @return Complete activity report data
+     */
+    @GetMapping("/reports/activity")
+    public ResponseEntity<MobileActivityReportDTO> getActivityReport(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        LocalDate endDate = toDate != null ? toDate : fromDate;
+        LOG.debug("REST request to get activity report from {} to {}", fromDate, endDate);
+
+        MobileActivityReportDTO activityReport = activityReportService.getActivityReport(fromDate, endDate);
+        return ResponseEntity.ok(activityReport);
+    }
+
+    /**
+     * GET /api/mobile/reports/cash-balance
+     * Get cash balance (Balance Caisse) data.
+     *
+     * <p>Returns comprehensive cash balance with:
+     * - Totals (TTC, HT, Net, Remise, TVA)
+     * - Payment breakdown (cash, cards, mobile money, etc.)
+     * - Category balances (VO, VNO)
+     * - Cash movements (entries/exits)
+     * - Margin and ratio analysis
+     *
+     * @param fromDate Start date of the period
+     * @param toDate End date of the period (defaults to fromDate if not specified)
+     * @return Complete cash balance data
+     */
+    @GetMapping("/reports/cash-balance")
+    public ResponseEntity<MobileCashBalanceDTO> getCashBalance(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        LocalDate endDate = toDate != null ? toDate : fromDate;
+        LOG.debug("REST request to get cash balance from {} to {}", fromDate, endDate);
+
+        MobileCashBalanceDTO cashBalance = cashBalanceService.getCashBalance(fromDate, endDate);
+        return ResponseEntity.ok(cashBalance);
+    }
+
+    /**
+     * GET /api/mobile/reports/tva
+     * Get TVA (VAT) report data.
+     *
+     * <p>Returns comprehensive TVA breakdown with:
+     * - Totals (HT, TVA, TTC, Net)
+     * - Breakdown by TVA rate
+     * - Chart data for visualization
+     *
+     * @param fromDate Start date of the period
+     * @param toDate End date of the period (defaults to fromDate if not specified)
+     * @param groupByDate Whether to group results by date (default: false)
+     * @return Complete TVA report data
+     */
+    @GetMapping("/reports/tva")
+    public ResponseEntity<MobileTvaReportDTO> getTvaReport(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+        @RequestParam(defaultValue = "false") boolean groupByDate
+    ) {
+        LocalDate endDate = toDate != null ? toDate : fromDate;
+        LOG.debug("REST request to get TVA report from {} to {}, groupByDate: {}", fromDate, endDate, groupByDate);
+
+        MobileTvaReportDTO tvaReport = tvaReportService.getTvaReport(fromDate, endDate, groupByDate);
+        return ResponseEntity.ok(tvaReport);
     }
 
     // =========================================================================

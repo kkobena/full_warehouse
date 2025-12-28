@@ -22,6 +22,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.leolin.shortcutbadger.ShortcutBadger
+import androidx.core.content.edit
 
 /**
  * Firebase Cloud Messaging service for handling push notifications.
@@ -36,6 +38,8 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
         private const val TAG = "PharmaFCM"
         private const val CHANNEL_NAME_ALERTS = "Alertes"
         private const val CHANNEL_NAME_DAILY = "Resume quotidien"
+        private const val PREFS_NAME = "badge_prefs"
+        private const val KEY_BADGE_COUNT = "badge_count"
 
         // Notification types from backend
         const val TYPE_STOCK_RUPTURE = "STOCK_RUPTURE"
@@ -59,6 +63,61 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
         // Make channels publicly accessible
         const val CHANNEL_ID_ALERTS = "pharma_alerts"
         const val CHANNEL_ID_DAILY = "pharma_daily"
+
+        /**
+         * Reset badge count to zero.
+         * Call this when user opens the app or views notifications.
+         */
+        fun resetBadgeCount(context: Context) {
+            try {
+                ShortcutBadger.removeCount(context)
+                saveBadgeCount(context, 0)
+                Log.d(TAG, "Badge count reset to 0")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to reset badge count", e)
+            }
+        }
+
+        /**
+         * Get current badge count.
+         */
+        fun getBadgeCount(context: Context): Int {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            return prefs.getInt(KEY_BADGE_COUNT, 0)
+        }
+
+        /**
+         * Save badge count to SharedPreferences.
+         */
+        private fun saveBadgeCount(context: Context, count: Int) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit { putInt(KEY_BADGE_COUNT, count) }
+        }
+
+        /**
+         * Increment badge count.
+         */
+        fun incrementBadgeCount(context: Context): Int {
+            val newCount = getBadgeCount(context) + 1
+            saveBadgeCount(context, newCount)
+            applyBadgeCount(context, newCount)
+            return newCount
+        }
+
+        /**
+         * Apply badge count using ShortcutBadger.
+         */
+        private fun applyBadgeCount(context: Context, count: Int) {
+            try {
+                if (count > 0) {
+                    ShortcutBadger.applyCount(context, count)
+                } else {
+                    ShortcutBadger.removeCount(context)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "ShortcutBadger error", e)
+            }
+        }
     }
 
     override fun onNewToken(token: String) {
@@ -181,33 +240,86 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
         val action = data[KEY_ACTION]
 
         return when {
-            // Navigate to product detail
+            // Navigate to product detail (stock alerts, expiry)
             action == "VIEW_PRODUCT" || type in listOf(TYPE_STOCK_RUPTURE, TYPE_STOCK_LOW, TYPE_EXPIRY) -> {
                 val productId = data[KEY_PRODUCT_ID]?.toLongOrNull()
                 if (productId != null) {
                     Intent(this, ProductDetailActivity::class.java).apply {
                         putExtra(ProductDetailActivity.EXTRA_PRODUCT_ID, productId)
+                        data[KEY_LOT_ID]?.toLongOrNull()?.let { lotId ->
+                            putExtra("lot_id", lotId)
+                        }
                     }
                 } else {
-                    Intent(this, AlertsActivity::class.java)
+                    Intent(this, AlertsActivity::class.java).apply {
+                        putExtra(AlertsActivity.EXTRA_FILTER_TYPE, type)
+                    }
                 }
             }
-            // Navigate to alerts
+
+            // Navigate to alerts with filter (cash discrepancy, invoice overdue)
             type in listOf(TYPE_CASH_DISCREPANCY, TYPE_INVOICE_OVERDUE) -> {
                 Intent(this, AlertsActivity::class.java).apply {
-                    putExtra("filter_type", type)
+                    putExtra(AlertsActivity.EXTRA_FILTER_TYPE, type)
+                    data[KEY_INVOICE_ID]?.toLongOrNull()?.let { invoiceId ->
+                        putExtra("invoice_id", invoiceId)
+                    }
                 }
             }
-            // Navigate to todos
-            action == "CREATE_ORDER" -> {
-                Intent(this, TodosActivity::class.java)
+
+            // Navigate to todos (create order action)
+            action == "CREATE_ORDER" || action == "REORDER" -> {
+                Intent(this, TodosActivity::class.java).apply {
+                    putExtra("action", action)
+                    data[KEY_PRODUCT_ID]?.toLongOrNull()?.let { productId ->
+                        putExtra("product_id", productId)
+                    }
+                }
             }
+
+            // Navigate to performance for daily digest
+            type == TYPE_DAILY_DIGEST -> {
+                Intent(this, com.kobe.warehouse.reports.ui.activity.PerformanceActivity::class.java).apply {
+                    data[KEY_DATE]?.let { date ->
+                        putExtra("date", date)
+                    }
+                }
+            }
+
+            // Navigate to dashboard for target reached or high value sale
+            type in listOf(TYPE_TARGET_REACHED, TYPE_HIGH_VALUE_SALE) -> {
+                Intent(this, DashboardActivity::class.java).apply {
+                    putExtra("highlight_ca", true)
+                    data[KEY_SALE_ID]?.toLongOrNull()?.let { saleId ->
+                        putExtra("sale_id", saleId)
+                    }
+                }
+            }
+
+            // Call client action
+            action == "CALL_CLIENT" -> {
+                val phone = data["phone"]
+                if (phone != null) {
+                    Intent(Intent.ACTION_DIAL).apply {
+                        this.data = android.net.Uri.parse("tel:$phone")
+                    }
+                } else {
+                    Intent(this, TodosActivity::class.java)
+                }
+            }
+
             // Default: navigate to dashboard
             else -> {
                 Intent(this, DashboardActivity::class.java)
             }
         }.apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            // Add common flags for activity launch
+            if (this.component != null) {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            // Add source marker for analytics
+            putExtra("from_notification", true)
+            type?.let { putExtra("notification_type", it) }
         }
     }
 
@@ -240,19 +352,15 @@ class PharmaFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     /**
-     * Update app badge count.
+     * Update app badge count using ShortcutBadger.
      */
     private fun updateBadgeCount(count: Int) {
         try {
-            // Update badge using ShortcutBadger or native method
-            val intent = Intent("android.intent.action.BADGE_COUNT_UPDATE")
-            intent.putExtra("badge_count", count)
-            intent.putExtra("badge_count_package_name", applicationContext.packageName)
-            intent.putExtra("badge_count_class_name", "${applicationContext.packageName}.ui.activity.DashboardActivity")
-            applicationContext.sendBroadcast(intent)
+            saveBadgeCount(applicationContext, count)
+            applyBadgeCount(applicationContext, count)
+            Log.d(TAG, "Badge count updated to: $count")
         } catch (e: Exception) {
-            // Badge update not supported on all launchers
-            e.printStackTrace()
+            Log.e(TAG, "Failed to update badge count", e)
         }
     }
 

@@ -13,6 +13,10 @@ class TodosViewModel(
     private val repository: ReportRepository
 ) : ViewModel() {
 
+    companion object {
+        private const val PAGE_SIZE = 20
+    }
+
     // =========================================================================
     // LIVEDATA
     // =========================================================================
@@ -23,37 +27,62 @@ class TodosViewModel(
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean> = _isRefreshing
 
+    private val _isLoadingMore = MutableLiveData<Boolean>()
+    val isLoadingMore: LiveData<Boolean> = _isLoadingMore
+
+    private val _isLastPage = MutableLiveData<Boolean>()
+    val isLastPage: LiveData<Boolean> = _isLastPage
+
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
     private val _todoList = MutableLiveData<TodoList>()
     val todoList: LiveData<TodoList> = _todoList
 
+    // For paginated items (flat list)
+    private val _paginatedItems = MutableLiveData<List<TodoItem>>()
+    val paginatedItems: LiveData<List<TodoItem>> = _paginatedItems
+
     val allItems: LiveData<List<TodoItem>> = _todoList.map { it.getAllItems() }
 
-    val urgentCount: LiveData<Int> = _todoList.map { it.urgent.size }
-    val importantCount: LiveData<Int> = _todoList.map { it.important.size }
-    val normalCount: LiveData<Int> = _todoList.map { it.normal.size }
+    private val _urgentCount = MutableLiveData<Int>()
+    val urgentCount: LiveData<Int> = _urgentCount
 
-    val isEmpty: LiveData<Boolean> = _todoList.map { it.isEmpty() }
+    private val _importantCount = MutableLiveData<Int>()
+    val importantCount: LiveData<Int> = _importantCount
+
+    private val _normalCount = MutableLiveData<Int>()
+    val normalCount: LiveData<Int> = _normalCount
+
+    val isEmpty: LiveData<Boolean> = _paginatedItems.map { it.isEmpty() }
+
+    // Pagination state
+    private var currentPage = 0
 
     // =========================================================================
     // ACTIONS
     // =========================================================================
 
     /**
-     * Load todos from server.
+     * Load todos from server (initial load with pagination).
      */
     fun loadTodos() {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
+            currentPage = 0
+            _isLastPage.value = false
 
-            val result = repository.getTodos()
+            // Load counts
+            loadCounts()
+
+            // Load first page of items
+            val result = repository.getTodoItems(page = 0, size = PAGE_SIZE)
 
             result.fold(
-                onSuccess = { todos ->
-                    _todoList.value = todos
+                onSuccess = { items ->
+                    _paginatedItems.value = items
+                    _isLastPage.value = items.size < PAGE_SIZE
                 },
                 onFailure = { exception ->
                     _errorMessage.value = exception.message
@@ -65,18 +94,61 @@ class TodosViewModel(
     }
 
     /**
+     * Load more todos (infinite scroll).
+     */
+    fun loadMoreTodos() {
+        if (_isLoadingMore.value == true || _isLastPage.value == true) {
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoadingMore.value = true
+            currentPage++
+
+            val result = repository.getTodoItems(page = currentPage, size = PAGE_SIZE)
+
+            result.fold(
+                onSuccess = { newItems ->
+                    if (newItems.isEmpty()) {
+                        _isLastPage.value = true
+                    } else {
+                        val currentList = _paginatedItems.value.orEmpty().toMutableList()
+                        currentList.addAll(newItems)
+                        _paginatedItems.value = currentList
+                        _isLastPage.value = newItems.size < PAGE_SIZE
+                    }
+                },
+                onFailure = { exception ->
+                    // Revert page on error
+                    currentPage--
+                    _errorMessage.value = exception.message
+                }
+            )
+
+            _isLoadingMore.value = false
+        }
+    }
+
+    /**
      * Refresh todos (pull-to-refresh).
      */
     fun refreshTodos() {
         viewModelScope.launch {
             _isRefreshing.value = true
             _errorMessage.value = null
+            currentPage = 0
+            _isLastPage.value = false
 
-            val result = repository.getTodos()
+            // Reload counts
+            loadCounts()
+
+            // Reload first page
+            val result = repository.getTodoItems(page = 0, size = PAGE_SIZE)
 
             result.fold(
-                onSuccess = { todos ->
-                    _todoList.value = todos
+                onSuccess = { items ->
+                    _paginatedItems.value = items
+                    _isLastPage.value = items.size < PAGE_SIZE
                 },
                 onFailure = { exception ->
                     _errorMessage.value = exception.message
@@ -85,6 +157,23 @@ class TodosViewModel(
 
             _isRefreshing.value = false
         }
+    }
+
+    /**
+     * Load counts by priority.
+     */
+    private suspend fun loadCounts() {
+        val countsResult = repository.getTodoCounts()
+        countsResult.fold(
+            onSuccess = { counts ->
+                _urgentCount.value = counts.urgent
+                _importantCount.value = counts.important
+                _normalCount.value = counts.normal
+            },
+            onFailure = {
+                // Fallback: keep existing counts or set to 0
+            }
+        )
     }
 
     /**

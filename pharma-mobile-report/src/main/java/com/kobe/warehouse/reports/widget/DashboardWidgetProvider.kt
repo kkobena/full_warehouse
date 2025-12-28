@@ -91,7 +91,11 @@ class DashboardWidgetProvider : AppWidgetProvider() {
         scope.launch {
             try {
                 val repository = ReportRepository.getInstance(context)
-                val dashboard = repository.getDashboard()
+                val result = repository.getDashboard()
+                if (result.isFailure) {
+                    throw result.exceptionOrNull() ?: Exception("Unknown error")
+                }
+                val dashboard = result.getOrThrow()
 
                 // Update widget with data
                 launch(Dispatchers.Main) {
@@ -138,7 +142,7 @@ class DashboardWidgetProvider : AppWidgetProvider() {
         }
 
         // Target progress
-        val progress = ((dashboard.dailyCA.toFloat() / dashboard.targetDaily.toFloat()) * 100).toInt()
+        val progress = ((dashboard.dailyCA.toFloat() / dashboard.dailyTarget.toFloat()) * 100).toInt()
         views.setProgressBar(R.id.progress_widget_target, 100, progress.coerceIn(0, 100), false)
         views.setTextViewText(R.id.tv_widget_target_progress, "$progress%")
 

@@ -56,6 +56,159 @@ public class MobileTodoService {
     }
 
     /**
+     * Get all todo items as a flat list (without pagination).
+     * Items are ordered by priority: URGENT first, then IMPORTANT, then NORMAL.
+     *
+     * @return Flat list of all todo items
+     */
+    public List<TodoItemDTO> getAllTodoItems() {
+        return getAllTodoItems(0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Get all todo items as a flat list with pagination.
+     * Items are ordered by priority: URGENT first, then IMPORTANT, then NORMAL.
+     *
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     * @return Paginated list of todo items
+     */
+    public List<TodoItemDTO> getAllTodoItems(int page, int size) {
+        LOG.debug("Getting all todo items with pagination: page={}, size={}", page, size);
+
+        List<TodoItemDTO> allItems = new ArrayList<>();
+
+        // Collect all items in priority order
+        allItems.addAll(getStockRuptureTodos());
+        allItems.addAll(getOverdueInvoiceTodos(90));
+        allItems.addAll(getExpiringProductTodos(90));
+        allItems.addAll(getLowStockTodos());
+
+        // Apply pagination
+        int fromIndex = page * size;
+        if (fromIndex >= allItems.size()) {
+            return new ArrayList<>();
+        }
+        int toIndex = Math.min(fromIndex + size, allItems.size());
+        return new ArrayList<>(allItems.subList(fromIndex, toIndex));
+    }
+
+    /**
+     * Get total count of all todo items.
+     *
+     * @return Total number of todo items
+     */
+    public int getTodoItemsCount() {
+        int count = 0;
+        count += getStockRuptureCount();
+        count += getOverdueInvoicesCount(90);
+        count += getExpiringProductsCount(90);
+        count += getLowStockCount();
+        return count;
+    }
+
+    /**
+     * Get counts by priority.
+     *
+     * @return Map with counts for each priority
+     */
+    public TodoCountsDTO getTodoCounts() {
+        int urgentCount = getStockRuptureCount() + getOverdueInvoicesCount(90);
+        int importantCount = getExpiringProductsCount(90);
+        int normalCount = getLowStockCount();
+        return new TodoCountsDTO(urgentCount, importantCount, normalCount);
+    }
+
+    /**
+     * DTO for todo counts by priority.
+     */
+    public record TodoCountsDTO(int urgent, int important, int normal) {
+        public int total() {
+            return urgent + important + normal;
+        }
+    }
+
+    // =========================================================================
+    // COUNT METHODS
+    // =========================================================================
+
+    private int getStockRuptureCount() {
+        String sql = """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.id
+                FROM produit p
+                INNER JOIN stock_produit sp ON sp.produit_id = p.id
+                WHERE p.status = :status
+                GROUP BY p.id
+                HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) = 0
+            ) ruptures
+            """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("status", Status.ENABLE.name());
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    private int getOverdueInvoicesCount(int days) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM (
+                SELECT ftp.id
+                FROM facture_tiers_payant ftp
+                INNER JOIN third_party_sale_line tpsl ON tpsl.facture_tiers_payant_id = ftp.id
+                    AND tpsl.invoice_date = ftp.invoice_date
+                WHERE ftp.statut IN (:notPaid, :partiallyPaid)
+                  AND ftp.created < CURRENT_DATE - :days
+                GROUP BY ftp.id, ftp.invoice_date, ftp.montant_regle
+                HAVING COALESCE(SUM(tpsl.montant), 0) > COALESCE(ftp.montant_regle, 0)
+            ) overdue
+            """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("notPaid", InvoiceStatut.NOT_PAID.name());
+        query.setParameter("partiallyPaid", InvoiceStatut.PARTIALLY_PAID.name());
+        query.setParameter("days", days);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    private int getExpiringProductsCount(int days) {
+        String sql = """
+            SELECT COUNT(DISTINCT l.id)
+            FROM lot l
+            INNER JOIN produit p ON l.produit_id = p.id
+            WHERE l.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + :days
+              AND l.current_quantity > 0
+              AND p.status = :status
+            """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("days", days);
+        query.setParameter("status", Status.ENABLE.name());
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    private int getLowStockCount() {
+        String sql = """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.id
+                FROM produit p
+                INNER JOIN stock_produit sp ON sp.produit_id = p.id
+                WHERE p.status = :status
+                  AND p.qty_seuil_mini > 0
+                GROUP BY p.id, p.qty_seuil_mini
+                HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) > 0
+                   AND COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) <= p.qty_seuil_mini
+            ) low_stock
+            """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("status", Status.ENABLE.name());
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    /**
      * Get todo items for products in stock rupture.
      * A product is in rupture when total stock across all storages is zero.
      */

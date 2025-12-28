@@ -85,6 +85,46 @@
             android:screenOrientation="fullSensor"
             android:parentActivityName=".ui.activity.DashboardActivity" />
 
+        <!-- Pharmacist Dashboard Activity (Tableau Pharmacien) -->
+        <activity
+            android:name=".ui.activity.PharmacistDashboardActivity"
+            android:exported="false"
+            android:label="@string/report_pharmacist_dashboard"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
+        <!-- Cash Summary Activity (Ticket Z / Récapitulatif Caisse) -->
+        <activity
+            android:name=".ui.activity.CashSummaryActivity"
+            android:exported="false"
+            android:label="@string/report_cash_summary"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
+        <!-- Activity Report Activity (Rapport d'Activité) -->
+        <activity
+            android:name=".ui.activity.ActivityReportActivity"
+            android:exported="false"
+            android:label="@string/report_activity"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
+        <!-- Cash Balance Activity (Balance Caisse) -->
+        <activity
+            android:name=".ui.activity.CashBalanceActivity"
+            android:exported="false"
+            android:label="@string/report_cash_balance"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
+        <!-- TVA Report Activity (Rapport TVA) -->
+        <activity
+            android:name=".ui.activity.TvaReportActivity"
+            android:exported="false"
+            android:label="@string/report_vat"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
         <!-- Barcode Scanner Activity -->
         <activity
             android:name=".ui.activity.BarcodeScannerActivity"

@@ -153,6 +153,12 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
     implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
 
+    // Shimmer loading effect
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+
+    // Badge count for all launchers
+    implementation("me.leolin:ShortcutBadger:1.1.22@aar")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

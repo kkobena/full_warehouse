@@ -3,7 +3,7 @@ package com.kobe.warehouse.reports.ui.activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +12,7 @@ import com.kobe.warehouse.reports.PharmaReportApplication
 import com.kobe.warehouse.reports.R
 import com.kobe.warehouse.reports.data.model.TodoItem
 import com.kobe.warehouse.reports.databinding.ActivityTodosBinding
+import com.kobe.warehouse.reports.ui.adapter.PaginationScrollListener
 import com.kobe.warehouse.reports.ui.adapter.TodoAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.TodosViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.TodosViewModelFactory
@@ -61,6 +62,26 @@ class TodosActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@TodosActivity)
             adapter = todoAdapter
         }
+
+        // Setup pagination
+        setupPagination()
+    }
+
+    private fun setupPagination() {
+        val layoutManager = binding.rvTodos.layoutManager as LinearLayoutManager
+        binding.rvTodos.addOnScrollListener(object : PaginationScrollListener(layoutManager) {
+            override fun loadMoreItems() {
+                viewModel.loadMoreTodos()
+            }
+
+            override fun isLoading(): Boolean {
+                return viewModel.isLoadingMore.value == true
+            }
+
+            override fun isLastPage(): Boolean {
+                return viewModel.isLastPage.value == true
+            }
+        })
     }
 
     private fun setupListeners() {
@@ -72,7 +93,11 @@ class TodosActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.loadingOverlay.isVisible = isLoading
+            if (isLoading) {
+                showSkeleton()
+            }
+            // Hide loadingOverlay (kept for compatibility)
+            binding.loadingOverlay.isVisible = false
         }
 
         viewModel.isRefreshing.observe(this) { isRefreshing ->
@@ -81,12 +106,14 @@ class TodosActivity : AppCompatActivity() {
 
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
+                showContent()
                 showError(it)
                 viewModel.clearError()
             }
         }
 
-        viewModel.allItems.observe(this) { items ->
+        viewModel.paginatedItems.observe(this) { items ->
+            showContent()
             todoAdapter.submitList(items)
             updateEmptyState(items.isEmpty())
         }
@@ -102,6 +129,25 @@ class TodosActivity : AppCompatActivity() {
         viewModel.normalCount.observe(this) { count ->
             binding.tvNormalCount.text = count.toString()
         }
+    }
+
+    /**
+     * Show skeleton loading view.
+     */
+    private fun showSkeleton() {
+        binding.viewFlipper.displayedChild = VIEW_SKELETON
+    }
+
+    /**
+     * Show actual content view.
+     */
+    private fun showContent() {
+        binding.viewFlipper.displayedChild = VIEW_CONTENT
+    }
+
+    companion object {
+        private const val VIEW_SKELETON = 0
+        private const val VIEW_CONTENT = 1
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {

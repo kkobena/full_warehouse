@@ -27,6 +27,9 @@ class PharmaReportApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+
+        // Initialize ApiClient with context for broadcasting events
+        ApiClient.init(this)
     }
 
     companion object {

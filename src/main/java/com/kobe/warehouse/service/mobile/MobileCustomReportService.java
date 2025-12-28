@@ -1,15 +1,15 @@
 package com.kobe.warehouse.service.mobile;
 
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.repository.MobileSalesRepository;
+import com.kobe.warehouse.repository.MobileSalesRepository.DailyCATrendProjection;
+import com.kobe.warehouse.repository.MobileSalesRepository.PaymentMethodProjection;
+import com.kobe.warehouse.repository.MobileSalesRepository.SalesSummaryProjection;
+import com.kobe.warehouse.repository.MobileSalesRepository.TopProductProjection;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO.ChartDataPointDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,17 +20,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for generating custom report metrics (Phase 4).
- * Provides flexible metric generation for user-created reports.
+ * Uses MobileSalesRepository for data access.
  */
 @Service
 @Transactional(readOnly = true)
 public class MobileCustomReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileCustomReportService.class);
-    private static final String SALES_CA_TYPE = "CA";
+    private static final int TOP_PRODUCTS_LIMIT = 10;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final MobileSalesRepository salesRepository;
+
+    public MobileCustomReportService(MobileSalesRepository salesRepository) {
+        this.salesRepository = salesRepository;
+    }
 
     /**
      * Available metric codes
@@ -114,16 +117,16 @@ public class MobileCustomReportService {
         LocalDate previousStartDate,
         LocalDate previousEndDate
     ) {
-        long currentCA = getTotalCA(startDate, endDate);
-        long previousCA = getTotalCA(previousStartDate, previousEndDate);
-        double trend = calculateTrend(currentCA, previousCA);
+        SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
+        SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
+        double trend = calculateTrend(current.caTotal(), previous.caTotal());
 
-        List<ChartDataPointDTO> chartData = getDailyCAChart(startDate, endDate);
+        List<ChartDataPointDTO> chartData = mapDailyCAChart(salesRepository.getCATrend(startDate, endDate));
 
         return new CustomReportMetricDTO(
             "CA",
             "Chiffre d'affaires",
-            formatAmount(currentCA),
+            formatAmount(current.caTotal()),
             trend,
             chartData,
             String.format("Période: %s - %s", startDate, endDate)
@@ -139,14 +142,14 @@ public class MobileCustomReportService {
         LocalDate previousStartDate,
         LocalDate previousEndDate
     ) {
-        int currentCount = getTransactionsCount(startDate, endDate);
-        int previousCount = getTransactionsCount(previousStartDate, previousEndDate);
-        double trend = calculateTrend(currentCount, previousCount);
+        SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
+        SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
+        double trend = calculateTrend(current.transactionsCount(), previous.transactionsCount());
 
         return new CustomReportMetricDTO(
             "TRANSACTIONS",
             "Nombre de ventes",
-            String.valueOf(currentCount),
+            String.valueOf(current.transactionsCount()),
             trend,
             null,
             "Transactions enregistrées"
@@ -162,13 +165,11 @@ public class MobileCustomReportService {
         LocalDate previousStartDate,
         LocalDate previousEndDate
     ) {
-        long currentCA = getTotalCA(startDate, endDate);
-        int currentCount = getTransactionsCount(startDate, endDate);
-        long currentAvg = currentCount > 0 ? currentCA / currentCount : 0;
+        SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
+        SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
 
-        long previousCA = getTotalCA(previousStartDate, previousEndDate);
-        int previousCount = getTransactionsCount(previousStartDate, previousEndDate);
-        long previousAvg = previousCount > 0 ? previousCA / previousCount : 0;
+        long currentAvg = current.transactionsCount() > 0 ? current.caTotal() / current.transactionsCount() : 0;
+        long previousAvg = previous.transactionsCount() > 0 ? previous.caTotal() / previous.transactionsCount() : 0;
 
         double trend = calculateTrend(currentAvg, previousAvg);
 
@@ -191,8 +192,12 @@ public class MobileCustomReportService {
         LocalDate previousStartDate,
         LocalDate previousEndDate
     ) {
-        MarginData current = getMarginData(startDate, endDate);
-        MarginData previous = getMarginData(previousStartDate, previousEndDate);
+        SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
+        SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
+
+        double currentMarginPercent = current.caTotal() > 0
+            ? (current.marginAmount() * 100.0 / current.caTotal())
+            : 0;
 
         double trend = calculateTrend(current.marginAmount(), previous.marginAmount());
 
@@ -202,7 +207,7 @@ public class MobileCustomReportService {
             formatAmount(current.marginAmount()),
             trend,
             null,
-            String.format("%.1f%% du CA", current.marginPercent())
+            String.format("%.1f%% du CA", currentMarginPercent)
         );
     }
 
@@ -210,7 +215,10 @@ public class MobileCustomReportService {
      * Generate Top Products metric
      */
     private CustomReportMetricDTO generateTopProductsMetric(LocalDate startDate, LocalDate endDate) {
-        List<ChartDataPointDTO> topProducts = getTopProducts(startDate, endDate);
+        List<TopProductProjection> projections = salesRepository.getTopProducts(startDate, endDate, TOP_PRODUCTS_LIMIT);
+        List<ChartDataPointDTO> topProducts = projections.stream()
+            .map(p -> new ChartDataPointDTO(p.productName(), (double) p.salesAmount(), null))
+            .toList();
 
         StringBuilder details = new StringBuilder();
         int count = Math.min(5, topProducts.size());
@@ -234,7 +242,10 @@ public class MobileCustomReportService {
      * Generate Payment Methods metric
      */
     private CustomReportMetricDTO generatePaymentMethodsMetric(LocalDate startDate, LocalDate endDate) {
-        List<ChartDataPointDTO> paymentMethods = getPaymentMethods(startDate, endDate);
+        List<PaymentMethodProjection> projections = salesRepository.getPaymentMethodsSummary(startDate, endDate);
+        List<ChartDataPointDTO> paymentMethods = projections.stream()
+            .map(p -> new ChartDataPointDTO(p.libelle(), (double) p.amount(), null))
+            .toList();
 
         return new CustomReportMetricDTO(
             "PAYMENT_METHODS",
@@ -250,14 +261,14 @@ public class MobileCustomReportService {
      * Generate Sales by Category metric
      */
     private CustomReportMetricDTO generateSalesByCategoryMetric(LocalDate startDate, LocalDate endDate) {
-        List<ChartDataPointDTO> categories = getCategoryStats(startDate, endDate);
-
+        // This would query by product categories
+        // Simplified version - can be implemented later
         return new CustomReportMetricDTO(
             "SALES_BY_CATEGORY",
             "Ventes par catégorie",
-            String.valueOf(categories.size()),
+            "0",
             null,
-            categories,
+            List.of(),
             "Catégories actives"
         );
     }
@@ -266,15 +277,15 @@ public class MobileCustomReportService {
      * Generate Customer Stats metric
      */
     private CustomReportMetricDTO generateCustomerStatsMetric(LocalDate startDate, LocalDate endDate) {
-        CustomerStats stats = getCustomerStats(startDate, endDate);
+        int customersCount = salesRepository.getCustomersCount(startDate, endDate);
 
         return new CustomReportMetricDTO(
             "CUSTOMER_STATS",
             "Statistiques clients",
-            String.valueOf(stats.totalCustomers()),
+            String.valueOf(customersCount),
             null,
             null,
-            String.format("Nouveaux clients: %d", stats.newCustomers())
+            "Clients uniques"
         );
     }
 
@@ -282,8 +293,6 @@ public class MobileCustomReportService {
      * Generate Alerts metric
      */
     private CustomReportMetricDTO generateAlertsMetric() {
-        // Get current alerts count
-        // This would typically query the alerts/notifications system
         return new CustomReportMetricDTO(
             "ALERTS",
             "Alertes actives",
@@ -298,8 +307,6 @@ public class MobileCustomReportService {
      * Generate Stock Status metric
      */
     private CustomReportMetricDTO generateStockStatusMetric() {
-        // Get stock statistics
-        // This would query the stock management system
         return new CustomReportMetricDTO(
             "STOCK_STATUS",
             "État du stock",
@@ -310,202 +317,13 @@ public class MobileCustomReportService {
         );
     }
 
-    // Helper methods for data retrieval
-
-    private long getTotalCA(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT COALESCE(SUM(s.sales_amount), 0)
-            FROM sales s
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        return ((Number) query.getSingleResult()).longValue();
-    }
-
-    private int getTransactionsCount(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT COUNT(DISTINCT s.id)
-            FROM sales s
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    private MarginData getMarginData(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT
-                COALESCE(SUM(s.sales_amount), 0) as ca,
-                COALESCE(SUM(s.sales_amount - s.cost_amount), 0) as margin
-            FROM sales s
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        Object[] row = (Object[]) query.getSingleResult();
-        long ca = ((Number) row[0]).longValue();
-        long margin = ((Number) row[1]).longValue();
-        double marginPercent = ca > 0 ? (margin * 100.0 / ca) : 0;
-
-        return new MarginData(margin, marginPercent);
-    }
-
-    private List<ChartDataPointDTO> getDailyCAChart(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT
-                s.sale_date,
-                COALESCE(SUM(s.sales_amount), 0) as amount
-            FROM sales s
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            GROUP BY s.sale_date
-            ORDER BY s.sale_date
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        List<ChartDataPointDTO> dataPoints = new ArrayList<>();
-        for (Object[] row : results) {
-            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
-            double amount = ((Number) row[1]).doubleValue();
-            dataPoints.add(new ChartDataPointDTO(date.toString(), amount, null));
-        }
-
-        return dataPoints;
-    }
-
-    private List<ChartDataPointDTO> getTopProducts(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT
-                p.libelle,
-                SUM(sl.sales_amount) as amount
-            FROM sales_line sl
-            INNER JOIN sales s ON sl.sales_id = s.id AND sl.sale_date = s.sale_date
-            INNER JOIN produit p ON sl.produit_id = p.id
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            GROUP BY p.libelle
-            ORDER BY amount DESC
-            LIMIT 10
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        List<ChartDataPointDTO> products = new ArrayList<>();
-        for (Object[] row : results) {
-            String name = (String) row[0];
-            double amount = ((Number) row[1]).doubleValue();
-            products.add(new ChartDataPointDTO(name, amount, null));
-        }
-
-        return products;
-    }
-
-    private List<ChartDataPointDTO> getPaymentMethods(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT
-                pm.libelle,
-                COALESCE(SUM(pt.paid_amount), 0) as amount
-            FROM payment_transaction pt
-            INNER JOIN payment_mode pm ON pt.payment_mode_code = pm.code
-            INNER JOIN sales s ON pt.sale_id = s.id AND pt.sale_date = s.sale_date
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            GROUP BY pm.libelle
-            ORDER BY amount DESC
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        List<ChartDataPointDTO> paymentMethods = new ArrayList<>();
-        for (Object[] row : results) {
-            String name = (String) row[0];
-            double amount = ((Number) row[1]).doubleValue();
-            paymentMethods.add(new ChartDataPointDTO(name, amount, null));
-        }
-
-        return paymentMethods;
-    }
-
-    private List<ChartDataPointDTO> getCategoryStats(LocalDate startDate, LocalDate endDate) {
-        // This would query by product categories
-        // Simplified version
-        return List.of();
-    }
-
-    private CustomerStats getCustomerStats(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-            SELECT
-                COUNT(DISTINCT s.customer_id) as total
-            FROM sales s
-            WHERE s.sale_date BETWEEN :startDate AND :endDate
-              AND s.statut = :statut
-              AND s.canceled = false
-              AND s.ca = :caType
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
-        query.setParameter("statut", SalesStatut.CLOSED.name());
-        query.setParameter("caType", SALES_CA_TYPE);
-
-        int total = ((Number) query.getSingleResult()).intValue();
-
-        return new CustomerStats(total, 0);
+    /**
+     * Map daily CA trend to chart data points.
+     */
+    private List<ChartDataPointDTO> mapDailyCAChart(List<DailyCATrendProjection> projections) {
+        return projections.stream()
+            .map(p -> new ChartDataPointDTO(p.date().toString(), (double) p.caTotal(), null))
+            .toList();
     }
 
     private double calculateTrend(long current, long previous) {
@@ -524,9 +342,4 @@ public class MobileCustomReportService {
     private String formatNumber(double number) {
         return String.format("%,.0f", number);
     }
-
-    // Helper records
-
-    private record MarginData(long marginAmount, double marginPercent) {}
-    private record CustomerStats(int totalCustomers, int newCustomers) {}
 }

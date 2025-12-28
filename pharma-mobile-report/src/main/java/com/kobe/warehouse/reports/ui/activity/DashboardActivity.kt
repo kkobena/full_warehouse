@@ -1,11 +1,8 @@
 package com.kobe.warehouse.reports.ui.activity
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.MenuItem
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +19,7 @@ import com.kobe.warehouse.reports.R
 import com.kobe.warehouse.reports.data.model.Dashboard
 import com.kobe.warehouse.reports.data.model.DailyCASummary
 import com.kobe.warehouse.reports.databinding.ActivityDashboardBinding
+import com.kobe.warehouse.reports.service.PharmaFirebaseMessagingService
 import com.kobe.warehouse.reports.ui.adapter.AlertSummaryAdapter
 import com.kobe.warehouse.reports.ui.adapter.TopProductAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModel
@@ -29,8 +27,9 @@ import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModelFactory
 
 /**
  * Dashboard activity - main screen showing KPIs and summaries.
+ * Extends BaseActivity for session management and logout functionality.
  */
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDashboardBinding
     private lateinit var viewModel: DashboardViewModel
@@ -49,8 +48,17 @@ class DashboardActivity : AppCompatActivity() {
         setupListeners()
         observeViewModel()
 
+        // Reset badge count when dashboard opens
+        PharmaFirebaseMessagingService.resetBadgeCount(this)
+
         // Load initial data
         viewModel.loadDashboard()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reset badge count when returning to dashboard
+        PharmaFirebaseMessagingService.resetBadgeCount(this)
     }
 
     /**
@@ -60,6 +68,11 @@ class DashboardActivity : AppCompatActivity() {
         val repository = PharmaReportApplication.getRepository()
         val factory = DashboardViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[DashboardViewModel::class.java]
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 
     /**
@@ -78,7 +91,7 @@ class DashboardActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_logout -> {
-                    logout()
+                    performLogout()
                     true
                 }
                 else -> false
@@ -172,6 +185,23 @@ class DashboardActivity : AppCompatActivity() {
             navigateToProducts()
         }
 
+        // Report cards
+        binding.cardPharmacistDashboard.setOnClickListener {
+            navigateToPharmacistDashboard()
+        }
+        binding.cardCashSummary.setOnClickListener {
+            navigateToCashSummary()
+        }
+        binding.cardActivityReport.setOnClickListener {
+            navigateToActivityReport()
+        }
+        binding.cardCashBalance.setOnClickListener {
+            navigateToCashBalance()
+        }
+        binding.cardTvaReport.setOnClickListener {
+            navigateToTvaReport()
+        }
+
         // Bottom navigation
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -200,9 +230,13 @@ class DashboardActivity : AppCompatActivity() {
      * Observe ViewModel LiveData.
      */
     private fun observeViewModel() {
-        // Loading state
+        // Loading state - use ViewFlipper for skeleton loading
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.loadingOverlay.isVisible = isLoading
+            if (isLoading) {
+                showSkeleton()
+            }
+            // Hide loadingOverlay (kept for compatibility)
+            binding.loadingOverlay.isVisible = false
         }
 
         // Refreshing state
@@ -213,15 +247,42 @@ class DashboardActivity : AppCompatActivity() {
         // Error message
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
-                showError(it)
+                // If we have no data, show error state
+                if (viewModel.dashboard.value == null) {
+                    showErrorState(it)
+                } else {
+                    // We have data, just show snackbar
+                    showErrorSnackbar(it)
+                }
                 viewModel.clearError()
             }
         }
 
         // Dashboard data
         viewModel.dashboard.observe(this) { dashboard ->
+            showContent()
             updateUI(dashboard)
         }
+    }
+
+    /**
+     * Show skeleton loading view.
+     */
+    private fun showSkeleton() {
+        binding.viewFlipper.displayedChild = VIEW_SKELETON
+    }
+
+    /**
+     * Show actual content view.
+     */
+    private fun showContent() {
+        binding.viewFlipper.displayedChild = VIEW_CONTENT
+    }
+
+    companion object {
+        private const val VIEW_SKELETON = 0
+        private const val VIEW_CONTENT = 1
+        private const val VIEW_ERROR = 2
     }
 
     /**
@@ -316,11 +377,22 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     /**
-     * Show error message.
+     * Show error state view.
      */
-    private fun showError(message: String) {
+    private fun showErrorState(message: String) {
+        binding.viewFlipper.displayedChild = VIEW_ERROR
+        binding.tvErrorMessage.text = message
+        binding.btnRetry.setOnClickListener {
+            viewModel.loadDashboard()
+        }
+    }
+
+    /**
+     * Show error as snackbar (when we have data).
+     */
+    private fun showErrorSnackbar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-            .setAction("Réessayer") {
+            .setAction(R.string.retry) {
                 viewModel.loadDashboard()
             }
             .show()
@@ -359,17 +431,33 @@ class DashboardActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToSettings() {
-        val intent = Intent(this, ServerConfigActivity::class.java)
+    private fun navigateToPharmacistDashboard() {
+        val intent = Intent(this, PharmacistDashboardActivity::class.java)
         startActivity(intent)
     }
 
-    private fun logout() {
-        PharmaReportApplication.getTokenManager().clearTokens()
-        val intent = Intent(this, LoginActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+    private fun navigateToCashSummary() {
+        val intent = Intent(this, CashSummaryActivity::class.java)
         startActivity(intent)
-        finish()
+    }
+
+    private fun navigateToActivityReport() {
+        val intent = Intent(this, ActivityReportActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToCashBalance() {
+        val intent = Intent(this, CashBalanceActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToTvaReport() {
+        val intent = Intent(this, TvaReportActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToSettings() {
+        val intent = Intent(this, ServerConfigActivity::class.java)
+        startActivity(intent)
     }
 }

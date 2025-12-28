@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.facebook.shimmer.ShimmerFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:shimmer_auto_start="true"
+    app:shimmer_duration="1200">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Tabs skeleton -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@drawable/skeleton_rounded" />
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@drawable/skeleton_rounded" />
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@drawable/skeleton_rounded" />
+
+            </LinearLayout>
+
+            <!-- Main Metrics Card skeleton -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Title -->
+                    <View
+                        android:layout_width="100dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/skeleton_rounded" />
+
+                    <!-- CA Total skeleton -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <View
+                            android:layout_width="80dp"
+                            android:layout_height="12dp"
+                            android:background="@drawable/skeleton_rounded" />
+
+                        <View
+                            android:layout_width="180dp"
+                            android:layout_height="32dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/skeleton_rounded" />
+
+                        <View
+                            android:layout_width="140dp"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/skeleton_rounded" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="24dp"
+                        android:background="@color/divider" />
+
+                    <!-- Secondary Metrics Row skeleton -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_height="20dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                            <View
+                                android:layout_width="70dp"
+                                android:layout_height="12dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_height="20dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                            <View
+                                android:layout_width="70dp"
+                                android:layout_height="12dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_height="20dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                            <View
+                                android:layout_width="70dp"
+                                android:layout_height="12dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/skeleton_rounded" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Chart Card skeleton -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <View
+                        android:layout_width="120dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/skeleton_rounded" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/skeleton_rounded" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Categories Chart skeleton -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <View
+                        android:layout_width="130dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/skeleton_rounded" />
+
+                    <View
+                        android:layout_width="180dp"
+                        android:layout_height="180dp"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/skeleton_circle" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Top Products skeleton -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <View
+                        android:layout_width="110dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/skeleton_rounded" />
+
+                    <include
+                        layout="@layout/skeleton_list_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" />
+
+                    <include
+                        layout="@layout/skeleton_list_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                    <include
+                        layout="@layout/skeleton_list_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</com.facebook.shimmer.ShimmerFrameLayout>

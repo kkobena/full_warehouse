@@ -112,6 +112,8 @@
     <string name="error_server">Erreur serveur</string>
     <string name="error_unauthorized">Session expirée, veuillez vous reconnecter</string>
     <string name="error_unknown">Une erreur est survenue</string>
+    <string name="error_connection_title">Erreur de connexion</string>
+    <string name="error_connection_message">Impossible de se connecter au serveur. Vérifiez votre connexion internet.</string>
     <string name="offline_mode">Mode hors ligne</string>
     <string name="offline_data_cached">Données en cache affichées</string>
 
@@ -126,6 +128,13 @@
     <string name="alerts_filter_invoice">Factures</string>
     <string name="alerts_empty_title">Aucune alerte</string>
     <string name="alerts_empty_message">Tout fonctionne correctement</string>
+
+    <!-- Swipe Actions -->
+    <string name="alert_resolved">Alerte résolue</string>
+    <string name="alert_dismissed">Alerte ignorée</string>
+    <string name="undo">Annuler</string>
+    <string name="swipe_to_resolve">Glisser pour résoudre</string>
+    <string name="swipe_to_dismiss">Glisser pour ignorer</string>
 
     <!-- Todos Empty -->
     <string name="todos_empty_title">Aucune tâche</string>
@@ -180,4 +189,101 @@
     <string name="variation">Variation</string>
     <string name="refresh">Actualiser</string>
     <string name="alerts">Alertes</string>
+
+    <!-- Pharmacist Dashboard -->
+    <string name="report_pharmacist_dashboard">Tableau Pharmacien</string>
+    <string name="period_selector">Période</string>
+    <string name="period_today">Aujourd\'hui</string>
+    <string name="period_yesterday">Hier</string>
+    <string name="period_this_week">Cette semaine</string>
+    <string name="period_last_week">Semaine dernière</string>
+    <string name="period_this_month">Ce mois</string>
+    <string name="period_last_month">Mois dernier</string>
+    <string name="period_custom">Personnalisé</string>
+    <string name="sales_label">Ventes</string>
+    <string name="sales_cash">Comptant</string>
+    <string name="sales_credit">Crédit</string>
+    <string name="sales_discount">Remises</string>
+    <string name="purchases_label">Achats</string>
+    <string name="supplier_credits">Avoirs fournisseurs</string>
+    <string name="margin_label">Marge</string>
+    <string name="ratio_va_label">Ratio V/A</string>
+    <string name="ratio_av_label">Ratio A/V</string>
+    <string name="chart_sales_vs_purchases">Ventes vs Achats</string>
+    <string name="top_suppliers">Top Fournisseurs</string>
+    <string name="no_data_available">Aucune donnée disponible</string>
+    <string name="transactions_count">%d transactions</string>
+
+    <!-- Reports Menu -->
+    <string name="nav_reports">Rapports</string>
+    <string name="reports_menu_title">Rapports</string>
+    <string name="report_cash_balance">Balance Caisse</string>
+    <string name="report_vat">Rapport TVA</string>
+    <string name="report_activity">Rapport d\'Activité</string>
+    <string name="report_cash_summary">Récapitulatif Caisse</string>
+
+    <!-- Cash Summary / Ticket Z -->
+    <string name="select_period">Sélectionner une période</string>
+    <string name="only_sales_payments">Ventes uniquement</string>
+    <string name="global_summary">Récapitulatif global</string>
+    <string name="payment_modes">Modes de paiement</string>
+    <string name="cash_especes">Espèces</string>
+    <string name="cash_cartes">Cartes bancaires</string>
+    <string name="cash_mobile_money">Mobile Money</string>
+    <string name="cash_cheques">Chèques</string>
+    <string name="cash_virements">Virements</string>
+    <string name="cash_credit">Crédit</string>
+    <string name="total_ttc">Total TTC</string>
+    <string name="cashiers_breakdown">Détail par caissier</string>
+    <string name="no_data_for_period">Aucune donnée pour cette période</string>
+    <plurals name="cashier_count">
+        <item quantity="one">%d caissier</item>
+        <item quantity="other">%d caissiers</item>
+    </plurals>
+
+    <!-- Activity Report -->
+    <string name="chiffre_affaires">Chiffre d\'affaires</string>
+    <string name="recettes_par_mode">Recettes par mode</string>
+    <string name="mouvements_caisse">Mouvements de caisse</string>
+    <string name="achats_fournisseurs">Achats fournisseurs</string>
+    <string name="tiers_payants">Tiers payants</string>
+    <string name="entrees">Entrées</string>
+    <string name="sorties">Sorties</string>
+    <string name="reglements">Règlements</string>
+    <string name="achats_tiers_payants">Achats tiers payants</string>
+    <string name="facture">Facturé</string>
+    <string name="regle">Réglé</string>
+    <string name="restant">Restant</string>
+    <string name="bons">Bons</string>
+    <string name="montant">Montant</string>
+    <string name="clients">Clients</string>
+    <string name="montant_ttc">Montant TTC</string>
+    <string name="montant_ht">Montant HT</string>
+    <string name="montant_tva">TVA</string>
+    <string name="remise">Remise</string>
+    <string name="montant_net">Net</string>
+    <string name="marge">Marge</string>
+
+    <!-- Cash Balance -->
+    <string name="totaux">Totaux</string>
+    <string name="ht">HT</string>
+    <string name="tva">TVA</string>
+
+    <!-- TVA Report -->
+    <string name="group_by_date">Grouper par date</string>
+    <string name="tva_breakdown">Repartition par taux</string>
+    <string name="amount_to_account">Montant a comptabiliser</string>
+    <string name="transactions">Transactions</string>
+    <string name="repartition_paiements">Répartition des paiements</string>
+    <string name="paiements">Paiements</string>
+    <string name="categories_ventes">Catégories de ventes</string>
+    <string name="marge_et_ratios">Marge et Ratios</string>
+    <string name="montant_achats">Montant des achats</string>
+    <string name="ratio_vente_achat">Ratio Ventes/Achats</string>
+    <string name="ratio_achat_vente">Ratio Achats/Ventes</string>
+    <string name="panier_moyen">Panier moyen</string>
+    <string name="panier_moyen_short">Panier</string>
+    <string name="no_data">Aucune donnée</string>
+    <string name="ttc">TTC</string>
+    <string name="net">Net</string>
 </resources>

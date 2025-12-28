@@ -111,8 +111,8 @@ class ProductDetailActivity : AppCompatActivity() {
         binding.tvMargin.text = product.price.getFormattedMargin()
 
         // Stock info
-        binding.tvStockQuantity.text = product.stock.currentQuantity.toString()
-        binding.tvStockValue.text = "${product.stock.currentQuantity * product.price.purchasePrice / 100} F"
+        binding.tvStockQuantity.text = product.stock.totalQuantity.toString()
+        binding.tvStockValue.text = "${product.stock.totalQuantity * product.price.purchasePrice / 100} F"
 
         // Stock status
         val stockStatusText = when (product.stock.status) {

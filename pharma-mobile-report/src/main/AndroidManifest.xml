@@ -125,6 +125,54 @@
             android:screenOrientation="fullSensor"
             android:parentActivityName=".ui.activity.DashboardActivity" />
 
+        <!-- Tiers Payant Créances Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.TiersPayantCreancesActivity"
+            android:exported="false"
+            android:label="@string/report_tiers_payant"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
+        <!-- Supplier Performance Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.SupplierPerformanceActivity"
+            android:exported="false"
+            android:label="@string/supplier_performance_title"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
+        <!-- Stock Valuation Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.StockValuationActivity"
+            android:exported="false"
+            android:label="@string/stock_valuation_title"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
+        <!-- Profitability Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.ProfitabilityActivity"
+            android:exported="false"
+            android:label="@string/profitability_title"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
+        <!-- Stock Rotation Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.StockRotationActivity"
+            android:exported="false"
+            android:label="@string/stock_rotation_title"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
+        <!-- ABC Pareto Activity (Phase 4 Statistical Reports) -->
+        <activity
+            android:name=".ui.activity.AbcParetoActivity"
+            android:exported="false"
+            android:label="@string/abc_pareto_title"
+            android:screenOrientation="fullSensor"
+            android:parentActivityName=".ui.activity.ReportsActivity" />
+
         <!-- Reports Menu Activity -->
         <activity
             android:name=".ui.activity.ReportsActivity"

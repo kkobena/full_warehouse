@@ -1,5 +1,8 @@
 package com.kobe.warehouse.web.rest.mobile;
 
+import com.kobe.warehouse.domain.enumeration.BCGCategory;
+import com.kobe.warehouse.domain.enumeration.CategorieABC;
+import com.kobe.warehouse.domain.enumeration.ClassePareto;
 import com.kobe.warehouse.service.dto.mobile.MobileActivityReportDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileAlertDetailDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileCashBalanceDTO;
@@ -10,6 +13,17 @@ import com.kobe.warehouse.service.dto.mobile.MobilePharmacistDashboardDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileProductQuickInfoDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileTodoDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileTvaReportDTO;
+import com.kobe.warehouse.service.dto.report.ABCParetoDTO;
+import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
+import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
+import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
+import com.kobe.warehouse.service.dto.report.StockRotationDTO;
+import com.kobe.warehouse.service.dto.report.StockValuationDTO;
+import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
+import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import com.kobe.warehouse.service.mobile.MobileActivityReportService;
 import com.kobe.warehouse.service.mobile.MobileAlertService;
 import com.kobe.warehouse.service.mobile.MobileCashBalanceService;
@@ -21,10 +35,17 @@ import com.kobe.warehouse.service.mobile.MobileProductService;
 import com.kobe.warehouse.service.mobile.MobileTodoService;
 import com.kobe.warehouse.service.mobile.MobileTvaReportService;
 import com.kobe.warehouse.service.mobile.util.PaginationHelper;
+import com.kobe.warehouse.service.report.ABCParetoReportService;
+import com.kobe.warehouse.service.report.ProfitabilityReportService;
+import com.kobe.warehouse.service.report.StockRotationReportService;
+import com.kobe.warehouse.service.report.StockValuationReportService;
+import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
+import com.kobe.warehouse.service.report.TiersPayantReportService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +85,14 @@ public class MobileReportResource {
     private final MobileCashBalanceService cashBalanceService;
     private final MobileTvaReportService tvaReportService;
 
+    // Phase 4: Statistical Reports Services
+    private final TiersPayantReportService tiersPayantReportService;
+    private final SupplierPerformanceReportService supplierPerformanceReportService;
+    private final StockValuationReportService stockValuationReportService;
+    private final ProfitabilityReportService profitabilityReportService;
+    private final StockRotationReportService stockRotationReportService;
+    private final ABCParetoReportService abcParetoReportService;
+
     public MobileReportResource(
         MobileDashboardService dashboardService,
         MobileAlertService alertService,
@@ -74,7 +103,13 @@ public class MobileReportResource {
         MobileCashSummaryService cashSummaryService,
         MobileActivityReportService activityReportService,
         MobileCashBalanceService cashBalanceService,
-        MobileTvaReportService tvaReportService
+        MobileTvaReportService tvaReportService,
+        TiersPayantReportService tiersPayantReportService,
+        SupplierPerformanceReportService supplierPerformanceReportService,
+        StockValuationReportService stockValuationReportService,
+        ProfitabilityReportService profitabilityReportService,
+        StockRotationReportService stockRotationReportService,
+        ABCParetoReportService abcParetoReportService
     ) {
         this.dashboardService = dashboardService;
         this.alertService = alertService;
@@ -86,6 +121,12 @@ public class MobileReportResource {
         this.activityReportService = activityReportService;
         this.cashBalanceService = cashBalanceService;
         this.tvaReportService = tvaReportService;
+        this.tiersPayantReportService = tiersPayantReportService;
+        this.supplierPerformanceReportService = supplierPerformanceReportService;
+        this.stockValuationReportService = stockValuationReportService;
+        this.profitabilityReportService = profitabilityReportService;
+        this.stockRotationReportService = stockRotationReportService;
+        this.abcParetoReportService = abcParetoReportService;
     }
 
     // =========================================================================
@@ -437,6 +478,421 @@ public class MobileReportResource {
 
         MobileTvaReportDTO tvaReport = tvaReportService.getTvaReport(fromDate, endDate, groupByDate);
         return ResponseEntity.ok(tvaReport);
+    }
+
+    // =========================================================================
+    // PHASE 4: STATISTICAL REPORTS ENDPOINTS
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Créances Tiers Payant (Third-Party Payer Receivables)
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/tiers-payant/creances/summary
+     * Get créances summary grouped by tiers payant.
+     *
+     * @return List of créances summaries
+     */
+    @GetMapping("/reports/tiers-payant/creances/summary")
+    public ResponseEntity<List<TiersPayantCreancesSummaryDTO>> getCreancesSummary() {
+        LOG.debug("REST request to get créances summary");
+        return ResponseEntity.ok(tiersPayantReportService.getCreancesSummary());
+    }
+
+    /**
+     * GET /api/mobile/reports/tiers-payant/creances/unpaid
+     * Get unpaid invoices with optional filters.
+     *
+     * @param groupeId Optional groupe tiers payant ID filter
+     * @param ageCategory Optional age category filter (LESS_THAN_30, BETWEEN_30_60, BETWEEN_60_90, MORE_THAN_90)
+     * @return List of unpaid invoices
+     */
+    @GetMapping("/reports/tiers-payant/creances/unpaid")
+    public ResponseEntity<List<TiersPayantInvoiceDTO>> getUnpaidInvoices(
+        @RequestParam(required = false) Integer groupeId,
+        @RequestParam(required = false) TiersPayantInvoiceDTO.AgeCategory ageCategory
+    ) {
+        LOG.debug("REST request to get unpaid invoices - groupeId: {}, ageCategory: {}", groupeId, ageCategory);
+        return ResponseEntity.ok(tiersPayantReportService.getUnpaidInvoices(groupeId, ageCategory));
+    }
+
+    /**
+     * GET /api/mobile/reports/tiers-payant/payment-history
+     * Get payment history for a specific groupe tiers payant.
+     *
+     * @param groupeId Groupe tiers payant ID
+     * @param startDate Start date
+     * @param endDate End date
+     * @return List of paid invoices
+     */
+    @GetMapping("/reports/tiers-payant/payment-history")
+    public ResponseEntity<List<TiersPayantInvoiceDTO>> getPaymentHistory(
+        @RequestParam Integer groupeId,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        LOG.debug("REST request to get payment history - groupeId: {}, from {} to {}", groupeId, startDate, endDate);
+        return ResponseEntity.ok(tiersPayantReportService.getPaymentHistory(groupeId, startDate, endDate));
+    }
+
+    // -------------------------------------------------------------------------
+    // Performance Fournisseurs (Supplier Performance)
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/supplier-performance/all
+     * Get all supplier performance data.
+     *
+     * @return List of all suppliers with performance metrics
+     */
+    @GetMapping("/reports/supplier-performance/all")
+    public ResponseEntity<List<SupplierPerformanceDTO>> getAllSupplierPerformance() {
+        LOG.debug("REST request to get all supplier performance");
+        return ResponseEntity.ok(supplierPerformanceReportService.getAllSupplierPerformance());
+    }
+
+    /**
+     * GET /api/mobile/reports/supplier-performance/top
+     * Get top suppliers by purchase volume.
+     *
+     * @param limit Max number of suppliers (default 10)
+     * @return List of top suppliers
+     */
+    @GetMapping("/reports/supplier-performance/top")
+    public ResponseEntity<List<SupplierPerformanceDTO>> getTopSuppliers(
+        @RequestParam(defaultValue = "10") Integer limit
+    ) {
+        LOG.debug("REST request to get top {} suppliers", limit);
+        return ResponseEntity.ok(supplierPerformanceReportService.getTopSuppliersByVolume(limit));
+    }
+
+    /**
+     * GET /api/mobile/reports/supplier-performance/summary
+     * Get aggregated supplier performance summary.
+     *
+     * @return Supplier performance summary with aggregate metrics
+     */
+    @GetMapping("/reports/supplier-performance/summary")
+    public ResponseEntity<SupplierPerformanceSummaryDTO> getSupplierPerformanceSummary() {
+        LOG.debug("REST request to get supplier performance summary");
+        return ResponseEntity.ok(supplierPerformanceReportService.getSupplierPerformanceSummary());
+    }
+
+    /**
+     * GET /api/mobile/reports/supplier-performance/by-score
+     * Get suppliers filtered by minimum performance score.
+     *
+     * @param minScore Minimum performance score (0-100)
+     * @return List of suppliers with score >= minScore
+     */
+    @GetMapping("/reports/supplier-performance/by-score")
+    public ResponseEntity<List<SupplierPerformanceDTO>> getSuppliersByScore(
+        @RequestParam Double minScore
+    ) {
+        LOG.debug("REST request to get suppliers with score >= {}", minScore);
+        return ResponseEntity.ok(supplierPerformanceReportService.getSuppliersByPerformanceScore(minScore));
+    }
+
+    /**
+     * GET /api/mobile/reports/supplier-performance/issues
+     * Get suppliers with delivery issues.
+     *
+     * @return List of suppliers with delivery problems
+     */
+    @GetMapping("/reports/supplier-performance/issues")
+    public ResponseEntity<List<SupplierPerformanceDTO>> getSuppliersWithIssues() {
+        LOG.debug("REST request to get suppliers with delivery issues");
+        return ResponseEntity.ok(supplierPerformanceReportService.getSuppliersWithDeliveryIssues());
+    }
+
+    // -------------------------------------------------------------------------
+    // Valorisation Stock (Stock Valuation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/stock-valuation/all
+     * Get all stock valuation data with pagination.
+     *
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 50)
+     * @return List of products with stock valuation and pagination headers
+     */
+    @GetMapping("/reports/stock-valuation/all")
+    public ResponseEntity<List<StockValuationDTO>> getAllStockValuation(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size
+    ) {
+        LOG.debug("REST request to get all stock valuation - page: {}, size: {}", page, size);
+        return PaginationHelper.createPaginatedResponse(
+            () -> stockValuationReportService.getStockValuationPaginated(page, size),
+            () -> stockValuationReportService.getStockValuationCount(),
+            page,
+            size
+        );
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-valuation/summary
+     * Get aggregated stock valuation summary.
+     *
+     * @return Stock valuation summary with totals
+     */
+    @GetMapping("/reports/stock-valuation/summary")
+    public ResponseEntity<StockValuationSummaryDTO> getStockValuationSummary() {
+        LOG.debug("REST request to get stock valuation summary");
+        return ResponseEntity.ok(stockValuationReportService.getStockValuationSummary());
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-valuation/by-category
+     * Get stock valuation filtered by category.
+     *
+     * @param category Category name
+     * @return List of products in category with valuation
+     */
+    @GetMapping("/reports/stock-valuation/by-category")
+    public ResponseEntity<List<StockValuationDTO>> getStockValuationByCategory(
+        @RequestParam String category
+    ) {
+        LOG.debug("REST request to get stock valuation for category: {}", category);
+        return ResponseEntity.ok(stockValuationReportService.getStockValuationByCategory(category));
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-valuation/by-storage
+     * Get stock valuation filtered by storage location.
+     *
+     * @param storage Storage location name
+     * @return List of products in storage with valuation
+     */
+    @GetMapping("/reports/stock-valuation/by-storage")
+    public ResponseEntity<List<StockValuationDTO>> getStockValuationByStorage(
+        @RequestParam String storage
+    ) {
+        LOG.debug("REST request to get stock valuation for storage: {}", storage);
+        return ResponseEntity.ok(stockValuationReportService.getStockValuationByStorage(storage));
+    }
+
+    // -------------------------------------------------------------------------
+    // Rentabilité (Profitability)
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/profitability/all
+     * Get all product profitability data.
+     *
+     * @return List of all products with profitability metrics
+     */
+    @GetMapping("/reports/profitability/all")
+    public ResponseEntity<List<ProductProfitabilityDTO>> getAllProductProfitability() {
+        LOG.debug("REST request to get all product profitability");
+        return ResponseEntity.ok(profitabilityReportService.getAllProductProfitability());
+    }
+
+    /**
+     * GET /api/mobile/reports/profitability/summary
+     * Get aggregated profitability summary.
+     *
+     * @return Profitability summary with BCG distribution
+     */
+    @GetMapping("/reports/profitability/summary")
+    public ResponseEntity<ProfitabilitySummaryDTO> getProfitabilitySummary() {
+        LOG.debug("REST request to get profitability summary");
+        return ResponseEntity.ok(profitabilityReportService.getProfitabilitySummary());
+    }
+
+    /**
+     * GET /api/mobile/reports/profitability/by-bcg
+     * Get products filtered by BCG category.
+     *
+     * @param category BCG category (STAR, CASH_COW, QUESTION_MARK, DOG)
+     * @return List of products in BCG category
+     */
+    @GetMapping("/reports/profitability/by-bcg")
+    public ResponseEntity<List<ProductProfitabilityDTO>> getByBCGCategory(
+        @RequestParam BCGCategory category
+    ) {
+        LOG.debug("REST request to get products by BCG category: {}", category);
+        return ResponseEntity.ok(profitabilityReportService.getProductProfitabilityByBCGCategory(category));
+    }
+
+    /**
+     * GET /api/mobile/reports/profitability/top
+     * Get top N most profitable products.
+     *
+     * @param limit Number of products to return (default 20)
+     * @return List of top profitable products
+     */
+    @GetMapping("/reports/profitability/top")
+    public ResponseEntity<List<ProductProfitabilityDTO>> getTopProfitableProducts(
+        @RequestParam(defaultValue = "20") int limit
+    ) {
+        LOG.debug("REST request to get top {} profitable products", limit);
+        return ResponseEntity.ok(profitabilityReportService.getTopProfitableProducts(limit));
+    }
+
+    /**
+     * GET /api/mobile/reports/profitability/low-margin
+     * Get products with low margin (< 10%).
+     *
+     * @return List of low margin products
+     */
+    @GetMapping("/reports/profitability/low-margin")
+    public ResponseEntity<List<ProductProfitabilityDTO>> getLowMarginProducts() {
+        LOG.debug("REST request to get low margin products");
+        return ResponseEntity.ok(profitabilityReportService.getLowMarginProducts());
+    }
+
+    // -------------------------------------------------------------------------
+    // Rotation Stock (Stock Rotation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/stock-rotation/all
+     * Get all stock rotation data with pagination.
+     *
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 50)
+     * @return List of products with rotation metrics and pagination headers
+     */
+    @GetMapping("/reports/stock-rotation/all")
+    public ResponseEntity<List<StockRotationDTO>> getAllStockRotation(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size
+    ) {
+        LOG.debug("REST request to get all stock rotation - page: {}, size: {}", page, size);
+        return PaginationHelper.createPaginatedResponse(
+            () -> stockRotationReportService.getStockRotationPaginated(page, size),
+            () -> stockRotationReportService.getStockRotationCount(),
+            page,
+            size
+        );
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-rotation/slow-moving
+     * Get slow moving products (ABC category C).
+     *
+     * @return List of slow moving products
+     */
+    @GetMapping("/reports/stock-rotation/slow-moving")
+    public ResponseEntity<List<StockRotationDTO>> getSlowMovingProducts() {
+        LOG.debug("REST request to get slow moving products");
+        return ResponseEntity.ok(stockRotationReportService.getSlowMovingProducts());
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-rotation/abc-counts
+     * Get product counts by ABC classification.
+     *
+     * @return Map of ABC category to count
+     */
+    @GetMapping("/reports/stock-rotation/abc-counts")
+    public ResponseEntity<Map<CategorieABC, Long>> getStockRotationABCCounts() {
+        LOG.debug("REST request to get stock rotation ABC counts");
+        return ResponseEntity.ok(stockRotationReportService.getStockRotationCountByABCClassification());
+    }
+
+    /**
+     * GET /api/mobile/reports/stock-rotation/by-abc
+     * Get products filtered by ABC classification with pagination.
+     *
+     * @param category ABC category (A, B, C)
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 50)
+     * @return List of products in ABC category with pagination headers
+     */
+    @GetMapping("/reports/stock-rotation/by-abc")
+    public ResponseEntity<List<StockRotationDTO>> getStockRotationByABC(
+        @RequestParam CategorieABC category,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size
+    ) {
+        LOG.debug("REST request to get stock rotation by ABC category: {} - page: {}, size: {}", category, page, size);
+        return PaginationHelper.createPaginatedResponse(
+            () -> stockRotationReportService.getStockRotationByABCPaginated(category, page, size),
+            () -> stockRotationReportService.getStockRotationCountByABC(category),
+            page,
+            size
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // ABC Pareto Analysis
+    // -------------------------------------------------------------------------
+
+    /**
+     * GET /api/mobile/reports/abc-pareto/all
+     * Get all ABC Pareto analysis data with pagination.
+     *
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 50)
+     * @return List of products with Pareto analysis and pagination headers
+     */
+    @GetMapping("/reports/abc-pareto/all")
+    public ResponseEntity<List<ABCParetoDTO>> getAllABCPareto(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size
+    ) {
+        LOG.debug("REST request to get all ABC Pareto analysis - page: {}, size: {}", page, size);
+        return PaginationHelper.createPaginatedResponse(
+            () -> abcParetoReportService.getABCParetoPaginated(page, size),
+            () -> abcParetoReportService.getABCParetoCount(),
+            page,
+            size
+        );
+    }
+
+    /**
+     * GET /api/mobile/reports/abc-pareto/summary
+     * Get ABC Pareto summary.
+     *
+     * @return ABC Pareto summary with class distribution
+     */
+    @GetMapping("/reports/abc-pareto/summary")
+    public ResponseEntity<ABCParetoSummaryDTO> getABCParetoSummary() {
+        LOG.debug("REST request to get ABC Pareto summary");
+        return ResponseEntity.ok(abcParetoReportService.getABCParetoSummary());
+    }
+
+    /**
+     * GET /api/mobile/reports/abc-pareto/by-class
+     * Get products filtered by Pareto class with pagination.
+     *
+     * @param classePareto Pareto class (A, B, C)
+     * @param page Page number (0-indexed, default 0)
+     * @param size Page size (default 50)
+     * @return List of products in Pareto class with pagination headers
+     */
+    @GetMapping("/reports/abc-pareto/by-class")
+    public ResponseEntity<List<ABCParetoDTO>> getByParetoClass(
+        @RequestParam ClassePareto classePareto,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size
+    ) {
+        LOG.debug("REST request to get ABC Pareto by class: {} - page: {}, size: {}", classePareto, page, size);
+        return PaginationHelper.createPaginatedResponse(
+            () -> abcParetoReportService.getABCParetoByClassPaginated(classePareto, page, size),
+            () -> abcParetoReportService.getABCParetoCountByClass(classePareto),
+            page,
+            size
+        );
+    }
+
+    /**
+     * GET /api/mobile/reports/abc-pareto/top
+     * Get top N revenue contributors.
+     *
+     * @param limit Number of products to return (default 20)
+     * @return List of top revenue contributors
+     */
+    @GetMapping("/reports/abc-pareto/top")
+    public ResponseEntity<List<ABCParetoDTO>> getTopRevenueContributors(
+        @RequestParam(defaultValue = "20") int limit
+    ) {
+        LOG.debug("REST request to get top {} revenue contributors", limit);
+        return ResponseEntity.ok(abcParetoReportService.getTopRevenueContributors(limit));
     }
 
     // =========================================================================

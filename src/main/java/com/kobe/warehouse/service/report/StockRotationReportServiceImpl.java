@@ -159,6 +159,90 @@ public class StockRotationReportServiceImpl implements StockRotationReportServic
     }
 
     @Override
+    public List<StockRotationDTO> getStockRotationPaginated(int page, int size) {
+        String sql =
+            "SELECT " +
+            "produit_id, " +
+            "libelle, " +
+            "code_cip, " +
+            "categorie, " +
+            "stock_quantity, " +
+            "unit_cost, " +
+            "stock_value, " +
+            "ca_last_30_days, " +
+            "qty_sold_last_30_days, " +
+            "nb_sales_last_30_days, " +
+            "ca_last_12_months, " +
+            "qty_sold_last_12_months, " +
+            "rotation_rate_annual, " +
+            "avg_days_in_stock, " +
+            "categorie_abc " +
+            "FROM mv_stock_rotation " +
+            "ORDER BY rotation_rate_annual DESC " +
+            "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "stockRotation", key = "'count'")
+    public long getStockRotationCount() {
+        String sql = "SELECT COUNT(*) FROM mv_stock_rotation";
+        Query query = entityManager.createNativeQuery(sql);
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<StockRotationDTO> getStockRotationByABCPaginated(CategorieABC categorieABC, int page, int size) {
+        String sql =
+            "SELECT " +
+            "produit_id, " +
+            "libelle, " +
+            "code_cip, " +
+            "categorie, " +
+            "stock_quantity, " +
+            "unit_cost, " +
+            "stock_value, " +
+            "ca_last_30_days, " +
+            "qty_sold_last_30_days, " +
+            "nb_sales_last_30_days, " +
+            "ca_last_12_months, " +
+            "qty_sold_last_12_months, " +
+            "rotation_rate_annual, " +
+            "avg_days_in_stock, " +
+            "categorie_abc " +
+            "FROM mv_stock_rotation " +
+            "WHERE categorie_abc = :categorieABC " +
+            "ORDER BY rotation_rate_annual DESC " +
+            "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("categorieABC", categorieABC.name());
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    public long getStockRotationCountByABC(CategorieABC categorieABC) {
+        String sql = "SELECT COUNT(*) FROM mv_stock_rotation WHERE categorie_abc = :categorieABC";
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("categorieABC", categorieABC.name());
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
     @Cacheable(value = "stockRotation", key = "'slow'")
     public List<StockRotationDTO> getSlowMovingProducts() {
         String sql =

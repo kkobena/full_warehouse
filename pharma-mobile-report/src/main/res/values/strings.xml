@@ -172,6 +172,10 @@
     <string name="nav_todos">Actions</string>
     <string name="nav_performance">Performances</string>
 
+    <!-- Pagination -->
+    <string name="items_count">%d produits</string>
+    <string name="loading_more">Chargement…</string>
+
     <!-- Formats -->
     <string name="format_amount">%s F</string>
     <string name="format_percent">%s%%</string>
@@ -286,4 +290,123 @@
     <string name="no_data">Aucune donnée</string>
     <string name="ttc">TTC</string>
     <string name="net">Net</string>
+
+    <!-- Statistical Reports -->
+    <string name="reports_statistical">Rapports Statistiques</string>
+    <string name="report_tiers_payant">Créances TP</string>
+    <string name="report_supplier_performance">Fournisseurs</string>
+    <string name="report_stock_valuation">Valorisation Stock</string>
+    <string name="report_profitability">Rentabilité</string>
+    <string name="report_stock_rotation">Rotation Stock</string>
+    <string name="report_abc_pareto">ABC Pareto</string>
+
+    <!-- Tiers Payant Creances -->
+    <string name="creances_title">Créances Tiers Payant</string>
+    <string name="creances_summary">Résumé des créances</string>
+    <string name="creances_unpaid">Factures impayées</string>
+    <string name="creances_filter_all">Toutes</string>
+    <string name="creances_filter_less_30">Moins de 30j</string>
+    <string name="creances_filter_30_60">30-60 jours</string>
+    <string name="creances_filter_60_90">60-90 jours</string>
+    <string name="creances_filter_more_90">Plus de 90j</string>
+    <string name="creances_total">Total créances</string>
+    <string name="creances_empty">Aucune créance impayée</string>
+    <string name="invoice_number">N° Facture</string>
+    <string name="invoice_date">Date facture</string>
+    <string name="amount_invoiced">Facturé</string>
+    <string name="amount_paid">Payé</string>
+    <string name="amount_remaining">Restant</string>
+    <string name="days_overdue">%d jours</string>
+
+    <!-- Supplier Performance -->
+    <string name="supplier_performance_title">Performance Fournisseurs</string>
+    <string name="supplier_performance_summary">Résumé performance</string>
+    <string name="supplier_filter_all">Tous</string>
+    <string name="supplier_filter_top">Top 10</string>
+    <string name="supplier_filter_excellent">Excellents</string>
+    <string name="supplier_filter_good">Bons</string>
+    <string name="supplier_filter_issues">Problèmes</string>
+    <string name="performance_score">Score</string>
+    <string name="delivery_time">Délai livraison</string>
+    <string name="conformity_rate">Taux conformité</string>
+    <string name="purchase_volume_30d">Achats 30j</string>
+    <string name="purchase_volume_12m">Achats 12 mois</string>
+    <string name="orders_count">Commandes</string>
+    <string name="supplier_empty">Aucun fournisseur</string>
+
+    <!-- Stock Valuation -->
+    <string name="stock_valuation_title">Valorisation Stock</string>
+    <string name="stock_valuation_summary">Résumé valorisation</string>
+    <string name="total_purchase_value">Valeur achat</string>
+    <string name="total_sales_value">Valeur vente</string>
+    <string name="potential_margin">Marge potentielle</string>
+    <string name="avg_margin">Marge moyenne</string>
+    <string name="filter_by_category">Par catégorie</string>
+    <string name="filter_by_storage">Par emplacement</string>
+    <string name="stock_empty">Aucun produit en stock</string>
+
+    <!-- Profitability -->
+    <string name="profitability_title">Analyse de Rentabilité</string>
+    <string name="profitability_summary">Résumé rentabilité</string>
+    <string name="bcg_filter_all">Tous</string>
+    <string name="bcg_filter_star">Stars</string>
+    <string name="bcg_filter_cash_cow">Vaches à lait</string>
+    <string name="bcg_filter_question">Dilemmes</string>
+    <string name="bcg_filter_dog">Poids morts</string>
+    <string name="bcg_filter_low_margin">Faible marge</string>
+    <string name="total_revenue">CA Total</string>
+    <string name="total_cost">Coût total</string>
+    <string name="total_margin">Marge totale</string>
+    <string name="margin_rate">Taux marge</string>
+    <string name="bcg_category">Catégorie BCG</string>
+    <string name="profitability_empty">Aucune donnée</string>
+
+    <!-- Stock Rotation -->
+    <string name="stock_rotation_title">Rotation du Stock</string>
+    <string name="stock_rotation_summary">Résumé rotation</string>
+    <string name="abc_filter_all">Toutes classes</string>
+    <string name="abc_filter_a">Classe A</string>
+    <string name="abc_filter_b">Classe B</string>
+    <string name="abc_filter_c">Classe C</string>
+    <string name="abc_filter_slow">Rotation lente</string>
+    <string name="rotation_rate">Taux rotation</string>
+    <string name="days_in_stock">Jours en stock</string>
+    <string name="ca_12_months">CA 12 mois</string>
+    <string name="stock_value">Valeur stock</string>
+    <string name="abc_class">Classe ABC</string>
+    <string name="rotation_empty">Aucune donnée</string>
+
+    <!-- ABC Pareto -->
+    <string name="abc_pareto_title">Analyse ABC Pareto</string>
+    <string name="abc_pareto_summary">Résumé Pareto</string>
+    <string name="pareto_filter_all">Toutes classes</string>
+    <string name="pareto_filter_a">Classe A (80%)</string>
+    <string name="pareto_filter_b">Classe B (15%)</string>
+    <string name="pareto_filter_c">Classe C (5%)</string>
+    <string name="pareto_filter_top">Top contributeurs</string>
+    <string name="contribution">Contribution</string>
+    <string name="cumulative">Cumulé</string>
+    <string name="rank">Rang</string>
+    <string name="pareto_class">Classe Pareto</string>
+    <string name="pareto_empty">Aucune donnée</string>
+
+    <!-- Additional Tiers Payant Creances -->
+    <string name="summary_by_groupe">Par groupe</string>
+    <string name="all_invoices">Toutes les factures</string>
+    <string name="total_creances">Total créances</string>
+    <string name="factures_impayees">Factures impayées</string>
+    <string name="less_than_30_days">Moins de 30j</string>
+    <string name="between_30_60_days">30-60 jours</string>
+    <string name="between_60_90_days">60-90 jours</string>
+    <string name="more_than_90_days">Plus de 90j</string>
+    <string name="less_than_30_days_short">&lt; 30j</string>
+    <string name="between_30_60_days_short">30-60j</string>
+    <string name="between_60_90_days_short">60-90j</string>
+    <string name="more_than_90_days_short">&gt; 90j</string>
+    <string name="all">Toutes</string>
+    <string name="paye">Payé</string>
+    <string name="view_invoices">Voir les factures</string>
+    <string name="no_creances">Aucune créance</string>
+    <string name="all_invoices_paid">Toutes les factures sont payées</string>
+    <string name="montant_facture">Montant facture</string>
 </resources>

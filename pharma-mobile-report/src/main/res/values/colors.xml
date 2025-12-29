@@ -87,4 +87,7 @@
     <color name="border">#E5E7EB</color>
     <color name="purple_500">#8B5CF6</color>
     <color name="warning_dark">#B45309</color>
+    <color name="ripple_color">#1F5B89A6</color>
+    <color name="deep_orange">#FF5722</color>
+    <color name="orange">#FF9800</color>
 </resources>

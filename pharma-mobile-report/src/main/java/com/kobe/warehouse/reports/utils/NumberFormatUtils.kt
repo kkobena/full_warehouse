@@ -67,4 +67,18 @@ object NumberFormatUtils {
         if (quantity == null) return "0"
         return currencyFormat.format(quantity)
     }
+
+    /**
+     * Formats a number in compact form (e.g., "1.5M", "125K")
+     */
+    fun formatCompact(amount: Number?): String {
+        if (amount == null) return "0"
+        val value = amount.toLong()
+        return when {
+            value >= 1_000_000_000 -> String.format(Locale.FRENCH, "%.1fMd", value / 1_000_000_000.0)
+            value >= 1_000_000 -> String.format(Locale.FRENCH, "%.1fM", value / 1_000_000.0)
+            value >= 1_000 -> String.format(Locale.FRENCH, "%.0fK", value / 1_000.0)
+            else -> value.toString()
+        }
+    }
 }

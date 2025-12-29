@@ -55,7 +55,7 @@ public final class PaginationHelper {
      * Uses lazy loading for the total count.
      *
      * @param itemsSupplier Supplier for paginated items
-     * @param totalCountSupplier Supplier for total count
+     * @param totalCountSupplier Supplier for total count (Long to support large counts)
      * @param page Page number (0-indexed)
      * @param size Page size
      * @param <T> Type of items
@@ -63,12 +63,13 @@ public final class PaginationHelper {
      */
     public static <T> ResponseEntity<List<T>> createPaginatedResponse(
         Supplier<List<T>> itemsSupplier,
-        Supplier<Integer> totalCountSupplier,
+        Supplier<Long> totalCountSupplier,
         int page,
         int size
     ) {
         int validatedSize = validateSize(size);
-        int totalCount = totalCountSupplier.get();
+        long totalCountLong = totalCountSupplier.get();
+        int totalCount = (int) Math.min(totalCountLong, Integer.MAX_VALUE);
         int totalPages = calculateTotalPages(totalCount, validatedSize);
         int validatedPage = validatePage(page, totalPages);
 

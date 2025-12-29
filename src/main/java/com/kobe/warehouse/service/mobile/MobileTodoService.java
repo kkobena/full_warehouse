@@ -98,8 +98,8 @@ public class MobileTodoService {
      *
      * @return Total number of todo items
      */
-    public int getTodoItemsCount() {
-        int count = 0;
+    public long getTodoItemsCount() {
+        long count = 0;
         count += getStockRuptureCount();
         count += getOverdueInvoicesCount(90);
         count += getExpiringProductsCount(90);

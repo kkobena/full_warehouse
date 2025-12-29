@@ -107,6 +107,64 @@ public class ABCParetoReportServiceImpl  implements ABCParetoReportService {
     }
 
     @Override
+    public List<ABCParetoDTO> getABCParetoPaginated(int page, int size) {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
+            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
+            "FROM mv_abc_pareto_analysis " +
+            "ORDER BY rang " +
+            "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "abcPareto", key = "'count'")
+    public long getABCParetoCount() {
+        String sql = "SELECT COUNT(*) FROM mv_abc_pareto_analysis";
+        Query query = entityManager.createNativeQuery(sql);
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<ABCParetoDTO> getABCParetoByClassPaginated(ClassePareto classePareto, int page, int size) {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
+            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
+            "FROM mv_abc_pareto_analysis " +
+            "WHERE classe_pareto = :classePareto " +
+            "ORDER BY rang " +
+            "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("classePareto", classePareto.name());
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    public long getABCParetoCountByClass(ClassePareto classePareto) {
+        String sql = "SELECT COUNT(*) FROM mv_abc_pareto_analysis WHERE classe_pareto = :classePareto";
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("classePareto", classePareto.name());
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
     public ABCParetoSummaryDTO getABCParetoSummary() {
         String sql =
             "SELECT " +

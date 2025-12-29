@@ -117,6 +117,44 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     }
 
     @Override
+    public List<StockValuationDTO> getStockValuationPaginated(int page, int size) {
+        String sql =
+            "SELECT " +
+            "produit_id, " +
+            "libelle, " +
+            "code_cip, " +
+            "categorie, " +
+            "storage_location, " +
+            "stock_quantity, " +
+            "purchase_price, " +
+            "sales_price, " +
+            "total_purchase_value, " +
+            "total_sales_value, " +
+            "potential_margin, " +
+            "margin_percentage " +
+            "FROM mv_stock_valuation " +
+            "ORDER BY total_sales_value DESC " +
+            "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "stockValuation", key = "'count'")
+    public long getStockValuationCount() {
+        String sql = "SELECT COUNT(*) FROM mv_stock_valuation";
+        Query query = entityManager.createNativeQuery(sql);
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
     @Cacheable(value = "stockValuation", key = "'summary'")
     public StockValuationSummaryDTO getStockValuationSummary() {
         String sql =

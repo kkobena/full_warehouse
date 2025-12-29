@@ -414,6 +414,327 @@ class ReportRepository(
     }
 
     // =========================================================================
+    // STATISTICAL REPORTS (Phase 4)
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Créances Tiers Payant (Third-Party Payer Receivables)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get créances summary grouped by tiers payant.
+     */
+    suspend fun getCreancesSummary(): Result<List<TiersPayantCreancesSummary>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getCreancesSummary()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get unpaid invoices with optional filters.
+     */
+    suspend fun getUnpaidInvoices(
+        groupeId: Int? = null,
+        ageCategory: String? = null
+    ): Result<List<TiersPayantInvoice>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getUnpaidInvoices(groupeId, ageCategory)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Performance Fournisseurs (Supplier Performance)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all supplier performance data.
+     */
+    suspend fun getAllSupplierPerformance(): Result<List<SupplierPerformance>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllSupplierPerformance()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get supplier performance summary.
+     */
+    suspend fun getSupplierPerformanceSummary(): Result<SupplierPerformanceSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getSupplierPerformanceSummary()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Valorisation Stock (Stock Valuation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all stock valuation data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    suspend fun getAllStockValuation(
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<StockValuation>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllStockValuation(page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get stock valuation summary.
+     */
+    suspend fun getStockValuationSummary(): Result<StockValuationSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getStockValuationSummary()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Rentabilité (Profitability)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all product profitability data.
+     */
+    suspend fun getAllProductProfitability(): Result<List<ProductProfitability>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllProductProfitability()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get profitability summary.
+     */
+    suspend fun getProfitabilitySummary(): Result<ProfitabilitySummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getProfitabilitySummary()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get products by BCG category.
+     */
+    suspend fun getByBCGCategory(category: String): Result<List<ProductProfitability>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getByBCGCategory(category)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Rotation Stock (Stock Rotation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all stock rotation data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    suspend fun getAllStockRotation(
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<StockRotation>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllStockRotation(page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get slow moving products.
+     */
+    suspend fun getSlowMovingProducts(): Result<List<StockRotation>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getSlowMovingProducts()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get stock rotation by ABC category with pagination.
+     * @param category ABC category (A, B, C)
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    suspend fun getStockRotationByABC(
+        category: String,
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<StockRotation>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getStockRotationByABC(category, page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get stock rotation ABC counts.
+     */
+    suspend fun getStockRotationABCCounts(): Result<Map<String, Long>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getStockRotationABCCounts()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // ABC Pareto Analysis
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all ABC Pareto data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    suspend fun getAllABCPareto(
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<AbcPareto>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllABCPareto(page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get ABC Pareto summary.
+     */
+    suspend fun getABCParetoSummary(): Result<AbcParetoSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getABCParetoSummary()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get products by Pareto class with pagination.
+     * @param classePareto Pareto class (A, B, C)
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    suspend fun getByParetoClass(
+        classePareto: String,
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<AbcPareto>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getByParetoClass(classePareto, page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // =========================================================================
     // HEALTH CHECK
     // =========================================================================
 

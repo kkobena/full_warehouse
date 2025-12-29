@@ -1,6 +1,29 @@
 package com.kobe.warehouse.reports.data.api
 
-import com.kobe.warehouse.reports.data.model.*
+import com.kobe.warehouse.reports.data.model.AbcPareto
+import com.kobe.warehouse.reports.data.model.AbcParetoSummary
+import com.kobe.warehouse.reports.data.model.ActivityReport
+import com.kobe.warehouse.reports.data.model.Alert
+import com.kobe.warehouse.reports.data.model.CashBalance
+import com.kobe.warehouse.reports.data.model.CashSummary
+import com.kobe.warehouse.reports.data.model.DailyCASummary
+import com.kobe.warehouse.reports.data.model.DailySales
+import com.kobe.warehouse.reports.data.model.Dashboard
+import com.kobe.warehouse.reports.data.model.Performance
+import com.kobe.warehouse.reports.data.model.PharmacistDashboard
+import com.kobe.warehouse.reports.data.model.ProductProfitability
+import com.kobe.warehouse.reports.data.model.ProductQuickInfo
+import com.kobe.warehouse.reports.data.model.ProductSearchResult
+import com.kobe.warehouse.reports.data.model.ProfitabilitySummary
+import com.kobe.warehouse.reports.data.model.StockRotation
+import com.kobe.warehouse.reports.data.model.StockValuation
+import com.kobe.warehouse.reports.data.model.StockValuationSummary
+import com.kobe.warehouse.reports.data.model.SupplierPerformance
+import com.kobe.warehouse.reports.data.model.SupplierPerformanceSummary
+import com.kobe.warehouse.reports.data.model.TiersPayantCreancesSummary
+import com.kobe.warehouse.reports.data.model.TiersPayantInvoice
+import com.kobe.warehouse.reports.data.model.TodoList
+import com.kobe.warehouse.reports.data.model.TvaReport
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -223,7 +246,242 @@ interface ReportApiService {
     ): Response<TvaReport>
 
     // =========================================================================
-    // FORECASTING (Phase 4)
+    // STATISTICAL REPORTS (Phase 4)
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // Créances Tiers Payant (Third-Party Payer Receivables)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get créances summary grouped by tiers payant.
+     */
+    @GET("api/mobile/reports/tiers-payant/creances/summary")
+    suspend fun getCreancesSummary(): Response<List<TiersPayantCreancesSummary>>
+
+    /**
+     * Get unpaid invoices with optional filters.
+     * @param groupeId Optional groupe tiers payant ID filter
+     * @param ageCategory Optional age category filter (LESS_THAN_30, BETWEEN_30_60, BETWEEN_60_90, MORE_THAN_90)
+     */
+    @GET("api/mobile/reports/tiers-payant/creances/unpaid")
+    suspend fun getUnpaidInvoices(
+        @Query("groupeId") groupeId: Int? = null,
+        @Query("ageCategory") ageCategory: String? = null
+    ): Response<List<TiersPayantInvoice>>
+
+    /**
+     * Get payment history for a specific groupe tiers payant.
+     */
+    @GET("api/mobile/reports/tiers-payant/payment-history")
+    suspend fun getPaymentHistory(
+        @Query("groupeId") groupeId: Int,
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String
+    ): Response<List<TiersPayantInvoice>>
+
+    // -------------------------------------------------------------------------
+    // Performance Fournisseurs (Supplier Performance)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all supplier performance data.
+     */
+    @GET("api/mobile/reports/supplier-performance/all")
+    suspend fun getAllSupplierPerformance(): Response<List<SupplierPerformance>>
+
+    /**
+     * Get top suppliers by purchase volume.
+     * @param limit Max number of suppliers (default 10)
+     */
+    @GET("api/mobile/reports/supplier-performance/top")
+    suspend fun getTopSuppliers(
+        @Query("limit") limit: Int = 10
+    ): Response<List<SupplierPerformance>>
+
+    /**
+     * Get aggregated supplier performance summary.
+     */
+    @GET("api/mobile/reports/supplier-performance/summary")
+    suspend fun getSupplierPerformanceSummary(): Response<SupplierPerformanceSummary>
+
+    /**
+     * Get suppliers filtered by minimum performance score.
+     * @param minScore Minimum performance score (0-100)
+     */
+    @GET("api/mobile/reports/supplier-performance/by-score")
+    suspend fun getSuppliersByScore(
+        @Query("minScore") minScore: Double
+    ): Response<List<SupplierPerformance>>
+
+    /**
+     * Get suppliers with delivery issues.
+     */
+    @GET("api/mobile/reports/supplier-performance/issues")
+    suspend fun getSuppliersWithIssues(): Response<List<SupplierPerformance>>
+
+    // -------------------------------------------------------------------------
+    // Valorisation Stock (Stock Valuation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all stock valuation data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    @GET("api/mobile/reports/stock-valuation/all")
+    suspend fun getAllStockValuation(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<StockValuation>>
+
+    /**
+     * Get aggregated stock valuation summary.
+     */
+    @GET("api/mobile/reports/stock-valuation/summary")
+    suspend fun getStockValuationSummary(): Response<StockValuationSummary>
+
+    /**
+     * Get stock valuation filtered by category.
+     */
+    @GET("api/mobile/reports/stock-valuation/by-category")
+    suspend fun getStockValuationByCategory(
+        @Query("category") category: String
+    ): Response<List<StockValuation>>
+
+    /**
+     * Get stock valuation filtered by storage location.
+     */
+    @GET("api/mobile/reports/stock-valuation/by-storage")
+    suspend fun getStockValuationByStorage(
+        @Query("storage") storage: String
+    ): Response<List<StockValuation>>
+
+    // -------------------------------------------------------------------------
+    // Rentabilité (Profitability)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all product profitability data.
+     */
+    @GET("api/mobile/reports/profitability/all")
+    suspend fun getAllProductProfitability(): Response<List<ProductProfitability>>
+
+    /**
+     * Get aggregated profitability summary.
+     */
+    @GET("api/mobile/reports/profitability/summary")
+    suspend fun getProfitabilitySummary(): Response<ProfitabilitySummary>
+
+    /**
+     * Get products filtered by BCG category.
+     * @param category BCG category (STAR, CASH_COW, QUESTION_MARK, DOG)
+     */
+    @GET("api/mobile/reports/profitability/by-bcg")
+    suspend fun getByBCGCategory(
+        @Query("category") category: String
+    ): Response<List<ProductProfitability>>
+
+    /**
+     * Get top N most profitable products.
+     * @param limit Number of products to return (default 20)
+     */
+    @GET("api/mobile/reports/profitability/top")
+    suspend fun getTopProfitableProducts(
+        @Query("limit") limit: Int = 20
+    ): Response<List<ProductProfitability>>
+
+    /**
+     * Get products with low margin (< 10%).
+     */
+    @GET("api/mobile/reports/profitability/low-margin")
+    suspend fun getLowMarginProducts(): Response<List<ProductProfitability>>
+
+    // -------------------------------------------------------------------------
+    // Rotation Stock (Stock Rotation)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all stock rotation data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    @GET("api/mobile/reports/stock-rotation/all")
+    suspend fun getAllStockRotation(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<StockRotation>>
+
+    /**
+     * Get slow moving products (ABC category C).
+     */
+    @GET("api/mobile/reports/stock-rotation/slow-moving")
+    suspend fun getSlowMovingProducts(): Response<List<StockRotation>>
+
+    /**
+     * Get product counts by ABC classification.
+     */
+    @GET("api/mobile/reports/stock-rotation/abc-counts")
+    suspend fun getStockRotationABCCounts(): Response<Map<String, Long>>
+
+    /**
+     * Get products filtered by ABC classification with pagination.
+     * @param category ABC category (A, B, C)
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    @GET("api/mobile/reports/stock-rotation/by-abc")
+    suspend fun getStockRotationByABC(
+        @Query("category") category: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<StockRotation>>
+
+    // -------------------------------------------------------------------------
+    // ABC Pareto Analysis
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all ABC Pareto analysis data with pagination.
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    @GET("api/mobile/reports/abc-pareto/all")
+    suspend fun getAllABCPareto(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<AbcPareto>>
+
+    /**
+     * Get ABC Pareto summary.
+     */
+    @GET("api/mobile/reports/abc-pareto/summary")
+    suspend fun getABCParetoSummary(): Response<AbcParetoSummary>
+
+    /**
+     * Get products filtered by Pareto class with pagination.
+     * @param classePareto Pareto class (A, B, C)
+     * @param page Page number (0-indexed)
+     * @param size Page size (default 50)
+     */
+    @GET("api/mobile/reports/abc-pareto/by-class")
+    suspend fun getByParetoClass(
+        @Query("classePareto") classePareto: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<AbcPareto>>
+
+    /**
+     * Get top N revenue contributors.
+     * @param limit Number of products to return (default 20)
+     */
+    @GET("api/mobile/reports/abc-pareto/top")
+    suspend fun getTopRevenueContributors(
+        @Query("limit") limit: Int = 20
+    ): Response<List<AbcPareto>>
+
+    // =========================================================================
+    // FORECASTING (Phase 5 - Disabled until TensorFlow 2.16.0+)
     // =========================================================================
 
     /**
@@ -507,4 +765,49 @@ data class TodoCounts(
  */
 data class FcmTokenRequest(
     val fcmToken: String
+)
+
+// =========================================================================
+// PAGINATION MODELS
+// =========================================================================
+
+/**
+ * Pagination information extracted from response headers.
+ */
+data class PaginationInfo(
+    val totalCount: Int = 0,
+    val totalPages: Int = 0,
+    val currentPage: Int = 0,
+    val pageSize: Int = 50,
+    val hasNext: Boolean = false,
+    val hasPrevious: Boolean = false
+) {
+    companion object {
+        const val HEADER_TOTAL_COUNT = "X-Total-Count"
+        const val HEADER_TOTAL_PAGES = "X-Total-Pages"
+        const val HEADER_CURRENT_PAGE = "X-Current-Page"
+        const val HEADER_PAGE_SIZE = "X-Page-Size"
+        const val HEADER_HAS_NEXT = "X-Has-Next"
+        const val HEADER_HAS_PREVIOUS = "X-Has-Previous"
+
+        fun <T> fromResponse(response: Response<T>): PaginationInfo {
+            val headers = response.headers()
+            return PaginationInfo(
+                totalCount = headers[HEADER_TOTAL_COUNT]?.toIntOrNull() ?: 0,
+                totalPages = headers[HEADER_TOTAL_PAGES]?.toIntOrNull() ?: 0,
+                currentPage = headers[HEADER_CURRENT_PAGE]?.toIntOrNull() ?: 0,
+                pageSize = headers[HEADER_PAGE_SIZE]?.toIntOrNull() ?: 50,
+                hasNext = headers[HEADER_HAS_NEXT]?.toBoolean() ?: false,
+                hasPrevious = headers[HEADER_HAS_PREVIOUS]?.toBoolean() ?: false
+            )
+        }
+    }
+}
+
+/**
+ * Generic paginated response wrapper.
+ */
+data class PaginatedResult<T>(
+    val items: List<T>,
+    val pagination: PaginationInfo
 )

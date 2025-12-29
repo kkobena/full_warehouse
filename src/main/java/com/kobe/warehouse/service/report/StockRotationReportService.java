@@ -43,5 +43,37 @@ public interface StockRotationReportService {
      */
     List<StockRotationDTO> getSlowMovingProducts();
 
+    /**
+     * Get stock rotation data with pagination
+     *
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     * @return List of stock rotation records for the page
+     */
+    List<StockRotationDTO> getStockRotationPaginated(int page, int size);
 
+    /**
+     * Get total count of stock rotation records
+     *
+     * @return Total count
+     */
+    long getStockRotationCount();
+
+    /**
+     * Get stock rotation by ABC classification with pagination
+     *
+     * @param categorieABC The ABC classification to filter by
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     * @return List of stock rotation records for the page
+     */
+    List<StockRotationDTO> getStockRotationByABCPaginated(CategorieABC categorieABC, int page, int size);
+
+    /**
+     * Get count of stock rotation records by ABC classification
+     *
+     * @param categorieABC The ABC classification to count
+     * @return Count of records
+     */
+    long getStockRotationCountByABC(CategorieABC categorieABC);
 }

@@ -34,4 +34,20 @@ public interface StockValuationReportService {
      * @return Summary with total values and averages
      */
     StockValuationSummaryDTO getStockValuationSummary();
+
+    /**
+     * Get stock valuation data with pagination
+     *
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     * @return List of stock valuation records for the page
+     */
+    List<StockValuationDTO> getStockValuationPaginated(int page, int size);
+
+    /**
+     * Get total count of stock valuation records
+     *
+     * @return Total count
+     */
+    long getStockValuationCount();
 }

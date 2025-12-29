@@ -153,8 +153,8 @@ public class MobileAlertService {
      * @param types List of alert types to filter (null for all)
      * @return Total number of alerts
      */
-    public int getAlertsCount(List<String> types) {
-        int count = 0;
+    public long getAlertsCount(List<String> types) {
+        long count = 0;
 
         if (types == null || types.isEmpty() || types.contains(AlertType.STOCK_RUPTURE.getCode())) {
             count += alertRepository.getStockRuptureCount();

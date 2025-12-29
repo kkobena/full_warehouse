@@ -51,6 +51,7 @@ class ReportsActivity : BaseActivity() {
     }
 
     private fun setupReportCards() {
+        // Phase 3 Reports
         binding.cardPharmacistDashboard.setOnClickListener {
             navigateToPharmacistDashboard()
         }
@@ -73,6 +74,31 @@ class ReportsActivity : BaseActivity() {
 
         binding.cardPerformance.setOnClickListener {
             navigateToPerformance()
+        }
+
+        // Phase 4 Statistical Reports
+        binding.cardTiersPayant.setOnClickListener {
+            navigateToTiersPayantCreances()
+        }
+
+        binding.cardSupplierPerformance.setOnClickListener {
+            navigateToSupplierPerformance()
+        }
+
+        binding.cardStockValuation.setOnClickListener {
+            navigateToStockValuation()
+        }
+
+        binding.cardProfitability.setOnClickListener {
+            navigateToProfitability()
+        }
+
+        binding.cardStockRotation.setOnClickListener {
+            navigateToStockRotation()
+        }
+
+        binding.cardAbcPareto.setOnClickListener {
+            navigateToAbcPareto()
         }
     }
 
@@ -158,6 +184,38 @@ class ReportsActivity : BaseActivity() {
 
     private fun navigateToTvaReport() {
         val intent = Intent(this, TvaReportActivity::class.java)
+        startActivity(intent)
+    }
+
+    // Phase 4 Statistical Reports Navigation
+
+    private fun navigateToTiersPayantCreances() {
+        val intent = Intent(this, TiersPayantCreancesActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToSupplierPerformance() {
+        val intent = Intent(this, SupplierPerformanceActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToStockValuation() {
+        val intent = Intent(this, StockValuationActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToProfitability() {
+        val intent = Intent(this, ProfitabilityActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToStockRotation() {
+        val intent = Intent(this, StockRotationActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToAbcPareto() {
+        val intent = Intent(this, AbcParetoActivity::class.java)
         startActivity(intent)
     }
 

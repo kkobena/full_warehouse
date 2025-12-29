@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.dto.MaterializedViewRefreshDTO;
 import com.kobe.warehouse.service.dto.TierRefreshResultDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,8 +55,9 @@ public class MaterializedViewRefreshService {
         "mv_abc_pareto_analysis",
         "mv_pareto_summary",
         "mv_supplier_performance",
-        "mv_profitability_summary",
-        "mv_product_profitability"
+        "mv_product_profitability",
+        "mv_profitability_summary"
+
     );
 
     // =====================================================
@@ -95,11 +97,11 @@ public class MaterializedViewRefreshService {
     /**
      * TIER 3: Refresh low-priority views every 6 hours.
      * These are complex analytical views that are less time-sensitive.
-     *
+     * <p>
      * For testing purposes, this is set to every 3 minutes.
      */
-   //  @Scheduled(cron = "0 */3 * * * *")
-     @Scheduled(cron = "0 0 9,12,15,18 * * *") // At 2am, 8am, 2pm, 8pm
+    //  @Scheduled(cron = "0 */3 * * * *")
+    @Scheduled(cron = "0 0 9,12,15,18 * * *") // At 2am, 8am, 2pm, 8pm
     @Transactional
     public void refreshTier3ViewsScheduled() {
         LOG.info("Starting scheduled TIER 3 materialized views refresh");
@@ -189,7 +191,7 @@ public class MaterializedViewRefreshService {
      * Refresh a list of views for a specific tier.
      *
      * @param viewNames List of view names to refresh
-     * @param tier The tier identifier (TIER1, TIER2, TIER3)
+     * @param tier      The tier identifier (TIER1, TIER2, TIER3)
      * @return List of refresh results
      */
     private List<MaterializedViewRefreshDTO> refreshViews(List<String> viewNames, String tier) {
@@ -213,7 +215,7 @@ public class MaterializedViewRefreshService {
      * Note: This method should be called from a @Transactional context (scheduled methods or manual refresh methods).
      *
      * @param viewName The view name to refresh
-     * @param tier The tier/source of the refresh request
+     * @param tier     The tier/source of the refresh request
      * @return Refresh result
      */
     private MaterializedViewRefreshDTO refreshSingleView(String viewName, String tier) {

@@ -28,11 +28,12 @@ android {
 
     signingConfigs {
         create("release") {
-            // For production, use environment variables or gradle.properties
-            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "keystore/release.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pharmasmart"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "pharma-report"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "pharmasmart"
+
+
+          storeFile = file("release.jks")
+          storePassword = rootProject.findProperty("RELEASE_STORE_PASSWORD") as String
+          keyAlias = rootProject.findProperty("RELEASE_KEY_ALIAS") as String
+          keyPassword = rootProject.findProperty("RELEASE_KEY_PASSWORD") as String
         }
     }
 
@@ -46,8 +47,8 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
 
-            // Production API URL
-            buildConfigField("String", "BASE_URL", "\"https://api.pharmasmart.com/\"")
+            // Production API URL - empty string forces user to configure in settings
+            buildConfigField("String", "BASE_URL", "\"\"")
 
             // Firebase enabled in production by default
             buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
@@ -70,8 +71,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 
     buildFeatures {

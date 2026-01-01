@@ -415,8 +415,8 @@ public class ImportationProduitService {
                                     Integer.parseInt(record.get(2)),
                                     Integer.parseInt(record.get(4)),
                                     tvaId,
-                                    0,
-                                    0,
+                                    1,
+                                    1,
                                     null,
                                     null,
                                     null,
@@ -435,7 +435,7 @@ public class ImportationProduitService {
                             } catch (Exception e) {
                                 errorList.add(produitRecord);
                                 errorSize.incrementAndGet();
-                                log.error("saveproduit ===>> {}", e);
+                                log.error("saveproduit ===>> {0}", e);
                             }
                         }
                     }
@@ -784,8 +784,8 @@ public class ImportationProduitService {
         produit.setItemRegularUnitPrice(0);
         produit.setRegularUnitPrice(record.prixVente());
         produit.setCheckExpiryDate(false);
-        produit.setQtyAppro(record.qtyReappro());
-        produit.setQtySeuilMini(record.seuil());
+        produit.setQtyAppro(Math.max(1, record.qtyReappro()));
+        produit.setQtySeuilMini(Math.max(1, record.seuil()));
         if (org.springframework.util.StringUtils.hasText(record.codeRemise())) {
             produit.setCodeRemise(CodeRemise.fromValue(record.codeRemise()));
         }

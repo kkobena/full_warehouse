@@ -26,10 +26,36 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Check if server URL is configured first (required for release builds)
+        if (!isServerUrlConfigured()) {
+            navigateToServerConfig()
+            return
+        }
+
         setupViewModel()
         checkAutoLogin()
         setupViews()
         observeViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-check URL configuration after returning from ServerConfigActivity
+        if (!::viewModel.isInitialized && isServerUrlConfigured()) {
+            setupViewModel()
+            checkAutoLogin()
+            setupViews()
+            observeViewModel()
+        }
+    }
+
+    /**
+     * Check if server URL is configured.
+     */
+    private fun isServerUrlConfigured(): Boolean {
+        val tokenManager = PharmaReportApplication.getTokenManager()
+        val serverUrl = tokenManager.getServerUrl()
+        return serverUrl.isNotBlank()
     }
 
     /**

@@ -200,19 +200,22 @@ buildConfigField "String", "BASE_URL", "\"http://YOUR_SERVER_IP:8080/\""
 ### Common Issues
 
 1. **Connection Refused**
-  - Check backend is running
-  - Verify BASE_URL in build.gradle
-  - Use local IP, not localhost for device testing
+
+- Check backend is running
+- Verify BASE_URL in build.gradle
+- Use local IP, not localhost for device testing
 
 2. **401 Unauthorized**
-  - Token may be expired
-  - Try logging out and logging in again
-  - Check token storage in TokenManager
+
+- Token may be expired
+- Try logging out and logging in again
+- Check token storage in TokenManager
 
 3. **Build Errors**
-  - Run `./gradlew clean`
-  - Sync Gradle files
-  - Invalidate caches and restart Android Studio
+
+- Run `./gradlew clean`
+- Sync Gradle files
+- Invalidate caches and restart Android Studio
 
 ### Debugging
 
@@ -243,7 +246,11 @@ gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties (déjà présent, sera mis à jour si besoin)
 
 gradlew et gradlew.bat (si manquant)
+./gradlew assembleRelease
 
-
-keytool -genkey -v -keystore internal-release.jks -storepass 2802_pharma_smart_simple_sale -alias internal_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048 -validity 9131
-keytool -genkey -v -keystore release.jks -storepass 2802_pharma_smart_simple_sale -alias release_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048 -validity 9131
+keytool -genkey -v -keystore internal-release.jks -storepass 2802_pharma_smart_simple_sale -alias
+internal_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048
+-validity 9131
+keytool -genkey -v -keystore release.jks -storepass 2802_pharma_smart_simple_sale -alias
+release_pharma_smart_simple_sale -keypass 2802_pharma_smart_simple_sale -keyalg RSA -keysize 2048
+-validity 9131

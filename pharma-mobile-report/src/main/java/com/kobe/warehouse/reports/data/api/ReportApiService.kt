@@ -590,7 +590,9 @@ interface ReportApiService {
  * Login request.
  */
 data class LoginRequest(
+    @com.google.gson.annotations.SerializedName("username")
     val username: String,
+    @com.google.gson.annotations.SerializedName("password")
     val password: String
 )
 
@@ -612,6 +614,7 @@ data class JwtTokenResponse(
  * Refresh token request.
  */
 data class RefreshTokenRequest(
+    @com.google.gson.annotations.SerializedName("refreshToken")
     val refreshToken: String
 )
 

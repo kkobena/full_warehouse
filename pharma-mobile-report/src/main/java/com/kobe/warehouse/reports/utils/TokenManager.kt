@@ -8,20 +8,69 @@ import androidx.security.crypto.MasterKey
 /**
  * Secure token manager using EncryptedSharedPreferences.
  * Handles JWT tokens, user credentials, and server configuration.
+ * Falls back to regular SharedPreferences if encryption fails (some Samsung devices).
  */
 class TokenManager(context: Context) {
 
-    private val masterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
+    private val prefs: SharedPreferences = createSharedPreferences(context)
 
-    private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        PREFS_NAME,
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    companion object {
+        private const val PREFS_NAME = "pharma_report_secure_prefs"
+        private const val PREFS_NAME_FALLBACK = "pharma_report_prefs"
+        private const val TAG = "TokenManager"
+
+        // Token keys
+        private const val KEY_ACCESS_TOKEN = "access_token"
+        private const val KEY_REFRESH_TOKEN = "refresh_token"
+        private const val KEY_EXPIRATION_TIME = "expiration_time"
+        private const val KEY_AUTHORITIES = "authorities"
+
+        // Remember Me keys
+        private const val KEY_REMEMBER_ME = "remember_me"
+        private const val KEY_SAVED_USERNAME = "saved_username"
+        private const val KEY_SAVED_PASSWORD = "saved_password"
+
+        // Server config keys
+        private const val KEY_BASE_URL = "base_url"
+
+        // FCM keys
+        private const val KEY_FCM_TOKEN = "fcm_token"
+        private const val KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered"
+        private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+
+        @Volatile
+        private var instance: TokenManager? = null
+
+        fun getInstance(context: Context): TokenManager {
+            return instance ?: synchronized(this) {
+                instance ?: TokenManager(context.applicationContext).also { instance = it }
+            }
+        }
+
+        /**
+         * Create SharedPreferences with encryption fallback.
+         * Some Samsung devices (S22, etc.) have issues with EncryptedSharedPreferences.
+         */
+        private fun createSharedPreferences(context: Context): SharedPreferences {
+            return try {
+                val masterKey = MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
+
+                EncryptedSharedPreferences.create(
+                    context,
+                    PREFS_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+            } catch (e: Exception) {
+                // Fallback to regular SharedPreferences on devices where encryption fails
+                android.util.Log.w(TAG, "EncryptedSharedPreferences failed, using fallback: ${e.message}")
+                context.getSharedPreferences(PREFS_NAME_FALLBACK, Context.MODE_PRIVATE)
+            }
+        }
+    }
 
     // =========================================================================
     // TOKEN MANAGEMENT
@@ -275,37 +324,5 @@ class TokenManager(context: Context) {
      */
     fun areNotificationsEnabled(): Boolean {
         return prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
-    }
-
-    companion object {
-        private const val PREFS_NAME = "pharma_report_secure_prefs"
-
-        // Token keys
-        private const val KEY_ACCESS_TOKEN = "access_token"
-        private const val KEY_REFRESH_TOKEN = "refresh_token"
-        private const val KEY_EXPIRATION_TIME = "expiration_time"
-        private const val KEY_AUTHORITIES = "authorities"
-
-        // Remember Me keys
-        private const val KEY_REMEMBER_ME = "remember_me"
-        private const val KEY_SAVED_USERNAME = "saved_username"
-        private const val KEY_SAVED_PASSWORD = "saved_password"
-
-        // Server config keys
-        private const val KEY_BASE_URL = "base_url"
-
-        // FCM keys
-        private const val KEY_FCM_TOKEN = "fcm_token"
-        private const val KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered"
-        private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
-
-        @Volatile
-        private var instance: TokenManager? = null
-
-        fun getInstance(context: Context): TokenManager {
-            return instance ?: synchronized(this) {
-                instance ?: TokenManager(context.applicationContext).also { instance = it }
-            }
-        }
     }
 }

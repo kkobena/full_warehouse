@@ -1,24 +1,27 @@
-# ===================================================================
-# Spring Boot configuration for the "standalone" profile.
-#
-# This configuration overrides the application.yml file.
-#
-
-# ===================================================================
-# Standard Spring Boot properties.
-# Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
-# ===================================================================
-
 logging:
   level:
-    ROOT: INFO
-
-    com.kobe.warehouse: DEBUG
     javax:
       management:
         remote:
           rmi: OFF
+    com.kobe.warehouse.service: INFO
+
+    # Logs SQL (DEBUG pour voir les requêtes en détail)
+    # ATTENTION: Très verbeux, à n'activer qu'en dev
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+
+    # Logs transaction (pour debug)
+    org.springframework.transaction: OFF
+    org.springframework.orm.jpa: OFF
+    org.hibernate.type.descriptor.sql: OFF
+
+    org.springframework: OFF
+
+
+  # Pattern de log avec timing
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
 spring:
   jmx:

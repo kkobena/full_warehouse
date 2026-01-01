@@ -15,13 +15,42 @@ class PharmaReportApplication : Application() {
     // Lazy-initialized dependencies
     val tokenManager: TokenManager by lazy { TokenManager(this) }
 
-    val apiService: ReportApiService by lazy {
-        ApiClient.create(tokenManager = tokenManager)
+    // Mutable apiService that can be recreated when URL changes
+    @Volatile
+    private var _apiService: ReportApiService? = null
+
+    val apiService: ReportApiService
+        get() {
+            return _apiService ?: synchronized(this) {
+                _apiService ?: createApiService().also { _apiService = it }
+            }
+        }
+
+    // Mutable repository that depends on apiService
+    @Volatile
+    private var _repository: ReportRepository? = null
+
+    val repository: ReportRepository
+        get() {
+            return _repository ?: synchronized(this) {
+                _repository ?: ReportRepository(apiService, tokenManager).also { _repository = it }
+            }
+        }
+
+    private fun createApiService(): ReportApiService {
+        return ApiClient.create(tokenManager = tokenManager)
             .create(ReportApiService::class.java)
     }
 
-    val repository: ReportRepository by lazy {
-        ReportRepository(apiService, tokenManager)
+    /**
+     * Reset API service and repository to use new base URL.
+     * Call this after changing the server URL in settings.
+     */
+    fun resetApiService() {
+        synchronized(this) {
+            _apiService = null
+            _repository = null
+        }
     }
 
     override fun onCreate() {
@@ -55,6 +84,13 @@ class PharmaReportApplication : Application() {
          */
         fun getApiService(): ReportApiService {
             return instance.apiService
+        }
+
+        /**
+         * Reset API service to use new URL configuration.
+         */
+        fun resetApiService() {
+            instance.resetApiService()
         }
     }
 }

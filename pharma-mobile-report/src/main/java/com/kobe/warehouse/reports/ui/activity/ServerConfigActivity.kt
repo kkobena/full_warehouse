@@ -9,7 +9,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.reports.PharmaReportApplication
 import com.kobe.warehouse.reports.R
 import com.kobe.warehouse.reports.databinding.ActivityServerConfigBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
 
 /**
  * Server configuration activity - allows setting the backend server URL.
@@ -70,7 +75,7 @@ class ServerConfigActivity : AppCompatActivity() {
         binding.loadingOverlay.isVisible = true
 
         lifecycleScope.launch {
-            val result = PharmaReportApplication.getRepository().testConnection(url)
+            val result = testServerConnection(url)
 
             binding.loadingOverlay.isVisible = false
 
@@ -85,6 +90,28 @@ class ServerConfigActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Test server connection without using the repository (avoids crash when URL not configured).
+     */
+    private suspend fun testServerConnection(serverUrl: String): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val client = OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build()
+
+            val request = Request.Builder()
+                .url("${serverUrl.trimEnd('/')}/api/mobile/health")
+                .get()
+                .build()
+
+            val response = client.newCall(request).execute()
+            Result.success(response.isSuccessful)
+        } catch (e: Exception) {
+            Result.failure(Exception("Connexion échouée: ${e.message}"))
+        }
+    }
+
     private fun saveServerUrl() {
         val url = binding.etServerUrl.text?.toString()?.trim() ?: ""
         if (!validateUrl(url)) {
@@ -93,6 +120,9 @@ class ServerConfigActivity : AppCompatActivity() {
 
         val tokenManager = PharmaReportApplication.getTokenManager()
         tokenManager.saveServerUrl(url)
+
+        // Reset API service to use the new URL
+        PharmaReportApplication.resetApiService()
 
         Snackbar.make(binding.root, R.string.save, Snackbar.LENGTH_SHORT).show()
         finish()

@@ -28,7 +28,6 @@ import com.kobe.warehouse.service.financiel_transaction.dto.PaymentType;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -67,16 +66,17 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     @Override
     public Optional<CashRegister> getOpiningCashRegisterByUser(AppUser user) throws CashRegisterException {
-        List<CashRegister> cashRegisters = cashRegisterRepository.findOneByUserIdAndStatutAndAndBeginTime(
+        /*  List<CashRegister> cashRegisters = cashRegisterRepository.findOneByUserIdAndStatutAndAndBeginTime(
             user.getId(),
             CashRegisterStatut.OPEN,
             LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0, 0)),
             LocalDateTime.now()
-        );
-        if (!cashRegisters.isEmpty()) {
+        );*/
+        return cashRegisterRepository.findOneByUserIdAndStatut(user.getId(), CashRegisterStatut.OPEN);
+        /* if (!cashRegisters.isEmpty()) {
             return cashRegisters.stream().max(Comparator.comparing(CashRegister::getCreated));
-        }
-        return Optional.empty();
+        }*/
+        //  return Optional.empty();
     }
 
     @Override

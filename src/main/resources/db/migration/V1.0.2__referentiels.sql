@@ -61,13 +61,10 @@ ON CONFLICT (name) DO NOTHING;
 
 
 INSERT INTO storage("id", "name", "storage_type", "magasin_id")
-VALUES (1, 'ENTREPOT', 'PRINCIPAL', 1)
+VALUES (1, 'Stock rayon', 'PRINCIPAL', 1)
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage("id", "name", "storage_type", "magasin_id")
-VALUES (2, 'POINT DE VENTE', 'POINT_DE_VENTE', 1)
-ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage("id", "name", "storage_type", "magasin_id")
-VALUES (3, 'RESERVE', 'SAFETY_STOCK', 1)
+VALUES (3, 'Stock réserve', 'SAFETY_STOCK', 1)
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO tva (id, taux)
 VALUES (1, 0),
@@ -197,7 +194,7 @@ VALUES (1, 'Comprimés'),
        (19, 'Sérums')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO app_configuration ("name", "value", "description", "value_type")
+INSERT INTO app_configuration ("name", "value", "description", value_type)
 VALUES ('APP_GESTION_STOCK', '0',
         'Ce paramètre détermine le mode de stockage utilisé. <br>0 : stockage unique (un seul emplacement).<br> 1 : stockage multiple (plusieurs emplacements possibles)',
         'BOOLEAN')
@@ -226,86 +223,84 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO payment_mode ("code", "libelle", "payment_group", "ordre_tri", "enable")
 VALUES ('CH', 'CHEQUE', 'CHEQUE', 8, true)
 ON CONFLICT (code) DO NOTHING;
-INSERT INTO rayon (id, code, to_exclude, libelle, storage_id)
-VALUES (1, 'SANS', false, 'SANS EMPLACEMENT', 2)
-ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO rayon (id, code, to_exclude, libelle, storage_id)
 VALUES (2, 'SANS', false, 'SANS EMPLACEMENT', 1)
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO rayon (id, code, to_exclude, libelle, storage_id)
 VALUES (3, 'SANS', false, 'SANS EMPLACEMENT', 3)
 ON CONFLICT (id) DO NOTHING;
-INSERT INTO app_configuration ("name", "value", "description", "value_type")
+INSERT INTO app_configuration ("name", "value", "description", value_type)
 VALUES ('APP_QTY_MAX', '999', 'Quantité maximale à vendre ', 'NUMBER')
 ON CONFLICT (name) DO NOTHING;
 INSERT
-INTO app_configuration(name, description, value, other_value, "value_type")
+INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_CASH_FUND', 'Ouverture automatique de la caisse du caissier', '0', null, 'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
 INSERT
-INTO app_configuration(name, description, value, other_value, "value_type")
+INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_SANS_NUM_BON', 'Autorisation de vente sans numéro de bon', '0', null, 'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
 INSERT
-INTO app_configuration(name, description, value, other_value, "value_type")
+INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_ENTREE_STOCK_SANS_EXPIRY_DATE',
         'Autorisation entrée stock sans control date péremption', '0', null, 'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_DAY_STOCK',
         'Nombre de jours par stock', '10', null, 'NUMBER')
 ON CONFLICT (name) DO NOTHING;
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_LAST_DAY_REAPPRO',
         'Dernière date de mise à jour des seuils de réappro', '2000-01-01', null, 'DATE')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_LIMIT_NBR_DAY_REAPPRO',
         'Nombre de jour de delai de réapprovisionnement', '8', null, 'NUMBER')
 ON CONFLICT (name) DO NOTHING;
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_DENOMINATEUR_REAPPRO',
         'denominateur du calcul de réappro', '84', null, 'NUMBER')
 ON CONFLICT (name) DO NOTHING;
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_GESTION_LOT',
         'Votre pharmacie gère les lots', '0', null, 'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_RESET_INVOICE_NUMBER',
         'Votre pharmacie préfixe les numéro de facture par l''année en cours', '0', null,
         'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_SUGGESTION_RETENTION',
         'Nombre de jours de conservation des suggestions dans votre pharamcie', '90', null,
         'NUMBER')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_NOMBRE_JOUR_AVANT_PEREMPTION',
         'Nombre de jours restants avant la date de péremption d''un produit pour sa mise en vente',
         '90', null,
         'NUMBER')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_EXPIRY_ALERT_DAYS_BEFORE',
         'Seuil de déclenchement d’alerte avant la date de péremption',
         '30,7', null,
         'LIST')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_CUSTOMER_DISPLAY',
         'Activer afficheur client',
         '0', null,
         'BOOLEAN')
 ON CONFLICT (name) DO NOTHING;
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('EXCLUDE_FREE_UNIT',
         'Exclure les unités gratuites dans le calcul chiffre d affaires',
         '0', null,
@@ -313,7 +308,7 @@ values ('EXCLUDE_FREE_UNIT',
 ON CONFLICT (name) DO NOTHING;
 
 
-INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+INSERT INTO app_configuration(name, description, value, other_value, value_type)
 values ('APP_RETENTION_COMMANDE',
         'Nombre de jour de retention des commandes en cours dans votre pharmacie',
         '30', null,
@@ -325,5 +320,13 @@ VALUES ('use-simple-sale',
         'Activer pour une utilisation simple de gestion de ventes',
         'BOOLEAN');
 
-
+INSERT INTO app_configuration (name, description, value, value_type, updated, created)
+VALUES ('APP_MODEL_REAPPRO', 'Modèle de calcul du réapprovisionnement', 'SEMOIS', 'STRING', NOW(),
+        NOW())
+ON CONFLICT (name) DO NOTHING;
+INSERT INTO app_configuration(name, description, value, other_value,
+                              value_type)
+values ('APP_LAST_DAY_SEMOIS_CALCULATION',
+        'Clé de configuration pour la date du dernier calcul SEMOIS.', '2000-01-01', null, 'DATE')
+ON CONFLICT (name) DO NOTHING;
 

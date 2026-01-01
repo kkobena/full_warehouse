@@ -9,6 +9,7 @@ import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisat
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CashRegisterRepository extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
-    List<CashRegister> findOneByUserIdAndStatut(Integer id, CashRegisterStatut statut);
+    Optional<CashRegister> findOneByUserIdAndStatut(Integer id, CashRegisterStatut statut);
 
     @Query("SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
     List<CashRegister> findOneByUserIdAndStatutAndAndBeginTime(

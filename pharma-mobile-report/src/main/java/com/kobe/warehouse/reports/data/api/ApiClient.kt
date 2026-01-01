@@ -38,14 +38,16 @@ object ApiClient {
      * @param baseUrl Optional base URL (uses TokenManager config or BuildConfig default)
      * @param tokenManager Token manager for JWT authentication
      * @return Configured Retrofit instance
+     * @throws IllegalStateException if no valid base URL is configured
      */
     fun create(
         baseUrl: String? = null,
         tokenManager: TokenManager
     ): Retrofit {
-        val finalBaseUrl = baseUrl
-            ?: tokenManager.getBaseUrl()
-            ?: BuildConfig.BASE_URL
+        val finalBaseUrl = baseUrl?.takeIf { it.isNotBlank() }
+            ?: tokenManager.getBaseUrl()?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.BASE_URL.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException("No base URL configured. Please configure the server URL in settings.")
 
         val okHttpClient = createOkHttpClient(tokenManager)
 

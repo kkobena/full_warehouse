@@ -23,6 +23,8 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { AyantDroitCustomerListComponent } from '../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ayant-droit.component';
+import { Tooltip } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-customer-edit-modal',
@@ -38,6 +40,8 @@ import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ay
     CardModule,
     KeyFilter,
     ToastAlertComponent,
+    Tooltip,
+    TagModule,
   ],
 })
 export class CustomerEditModalComponent implements OnInit {

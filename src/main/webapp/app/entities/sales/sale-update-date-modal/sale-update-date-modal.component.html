@@ -1,0 +1,63 @@
+<form [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">
+      Modifier la date de vente [
+      <p-tag severity="info" [value]="sale?.numberTransaction"/>
+      ]
+    </h4>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="updatedAt">Date<span style="font-weight: 900; color: red">*</span></label>
+          <p-datePicker
+            (onShow)="onDropdownShow($event)"
+            (onClose)="onDropdownHide($event)"
+            [selectOtherMonths]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            class="w-full"
+            dateFormat="dd/mm/yy"
+            formControlName="updatedAt"
+            name="updatedAt"
+          />
+          @if (editForm.get('updatedAt')!.invalid && (editForm.get('updatedAt')!.dirty || editForm.get('updatedAt')!.touched)) {
+            <div>
+              @if (editForm.get('updatedAt')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      [raised]="true"
+      type="button"
+      severity="secondary"
+      icon="pi pi-times"
+      label="Annuler"
+      data-dismiss="modal"
+      (click)="cancel()"
+    />
+
+    <p-button
+      [raised]="true"
+      severity="primary"
+      icon="pi pi-check"
+      label="Enregistrer"
+      [disabled]="editForm.invalid || isSaving"
+      id="save-entity"
+      type="submit"
+      (click)="save()"
+    />
+  </div>
+</form>
+<p-toast position="center"></p-toast>

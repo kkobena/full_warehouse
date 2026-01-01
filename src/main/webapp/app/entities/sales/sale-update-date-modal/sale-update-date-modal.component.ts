@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, Renderer2 } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -9,49 +9,26 @@ import { ButtonModule } from 'primeng/button';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { DatePickerComponent } from 'app/shared/date-picker/date-picker.component';
 import moment from 'moment/moment';
 import { TagModule } from 'primeng/tag';
+import { Card } from 'primeng/card';
+import { DatePicker } from 'primeng/datepicker';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-sale-update-date-modal',
-  template: `
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">
-        Modifier la date de vente [
-        <p-tag severity="info" [value]="sale?.numberTransaction" />
-        ]
-      </h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
-    </div>
-    <form [formGroup]="editForm" style="padding: 15px;">
-      <div class="modal-body">
-        <div class="form-group">
-          <jhi-date-picker id="field_updatedAt" label="warehouseApp.sales.updatedAt" formControlName="updatedAt"></jhi-date-picker>
-        </div>
-      </div>
-    </form>
-    <div class="modal-footer">
-      <div class="d-flex justify-content-end mt-3">
-        <p-button type="button" class="mr-2" label="Annuler" icon="pi pi-times" severity="secondary" (click)="cancel()"></p-button>
-        <p-button
-          (click)="save()"
-          icon="pi pi-check"
-          type="submit"
-          severity="primary"
-          label="Enregistrer"
-          [disabled]="editForm.invalid || isSaving"
-        ></p-button>
-      </div>
-    </div>
-  `,
-  imports: [WarehouseCommonModule, ReactiveFormsModule, ButtonModule, DatePickerComponent, TagModule],
+  providers: [MessageService],
+  templateUrl: './sale-update-date-modal.component.html',
+  styleUrls: ['./sale-update-date-modal.component.scss'],
+  imports: [WarehouseCommonModule, ReactiveFormsModule, ButtonModule, TagModule, Card, DatePicker, Toast],
 })
 export class SaleUpdateDateModalComponent {
   sale: ISales | null = null; ///*const modalData = (this as any).sale;
   protected activeModal = inject(NgbActiveModal);
   protected fb = inject(FormBuilder);
-
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
   protected isSaving = false;
 
   protected editForm = this.fb.group({
@@ -61,12 +38,13 @@ export class SaleUpdateDateModalComponent {
     }),
   });
   private readonly salesService = inject(SalesService);
+  private readonly messageService = inject(MessageService);
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss();
   }
 
-  save(): void {
+  protected save(): void {
     this.isSaving = true;
     const formDate = this.editForm.get('updatedAt')?.value;
     const updatedSale = { ...this.sale, updatedAt: moment(formDate) };
@@ -84,7 +62,21 @@ export class SaleUpdateDateModalComponent {
     this.activeModal.close(updatedSale);
   }
 
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.addClass(modalBody, 'overflow-visible');
+    }
+  }
+
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector('.modal-body');
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, 'overflow-visible');
+    }
+  }
+
   protected onSaveError(): void {
-    console.error('Error saving sale updated date');
+    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'La mise à jour de la date a échoué.' });
   }
 }

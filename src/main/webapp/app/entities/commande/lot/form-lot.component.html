@@ -82,7 +82,7 @@
                 dateFormat="dd/mm/yy"
                 formControlName="expiryDate"
                 name="expiryDate"
-              ></p-datePicker>
+              />
               @if (editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty || editForm.get('expiryDate')!.touched)) {
                 <div>
                   @if (editForm.get('expiryDate')?.errors?.required) {

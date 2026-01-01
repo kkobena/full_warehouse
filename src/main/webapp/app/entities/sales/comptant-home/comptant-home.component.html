@@ -207,6 +207,7 @@
       <!-- SALES CONTENT - Comptant Only -->
       <div class="sale-content-area">
         <jhi-comptant
+          [(isCashRegisterOpen)]="isCashRegisterOpen"
           #comptant
           (inputToFocusEvent)="getControlToFocus($event)"
           (responseEvent)="onFinalyse($event)"

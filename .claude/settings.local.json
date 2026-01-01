@@ -40,7 +40,8 @@
       "Bash(mvnw.cmd flyway:info:*)",
       "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew compileDebugKotlin:*)",
       "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew:*)",
-      "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew assembleDebug:*)"
+      "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew assembleDebug:*)",
+      "WebFetch(domain:angular.love)"
     ],
     "deny": [],
     "ask": []

@@ -484,3 +484,8 @@ pour activer l'extension pg_cron pour les tâches planifiées sur windows
 il faut ajouter cette ligne dans le fichier postgresql.conf
 et redémarrer le service postgresql
 En amont il faut installer l'extension pgAgent 
+
+create schema pharma_smart;
+
+alter schema pharma_smart owner to pharma_smart;
+

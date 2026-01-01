@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 
@@ -27,6 +27,9 @@ import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/un
 import { take } from 'rxjs/operators';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { CashRegisterService } from '../../../cash-register/cash-register.service';
+import { showCommonModal } from '../sale-helper';
+import { CashRegisterFormComponent } from '../../../cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 
 @Component({
   selector: 'jhi-comptant',
@@ -48,10 +51,12 @@ import { TauriPrinterService } from '../../../../shared/services/tauri-printer.s
 })
 export class ComptantComponent {
   readonly isPresale = input(false);
+  readonly isCashRegisterOpen = model(false);
   readonly appendTo = 'body';
   readonly inputToFocusEvent = output<InputToFocus>();
   readonly saveResponse = output<SaveResponse>();
   readonly responseEvent = output<FinalyseSale>();
+  readonly cashRegisterOpenEvent = output<boolean>();
   readonly CASH = 'CASH';
   canFocusLastModeInput = input(false);
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
@@ -70,6 +75,7 @@ export class ComptantComponent {
   private readonly selectModeReglementService = inject(SelectModeReglementService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly cashRegisterService = inject(CashRegisterService);
 
   constructor() {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
@@ -124,6 +130,18 @@ export class ComptantComponent {
   }
 
   finalyseSale(putsOnStandby = false): void {
+    if (putsOnStandby) {
+      this.complete(true);
+    } else {
+      if (!this.isCashRegisterOpen()) {
+        this.openCashRegister();
+      } else {
+        this.complete(false);
+      }
+    }
+  }
+
+  private complete(putsOnStandby = false): void {
     const entryAmount = this.entryAmount;
     this.facade.finalizeSale(
       putsOnStandby,
@@ -170,7 +188,7 @@ export class ComptantComponent {
     this.facade.removeItemFromSale(salesLine.saleLineId);
   }
 
-  openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
+  private openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
       centered: true,
@@ -184,7 +202,7 @@ export class ComptantComponent {
     });
   }
 
-  confirmDeleteItem(item: ISalesLine): void {
+  protected confirmDeleteItem(item: ISalesLine): void {
     if (item) {
       if (this.canRemoveItem()) {
         this.removeLine(item);
@@ -277,5 +295,14 @@ export class ComptantComponent {
 
   addRemise(remise: IRemise): void {
     this.facade.updateRemise(remise);
+  }
+
+  private openCashRegister(): void {
+    showCommonModal(this.modalService, CashRegisterFormComponent, {}, (resp: boolean) => {
+      if (resp) {
+        this.isCashRegisterOpen.set(resp);
+        this.complete(false);
+      }
+    });
   }
 }

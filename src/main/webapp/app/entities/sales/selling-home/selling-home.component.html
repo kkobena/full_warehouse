@@ -126,6 +126,7 @@
               </a>
               <ng-template ngbNavContent>
                 <jhi-comptant
+                  [(isCashRegisterOpen)]="isCashRegisterOpen"
                   #comptant
                   (inputToFocusEvent)="getControlToFocus($event)"
                   (responseEvent)="onFinalyse($event)"

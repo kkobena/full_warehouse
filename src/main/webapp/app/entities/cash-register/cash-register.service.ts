@@ -12,6 +12,7 @@ type EntityArrayResponseType = HttpResponse<CashRegister[]>;
 @Injectable({
   providedIn: 'root',
 })
+
 export class CashRegisterService {
   private readonly http = inject(HttpClient);
   private readonly resourceUrl = SERVER_API_URL + 'api/cash-registers';
@@ -53,5 +54,9 @@ export class CashRegisterService {
 
   closeCashRegister(cashRegisterId: number): Observable<HttpResponse<{}>> {
     return this.http.get(`${this.resourceUrl}/close-cash-register/${cashRegisterId}`, { observe: 'response' });
+  }
+
+  getConnectedUserHasOpenCashRegister(): Observable<HttpResponse<boolean>> {
+    return this.http.get<boolean>(this.resourceUrl + '/connected-user-has-open-cash-register', { observe: 'response' });
   }
 }

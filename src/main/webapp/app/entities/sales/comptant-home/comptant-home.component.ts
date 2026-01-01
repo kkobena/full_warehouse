@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import {isPlatformBrowser} from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -8,21 +8,21 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  PLATFORM_ID,
+  PLATFORM_ID, signal,
   viewChild
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
-import { TooltipModule } from 'primeng/tooltip';
-import { IUser } from '../../../core/user/user.model';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { ProduitSearch } from '../../../shared/model/produit.model';
-import { GroupRemise } from '../../../shared/model/remise.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {PanelModule} from 'primeng/panel';
+import {TooltipModule} from 'primeng/tooltip';
+import {IUser} from '../../../core/user/user.model';
+import {ICustomer} from '../../../shared/model/customer.model';
+import {ProduitSearch} from '../../../shared/model/produit.model';
+import {GroupRemise} from '../../../shared/model/remise.model';
 import {
   FinalyseSale,
   InputToFocus,
@@ -31,58 +31,59 @@ import {
   SaveResponse,
   StockError
 } from '../../../shared/model/sales.model';
-import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
-import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
-import { Observable } from 'rxjs';
-import { SalesService } from '../sales.service';
-import { CustomerService } from '../../customer/customer.service';
-import { ProduitService } from '../../produit/produit.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccountService } from '../../../core/auth/account.service';
-import { ErrorService } from '../../../shared/error.service';
-import { TranslateService } from '@ngx-translate/core';
-import { HttpResponse } from '@angular/common/http';
-import { CardModule } from 'primeng/card';
-import { ComptantComponent } from '../selling-home/comptant/comptant.component';
-import { SelectedCustomerService } from '../service/selected-customer.service';
-import { CurrentSaleService } from '../service/current-sale.service';
-import { LastCurrencyGivenService } from '../service/last-currency-given.service';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { SalesStatut } from '../../../shared/model/enumerations/sales-statut.model';
-import { UserCaissierService } from '../service/user-caissier.service';
-import { UserVendeurService } from '../service/user-vendeur.service';
-import { SaleEvent } from '../service/sale-event-manager.service';
-import { HasAuthorityService } from '../service/has-authority.service';
-import { BaseSaleService } from '../service/base-sale.service';
-import { Authority } from '../../../shared/constants/authority.constants';
-import { RemiseCacheService } from '../service/remise-cache.service';
-import { IMagasin } from '../../../shared/model/magasin.model';
-import { Select } from 'primeng/select';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { DrawerModule } from 'primeng/drawer';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { UninsuredCustomerListComponent } from '../uninsured-customer-list/uninsured-customer-list.component';
+import {ISalesLine, SalesLine} from '../../../shared/model/sales-line.model';
+import {PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE} from '../../../shared/constants/pagination.constants';
+import {Observable} from 'rxjs';
+import {SalesService} from '../sales.service';
+import {CustomerService} from '../../customer/customer.service';
+import {ProduitService} from '../../produit/produit.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AccountService} from '../../../core/auth/account.service';
+import {ErrorService} from '../../../shared/error.service';
+import {TranslateService} from '@ngx-translate/core';
+import {HttpResponse} from '@angular/common/http';
+import {CardModule} from 'primeng/card';
+import {ComptantComponent} from '../selling-home/comptant/comptant.component';
+import {SelectedCustomerService} from '../service/selected-customer.service';
+import {CurrentSaleService} from '../service/current-sale.service';
+import {LastCurrencyGivenService} from '../service/last-currency-given.service';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {SalesStatut} from '../../../shared/model/enumerations/sales-statut.model';
+import {UserCaissierService} from '../service/user-caissier.service';
+import {UserVendeurService} from '../service/user-vendeur.service';
+import {SaleEvent} from '../service/sale-event-manager.service';
+import {HasAuthorityService} from '../service/has-authority.service';
+import {BaseSaleService} from '../service/base-sale.service';
+import {Authority} from '../../../shared/constants/authority.constants';
+import {RemiseCacheService} from '../service/remise-cache.service';
+import {IMagasin} from '../../../shared/model/magasin.model';
+import {Select} from 'primeng/select';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {DrawerModule} from 'primeng/drawer';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {ConfirmDialogComponent} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {UninsuredCustomerListComponent} from '../uninsured-customer-list/uninsured-customer-list.component';
 import {
   UninsuredCustomerFormComponent
 } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { isEditMode, isVno, showCommonError, showCommonModal, translateSalesLabel } from '../selling-home/sale-helper';
-import { SaleEventSignal } from '../selling-home/sale-event';
-import { handleSaleEvents } from '../selling-home/sale-event-helper';
-import { DeconditionnementService } from '../validator/deconditionnement.service';
-import { ForceStockService } from '../validator/force-stock.service';
-import { SaleStockValidator } from '../validator/sale-stock-validator.service';
+import {ToastAlertComponent} from '../../../shared/toast-alert/toast-alert.component';
+import {QuantiteProdutSaisieComponent} from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import {isEditMode, isVno, showCommonError, showCommonModal, translateSalesLabel} from '../selling-home/sale-helper';
+import {SaleEventSignal} from '../selling-home/sale-event';
+import {handleSaleEvents} from '../selling-home/sale-event-helper';
+import {DeconditionnementService} from '../validator/deconditionnement.service';
+import {ForceStockService} from '../validator/force-stock.service';
+import {SaleStockValidator} from '../validator/sale-stock-validator.service';
 import {
   ProduitSearchAutocompleteScannerComponent
 } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
-import { SellingHomeShortcutsService } from '../selling-home/racourci/selling-home-shortcuts.service';
-import { KeyboardShortcutsService } from '../selling-home/racourci/keyboard-shortcuts.service';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { MagasinService } from '../../magasin/magasin.service';
-import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
+import {SellingHomeShortcutsService} from '../selling-home/racourci/selling-home-shortcuts.service';
+import {KeyboardShortcutsService} from '../selling-home/racourci/keyboard-shortcuts.service';
+import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
+import {MagasinService} from '../../magasin/magasin.service';
+import {PreventeModalComponent} from '../prevente-modal/prevente-modal/prevente-modal.component';
+import {CashRegisterService} from "../../cash-register/cash-register.service";
 
 @Component({
   selector: 'jhi-comptant-home',
@@ -121,6 +122,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
   protected selectedDepot?: IMagasin | null;
+  protected isCashRegisterOpen = signal(false);
   protected canFocusLastModeInput = false;
   protected canForceStock: boolean;
   protected check = true;
@@ -167,6 +169,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly keyboardService = inject(KeyboardShortcutsService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
+  private readonly cashRegisterService = inject(CashRegisterService);
 
   constructor() {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
@@ -192,6 +195,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           break;
       }
     });
+    this.hasCashRegisterOpen();
   }
 
   protected get disableButton(): boolean {
@@ -230,7 +234,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.currentSaleService.setCurrentSale(null);
     this.selectedCustomerService.setCustomer(null);
-    this.userCaissier = { ...this.currentAccount() } as IUser;
+    this.userCaissier = {...this.currentAccount()} as IUser;
     this.userCaissierService.setCaissier(this.userCaissier);
 
     // Initialize customer display (Tauri only)
@@ -239,13 +243,13 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Register keyboard shortcuts
     this.registerKeyboardShortcuts();
 
-    this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales, mode }) => {
+    this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({sales, mode}) => {
       if (sales.id) {
         if (sales.customer) {
           this.customerService
             .find(sales.customer.id)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+            .subscribe({next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)});
         }
         this.onLoadPrevente(sales, isEditMode(mode));
       }
@@ -802,7 +806,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      { title: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT', entity: null },
+      {title: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT', entity: null},
       (resp: ICustomer) => {
         if (resp) {
           this.handleUninsuredCustomerSelection(resp);
@@ -875,5 +879,19 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       forceStock: this.canForceStock ? () => {
       } : undefined
     });
+  }
+
+  private hasCashRegisterOpen(): void {
+    this.cashRegisterService
+      .getConnectedUserHasOpenCashRegister()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<boolean>) => {
+          this.isCashRegisterOpen.set(res.body);
+        },
+        error: err => {
+          this.onCommonError(err);
+        }
+      })
   }
 }

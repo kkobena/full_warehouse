@@ -16,7 +16,7 @@ export default class ActiveMenuDirective implements OnInit {
       this.updateActiveFlag(event.lang);
     });
 
-    this.updateActiveFlag(this.translateService.currentLang);
+    this.updateActiveFlag(this.translateService.getFallbackLang());
   }
 
   updateActiveFlag(selectedLanguage: string): void {

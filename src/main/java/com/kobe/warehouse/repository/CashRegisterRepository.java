@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CashRegisterRepository extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
     Optional<CashRegister> findOneByUserIdAndStatut(Integer id, CashRegisterStatut statut);
-
+   boolean existsByUserIdAndStatut(Integer id, CashRegisterStatut statut);
     @Query("SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
     List<CashRegister> findOneByUserIdAndStatutAndAndBeginTime(
         @Param("userId") Integer id,

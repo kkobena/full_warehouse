@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DividerModule } from 'primeng/divider';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -42,10 +42,10 @@ import { takeUntil } from 'rxjs/operators';
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
-    DateNaissDirective
+    DateNaissDirective,
   ],
   templateUrl: './assure-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss']
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
@@ -55,6 +55,8 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   minLength = 2;
   tiersPayant!: ITiersPayant | null;
   tiersPayants: ITiersPayant[] = [];
+  tiersPayantAlreadyAdded = signal<IClientTiersPayant[]>([]);
+
   commonService = inject(CommonService);
   assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
@@ -72,7 +74,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     adresse: [],
     sexe: [],
     datNaiss: [],
-    remiseId: []
+    remiseId: [],
   });
   readonly tiersPayantService = inject(TiersPayantService);
   readonly modalService = inject(NgbModal);
@@ -106,11 +108,12 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         page: 0,
         size: 10,
         type: this.commonService.categorie(),
-        search: query
+        search: query,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
-        this.tiersPayants = res.body!;
+        const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
+        this.tiersPayants = res.body!.filter(tp => !alreadyAddedIds.includes(tp.id));
         if (this.tiersPayants.length === 0) {
           this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
@@ -123,6 +126,14 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.tiersPayant = event.value;
       this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
+      this.addToAlreadyAdded(event.value);
+    }
+  }
+
+  private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
+    const current = this.tiersPayantAlreadyAdded();
+    if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
+      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
     }
   }
 
@@ -142,7 +153,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       tiersPayantId: formValue.tiersPayantId?.id,
       taux: formValue.taux,
       tiersPayant: formValue.tiersPayantId,
-      tiersPayants: this.buildComplementaires()
+      tiersPayants: this.buildComplementaires(),
     };
   }
 
@@ -153,16 +164,17 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
       },
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants.push(resp);
           this.editForm.patchValue({ tiersPayantId: resp });
+          this.addToAlreadyAdded(resp);
         }
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -177,8 +189,11 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,
-      taux: customer.taux
+      taux: customer.taux,
     });
+    if (customer.tiersPayant) {
+      this.addToAlreadyAdded(customer.tiersPayant);
+    }
   }
 
   private buildComplementaires(): IClientTiersPayant[] {

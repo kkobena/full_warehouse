@@ -29,7 +29,6 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { PaymentModeCode } from '../../../shared/payment-mode';
-import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-mode-reglement',
@@ -49,24 +48,6 @@ import { Card } from 'primeng/card';
   templateUrl: './mode-reglement.component.html',
   styleUrls: ['./mode-reglement.scss'],
   encapsulation: ViewEncapsulation.None,
-  /* styles: [
-    `
-      :host ::ng-deep .p-card .p-card-title .card-title {
-        color: #ffffff;
-        padding: 0.5rem;
-        margin: -1.25rem -1.25rem 1.25rem -1.25rem;
-        border-top-left-radius: var(--border-radius);
-        border-top-right-radius: var(--border-radius);
-      }
-
-      .card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-      }
-    `
-  ]*/
 })
 export class ModeReglementComponent implements OnInit {
   readonly paymentModeControlEvent = output<PaymentModeControl>();
@@ -204,9 +185,9 @@ export class ModeReglementComponent implements OnInit {
           .modeReglements()
           .filter(e => e.code !== lastInput.id)
           .reduce((acc, e) => acc + this.parseAmount(e.amount), 0);
-
         const newAmount = this.currentSaleService.currentSale().amountToBePaid - amountOfOtherModes;
         const mode = this.selectModeReglementService.modeReglements().find(e => e.code === lastInput.id);
+
         if (mode) {
           mode.amount = newAmount;
         }
@@ -237,12 +218,12 @@ export class ModeReglementComponent implements OnInit {
   manageAmountDiv(): void {
     const firstInput = this.paymentModeInputs()[0]?.nativeElement;
     if (firstInput) {
-      const mode = this.selectModeReglementService.modeReglements().find(e => e.code === firstInput.id);
-      if (mode) {
-        mode.amount = this.currentSaleService.currentSale().amountToBePaid;
-      }
+      /*  const mode = this.selectModeReglementService.modeReglements().find(e => e.code === firstInput.id);
+        if (mode) {
+          mode.amount = this.currentSaleService.currentSale().amountToBePaid;
+        }*/
       firstInput.focus();
-      setTimeout(() => firstInput.select(), 100);
+      //  setTimeout(() => firstInput.select(), 100);
     }
   }
 
@@ -252,11 +233,10 @@ export class ModeReglementComponent implements OnInit {
 
   getInputSum(): number {
     const modes = this.selectModeReglementService.modeReglements() || [];
-    const total = modes.reduce((sum, mode) => {
-      const parsed = this.parseAmount(mode.amount);
+    return modes.reduce((sum, mode) => {
+      const parsed = this.parseAmount(mode?.amount);
       return sum + parsed;
     }, 0);
-    return total;
   }
 
   onSansBonChange(evt: any): void {
@@ -273,13 +253,12 @@ export class ModeReglementComponent implements OnInit {
 
   buildPayment(entryAmount: number): IPayment[] {
     const numericEntryAmount = this.parseAmount(entryAmount);
-    const payments = (this.selectModeReglementService.modeReglements() || [])
+    return (this.selectModeReglementService.modeReglements() || [])
       .filter(mode => this.parseAmount(mode.amount) > 0)
       .map(mode => {
         const numericAmount = this.parseAmount(mode.amount);
         return this.buildModePayment(mode, numericAmount, numericEntryAmount);
       });
-    return payments;
   }
 
   protected onClose(op: any): void {
@@ -289,13 +268,6 @@ export class ModeReglementComponent implements OnInit {
 
   private updateAvailableMode(): void {
     this.reglementsModes = this.selectModeReglementService.getaAvaillablePaymentsMode();
-  }
-
-  private setFirstInputFocused(): void {
-    if (!this.forceFocus()) {
-      return;
-    }
-    this.focusPaymentInput();
   }
 
   private focusPaymentInput(): void {

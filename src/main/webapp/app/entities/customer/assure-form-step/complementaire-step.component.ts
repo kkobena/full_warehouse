@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, viewChild } from '@angular/core';
+import { Component, inject, model, OnDestroy, viewChild } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -39,26 +39,27 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     Select,
     ConfirmDialog,
     ToastAlertComponent,
-    Tooltip
+    Tooltip,
   ],
   templateUrl: './complementaire-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss']
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
   customerService = inject(CustomerService);
   tiersPayant: ITiersPayant | null = null;
   tiersPayants: ITiersPayant[] = [];
+  tiersPayantAlreadyAdded = model<IClientTiersPayant[]>([]);
   validSize = true;
   protected fb = inject(UntypedFormBuilder);
   protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 }
+    { label: 'RC3', value: 3 },
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
-    tiersPayants: this.fb.array([])
+    tiersPayants: this.fb.array([]),
   });
 
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -94,8 +95,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondConso: [],
         plafondJournalier: [],
         plafondAbsolu: [],
-        priorite: tiersPayants.length + 1
-      })
+        priorite: tiersPayants.length + 1,
+      }),
     );
     this.validateTiersPayantSize();
   }
@@ -114,6 +115,21 @@ export class ComplementaireStepComponent implements OnDestroy {
       this.addTiersPayantAssurance(index);
     } else {
       this.tiersPayant = event.value;
+      this.addToAlreadyAdded(event.value);
+    }
+  }
+
+  private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
+    const current = this.tiersPayantAlreadyAdded();
+    if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
+      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
+    }
+  }
+
+  private removeFromAlreadyAdded(tiersPayantId: number | undefined): void {
+    if (tiersPayantId) {
+      const current = this.tiersPayantAlreadyAdded();
+      this.tiersPayantAlreadyAdded.set(current.filter(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) !== tiersPayantId));
     }
   }
 
@@ -124,16 +140,17 @@ export class ComplementaireStepComponent implements OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
       },
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants.push(resp);
           this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: resp });
+          this.addToAlreadyAdded(resp);
         }
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -148,11 +165,12 @@ export class ComplementaireStepComponent implements OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query
+        search: query,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
-        this.tiersPayants = res.body!;
+        const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
+        this.tiersPayants = res.body!.filter(tp => !alreadyAddedIds.includes(tp.id));
         if (this.tiersPayants.length === 0) {
           this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
@@ -172,8 +190,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondJournalier: tiersPayant.plafondJournalier,
         priorite: tiersPayant.priorite,
         categorie: tiersPayant.priorite,
-        plafondAbsolu: tiersPayant.plafondAbsolu
-      }
+        plafondAbsolu: tiersPayant.plafondAbsolu,
+      },
     ]);
   }
 
@@ -191,8 +209,8 @@ export class ComplementaireStepComponent implements OnDestroy {
             plafondJournalier: tp.plafondJournalier,
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
-            taux: tp.taux
-          })
+            taux: tp.taux,
+          }),
         );
       });
   }
@@ -200,6 +218,7 @@ export class ComplementaireStepComponent implements OnDestroy {
   removeTiersPayant(index: number): void {
     const tiersPayants = this.convertFormAsFormArray();
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
+    const tiersPayantId = tiersPayant.tiersPayantId ?? tiersPayant.tiersPayant?.id;
     if (tiersPayant.id) {
       this.customerService
         .deleteTiersPayant(tiersPayant.id)
@@ -207,12 +226,14 @@ export class ComplementaireStepComponent implements OnDestroy {
         .subscribe({
           next: () => {
             tiersPayants.removeAt(index);
+            this.removeFromAlreadyAdded(tiersPayantId);
             this.validateTiersPayantSize();
           },
-          error: err => this.onSaveError(err)
+          error: err => this.onSaveError(err),
         });
     } else {
       tiersPayants.removeAt(index);
+      this.removeFromAlreadyAdded(tiersPayantId);
       this.validateTiersPayantSize();
     }
   }
@@ -229,7 +250,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         icon: 'pi pi-info-circle',
         rejectButtonProps: rejectButtonProps(),
         acceptButtonProps: acceptButtonProps(),
-        accept: () => this.removeTiersPayant(index)
+        accept: () => this.removeTiersPayant(index),
       });
     } else {
       this.removeTiersPayant(index);

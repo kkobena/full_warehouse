@@ -5,6 +5,7 @@ import {
   ElementRef,
   inject,
   OnInit,
+  output,
   Signal,
   signal,
   viewChild,
@@ -41,6 +42,7 @@ import { showCommonModal } from '../../sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-carnet.component';
 import { ButtonGroup } from 'primeng/buttongroup';
+import { InputToFocus } from '../../../../../shared/model/sales.model';
 
 @Component({
   selector: 'jhi-assurance-data',
@@ -65,6 +67,7 @@ import { ButtonGroup } from 'primeng/buttongroup';
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   searchInput = viewChild<ElementRef>('searchInput');
+
   protected search: string = null;
   protected readonly selectedCustomerService = inject(SelectedCustomerService);
   protected ayantDroit: ICustomer | null = null;
@@ -77,6 +80,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
   private bonInputs = viewChildren<ElementRef>('tpInput');
+
+  readonly inputToFocusEvent = output<InputToFocus>();
 
   constructor() {
     const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
@@ -208,6 +213,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   protected editAyantDroit(): void {
     this.openAyantDroitForm(this.ayantDroit);
   }
+
   protected addAyantDroit(ayantDroit: ICustomer): void {
     this.openAyantDroitForm(ayantDroit);
   }
@@ -240,7 +246,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     if (currentIndex < tiersPayants.length - 1) {
       this.bonInputFocusOnAddTiersPayant(currentIndex + 1);
     } else {
-      // this.focusProduct.emit();
+      this.inputToFocusEvent.emit(new InputToFocus('produitBox'));
     }
   }
 

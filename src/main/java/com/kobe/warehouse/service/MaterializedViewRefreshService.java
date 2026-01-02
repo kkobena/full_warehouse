@@ -66,7 +66,8 @@ public class MaterializedViewRefreshService {
     // =====================================================
     private static final List<String> NON_CONCURRENT_VIEWS = Arrays.asList(
         "mv_pareto_summary",
-        "mv_profitability_summary"
+        "mv_profitability_summary",
+        "mv_product_profitability"
     );
 
     @PersistenceContext

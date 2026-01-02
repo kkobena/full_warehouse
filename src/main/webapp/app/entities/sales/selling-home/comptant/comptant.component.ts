@@ -27,7 +27,6 @@ import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/un
 import { take } from 'rxjs/operators';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
-import { CashRegisterService } from '../../../cash-register/cash-register.service';
 import { showCommonModal } from '../sale-helper';
 import { CashRegisterFormComponent } from '../../../cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 
@@ -56,7 +55,6 @@ export class ComptantComponent {
   readonly inputToFocusEvent = output<InputToFocus>();
   readonly saveResponse = output<SaveResponse>();
   readonly responseEvent = output<FinalyseSale>();
-  readonly cashRegisterOpenEvent = output<boolean>();
   readonly CASH = 'CASH';
   canFocusLastModeInput = input(false);
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
@@ -75,7 +73,6 @@ export class ComptantComponent {
   private readonly selectModeReglementService = inject(SelectModeReglementService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
-  private readonly cashRegisterService = inject(CashRegisterService);
 
   constructor() {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {

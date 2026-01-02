@@ -205,7 +205,7 @@
                   <td class="text-end">
                     <span
                       class="px-2 py-1 rounded fw-semibold"
-                      [ngClass]="{
+                      [class]="{
                         'bg-success-subtle text-success': (rotation.avgDaysInStock || 0) <= 30,
                         'bg-info-subtle text-info': (rotation.avgDaysInStock || 0) > 30 && (rotation.avgDaysInStock || 0) <= 60,
                         'bg-warning-subtle text-warning': (rotation.avgDaysInStock || 0) > 60 && (rotation.avgDaysInStock || 0) <= 90,

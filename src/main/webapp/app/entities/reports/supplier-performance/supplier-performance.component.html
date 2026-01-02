@@ -229,7 +229,7 @@
                     <span
                       class="px-2 py-1 rounded fw-semibold"
                       [pTooltip]="'Min: ' + supplier.minDeliveryDays + 'j, Max: ' + supplier.maxDeliveryDays + 'j'"
-                      [ngClass]="{
+                      [class]="{
                         'bg-success-subtle text-success': (supplier.avgDeliveryDays || 999) <= 7,
                         'bg-warning-subtle text-warning': (supplier.avgDeliveryDays || 999) > 7 && (supplier.avgDeliveryDays || 999) <= 14,
                         'bg-danger-subtle text-danger': (supplier.avgDeliveryDays || 999) > 14,
@@ -241,7 +241,7 @@
                   <td class="text-center">
                     <span
                       class="px-2 py-1 rounded fw-semibold"
-                      [ngClass]="{
+                      [class]="{
                         'bg-success-subtle text-success': (supplier.conformityRatePct || 0) >= 95,
                         'bg-warning-subtle text-warning': (supplier.conformityRatePct || 0) >= 85 && (supplier.conformityRatePct || 0) < 95,
                         'bg-danger-subtle text-danger': (supplier.conformityRatePct || 0) < 85,
@@ -254,7 +254,7 @@
                     <span
                       class="px-2 py-1 rounded fw-semibold"
                       [pTooltip]="getPerformanceScoreLabel(supplier.performanceScore)"
-                      [ngClass]="{
+                      [class]="{
                         'bg-success-subtle text-success': (supplier.performanceScore || 0) >= 70,
                         'bg-warning-subtle text-warning': (supplier.performanceScore || 0) >= 50 && (supplier.performanceScore || 0) < 70,
                         'bg-danger-subtle text-danger': (supplier.performanceScore || 0) < 50,

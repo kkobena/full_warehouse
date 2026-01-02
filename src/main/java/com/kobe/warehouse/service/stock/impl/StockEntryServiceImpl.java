@@ -394,7 +394,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private int getTotalStockQuantity(StockProduit stockProduit) {
-        return stockProduit.getQtyStock() + (nonNull(stockProduit.getQtyUG()) ? stockProduit.getQtyStock() : 0);
+        return stockProduit.getQtyStock() + Objects.requireNonNullElse(stockProduit.getQtyUG(),0);
     }
 
     private Commande buildDeliveryReceipt(DeliveryReceiptLiteDTO deliveryReceiptLite, Commande commande) {

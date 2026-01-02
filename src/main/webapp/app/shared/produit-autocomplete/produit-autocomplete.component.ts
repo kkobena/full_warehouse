@@ -3,7 +3,7 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
 import { AutoComplete } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { TranslatePipe } from '@ngx-translate/core';
-import { DecimalPipe, NgClass } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../constants/pagination.constants';
 import { IProduit } from '../model/produit.model';
 import { ProduitService } from '../../entities/produit/produit.service';
@@ -11,7 +11,7 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'jhi-produit-autocomplete',
-  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, NgClass, DecimalPipe],
+  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, DecimalPipe],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

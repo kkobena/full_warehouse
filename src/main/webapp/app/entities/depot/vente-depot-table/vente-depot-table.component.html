@@ -89,7 +89,7 @@
 
           <ng-template #body let-rowIndex="rowIndex" let-saleLine>
             <tr
-              [ngClass]="{
+              [class]="{
                 'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
                 'pharma-row-hover': true,
               }"

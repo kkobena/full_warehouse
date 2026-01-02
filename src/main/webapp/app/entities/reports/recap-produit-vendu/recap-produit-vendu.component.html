@@ -193,7 +193,7 @@
                     <td class="text-end pharma-qty-avoir">{{ product.quantityAvoir || 0 | number }}</td>
                     <td class="text-end">
                       <span
-                        [ngClass]="{
+                        [class]="{
                           'bg-success-subtle text-success': (product.stock || 0) > 50,
                           'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
                           'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
@@ -350,7 +350,7 @@
                     <td>{{ product.rayonName }}</td>
                     <td class="text-end">
                       <span
-                        [ngClass]="{
+                        [class]="{
                           'bg-success-subtle text-success': (product.stock || 0) > 50,
                           'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
                           'bg-danger-subtle text-danger': (product.stock || 0) <= 10,

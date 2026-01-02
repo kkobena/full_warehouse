@@ -60,7 +60,6 @@ public class DashboardResource {
      */
     @GetMapping("/dashboard/alert-counts")
     public ResponseEntity<DashboardAlertCountDTO> getAlertCounts() {
-        DashboardAlertCountDTO alertCounts = dashboardAlertService.getAlertCounts();
-        return ResponseEntity.ok().body(alertCounts);
+        return ResponseEntity.ok().body(dashboardAlertService.getAlertCounts());
     }
 }

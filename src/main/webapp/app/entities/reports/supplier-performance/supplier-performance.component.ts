@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 
@@ -22,7 +22,7 @@ interface FilterOption {
 
 @Component({
   selector: 'jhi-supplier-performance',
-  imports: [CommonModule, FormsModule, ButtonModule, TableModule, SelectModule, InputTextModule, TooltipModule, ToolbarModule, Drawer],
+  imports: [FormsModule, ButtonModule, TableModule, SelectModule, InputTextModule, TooltipModule, ToolbarModule, Drawer],
   templateUrl: './supplier-performance.component.html',
   styleUrl: './supplier-performance.component.scss',
 })

@@ -56,14 +56,14 @@ import { BackendManagerService } from '../services/backend-manager.service';
           @if (connectionTestResult !== null) {
             <div
               class="alert"
-              [ngClass]="{
+              [class]="{
                 'alert-success': connectionTestResult === true,
                 'alert-danger': connectionTestResult === false,
               }"
             >
               <i
                 class="bi"
-                [ngClass]="{
+                [class]="{
                   'bi-check-circle': connectionTestResult === true,
                   'bi-x-circle': connectionTestResult === false,
                 }"
@@ -79,7 +79,7 @@ import { BackendManagerService } from '../services/backend-manager.service';
                 <i class="bi bi-arrow-repeat me-2"></i>
                 <strong>{{ restartMessage }}</strong>
               </div>
-              <p-progressbar [value]="restartProgress" [showValue]="false" />
+              <p-progressBar [value]="restartProgress" [showValue]="false" />
               <small class="text-muted mt-2 d-block">Veuillez patienter pendant le redémarrage du serveur...</small>
             </div>
           }

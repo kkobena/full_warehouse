@@ -12,23 +12,10 @@ import { InputIcon } from 'primeng/inputicon';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
 import { CommonModule } from '@angular/common';
-import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-detail-single-reglement',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    PanelModule,
-    TableModule,
-    IconField,
-    InputIcon,
-    Button,
-    Tag,
-    Card,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, TableModule, IconField, InputIcon, Button, Tag],
   templateUrl: './detail-single-reglement.component.html',
   styleUrls: ['./detail-single-reglement.component.scss'],
 })

@@ -1,45 +1,61 @@
-<div class="container-fluid">
-  <div class="row mb-3">
-    <div class="col-lg-4 col-md-6 mb-1">
-      <div class="card h-100 summary-card-vente">
-        <div class="card-body">
+
+  <!-- Summary Cards - Compact Pharma Style -->
+  <div class="row g-2 mb-1">
+    <div class="col-xl-3 col-md-6">
+      <div class="card pharma-stat-card success-accent">
+        <div class="card-body p-2">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">Montant vente</h6>
-              <h4 class="card-title fw-bold">{{ factureWritable().montantVente | number }}</h4>
+              <p class="text-muted mb-1 small">Montant vente</p>
+              <h5 class="mb-0 fw-bold">{{ factureWritable().montantVente | number }}</h5>
             </div>
-            <div class="fs-2 text-success">
-              <i class="pi pi-shopping-cart"></i>
+            <div class="pharma-stat-icon bg-success-subtle">
+              <i class="pi pi-shopping-cart text-success"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-6 mb-1">
-      <div class="card h-100 summary-card-facture">
-        <div class="card-body">
+    <div class="col-xl-3 col-md-6">
+      <div class="card pharma-stat-card primary-accent">
+        <div class="card-body p-2">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">Montant facture</h6>
-              <h4 class="card-title fw-bold">{{ factureWritable().montant | number }}</h4>
+              <p class="text-muted mb-1 small">Montant facture</p>
+              <h5 class="mb-0 fw-bold">{{ factureWritable().montant | number }}</h5>
             </div>
-            <div class="fs-2 text-primary">
-              <i class="pi pi-file-text"></i>
+            <div class="pharma-stat-icon bg-primary-subtle">
+              <i class="pi pi-file-text text-primary"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-6 mb-1">
-      <div class="card h-100 summary-card-paye">
-        <div class="card-body">
+    <div class="col-xl-3 col-md-6">
+      <div class="card pharma-stat-card info-accent">
+        <div class="card-body p-2">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">Montant payé</h6>
-              <h4 class="card-title fw-bold">{{ factureWritable().montantRegle | number }}</h4>
+              <p class="text-muted mb-1 small">Montant payé</p>
+              <h5 class="mb-0 fw-bold">{{ factureWritable().montantRegle | number }}</h5>
             </div>
-            <div class="fs-2 text-info">
-              <i class="pi pi-check-circle"></i>
+            <div class="pharma-stat-icon bg-info-subtle">
+              <i class="pi pi-check-circle text-info"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card pharma-stat-card warning-accent">
+        <div class="card-body p-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted mb-1 small">Reste à payer</p>
+              <h5 class="mb-0 fw-bold">{{ factureWritable().montant - factureWritable().montantRegle | number }}</h5>
+            </div>
+            <div class="pharma-stat-icon bg-warning-subtle">
+              <i class="pi pi-wallet text-warning"></i>
             </div>
           </div>
         </div>
@@ -48,134 +64,133 @@
   </div>
 
   <div class="row">
-    <div class="col-xl-7 col-lg-12 mb-1 pharma-smart">
-      <p-card class="h-100 details-card">
-        <ng-template #title>
-          <div class="d-flex align-items-center gap-2 card-title primary-title">
-            <i class="pi pi-list"></i>
-            <span class="fw-bold">Détail de la facture de: {{ factureWritable().tiersPayantName }}</span>
-          </div>
-        </ng-template>
-
-        <p-table
-          #fact
-          (onRowSelect)="onRowSelect($event.data)"
-          [(selection)]="selectedFactureItem"
-          [globalFilterFields]="['numBon', 'customer.fullName']"
-          [paginator]="true"
-          [rowsPerPageOptions]="[10, 20, 50, 100]"
-          [rows]="10"
-          [scrollable]="true"
-          [stripedRows]="true"
-          [value]="factureWritable().items"
-          class="pharma-table"
-          dataKey="saleId"
-          scrollHeight="450px"
-          selectionMode="single"
-        >
-          <ng-template #caption>
-            <div class="d-flex justify-content-start">
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input
-                  (input)="fact.filterGlobal($event.target.value, 'contains')"
-                  [(ngModel)]="searchValue"
-                  class="p-inputtext-sm"
-                  pInputText
-                  placeholder="Filtrer..."
-                  type="text"
-                />
-              </p-iconfield>
-            </div>
-          </ng-template>
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Num.Bon</th>
-              <th>Assuré</th>
-              <th class="text-end">Total vente</th>
-              <th class="text-end">Remise</th>
-              <th class="text-end">Part T.P</th>
-              <th class="text-end">Part Client</th>
-              <th class="text-end">Montant Payé</th>
-              <th class="text-end">Taux</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-factureDetail>
-            <tr [pSelectableRow]="factureDetail">
-              <td>
-                <span class="pharma-code">{{ factureDetail.numBon }}</span>
-              </td>
-              <td class="pharma-entity-name">{{ factureDetail.customer.fullName }}</td>
-              <td class="text-end">{{ factureDetail.montantVente | number }}</td>
-              <td class="text-end">{{ factureDetail.montantRemise | number }}</td>
-              <td class="text-end pharma-total">{{ factureDetail.montant | number }}</td>
-              <td class="text-end">{{ factureDetail.montantClient | number }}</td>
-              <td class="text-end">{{ factureDetail.montantRegle | number }}</td>
-              <td class="text-end">{{ factureDetail.taux | number }}%</td>
-            </tr>
-          </ng-template>
-          <ng-template #empty>
-            <tr>
-              <td class="text-center" colspan="8">Aucun élément de facture trouvé.</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-card>
+    <div class="col-xl-7 col-lg-12 mb-1">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-list text-primary"></i>
+            Détail de la facture de: {{ factureWritable().tiersPayantName }}
+          </h5>
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              (input)="fact.filterGlobal($event.target.value, 'contains')"
+              [(ngModel)]="searchValue"
+              class="p-inputtext-sm"
+              pInputText
+              placeholder="Filtrer..."
+              type="text"
+            />
+          </p-iconfield>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            #fact
+            (onRowSelect)="onRowSelect($event.data)"
+            [(selection)]="selectedFactureItem"
+            [globalFilterFields]="['numBon', 'customer.fullName']"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
+            [rows]="10"
+            [scrollable]="true"
+            [stripedRows]="true"
+            [value]="factureWritable().items"
+            class="pharma-table"
+            dataKey="saleId"
+            scrollHeight="450px"
+            selectionMode="single"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Num.Bon</th>
+                <th>Assuré</th>
+                <th class="text-end">Total vente</th>
+                <th class="text-end">Remise</th>
+                <th class="text-end">Part T.P</th>
+                <th class="text-end">Part Client</th>
+                <th class="text-end">Montant Payé</th>
+                <th class="text-end">Taux</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-factureDetail>
+              <tr [pSelectableRow]="factureDetail">
+                <td>
+                  <span class="pharma-code">{{ factureDetail.numBon }}</span>
+                </td>
+                <td class="pharma-entity-name">{{ factureDetail.customer.fullName }}</td>
+                <td class="text-end">{{ factureDetail.montantVente | number }}</td>
+                <td class="text-end">{{ factureDetail.montantRemise | number }}</td>
+                <td class="text-end pharma-total">{{ factureDetail.montant | number }}</td>
+                <td class="text-end">{{ factureDetail.montantClient | number }}</td>
+                <td class="text-end">{{ factureDetail.montantRegle | number }}</td>
+                <td class="text-end">{{ factureDetail.taux | number }}%</td>
+              </tr>
+            </ng-template>
+            <ng-template #empty>
+              <tr>
+                <td class="text-center" colspan="8">Aucun élément de facture trouvé.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
     </div>
-    <div class="col-xl-5 col-lg-12 mb-1 pharma-smart">
-      <p-card class="h-100 details-card">
-        <ng-template #title>
-          <div class="d-flex align-items-center gap-2 card-title warn-title">
-            <i class="pi pi-shopping-bag"></i>
-            <span class="fw-bold">Détail de la vente</span>
-          </div>
-        </ng-template>
-        @if (selectedFactureItem) {
-          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light border rounded">
-            <div>
-              <strong>Numéro:</strong>
-              <p-tag [value]="selectedFactureItem.saleNumber" class="ms-2"></p-tag>
+    <div class="col-xl-5 col-lg-12 mb-1">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-shopping-bag text-warning"></i>
+            Détail de la vente
+          </h5>
+        </div>
+        <div class="card-body">
+          @if (selectedFactureItem) {
+            <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light border rounded">
+              <div>
+                <strong>Numéro:</strong>
+                <p-tag [value]="selectedFactureItem.saleNumber" class="ms-2"></p-tag>
+              </div>
+              <div>
+                <strong>Date:</strong>
+                <span class="fw-semibold ms-2">{{ selectedFactureItem.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
             </div>
-            <div>
-              <strong>Date:</strong>
-              <span class="fw-semibold ms-2">{{ selectedFactureItem.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+          } @else {
+            <div class="text-center text-muted p-4">
+              <i class="pi pi-info-circle fs-3 mb-2"></i>
+              <p>Sélectionnez une ligne pour voir le détail de la vente.</p>
             </div>
-          </div>
-        } @else {
-          <div class="text-center text-muted p-4">
-            <i class="pi pi-info-circle fs-3 mb-2"></i>
-            <p>Sélectionnez une ligne pour voir le détail de la vente.</p>
-          </div>
-        }
+          }
 
-        <p-table [scrollable]="true" [value]="salesLines" class="pharma-table" scrollHeight="400px">
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>CIP</th>
-              <th>Libellé</th>
-              <th class="text-end">Qté</th>
-              <th class="text-end">P.U.</th>
-              <th class="text-end">Montant</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-saleLine>
-            <tr>
-              <td>
-                <span class="pharma-code">{{ saleLine.code }}</span>
-              </td>
-              <td class="pharma-product-name">{{ saleLine.produitLibelle }}</td>
-              <td class="text-end">{{ saleLine.quantitySold | number }}</td>
-              <td class="text-end">{{ saleLine.regularUnitPrice | number }}</td>
-              <td class="text-end pharma-total">{{ saleLine.salesAmount | number }}</td>
-            </tr>
-          </ng-template>
-          <ng-template #empty>
-            <tr>
-              <td class="text-center" colspan="5">Aucun produit dans cette vente.</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-card>
+          <p-table [scrollable]="true" [value]="salesLines" class="pharma-table" scrollHeight="400px">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>CIP</th>
+                <th>Libellé</th>
+                <th class="text-end">Qté</th>
+                <th class="text-end">P.U.</th>
+                <th class="text-end">Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-saleLine>
+              <tr>
+                <td>
+                  <span class="pharma-code">{{ saleLine.code }}</span>
+                </td>
+                <td class="pharma-product-name">{{ saleLine.produitLibelle }}</td>
+                <td class="text-end">{{ saleLine.quantitySold | number }}</td>
+                <td class="text-end">{{ saleLine.regularUnitPrice | number }}</td>
+                <td class="text-end pharma-total">{{ saleLine.salesAmount | number }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #empty>
+              <tr>
+                <td class="text-center" colspan="5">Aucun produit dans cette vente.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+

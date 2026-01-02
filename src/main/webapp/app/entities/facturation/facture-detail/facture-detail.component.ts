@@ -11,12 +11,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
-import { Card } from 'primeng/card';
 import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-facture-detail',
-  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule, InputIcon, IconField, Card, Tag],
+  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule, InputIcon, IconField, Tag],
   templateUrl: './facture-detail.component.html',
   styleUrls: ['./facture-detail.component.scss'],
 })

@@ -12,4 +12,4 @@
     <td th:if="${itm.salesAmount ge 1000}" class="total" th:text="${#numbers.formatInteger(itm.salesAmount,3,'WHITESPACE')}"></td>
     <td th:if="${itm.salesAmount lt 1000}" class="total" th:text="${itm.salesAmount}"></td>
   </tr>
-</tbody>;
+</tbody>

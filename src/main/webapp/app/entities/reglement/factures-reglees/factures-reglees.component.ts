@@ -33,6 +33,7 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { RecapParam } from '../../ticketZ/model/recap-param.model';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -52,6 +53,7 @@ import { RecapParam } from '../../ticketZ/model/recap-param.model';
     ToggleSwitch,
     DatePicker,
     ConfirmDialogComponent,
+    ButtonGroup,
   ],
 
   templateUrl: './factures-reglees.component.html',

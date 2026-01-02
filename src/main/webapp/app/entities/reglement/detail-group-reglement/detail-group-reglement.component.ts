@@ -4,15 +4,16 @@ import { ReglementService } from '../reglement.service';
 import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
 import { HttpResponse } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
-import { PanelModule } from 'primeng/panel';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { CommonModule } from '@angular/common';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'jhi-detail-group-reglement',
-  imports: [InputTextModule, PanelModule, ReactiveFormsModule, TableModule, IconField, InputIcon],
+  imports: [CommonModule, FormsModule, InputTextModule, ReactiveFormsModule, TableModule, IconField, InputIcon, Button],
   templateUrl: './detail-group-reglement.component.html',
   styleUrls: ['./detail-group-reglement.component.scss'],
 })

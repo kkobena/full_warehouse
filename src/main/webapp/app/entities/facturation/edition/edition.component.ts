@@ -279,7 +279,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       groupIds: this.selectedGroupeTiersPayants?.map(item => item.id),
       tiersPayantIds: this.selectedTiersPayants?.map(item => item.id),
       all: this.all,
-      categorieTiersPayants: [this.typeTiersPayant],
+      categorieTiersPayants: this.typeTiersPayant ? [this.typeTiersPayant] : [],
       factureProvisoire: this.factureProvisoire,
       modeEdition: this.modeEdition ? this.modeEdition : 'ALL',
     };

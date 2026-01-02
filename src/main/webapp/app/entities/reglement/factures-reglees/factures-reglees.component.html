@@ -224,17 +224,20 @@
           </td>
           <td class="text-center">{{ reglement.created }}</td>
           <td>{{ reglement.user }}</td>
-          <td class="text-right">
-            <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye" severity="info"></p-button>
-            <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print" severity="secondary"></p-button>
-            <p-button
-              (click)="onDelete(reglement)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              severity="danger"
-              styleClass="p-button-danger"
-            ></p-button>
+          <td>
+            <p-buttonGroup>
+              <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye" severity="info"/>
+              <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print" severity="secondary"/>
+              <p-button
+                (click)="onDelete(reglement)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                severity="danger"
+                styleClass="p-button-danger"
+              />
+            </p-buttonGroup>
+
           </td>
           <td class="text-center">
             <p-tableCheckbox [value]="reglement"></p-tableCheckbox>

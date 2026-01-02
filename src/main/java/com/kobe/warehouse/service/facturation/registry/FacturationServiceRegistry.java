@@ -20,14 +20,12 @@ public class FacturationServiceRegistry {
 
     public FacturationServiceRegistry(
         EditionAllService editionAllService,
-        EditionBySelectionService editionBySelectionService,
         EditionBySelectionBonsService editionBySelectionBonsService,
         EditionByTiersPayantService editionByTiersPayantService,
         EditionByTypeTiersPayantService editionByTypeTiersPayantService,
         EditionByGroupTiersService editionByGroupTiersService
     ) {
         registerService(ModeEditionEnum.ALL, editionAllService);
-        registerService(ModeEditionEnum.SELECTED, editionBySelectionService);
         registerService(ModeEditionEnum.SELECTION_BON, editionBySelectionBonsService);
         registerService(ModeEditionEnum.TIERS_PAYANT, editionByTiersPayantService);
         registerService(ModeEditionEnum.TYPE, editionByTypeTiersPayantService);

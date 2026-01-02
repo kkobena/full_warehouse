@@ -1,6 +1,78 @@
 @import '../../../shared/scss/modal-theme';
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/dashboard-common';
 
 :host {
   @include modal-theme;
+}
+
+// Pharma Stat Card with border-left accent
+.pharma-stat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--accent-color-start), var(--accent-color-end));
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    &::before {
+      width: 6px;
+    }
+  }
+
+  // Accent color variants
+  &.primary-accent {
+    --accent-color-start: #008cba;
+    --accent-color-end: #5bc0de;
+  }
+
+  &.danger-accent {
+    --accent-color-start: #f04124;
+    --accent-color-end: #ff6b6b;
+  }
+
+  &.success-accent {
+    --accent-color-start: #43ac6a;
+    --accent-color-end: #52c41a;
+  }
+
+  &.warning-accent {
+    --accent-color-start: #e99002;
+    --accent-color-end: #ffa940;
+  }
+
+  &.info-accent {
+    --accent-color-start: #17a2b8;
+    --accent-color-end: #5bc0de;
+  }
+}
+
+// Pharma stat icon styling
+.pharma-stat-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+
+  i {
+    font-size: 1.1rem;
+  }
 }

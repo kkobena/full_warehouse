@@ -150,8 +150,7 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
     @Column(name = "ncc", length = 100)
     private String ncc; //Identifiant contribuable
 
-    @Transient
-    private String modelFilePath;
+
 
     public TiersPayant() {}
 
@@ -416,9 +415,8 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
         this.ncc = ncc;
         return this;
     }
-
     public String getModelFilePath() {
-        this.modelFilePath = Objects.requireNonNullElse(modelFacture, "default");
-        return modelFilePath;
+        return Objects.requireNonNullElse(modelFacture, "default");
     }
+
 }

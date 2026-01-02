@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
+import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -12,14 +13,18 @@ import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -99,15 +104,15 @@ public abstract class AbstractEditionFactureService implements EditionService {
         Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = groupByTiersPayant(thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) ->
             this.buildAndSaveFacture(
-                    null,
-                    tiersPayant,
-                    saleLines,
-                    dateCreation,
-                    year,
-                    numero.incrementAndGet(),
-                    generationCode,
-                    editionSearchParams
-                )
+                null,
+                tiersPayant,
+                saleLines,
+                dateCreation,
+                year,
+                numero.incrementAndGet(),
+                generationCode,
+                editionSearchParams
+            )
         );
     }
 
@@ -157,13 +162,22 @@ public abstract class AbstractEditionFactureService implements EditionService {
     }
 
     protected int getLastFactureNumero() {
-        if (this.appConfigurationService.findParamResetInvoiceNumberEveryYear().isEmpty()) {
-            String num = this.facturationRepository.findLatestFactureNumber();
-            if (org.springframework.util.StringUtils.hasLength(num)) {
-                return Integer.parseInt(num.split("_")[1]);
-            }
+        String num = this.facturationRepository.findLatestFactureNumber();
+        Year lastFactureDate = Year.now();
+        int index = 0;
+        if (org.springframework.util.StringUtils.hasLength(num)) {
+            lastFactureDate = Year.parse(num.split("_")[0]);
+            index = Integer.parseInt(num.split("_")[1]);
         }
 
-        return 0;
+        if (!lastFactureDate.equals(Year.now()) && this.appConfigurationService.findParamResetInvoiceNumberEveryYear()
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .filter(v -> v == 1)
+            .isPresent()) {
+            index = 0;
+        }
+
+        return index;
     }
 }

@@ -41,14 +41,13 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     InputTextModule,
     DatePicker,
     ToastAlertComponent,
-    NgxSpinnerModule
-
-  ]
+    NgxSpinnerModule,
+  ],
 })
 export class DeliveryModalComponent implements OnInit {
   header = '';
   commande: ICommande;
-  isEdit: boolean = false;
+  isEdit = false;
   protected isSaving = false;
   protected fb = inject(FormBuilder);
   protected maxDate = new Date();
@@ -57,19 +56,19 @@ export class DeliveryModalComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     receiptReference: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     receiptDate: new FormControl<Date | null>(null, {
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     receiptAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     taxAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
   private readonly entityService = inject(DeliveryService);
   private readonly primeNGConfig = inject(PrimeNG);
@@ -105,7 +104,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptReference: entity.receiptReference,
       receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
-      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null
+      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
     });
   }
 
@@ -144,11 +143,11 @@ export class DeliveryModalComponent implements OnInit {
         finalize(() => {
           this.spinner.hide();
           this.isSaving = false;
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<IDelivery>) => this.onSaveSuccess(res.body),
-        error: err => this.onSaveError(err)
+        error: err => this.onSaveError(err),
       });
   }
 
@@ -169,7 +168,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
-      orderReference: this.commande.orderReference
+      orderReference: this.commande.orderReference,
     };
   }
 }

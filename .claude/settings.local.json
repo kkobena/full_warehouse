@@ -41,7 +41,8 @@
       "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew compileDebugKotlin:*)",
       "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew:*)",
       "Bash(JAVA_HOME=\"C:/Users/k.kobena/Documents/dev/jdk17\" ./gradlew assembleDebug:*)",
-      "WebFetch(domain:angular.love)"
+      "WebFetch(domain:angular.love)",
+      "Bash(npm view:*)"
     ],
     "deny": [],
     "ask": []

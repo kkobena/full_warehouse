@@ -34,11 +34,11 @@ export type ExpandMode = 'single' | 'multiple';
     ToastModule,
     ConfirmDialogModule,
     RippleModule,
-    WarehouseCommonModule
+    WarehouseCommonModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './retour-bon-list.component.html',
-  styleUrl: './retour-bon-list.component.scss'
+  styleUrl: './retour-bon-list.component.scss',
 })
 export class RetourBonListComponent implements OnInit {
   private readonly retourBonService = inject(RetourBonService);
@@ -70,7 +70,7 @@ export class RetourBonListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
 
     if (this.dtStart()) {
@@ -97,7 +97,7 @@ export class RetourBonListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -110,7 +110,7 @@ export class RetourBonListComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours'
+      detail: 'Erreur lors du chargement des retours',
     });
   }
 
@@ -129,15 +129,15 @@ export class RetourBonListComponent implements OnInit {
       this.modalService,
       SupplierResponseModalComponent,
       {
-        retourBon: retourBon,
-        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`
+        retourBon,
+        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`,
       },
       (reponseRetourBon: IReponseRetourBon) => {
         if (reponseRetourBon) {
           this.saveSupplierResponse(reponseRetourBon);
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -148,7 +148,7 @@ export class RetourBonListComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Réponse fournisseur enregistrée avec succès'
+          detail: 'Réponse fournisseur enregistrée avec succès',
         });
         this.loadAll();
       },
@@ -156,10 +156,10 @@ export class RetourBonListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors de l\'enregistrement de la réponse fournisseur'
+          detail: "Erreur lors de l'enregistrement de la réponse fournisseur",
         });
         this.loading.set(false);
-      }
+      },
     });
   }
 

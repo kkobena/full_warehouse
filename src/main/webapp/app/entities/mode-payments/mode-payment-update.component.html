@@ -1,8 +1,7 @@
 <p-toast position="center"></p-toast>
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button"></button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
@@ -16,45 +15,24 @@
       </ng-template>
       <div class="form-grid-compact">
         <div [hidden]="true" class="form-field form-field-full">
-          <label class="form-control-label" for="field_code">Code<span
-            class="required">*</span></label>
-          <input #codeField
-
-                 autocomplete="off"
-                 formControlName="code"
-                 id="field_code"
-                 maxlength="50"
-                 name="code"
-                 pInputText
-                 type="text"
-          />
-          @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get(
-            'code')!.touched)) {
+          <label class="form-control-label" for="field_code">Code<span class="required">*</span></label>
+          <input #codeField autocomplete="off" formControlName="code" id="field_code" maxlength="50" name="code" pInputText type="text" />
+          @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
             <div>
               @if (editForm.get('code')?.errors?.required) {
                 <small class="form-text text-danger">Ce champ est obligatoire.</small>
               }
               @if (editForm.get('code')?.errors?.maxlength) {
-                <small class="form-text text-danger">Ce champ ne peut pas dépasser 50
-                  caractères.</small>
+                <small class="form-text text-danger">Ce champ ne peut pas dépasser 50 caractères.</small>
               }
             </div>
           }
         </div>
 
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_libelle">Libellé<span
-            class="required">*</span></label>
-          <input
-            autocomplete="off"
-            formControlName="libelle"
-            id="field_libelle"
-            name="libelle"
-            pInputText
-            type="text"
-          />
-          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get(
-            'libelle')!.touched)) {
+          <label class="form-control-label" for="field_libelle">Libellé<span class="required">*</span></label>
+          <input autocomplete="off" formControlName="libelle" id="field_libelle" name="libelle" pInputText type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
                 <small class="form-text text-danger">Ce champ est obligatoire.</small>
@@ -64,19 +42,9 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label class="form-control-label" for="field_order">Ordre<span
-            class="required">*</span></label>
-          <input
-            autocomplete="off"
-            formControlName="order"
-            id="field_order"
-            min="0"
-            name="order"
-            pInputText
-            type="number"
-          />
-          @if (editForm.get('order')!.invalid && (editForm.get('order')!.dirty || editForm.get(
-            'order')!.touched)) {
+          <label class="form-control-label" for="field_order">Ordre<span class="required">*</span></label>
+          <input autocomplete="off" formControlName="order" id="field_order" min="0" name="order" pInputText type="number" />
+          @if (editForm.get('order')!.invalid && (editForm.get('order')!.dirty || editForm.get('order')!.touched)) {
             <div>
               @if (editForm.get('order')?.errors?.required) {
                 <small class="form-text text-danger">Ce champ est obligatoire.</small>
@@ -97,17 +65,10 @@
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label class="form-control-label" for="field_qrCode">QR Code (optionnel)</label>
-          <input
-            (change)="onQrCodeSelect($event)"
-            accept="image/*"
-            class="form-control"
-            id="field_qrCode"
-            type="file"
-          />
+          <input (change)="onQrCodeSelect($event)" accept="image/*" class="form-control" id="field_qrCode" type="file" />
           @if (qrCodePreview) {
             <div class="mt-2">
-              <img [src]="qrCodePreview" alt="QR Code Preview" class="img-thumbnail"
-                   style="max-height: 200px" />
+              <img [src]="qrCodePreview" alt="QR Code Preview" class="img-thumbnail" style="max-height: 200px" />
               <p-button
                 (click)="onQrCodeRemove()"
                 [raised]="true"
@@ -120,8 +81,7 @@
               ></p-button>
             </div>
           }
-          <small class="form-text text-muted">Image du QR code pour les paiements mobiles (PNG, JPG,
-            max 1MB)</small>
+          <small class="form-text text-muted">Image du QR code pour les paiements mobiles (PNG, JPG, max 1MB)</small>
         </div>
       </div>
     </p-card>

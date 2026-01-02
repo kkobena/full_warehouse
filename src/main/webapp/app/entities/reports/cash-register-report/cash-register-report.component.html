@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar ">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-calculator"></i>
       <span class="pharma-toolbar-title">Rapport de Caisse</span>
@@ -28,12 +28,7 @@
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Exporter PDF"
-            icon="pi pi-file-pdf"
-            severity="warn"
-            (onClick)="exportToPdf()"
-          />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -84,13 +79,7 @@
   <div class="mt-3">
     <div class="card h-100 data-card">
       <div class="card-body">
-        <p-table
-          [value]="dailyReports()"
-          [loading]="isLoading()"
-          [rowHover]="true"
-          [scrollable]="true"
-          class="pharma-table"
-        >
+        <p-table [value]="dailyReports()" [loading]="isLoading()" [rowHover]="true" [scrollable]="true" class="pharma-table">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>Caisse</th>

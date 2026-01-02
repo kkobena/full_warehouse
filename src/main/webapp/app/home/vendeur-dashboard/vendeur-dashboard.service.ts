@@ -70,7 +70,7 @@ export class VendeurDashboardService {
   /**
    * Get top products sold by this seller
    */
-  getTopProduits(limit: number = 10): Observable<TopProduitsVendeurResponseType> {
+  getTopProduits(limit = 10): Observable<TopProduitsVendeurResponseType> {
     return this.http.get<ITopProduitVendeur[]>(`${this.resourceUrl}/top-produits`, {
       params: { limit: limit.toString() },
       observe: 'response',
@@ -80,7 +80,7 @@ export class VendeurDashboardService {
   /**
    * Get recent sales by this seller
    */
-  getVentesRecentes(limit: number = 10): Observable<VentesRecentesVendeurResponseType> {
+  getVentesRecentes(limit = 10): Observable<VentesRecentesVendeurResponseType> {
     return this.http.get<IVenteRecenteVendeur[]>(`${this.resourceUrl}/ventes-recentes`, {
       params: { limit: limit.toString() },
       observe: 'response',
@@ -104,7 +104,7 @@ export class VendeurDashboardService {
   /**
    * Get loyal clients
    */
-  getClientsFideles(limit: number = 10): Observable<ClientsFidelesResponseType> {
+  getClientsFideles(limit = 10): Observable<ClientsFidelesResponseType> {
     return this.http.get<IClientFidele[]>(`${this.resourceUrl}/clients-fideles`, {
       params: { limit: limit.toString() },
       observe: 'response',

@@ -1,9 +1,7 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-interface TableRow {
-  [key: string]: any;
-}
+type TableRow = Record<string, any>;
 
 @Component({
   selector: 'jhi-table-widget',
@@ -83,7 +81,7 @@ interface TableRow {
 export class TableWidgetComponent implements OnInit {
   @Input() config: any;
 
-  columns = signal<Array<{ field: string; header: string; type?: string }>>([]);
+  columns = signal<{ field: string; header: string; type?: string }[]>([]);
   rows = signal<TableRow[]>([]);
 
   ngOnInit(): void {

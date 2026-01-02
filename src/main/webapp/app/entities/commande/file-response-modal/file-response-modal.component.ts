@@ -18,7 +18,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
   styleUrls: ['../../common-modal.component.scss'],
 })
 export class FileResponseModalComponent {
-  header: string = '';
+  header = '';
   commandeSelected: ICommande | null = null;
 
   private readonly commandeService = inject(CommandeService);

@@ -33,7 +33,7 @@ export class SemoisConfiguration implements ISemoisConfiguration {
     public stockObjectifCalcule?: number,
     public dateDernierCalcul?: Date,
     public createdAt?: Date,
-    public updatedAt?: Date
+    public updatedAt?: Date,
   ) {
     this.limitePeremption = this.limitePeremption ?? false;
     this.facteurSaisonnierActuel = this.facteurSaisonnierActuel ?? 1.0;

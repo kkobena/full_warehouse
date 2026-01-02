@@ -57,22 +57,19 @@ export class ConfigurationService {
     return this.http.put(this.resourceUrl, app, { observe: 'response' });
   }
 
-
-
-
   getSimpleSaleConfig(): Observable<boolean> {
     return new Observable<boolean>(observer => {
       this.find('use-simple-sale').subscribe({
         next: res => {
           if (res.body) {
             this.storeParamByKey('use-simple-sale', res.body);
-            observer.next(Number(res.body.value) ==1);
+            observer.next(Number(res.body.value) == 1);
           } else {
             observer.next(false);
           }
           observer.complete();
         },
-        error: () => {
+        error() {
           observer.next(false);
           observer.complete();
         },

@@ -40,7 +40,7 @@ export class ABCParetoReportService {
   /**
    * Get top N products by revenue contribution
    */
-  getTopRevenueContributors(limit: number = 20): Observable<EntityArrayResponseType> {
+  getTopRevenueContributors(limit = 20): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('limit', limit.toString());
     return this.http.get<IABCPareto[]>(`${this.resourceUrl}/top`, { params, observe: 'response' });
   }

@@ -8,19 +8,12 @@
     <p-card>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
-        <div [hidden]="!editForm.get('id')!.value" class="form-group">
-          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-        </div>
-        <div class="form-field form-field-full">
+          <div [hidden]="!editForm.get('id')!.value" class="form-group">
+            <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+          </div>
+          <div class="form-field form-field-full">
             <label for="field_libelle">Libellé<span class="required">*</span></label>
-              <input
-                #libelleInput
-                autocomplete="off" class="w-full"
-                formControlName="libelle"
-                id="field_libelle"
-                name="libelle"
-                pInputText
-              />
+            <input #libelleInput autocomplete="off" class="w-full" formControlName="libelle" id="field_libelle" name="libelle" pInputText />
 
             @let libelle = editForm.get('libelle');
             @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
@@ -31,24 +24,20 @@
               </div>
             }
           </div>
+        </div>
 
-
-
-      </div>
-
-
-      <div class="form-field form-field-full">
+        <div class="form-field form-field-full">
           <label for="field_code">Code<span class="required">*</span></label>
-            <input
-              autocomplete="off"
-              class="w-full"
-              formControlName="code"
-              id="field_code"
-              name="code"
-              pInputText
-              pKeyFilter="alphanum"
-              type="text"
-            />
+          <input
+            autocomplete="off"
+            class="w-full"
+            formControlName="code"
+            id="field_code"
+            name="code"
+            pInputText
+            pKeyFilter="alphanum"
+            type="text"
+          />
 
           @let code = editForm.get('code');
           @if (code!.invalid && (code!.dirty || code!.touched)) {
@@ -59,40 +48,38 @@
             </div>
           }
         </div>
-      <div class="form-field form-field-full">
+        <div class="form-field form-field-full">
           <label for="field_groupeFournisseur">Groupe</label>
 
-            <p-select
-              class="w-full"
-              [options]="groupes"
-              formControlName="groupeFournisseurId"
-              id="field_groupeFournisseur"
-              name="groupeFournisseurId"
-              optionLabel="libelle"
-              optionValue="id"
-              placeholder="Séléctionner un groupe "
-              size="large"
-            >
-            </p-select>
-      </div>
-      <div class="form-field form-field-full">
+          <p-select
+            class="w-full"
+            [options]="groupes"
+            formControlName="groupeFournisseurId"
+            id="field_groupeFournisseur"
+            name="groupeFournisseurId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Séléctionner un groupe "
+            size="large"
+          >
+          </p-select>
+        </div>
+        <div class="form-field form-field-full">
           <label for="field_mobile">Mobile</label>
 
-            <input
-              autocomplete="off"
-              class="w-full"
-              formControlName="mobile"
-              id="field_mobile"
-              name="mobile"
-              pInputText
-              pKeyFilter="int"
-              type="text"
-            />
-
-
-      </div>
-      <div class="form-field form-field-full">
-        <label for="field_addresspostale">Adresse postale</label>
+          <input
+            autocomplete="off"
+            class="w-full"
+            formControlName="mobile"
+            id="field_mobile"
+            name="mobile"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
+        </div>
+        <div class="form-field form-field-full">
+          <label for="field_addresspostale">Adresse postale</label>
 
           <input
             autocomplete="off"
@@ -103,7 +90,8 @@
             pInputText
             type="text"
           />
-      </div></div>
+        </div>
+      </div>
     </p-card>
   </div>
 

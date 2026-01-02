@@ -35,7 +35,7 @@ import { Select } from 'primeng/select';
   ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   entity?: IGroupeTiersPayant;
   protected ordreTrisFacture: OrdreTrisFacture[] = [];
   protected isSaving = false;

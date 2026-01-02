@@ -11,7 +11,7 @@ export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | '
   templateUrl: './cta.component.html',
 })
 export class CtaComponent {
-  click = output<void>();
+  click = output();
   disabled = input<boolean>(false);
   rounded = input<boolean>(false);
   isText = input<boolean>(false);

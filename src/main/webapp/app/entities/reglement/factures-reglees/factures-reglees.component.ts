@@ -140,7 +140,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
   onPrintPdf(): void {

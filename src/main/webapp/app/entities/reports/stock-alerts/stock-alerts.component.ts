@@ -83,7 +83,7 @@ export default class StockAlertsComponent implements OnInit {
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
     this.stockAlertService.exportStockAlertsToPdf(types).subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);

@@ -14,8 +14,8 @@ export interface IStockProduit {
   produitId?: number;
   storageId?: number;
   storageName?: string;
-  storageType?: string;//libelle
-  type?: string;//code type
+  storageType?: string; // libelle
+  type?: string; // code type
   seuilMini?: number;
   stockReassort?: number;
   storage?: IStorage;
@@ -46,7 +46,6 @@ export class StockProduit implements IStockProduit {
     public storageName?: string,
     public storageType?: string,
     public seuilMini?: number,
-    public stockReassort?: number
-  ) {
-  }
+    public stockReassort?: number,
+  ) {}
 }

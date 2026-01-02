@@ -13,7 +13,7 @@ import { Card } from 'primeng/card';
 })
 export class FileUploadDialogComponent {
   private readonly activeModal = inject(NgbActiveModal);
-  accept: string = '.txt,.csv,.xls,.xlsx';
+  accept = '.txt,.csv,.xls,.xlsx';
 
   onUpload(event: FileUploadHandlerEvent): void {
     const formData: FormData = new FormData();

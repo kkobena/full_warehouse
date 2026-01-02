@@ -4,9 +4,15 @@
       <th style="width: 15%">Date</th>
       <th style="width: 15%">Référence</th>
       <th style="width: 25%">Opérateur</th>
-      <th class="text-right" style="width: 15%">Montant vente</th>
-      <th class="text-right" style="width: 15%">Montant payé</th>
-      <th class="text-right" style="width: 15%">Reste à payer</th>
+      <th class="text-right" style="width: 15%">
+        Montant vente
+      </th>
+      <th class="text-right" style="width: 15%">
+        Montant payé
+      </th>
+      <th class="text-right" style="width: 15%">
+        Reste à payer
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -37,11 +43,13 @@
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td class="datatable-footer-total-label" colspan="3">TOTAL GENERAL</td>
+      <td class="datatable-footer-total-label" colspan="3">
+        TOTAL GENERAL
+      </td>
       <td class="unit" th:text="${reportSummary.saleAmoutToString}"></td>
       <td class="unit" th:text="${reportSummary.paidAmountToString}"></td>
       <td class="unit" th:text="${reportSummary.restToString}"></td>
       <td></td>
     </tr>
   </tfoot>
-</table>
+</table>;

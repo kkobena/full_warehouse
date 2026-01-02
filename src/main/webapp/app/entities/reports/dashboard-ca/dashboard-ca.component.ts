@@ -49,11 +49,10 @@ interface PeriodOption {
     DividerModule,
     WarehouseCommonModule,
     DatePicker,
-    FloatLabel
-  ]
+    FloatLabel,
+  ],
 })
 export default class DashboardCAComponent implements OnInit, OnDestroy {
-
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('paymentChartCanvas') paymentChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('familyChartCanvas') familyChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -78,7 +77,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   periodOptions: PeriodOption[] = [
-    { label: 'Aujourd\'hui', value: 'today' },
+    { label: "Aujourd'hui", value: 'today' },
     { label: '7 derniers jours', value: 'week' },
     { label: '30 derniers jours', value: 'month' },
     { label: 'Cette année', value: 'year' },
@@ -105,7 +104,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       next: (res: HttpResponse<IDashboardCASummary>) => {
         this.summary.set(res.body);
       },
-      error: () => {
+      error() {
         console.error('Error loading summary');
       },
     });
@@ -120,7 +119,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
           this.createEvolutionChart(res.body);
         }
       },
-      error: () => {
+      error() {
         console.error('Error loading evolution data');
       },
     });
@@ -132,7 +131,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
         this.paymentMethodData.set(data);
         this.createPaymentChart(data);
       },
-      error: () => {
+      error() {
         console.error('Error loading payment method data');
       },
     });
@@ -144,7 +143,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
         this.productFamilyData.set(data);
         this.createFamilyChart(data);
       },
-      error: () => {
+      error() {
         console.error('Error loading product family data');
       },
     });
@@ -177,7 +176,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       next: () => {
         this.loadDashboard();
       },
-      error: () => {
+      error() {
         console.error('Error refreshing views');
       },
     });
@@ -186,7 +185,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   exportToPdf(): void {
     const { start, end } = this.getDateRange();
     this.dashboardCAService.exportDashboardToPdf(start, end).subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -197,7 +196,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -255,7 +254,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
           },
           title: {
             display: true,
-            text: 'Évolution du Chiffre d\'Affaires',
+            text: "Évolution du Chiffre d'Affaires",
           },
         },
         scales: {
@@ -488,10 +487,14 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     this.dashboardCAService.exportDailySummaryToExcel(startDate, endDate).subscribe({
       next: (res: HttpResponse<Blob>) => {
         if (res.body) {
-          this.downloadFile(res.body, `dashboard_ca_${startDate}_${endDate}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          this.downloadFile(
+            res.body,
+            `dashboard_ca_${startDate}_${endDate}.xlsx`,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          );
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting to Excel');
       },
     });
@@ -507,7 +510,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
           this.downloadFile(res.body, `dashboard_ca_${startDate}_${endDate}.csv`, 'text/csv');
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting to CSV');
       },
     });
@@ -520,10 +523,14 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     this.dashboardCAService.exportTopProductsToExcel(startDate, endDate).subscribe({
       next: (res: HttpResponse<Blob>) => {
         if (res.body) {
-          this.downloadFile(res.body, `top_products_${startDate}_${endDate}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          this.downloadFile(
+            res.body,
+            `top_products_${startDate}_${endDate}.xlsx`,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          );
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting top products to Excel');
       },
     });
@@ -539,7 +546,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
           this.downloadFile(res.body, `top_products_${startDate}_${endDate}.csv`, 'text/csv');
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting top products to CSV');
       },
     });

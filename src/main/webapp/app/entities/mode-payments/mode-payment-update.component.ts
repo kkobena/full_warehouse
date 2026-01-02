@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';

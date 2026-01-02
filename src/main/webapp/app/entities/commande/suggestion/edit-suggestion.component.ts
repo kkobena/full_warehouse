@@ -65,8 +65,8 @@ export class EditSuggestionComponent implements OnInit {
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  protected search: string = '';
-  protected searchProduit: string = '';
+  protected search = '';
+  protected searchProduit = '';
   protected page = 0;
   protected selections: SuggestionLine[] = [];
   protected index = 0;
@@ -81,7 +81,7 @@ export class EditSuggestionComponent implements OnInit {
   produits: IProduit[] = [];
   quantiteSaisie = 1;
   quantityBox = viewChild.required<ElementRef>('quantityBox');
-  //fournisseurBox = viewChild.required<any>('fournisseurBox');
+  // fournisseurBox = viewChild.required<any>('fournisseurBox');
   produitbox = viewChild.required<any>('produitbox');
   protected writableSignal = signal<Suggestion>(null);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -100,7 +100,7 @@ export class EditSuggestionComponent implements OnInit {
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
-        command: () => {},
+        command() {},
       },
     ];
   }
@@ -220,7 +220,7 @@ export class EditSuggestionComponent implements OnInit {
       });
   }
 
-  onSearch(search: string = ''): void {
+  onSearch(search = ''): void {
     this.search = search;
     if (this.index == 0) {
       this.loadPage(0);

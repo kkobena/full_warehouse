@@ -8,11 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
-import {
-  IComparativeByType,
-  IComparativeCA,
-  IComparativeSummary
-} from 'app/shared/model/report/comparative-report.model';
+import { IComparativeByType, IComparativeCA, IComparativeSummary } from 'app/shared/model/report/comparative-report.model';
 import { ComparativeReportService } from '../services/comparative-report.service';
 import { formatCurrency } from 'app/shared/utils/format-utils';
 
@@ -29,10 +25,9 @@ interface ComparisonTypeOption {
   selector: 'jhi-comparative-analysis',
   templateUrl: './comparative-analysis.component.html',
   styleUrl: './comparative-analysis.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule]
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule],
 })
 export default class ComparativeAnalysisComponent implements OnInit {
-
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('typeChartCanvas') typeChartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -53,7 +48,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
   protected comparisonTypeOptions: ComparisonTypeOption[] = [
     { label: 'Mensuel', value: 'MONTHLY' },
     { label: 'Trimestriel', value: 'QUARTERLY' },
-    { label: 'Annuel', value: 'YEARLY' }
+    { label: 'Annuel', value: 'YEARLY' },
   ];
 
   protected yearOptions: number[] = [];
@@ -77,9 +72,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
       next: (res: HttpResponse<IComparativeSummary>) => {
         this.summary.set(res.body);
       },
-      error: () => {
+      error() {
         console.error('Error loading summary');
-      }
+      },
     });
 
     // Load comparison data based on type
@@ -96,7 +91,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
         error: () => {
           this.isLoading.set(false);
           console.error('Error loading monthly comparison');
-        }
+        },
       });
     } else if (comparisonType === 'QUARTERLY') {
       this.comparativeReportService.getQuarterlyComparison(year).subscribe({
@@ -108,7 +103,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
         error: () => {
           this.isLoading.set(false);
           console.error('Error loading quarterly comparison');
-        }
+        },
       });
     } else {
       const startDate = `${year - 5}-01-01`;
@@ -122,7 +117,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
         error: () => {
           this.isLoading.set(false);
           console.error('Error loading yearly comparison');
-        }
+        },
       });
     }
 
@@ -132,9 +127,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
         this.byType.set(res.body ?? []);
         this.createTypeChart(res.body ?? []);
       },
-      error: () => {
+      error() {
         console.error('Error loading sales type comparison');
-      }
+      },
     });
   }
 
@@ -151,7 +146,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
     const year = this.selectedYear();
 
     this.comparativeReportService.exportToPdf(comparisonType, year).subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -162,9 +157,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
-      }
+      },
     });
   }
 
@@ -189,14 +184,14 @@ export default class ComparativeAnalysisComponent implements OnInit {
         {
           label: 'CA Actuel',
           data: data.map(d => d.currentCA ?? 0),
-          backgroundColor: '#2196F3'
+          backgroundColor: '#2196F3',
         },
         {
           label: 'CA Précédent',
           data: data.map(d => d.previousCA ?? 0),
-          backgroundColor: '#FF9800'
-        }
-      ]
+          backgroundColor: '#FF9800',
+        },
+      ],
     };
 
     const config: ChartConfiguration<'bar'> = {
@@ -206,19 +201,19 @@ export default class ComparativeAnalysisComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: {
-            position: 'top'
+            position: 'top',
           },
           title: {
             display: true,
-            text: 'Évolution Comparative du CA'
-          }
+            text: 'Évolution Comparative du CA',
+          },
         },
         scales: {
           y: {
-            beginAtZero: true
-          }
-        }
-      }
+            beginAtZero: true,
+          },
+        },
+      },
     };
 
     this.evolutionChart = new Chart(ctx, config);
@@ -245,14 +240,14 @@ export default class ComparativeAnalysisComponent implements OnInit {
         {
           label: `CA ${year}`,
           data: data.map(d => d.currentYearCA ?? 0),
-          backgroundColor: '#4CAF50'
+          backgroundColor: '#4CAF50',
         },
         {
           label: `CA ${year - 1}`,
           data: data.map(d => d.previousYearCA ?? 0),
-          backgroundColor: '#9C27B0'
-        }
-      ]
+          backgroundColor: '#9C27B0',
+        },
+      ],
     };
 
     const config: ChartConfiguration<'bar'> = {
@@ -262,14 +257,14 @@ export default class ComparativeAnalysisComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: {
-            position: 'top'
+            position: 'top',
           },
           title: {
             display: true,
-            text: 'CA par Type de Vente'
-          }
-        }
-      }
+            text: 'CA par Type de Vente',
+          },
+        },
+      },
     };
 
     this.typeChart = new Chart(ctx, config);
@@ -292,7 +287,7 @@ export default class ComparativeAnalysisComponent implements OnInit {
       sign +
       new Intl.NumberFormat('fr-FR', {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
       }).format(value)
     );
   }

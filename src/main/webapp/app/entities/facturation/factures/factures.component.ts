@@ -211,7 +211,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
         command: () => this.exportPdf(null),
-      } /*,
+      } /* ,
       {
         label: 'Excel',
         icon: PrimeIcons.FILE_EXCEL

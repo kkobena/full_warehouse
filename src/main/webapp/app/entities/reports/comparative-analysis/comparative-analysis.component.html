@@ -17,7 +17,8 @@
             appendTo="body"
             (onChange)="onComparisonTypeChange()"
             [style]="{ 'min-width': '180px' }"
-            placeholder="Type de comparaison" />
+            placeholder="Type de comparaison"
+          />
 
           <p-select
             [(ngModel)]="selectedYear"
@@ -25,7 +26,8 @@
             appendTo="body"
             (onChange)="onYearChange()"
             [style]="{ 'min-width': '120px' }"
-            placeholder="Année" />
+            placeholder="Année"
+          />
         </div>
       </ng-template>
 
@@ -39,8 +41,8 @@
 
   <!-- Loading spinner -->
   @if (isLoading()) {
-    <div class="flex justify-content-center align-items-center" style="min-height: 400px;">
-      <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    <div class="flex justify-content-center align-items-center" style="min-height: 400px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
   } @else {
     <!-- Summary Cards -->
@@ -58,7 +60,10 @@
                   </h4>
                   <div class="kpi-badges">
                     <span
-                      [class]="'badge ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      [class]="
+                        'badge ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
+                      "
+                    >
                       <i [class]="'pi ' + ((sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.ytdEvolutionPct) }}%
                     </span>
@@ -85,7 +90,11 @@
                   </h4>
                   <div class="kpi-badges">
                     <span
-                      [class]="'badge ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      [class]="
+                        'badge ' +
+                        ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
+                      "
+                    >
                       <i [class]="'pi ' + ((sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.last12MonthsEvolutionPct) }}%
                     </span>
@@ -189,7 +198,7 @@
           <div class="card-body p-0">
             @if (comparisons().length === 0) {
               <div class="text-center p-4">
-                <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                 <p class="mt-3 text-muted">Aucune donnée pour cette période</p>
               </div>
             } @else {
@@ -209,9 +218,7 @@
                         <td class="fw-medium">{{ comp.periodLabel }}</td>
                         <td class="text-end">{{ formatCurrency(comp.currentCA) }}</td>
                         <td class="text-end">{{ formatCurrency(comp.previousCA) }}</td>
-                        <td class="text-end" [ngClass]="getEvolutionClass(comp.evolutionPct)">
-                          {{ formatPercent(comp.evolutionPct) }}%
-                        </td>
+                        <td class="text-end" [ngClass]="getEvolutionClass(comp.evolutionPct)">{{ formatPercent(comp.evolutionPct) }}%</td>
                       </tr>
                     }
                   </tbody>
@@ -236,7 +243,7 @@
           <div class="card-body p-0">
             @if (byType().length === 0) {
               <div class="text-center p-4">
-                <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                 <p class="mt-3 text-muted">Aucune donnée disponible</p>
               </div>
             } @else {
@@ -258,9 +265,7 @@
                         <td class="fw-medium">{{ type.saleTypeLabel }}</td>
                         <td class="text-end">{{ formatCurrency(type.currentYearCA) }}</td>
                         <td class="text-end">{{ formatCurrency(type.previousYearCA) }}</td>
-                        <td class="text-end" [ngClass]="getEvolutionClass(type.evolutionPct)">
-                          {{ formatPercent(type.evolutionPct) }}%
-                        </td>
+                        <td class="text-end" [ngClass]="getEvolutionClass(type.evolutionPct)">{{ formatPercent(type.evolutionPct) }}%</td>
                         <td class="text-end">{{ type.currentYearCount }}</td>
                         <td class="text-end">{{ type.previousYearCount }}</td>
                       </tr>

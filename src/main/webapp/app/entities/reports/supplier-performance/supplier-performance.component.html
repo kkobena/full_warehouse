@@ -1,5 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <div class="pharma-toolbar ">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-users"></i>
       <span class="pharma-toolbar-title">Performance des Fournisseurs</span>
@@ -18,38 +18,15 @@
             optionValue="value"
             (onChange)="onFilterChange()"
           />
-          <input
-            type="text"
-            pInputText
-            [(ngModel)]="searchText"
-            placeholder="Rechercher..."
-            style="width: 250px"
-          />
+          <input type="text" pInputText [(ngModel)]="searchText" placeholder="Rechercher..." style="width: 250px" />
         </div>
       </ng-template>
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Aide"
-            icon="pi pi-question-circle"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="toggleHelpDrawer()"
-          />
-          <p-button
-            label="Exporter PDF"
-            icon="pi pi-file-pdf"
-            severity="warn"
-            (onClick)="exportToPdf()"
-            [loading]="isLoading()"
-          />
-          <p-button
-            label="Rafraîchir"
-            icon="pi pi-refresh"
-            severity="secondary"
-            (onClick)="loadData()"
-          />
+          <p-button label="Aide" icon="pi pi-question-circle" severity="secondary" [outlined]="true" (onClick)="toggleHelpDrawer()" />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" [loading]="isLoading()" />
+          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="secondary" (onClick)="loadData()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -233,7 +210,9 @@
               <ng-template #body let-supplier>
                 <tr>
                   <td>{{ supplier.fournisseurCode }}</td>
-                  <td><strong>{{ supplier.fournisseurName }}</strong></td>
+                  <td>
+                    <strong>{{ supplier.fournisseurName }}</strong>
+                  </td>
                   <td>
                     @if (supplier.phone) {
                       <div><i class="pi pi-phone me-1"></i>{{ supplier.phone }}</div>
@@ -253,7 +232,7 @@
                       [ngClass]="{
                         'bg-success-subtle text-success': (supplier.avgDeliveryDays || 999) <= 7,
                         'bg-warning-subtle text-warning': (supplier.avgDeliveryDays || 999) > 7 && (supplier.avgDeliveryDays || 999) <= 14,
-                        'bg-danger-subtle text-danger': (supplier.avgDeliveryDays || 999) > 14
+                        'bg-danger-subtle text-danger': (supplier.avgDeliveryDays || 999) > 14,
                       }"
                     >
                       {{ formatNumber(supplier.avgDeliveryDays) }}j
@@ -265,7 +244,7 @@
                       [ngClass]="{
                         'bg-success-subtle text-success': (supplier.conformityRatePct || 0) >= 95,
                         'bg-warning-subtle text-warning': (supplier.conformityRatePct || 0) >= 85 && (supplier.conformityRatePct || 0) < 95,
-                        'bg-danger-subtle text-danger': (supplier.conformityRatePct || 0) < 85
+                        'bg-danger-subtle text-danger': (supplier.conformityRatePct || 0) < 85,
                       }"
                     >
                       {{ formatDecimal(supplier.conformityRatePct, 1) }}%
@@ -278,7 +257,7 @@
                       [ngClass]="{
                         'bg-success-subtle text-success': (supplier.performanceScore || 0) >= 70,
                         'bg-warning-subtle text-warning': (supplier.performanceScore || 0) >= 50 && (supplier.performanceScore || 0) < 70,
-                        'bg-danger-subtle text-danger': (supplier.performanceScore || 0) < 50
+                        'bg-danger-subtle text-danger': (supplier.performanceScore || 0) < 50,
                       }"
                     >
                       {{ formatDecimal(supplier.performanceScore, 1) }}
@@ -290,7 +269,7 @@
               <ng-template #emptymessage>
                 <tr>
                   <td colspan="10" class="text-center p-4">
-                    <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucun fournisseur trouvé</p>
                   </td>
                 </tr>
@@ -306,7 +285,7 @@
   <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
-        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide d'utilisation - Performance Fournisseurs</span>
       </div>
     </ng-template>
@@ -314,13 +293,11 @@
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2">
-          <i class="pi pi-info-circle me-2"></i>Pourquoi évaluer la performance des fournisseurs ?
-        </h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Pourquoi évaluer la performance des fournisseurs ?</h6>
         <p class="text-sm text-muted">
-          L'évaluation des fournisseurs permet d'<strong>optimiser votre chaîne d'approvisionnement</strong>,
-          de <strong>réduire les risques de rupture</strong>, d'<strong>améliorer la qualité des produits reçus</strong>
-          et de <strong>négocier de meilleures conditions</strong> avec vos partenaires stratégiques.
+          L'évaluation des fournisseurs permet d'<strong>optimiser votre chaîne d'approvisionnement</strong>, de
+          <strong>réduire les risques de rupture</strong>, d'<strong>améliorer la qualité des produits reçus</strong> et de
+          <strong>négocier de meilleures conditions</strong> avec vos partenaires stratégiques.
         </p>
       </div>
 
@@ -328,33 +305,23 @@
 
       <!-- Score de performance -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-star me-2"></i>Score de Performance (sur 100)
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-star me-2"></i>Score de Performance (sur 100)</h6>
 
-        <p class="text-sm text-muted mb-3">
-          Le score global prend en compte plusieurs critères pondérés :
-        </p>
+        <p class="text-sm text-muted mb-3">Le score global prend en compte plusieurs critères pondérés :</p>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <p class="fw-bold mb-2">Performance Excellente (Score ≥ 70)</p>
-          <p class="text-sm mb-0">
-            Fournisseurs fiables, respect des délais, bonne conformité. À privilégier et fidéliser.
-          </p>
+          <p class="text-sm mb-0">Fournisseurs fiables, respect des délais, bonne conformité. À privilégier et fidéliser.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <p class="fw-bold mb-2">Performance Moyenne (50 ≤ Score < 70)</p>
-          <p class="text-sm mb-0">
-            Fournisseurs acceptables mais à surveiller. Possibilité d'amélioration par négociation.
-          </p>
+          <p class="text-sm mb-0">Fournisseurs acceptables mais à surveiller. Possibilité d'amélioration par négociation.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #FFEBEE; border-left: 4px solid #F44336;">
+        <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #f44336">
           <p class="fw-bold mb-2">Performance Faible (Score < 50)</p>
-          <p class="text-sm mb-0">
-            Problèmes récurrents. Envisager un plan d'action ou rechercher des alternatives.
-          </p>
+          <p class="text-sm mb-0">Problèmes récurrents. Envisager un plan d'action ou rechercher des alternatives.</p>
         </div>
 
         <div class="alert alert-info mt-3">
@@ -369,9 +336,7 @@
 
       <!-- Métriques clés -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Délai Moyen de Livraison</p>
@@ -408,8 +373,7 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">Volume d'Achats 12 Mois</p>
           <p class="text-sm text-muted mb-2">
-            Montant total des achats sur l'année écoulée. Permet d'identifier vos fournisseurs stratégiques
-            et votre pouvoir de négociation.
+            Montant total des achats sur l'année écoulée. Permet d'identifier vos fournisseurs stratégiques et votre pouvoir de négociation.
           </p>
         </div>
 
@@ -425,46 +389,44 @@
 
       <!-- Exploitation -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-lightbulb me-2"></i>Comment exploiter ce rapport
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter ce rapport</h6>
 
-        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+        <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Identifier les fournisseurs stratégiques</p>
             <p class="text-xs text-muted mb-0">
-              Utilisez le filtre "Top 10 par volume" pour identifier vos principaux fournisseurs.
-              Concentrez vos efforts de négociation et de relation sur ces partenaires clés.
+              Utilisez le filtre "Top 10 par volume" pour identifier vos principaux fournisseurs. Concentrez vos efforts de négociation et
+              de relation sur ces partenaires clés.
             </p>
           </div>
         </div>
 
-        <div class="card mb-2" style="border-left: 3px solid #2196F3;">
+        <div class="card mb-2" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Optimiser les délais de livraison</p>
             <p class="text-xs text-muted mb-0">
-              Pour les fournisseurs avec délais > 14 jours : négociez des délais plus courts,
-              commandez en plus grandes quantités pour espacer les commandes, ou trouvez un fournisseur alternatif.
+              Pour les fournisseurs avec délais > 14 jours : négociez des délais plus courts, commandez en plus grandes quantités pour
+              espacer les commandes, ou trouvez un fournisseur alternatif.
             </p>
           </div>
         </div>
 
-        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+        <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Améliorer la conformité</p>
             <p class="text-xs text-muted mb-0">
-              Pour les fournisseurs avec conformité < 95% : rencontre pour discuter des problèmes,
-              mise en place d'un plan d'action qualité, ou recherche d'alternatives si pas d'amélioration.
+              Pour les fournisseurs avec conformité < 95% : rencontre pour discuter des problèmes, mise en place d'un plan d'action qualité,
+              ou recherche d'alternatives si pas d'amélioration.
             </p>
           </div>
         </div>
 
-        <div class="card" style="border-left: 3px solid #F44336;">
+        <div class="card" style="border-left: 3px solid #f44336">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Diversifier les sources d'approvisionnement</p>
             <p class="text-xs text-muted mb-0">
-              Si un seul fournisseur concentre > 40% de vos achats, vous êtes en situation de dépendance.
-              Identifiez des fournisseurs alternatifs pour réduire le risque.
+              Si un seul fournisseur concentre > 40% de vos achats, vous êtes en situation de dépendance. Identifiez des fournisseurs
+              alternatifs pour réduire le risque.
             </p>
           </div>
         </div>
@@ -474,36 +436,34 @@
 
       <!-- Exemples pratiques -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-book me-2"></i>Exemples d'actions concrètes
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples d'actions concrètes</h6>
 
-        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+        <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M FCFA/an</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise de fidélité,
-              proposez un contrat annuel avec engagement de volumes pour sécuriser les approvisionnements.
+              <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise de fidélité, proposez un contrat annuel
+              avec engagement de volumes pour sécuriser les approvisionnements.
             </p>
           </div>
         </div>
 
-        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+        <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">Cas 2 : Fournisseur délai 20j, conformité 75%</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Organisez une réunion pour expliquer les problèmes. Demandez un plan d'action
-              avec échéances. Si pas d'amélioration sous 3 mois, cherchez un remplaçant.
+              <strong>Action :</strong> Organisez une réunion pour expliquer les problèmes. Demandez un plan d'action avec échéances. Si pas
+              d'amélioration sous 3 mois, cherchez un remplaçant.
             </p>
           </div>
         </div>
 
-        <div class="card" style="border-left: 3px solid #2196F3;">
+        <div class="card" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">Cas 3 : 15 commandes en 30j chez même fournisseur</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Trop de commandes = perte de temps et coûts administratifs.
-              Regroupez vos commandes (1-2 par semaine max) pour optimiser la logistique.
+              <strong>Action :</strong> Trop de commandes = perte de temps et coûts administratifs. Regroupez vos commandes (1-2 par semaine
+              max) pour optimiser la logistique.
             </p>
           </div>
         </div>
@@ -511,9 +471,7 @@
 
       <!-- Filtres utiles -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement</h6>
 
         <ul class="text-sm text-muted ps-3">
           <li><strong>Top 10 par volume :</strong> Identifiez vos fournisseurs stratégiques</li>
@@ -525,9 +483,7 @@
 
       <!-- Bonnes pratiques -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-check-circle me-2"></i>Bonnes pratiques
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Bonnes pratiques</h6>
 
         <ul class="text-sm text-muted ps-3">
           <li>Révisez ce rapport trimestriellement pour suivre l'évolution des fournisseurs</li>

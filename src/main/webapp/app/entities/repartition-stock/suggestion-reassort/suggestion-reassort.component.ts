@@ -19,10 +19,10 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.component.scss'],
   imports: [CommonModule, TableModule, ButtonModule, TagModule, InputNumber, FormsModule, ToastModule, ConfirmDialogModule, Tooltip],
-  providers: [ConfirmationService, MessageService]
+  providers: [ConfirmationService, MessageService],
 })
 export class SuggestionReassortComponent implements OnInit {
-  //TODO: remplacer par signal inputs quand angular 20+ sera la norme
+  // TODO: remplacer par signal inputs quand angular 20+ sera la norme
   @Input() typeReassort = 'RAYON';
   @ViewChildren('qtyInput') qtyInputs!: QueryList<ElementRef>;
 
@@ -32,7 +32,7 @@ export class SuggestionReassortComponent implements OnInit {
 
   protected suggestions: ISuggestionReassort[] = [];
   protected loading = false;
-  protected clonedLines: { [s: number]: ILigneReassort } = {};
+  protected clonedLines: Record<number, ILigneReassort> = {};
   protected currentEditingRow = -1;
 
   ngOnInit(): void {
@@ -48,7 +48,7 @@ export class SuggestionReassortComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -74,7 +74,7 @@ export class SuggestionReassortComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'La quantité ne peut pas dépasser le stock disponible'
+          detail: 'La quantité ne peut pas dépasser le stock disponible',
         });
         this.onRowEditCancel(ligne, -1);
         return;
@@ -82,12 +82,12 @@ export class SuggestionReassortComponent implements OnInit {
 
       this.repartitionService.updateLigneQuantity(ligne.id, ligne.quantity).subscribe({
         next: () => {
-          delete this.clonedLines[ligne.id!];
+          delete this.clonedLines[ligne.id];
           this.currentEditingRow = -1;
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
-            detail: 'Quantité mise à jour'
+            detail: 'Quantité mise à jour',
           });
 
           // Move to next row if requested
@@ -100,9 +100,9 @@ export class SuggestionReassortComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: 'Erreur lors de la mise à jour'
+            detail: 'Erreur lors de la mise à jour',
           });
-        }
+        },
       });
     }
   }
@@ -131,7 +131,7 @@ export class SuggestionReassortComponent implements OnInit {
       this.onRowEditSave(ligne, false);
       if (rowIndex < totalRows - 1) {
         setTimeout(() => {
-          const nextLigne = suggestion.ligneReassorts![rowIndex + 1];
+          const nextLigne = suggestion.ligneReassorts[rowIndex + 1];
           this.onRowEditInit(nextLigne, rowIndex + 1);
         }, 200);
       }
@@ -141,7 +141,7 @@ export class SuggestionReassortComponent implements OnInit {
       this.onRowEditSave(ligne, false);
       if (rowIndex > 0) {
         setTimeout(() => {
-          const prevLigne = suggestion.ligneReassorts![rowIndex - 1];
+          const prevLigne = suggestion.ligneReassorts[rowIndex - 1];
           this.onRowEditInit(prevLigne, rowIndex - 1);
         }, 200);
       }
@@ -184,19 +184,19 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Ligne supprimée'
+                detail: 'Ligne supprimée',
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la suppression'
+                detail: 'Erreur lors de la suppression',
               });
-            }
+            },
           });
         }
-      }
+      },
     });
   }
 
@@ -214,7 +214,7 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Suggestion validée et stock déplacé'
+                detail: 'Suggestion validée et stock déplacé',
               });
               this.loadSuggestions();
             },
@@ -222,12 +222,12 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la validation'
+                detail: 'Erreur lors de la validation',
               });
-            }
+            },
           });
         }
-      }
+      },
     });
   }
 
@@ -246,19 +246,19 @@ export class SuggestionReassortComponent implements OnInit {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',
-                detail: 'Suggestion supprimée'
+                detail: 'Suggestion supprimée',
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Erreur',
-                detail: 'Erreur lors de la suppression'
+                detail: 'Erreur lors de la suppression',
               });
-            }
+            },
           });
         }
-      }
+      },
     });
   }
 }

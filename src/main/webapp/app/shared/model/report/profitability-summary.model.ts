@@ -36,6 +36,6 @@ export class ProfitabilitySummary implements IProfitabilitySummary {
     public margeStars?: number,
     public margeCashCows?: number,
     public margeQuestionMarks?: number,
-    public margeDogs?: number
+    public margeDogs?: number,
   ) {}
 }

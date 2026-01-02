@@ -1,41 +1,41 @@
-import {Component, inject, OnInit, viewChild} from '@angular/core';
-import {Router, RouterModule, ActivatedRoute} from '@angular/router';
-import {NgbModal, NgbNavChangeEvent} from '@ng-bootstrap/ng-bootstrap';
-import {ICommande} from 'app/shared/model/commande.model';
-import {CommandeImportResponseDialogComponent} from './commande-import-response-dialog.component';
-import {ICommandeResponse} from '../../shared/model/commande-response.model';
-import {ImportationNewCommandeComponent} from './importation-new-commande.component';
-import {CommandeEnCoursComponent} from './commande-en-cours/commande-en-cours.component';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {FileUploadModule} from 'primeng/fileupload';
-import {CardModule} from 'primeng/card';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ToolbarModule} from 'primeng/toolbar';
-import {InputTextModule} from 'primeng/inputtext';
-import {PanelModule} from 'primeng/panel';
-import {CommandCommonService} from './command-common.service';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {BonEnCoursComponent} from './delevery/bon-en-cours/bon-en-cours.component';
-import {ListBonsComponent} from './delevery/list-bons/list-bons.component';
-import {SuggestionComponent} from './suggestion/suggestion.component';
-import {FournisseurService} from '../fournisseur/fournisseur.service';
-import {HttpResponse} from '@angular/common/http';
-import {IFournisseur} from '../../shared/model/fournisseur.model';
-import {Select} from 'primeng/select';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {ConfirmDialogComponent} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import {RetourBonListComponent} from './retour_fournisseur/retour-bon-list.component';
-import {DatePicker} from 'primeng/datepicker';
-import {FloatLabel} from 'primeng/floatlabel';
-import {RetourBonStatut} from '../../shared/model/enumerations/retour-bon-statut.model';
-import {TranslateService} from '@ngx-translate/core';
-import {PrimeNG} from 'primeng/config';
-import {RepartitionStockComponent} from '../repartition-stock/repartition-stock.component';
-import {ClasseCriticite} from '../../shared/model/semois';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { ICommande } from 'app/shared/model/commande.model';
+import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
+import { ICommandeResponse } from '../../shared/model/commande-response.model';
+import { ImportationNewCommandeComponent } from './importation-new-commande.component';
+import { CommandeEnCoursComponent } from './commande-en-cours/commande-en-cours.component';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { FileUploadModule } from 'primeng/fileupload';
+import { CardModule } from 'primeng/card';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { PanelModule } from 'primeng/panel';
+import { CommandCommonService } from './command-common.service';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { BonEnCoursComponent } from './delevery/bon-en-cours/bon-en-cours.component';
+import { ListBonsComponent } from './delevery/list-bons/list-bons.component';
+import { SuggestionComponent } from './suggestion/suggestion.component';
+import { FournisseurService } from '../fournisseur/fournisseur.service';
+import { HttpResponse } from '@angular/common/http';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { Select } from 'primeng/select';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { RetourBonListComponent } from './retour_fournisseur/retour-bon-list.component';
+import { DatePicker } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
+import { RetourBonStatut } from '../../shared/model/enumerations/retour-bon-statut.model';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { RepartitionStockComponent } from '../repartition-stock/repartition-stock.component';
+import { ClasseCriticite } from '../../shared/model/semois';
 
 @Component({
   selector: 'jhi-commande',
@@ -82,44 +82,44 @@ export class CommandeComponent implements OnInit {
   protected suggestionActiveTab = 'suggestions-commandes'; // Sub-tab actif dans suggestions
   protected typeSuggessions = [
     // { label: 'Tous', value: 'ALL' },
-    {label: 'Auto', value: 'AUTO'},
-    {label: 'Manuelle', value: 'MANUELLE'},
+    { label: 'Auto', value: 'AUTO' },
+    { label: 'Manuelle', value: 'MANUELLE' },
   ];
   protected selectedStatut: RetourBonStatut | null = null;
   protected dtStart: Date | null = null;
   protected dtEnd: Date | null = null;
   protected statutOptions = [
-    {label: 'En attente de réponse', value: RetourBonStatut.VALIDATED},
-    {label: 'Clôturé', value: RetourBonStatut.CLOSED},
+    { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
+    { label: 'Clôturé', value: RetourBonStatut.CLOSED },
   ];
 
   // Options SEMOIS
   protected semoisClasseOptions = [
-    {label: 'Toutes les classes', value: null},
-    {label: 'A+ - Produits vitaux', value: ClasseCriticite.A_PLUS},
-    {label: 'A - Forte rotation', value: ClasseCriticite.A},
-    {label: 'B - Rotation moyenne', value: ClasseCriticite.B},
-    {label: 'C - Faible rotation', value: ClasseCriticite.C},
-    {label: 'D - Très faible rotation', value: ClasseCriticite.D},
+    { label: 'Toutes les classes', value: null },
+    { label: 'A+ - Produits vitaux', value: ClasseCriticite.A_PLUS },
+    { label: 'A - Forte rotation', value: ClasseCriticite.A },
+    { label: 'B - Rotation moyenne', value: ClasseCriticite.B },
+    { label: 'C - Faible rotation', value: ClasseCriticite.C },
+    { label: 'D - Très faible rotation', value: ClasseCriticite.D },
   ];
 
   protected semoisUrgenceOptions = [
-    {label: 'Tous les niveaux', value: null},
-    {label: '🔴 Urgent (Rupture imminente)', value: 'URGENT'},
-    {label: '🟡 Normal (À commander)', value: 'NORMAL'},
-    {label: '🟢 OK (Stock optimal)', value: 'OK'},
+    { label: 'Tous les niveaux', value: null },
+    { label: '🔴 Urgent (Rupture imminente)', value: 'URGENT' },
+    { label: '🟡 Normal (À commander)', value: 'NORMAL' },
+    { label: '🟢 OK (Stock optimal)', value: 'OK' },
   ];
 
   protected commandes: ICommande[] = [];
   protected selectedFilter = 'REQUESTED';
   protected loading!: boolean;
   protected readonly menuTileAndIcon = [
-    {title: 'Commandes en cours', icon: 'pi pi-cart-plus', menuId: 'REQUESTED'},
-    {title: 'Suggestions de commandes', icon: 'pi pi-lightbulb', menuId: 'SUGGESTIONS'},
-    {title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS'},
-    {title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS'},
-    {title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR'},
-    {title: 'Pilotage des stocks', icon: 'pi pi-sync', menuId: 'REPARTITION_STOCK'},
+    { title: 'Commandes en cours', icon: 'pi pi-cart-plus', menuId: 'REQUESTED' },
+    { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb', menuId: 'SUGGESTIONS' },
+    { title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS' },
+    { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' },
+    { title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR' },
+    { title: 'Pilotage des stocks', icon: 'pi pi-sync', menuId: 'REPARTITION_STOCK' },
   ];
 
   private readonly router = inject(Router);
@@ -131,7 +131,7 @@ export class CommandeComponent implements OnInit {
   private readonly enCoursComponent = viewChild(BonEnCoursComponent);
   private readonly listBonsComponent = viewChild(ListBonsComponent);
   private readonly retourBonListComponent = viewChild(RetourBonListComponent);
-  private readonly repartitionStockComponent = viewChild('repartitionStock', {read: RepartitionStockComponent});
+  private readonly repartitionStockComponent = viewChild('repartitionStock', { read: RepartitionStockComponent });
 
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly translate = inject(TranslateService);
@@ -282,7 +282,6 @@ export class CommandeComponent implements OnInit {
     this.suggestion()?.getSemoisComponent()?.onFilterChange();
   }
 
-
   protected onSemoisHelpClick(): void {
     this.suggestion()?.getSemoisComponent()?.toggleHelpDrawer();
   }
@@ -290,7 +289,6 @@ export class CommandeComponent implements OnInit {
   protected onSemoisMassConfigClick(): void {
     this.suggestion()?.getSemoisComponent()?.openMassConfig();
   }
-
 
   protected get title(): string {
     return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';

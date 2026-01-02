@@ -5,8 +5,7 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button"
-                    icon="pi pi-arrow-left" pTooltip="Retour">
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
           </p-button>
 
           <div class="page-title">
@@ -17,36 +16,24 @@
 
         <div class="header-actions">
           <!-- Save Button -->
+          <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon" severity="primary" size="small">
+          </p-button>
+
+          <!-- Import Response Button -->
           <p-button
-            (click)="onCreateBon()"
+            [hidden]="true"
+            (click)="fileDialog = true"
             class="action-btn"
-            icon="pi pi-truck"
-            label="Créer le bon"
-            severity="primary"
+            icon="pi pi-download"
+            label="Importer"
+            severity="info"
             size="small"
           >
           </p-button>
 
-          <!-- Import Response Button -->
-          <p-button [hidden]="true"
-                    (click)="fileDialog = true"
-                    class="action-btn"
-                    icon="pi pi-download"
-                    label="Importer"
-                    severity="info"
-                    size="small">
-          </p-button>
-
           @if (selectedEl!.length > 0) {
             <!-- Delete Button -->
-            <p-button
-              (click)="confirmDeleteAll()"
-              class="action-btn"
-              icon="pi pi-times"
-              label="Supprimer"
-              severity="danger"
-              size="small"
-            >
+            <p-button (click)="confirmDeleteAll()" class="action-btn" icon="pi pi-times" label="Supprimer" severity="danger" size="small">
             </p-button>
           }
         </div>
@@ -90,7 +77,6 @@
               [dataKey]="'id'"
               [dropdown]="true"
               [emptyMessage]="PRODUIT_NOT_FOUND"
-              [forceSelection]="true"
               [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
               [showEmptyMessage]="true"
               [suggestions]="produits"
@@ -115,8 +101,7 @@
                       <span class="pharma-code me-2">{{ item.fournisseurProduit?.codeCip }}</span>
                       <span>{{ item.libelle }}</span>
                     </div>
-                    <span class="pharma-price stockless">{{ item.regularUnitPrice | number }}
-                      F</span>
+                    <span class="pharma-price stockless">{{ item.regularUnitPrice | number }} F</span>
                   </div>
                 }
               </ng-template>
@@ -154,14 +139,14 @@
             <div class="meta-item">
               <i class="pi pi-barcode"></i>
               <span
-              >CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span
+                >CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span
               >
             </div>
 
             <div class="meta-item">
               <i class="pi pi-tag"></i>
               <span
-              >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+                >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
               >
             </div>
 
@@ -169,7 +154,7 @@
               <div [class.low-stock]="produitSelected.totalQuantity < 10" class="meta-item">
                 <i class="pi pi-database"></i>
                 <span
-                >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                  >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
                 >
               </div>
             }
@@ -181,8 +166,7 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button"
-                    icon="pi pi-arrow-left" pTooltip="Retour">
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
           </p-button>
 
           <div class="page-title">
@@ -206,7 +190,7 @@
             </p-button>
 
             <!-- Import Response Button -->
-              <!-- <p-button
+            <!-- <p-button
                 (click)="fileDialog = true"
                 [outlined]="true"
                 class="action-btn"
@@ -230,8 +214,7 @@
           }
 
           <!-- Export Splitbutton -->
-          <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export"
-                         label="Exporter" severity="warn" size="small">
+          <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small">
           </p-splitbutton>
 
           @if (!isReceiption && selectedEl!.length > 0) {
@@ -247,8 +230,6 @@
             >
             </p-button>
           }
-
-
         </div>
       </div>
 
@@ -362,8 +343,7 @@
         </div>
       }
 
-      <div
-        [ngClass]="isReceiption ? 'col-md-9 col-sm-12 col-lg-9 col-xl-9' : 'col-md-12 col-sm-12 col-lg-12 col-xl-12'">
+      <div [ngClass]="isReceiption ? 'col-md-9 col-sm-12 col-lg-9 col-xl-9' : 'col-md-12 col-sm-12 col-lg-12 col-xl-12'">
         @if (commande) {
           <p-table
             [(selection)]="selectedEl"
@@ -455,9 +435,7 @@
                     </p-cellEditor>
                   </td>
                 } @else {
-                  <td
-                    class="amount-td-column pharma-price">{{ orderLine.orderCostAmount | number }}
-                  </td>
+                  <td class="amount-td-column pharma-price">{{ orderLine.orderCostAmount | number }}</td>
                 }
 
                 <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
@@ -481,9 +459,7 @@
                     </p-cellEditor>
                   </td>
                 } @else {
-                  <td
-                    class="amount-td-column pharma-price">{{ orderLine.orderUnitPrice | number }}
-                  </td>
+                  <td class="amount-td-column pharma-price">{{ orderLine.orderUnitPrice | number }}</td>
                 }
 
                 <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
@@ -502,20 +478,17 @@
                         />
                       </ng-template>
                       <ng-template #output>
-                        <span
-                          class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
+                        <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
                       </ng-template>
                     </p-cellEditor>
                   </td>
                 } @else {
                   <td class="amount-td-column">
-                    <span
-                      class="pharma-qty-value"> {{ orderLine.quantityRequested | number }}</span>
+                    <span class="pharma-qty-value"> {{ orderLine.quantityRequested | number }}</span>
                   </td>
                 }
 
-                <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column"
-                    pEditableColumnField="freeQty">
+                <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column" pEditableColumnField="freeQty">
                   <p-cellEditor>
                     <ng-template #input>
                       <input
@@ -601,8 +574,7 @@
             @if (orderLines.length > 0) {
               <ng-template #footer>
                 <tr class="pharma-table-footer">
-                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span>
-                  </td>
+                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span></td>
                   <td class="amount-column text-right red-400">
                     <span class="pharma-footer-total">{{ commande.grossAmount | number }}</span>
                   </td>

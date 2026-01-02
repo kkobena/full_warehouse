@@ -8,24 +8,15 @@ import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { DividerModule } from 'primeng/divider';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import {
-  ProduitAuditingParam,
-  ProduitAuditingState,
-  ProduitAuditingSum
-} from '../../../shared/model/produit-record.model';
+import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '../../../shared/model/produit-record.model';
 import { HttpResponse } from '@angular/common/http';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
-import {
-  ITEMS_PER_PAGE,
-  PRODUIT_COMBO_RESULT_SIZE
-} from '../../../shared/constants/pagination.constants';
+import { ITEMS_PER_PAGE, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
 import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-produit.model';
 import { MagasinService } from '../../magasin/magasin.service';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
-import {
-  ProduitAutocompleteComponent
-} from '../../../shared/produit-autocomplete/produit-autocomplete.component';
+import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { IProduit } from '../../../shared/model/produit.model';
@@ -81,7 +72,7 @@ export class AuditingComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
   private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
-/*
+  /*
   protected get fromDate(): Date | null {
     return this.dateDebut().value;
   }
@@ -137,7 +128,7 @@ export class AuditingComponent implements OnInit {
 
   exportPdf(): void {
     this.produitStatService.exportToPdf(this.buildQuery()).subscribe({
-      next: blod => {
+      next(blod) {
         // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
         // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);

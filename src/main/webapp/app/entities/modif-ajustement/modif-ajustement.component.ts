@@ -119,7 +119,7 @@ export class ModifAjustementComponent implements OnInit {
       this.modalService,
       FormMotifAjustementComponent,
       {
-        entity: entity,
+        entity,
         header: 'Modification de ' + entity.libelle,
       },
       () => {

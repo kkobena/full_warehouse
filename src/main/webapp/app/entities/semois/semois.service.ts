@@ -14,7 +14,7 @@ import {
 } from 'app/shared/model/semois';
 import { ClasseCriticite } from 'app/shared/model/semois/classe-criticite.model';
 import { createRequestOption } from 'app/core/request/request-util';
-import {createRequestOptions} from "../../shared/util/request-util";
+import { createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<ISemoisSuggestion>;
 type EntityArrayResponseType = HttpResponse<ISemoisSuggestion[]>;

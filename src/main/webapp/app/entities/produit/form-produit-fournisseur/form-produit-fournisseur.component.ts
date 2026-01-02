@@ -41,7 +41,7 @@ import { finalize } from 'rxjs/operators';
   ],
 })
 export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   produit?: IProduit;
   entity?: IFournisseurProduit;
   protected fb = inject(UntypedFormBuilder);

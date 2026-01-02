@@ -318,7 +318,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   protected deleteSelectedOrderLine(): void {
     const ids = this.selectedEl.map(e => {
-      return { id: e.id!, orderDate: e.orderDate! };
+      return { id: e.id, orderDate: e.orderDate };
     });
     this.commandeService.deleteOrderLinesByIds(this.commande.commandeId, ids).subscribe(() => {
       this.refreshCommande();
@@ -543,7 +543,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       () =>
         this.printEtiquette({
           ...this.commande,
-          commandeId: commandeId,
+          commandeId,
         }),
       'Impression',
       'Voullez-vous imprimer les étiquettes ?',
@@ -711,20 +711,15 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private isCommandeEnCours(): boolean {
-    return (
-      this.commande === null ||
-      this.commande.id === undefined ||
-      this.commande.id === null ||
-      this.commande.orderStatus === OrderStatut.REQUESTED
-    );
+    return this.commande?.id === undefined || this.commande.id === null || this.commande.orderStatus === OrderStatut.REQUESTED;
   }
 
   private isCommandeFinalisee(): boolean {
-    return this.commande && this.commande.orderStatus === OrderStatut.RECEIVED;
+    return this.commande?.orderStatus === OrderStatut.RECEIVED;
   }
 
   private isClosedCommande(): boolean {
-    return this.commande && this.commande.orderStatus === OrderStatut.CLOSED;
+    return this.commande?.orderStatus === OrderStatut.CLOSED;
   }
 
   private printEtiquette(commande: ICommande): void {

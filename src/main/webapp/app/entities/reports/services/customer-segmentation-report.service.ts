@@ -7,7 +7,7 @@ import { ICustomerSegmentation, CustomerClassification } from 'app/shared/model/
 
 type EntityArrayResponseType = HttpResponse<ICustomerSegmentation[]>;
 type EntityResponseType = HttpResponse<ICustomerSegmentation>;
-type CountResponseType = HttpResponse<{ [key in CustomerClassification]: number }>;
+type CountResponseType = HttpResponse<Record<CustomerClassification, number>>;
 
 @Injectable({ providedIn: 'root' })
 export class CustomerSegmentationReportService {
@@ -47,7 +47,7 @@ export class CustomerSegmentationReportService {
    * Get count of customers by classification
    */
   getCustomerCountByClassification(): Observable<CountResponseType> {
-    return this.http.get<{ [key in CustomerClassification]: number }>(`${this.resourceUrl}/count`, { observe: 'response' });
+    return this.http.get<Record<CustomerClassification, number>>(`${this.resourceUrl}/count`, { observe: 'response' });
   }
 
   /**

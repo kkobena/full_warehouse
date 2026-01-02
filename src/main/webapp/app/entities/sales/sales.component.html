@@ -10,8 +10,7 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
-                      [options]="typeVentes" appendTo="body" />
+            <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected" [options]="typeVentes" appendTo="body" />
 
             <p-select
               #userControl
@@ -26,11 +25,9 @@
 
             <div class="pharma-compact-search mr-1">
               <p-inputgroup>
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..."
-                       type="text" />
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
                 <p-inputgroup-addon>
-                  <p-checkbox [(ngModel)]="global" [binary]="true" id="global" inputId="global"
-                              pTooltip="Recherche globale" />
+                  <p-checkbox [(ngModel)]="global" [binary]="true" id="global" inputId="global" pTooltip="Recherche globale" />
                 </p-inputgroup-addon>
               </p-inputgroup>
             </div>
@@ -65,14 +62,12 @@
             </p-floatlabel>
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="fromHour" [options]="hous" [style]="'max-width: 110px;'"
-                        appendTo="body" id="fromHour" />
+              <p-select [(ngModel)]="fromHour" [options]="hous" [style]="'max-width: 110px;'" appendTo="body" id="fromHour" />
               <label for="fromHour">De</label>
             </p-floatlabel>
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="toHour" [options]="hous" [style]="'max-width: 110px;'"
-                        appendTo="body" id="toHour" />
+              <p-select [(ngModel)]="toHour" [options]="hous" [style]="'max-width: 110px;'" appendTo="body" id="toHour" />
               <label for="toHour">À</label>
             </p-floatlabel>
           </div>
@@ -81,8 +76,7 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group pharma-hide-mobile">
-              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                        severity="info" />
+              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
               <div>
                 @if (useSimpleSale) {
@@ -127,7 +121,6 @@
                   tooltipPosition="top"
                 />
               } @else {
-
                 <p-button
                   [rounded]="true"
                   [text]="true"
@@ -208,8 +201,7 @@
               <td>{{ sale.cassier?.abbrName }}</td>
               <td>
                 <div class="btn-group d-flex justify-content-end">
-                  @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente
-                    === 'CARNET')) {
+                  @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
                     <p-button
                       [rounded]="true"
                       [routerLink]="['/sales', sale.saleId.id, sale.saleId.saleDate, false, 'edit']"
@@ -345,21 +337,12 @@
                                 <span class="pharma-code">{{ saleLine.code }}</span>
                               </td>
                               <td>
-                                <span
-                                  class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                                <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                               </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                              </td>
-                              <td class="pharma-total"
-                                  style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                              </td>
+                              <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                              <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                              <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                              <td class="pharma-total" style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
                             </tr>
                           </ng-template>
                         </p-table>
@@ -475,20 +458,12 @@
                                     <span class="pharma-code">{{ saleLine.code }}</span>
                                   </td>
                                   <td>
-                                    <span
-                                      class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                                    <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                                   </td>
-                                  <td
-                                    class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                                  </td>
-                                  <td
-                                    class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                                  </td>
-                                  <td
-                                    class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                                  </td>
-                                  <td class="pharma-total"
-                                      style="text-align: right; font-weight: bold">
+                                  <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                                  <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                                  <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                                  <td class="pharma-total" style="text-align: right; font-weight: bold">
                                     {{ saleLine.salesAmount | number }}
                                   </td>
                                 </tr>

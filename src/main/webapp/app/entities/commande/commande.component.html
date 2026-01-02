@@ -77,19 +77,15 @@
                 </ng-template>
               </ng-container>
               <ng-container ngbNavItem="REPARTITION_STOCK">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-sync"></i>
-                <span>Pilotage des stocks</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <jhi-repartition-stock
-                  [search]="search"
-                  [dtStart]="dtStart"
-                  [dtEnd]="dtEnd"
-                  #repartitionStock></jhi-repartition-stock>
-              </ng-template>
-            </ng-container>
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sync"></i>
+                  <span>Pilotage des stocks</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-repartition-stock [search]="search" [dtStart]="dtStart" [dtEnd]="dtEnd" #repartitionStock></jhi-repartition-stock>
+                </ng-template>
+              </ng-container>
 
               <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -106,8 +102,6 @@
                   ></jhi-retour-bon-list>
                 </ng-template>
               </ng-container>
-
-
             </div>
           </div>
         </div>
@@ -240,7 +234,6 @@
                     [showClear]="true"
                     (onChange)="onSemoisFilterChange()"
                   />
-
                 }
               </div>
             </ng-template>
@@ -324,8 +317,8 @@
 
                   <!-- Boutons SEMOIS -->
                   @if (active === 'SUGGESTIONS' && suggestionActiveTab === 'suggestions-semois') {
-
-                    <p-button [hidden]="true"
+                    <p-button
+                      [hidden]="true"
                       (click)="onSemoisMassConfigClick()"
                       [raised]="true"
                       icon="pi pi-cog"

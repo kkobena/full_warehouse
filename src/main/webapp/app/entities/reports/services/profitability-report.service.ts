@@ -40,7 +40,7 @@ export class ProfitabilityReportService {
   /**
    * Get top N most profitable products
    */
-  getTopProfitableProducts(limit: number = 20): Observable<EntityArrayResponseType> {
+  getTopProfitableProducts(limit = 20): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('limit', limit.toString());
     return this.http.get<IProductProfitability[]>(`${this.resourceUrl}/top`, { params, observe: 'response' });
   }

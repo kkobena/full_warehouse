@@ -52,7 +52,7 @@ export class DeconditionnementService {
         if (qtyDetail) {
           const qtyDecondtionner = Math.round(qytMvt / qtyDetail);
           this.decondtionService.create(this.createDecondition(qtyDecondtionner, produit.id)).subscribe({
-            next: () => {
+            next() {
               if (item) {
                 processQtyRequestedFn(item);
               } else {
@@ -60,7 +60,7 @@ export class DeconditionnementService {
               }
             },
             error: error => {
-              if (error.error && error.error.status === 500) {
+              if (error.error?.status === 500) {
                 showCommonError(this.modalService, 'Erreur applicative');
               } else {
                 showCommonError(this.modalService, this.errorService.getErrorMessage(error));

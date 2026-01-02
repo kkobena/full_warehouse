@@ -75,7 +75,7 @@ export interface IProduit {
   dciId?: number;
   stockReassort?: number;
   seuilMini?: number;
-  categorie?: string; //categorie ABC
+  categorie?: string; // categorie ABC
   codeEanLaboratoire?: string;
 }
 
@@ -136,9 +136,8 @@ export class Produit implements IProduit {
     public fournisseurId?: number,
     public rayonId?: number,
     public displayField?: string,
-    public rayonProduits?: IRayonProduit[]
-  ) {
-  }
+    public rayonProduits?: IRayonProduit[],
+  ) {}
 }
 
 export class Dci {

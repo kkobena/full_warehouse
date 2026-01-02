@@ -21,9 +21,9 @@ export class MarketBasketService {
   getProductAssociations(
     startDate: string,
     endDate: string,
-    minSupport: number = 1.0,
-    minConfidence: number = 10.0,
-    limit: number = 50,
+    minSupport = 1.0,
+    minConfidence = 10.0,
+    limit = 50,
   ): Observable<EntityArrayResponseType> {
     const params = new HttpParams()
       .set('startDate', startDate)
@@ -41,12 +41,7 @@ export class MarketBasketService {
   /**
    * Get associations for a specific product
    */
-  getAssociationsForProduct(
-    productId: number,
-    startDate: string,
-    endDate: string,
-    limit: number = 20,
-  ): Observable<EntityArrayResponseType> {
+  getAssociationsForProduct(productId: number, startDate: string, endDate: string, limit = 20): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('limit', limit.toString());
 
     return this.http.get<IProductAssociation[]>(`${this.resourceUrl}/associations/${productId}`, {

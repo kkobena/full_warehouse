@@ -12,55 +12,51 @@
         </div>
 
         <div class="form-field form-field-full">
-            <label for="libelle">Libellé<span
-              class="required">*</span></label>
-            <input #libelle autocomplete="off" class="w-full"formControlName="libelle" name="libelle" pInputText type="text" />
-            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
-              <div>
-                @if (editForm.get('libelle')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-                }
-              </div>
-            }
-
+          <label for="libelle">Libellé<span class="required">*</span></label>
+          <input #libelle autocomplete="off" class="w-full" formControlName="libelle" name="libelle" pInputText type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+            <div>
+              @if (editForm.get('libelle')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
         </div>
         <div class="form-field form-field-full">
-            <label for="code">Code<span
-              class="required">*</span></label>
-            <input autocomplete="off" class="w-full"formControlName="code" name="code" pInputText type="text" />
-            @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
-              <div>
-                @if (editForm.get('code')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-                }
-              </div>
-            }
+          <label for="code">Code<span class="required">*</span></label>
+          <input autocomplete="off" class="w-full" formControlName="code" name="code" pInputText type="text" />
+          @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
+            <div>
+              @if (editForm.get('code')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
         </div>
         <div class="form-field form-field-full">
-            <label for="categorieId">Catégorie<span
-              class="required">*</span></label>
+          <label for="categorieId">Catégorie<span class="required">*</span></label>
 
-            <p-select
-              (onShow)="onDropdownShow($event)"
-              (onHide)="onDropdownHide($event)"
-              [filter]="false"
-              [fluid]="true"
-              [options]="categorieproduits"
-              formControlName="categorieId"
-              id="categorieId"
-              name="categorieId"
-              optionLabel="libelle"
-              optionValue="id"
-              placeholder="Séléctionner une catégorie "
-            >
-            </p-select>
-            @if (editForm.get('categorieId')!.invalid && (editForm.get('categorieId')!.dirty || editForm.get('categorieId')!.touched)) {
-              <div>
-                @if (editForm.get('categorieId')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-                }
-              </div>
-            }
+          <p-select
+            (onShow)="onDropdownShow($event)"
+            (onHide)="onDropdownHide($event)"
+            [filter]="false"
+            [fluid]="true"
+            [options]="categorieproduits"
+            formControlName="categorieId"
+            id="categorieId"
+            name="categorieId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Séléctionner une catégorie "
+          >
+          </p-select>
+          @if (editForm.get('categorieId')!.invalid && (editForm.get('categorieId')!.dirty || editForm.get('categorieId')!.touched)) {
+            <div>
+              @if (editForm.get('categorieId')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
         </div>
       </div>
     </p-card>

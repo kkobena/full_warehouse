@@ -26,7 +26,7 @@ interface ModelReapproConfig {
   selector: 'jhi-semois-model-config',
   templateUrl: './semois-model-config.component.html',
   styleUrl: './semois-model-config.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule, WarehouseCommonModule]
+  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, ToolbarModule, WarehouseCommonModule],
 })
 export default class SemoisModelConfigComponent implements OnInit {
   currentModel = signal<string>('CLASSIQUE');
@@ -62,7 +62,7 @@ export default class SemoisModelConfigComponent implements OnInit {
       error: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Erreur lors du chargement de la configuration');
-      }
+      },
     });
   }
 
@@ -87,7 +87,7 @@ export default class SemoisModelConfigComponent implements OnInit {
       error: () => {
         this.isSaving.set(false);
         this.errorMessage.set('Erreur lors de la sauvegarde de la configuration');
-      }
+      },
     });
   }
 

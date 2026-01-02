@@ -31,19 +31,19 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
     DividerModule,
     WarehouseCommonModule,
     Tag,
-    Drawer
-  ]
+    Drawer,
+  ],
 })
 export default class StockRotationComponent implements OnInit {
   rotations = signal<IStockRotation[]>([]);
-  abcCounts = signal<{ [key in CategorieABC]: number }>({ A: 0, B: 0, C: 0 });
+  abcCounts = signal<Record<CategorieABC, number>>({ A: 0, B: 0, C: 0 });
   isLoading = signal<boolean>(false);
   selectedCategorie = signal<string | null>(null);
   selectedABC = signal<CategorieABC | null>(null);
   showSlowMovingOnly = signal<boolean>(false);
   helpDrawerVisible = signal<boolean>(false);
 
-  categorieOptions = signal<Array<{ label: string; value: string }>>([]);
+  categorieOptions = signal<{ label: string; value: string }[]>([]);
   abcOptions = [
     { label: 'Toutes les classifications', value: null },
     { label: 'A - Forte rotation (z ≥ 1.96)', value: CategorieABC.A },
@@ -89,10 +89,10 @@ export default class StockRotationComponent implements OnInit {
 
   loadABCCounts(): void {
     this.stockRotationService.getStockRotationCountByABCClassification().subscribe({
-      next: (res: HttpResponse<{ [key in CategorieABC]: number }>) => {
+      next: (res: HttpResponse<Record<CategorieABC, number>>) => {
         this.abcCounts.set(res.body ?? { A: 0, B: 0, C: 0 });
       },
-      error: () => {
+      error() {
         console.error('Error loading ABC counts');
       },
     });
@@ -120,7 +120,7 @@ export default class StockRotationComponent implements OnInit {
 
   exportToPdf(): void {
     this.stockRotationService.exportStockRotationToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -131,7 +131,7 @@ export default class StockRotationComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -139,10 +139,7 @@ export default class StockRotationComponent implements OnInit {
 
   private extractCategorieOptions(rotations: IStockRotation[]): void {
     const categories = [...new Set(rotations.map(r => r.categorie).filter(c => c))];
-    this.categorieOptions.set([
-      { label: 'Toutes les catégories', value: '' },
-      ...categories.map(c => ({ label: c!, value: c! }))
-    ]);
+    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
   }
 
   getTotalStockValue(): number {

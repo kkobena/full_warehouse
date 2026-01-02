@@ -9,7 +9,6 @@ import { RepartitionStockService } from '../repartition-stock.service';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-
 @Component({
   selector: 'jhi-repartition-list',
   templateUrl: './repartition-list.component.html',
@@ -17,7 +16,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
 })
 export class RepartitionListComponent implements OnInit {
-  //TODO: remplacer par signal inputs quand angular 20+ sera la norme
+  // TODO: remplacer par signal inputs quand angular 20+ sera la norme
   @Input() searchTerm = '';
   @Input() fromDate?: Date;
   @Input() toDate?: Date;

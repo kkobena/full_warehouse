@@ -39,8 +39,7 @@
           style="float: right"
           th:if="${#aggregates.sum(sale.salesLines.![quantiyAvoir]) gt 0}"
           th:text="${'(Avoir '+  #aggregates.sum(sale.salesLines.![quantiyAvoir])}+' )'"
-        >
-        </span>
+        ></span>
       </td>
       <td
         class="amount-to-pay"
@@ -52,7 +51,9 @@
     </tr>
 
     <tr th:if="${!sale.payments.isEmpty()}">
-      <td class="text-center reglement" colspan="4">REGLEMENT</td>
+      <td class="text-center reglement" colspan="4">
+        REGLEMENT
+      </td>
     </tr>
     <tr th:each="payment: ${sale.payments}">
       <td colspan="2" th:text="${payment.paymentMode.libelle}"></td>
@@ -99,4 +100,4 @@
       <td class="unit" colspan="2" th:if="${tva.amount lt 1000}" th:text="${ tva.amount }"></td>
     </tr>
   </tbody>
-</table>
+</table>;

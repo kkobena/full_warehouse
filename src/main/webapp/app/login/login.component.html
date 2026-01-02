@@ -39,12 +39,10 @@
             <p class="form-subtitle">Connectez-vous à votre espace</p>
           </div>
           @if (isTauri()) {
-            <button (click)="openSettings()" class="settings-button" title="Configuration du serveur"
-                    type="button">
+            <button (click)="openSettings()" class="settings-button" title="Configuration du serveur" type="button">
               <i class="pi pi-cog"></i>
             </button>
           }
-
         </div>
       </div>
 
@@ -105,9 +103,7 @@
           <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
         </div>
 
-        <button class="login-button" data-cy="submit" type="submit"><i
-          class="pi pi-sign-in mr-2"></i>Se connecter
-        </button>
+        <button class="login-button" data-cy="submit" type="submit"><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
       </form>
 
       <div class="form-footer">

@@ -18,16 +18,7 @@ import { formatCurrency, formatDecimal } from 'app/shared/utils/format-utils';
   selector: 'jhi-stock-valuation',
   templateUrl: './stock-valuation.component.html',
   styleUrl: './stock-valuation.component.scss',
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    WarehouseCommonModule
-  ]
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, WarehouseCommonModule],
 })
 export default class StockValuationComponent implements OnInit {
   valuations = signal<IStockValuation[]>([]);
@@ -36,8 +27,8 @@ export default class StockValuationComponent implements OnInit {
   selectedCategorie = signal<string | null>(null);
   selectedStorage = signal<string | null>(null);
 
-  categorieOptions = signal<Array<{ label: string; value: string }>>([]);
-  storageOptions = signal<Array<{ label: string; value: string }>>([]);
+  categorieOptions = signal<{ label: string; value: string }[]>([]);
+  storageOptions = signal<{ label: string; value: string }[]>([]);
 
   private readonly stockValuationService = inject(StockValuationReportService);
 
@@ -77,7 +68,7 @@ export default class StockValuationComponent implements OnInit {
       next: (res: HttpResponse<IStockValuationSummary>) => {
         this.summary.set(res.body ?? null);
       },
-      error: () => {
+      error() {
         console.error('Error loading summary');
       },
     });
@@ -95,7 +86,7 @@ export default class StockValuationComponent implements OnInit {
 
   exportToPdf(): void {
     this.stockValuationService.exportStockValuationToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -106,7 +97,7 @@ export default class StockValuationComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -115,17 +106,11 @@ export default class StockValuationComponent implements OnInit {
   private extractFilterOptions(valuations: IStockValuation[]): void {
     // Extract unique categories
     const categories = [...new Set(valuations.map(v => v.categorie).filter(c => c))];
-    this.categorieOptions.set([
-      { label: 'Toutes les catégories', value: '' },
-      ...categories.map(c => ({ label: c!, value: c! }))
-    ]);
+    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
 
     // Extract unique storage locations
     const storages = [...new Set(valuations.map(v => v.storageLocation).filter(s => s))];
-    this.storageOptions.set([
-      { label: 'Tous les emplacements', value: '' },
-      ...storages.map(s => ({ label: s!, value: s! }))
-    ]);
+    this.storageOptions.set([{ label: 'Tous les emplacements', value: '' }, ...storages.map(s => ({ label: s, value: s }))]);
   }
 
   getTotalStockValue(): number {

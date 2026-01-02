@@ -20,7 +20,18 @@ import { formatNumber, formatPercent, formatDecimal } from 'app/shared/utils/for
 
 @Component({
   selector: 'jhi-market-basket',
-  imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, DatePickerModule, InputNumberModule, Tag, FloatLabel],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    CardModule,
+    SelectModule,
+    ToolbarModule,
+    DatePickerModule,
+    InputNumberModule,
+    Tag,
+    FloatLabel,
+  ],
   templateUrl: './market-basket.component.html',
   styleUrl: './market-basket.component.scss',
 })
@@ -35,9 +46,9 @@ export default class MarketBasketComponent implements OnInit {
   // Filter values
   startDate: Date = new Date(new Date().setMonth(new Date().getMonth() - 6));
   endDate: Date = new Date();
-  minSupport: number = 1.0;
-  minConfidence: number = 10.0;
-  limit: number = 50;
+  minSupport = 1.0;
+  minConfidence = 10.0;
+  limit = 50;
 
   ngOnInit(): void {
     this.loadData();

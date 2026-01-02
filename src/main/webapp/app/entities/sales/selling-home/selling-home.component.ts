@@ -1207,8 +1207,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       focusVendor: () => this.userBox()?.nativeElement?.focus(),
 
       // Product actions
-      //addProduct: () => this.onAddProduit(),
-      addProduct: () => {},
+      // addProduct: () => this.onAddProduit(),
+      addProduct() {},
       removeSelectedLine: () => {
         if (this.isComptant()) {
           //   this.comptantComponent()?.removeSelectedItem();

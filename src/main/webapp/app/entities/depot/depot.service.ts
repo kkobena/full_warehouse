@@ -101,7 +101,7 @@ export class DepotService {
     return this.salesService.rePrintReceipt(id);
   }
 
-  getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
+  getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.salesService.getEscPosReceiptForTauri(id, isEdition);
   }
 

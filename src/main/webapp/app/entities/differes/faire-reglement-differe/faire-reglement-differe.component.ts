@@ -137,7 +137,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
 }

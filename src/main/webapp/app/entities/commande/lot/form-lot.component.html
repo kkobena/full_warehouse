@@ -7,7 +7,6 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-
       <div class="form-grid-compact">
         <div [hidden]="true">
           <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
@@ -15,7 +14,7 @@
 
         <div class="form-field form-field-full">
           <label for="numLot">Numéro de Lot<span class="required">*</span></label>
-          <input
+          <input #numLotInput
             (blur)="onValidateNumLot($event)"
             autocomplete="off"
             formControlName="numLot"
@@ -43,8 +42,10 @@
             pInputText
             type="text"
           />
-          @if (editForm.get('quantityReceived')!.invalid &&
-          (editForm.get('quantityReceived')!.dirty || editForm.get('quantityReceived')!.touched)) {
+          @if (
+            editForm.get('quantityReceived')!.invalid &&
+            (editForm.get('quantityReceived')!.dirty || editForm.get('quantityReceived')!.touched)
+          ) {
             <div>
               @if (editForm.get('quantityReceived')?.errors?.required) {
                 <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
@@ -110,11 +111,7 @@
             </div>
           </div>
         </div>
-
-
       </div>
-
-
     </p-card>
   </div>
   <div class="modal-footer">

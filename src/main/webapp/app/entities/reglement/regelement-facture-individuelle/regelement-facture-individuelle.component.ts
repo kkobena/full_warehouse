@@ -189,7 +189,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
 

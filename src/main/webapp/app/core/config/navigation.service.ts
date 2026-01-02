@@ -1,8 +1,8 @@
-import {inject, Injectable} from '@angular/core';
-import {AccountService} from 'app/core/auth/account.service';
-import {TranslateService} from '@ngx-translate/core';
-import {NavItem} from 'app/layouts/navbar/navbar-item.model';
-import {Authority} from 'app/shared/constants/authority.constants';
+import { inject, Injectable } from '@angular/core';
+import { AccountService } from 'app/core/auth/account.service';
+import { TranslateService } from '@ngx-translate/core';
+import { NavItem } from 'app/layouts/navbar/navbar-item.model';
+import { Authority } from 'app/shared/constants/authority.constants';
 import {
   faBasketShopping,
   faBook,
@@ -43,7 +43,7 @@ import {
   faChartLine,
   faChartPie,
 } from '@fortawesome/free-solid-svg-icons';
-import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 
 export interface NavigationOptions {
   includeNewSale?: boolean;
@@ -183,16 +183,16 @@ export class NavigationService {
       faIcon: faBook,
       authorities: [Authority.REFERENTIEL, Authority.ADMIN],
       children: [
-        {label: this.translateLabel('entities.rayon'), routerLink: '/rayon', faIcon: faStream},
+        { label: this.translateLabel('entities.rayon'), routerLink: '/rayon', faIcon: faStream },
         {
           label: this.translateLabel('entities.remise'),
           routerLink: '/remises',
           authorities: [Authority.ADMIN, Authority.REMISE],
           faIcon: faPercent,
         },
-        {label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable},
-        {label: this.translateLabel('entities.fournisseur'), routerLink: '/fournisseur', faIcon: faTruck},
-        {label: this.translateLabel('entities.tva'), routerLink: '/tva', faIcon: faDollarSign},
+        { label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable },
+        { label: this.translateLabel('entities.fournisseur'), routerLink: '/fournisseur', faIcon: faTruck },
+        { label: this.translateLabel('entities.tva'), routerLink: '/tva', faIcon: faDollarSign },
         {
           label: this.translateLabel('entities.formeProduit'),
           routerLink: '/forme-produit',
@@ -203,8 +203,8 @@ export class NavigationService {
           routerLink: '/famille-produit',
           faIcon: faBoxes,
         },
-        {label: this.translateLabel('gammeProduit'), routerLink: '/gamme-produit', faIcon: faMapMarker},
-        {label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding},
+        { label: this.translateLabel('gammeProduit'), routerLink: '/gamme-produit', faIcon: faMapMarker },
+        { label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding },
 
         {
           label: this.translateLabel('motifAjustement'),
@@ -215,7 +215,8 @@ export class NavigationService {
           label: 'Motif Retour Produit',
           routerLink: '/motif-retour-produit',
           faIcon: faSchoolCircleExclamation,
-        }, {
+        },
+        {
           label: 'Modes de paiement',
           routerLink: '/mode-payments',
           faIcon: faSdCard,
@@ -237,7 +238,7 @@ export class NavigationService {
       authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE, Authority.ROLE_CAISSIER],
       children: [
         {
-          label: 'Chiffre d\'Affaires',
+          label: "Chiffre d'Affaires",
           routerLink: '/reports/sales',
           faIcon: faMoneyBill,
           authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],

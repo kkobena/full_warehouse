@@ -4,7 +4,7 @@ import {
   InventoryCategory,
   InventoryCategoryType,
   IStoreInventory,
-  StoreInventory
+  StoreInventory,
 } from '../../../shared/model/store-inventory.model';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
@@ -50,10 +50,10 @@ import { Card } from 'primeng/card';
     ReactiveFormsModule,
     Select,
     InputText,
-    Card
-  ]
+    Card,
+  ],
 })
-export class InventoryFormComponent implements OnInit  ,AfterViewInit{
+export class InventoryFormComponent implements OnInit, AfterViewInit {
   protected description = viewChild.required<ElementRef>('description');
   protected isSaving = false;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
@@ -121,7 +121,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
     result.subscribe({
       next: (res: HttpResponse<IStoreInventory>) => this.onSaveSuccess(res.body),
       error: () => this.onSaveError(),
-      complete: () => this.spinner.hide()
+      complete: () => this.spinner.hide(),
     });
   }
 
@@ -165,7 +165,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Enregistrement a échoué'
+      detail: 'Enregistrement a échoué',
     });
   }
 
@@ -181,7 +181,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
         ...new StoreInventory(),
         id: this.editForm.get(['id']).value,
         description: this.editForm.get(['description']).value,
-        inventoryCategory
+        inventoryCategory,
       };
     }
     return {
@@ -190,7 +190,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       id: this.editForm.get(['id']).value,
       storage: this.editForm.get(['storage']).value?.id,
       rayon: this.editForm.get(['rayon']).value?.id,
-      inventoryCategory
+      inventoryCategory,
     };
   }
 
@@ -200,7 +200,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       storage: entity.storage.id,
       rayon: entity.rayon.id,
       inventoryCategory: entity.inventoryCategory.name,
-      description: entity.description
+      description: entity.description,
     });
   }
 
@@ -215,7 +215,7 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       this.rayonService
         .query({
           storageId,
-          size: 9999
+          size: 9999,
         })
         .subscribe((res: HttpResponse<IRayon[]>) => {
           this.rayons = res.body || [];
@@ -228,12 +228,12 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       id: new FormControl<number | null>(null, {}),
       description: new FormControl<string | null>(null, {
         validators: [Validators.required, Validators.maxLength(255)],
-        nonNullable: true
+        nonNullable: true,
       }),
       inventoryCategory: new FormControl<InventoryCategory | null>(this.categories[0], {
         validators: [Validators.required],
-        nonNullable: true
-      })
+        nonNullable: true,
+      }),
     });
   }
 
@@ -242,8 +242,8 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       'storage',
       new FormControl<number | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
-      })
+        nonNullable: true,
+      }),
     );
   }
 
@@ -256,8 +256,8 @@ export class InventoryFormComponent implements OnInit  ,AfterViewInit{
       'rayon',
       new FormControl<number | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
-      })
+        nonNullable: true,
+      }),
     );
   }
 

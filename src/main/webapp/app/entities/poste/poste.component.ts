@@ -83,7 +83,7 @@ export class PosteComponent implements OnInit {
       this.modalService,
       FormPosteComponent,
       {
-        entity: entity,
+        entity,
         title: 'Modification de ' + entity.name,
       },
       () => {

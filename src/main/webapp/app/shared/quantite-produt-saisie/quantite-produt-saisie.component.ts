@@ -41,7 +41,7 @@ export class QuantiteProdutSaisieComponent {
   disabledButton = input<boolean>(false);
   style = input<{}>();
   addQuantite = output<number>();
-  enterPressed = output<void>();
+  enterPressed = output();
   quantite: number | null = null;
   protected quantityBox = viewChild.required<ElementRef>('quantityBox');
 
@@ -76,7 +76,7 @@ export class QuantiteProdutSaisieComponent {
     this.onAdd();
   }
 
-  incrementQuantity(amount: number = 1): void {
+  incrementQuantity(amount = 1): void {
     if (this.isValid()) {
       const currentValue = this.quantite || 0;
       this.quantite = currentValue + amount;
@@ -84,7 +84,7 @@ export class QuantiteProdutSaisieComponent {
     }
   }
 
-  decrementQuantity(amount: number = 1): void {
+  decrementQuantity(amount = 1): void {
     if (this.isValid()) {
       const currentValue = this.quantite || 0;
       const newValue = currentValue - amount;

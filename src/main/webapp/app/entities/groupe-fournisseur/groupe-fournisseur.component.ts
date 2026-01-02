@@ -119,7 +119,7 @@ export class GroupeFournisseurComponent implements OnInit {
       this.modalService,
       FormGroupeFournisseurComponent,
       {
-        entity: entity,
+        entity,
         header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
       },
       () => {

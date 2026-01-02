@@ -180,7 +180,7 @@ export class RayonComponent implements OnInit, OnDestroy {
       this.modalService,
       FormRayonComponent,
       {
-        entity: entity,
+        entity,
         magasin: this.magasin,
         header: 'Modification de ' + entity.libelle,
       },

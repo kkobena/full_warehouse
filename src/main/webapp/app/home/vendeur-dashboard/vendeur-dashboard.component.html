@@ -6,30 +6,10 @@
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="dashboard-title m-0"></h6>
         <div class="quick-actions-buttons d-flex gap-2 flex-wrap">
-          <p-button
-            icon="pi pi-shopping-cart"
-            label="Nouvelle pré-vente"
-            severity="info"
-            size="small"
-            [routerLink]="['/sales/true/new']"
-          />
+          <p-button icon="pi pi-shopping-cart" label="Nouvelle pré-vente" severity="info" size="small" [routerLink]="['/sales/true/new']" />
 
-
-          <p-button
-            icon="pi pi-chart-bar"
-            label="Mes statistiques"
-            severity="warn"
-            size="small"
-            [routerLink]="['/sales/my-stats']"
-          />
-          <p-button
-            icon="pi pi-refresh"
-            [text]="true"
-            [rounded]="true"
-            size="small"
-            (onClick)="refreshDashboard()"
-            pTooltip="Actualiser"
-          />
+          <p-button icon="pi pi-chart-bar" label="Mes statistiques" severity="warn" size="small" [routerLink]="['/sales/my-stats']" />
+          <p-button icon="pi pi-refresh" [text]="true" [rounded]="true" size="small" (onClick)="refreshDashboard()" pTooltip="Actualiser" />
         </div>
       </div>
     </div>
@@ -49,16 +29,14 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-info-subtle text-info">
-                      Rang: {{ perf.rang }}/{{ perf.totalVendeurs }}
-                    </span>
+                    <span class="badge bg-info-subtle text-info"> Rang: {{ perf.rang }}/{{ perf.totalVendeurs }} </span>
                     <span
                       class="badge"
                       [ngClass]="{
                         'bg-success': getBadgeSeverity(perf.badge) === 'success',
                         'bg-info': getBadgeSeverity(perf.badge) === 'info',
                         'bg-warning': getBadgeSeverity(perf.badge) === 'warn',
-                        'bg-secondary': getBadgeSeverity(perf.badge) === 'secondary'
+                        'bg-secondary': getBadgeSeverity(perf.badge) === 'secondary',
                       }"
                     >
                       {{ getBadgeIcon(perf.badge) }} {{ perf.badge }}
@@ -91,12 +69,8 @@
                     <span class="value-suffix">clients</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-success-subtle text-success">
-                      {{ clients.nouveauxClients }} Nouveaux
-                    </span>
-                    <span class="badge bg-info-subtle text-info">
-                      {{ clients.clientsFideles }} Fidèles
-                    </span>
+                    <span class="badge bg-success-subtle text-success"> {{ clients.nouveauxClients }} Nouveaux </span>
+                    <span class="badge bg-info-subtle text-info"> {{ clients.clientsFideles }} Fidèles </span>
                   </div>
                 </div>
                 <div class="kpi-icon text-success">
@@ -125,12 +99,8 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-primary-subtle text-primary">
-                      Ordo: {{ formatCurrency(ventes.ordonnance) }}
-                    </span>
-                    <span class="badge bg-info-subtle text-info">
-                      Conseil: {{ formatCurrency(ventes.conseil) }}
-                    </span>
+                    <span class="badge bg-primary-subtle text-primary"> Ordo: {{ formatCurrency(ventes.ordonnance) }} </span>
+                    <span class="badge bg-info-subtle text-info"> Conseil: {{ formatCurrency(ventes.conseil) }} </span>
                   </div>
                 </div>
                 <div class="kpi-icon text-info">
@@ -159,12 +129,8 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-warning-subtle text-warning">
-                      Mois: {{ formatCurrency(comm.montantMois) }}
-                    </span>
-                    <span class="badge bg-info-subtle text-info">
-                      Taux: {{ formatPercent(comm.tauxCommission) }}
-                    </span>
+                    <span class="badge bg-warning-subtle text-warning"> Mois: {{ formatCurrency(comm.montantMois) }} </span>
+                    <span class="badge bg-info-subtle text-info"> Taux: {{ formatPercent(comm.tauxCommission) }} </span>
                   </div>
                 </div>
                 <div class="kpi-icon text-warning">
@@ -193,13 +159,7 @@
             </h5>
           </div>
           <div class="card-body p-0">
-            <p-table
-              [value]="topProduits()"
-              [scrollable]="true"
-              scrollHeight="400px"
-              class="pharma-table"
-              [stripedRows]="true"
-            >
+            <p-table [value]="topProduits()" [scrollable]="true" scrollHeight="400px" class="pharma-table" [stripedRows]="true">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Produit</th>
@@ -245,13 +205,7 @@
             </h5>
           </div>
           <div class="card-body p-0">
-            <p-table
-              [value]="ventesRecentes()"
-              [scrollable]="true"
-              scrollHeight="400px"
-              class="pharma-table"
-              [stripedRows]="true"
-            >
+            <p-table [value]="ventesRecentes()" [scrollable]="true" scrollHeight="400px" class="pharma-table" [stripedRows]="true">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Date/Heure</th>
@@ -270,13 +224,7 @@
                   <td>
                     <p-tag
                       [value]="vente.typeVente"
-                      [severity]="
-                        vente.typeVente === 'ORDONNANCE'
-                          ? 'info'
-                          : vente.typeVente === 'CONSEIL'
-                            ? 'help'
-                            : 'success'
-                      "
+                      [severity]="vente.typeVente === 'ORDONNANCE' ? 'info' : vente.typeVente === 'CONSEIL' ? 'help' : 'success'"
                     />
                   </td>
                 </tr>
@@ -291,7 +239,6 @@
         </div>
       </div>
     </div>
-
 
     <!-- Objectifs Mensuels -->
     @if (objectifsMensuels().length > 0) {
@@ -310,9 +257,7 @@
                   <div class="objectif-item mb-3">
                     <div class="d-flex justify-content-between mb-2">
                       <span class="fw-bold">{{ obj.libelle }}</span>
-                      <span>
-                        {{ obj.valeurActuelle }} / {{ obj.valeurCible }} {{ obj.unite }}
-                      </span>
+                      <span> {{ obj.valeurActuelle }} / {{ obj.valeurCible }} {{ obj.unite }} </span>
                     </div>
                     <p-progressBar
                       [value]="obj.tauxAtteinte"
@@ -354,10 +299,7 @@
                   <tr>
                     <td class="fw-bold">{{ client.nom }}</td>
                     <td class="text-center">
-                      <p-tag
-                        [value]="client.categorie"
-                        [severity]="getClientCategoryBadge(client.categorie)"
-                      />
+                      <p-tag [value]="client.categorie" [severity]="getClientCategoryBadge(client.categorie)" />
                     </td>
                     <td class="text-end">{{ formatCurrency(client.montantTotal) }}</td>
                     <td class="text-center">{{ client.nombreVisites }}</td>

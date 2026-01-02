@@ -38,7 +38,7 @@ import { Storage } from '../../storage/storage.model';
   ],
 })
 export class FormRayonComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   entity: IRayon;
   magasin: IMagasin;
   protected storages: IStorage[] = [];

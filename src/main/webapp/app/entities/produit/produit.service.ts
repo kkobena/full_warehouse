@@ -57,7 +57,7 @@ export class ProduitService {
     const options = createRequestOption(req);
     return this.http.get<IProduit[]>(this.resourceUrl + '/criteria', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -123,7 +123,7 @@ export class ProduitService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  search(req?: any, searchByStorage: boolean = false): Observable<HttpResponse<ProduitSearch[]>> {
+  search(req?: any, searchByStorage = false): Observable<HttpResponse<ProduitSearch[]>> {
     const options = createRequestOptions(req);
     const url = searchByStorage ? `${this.resourceUrl}/search-by-storage` : `${this.resourceUrl}/search`;
     return this.http.get<ProduitSearch[]>(url, { params: options, observe: 'response' });
@@ -137,14 +137,14 @@ export class ProduitService {
     const options = createRequestOptions(req);
     return this.http.get<ProduitSearch[]>(`${this.resourceUrl}/search-by-storage`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
   private convertDateFromClient(produit: IProduit): IProduit {
     return Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,
-      updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined
+      updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined,
     });
   }
 

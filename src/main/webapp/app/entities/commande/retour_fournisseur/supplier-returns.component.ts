@@ -176,7 +176,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   }
 
   protected loadOrderLines(commandeId: number, orderDate: string): void {
-    this.commandeService.filterItems({ id: commandeId, orderDate: orderDate }).subscribe({
+    this.commandeService.filterItems({ id: commandeId, orderDate }).subscribe({
       next: (res: HttpResponse<IDeliveryItem[]>) => {
         this.orderLines.set(res.body);
       },
@@ -470,8 +470,8 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
     const commande = this.selectedCommande();
     const retourBon = new RetourBon();
-    retourBon.commandeId = commande!.id;
-    retourBon.commandeOrderDate = commande!.orderDate;
+    retourBon.commandeId = commande.id;
+    retourBon.commandeOrderDate = commande.orderDate;
     retourBon.commentaire = this.commentaire();
     retourBon.retourBonItems = this.retourBonItems();
 

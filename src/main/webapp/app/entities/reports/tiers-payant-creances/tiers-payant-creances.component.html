@@ -8,30 +8,23 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-
-            <p-select
-              [(ngModel)]="selectedAgeCategory"
-              [options]="ageCategoryOptions"
-              optionLabel="label"
-              optionValue="value"
-              (onChange)="onFilterChange()"
-              [fluid]="true"
-              appendTo="body"
-              id="ageFilter"
-              inputId="ageFilter"
-            />
-
+          <p-select
+            [(ngModel)]="selectedAgeCategory"
+            [options]="ageCategoryOptions"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onFilterChange()"
+            [fluid]="true"
+            appendTo="body"
+            id="ageFilter"
+            inputId="ageFilter"
+          />
         </div>
       </ng-template>
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Exporter PDF"
-            icon="pi pi-file-pdf"
-            severity="warn"
-            (onClick)="exportToPdf()"
-          />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -49,12 +42,7 @@
         </div>
       </div>
       <div class="card-body">
-        <p-table
-          [value]="summary()"
-          [rowHover]="true"
-          [scrollable]="true"
-          class="pharma-table"
-        >
+        <p-table [value]="summary()" [rowHover]="true" [scrollable]="true" class="pharma-table">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>Groupe</th>
@@ -145,15 +133,10 @@
                 <span class="fw-bold text-danger pharma-price">{{ invoice.montantRestant | number: '1.0-0' }} FCFA</span>
               </td>
               <td>
-                <p-tag
-                  [value]="getAgeCategoryLabel(invoice.ageCategory)"
-                  [severity]="getAgeCategorySeverity(invoice.ageCategory)"
-                />
+                <p-tag [value]="getAgeCategoryLabel(invoice.ageCategory)" [severity]="getAgeCategorySeverity(invoice.ageCategory)" />
               </td>
               <td class="text-end">
-                <span [class.text-danger]="(invoice.ageInDays ?? 0) > 60">
-                  {{ invoice.ageInDays }} j
-                </span>
+                <span [class.text-danger]="(invoice.ageInDays ?? 0) > 60"> {{ invoice.ageInDays }} j </span>
               </td>
             </tr>
           </ng-template>

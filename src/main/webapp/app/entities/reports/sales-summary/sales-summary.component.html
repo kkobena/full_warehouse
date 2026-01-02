@@ -1,5 +1,4 @@
 <div class="pharma-smart-content p-2">
-
   <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-line"></i>
@@ -8,7 +7,7 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters ">
+        <div class="pharma-toolbar-filters">
           <p-datePicker
             [(ngModel)]="startDate"
             placeholder="Date début"
@@ -43,12 +42,7 @@
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Rafraîchir"
-            icon="pi pi-refresh"
-            severity="secondary"
-            (onClick)="loadSummaries()"
-          />
+          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="secondary" (onClick)="loadSummaries()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -63,7 +57,7 @@
             <div class="kpi-content">
               <p class="kpi-label">CA Total</p>
               <h4 class="kpi-value">
-                <span>{{ getTotalCA() | number:'1.0-0' }}</span>
+                <span>{{ getTotalCA() | number: '1.0-0' }}</span>
                 <span class="value-suffix">F CFA</span>
               </h4>
             </div>
@@ -82,7 +76,7 @@
             <div class="kpi-content">
               <p class="kpi-label">CA Net</p>
               <h4 class="kpi-value">
-                <span>{{ getTotalCANet() | number:'1.0-0' }}</span>
+                <span>{{ getTotalCANet() | number: '1.0-0' }}</span>
                 <span class="value-suffix">F CFA</span>
               </h4>
             </div>
@@ -119,7 +113,7 @@
             <div class="kpi-content">
               <p class="kpi-label">Panier moyen</p>
               <h4 class="kpi-value">
-                <span>{{ getAveragePanier() | number:'1.0-0' }}</span>
+                <span>{{ getAveragePanier() | number: '1.0-0' }}</span>
                 <span class="value-suffix">F CFA</span>
               </h4>
             </div>
@@ -167,15 +161,15 @@
             </ng-template>
             <ng-template #body let-summary>
               <tr>
-                <td>{{ summary.saleDate | date:'dd/MM/yyyy' }}</td>
+                <td>{{ summary.saleDate | date: 'dd/MM/yyyy' }}</td>
                 <td>
                   <p-tag [severity]="getSeverityForType(summary.typeVente)">{{ summary.typeVente || 'N/A' }}</p-tag>
                 </td>
                 <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
-                <td class="text-end pharma-price">{{ summary.caTotal | number:'1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.caNet | number:'1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.totalRemises | number:'1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.panierMoyen | number:'1.0-2' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.caTotal | number: '1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.caNet | number: '1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.totalRemises | number: '1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }} F CFA</td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>

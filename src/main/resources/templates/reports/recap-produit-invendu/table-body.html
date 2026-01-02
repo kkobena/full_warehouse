@@ -22,16 +22,26 @@
       <td class="text-right" th:if="${itm.stock ge 1000}" th:text="${#numbers.formatInteger(itm.stock,3,'WHITESPACE')}"></td>
       <td class="text-right" th:if="${itm.stock lt 1000}" th:text="${itm.stock}"></td>
 
-      <td class="text-right" th:if="${itm.totalSalesAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalSalesAmount,3,'WHITESPACE')}"></td>
+      <td
+        class="text-right"
+        th:if="${itm.totalSalesAmount ge 1000}"
+        th:text="${#numbers.formatInteger(itm.totalSalesAmount,3,'WHITESPACE')}"
+      ></td>
       <td class="text-right" th:if="${itm.totalSalesAmount lt 1000}" th:text="${itm.totalSalesAmount}"></td>
 
-      <td class="text-right" th:if="${itm.totalPurchaseAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalPurchaseAmount,3,'WHITESPACE')}"></td>
+      <td
+        class="text-right"
+        th:if="${itm.totalPurchaseAmount ge 1000}"
+        th:text="${#numbers.formatInteger(itm.totalPurchaseAmount,3,'WHITESPACE')}"
+      ></td>
       <td class="text-right" th:if="${itm.totalPurchaseAmount lt 1000}" th:text="${itm.totalPurchaseAmount}"></td>
     </tr>
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td colspan="5"><strong>TOTAUX</strong></td>
+      <td colspan="5">
+        <strong>TOTAUX</strong>
+      </td>
 
       <td class="text-right">
         <strong>
@@ -55,4 +65,4 @@
       </td>
     </tr>
   </tfoot>
-</table>
+</table>;

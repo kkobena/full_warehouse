@@ -33,7 +33,7 @@ export class SemoisSuggestion implements ISemoisSuggestion {
     public delaiLivraisonJours?: number,
     public coefficientSecurite?: number,
     public facteurSaisonnier?: number,
-    public dateDernierCalcul?: Date
+    public dateDernierCalcul?: Date,
   ) {}
 
   /**

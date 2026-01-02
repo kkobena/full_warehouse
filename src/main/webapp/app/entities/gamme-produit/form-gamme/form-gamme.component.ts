@@ -20,7 +20,7 @@ import { KeyFilter } from 'primeng/keyfilter';
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, KeyFilter],
 })
 export class FormGammeComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   gamme: IGammeProduit | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected isSaving = false;

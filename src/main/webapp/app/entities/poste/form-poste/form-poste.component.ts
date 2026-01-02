@@ -34,7 +34,7 @@ import { Checkbox } from 'primeng/checkbox';
   ],
 })
 export class FormPosteComponent implements OnInit, AfterViewInit {
-  title: string = '';
+  title = '';
   entity: IPoste;
   protected fb = inject(UntypedFormBuilder);
   protected isSaving = false;

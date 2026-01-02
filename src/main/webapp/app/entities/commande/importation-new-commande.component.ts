@@ -20,10 +20,10 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
   styleUrls: ['./form-import-new.scss'],
-  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent]
+  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent],
 })
 export class ImportationNewCommandeComponent implements OnInit {
-  header: string = '';
+  header = '';
   protected isSaving = false;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
@@ -48,7 +48,7 @@ export class ImportationNewCommandeComponent implements OnInit {
       { label: 'DPCI', value: 'DPCI' },
       { label: 'TEDIS', value: 'TEDIS' },
       { label: 'Cip  quantité', value: 'CIP_QTE' },
-      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' }
+      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' },
     ];
   }
 
@@ -69,7 +69,7 @@ export class ImportationNewCommandeComponent implements OnInit {
         finalize(() => {
           this.spinner().hide();
           this.isSaving = false;
-        })
+        }),
       )
       .subscribe({
         next: res => {
@@ -78,7 +78,7 @@ export class ImportationNewCommandeComponent implements OnInit {
         },
         error: error => {
           this.onCommonError(error);
-        }
+        },
       });
   }
 

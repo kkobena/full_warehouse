@@ -64,7 +64,7 @@ export default class CashRegisterReportComponent implements OnInit {
     const dateStr = this.formatDate(this.selectedDate());
 
     this.cashRegisterService.exportDailyReportToPdf(dateStr).subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);

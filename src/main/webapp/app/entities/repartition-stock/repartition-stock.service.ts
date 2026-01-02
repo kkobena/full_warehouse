@@ -64,7 +64,9 @@ export class RepartitionStockService {
    * Process manual stock repartition (single or multiple)
    */
   processManualRepartition(
-    requests: { stockSourceId: number; stockDestinationId: number; quantity: number } | { stockSourceId: number; stockDestinationId: number; quantity: number }[],
+    requests:
+      | { stockSourceId: number; stockDestinationId: number; quantity: number }
+      | { stockSourceId: number; stockDestinationId: number; quantity: number }[],
   ): Observable<HttpResponse<void>> {
     const requestsArray = Array.isArray(requests) ? requests : [requests];
     return this.http.post<void>(`${this.resourceUrl}/manual`, requestsArray, { observe: 'response' });

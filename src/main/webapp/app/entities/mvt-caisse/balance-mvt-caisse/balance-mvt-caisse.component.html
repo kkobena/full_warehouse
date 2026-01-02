@@ -226,7 +226,7 @@
               <div class="grid">
                 <div class="col-12">
                   @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
-                    @if (mvtCaisse.key == 'SORTIE_CAISSE') {
+                    @if (mvtCaisse.key === 'SORTIE_CAISSE') {
                       <div class="field">
                         <label>{{ mvtCaisse.libelle }}</label>
                         <span class="text-danger">{{ mvtCaisse.value * -1 | number }}</span>

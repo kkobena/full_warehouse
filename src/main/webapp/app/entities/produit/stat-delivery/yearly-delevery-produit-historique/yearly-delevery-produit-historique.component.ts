@@ -81,7 +81,7 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
 
   exportPdf(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.exportHistoriqueAchatMensuelToPdf(produitAuditingParam).subscribe({
-      next: blod => {
+      next(blod) {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },

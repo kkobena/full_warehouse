@@ -95,7 +95,7 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected unitPriceLessThanPurchasePrice = signal<boolean>(false);
   protected suggerQuantitySold = signal<boolean>(false);
 
-  protected seuilFilterOptions = signal<Array<{ label: string; value: SeuilFilterType | null }>>([
+  protected seuilFilterOptions = signal<{ label: string; value: SeuilFilterType | null }[]>([
     { label: 'Aucun filtre', value: null },
     { label: 'Seuil Inferieur à', value: SeuilFilterType.LESS_THAN },
     { label: 'Seuil supérieur à', value: SeuilFilterType.GREATER_THAN },
@@ -105,7 +105,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     { label: 'Seuil mini atteint', value: SeuilFilterType.SEUIL_MINI_ATTEINT },
   ]);
 
-  protected stockFilterOptions = signal<Array<{ label: string; value: StockFilterType | null }>>([
+  protected stockFilterOptions = signal<{ label: string; value: StockFilterType | null }[]>([
     { label: 'Aucun filtre', value: null },
     { label: 'Stock égal à', value: StockFilterType.EQUAL_TO },
     { label: 'Stock inférieur à', value: StockFilterType.LESS_THAN },
@@ -466,7 +466,7 @@ export default class RecapProduitVenduComponent implements OnInit {
     this.recapService
       .createInventoryFromRecap({
         ...requestParam,
-        isInvendu: isInvendu,
+        isInvendu,
       })
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({

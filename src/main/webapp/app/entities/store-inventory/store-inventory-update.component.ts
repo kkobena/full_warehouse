@@ -426,7 +426,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   }
 
   private onCloseError(error: any): void {
-    if (error.error && error.error.status === 500) {
+    if (error.error?.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({

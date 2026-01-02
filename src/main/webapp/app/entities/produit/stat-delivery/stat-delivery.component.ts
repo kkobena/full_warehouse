@@ -58,7 +58,7 @@ export class StatDeliveryComponent implements AfterViewInit {
   }
 
   onClear(event: any): void {
-    //this.resetData();
+    // this.resetData();
   }
 
   load(): void {

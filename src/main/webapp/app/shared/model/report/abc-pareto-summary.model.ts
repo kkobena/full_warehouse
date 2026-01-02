@@ -24,6 +24,6 @@ export class ABCParetoSummary implements IABCParetoSummary {
     public pctCaClasseB?: number,
     public nbProduitsC?: number,
     public caClasseC?: number,
-    public pctCaClasseC?: number
+    public pctCaClasseC?: number,
   ) {}
 }

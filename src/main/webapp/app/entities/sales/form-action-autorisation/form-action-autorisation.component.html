@@ -10,7 +10,7 @@
       <p-card>
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
-            <label for="actionAuthorityKey" >Code/Mot de passe</label>
+            <label for="actionAuthorityKey">Code/Mot de passe</label>
             <p-password
               [autofocus]="true"
               fluid="true"
@@ -24,7 +24,7 @@
             @if (
               editForm.get('actionAuthorityKey')!.invalid &&
               (editForm.get('actionAuthorityKey')!.dirty || editForm.get('actionAuthorityKey')!.touched)
-              ) {
+            ) {
               <div>
                 @if (editForm.get('actionAuthorityKey')?.errors?.required) {
                   <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
@@ -33,11 +33,10 @@
             }
           </div>
           <div class="form-field form-field-full">
-            <label for="commentaire" >Commentaire</label>
-            <textarea pTextarea  id="commentaire" rows="3" name="commentaire" formControlName="commentaire"></textarea>
+            <label for="commentaire">Commentaire</label>
+            <textarea pTextarea id="commentaire" rows="3" name="commentaire" formControlName="commentaire"></textarea>
           </div>
         </div>
-
       </p-card>
     </div>
 

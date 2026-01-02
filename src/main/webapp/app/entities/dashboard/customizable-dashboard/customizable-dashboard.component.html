@@ -25,7 +25,8 @@
             [icon]="isEditMode() ? 'pi pi-eye' : 'pi pi-pencil'"
             (onClick)="toggleEditMode()"
             size="small"
-            [severity]="isEditMode() ? 'warn' : 'secondary'" />
+            [severity]="isEditMode() ? 'warn' : 'secondary'"
+          />
 
           @if (isEditMode()) {
             <p-button label="Ajouter Widget" icon="pi pi-plus" (onClick)="addWidget()" size="small" />
@@ -47,7 +48,9 @@
           <i class="pi pi-info-circle alert-icon"></i>
           <div class="alert-content">
             <strong class="alert-title">Mode Édition activé</strong>
-            <p class="alert-text">Vous pouvez déplacer et redimensionner les widgets. Cliquez sur "Sauvegarder" pour enregistrer vos modifications.</p>
+            <p class="alert-text">
+              Vous pouvez déplacer et redimensionner les widgets. Cliquez sur "Sauvegarder" pour enregistrer vos modifications.
+            </p>
           </div>
         </div>
       </div>

@@ -34,7 +34,6 @@ import { Toolbar } from 'primeng/toolbar';
     TooltipModule,
     FormsModule,
     PanelModule,
-
   ],
 })
 export class MenuComponent implements OnInit {

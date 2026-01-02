@@ -93,7 +93,7 @@ export class TauriPrinterService {
 
       await invoke('print_image', {
         imageData: imageBase64,
-        printerName: printerName,
+        printerName,
       });
 
       console.log(`Image sent to printer: ${printerName}`);
@@ -168,8 +168,8 @@ export class TauriPrinterService {
       }
 
       await invoke('print_escpos', {
-        escposData: escposData,
-        printerName: printerName,
+        escposData,
+        printerName,
       });
     } catch (error) {
       console.error('Error printing ESC/POS receipt:', error);
@@ -277,7 +277,7 @@ export class TauriPrinterService {
         const connectionType = this.determineConnectionType(posteData.customerDisplayPort);
 
         this.displayConfig = {
-          connectionType: connectionType,
+          connectionType,
           serialPort: connectionType === 'SERIAL' ? posteData.customerDisplayPort : undefined,
           baudRate: 9600, // Default baud rate for serial
           ipAddress: connectionType === 'NETWORK' ? posteData.address : undefined,
@@ -288,7 +288,7 @@ export class TauriPrinterService {
         // Save to localStorage for offline fallback
         this.saveDisplayConfig({
           enabled: true,
-          connectionType: connectionType,
+          connectionType,
           serialPort: this.displayConfig.serialPort,
           baudRate: this.displayConfig.baudRate,
           ipAddress: this.displayConfig.ipAddress,
@@ -436,7 +436,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displayWelcomeMessage(storeName, this.displayConfig!);
+      await this.customerDisplayService.displayWelcomeMessage(storeName, this.displayConfig);
     } catch (error) {
       console.error('Failed to show welcome message on customer display:', error);
     }
@@ -452,7 +452,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displayUserMessage(userName, this.displayConfig!);
+      await this.customerDisplayService.displayUserMessage(userName, this.displayConfig);
     } catch (error) {
       console.error('Failed to update customer display for user:', error);
     }
@@ -470,7 +470,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displaySalesData(productName, qty, price, this.displayConfig!);
+      await this.customerDisplayService.displaySalesData(productName, qty, price, this.displayConfig);
     } catch (error) {
       console.error('Failed to update customer display for product:', error);
     }
@@ -486,7 +486,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displaySaleTotal(total, this.displayConfig!);
+      await this.customerDisplayService.displaySaleTotal(total, this.displayConfig);
     } catch (error) {
       console.error('Failed to update customer display for total:', error);
     }
@@ -502,7 +502,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displayChange(change, this.displayConfig!);
+      await this.customerDisplayService.displayChange(change, this.displayConfig);
     } catch (error) {
       console.error('Failed to update customer display for change:', error);
     }
@@ -521,7 +521,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.displayTwoLines(line1, line2, this.displayConfig!, align1, align2);
+      await this.customerDisplayService.displayTwoLines(line1, line2, this.displayConfig, align1, align2);
     } catch (error) {
       console.error('Failed to display custom message on customer display:', error);
     }
@@ -536,7 +536,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.clearDisplay(this.displayConfig!);
+      await this.customerDisplayService.clearDisplay(this.displayConfig);
     } catch (error) {
       console.error('Failed to clear customer display:', error);
     }
@@ -551,7 +551,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.resetDisplay(this.displayConfig!);
+      await this.customerDisplayService.resetDisplay(this.displayConfig);
     } catch (error) {
       console.error('Failed to reset customer display:', error);
     }
@@ -567,7 +567,7 @@ export class TauriPrinterService {
     }
 
     try {
-      await this.customerDisplayService.setBrightness(level, this.displayConfig!);
+      await this.customerDisplayService.setBrightness(level, this.displayConfig);
     } catch (error) {
       console.error('Failed to set customer display brightness:', error);
     }

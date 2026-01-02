@@ -9,15 +9,10 @@ import {
   faCommentsDollar,
   faCreditCard,
   faShippingFast,
-  faShoppingBasket
+  faShoppingBasket,
 } from '@fortawesome/free-solid-svg-icons';
 import { TableModule } from 'primeng/table';
-import {
-  VenteByTypeRecord,
-  VenteModePaimentRecord,
-  VenteRecord,
-  VenteRecordWrapper
-} from '../../shared/model/vente-record.model';
+import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
 import { ProductStatParetoRecord, ProductStatRecord } from '../../shared/model/produit-record.model';
 import { AchatRecord } from '../../shared/model/achat-record.model';
 import { CaPeriodeFilter } from '../../shared/model/enumerations/ca-periode-filter.model';
@@ -33,13 +28,7 @@ import { TiersPayantService } from '../../entities/tiers-payant/tierspayant.serv
 import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant-achat.model';
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonChangeEvent, ToggleButtonModule } from 'primeng/togglebutton';
-import {
-  backgroundColor,
-  hoverBackgroundColor,
-  surfaceBorder,
-  textColor,
-  textColorSecondary
-} from '../../shared/chart-color-helper';
+import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
 import { ToggleStateService } from './toggle-state.service';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -53,9 +42,20 @@ interface TopSelection {
 
 @Component({
   selector: 'jhi-home-base',
-  imports: [CommonModule, FormsModule, DecimalPipe, TableModule, FaIconComponent, ChartModule, ToggleButtonModule, SelectModule, ButtonModule, BadgeModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DecimalPipe,
+    TableModule,
+    FaIconComponent,
+    ChartModule,
+    ToggleButtonModule,
+    SelectModule,
+    ButtonModule,
+    BadgeModule,
+  ],
   templateUrl: './home-base.component.html',
-  styleUrl: './home-base.component.scss'
+  styleUrl: './home-base.component.scss',
 })
 export class HomeBaseComponent implements OnInit, OnDestroy {
   protected readonly faShoppingBasket = faShoppingBasket;
@@ -149,39 +149,39 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     const sources = {
       ca: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: this.dashboardPeriode
+        dashboardPeriode: this.dashboardPeriode,
       }),
       caAchat: this.dashboardService.fetchCaAchat({
-        dashboardPeriode: this.dashboardPeriode
+        dashboardPeriode: this.dashboardPeriode,
       }),
       caTypeVente: this.dashboardService.fetchCaByTypeVente({
-        dashboardPeriode: this.dashboardPeriode
+        dashboardPeriode: this.dashboardPeriode,
       }),
       byModePaiment: this.dashboardService.getCaByModePaiment({
-        dashboardPeriode: this.dashboardPeriode
+        dashboardPeriode: this.dashboardPeriode,
       }),
       produitCa: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value
+        limit: this.TOP_MAX_QUANTITY?.value,
       }),
       produitAmount: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value
+        limit: this.TOP_MAX_AMOUNT?.value,
       }),
       twentyEighty: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.QUANTITY_SOLD
+        order: OrderBy.QUANTITY_SOLD,
       }),
       twentyEightyMontant: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.AMOUNT
+        order: OrderBy.AMOUNT,
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value
-      })
+        limit: this.TOP_MAX_TP?.value,
+      }),
     };
 
     forkJoin(sources).subscribe({
@@ -197,8 +197,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
         this.buildAllCharts();
       },
-      error: () => {
-      }
+      error() {},
     });
   }
 
@@ -207,7 +206,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value
+        limit: this.TOP_MAX_QUANTITY?.value,
       })
       .subscribe(res => {
         this.onFetchPoduitCaSuccess(res.body);
@@ -220,7 +219,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value
+        limit: this.TOP_MAX_AMOUNT?.value,
       })
       .subscribe(res => {
         this.onFetchPoduitAmountSuccess(res.body);
@@ -236,7 +235,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.tiersPayantService
       .fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value
+        limit: this.TOP_MAX_TP?.value,
       })
       .subscribe(res => {
         this.onFetchTiersPayantSuccess(res.body);
@@ -335,9 +334,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
           type: 'bar',
           label: 'Quantité vendue',
           backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'),
-          data: this.rowQuantity.map(p => p.quantitySold)
-        }
-      ]
+          data: this.rowQuantity.map(p => p.quantitySold),
+        },
+      ],
     };
     this.quantityChartOptions = this.getCommonChartOptions();
   }
@@ -350,9 +349,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
-          data: this.rowAmount.map(p => p.montantHt)
-        }
-      ]
+          data: this.rowAmount.map(p => p.montantHt),
+        },
+      ],
     };
     this.amountChartOptions = this.getCommonChartOptions();
   }
@@ -366,15 +365,15 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
           label: '% Montant',
           borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
           tension: 0.4,
-          data: this.row20x80.map(p => p.pourcentage)
+          data: this.row20x80.map(p => p.pourcentage),
         },
         {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
-          data: this.row20x80.map(p => p.total)
-        }
-      ]
+          data: this.row20x80.map(p => p.total),
+        },
+      ],
     };
     this.twentyEightyChartOptions = this.getCommonChartOptions();
   }
@@ -386,9 +385,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         {
           data: this.venteModePaiments.map(p => p.paidAmount),
           backgroundColor: backgroundColor(this.documentStyle),
-          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle)
-        }
-      ]
+          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle),
+        },
+      ],
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
   }
@@ -402,9 +401,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         {
           data: this.tiersPayantAchat.map(p => p.montantTtc),
           backgroundColor: bgs.reverse(),
-          hoverBackgroundColor: hovers.reverse()
-        }
-      ]
+          hoverBackgroundColor: hovers.reverse(),
+        },
+      ],
     };
     this.tiersPayantChartOptions = this.getCommonPieChartOptions();
   }
@@ -416,28 +415,28 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
       plugins: {
         legend: {
           labels: {
-            color: this.textColor
-          }
-        }
+            color: this.textColor,
+          },
+        },
       },
       scales: {
         y: {
           ticks: {
-            color: this.textColorSecondary
+            color: this.textColorSecondary,
           },
           grid: {
-            color: this.surfaceBorder
-          }
+            color: this.surfaceBorder,
+          },
         },
         x: {
           ticks: {
-            color: this.textColorSecondary
+            color: this.textColorSecondary,
           },
           grid: {
-            color: this.surfaceBorder
-          }
-        }
-      }
+            color: this.surfaceBorder,
+          },
+        },
+      },
     };
   }
 
@@ -448,10 +447,10 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
           position: 'bottom',
           labels: {
             color: this.textColor,
-            usePointStyle: true
-          }
-        }
-      }
+            usePointStyle: true,
+          },
+        },
+      },
     };
   }
 
@@ -488,9 +487,9 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
           this.prixModifCount = alertCounts.prixModifCount;
         }
       },
-      error: () => {
+      error() {
         // En cas d'erreur, garder les valeurs par défaut (0)
-        console.error('Erreur lors du chargement des compteurs d\'alertes');
+        console.error("Erreur lors du chargement des compteurs d'alertes");
       },
     });
   }

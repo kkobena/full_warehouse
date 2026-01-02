@@ -72,8 +72,6 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-
-
   saveCash(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
     const copy = this.convertDateFromClient(sales);
     return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
@@ -107,9 +105,9 @@ export class SalesService {
     return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
   }
 
-  getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
+  getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
-      params: { isEdition: isEdition },
+      params: { isEdition },
       responseType: 'arraybuffer',
     });
   }
@@ -201,9 +199,9 @@ export class SalesService {
   addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
-  countPendingSales(req?: any): Observable< HttpResponse<number>> {
+  countPendingSales(req?: any): Observable<HttpResponse<number>> {
     const options = createRequestOptions(req);
-    return this.http.get<number>(this.resourceUrl+'/vente-en-attente-count', { params: options, observe: 'response' });
+    return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', { params: options, observe: 'response' });
   }
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {

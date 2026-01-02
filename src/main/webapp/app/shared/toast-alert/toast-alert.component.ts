@@ -15,7 +15,7 @@ export class ToastAlertComponent {
 
   show(title: string, message: string, severity: Severity): void {
     this.messageService.add({
-      severity: severity,
+      severity,
       summary: title,
       detail: message,
     });

@@ -52,9 +52,9 @@ export class VoSalesService {
     return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
+  getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
-      params: { isEdition: isEdition },
+      params: { isEdition },
       responseType: 'arraybuffer',
     });
   }

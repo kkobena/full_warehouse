@@ -31,10 +31,10 @@ import { Card } from 'primeng/card';
     AssureStepComponent,
     AyantDroitStepComponent,
     ToastAlertComponent,
-    Card
+    Card,
   ],
   templateUrl: './assure-form-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss']
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;
@@ -88,7 +88,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
     this.assureFormStepService.setAssure({
       ...assureComponent.createFromForm(),
-      ayantDroits
+      ayantDroits,
     });
   }
 
@@ -121,11 +121,11 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     result
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-        error: (error: any) => this.onSaveError(error)
+        error: (error: any) => this.onSaveError(error),
       });
   }
 

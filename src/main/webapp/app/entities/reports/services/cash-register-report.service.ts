@@ -27,7 +27,12 @@ export class CashRegisterReportService {
   /**
    * Get cash movements history
    */
-  getCashMovements(startDate: string, endDate: string, userId?: number, cashRegisterId?: number): Observable<CashMovementArrayResponseType> {
+  getCashMovements(
+    startDate: string,
+    endDate: string,
+    userId?: number,
+    cashRegisterId?: number,
+  ): Observable<CashMovementArrayResponseType> {
     let params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
 
     if (userId) {

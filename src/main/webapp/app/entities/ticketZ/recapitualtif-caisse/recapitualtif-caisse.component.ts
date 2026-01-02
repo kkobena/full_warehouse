@@ -1,12 +1,4 @@
-import {
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  viewChild,
-  WritableSignal
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';

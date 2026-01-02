@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
+import { ApplicationConfig, inject, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   NavigationError,
@@ -14,7 +14,8 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+// eslint-disable-next-line @typescript-eslint/no-deprecated
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';
 import routes from './app.routes';
@@ -51,10 +52,12 @@ if (environment.DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
 
-// --- AppConfig standalone Angular 20 ---
+// --- AppConfig standalone Angular 21 ---
 export const appConfig: ApplicationConfig = {
   providers: [
     // --- Core Angular ---
+    // Note: In Angular 21, HttpClient is provided by default, but we still need
+    // provideHttpClient() for custom configuration like withInterceptorsFromDi()
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptorsFromDi()),
 
@@ -82,9 +85,6 @@ export const appConfig: ApplicationConfig = {
     // --- Storage ---
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
-    // --- UI / Animations ---
-    provideNoopAnimations(),
-    importProvidersFrom([]),
     providePrimeNG({ theme: { preset: Aura } }),
 
     // --- Interceptors ---

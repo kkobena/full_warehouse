@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 
@@ -30,7 +30,7 @@ Chart.register(...registerables);
     `,
   ],
 })
-export class PieChartWidgetComponent implements OnInit, AfterViewInit {
+export class PieChartWidgetComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() config: any;
 
@@ -85,7 +85,7 @@ export class PieChartWidgetComponent implements OnInit, AfterViewInit {
           },
           tooltip: {
             callbacks: {
-              label: context => {
+              label(context) {
                 return `${context.label}: ${context.parsed}%`;
               },
             },

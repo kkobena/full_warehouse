@@ -1,23 +1,21 @@
-import {Component, OnInit, inject, signal, computed} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {HttpResponse} from '@angular/common/http';
-import {Router} from '@angular/router';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
+import { TableModule } from 'primeng/table';
+import { ChartModule } from 'primeng/chart';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
-import {TableModule} from 'primeng/table';
-import {ChartModule} from 'primeng/chart';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {BadgeModule} from 'primeng/badge';
-import {TooltipModule} from 'primeng/tooltip';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {TagModule} from 'primeng/tag';
-import {ToastModule} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
-
-
-import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faCashRegister,
   faMoneyBillWave,
@@ -32,7 +30,7 @@ import {
   faPrint,
 } from '@fortawesome/free-solid-svg-icons';
 
-import {CaissierDashboardService} from './caissier-dashboard.service';
+import { CaissierDashboardService } from './caissier-dashboard.service';
 import {
   ICaissierDashboard,
   IVentesJour,
@@ -59,7 +57,6 @@ import {
     TagModule,
     FontAwesomeModule,
     ToastModule,
-
   ],
   providers: [MessageService],
   templateUrl: './caissier-dashboard.component.html',
@@ -106,7 +103,7 @@ export class CaissierDashboardComponent implements OnInit {
 
   protected objectifAtteint = computed(() => {
     const ventes = this.ventesJour();
-    if (!ventes || !ventes.objectifJour) return false;
+    if (!ventes?.objectifJour) return false;
     return (ventes.tauxAtteinte || 0) >= 100;
   });
 
@@ -143,7 +140,7 @@ export class CaissierDashboardComponent implements OnInit {
         position: 'bottom',
         labels: {
           color: '#cbd5e1',
-          font: {size: 12},
+          font: { size: 12 },
         },
       },
     },
@@ -208,7 +205,7 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected formatCurrency(value: number): string {
-    return new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'XOF'}).format(value);
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(value);
   }
 
   protected formatNumber(value: number): string {
@@ -217,22 +214,19 @@ export class CaissierDashboardComponent implements OnInit {
 
   // Quick Actions Methods
   protected nouvelleVente(): void {
-
     this.router.navigate(['/sales/new']);
   }
 
   protected ouvrirCaisse(): void {
-    //my-cash-register
+    // my-cash-register
     this.router.navigate(['/my-cash-register']);
   }
 
-
   protected imprimerRapport(): void {
-
     this.dashboardService.imprimerRapportCaisse().subscribe({
-      next: (res) => {
+      next: res => {
         if (res.body) {
-          const blob = new Blob([res.body], {type: 'application/pdf'});
+          const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
           window.open(url);
           this.messageService.add({
@@ -246,7 +240,7 @@ export class CaissierDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors de l\'impression du rapport',
+          detail: "Erreur lors de l'impression du rapport",
         });
       },
     });
@@ -257,7 +251,6 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected gererAlertes(): void {
-
     this.router.navigate(['/alertes']);
   }
 

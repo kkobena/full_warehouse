@@ -25,27 +25,43 @@
       <td class="text-right" th:if="${itm.quantitySold ge 1000}" th:text="${#numbers.formatInteger(itm.quantitySold,3,'WHITESPACE')}"></td>
       <td class="text-right" th:if="${itm.quantitySold lt 1000}" th:text="${itm.quantitySold}"></td>
 
-      <td class="text-right" th:if="${itm.totalSalesAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalSalesAmount,3,'WHITESPACE')}"></td>
+      <td
+        class="text-right"
+        th:if="${itm.totalSalesAmount ge 1000}"
+        th:text="${#numbers.formatInteger(itm.totalSalesAmount,3,'WHITESPACE')}"
+      ></td>
       <td class="text-right" th:if="${itm.totalSalesAmount lt 1000}" th:text="${itm.totalSalesAmount}"></td>
 
-      <td class="text-right" th:if="${itm.totalPurchaseAmount ge 1000}" th:text="${#numbers.formatInteger(itm.totalPurchaseAmount,3,'WHITESPACE')}"></td>
+      <td
+        class="text-right"
+        th:if="${itm.totalPurchaseAmount ge 1000}"
+        th:text="${#numbers.formatInteger(itm.totalPurchaseAmount,3,'WHITESPACE')}"
+      ></td>
       <td class="text-right" th:if="${itm.totalPurchaseAmount lt 1000}" th:text="${itm.totalPurchaseAmount}"></td>
 
       <td class="text-right" th:if="${itm.stock ge 1000}" th:text="${#numbers.formatInteger(itm.stock,3,'WHITESPACE')}"></td>
       <td class="text-right" th:if="${itm.stock lt 1000}" th:text="${itm.stock}"></td>
 
-      <td class="text-right" th:if="${itm.quantityAvoir ge 1000}" th:text="${#numbers.formatInteger(itm.quantityAvoir,3,'WHITESPACE')}"></td>
+      <td
+        class="text-right"
+        th:if="${itm.quantityAvoir ge 1000}"
+        th:text="${#numbers.formatInteger(itm.quantityAvoir,3,'WHITESPACE')}"
+      ></td>
       <td class="text-right" th:if="${itm.quantityAvoir lt 1000}" th:text="${itm.quantityAvoir}"></td>
 
       <td class="text-right">
-        <span th:with="marge=${itm.totalSalesAmount > 0 ? ((itm.totalSalesAmount - itm.totalPurchaseAmount) * 100.0 / itm.totalSalesAmount) : 0}"
-              th:text="${#numbers.formatDecimal(marge, 1, 2)} + '%'"></span>
+        <span
+          th:with="marge=${itm.totalSalesAmount > 0 ? ((itm.totalSalesAmount - itm.totalPurchaseAmount) * 100.0 / itm.totalSalesAmount) : 0}"
+          th:text="${#numbers.formatDecimal(marge, 1, 2)} + '%'"
+        ></span>
       </td>
     </tr>
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td colspan="5"><strong>TOTAUX</strong></td>
+      <td colspan="5">
+        <strong>TOTAUX</strong>
+      </td>
 
       <td class="text-right">
         <strong>
@@ -84,10 +100,12 @@
 
       <td class="text-right">
         <strong>
-          <span th:with="margeGlobale=${totalSalesAmount > 0 ? ((totalSalesAmount - totalPurchaseAmount) * 100.0 / totalSalesAmount) : 0}"
-                th:text="${#numbers.formatDecimal(margeGlobale, 1, 2)} + '%'"></span>
+          <span
+            th:with="margeGlobale=${totalSalesAmount > 0 ? ((totalSalesAmount - totalPurchaseAmount) * 100.0 / totalSalesAmount) : 0}"
+            th:text="${#numbers.formatDecimal(margeGlobale, 1, 2)} + '%'"
+          ></span>
         </strong>
       </td>
     </tr>
   </tfoot>
-</table>
+</table>;

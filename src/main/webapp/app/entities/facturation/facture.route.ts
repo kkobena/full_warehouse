@@ -13,7 +13,7 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
   const invoiceDate = route.params['invoiceDate'];
   if (id) {
     return inject(FactureService)
-      .find({ id: id, invoiceDate: invoiceDate })
+      .find({ id, invoiceDate })
       .pipe(
         mergeMap((res: HttpResponse<Facture>) => {
           if (res.body) {

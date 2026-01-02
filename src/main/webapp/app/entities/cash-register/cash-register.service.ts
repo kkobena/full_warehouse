@@ -12,7 +12,6 @@ type EntityArrayResponseType = HttpResponse<CashRegister[]>;
 @Injectable({
   providedIn: 'root',
 })
-
 export class CashRegisterService {
   private readonly http = inject(HttpClient);
   private readonly resourceUrl = SERVER_API_URL + 'api/cash-registers';

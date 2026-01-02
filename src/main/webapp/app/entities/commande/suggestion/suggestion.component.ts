@@ -1,28 +1,37 @@
-import {Component, inject, input, OnDestroy, OnInit, output, viewChild} from '@angular/core';
-import {SuggestionService} from './suggestion.service';
-import {Suggestion} from './model/suggestion.model';
-import {RouterModule} from '@angular/router';
-import {NgbModal, NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorService} from '../../../shared/error.service';
-import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
-import {ExpandMode} from '../commande-en-cours/commande-en-cours.component';
-import {Keys} from '../../../shared/model/keys.model';
-import {Button} from 'primeng/button';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
-import {CommonModule} from '@angular/common';
-import {Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {ConfirmDialogComponent} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import {SpinnerComponent} from '../../../shared/spinner/spinner.component';
+import { Component, inject, input, OnDestroy, OnInit, output, viewChild } from '@angular/core';
+import { SuggestionService } from './suggestion.service';
+import { Suggestion } from './model/suggestion.model';
+import { RouterModule } from '@angular/router';
+import { NgbModal, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../shared/error.service';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { ExpandMode } from '../commande-en-cours/commande-en-cours.component';
+import { Keys } from '../../../shared/model/keys.model';
+import { Button } from 'primeng/button';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Tooltip } from 'primeng/tooltip';
+import { CommonModule } from '@angular/common';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import SemoisSuggestionsComponent from '../../semois/semois-suggestions.component';
-
 
 @Component({
   selector: 'jhi-suggestion',
-  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent, NgbNavModule, SemoisSuggestionsComponent],
+  imports: [
+    Button,
+    CommonModule,
+    RouterModule,
+    TableModule,
+    Tooltip,
+    ConfirmDialogComponent,
+    SpinnerComponent,
+    NgbNavModule,
+    SemoisSuggestionsComponent,
+  ],
   templateUrl: './suggestion.component.html',
   styleUrl: './suggestion.component.scss',
 })
@@ -203,7 +212,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   private onCommonError(error: any): void {
-    if (error.error && error.error.status === 500) {
+    if (error.error?.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
       this.errorService

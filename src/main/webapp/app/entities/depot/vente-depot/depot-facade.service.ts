@@ -134,7 +134,7 @@ export class DepotFacadeService {
       .subscribe();
   }
 
-  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+  printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     this.spinnerService.next(true);
     this.depotService
       .getEscPosReceiptForTauri(saleId, isEdition)
@@ -210,7 +210,7 @@ export class DepotFacadeService {
     return {
       ...new Sales(),
       salesLines: [salesLine],
-      natureVente: 'ASSURANCE', //TODO A SUPPRIMER
+      natureVente: 'ASSURANCE', // TODO A SUPPRIMER
       magasin: { id: this.depotService.selectedDepot()?.id },
       typePrescription: 'DEPOT',
       cassierId: this.depotService.caissier()?.id,

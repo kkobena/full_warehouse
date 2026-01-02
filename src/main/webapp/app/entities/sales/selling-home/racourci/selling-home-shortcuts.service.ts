@@ -106,21 +106,21 @@ export class SellingHomeShortcutsService {
       key: 'F2',
       category: 'Navigation',
       description: 'Rechercher un produit',
-      action: () => this.callbacks!.focusProductSearch(),
+      action: () => this.callbacks.focusProductSearch(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'F3',
       category: 'Navigation',
       description: 'Modifier la quantité',
-      action: () => this.callbacks!.focusQuantity(),
+      action: () => this.callbacks.focusQuantity(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'F4',
       category: 'Navigation',
       description: 'Sélectionner un client',
-      action: () => this.callbacks!.focusCustomer(),
+      action: () => this.callbacks.focusCustomer(),
     });
 
     // ==========================================
@@ -130,28 +130,28 @@ export class SellingHomeShortcutsService {
       key: 'F5',
       category: 'Vente',
       description: 'Ajouter le produit au panier',
-      action: () => this.callbacks!.addProduct(),
+      action: () => this.callbacks.addProduct(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'F9',
       category: 'Vente',
       description: 'Finaliser la vente (Paiement)',
-      action: () => this.callbacks!.finalizeSale(),
+      action: () => this.callbacks.finalizeSale(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'F10',
       category: 'Vente',
       description: 'Mettre la vente en attente',
-      action: () => this.callbacks!.savePending(),
+      action: () => this.callbacks.savePending(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'F11',
       category: 'Vente',
       description: 'Voir les ventes en attente',
-      action: () => this.callbacks!.viewPendingSales(),
+      action: () => this.callbacks.viewPendingSales(),
     });
 
     // ==========================================
@@ -161,14 +161,14 @@ export class SellingHomeShortcutsService {
       key: 'Delete',
       category: 'Produit',
       description: 'Supprimer la ligne sélectionnée',
-      action: () => this.callbacks!.removeSelectedLine(),
+      action: () => this.callbacks.removeSelectedLine(),
     });
 
     this.keyboardService.registerShortcut({
       key: 'Escape',
       category: 'Navigation',
       description: 'Annuler / Quitter',
-      action: () => this.callbacks!.cancelSale(),
+      action: () => this.callbacks.cancelSale(),
     });
 
     // ==========================================
@@ -179,7 +179,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Type de vente',
       description: 'Vente Comptant',
-      action: () => this.callbacks!.switchToComptant(),
+      action: () => this.callbacks.switchToComptant(),
     });
 
     this.keyboardService.registerShortcut({
@@ -187,7 +187,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Type de vente',
       description: 'Vente Assurance',
-      action: () => this.callbacks!.switchToAssurance(),
+      action: () => this.callbacks.switchToAssurance(),
     });
 
     this.keyboardService.registerShortcut({
@@ -195,7 +195,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Type de vente',
       description: 'Vente Carnet',
-      action: () => this.callbacks!.switchToCarnet(),
+      action: () => this.callbacks.switchToCarnet(),
     });
 
     this.keyboardService.registerShortcut({
@@ -203,7 +203,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Type de vente',
       description: 'Vente Dépôt Agréé',
-      action: () => this.callbacks!.switchToDepotAgree(),
+      action: () => this.callbacks.switchToDepotAgree(),
     });
 
     // ==========================================
@@ -214,7 +214,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Quantité',
       description: 'Augmenter quantité (+1)',
-      action: () => this.callbacks!.incrementQuantity(1),
+      action: () => this.callbacks.incrementQuantity(1),
     });
 
     this.keyboardService.registerShortcut({
@@ -222,7 +222,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Quantité',
       description: 'Diminuer quantité (-1)',
-      action: () => this.callbacks!.decrementQuantity(1),
+      action: () => this.callbacks.decrementQuantity(1),
     });
 
     this.keyboardService.registerShortcut({
@@ -231,7 +231,7 @@ export class SellingHomeShortcutsService {
       shift: true,
       category: 'Quantité',
       description: 'Augmenter quantité (+10)',
-      action: () => this.callbacks!.incrementQuantity(10),
+      action: () => this.callbacks.incrementQuantity(10),
     });
 
     this.keyboardService.registerShortcut({
@@ -240,7 +240,7 @@ export class SellingHomeShortcutsService {
       shift: true,
       category: 'Quantité',
       description: 'Diminuer quantité (-10)',
-      action: () => this.callbacks!.decrementQuantity(10),
+      action: () => this.callbacks.decrementQuantity(10),
     });
 
     // ==========================================
@@ -251,7 +251,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Remise',
       description: 'Appliquer une remise',
-      action: () => this.callbacks!.applyDiscount(),
+      action: () => this.callbacks.applyDiscount(),
     });
 
     // ==========================================
@@ -262,7 +262,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Navigation',
       description: 'Focus recherche produit',
-      action: () => this.callbacks!.focusProductSearch(),
+      action: () => this.callbacks.focusProductSearch(),
     });
 
     this.keyboardService.registerShortcut({
@@ -270,7 +270,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Navigation',
       description: 'Focus quantité',
-      action: () => this.callbacks!.focusQuantity(),
+      action: () => this.callbacks.focusQuantity(),
     });
 
     this.keyboardService.registerShortcut({
@@ -278,7 +278,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Navigation',
       description: 'Focus client',
-      action: () => this.callbacks!.focusCustomer(),
+      action: () => this.callbacks.focusCustomer(),
     });
 
     this.keyboardService.registerShortcut({
@@ -286,7 +286,7 @@ export class SellingHomeShortcutsService {
       alt: true,
       category: 'Navigation',
       description: 'Focus vendeur',
-      action: () => this.callbacks!.focusVendor(),
+      action: () => this.callbacks.focusVendor(),
     });
   }
 
@@ -306,7 +306,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+S: Mettre en attente (Tauri)`,
-      action: () => this.callbacks!.savePending(),
+      action: () => this.callbacks.savePending(),
     });
 
     this.keyboardService.registerShortcut({
@@ -314,7 +314,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+P: Imprimer ticket (Tauri)`,
-      action: () => this.callbacks!.printReceipt(),
+      action: () => this.callbacks.printReceipt(),
     });
 
     this.keyboardService.registerShortcut({
@@ -323,7 +323,7 @@ export class SellingHomeShortcutsService {
       shift: true,
       category: '⚡ Tauri',
       description: `${modifier}+Shift+P: Imprimer facture (Tauri)`,
-      action: () => this.callbacks!.printInvoice(),
+      action: () => this.callbacks.printInvoice(),
     });
 
     this.keyboardService.registerShortcut({
@@ -331,7 +331,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+N: Nouvelle vente (Tauri)`,
-      action: () => this.callbacks!.cancelSale(),
+      action: () => this.callbacks.cancelSale(),
     });
 
     this.keyboardService.registerShortcut({
@@ -339,7 +339,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+F: Recherche rapide produit (Tauri)`,
-      action: () => this.callbacks!.focusProductSearch(),
+      action: () => this.callbacks.focusProductSearch(),
     });
 
     this.keyboardService.registerShortcut({
@@ -347,7 +347,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+D: Remise rapide (Tauri)`,
-      action: () => this.callbacks!.applyDiscount(),
+      action: () => this.callbacks.applyDiscount(),
     });
 
     this.keyboardService.registerShortcut({
@@ -355,7 +355,7 @@ export class SellingHomeShortcutsService {
       ctrl: true,
       category: '⚡ Tauri',
       description: `${modifier}+Enter: Finaliser rapidement (Tauri)`,
-      action: () => this.callbacks!.finalizeSale(),
+      action: () => this.callbacks.finalizeSale(),
     });
 
     // Force stock if available
@@ -366,7 +366,7 @@ export class SellingHomeShortcutsService {
         shift: true,
         category: '⚡ Tauri',
         description: `${modifier}+Shift+F: Forcer le stock (Tauri)`,
-        action: () => this.callbacks!.forceStock!(),
+        action: () => this.callbacks.forceStock(),
       });
     }
   }

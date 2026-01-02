@@ -11,7 +11,7 @@ import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-load-layout-modal',
   imports: [CommonModule, ButtonModule, Tag],
   templateUrl: './load-layout-modal.component.html',
-  styleUrl: './load-layout-modal.component.scss'
+  styleUrl: './load-layout-modal.component.scss',
 })
 export class LoadLayoutModalComponent {
   activeModal = inject(NgbActiveModal);

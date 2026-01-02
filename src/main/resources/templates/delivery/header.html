@@ -27,11 +27,12 @@
     <table style="margin: 0">
       <tbody>
         <tr>
-          <td>FOURNISSEUR # <span class="fournisseur" th:text="${entity.fournisseur.libelle}"></span></td>
+          <td>
+            FOURNISSEUR # <span class="fournisseur" th:text="${entity.fournisseur.libelle}"></span>
+          </td>
           <td style="text-align: right">
-            <span class="invoice-id invoice-details"
-              >BON #
-              <th:block th:text="${entity.receiptReference}"></th:block>
+            <span class="invoice-id invoice-details">
+              BON #<th:block th:text="${entity.receiptReference}"></th:block>
             </span>
           </td>
         </tr>
@@ -46,4 +47,4 @@
       </tbody>
     </table>
   </div>
-</header>
+</header>;

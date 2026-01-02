@@ -9,10 +9,7 @@
 <div class="modal-body">
   <div class="widget-grid">
     @for (widget of availableWidgets; track widget.value) {
-      <div
-        class="widget-option-card"
-        [class.selected]="selectedWidgetType === widget.value"
-        (click)="selectWidget(widget.value)">
+      <div class="widget-option-card" [class.selected]="selectedWidgetType === widget.value" (click)="selectWidget(widget.value)">
         <div class="widget-option-icon">
           <i class="pi" [ngClass]="widget.icon"></i>
         </div>
@@ -31,17 +28,6 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    label="Annuler"
-    icon="pi pi-times"
-    (onClick)="dismiss()"
-    severity="secondary"
-    [text]="true"
-  />
-  <p-button
-    label="Ajouter"
-    icon="pi pi-check"
-    (onClick)="addWidget()"
-    [disabled]="!selectedWidgetType"
-  />
+  <p-button label="Annuler" icon="pi pi-times" (onClick)="dismiss()" severity="secondary" [text]="true" />
+  <p-button label="Ajouter" icon="pi pi-check" (onClick)="addWidget()" [disabled]="!selectedWidgetType" />
 </div>

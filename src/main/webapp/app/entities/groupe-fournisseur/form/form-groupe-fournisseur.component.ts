@@ -32,9 +32,9 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
   styleUrls: ['./form-groupe-fournisseur.component.scss'],
 })
 export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   entity?: IGroupeFournisseur;
-  protected blockSpace: RegExp = /[^s]/;
+  protected blockSpace = /[^s]/;
   protected isSaving = false;
   protected isValid = true;
   protected fb = inject(UntypedFormBuilder);

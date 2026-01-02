@@ -284,7 +284,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
     const depot = this.selectedDepot();
     const retourDepot = new RetourDepot();
-    retourDepot.depotId = depot!.id;
+    retourDepot.depotId = depot.id;
     retourDepot.retourDepotItems = this.retourDepotItems();
 
     this.isSaving.set(true);

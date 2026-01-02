@@ -35,8 +35,8 @@ import { NgbNav, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
     RepartitionListComponent,
     SuggestionReassortComponent,
     ManualRepartitionComponent,
-    NgbNavModule
-  ]
+    NgbNavModule,
+  ],
 })
 export class RepartitionStockComponent {
   @ViewChild('nav', { static: true }) nav!: NgbNav;
@@ -53,7 +53,6 @@ export class RepartitionStockComponent {
 
   protected activeTab = 'historique';
   protected readonly appendTo = APPEND_TO;
-
 
   onSearch(): void {
     if (this.activeTab === 'historique') {

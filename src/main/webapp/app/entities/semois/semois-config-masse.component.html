@@ -8,7 +8,8 @@
     <p-toolbar>
       <ng-template #end>
         <div class="pharma-toolbar-actions">
-          <p-button icon="pi pi-arrow-left" label="Retour aux suggestions" severity="secondary" [text]="true" (click)="previousState()"> </p-button>
+          <p-button icon="pi pi-arrow-left" label="Retour aux suggestions" severity="secondary" [text]="true" (click)="previousState()">
+          </p-button>
         </div>
       </ng-template>
     </p-toolbar>
@@ -24,7 +25,6 @@
           <span>Classification Auto (ABC)</span>
         </a>
         <ng-template ngbNavContent>
-
           <div class="card">
             <div class="card-body">
               <h6 class="text-primary mb-3">
@@ -33,8 +33,8 @@
               </h6>
 
               <p class="text-muted mb-4">
-                Cette stratégie utilise l'<strong>analyse ABC de rotation</strong> existante pour classer automatiquement vos produits en classes SEMOIS.
-                Elle se base sur le taux de rotation annuel et le z-score statistique.
+                Cette stratégie utilise l'<strong>analyse ABC de rotation</strong> existante pour classer automatiquement vos produits en
+                classes SEMOIS. Elle se base sur le taux de rotation annuel et le z-score statistique.
               </p>
 
               <div class="alert alert-info">
@@ -180,7 +180,6 @@
           <span>Configuration Manuelle</span>
         </a>
         <ng-template ngbNavContent>
-
           <div class="card">
             <div class="card-body">
               <h6 class="text-primary mb-3">
@@ -189,8 +188,8 @@
               </h6>
 
               <p class="text-muted mb-4">
-                Initialise tous les produits actifs sans configuration SEMOIS avec des paramètres par défaut.
-                Vous pourrez ensuite ajuster individuellement ou utiliser la classification ABC.
+                Initialise tous les produits actifs sans configuration SEMOIS avec des paramètres par défaut. Vous pourrez ensuite ajuster
+                individuellement ou utiliser la classification ABC.
               </p>
 
               <div class="alert alert-warning">
@@ -230,7 +229,6 @@
           <span>Import Historique</span>
         </a>
         <ng-template ngbNavContent>
-
           <div class="card">
             <div class="card-body">
               <h6 class="text-primary mb-3">
@@ -268,9 +266,7 @@
               />
 
               @if (importResult()) {
-                <div class="alert alert-success mt-3">
-                  <strong>✓ Succès !</strong> {{ importResult() }}
-                </div>
+                <div class="alert alert-success mt-3"><strong>✓ Succès !</strong> {{ importResult() }}</div>
               }
             </div>
           </div>
@@ -284,7 +280,6 @@
           <span>Statut Système</span>
         </a>
         <ng-template ngbNavContent>
-
           <div class="card">
             <div class="card-body">
               <h6 class="text-primary mb-3">

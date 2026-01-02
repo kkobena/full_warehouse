@@ -99,7 +99,7 @@ export class SupplierResponseModalComponent implements OnInit {
     }
 
     const reponseRetourBon = new ReponseRetourBon();
-    reponseRetourBon.retourBonId = this.retourBon!.id;
+    reponseRetourBon.retourBonId = this.retourBon.id;
     reponseRetourBon.reponseRetourBonItems = this.responseItems();
 
     this.activeModal.close(reponseRetourBon);

@@ -41,15 +41,15 @@ export class ParametreComponent implements OnInit {
   }
 
   protected onEdit(entity: IConfiguration): void {
-    //APP_MODEL_REAPPRO
+    // APP_MODEL_REAPPRO
     if (entity.name === 'APP_MODEL_REAPPRO') {
       this.router.navigate(['/semois/model-config']);
-    }else{
+    } else {
       showCommonModal(
         this.modalService,
         FormParamettreComponent,
         {
-          entity: entity,
+          entity,
           header: 'Modification de [ ' + entity.name + ' ]',
         },
         () => {
@@ -58,7 +58,6 @@ export class ParametreComponent implements OnInit {
         'lg',
       );
     }
-
   }
 
   protected loadAll(): void {

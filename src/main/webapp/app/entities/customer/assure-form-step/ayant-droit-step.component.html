@@ -23,7 +23,6 @@
             formControlName="firstName"
             class="w-full"
             autocomplete="off"
-            autofocus
             [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
           />
           @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
@@ -107,8 +106,7 @@
         <div class="form-field form-field-full">
           <label>Sexe</label>
           <div class="radio-group">
-            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
-                           value="M"></p-radioButton>
+            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
             <label for="masculin" class="radio-label">Masculin</label>
             <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radioButton>
             <label for="feminin" class="radio-label">Feminin</label>

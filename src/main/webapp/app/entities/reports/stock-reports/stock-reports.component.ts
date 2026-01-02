@@ -9,17 +9,9 @@ import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
 
 @Component({
   selector: 'jhi-stock-reports',
-  imports: [
-    CommonModule,
-    NgbNavModule,
-    StockAlertsComponent,
-    StockValuationComponent,
-    StockRotationComponent,
-    ABCParetoComponent
-
-  ],
+  imports: [CommonModule, NgbNavModule, StockAlertsComponent, StockValuationComponent, StockRotationComponent, ABCParetoComponent],
   templateUrl: './stock-reports.component.html',
-  styleUrl: './stock-reports.component.scss'
+  styleUrl: './stock-reports.component.scss',
 })
 export default class StockReportsComponent {
   active = signal<string>('stock-alerts');

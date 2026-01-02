@@ -1,18 +1,18 @@
-import {Component, effect, inject, OnInit, signal} from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
-import {environment} from 'environments/environment';
-import {AccountService} from 'app/core/auth/account.service';
-import {LoginService} from 'app/login/login.service';
-import {NavItem} from './navbar-item.model';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
-import {faBars, faKeyboard, faServer} from '@fortawesome/free-solid-svg-icons';
-import {Theme, ThemeService} from '../../core/theme/theme.service';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {AppSettingsDialogComponent} from '../../shared/settings/app-settings-dialog.component';
-import {ShortcutsHelpDialogComponent} from '../../shared/shortcuts/shortcuts-help-dialog.component';
-import {LayoutService} from '../../core/config/layout.service';
-import {NavigationService} from '../../core/config/navigation.service';
-import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { environment } from 'environments/environment';
+import { AccountService } from 'app/core/auth/account.service';
+import { LoginService } from 'app/login/login.service';
+import { NavItem } from './navbar-item.model';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { faBars, faKeyboard, faServer } from '@fortawesome/free-solid-svg-icons';
+import { Theme, ThemeService } from '../../core/theme/theme.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
+import { ShortcutsHelpDialogComponent } from '../../shared/shortcuts/shortcuts-help-dialog.component';
+import { LayoutService } from '../../core/config/layout.service';
+import { NavigationService } from '../../core/config/navigation.service';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-navbar',
@@ -43,7 +43,7 @@ export default class NavbarComponent implements OnInit {
 
   constructor() {
     this.menuStock = ['gestion-entree', 'commande', 'gestion-stock', 'produit'];
-    const {VERSION} = environment;
+    const { VERSION } = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }
@@ -75,11 +75,11 @@ export default class NavbarComponent implements OnInit {
   }
 
   protected openAppSettings(): void {
-    this.modalService.open(AppSettingsDialogComponent, {size: 'lg', backdrop: 'static'});
+    this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static' });
   }
 
   protected openShortcutsHelp(): void {
-    this.modalService.open(ShortcutsHelpDialogComponent, {size: 'xl', backdrop: 'static', scrollable: true});
+    this.modalService.open(ShortcutsHelpDialogComponent, { size: 'xl', backdrop: 'static', scrollable: true });
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -102,7 +102,6 @@ export default class NavbarComponent implements OnInit {
 
     // Authenticated user menu items
     if (account) {
-
       return this.navigationService.buildNavItems({
         additionalAccountMenuItems: [
           {

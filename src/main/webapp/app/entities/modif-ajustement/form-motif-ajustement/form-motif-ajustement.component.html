@@ -7,27 +7,22 @@
   <div class="modal-body">
     <p-card>
       <div class="form-grid-compact">
-
-          <div [hidden]="!editForm.get('id')!.value" class="form-group">
-            <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-          </div>
+        <div [hidden]="!editForm.get('id')!.value" class="form-group">
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+        </div>
 
         <div class="form-field form-field-full">
-
-              <label for="libelle">Libellé<span class="required">*</span></label>
-              <input #libelle  autocomplete="off" class="w-full" formControlName="libelle" name="libelle" pInputText type="text" />
-              @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
-                <div>
-                  @if (editForm.get('libelle')?.errors?.required) {
-                    <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-                  }
-                </div>
+          <label for="libelle">Libellé<span class="required">*</span></label>
+          <input #libelle autocomplete="off" class="w-full" formControlName="libelle" name="libelle" pInputText type="text" />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+            <div>
+              @if (editForm.get('libelle')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
-
-
+            </div>
+          }
         </div>
       </div>
-
     </p-card>
   </div>
   <div class="modal-footer">

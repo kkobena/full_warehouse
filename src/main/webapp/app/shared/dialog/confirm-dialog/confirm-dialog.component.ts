@@ -12,11 +12,11 @@ export class ConfirmDialogComponent {
   icon = input<string>('pi pi-info-circle');
   acceptHandler = input<() => void>();
   rejectHandler = input<() => void>();
-  style = input<{ [klass: string]: any }>({ width: '40vw' });
+  style = input<Record<string, any>>({ width: '40vw' });
   private readonly confirmationService = inject(ConfirmationService);
 
   private get accept(): HTMLButtonElement {
-    return document.querySelector('.ws-dialog .p-confirmdialog-accept-button') as HTMLButtonElement;
+    return document.querySelector('.ws-dialog .p-confirmdialog-accept-button');
   }
 
   onConfirm(acceptHandler: () => void, header?: string, message?: string, icon?: string, rejectHandler?: () => void): void {
@@ -28,7 +28,7 @@ export class ConfirmDialogComponent {
       acceptButtonProps: acceptButtonProps(),
       defaultFocus: 'accept',
       accept: () => acceptHandler(),
-      reject: () => {
+      reject() {
         if (rejectHandler) {
           rejectHandler();
         }

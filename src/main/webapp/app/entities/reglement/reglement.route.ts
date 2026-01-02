@@ -16,7 +16,7 @@ export const ReglementResolve = (route: ActivatedRouteSnapshot): Observable<null
 
   if (id) {
     return inject(ReglementService)
-      .find({ id: id, transactionDate: transactionDate })
+      .find({ id, transactionDate })
       .pipe(
         mergeMap((res: HttpResponse<Reglement>) => {
           if (res.body) {

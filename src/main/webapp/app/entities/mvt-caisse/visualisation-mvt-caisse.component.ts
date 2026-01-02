@@ -302,7 +302,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
 }

@@ -11,28 +11,14 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
-import {
-  AgeCategory,
-  ITiersPayantCreancesSummary,
-  ITiersPayantInvoice
-} from 'app/shared/model/report/tiers-payant-report.model';
+import { AgeCategory, ITiersPayantCreancesSummary, ITiersPayantInvoice } from 'app/shared/model/report/tiers-payant-report.model';
 import { TiersPayantReportService } from '../services/tiers-payant-report.service';
 
 @Component({
   selector: 'jhi-tiers-payant-creances',
   templateUrl: './tiers-payant-creances.component.html',
   styleUrl: './tiers-payant-creances.component.scss',
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    Tag,
-    Select,
-    ToolbarModule,
-    DividerModule,
-    WarehouseCommonModule
-  ]
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, Tag, Select, ToolbarModule, DividerModule, WarehouseCommonModule],
 })
 export default class TiersPayantCreancesComponent implements OnInit {
   summary = signal<ITiersPayantCreancesSummary[]>([]);
@@ -45,7 +31,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
     { label: 'Moins de 30 jours', value: AgeCategory.LESS_THAN_30 },
     { label: '30-60 jours', value: AgeCategory.BETWEEN_30_60 },
     { label: '60-90 jours', value: AgeCategory.BETWEEN_60_90 },
-    { label: 'Plus de 90 jours', value: AgeCategory.MORE_THAN_90 }
+    { label: 'Plus de 90 jours', value: AgeCategory.MORE_THAN_90 },
   ];
 
   private readonly tiersPayantService = inject(TiersPayantReportService);
@@ -59,7 +45,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
     this.tiersPayantService.getCreancesSummary().subscribe({
       next: (res: HttpResponse<ITiersPayantCreancesSummary[]>) => {
         this.summary.set(res.body ?? []);
-      }
+      },
     });
   }
 
@@ -74,7 +60,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -84,7 +70,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
 
   exportToPdf(): void {
     this.tiersPayantService.exportCreancesToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -94,7 +80,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
           link.click();
           window.URL.revokeObjectURL(url);
         }
-      }
+      },
     });
   }
 

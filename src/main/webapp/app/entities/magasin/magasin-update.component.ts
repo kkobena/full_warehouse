@@ -48,7 +48,7 @@ export class MagasinUpdateComponent implements OnInit {
     numComptable: [],
     registreImposition: [],
     email: new FormControl(null, {
-      validators: [ Validators.minLength(5), Validators.maxLength(254), Validators.email],
+      validators: [Validators.minLength(5), Validators.maxLength(254), Validators.email],
     }),
   });
   private readonly magasinService = inject(MagasinService);
@@ -122,9 +122,9 @@ export class MagasinUpdateComponent implements OnInit {
       note: this.editForm.get(['note']).value,
       registre: this.editForm.get(['registre']).value,
       welcomeMessage: this.editForm.get(['welcomeMessage']).value,
-      compteContribuable:this.editForm.get(['compteContribuable']).value,
+      compteContribuable: this.editForm.get(['compteContribuable']).value,
       numComptable: this.editForm.get(['numComptable']).value,
-      registreImposition:this.editForm.get(['registreImposition']).value,
+      registreImposition: this.editForm.get(['registreImposition']).value,
     };
   }
 }

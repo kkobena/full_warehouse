@@ -9,7 +9,7 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <div style="min-width: 430px;  flex: 1 1 auto">
+          <div style="min-width: 430px; flex: 1 1 auto">
             <jhi-produit-autocomplete
               (onClear)="onClear($event)"
               (selectedProduit)="onSelect($event)"
@@ -73,8 +73,7 @@
   </div>
 
   <div class="pharma-nav-tabs-container">
-    <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav
-         orientation="horizontal">
+    <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
       <ng-container ngbNavItem="daily">
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-calendar"></i>
@@ -99,8 +98,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-

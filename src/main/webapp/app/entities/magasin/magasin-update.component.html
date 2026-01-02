@@ -9,8 +9,7 @@
         <p-toolbar>
           <ng-template #end>
             <div class="pharma-toolbar-actions">
-              <p-button (onClick)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour"
-                        severity="secondary" />
+              <p-button (onClick)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
             </div>
           </ng-template>
         </p-toolbar>
@@ -37,8 +36,7 @@
                 <label for="field_fullName" jhiTranslate="warehouseApp.magasin.name">
                   Raison Sociale <span class="required">*</span>
                 </label>
-                <input pInputText class="w-full" formControlName="fullName" id="field_fullName" name="fullName"
-                       type="text" />
+                <input pInputText class="w-full" formControlName="fullName" id="field_fullName" name="fullName" type="text" />
                 @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
                   @if (editForm.get('fullName')?.errors?.required) {
                     <small class="p-error" jhiTranslate="entity.validation.required"> Ce champ est obligatoire. </small>
@@ -59,8 +57,7 @@
 
               <!-- Phone -->
               <div class="form-field form-field-full">
-                <label for="field_phone" jhiTranslate="warehouseApp.magasin.phone"> Téléphone <span
-                  class="required">*</span> </label>
+                <label for="field_phone" jhiTranslate="warehouseApp.magasin.phone"> Téléphone <span class="required">*</span> </label>
                 <input pInputText class="w-full" formControlName="phone" id="field_phone" name="phone" type="tel" />
                 @if (editForm.get('phone')?.invalid && editForm.get('phone')?.touched) {
                   @if (editForm.get('phone')?.errors?.required) {
@@ -122,22 +119,18 @@
                     }
                   </div>
                 }
-
               </div>
-
 
               <!-- Address -->
               <div class="form-field form-field-full">
                 <label for="field_address" jhiTranslate="warehouseApp.magasin.address">Adresse</label>
-                <textarea pTextarea class="w-full" formControlName="address" id="field_address" name="address"
-                          rows="3"></textarea>
+                <textarea pTextarea class="w-full" formControlName="address" id="field_address" name="address" rows="3"></textarea>
               </div>
 
               <!-- Registre -->
               <div class="form-field form-field-full">
                 <label for="field_registre" jhiTranslate="warehouseApp.magasin.registre"> Registre de Commerce </label>
-                <input pInputText class="w-full" formControlName="registre" id="field_registre" name="registre"
-                       type="text" />
+                <input pInputText class="w-full" formControlName="registre" id="field_registre" name="registre" type="text" />
               </div>
             </div>
           </p-card>
@@ -155,23 +148,33 @@
             <div class="form-grid-compact">
               <div class="form-field form-field-full">
                 <label for="compteContribuable"> Compte contribuable</label>
-                <input pInputText class="w-full" formControlName="compteContribuable" id="compteContribuable"
-                       name="compteContribuable" type="text" />
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="compteContribuable"
+                  id="compteContribuable"
+                  name="compteContribuable"
+                  type="text"
+                />
               </div>
 
               <div class="form-field form-field-full">
                 <label for="numComptable"> Numéro comtable</label>
-                <input pInputText class="w-full" formControlName="numComptable" id="numComptable" name="numComptable"
-                       type="text" />
+                <input pInputText class="w-full" formControlName="numComptable" id="numComptable" name="numComptable" type="text" />
               </div>
               <div class="form-field form-field-full">
                 <label for="registreImposition"> Registre d'imposition</label>
-                <input pInputText class="w-full" formControlName="registreImposition" id="registreImposition" name="registreImposition"
-                       type="text" />
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="registreImposition"
+                  id="registreImposition"
+                  name="registreImposition"
+                  type="text"
+                />
               </div>
             </div>
           </p-card>
-
 
           <p-card>
             <ng-template #header>
@@ -184,8 +187,7 @@
             <div class="form-grid-compact">
               <!-- Welcome Message -->
               <div class="form-field form-field-full">
-                <label for="field_welcomeMessage" jhiTranslate="warehouseApp.magasin.welcomeMessage"> Message de
-                  Bienvenue </label>
+                <label for="field_welcomeMessage" jhiTranslate="warehouseApp.magasin.welcomeMessage"> Message de Bienvenue </label>
                 <input
                   pInputText
                   class="w-full"
@@ -206,8 +208,7 @@
         </div>
 
         <div class="form-actions-compact">
-          <p-button (onClick)="previousState()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary"
-                    type="button" />
+          <p-button (onClick)="previousState()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
           <p-button
             [disabled]="editForm.invalid || isSaving"
             [loading]="isSaving"

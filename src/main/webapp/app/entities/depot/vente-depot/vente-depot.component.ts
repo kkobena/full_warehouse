@@ -188,7 +188,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.registerKeyboardShortcuts();
 
     this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales }) => {
-      if (sales && sales.id) {
+      if (sales?.id) {
         this.magasinService
           .find(sales.magasin.id)
           .pipe(takeUntilDestroyed(this.destroyRef))
@@ -413,7 +413,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.depotService.currentSale()) {
       this.confimDialog().onConfirm(
         () => {
-          this.depotService.changeDepot(this.depotService.currentSale().saleId, this.selectedDepot!.id!).subscribe({
+          this.depotService.changeDepot(this.depotService.currentSale().saleId, this.selectedDepot.id).subscribe({
             next: () => {
               this.depotService.setSelectedDepot(this.selectedDepot);
               this.produitbox().getFocus();
@@ -657,13 +657,13 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       // Navigation
       focusProductSearch: () => this.produitbox()?.getFocus(),
       focusQuantity: () => this.quantyBox()?.focusProduitControl(),
-      focusCustomer: () => {},
+      focusCustomer() {},
       focusVendor: () => this.userBox()?.nativeElement?.focus(),
 
       // Product actions
-      //addProduct: () => this.onAddProduit(),
-      addProduct: () => {},
-      removeSelectedLine: () => {},
+      // addProduct: () => this.onAddProduit(),
+      addProduct() {},
+      removeSelectedLine() {},
       clearProduct: () => {
         this.produitSelected = null;
         this.produitbox()?.getFocus();
@@ -676,15 +676,15 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Sale types
-      switchToComptant: () => {},
-      switchToAssurance: () => {},
-      switchToCarnet: () => {},
-      switchToDepotAgree: () => {},
+      switchToComptant() {},
+      switchToAssurance() {},
+      switchToCarnet() {},
+      switchToDepotAgree() {},
 
       // Payment & Finalization
       finalizeSale: () => this.manageAmountDiv(),
-      savePending: () => {},
-      viewPendingSales: () => {},
+      savePending() {},
+      viewPendingSales() {},
       cancelSale: () => this.resetAll(),
 
       // Quantity
@@ -696,8 +696,8 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Discounts
-      applyDiscount: () => {},
-      removeDiscount: () => {},
+      applyDiscount() {},
+      removeDiscount() {},
 
       // Printing
       printInvoice: () => this.onPrintInvoice(),

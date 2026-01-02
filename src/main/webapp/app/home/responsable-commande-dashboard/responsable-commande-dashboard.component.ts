@@ -65,7 +65,6 @@ import {
     SplitButtonModule,
     FontAwesomeModule,
     ToastModule,
-
   ],
   providers: [MessageService],
   templateUrl: './responsable-commande-dashboard.component.html',
@@ -251,8 +250,7 @@ export class ResponsableCommandeDashboardComponent implements OnInit {
 
   // Quick Actions Methods
   protected nouvelleCommande(): void {
-
-     this.router.navigate(['/commande/new']);
+    this.router.navigate(['/commande/new']);
   }
 
   protected analyserStock(): void {
@@ -260,13 +258,11 @@ export class ResponsableCommandeDashboardComponent implements OnInit {
   }
 
   protected lancerInventaire(): void {
-
     this.router.navigate(['/inventaire']);
   }
 
   protected gererAlertes(): void {
-
-     this.router.navigate(['/alertes']);
+    this.router.navigate(['/alertes']);
   }
 
   protected exporterRapport(): void {

@@ -8,10 +8,10 @@ export interface IDashboardAlertCount {
 
 export class DashboardAlertCount implements IDashboardAlertCount {
   constructor(
-    public peremptionCount: number = 0,
-    public ruptureCount: number = 0,
-    public entreeCount: number = 0,
-    public ajustementCount: number = 0,
-    public prixModifCount: number = 0,
+    public peremptionCount = 0,
+    public ruptureCount = 0,
+    public entreeCount = 0,
+    public ajustementCount = 0,
+    public prixModifCount = 0,
   ) {}
 }

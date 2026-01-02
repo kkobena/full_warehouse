@@ -6,7 +6,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { IStockRotation, CategorieABC } from 'app/shared/model/report/stock-rotation.model';
 
 type EntityArrayResponseType = HttpResponse<IStockRotation[]>;
-type CountResponseType = HttpResponse<{ [key in CategorieABC]: number }>;
+type CountResponseType = HttpResponse<Record<CategorieABC, number>>;
 
 @Injectable({ providedIn: 'root' })
 export class StockRotationReportService {
@@ -40,7 +40,7 @@ export class StockRotationReportService {
    * Get count of products by ABC classification
    */
   getStockRotationCountByABCClassification(): Observable<CountResponseType> {
-    return this.http.get<{ [key in CategorieABC]: number }>(`${this.resourceUrl}/count`, { observe: 'response' });
+    return this.http.get<Record<CategorieABC, number>>(`${this.resourceUrl}/count`, { observe: 'response' });
   }
 
   /**

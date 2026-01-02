@@ -20,7 +20,7 @@ import { Card } from 'primeng/card';
 })
 export class FormTableauComponent implements OnInit {
   entity: ITableau | null = null;
-  header: string = '';
+  header = '';
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),

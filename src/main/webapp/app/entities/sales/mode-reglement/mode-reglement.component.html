@@ -34,7 +34,6 @@
                     <input
                       #paymentModeInput
                       autocomplete="off"
-                      autofocus
                       (input)="manageCashPaymentMode($event, modePay)"
                       (keydown.enter)="save()"
                       size="large"
@@ -94,7 +93,6 @@
                   [(ngModel)]="commentaire"
                   pInputText
                   type="text"
-                  [autofocus]="true"
                   (keydown.enter)="save()"
                   placeholder="Saisir un commentaire"
                 />

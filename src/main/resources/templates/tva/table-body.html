@@ -1,7 +1,9 @@
 <table class="main-table">
   <thead>
     <tr>
-      <th class="text-left" th:if="${tvaGroupDate}">Date</th>
+      <th class="text-left" th:if="${tvaGroupDate}">
+        Date
+      </th>
       <th class="text-right">Code tva</th>
       <th class="text-right">Total HT</th>
       <th class="text-right">Total TVA</th>
@@ -25,8 +27,12 @@
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="2" th:if="${tvaGroupDate}">Total</td>
-      <td colspan="1" th:unless="${tvaGroupDate}">Total</td>
+      <td colspan="2" th:if="${tvaGroupDate}">
+        Total
+      </td>
+      <td colspan="1" th:unless="${tvaGroupDate}">
+        Total
+      </td>
 
       <td
         class="unit"
@@ -50,4 +56,4 @@
       <td class="unit" th:if="${reportSummary.montantTtc lt 1000}" th:text="${reportSummary.montantTtc}"></td>
     </tr>
   </tfoot>
-</table>
+</table>;

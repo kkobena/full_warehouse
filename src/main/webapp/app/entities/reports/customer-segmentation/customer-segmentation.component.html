@@ -20,31 +20,14 @@
             [disabled]="showChampionsOnly() || showAtRiskOnly()"
             (onChange)="onFilterChange()"
           />
-
-
         </div>
       </ng-template>
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Effacer les filtres"
-            icon="pi pi-filter-slash"
-            severity="secondary"
-            (onClick)="onClearFilters()"
-          />
-          <p-button
-            label="Exporter PDF"
-            icon="pi pi-file-pdf"
-            severity="warn"
-            (onClick)="exportToPdf()"
-          />
-          <p-button
-            label="Rafraîchir"
-            icon="pi pi-refresh"
-            severity="primary"
-            (onClick)="loadCustomers()"
-          />
+          <p-button label="Effacer les filtres" icon="pi pi-filter-slash" severity="secondary" (onClick)="onClearFilters()" />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
+          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadCustomers()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -164,7 +147,7 @@
             <div class="kpi-content">
               <p class="kpi-label">CA total (12 mois)</p>
               <h4 class="kpi-value">
-                <span>{{ getTotalSpent() | number:'1.0-0' }}</span>
+                <span>{{ getTotalSpent() | number: '1.0-0' }}</span>
                 <span class="value-suffix">FCFA</span>
               </h4>
             </div>
@@ -183,7 +166,7 @@
             <div class="kpi-content">
               <p class="kpi-label">Panier moyen</p>
               <h4 class="kpi-value">
-                <span>{{ getAverageBasket() | number:'1.0-0' }}</span>
+                <span>{{ getAverageBasket() | number: '1.0-0' }}</span>
                 <span class="value-suffix">FCFA</span>
               </h4>
             </div>
@@ -202,7 +185,7 @@
             <div class="kpi-content">
               <p class="kpi-label">Score RFM moyen</p>
               <h4 class="kpi-value">
-                <span>{{ getAverageRFMScore() | number:'1.1-2' }}</span>
+                <span>{{ getAverageRFMScore() | number: '1.1-2' }}</span>
               </h4>
             </div>
             <div class="kpi-icon text-danger">
@@ -232,7 +215,8 @@
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>Client</th>
-              <th>Téléphone
+              <th>
+                Téléphone
                 <p-sortIcon field="phone" />
               </th>
               <th>Classification</th>
@@ -256,15 +240,13 @@
                   {{ getClassificationLabel(customer.customerClassification) }}
                 </p-tag>
               </td>
-              <td>{{ customer.lastPurchaseDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ customer.lastPurchaseDate | date: 'dd/MM/yyyy' }}</td>
               <td class="text-end">
-                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)">
-                  {{ customer.daysSinceLastPurchase || 0 }} j
-                </p-tag>
+                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{ customer.daysSinceLastPurchase || 0 }} j </p-tag>
               </td>
               <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
-              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number:'1.0-0' }} F</td>
-              <td class="text-end">{{ customer.avgBasketValue | number:'1.0-0' }} F</td>
+              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number: '1.0-0' }} F</td>
+              <td class="text-end">{{ customer.avgBasketValue | number: '1.0-0' }} F</td>
               <td class="text-center">
                 <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
               </td>
@@ -302,15 +284,15 @@
       </div>
       <div class="card-body">
         <div class="rfm-explanation">
-          <p class="mb-2"><strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les
-            clients en fonction de :</p>
+          <p class="mb-2">
+            <strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les clients en fonction de :
+          </p>
           <ul>
             <li><strong>Récence (R)</strong> : Nombre de jours depuis le dernier achat (1-5, 5 = très récent)</li>
             <li><strong>Fréquence (F)</strong> : Nombre d'achats sur les 12 derniers mois (1-5, 5 = très fréquent)</li>
             <li><strong>Montant (M)</strong> : Montant total dépensé sur les 12 derniers mois (1-5, 5 = très élevé)</li>
           </ul>
-          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en
-            segments stratégiques.</p>
+          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en segments stratégiques.</p>
         </div>
       </div>
     </div>

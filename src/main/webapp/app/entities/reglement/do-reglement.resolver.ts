@@ -13,8 +13,8 @@ export const doReglementResolver = (route: ActivatedRouteSnapshot): Observable<n
     return inject(FactureService)
       .findDossierReglement(
         {
-          id: id,
-          invoiceDate: invoiceDate,
+          id,
+          invoiceDate,
         },
         typeFacture,
         {

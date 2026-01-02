@@ -9,12 +9,12 @@
 <div class="modal-body">
   @if (isLoading()) {
     <div class="text-center p-4">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
       <p class="text-muted mt-2">Chargement...</p>
     </div>
   } @else if (layouts().length === 0) {
     <div class="text-center p-4 text-muted">
-      <i class="pi pi-inbox" style="font-size: 3rem;"></i>
+      <i class="pi pi-inbox" style="font-size: 3rem"></i>
       <p class="mt-2">Aucun layout disponible</p>
     </div>
   } @else {
@@ -63,11 +63,5 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    label="Fermer"
-    icon="pi pi-times"
-    (onClick)="dismiss()"
-    severity="secondary"
-    [text]="true"
-  />
+  <p-button label="Fermer" icon="pi pi-times" (onClick)="dismiss()" severity="secondary" [text]="true" />
 </div>

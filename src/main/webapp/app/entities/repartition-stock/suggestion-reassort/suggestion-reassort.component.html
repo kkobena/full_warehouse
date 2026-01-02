@@ -34,13 +34,7 @@
         </div>
       </div>
 
-      <p-table
-        [stripedRows]="true"
-        [value]="suggestion.ligneReassorts ?? []"
-        class="pharma-table"
-        dataKey="id"
-        editMode="row"
-      >
+      <p-table [stripedRows]="true" [value]="suggestion.ligneReassorts ?? []" class="pharma-table" dataKey="id" editMode="row">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 5%">#</th>

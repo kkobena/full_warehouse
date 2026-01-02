@@ -292,8 +292,6 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-
-
   onSearch(event: any): void {
     this.search = event.target.value;
     this.loadPage(0);

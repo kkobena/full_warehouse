@@ -202,20 +202,18 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
   }
 
-
-
   ngAfterViewInit(): void {
     this.userControl().value = this.selectedUserId;
   }
 
-  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+  printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
 

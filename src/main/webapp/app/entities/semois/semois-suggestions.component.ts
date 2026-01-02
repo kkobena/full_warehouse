@@ -51,20 +51,69 @@ export default class SemoisSuggestionsComponent implements OnInit {
   private readonly router = inject(Router);
 
   // Compteurs calculés
-  urgentCount = computed(() => this.suggestions().filter(s => new SemoisSuggestion(s.produitId, s.libelle, s.codeCip, s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel, s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul).estEnRupture()).length);
-
-  normalCount = computed(() =>
-    this.suggestions().filter(s => {
-      const suggestion = new SemoisSuggestion(s.produitId, s.libelle, s.codeCip, s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel, s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul);
-      return !suggestion.estEnRupture() && suggestion.necessiteReappro();
-    }).length
+  urgentCount = computed(
+    () =>
+      this.suggestions().filter(s =>
+        new SemoisSuggestion(
+          s.produitId,
+          s.libelle,
+          s.codeCip,
+          s.classeCriticite,
+          s.vmm,
+          s.margeSecurite,
+          s.stockObjectif,
+          s.stockActuel,
+          s.quantiteACommander,
+          s.delaiLivraisonJours,
+          s.coefficientSecurite,
+          s.facteurSaisonnier,
+          s.dateDernierCalcul,
+        ).estEnRupture(),
+      ).length,
   );
 
-  okCount = computed(() =>
-    this.suggestions().filter(s => {
-      const suggestion = new SemoisSuggestion(s.produitId, s.libelle, s.codeCip, s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel, s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul);
-      return !suggestion.necessiteReappro();
-    }).length
+  normalCount = computed(
+    () =>
+      this.suggestions().filter(s => {
+        const suggestion = new SemoisSuggestion(
+          s.produitId,
+          s.libelle,
+          s.codeCip,
+          s.classeCriticite,
+          s.vmm,
+          s.margeSecurite,
+          s.stockObjectif,
+          s.stockActuel,
+          s.quantiteACommander,
+          s.delaiLivraisonJours,
+          s.coefficientSecurite,
+          s.facteurSaisonnier,
+          s.dateDernierCalcul,
+        );
+        return !suggestion.estEnRupture() && suggestion.necessiteReappro();
+      }).length,
+  );
+
+  okCount = computed(
+    () =>
+      this.suggestions().filter(s => {
+        const suggestion = new SemoisSuggestion(
+          s.produitId,
+          s.libelle,
+          s.codeCip,
+          s.classeCriticite,
+          s.vmm,
+          s.margeSecurite,
+          s.stockObjectif,
+          s.stockActuel,
+          s.quantiteACommander,
+          s.delaiLivraisonJours,
+          s.coefficientSecurite,
+          s.facteurSaisonnier,
+          s.dateDernierCalcul,
+        );
+        return !suggestion.necessiteReappro();
+      }).length,
   );
 
   // Note: Le filtrage est maintenant fait côté serveur via la pagination
@@ -80,7 +129,7 @@ export default class SemoisSuggestionsComponent implements OnInit {
 
     const req = {
       page: this.page(),
-      size: this.itemsPerPage()
+      size: this.itemsPerPage(),
     };
 
     this.semoisService.getSuggestions(req, search || undefined, classe ?? undefined).subscribe({
@@ -129,7 +178,21 @@ export default class SemoisSuggestionsComponent implements OnInit {
 
   // Méthodes utilitaires pour l'affichage
   getUrgenceLabel(suggestion: ISemoisSuggestion): string {
-    const s = new SemoisSuggestion(suggestion.produitId, suggestion.libelle, suggestion.codeCip, suggestion.classeCriticite, suggestion.vmm, suggestion.margeSecurite, suggestion.stockObjectif, suggestion.stockActuel, suggestion.quantiteACommander, suggestion.delaiLivraisonJours, suggestion.coefficientSecurite, suggestion.facteurSaisonnier, suggestion.dateDernierCalcul);
+    const s = new SemoisSuggestion(
+      suggestion.produitId,
+      suggestion.libelle,
+      suggestion.codeCip,
+      suggestion.classeCriticite,
+      suggestion.vmm,
+      suggestion.margeSecurite,
+      suggestion.stockObjectif,
+      suggestion.stockActuel,
+      suggestion.quantiteACommander,
+      suggestion.delaiLivraisonJours,
+      suggestion.coefficientSecurite,
+      suggestion.facteurSaisonnier,
+      suggestion.dateDernierCalcul,
+    );
     return s.getNiveauUrgence();
   }
 
@@ -149,14 +212,42 @@ export default class SemoisSuggestionsComponent implements OnInit {
   }
 
   getStockActuelClass(suggestion: ISemoisSuggestion): string {
-    const s = new SemoisSuggestion(suggestion.produitId, suggestion.libelle, suggestion.codeCip, suggestion.classeCriticite, suggestion.vmm, suggestion.margeSecurite, suggestion.stockObjectif, suggestion.stockActuel, suggestion.quantiteACommander, suggestion.delaiLivraisonJours, suggestion.coefficientSecurite, suggestion.facteurSaisonnier, suggestion.dateDernierCalcul);
+    const s = new SemoisSuggestion(
+      suggestion.produitId,
+      suggestion.libelle,
+      suggestion.codeCip,
+      suggestion.classeCriticite,
+      suggestion.vmm,
+      suggestion.margeSecurite,
+      suggestion.stockObjectif,
+      suggestion.stockActuel,
+      suggestion.quantiteACommander,
+      suggestion.delaiLivraisonJours,
+      suggestion.coefficientSecurite,
+      suggestion.facteurSaisonnier,
+      suggestion.dateDernierCalcul,
+    );
     if (s.estEnRupture()) return 'text-danger fw-bold';
     if (s.estEnSurstock()) return 'text-warning';
     return '';
   }
 
   getCouvertureMois(suggestion: ISemoisSuggestion): number {
-    const s = new SemoisSuggestion(suggestion.produitId, suggestion.libelle, suggestion.codeCip, suggestion.classeCriticite, suggestion.vmm, suggestion.margeSecurite, suggestion.stockObjectif, suggestion.stockActuel, suggestion.quantiteACommander, suggestion.delaiLivraisonJours, suggestion.coefficientSecurite, suggestion.facteurSaisonnier, suggestion.dateDernierCalcul);
+    const s = new SemoisSuggestion(
+      suggestion.produitId,
+      suggestion.libelle,
+      suggestion.codeCip,
+      suggestion.classeCriticite,
+      suggestion.vmm,
+      suggestion.margeSecurite,
+      suggestion.stockObjectif,
+      suggestion.stockActuel,
+      suggestion.quantiteACommander,
+      suggestion.delaiLivraisonJours,
+      suggestion.coefficientSecurite,
+      suggestion.facteurSaisonnier,
+      suggestion.dateDernierCalcul,
+    );
     return s.getTauxCouvertureMois();
   }
 
@@ -169,7 +260,21 @@ export default class SemoisSuggestionsComponent implements OnInit {
   }
 
   getJoursRestants(suggestion: ISemoisSuggestion): number {
-    const s = new SemoisSuggestion(suggestion.produitId, suggestion.libelle, suggestion.codeCip, suggestion.classeCriticite, suggestion.vmm, suggestion.margeSecurite, suggestion.stockObjectif, suggestion.stockActuel, suggestion.quantiteACommander, suggestion.delaiLivraisonJours, suggestion.coefficientSecurite, suggestion.facteurSaisonnier, suggestion.dateDernierCalcul);
+    const s = new SemoisSuggestion(
+      suggestion.produitId,
+      suggestion.libelle,
+      suggestion.codeCip,
+      suggestion.classeCriticite,
+      suggestion.vmm,
+      suggestion.margeSecurite,
+      suggestion.stockObjectif,
+      suggestion.stockActuel,
+      suggestion.quantiteACommander,
+      suggestion.delaiLivraisonJours,
+      suggestion.coefficientSecurite,
+      suggestion.facteurSaisonnier,
+      suggestion.dateDernierCalcul,
+    );
     return s.getJoursStockRestant();
   }
 
@@ -182,7 +287,21 @@ export default class SemoisSuggestionsComponent implements OnInit {
   }
 
   getRowClass(suggestion: ISemoisSuggestion): string {
-    const s = new SemoisSuggestion(suggestion.produitId, suggestion.libelle, suggestion.codeCip, suggestion.classeCriticite, suggestion.vmm, suggestion.margeSecurite, suggestion.stockObjectif, suggestion.stockActuel, suggestion.quantiteACommander, suggestion.delaiLivraisonJours, suggestion.coefficientSecurite, suggestion.facteurSaisonnier, suggestion.dateDernierCalcul);
+    const s = new SemoisSuggestion(
+      suggestion.produitId,
+      suggestion.libelle,
+      suggestion.codeCip,
+      suggestion.classeCriticite,
+      suggestion.vmm,
+      suggestion.margeSecurite,
+      suggestion.stockObjectif,
+      suggestion.stockActuel,
+      suggestion.quantiteACommander,
+      suggestion.delaiLivraisonJours,
+      suggestion.coefficientSecurite,
+      suggestion.facteurSaisonnier,
+      suggestion.dateDernierCalcul,
+    );
     if (s.estEnRupture()) return 'table-danger';
     if (s.necessiteReappro()) return 'table-warning';
     return '';

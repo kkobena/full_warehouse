@@ -49,7 +49,7 @@ export function formatPercent(value: number | undefined | null): string {
  * @returns Formatted decimal string
  * @example formatDecimal(12.3456, 2) // "12.35"
  */
-export function formatDecimal(value: number | undefined | null, decimals: number = 2): string {
+export function formatDecimal(value: number | undefined | null, decimals = 2): string {
   if (value === undefined || value === null || isNaN(value)) {
     return '0.' + '0'.repeat(decimals);
   }
@@ -96,8 +96,18 @@ export function formatMonth(monthStr: string): string {
   if (!monthStr) return '';
   const [year, month] = monthStr.split('-');
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
   ];
   const monthIndex = parseInt(month, 10) - 1;
   return `${monthNames[monthIndex]} ${year}`;

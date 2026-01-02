@@ -64,7 +64,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
 
   exportPdf(produitAuditingParam: ProduitAuditingParam): void {
     this.produitStatService.exportHistoriqueVenteToPdf(produitAuditingParam).subscribe({
-      next: blod => {
+      next(blod) {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },

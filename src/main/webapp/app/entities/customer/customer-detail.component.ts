@@ -18,7 +18,7 @@ import { Button } from 'primeng/button';
 
   templateUrl: './customer-detail.component.html',
   styleUrls: ['./customer-detail.component.scss'],
-  imports: [WarehouseCommonModule, Button]
+  imports: [WarehouseCommonModule, Button],
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;
@@ -54,12 +54,12 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   loadSales(): void {
     this.customerService
       .purchases({
-        customerId: this.customer.id
+        customerId: this.customer.id,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -85,6 +85,5 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     this.sales = data || [];
   }
 
-  protected onError(): void {
-  }
+  protected onError(): void {}
 }

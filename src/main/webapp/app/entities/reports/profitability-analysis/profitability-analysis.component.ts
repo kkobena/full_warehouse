@@ -36,8 +36,8 @@ import { Drawer } from 'primeng/drawer';
     InputText,
     IconField,
     InputIcon,
-    Drawer
-  ]
+    Drawer,
+  ],
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
   protected products = signal<IProductProfitability[]>([]);
@@ -45,16 +45,16 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected isLoading = signal<boolean>(false);
   protected selectedCategorie = signal<string | null>(null);
   protected selectedBCGCategory = signal<BCGCategory | null>(null);
-  protected  showLowMarginOnly = signal<boolean>(false);
+  protected showLowMarginOnly = signal<boolean>(false);
   protected helpDrawerVisible = signal<boolean>(false);
 
-  protected categorieOptions = signal<Array<{ label: string; value: string }>>([]);
-  protected  bcgCategoryOptions = signal<Array<{ label: string; value: BCGCategory }>>([
+  protected categorieOptions = signal<{ label: string; value: string }[]>([]);
+  protected bcgCategoryOptions = signal<{ label: string; value: BCGCategory }[]>([
     { label: 'Toutes', value: '' as any },
     { label: 'Stars (Marge élevée + Rotation élevée)', value: BCGCategory.STAR },
     { label: 'Cash Cows (Marge élevée + Rotation faible)', value: BCGCategory.CASH_COW },
     { label: 'Question Marks (Marge faible + Rotation élevée)', value: BCGCategory.QUESTION_MARK },
-    { label: 'Dogs (Marge faible + Rotation faible)', value: BCGCategory.DOG }
+    { label: 'Dogs (Marge faible + Rotation faible)', value: BCGCategory.DOG },
   ]);
 
   BCGCategory = BCGCategory;
@@ -66,7 +66,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.loadSummary();
   }
 
-  protected  loadProfitability(): void {
+  protected loadProfitability(): void {
     this.isLoading.set(true);
     const categorie = this.selectedCategorie();
     const bcgCategory = this.selectedBCGCategory();
@@ -101,7 +101,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
       next: (res: HttpResponse<IProfitabilitySummary>) => {
         this.summary.set(res.body ?? null);
       },
-      error: () => {
+      error() {
         console.error('Error loading summary');
       },
     });
@@ -118,7 +118,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.loadProfitability();
   }
 
-  protected  showLowMarginProducts(): void {
+  protected showLowMarginProducts(): void {
     this.showLowMarginOnly.set(true);
     this.selectedCategorie.set(null);
     this.selectedBCGCategory.set(null);
@@ -127,7 +127,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected exportToPdf(): void {
     this.profitabilityService.exportProfitabilityToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -138,7 +138,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -147,10 +147,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   private extractFilterOptions(products: IProductProfitability[]): void {
     // Extract unique categories
     const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
-    this.categorieOptions.set([
-      { label: 'Toutes les catégories', value: '' },
-      ...categories.map(c => ({ label: c!, value: c! }))
-    ]);
+    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
   }
 
   protected getBCGCategoryLabel(bcgCategory: BCGCategory | undefined): string {
@@ -168,7 +165,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     }
   }
 
-  protected  getBCGCategorySeverity(bcgCategory: BCGCategory | undefined): string {
+  protected getBCGCategorySeverity(bcgCategory: BCGCategory | undefined): string {
     switch (bcgCategory) {
       case BCGCategory.STAR:
         return 'success';

@@ -98,7 +98,7 @@ export class TitlebarComponent implements OnInit {
     const mainRoute = pathSegments[0] || 'home';
 
     // Map route names to friendly display names
-    const routeNameMap: { [key: string]: string } = {
+    const routeNameMap: Record<string, string> = {
       home: 'Accueil',
       dashboard: 'Tableau de bord',
       sales: 'Ventes',

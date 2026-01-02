@@ -114,7 +114,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       const message = `Le prix que vous avez saisi  <span class="fs-4 fw-semibold text-danger"> (${formatNumber(prixReference.price)})</span> est supérieur au prix de vente au public <span class="fs-4 fw-semibold text-success">(${formatNumber(this.produit?.regularUnitPrice)})</span>. Voulez-vous continuer ?`;
 
       this.confirmationService.confirm({
-        message: message,
+        message,
         header: 'Confirmation',
         icon: 'pi pi-info-circle',
         rejectButtonProps: rejectButtonProps(),

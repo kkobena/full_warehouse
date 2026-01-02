@@ -34,7 +34,6 @@ interface PeriodOption {
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule, Tag, Drawer],
 })
 export default class SalesForecastComponent implements OnInit {
-
   @ViewChild('forecastChartCanvas') forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('confidenceChartCanvas') confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -57,7 +56,7 @@ export default class SalesForecastComponent implements OnInit {
     { label: 'Saisonnier', value: 'SEASONAL' },
   ];
 
- protected periodOptions: PeriodOption[] = [
+  protected periodOptions: PeriodOption[] = [
     { label: '3 mois', value: 3 },
     { label: '6 mois', value: 6 },
     { label: '12 mois', value: 12 },
@@ -79,7 +78,7 @@ export default class SalesForecastComponent implements OnInit {
       next: (res: HttpResponse<IForecastSummary>) => {
         this.summary.set(res.body);
       },
-      error: () => {
+      error() {
         console.error('Error loading forecast summary');
       },
     });
@@ -109,7 +108,7 @@ export default class SalesForecastComponent implements OnInit {
     });
   }
 
-protected  onMethodChange(): void {
+  protected onMethodChange(): void {
     this.loadData();
   }
 
@@ -158,7 +157,7 @@ protected  onMethodChange(): void {
           },
           title: {
             display: true,
-            text: 'Prévisions de Chiffre d\'Affaires',
+            text: "Prévisions de Chiffre d'Affaires",
           },
           tooltip: {
             callbacks: {

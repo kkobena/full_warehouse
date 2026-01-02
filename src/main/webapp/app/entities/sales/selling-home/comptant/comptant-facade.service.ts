@@ -185,7 +185,7 @@ export class ComptantFacadeService implements OnDestroy {
       .subscribe();
   }
 
-  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+  printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     this.spinnerService.next(true);
     this.salesService
       .getEscPosReceiptForTauri(saleId, isEdition)
@@ -290,7 +290,7 @@ export class ComptantFacadeService implements OnDestroy {
 
   private createSaleComptant(salesLine: ISalesLine): ISales {
     let currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
-    if (currentCustomer && currentCustomer.type === 'ASSURE') {
+    if (currentCustomer?.type === 'ASSURE') {
       currentCustomer = null;
     }
     return {

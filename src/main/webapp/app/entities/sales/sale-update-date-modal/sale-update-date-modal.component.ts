@@ -24,7 +24,7 @@ import { MessageService } from 'primeng/api';
   imports: [WarehouseCommonModule, ReactiveFormsModule, ButtonModule, TagModule, Card, DatePicker, Toast],
 })
 export class SaleUpdateDateModalComponent {
-  sale: ISales | null = null; ///*const modalData = (this as any).sale;
+  sale: ISales | null = null; // /*const modalData = (this as any).sale;
   protected activeModal = inject(NgbActiveModal);
   protected fb = inject(FormBuilder);
   private readonly renderer = inject(Renderer2);

@@ -16,7 +16,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
   if (id) {
     if (route.url.some(url => url.path.includes('stock-entry'))) {
       return inject(CommandeService)
-        .findSaisieEntreeStock({ id: id, orderDate: orderDate })
+        .findSaisieEntreeStock({ id, orderDate })
         .pipe(
           mergeMap((commande: HttpResponse<ICommande>) => {
             if (commande.body) {
@@ -29,7 +29,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
         );
     }
     return inject(CommandeService)
-      .find({ id: id, orderDate: orderDate })
+      .find({ id, orderDate })
       .pipe(
         mergeMap((res: HttpResponse<ICommande>) => {
           if (res.body) {

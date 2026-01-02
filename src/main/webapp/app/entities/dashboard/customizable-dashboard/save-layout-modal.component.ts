@@ -13,7 +13,7 @@ import { DashboardScope } from 'app/shared/model/dashboard-layout.model';
   selector: 'jhi-save-layout-modal',
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, InputTextModule],
   templateUrl: './save-layout-modal.component.html',
-  styleUrl: './save-layout-modal.component.scss'
+  styleUrl: './save-layout-modal.component.scss',
 })
 export class SaveLayoutModalComponent {
   activeModal = inject(NgbActiveModal);
@@ -25,7 +25,7 @@ export class SaveLayoutModalComponent {
   scopeOptions = [
     { label: 'Privé', value: DashboardScope.PRIVATE },
     { label: 'Partagé', value: DashboardScope.SHARED },
-    { label: 'Public', value: DashboardScope.PUBLIC }
+    { label: 'Public', value: DashboardScope.PUBLIC },
   ];
 
   dismiss(): void {
@@ -40,7 +40,7 @@ export class SaveLayoutModalComponent {
     this.activeModal.close({
       name: this.layoutName,
       description: this.layoutDescription,
-      scope: this.layoutScope
+      scope: this.layoutScope,
     });
   }
 }

@@ -17,9 +17,11 @@
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td class="datatable-footer-total-label" colspan="2">TOTAL GENERAL</td>
+      <td class="datatable-footer-total-label" colspan="2">
+        TOTAL GENERAL
+      </td>
       <td class="unit" th:text="${entity.itemsBonCount}"></td>
       <td class="unit" th:text="${#numbers.formatInteger(entity.invoiceTotalAmount,3,'WHITESPACE')}"></td>
     </tr>
   </tfoot>
-</table>
+</table>;

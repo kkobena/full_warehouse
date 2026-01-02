@@ -34,7 +34,6 @@
               placeholder="Rechercher par nom, prénom, code ou numéro..."
               type="text"
               class="w-100"
-              autofocus
             />
           </p-iconfield>
           @if (searchString) {
@@ -115,7 +114,8 @@
               <h5 class="mt-3 mb-2">Aucun client trouvé</h5>
               @if (searchString) {
                 <p class="text-muted">
-                  Aucun résultat pour "<strong>{{ searchString }}</strong>"
+                  Aucun résultat pour "<strong>{{ searchString }}</strong
+                  >"
                   <br />
                   <small>Essayez de modifier votre recherche</small>
                 </p>

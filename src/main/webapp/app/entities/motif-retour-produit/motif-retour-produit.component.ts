@@ -100,7 +100,7 @@ export class MotifRetourProduitComponent implements OnInit {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.delete(motif.id!);
+        this.delete(motif.id);
       },
     });
   }

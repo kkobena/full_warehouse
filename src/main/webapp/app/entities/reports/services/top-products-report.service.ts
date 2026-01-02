@@ -15,7 +15,7 @@ export class TopProductsReportService {
   /**
    * Get top N products by revenue for a specific month
    */
-  getTopProductsByRevenue(month: string, limit: number = 20): Observable<EntityArrayResponseType> {
+  getTopProductsByRevenue(month: string, limit = 20): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('month', month).set('limit', limit.toString());
     return this.http.get<ITopProduct[]>(`${this.resourceUrl}/by-revenue`, { params, observe: 'response' });
   }
@@ -23,7 +23,7 @@ export class TopProductsReportService {
   /**
    * Get top N products by quantity sold for a specific month
    */
-  getTopProductsByQuantity(month: string, limit: number = 20): Observable<EntityArrayResponseType> {
+  getTopProductsByQuantity(month: string, limit = 20): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('month', month).set('limit', limit.toString());
     return this.http.get<ITopProduct[]>(`${this.resourceUrl}/by-quantity`, { params, observe: 'response' });
   }
@@ -39,7 +39,7 @@ export class TopProductsReportService {
   /**
    * Get monthly evolution for a specific product
    */
-  getProductMonthlyEvolution(produitId: number, nbMonths: number = 6): Observable<EntityArrayResponseType> {
+  getProductMonthlyEvolution(produitId: number, nbMonths = 6): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('nbMonths', nbMonths.toString());
     return this.http.get<ITopProduct[]>(`${this.resourceUrl}/evolution/${produitId}`, { params, observe: 'response' });
   }

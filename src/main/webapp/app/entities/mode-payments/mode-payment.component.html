@@ -12,8 +12,7 @@
               <div class="pharma-search-input">
                 <p-iconfield>
                   <p-inputicon class="pi pi-search" />
-                  <input (keyup.enter)="search($event)" pInputText
-                         placeholder="Taper pour rechercher" type="text" />
+                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
                 </p-iconfield>
               </div>
             </div>
@@ -48,7 +47,6 @@
           </ng-template>
           <ng-template #body let-columns="columns" let-paymentMode>
             <tr [pSelectableRow]="paymentMode">
-
               <td>{{ paymentMode.libelle }}</td>
               <td>{{ paymentMode.order }}</td>
               <td class="text-center">
@@ -59,8 +57,14 @@
                 }
               </td>
               <td class="text-right">
-                <p-button (click)="onEdit(paymentMode)" [rounded]="true" [text]="true"
-                          icon="pi pi-pencil" pTooltip="Modifier" severity="success">
+                <p-button
+                  (click)="onEdit(paymentMode)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  pTooltip="Modifier"
+                  severity="success"
+                >
                 </p-button>
               </td>
             </tr>

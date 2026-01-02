@@ -9,7 +9,7 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" [hidden]="true" >
+            <p-floatlabel variant="on" [hidden]="true">
               <p-select
                 [style]="{ 'min-width': '160px' }"
                 id="storageId"
@@ -62,7 +62,15 @@
                 type="button"
               ></p-button>
               @if (selectedEl?.length > 0) {
-                <p-button (click)="onClone()" [hidden]="true" [raised]="true" icon="pi pi-copy" label="Cloner" severity="warn" type="button"></p-button>
+                <p-button
+                  (click)="onClone()"
+                  [hidden]="true"
+                  [raised]="true"
+                  icon="pi pi-copy"
+                  label="Cloner"
+                  severity="warn"
+                  type="button"
+                ></p-button>
               }
               <p-button
                 (click)="addNewEntity()"

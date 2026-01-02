@@ -1,7 +1,9 @@
 <table class="footer-table-summary" th:if="${entity.statut eq 'CLOSED'}">
   <tfoot th:with="reportSummary=${reportSummary}">
     <tr>
-      <td colspan="2" rowspan="4">Total global</td>
+      <td colspan="2" rowspan="4">
+        Total global
+      </td>
 
       <td class="text-right" th:text="${achatAvant.libelle}" th:with="achatAvant=${reportSummary.get('achatAvant')}"></td>
       <td class="text-right" th:text="${venteAvant.libelle}" th:with="venteAvant=${reportSummary.get('venteAvant')}"></td>
@@ -54,4 +56,4 @@
       </th:block>
     </tr>
   </tfoot>
-</table>
+</table>;

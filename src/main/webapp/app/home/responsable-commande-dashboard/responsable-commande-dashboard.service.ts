@@ -26,7 +26,7 @@ export class ResponsableCommandeDashboardService {
    * Récupère les données complètes du dashboard
    */
   getDashboardData(): Observable<DashboardResponseType> {
-    return this.http.get<IResponsableCommandeDashboard>(`${this.resourceUrl}`, { observe: 'response' });
+    return this.http.get<IResponsableCommandeDashboard>(this.resourceUrl, { observe: 'response' });
   }
 
   /**
@@ -60,7 +60,7 @@ export class ResponsableCommandeDashboardService {
   /**
    * Récupère les performances des fournisseurs
    */
-  getPerformanceFournisseurs(top: number = 5): Observable<FournisseursResponseType> {
+  getPerformanceFournisseurs(top = 5): Observable<FournisseursResponseType> {
     return this.http.get<IPerformanceFournisseur[]>(`${this.resourceUrl}/performance-fournisseurs`, {
       params: { top: top.toString() },
       observe: 'response',

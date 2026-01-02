@@ -22,7 +22,7 @@ import { ErrorService } from '../../../shared/error.service';
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   entity: IFormProduit | null = null;
-  header: string = '';
+  header = '';
   protected isSaving = false;
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({

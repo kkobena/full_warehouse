@@ -18,21 +18,11 @@ import { CustomerSegmentationReportService } from '../services/customer-segmenta
   selector: 'jhi-customer-segmentation',
   templateUrl: './customer-segmentation.component.html',
   styleUrl: './customer-segmentation.component.scss',
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    SelectModule,
-    ToolbarModule,
-    DividerModule,
-    WarehouseCommonModule,
-    Tag
-  ]
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, SelectModule, ToolbarModule, DividerModule, WarehouseCommonModule, Tag],
 })
 export default class CustomerSegmentationComponent implements OnInit {
   customers = signal<ICustomerSegmentation[]>([]);
-  classificationCounts = signal<{ [key in CustomerClassification]?: number }>({});
+  classificationCounts = signal<Partial<Record<CustomerClassification, number>>>({});
   isLoading = signal<boolean>(false);
   selectedClassification = signal<CustomerClassification | null>(null);
   showChampionsOnly = signal<boolean>(false);
@@ -45,7 +35,7 @@ export default class CustomerSegmentationComponent implements OnInit {
     { label: 'Gros dépensiers', value: CustomerClassification.BIG_SPENDER },
     { label: 'Actifs', value: CustomerClassification.ACTIVE },
     { label: 'À risque', value: CustomerClassification.AT_RISK },
-    { label: 'Besoin d\'attention', value: CustomerClassification.NEED_ATTENTION },
+    { label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION },
     { label: 'Inactifs', value: CustomerClassification.INACTIVE },
   ];
 
@@ -86,10 +76,10 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   loadClassificationCounts(): void {
     this.customerSegmentationService.getCustomerCountByClassification().subscribe({
-      next: (res: HttpResponse<{ [key in CustomerClassification]: number }>) => {
+      next: (res: HttpResponse<Record<CustomerClassification, number>>) => {
         this.classificationCounts.set(res.body ?? {});
       },
-      error: () => {
+      error() {
         console.error('Error loading classification counts');
       },
     });
@@ -127,7 +117,7 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   exportToPdf(): void {
     this.customerSegmentationService.exportCustomerSegmentationToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -138,7 +128,7 @@ export default class CustomerSegmentationComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -202,7 +192,7 @@ export default class CustomerSegmentationComponent implements OnInit {
       case CustomerClassification.AT_RISK:
         return 'À risque';
       case CustomerClassification.NEED_ATTENTION:
-        return 'Besoin d\'attention';
+        return "Besoin d'attention";
       case CustomerClassification.INACTIVE:
         return 'Inactif';
       default:

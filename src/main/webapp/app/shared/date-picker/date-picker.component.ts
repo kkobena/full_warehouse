@@ -52,8 +52,8 @@ export class DatePickerComponent implements ControlValueAccessor {
   defaultDate = input<Date | null>(null);
   disabled = input<boolean>(false);
   onSelect = output<Date>();
-  onInput = output<void>();
-  onDateInput = output<void>();
+  onInput = output();
+  onDateInput = output();
   protected datePicker = viewChild.required<DatePicker>('datePicker');
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);

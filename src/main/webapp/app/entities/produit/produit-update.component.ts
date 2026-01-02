@@ -1,39 +1,39 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Component, inject, OnInit } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 import moment from 'moment';
-import {DATE_TIME_FORMAT} from 'app/shared/constants/input.constants';
-import {Dci, IProduit, Produit} from 'app/shared/model/produit.model';
-import {ProduitService} from './produit.service';
-import {TypeProduit} from '../../shared/model/enumerations/type-produit.model';
-import {IFournisseur} from '../../shared/model/fournisseur.model';
-import {IRayon} from '../../shared/model/rayon.model';
-import {IFamilleProduit} from '../../shared/model/famille-produit.model';
-import {ITva} from '../../shared/model/tva.model';
-import {CodeRemise} from '../../shared/model/remise.model';
-import {IFormProduit} from '../../shared/model/form-produit.model';
-import {IGammeProduit} from '../../shared/model/gamme-produit.model';
-import {ILaboratoire} from '../../shared/model/laboratoire.model';
-import {RayonService} from '../rayon/rayon.service';
-import {LaboratoireProduitService} from '../laboratoire-produit/laboratoire-produit.service';
-import {FormeProduitService} from '../forme-produit/forme-produit.service';
-import {FournisseurService} from '../fournisseur/fournisseur.service';
-import {FamilleProduitService} from '../famille-produit/famille-produit.service';
-import {GammeProduitService} from '../gamme-produit/gamme-produit.service';
-import {TvaService} from '../tva/tva.service';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {InputMaskModule} from 'primeng/inputmask';
-import {RemiseService} from '../remise/remise.service';
-import {DciService} from '../dci/dci.service';
-import {SelectModule} from 'primeng/select';
-import {Card} from 'primeng/card';
-import {Checkbox} from 'primeng/checkbox';
-import {Toolbar} from 'primeng/toolbar';
+import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+import { Dci, IProduit, Produit } from 'app/shared/model/produit.model';
+import { ProduitService } from './produit.service';
+import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { IRayon } from '../../shared/model/rayon.model';
+import { IFamilleProduit } from '../../shared/model/famille-produit.model';
+import { ITva } from '../../shared/model/tva.model';
+import { CodeRemise } from '../../shared/model/remise.model';
+import { IFormProduit } from '../../shared/model/form-produit.model';
+import { IGammeProduit } from '../../shared/model/gamme-produit.model';
+import { ILaboratoire } from '../../shared/model/laboratoire.model';
+import { RayonService } from '../rayon/rayon.service';
+import { LaboratoireProduitService } from '../laboratoire-produit/laboratoire-produit.service';
+import { FormeProduitService } from '../forme-produit/forme-produit.service';
+import { FournisseurService } from '../fournisseur/fournisseur.service';
+import { FamilleProduitService } from '../famille-produit/famille-produit.service';
+import { GammeProduitService } from '../gamme-produit/gamme-produit.service';
+import { TvaService } from '../tva/tva.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputMaskModule } from 'primeng/inputmask';
+import { RemiseService } from '../remise/remise.service';
+import { DciService } from '../dci/dci.service';
+import { SelectModule } from 'primeng/select';
+import { Card } from 'primeng/card';
+import { Checkbox } from 'primeng/checkbox';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -50,8 +50,8 @@ import {Toolbar} from 'primeng/toolbar';
     SelectModule,
     Card,
     Checkbox,
-    Toolbar
-  ]
+    Toolbar,
+  ],
 })
 export class ProduitUpdateComponent implements OnInit {
   protected isSaving = false;
@@ -67,9 +67,9 @@ export class ProduitUpdateComponent implements OnInit {
   protected remisesCodes: CodeRemise[] = [];
   protected dcis: Dci[] = [];
   protected categories = [
-    {code: 'A', libelle: 'Produits à forte rotation', z: 1.96},
-    {code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65},
-    {code: 'C', libelle: 'Produits à faible rotation', z: 1.28}
+    { code: 'A', libelle: 'Produits à forte rotation', z: 1.96 },
+    { code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65 },
+    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 },
   ];
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -98,7 +98,7 @@ export class ProduitUpdateComponent implements OnInit {
     dciId: [],
     codeEanLaboratoire: [],
     stockReassort: [],
-    seuilMini: []
+    seuilMini: [],
   });
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -112,9 +112,8 @@ export class ProduitUpdateComponent implements OnInit {
   private readonly remiseService = inject(RemiseService);
   private readonly dciService = inject(DciService);
 
-
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({produit}) => {
+    this.activatedRoute.data.subscribe(({ produit }) => {
       if (!produit.id) {
         const today = moment().startOf('day');
         produit.createdAt = today;
@@ -131,13 +130,12 @@ export class ProduitUpdateComponent implements OnInit {
       if (produit.deconditionnable) {
         this.isDeconditionnable = true;
       }
-
     }
 
     this.tvaService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<ITva[]>) => {
         this.tvas = res.body;
@@ -146,7 +144,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body;
@@ -154,7 +152,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body;
@@ -165,7 +163,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.gammeProduitService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IGammeProduit[]>) => {
         this.gammes = res.body || [];
@@ -173,7 +171,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.familleService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
         this.familleProduits = res.body;
@@ -181,7 +179,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.formeProduitService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFormProduit[]>) => {
         this.formeProduits = res.body;
@@ -220,7 +218,7 @@ export class ProduitUpdateComponent implements OnInit {
       dciId: produit.dciId,
       stockReassort: produit.stockReassort,
       seuilMini: produit.seuilMini,
-      codeEanLaboratoire: produit.codeEanLaboratoire
+      codeEanLaboratoire: produit.codeEanLaboratoire,
     });
   }
 
@@ -277,9 +275,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.isValid = itemCostAmount < Number(value);
   }
 
-
   onDeconditionnable(value: boolean): void {
-
     this.isDeconditionnable = value;
     if (this.isDeconditionnable) {
       this.editForm.get('itemRegularUnitPrice').setValidators([Validators.required, Validators.min(1)]);
@@ -301,7 +297,7 @@ export class ProduitUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -342,9 +338,7 @@ export class ProduitUpdateComponent implements OnInit {
       dciId: this.editForm.get(['dciId']).value,
       codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value,
       stockReassort: this.editForm.get(['stockReassort']).value,
-      seuilMini: this.editForm.get(['seuilMini']).value
+      seuilMini: this.editForm.get(['seuilMini']).value,
     };
   }
-
-
 }

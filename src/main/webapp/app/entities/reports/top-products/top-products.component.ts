@@ -36,8 +36,8 @@ import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from '../../../shared/util/wa
     DividerModule,
     NgbNavModule,
     WarehouseCommonModule,
-    Tag
-  ]
+    Tag,
+  ],
 })
 export default class TopProductsComponent implements OnInit {
   protected topProductsByRevenue = signal<ITopProduct[]>([]);
@@ -46,11 +46,11 @@ export default class TopProductsComponent implements OnInit {
   protected selectedMonth = signal<Date | null>(null);
   protected limit = signal<number>(20);
 
- protected limitOptions = [
+  protected limitOptions = [
     { label: 'Top 10', value: 10 },
     { label: 'Top 20', value: 20 },
     { label: 'Top 50', value: 50 },
-    { label: 'Top 100', value: 100 }
+    { label: 'Top 100', value: 100 },
   ];
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
@@ -67,13 +67,13 @@ export default class TopProductsComponent implements OnInit {
     this.loadTopProducts();
   }
 
-  protected  loadTopProducts(): void {
+  protected loadTopProducts(): void {
     if (!this.selectedMonth()) {
       return;
     }
 
     this.isLoading.set(true);
-    const monthStr = this.formatDate(this.selectedMonth()!);
+    const monthStr = this.formatDate(this.selectedMonth());
     console.log(monthStr);
     const limit = this.limit();
 
@@ -84,7 +84,7 @@ export default class TopProductsComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
 
     this.topProductsService.getTopProductsByQuantity(monthStr, limit).subscribe({
@@ -94,7 +94,7 @@ export default class TopProductsComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -102,7 +102,7 @@ export default class TopProductsComponent implements OnInit {
     this.loadTopProducts();
   }
 
-  protected  getTotalRevenue(): number {
+  protected getTotalRevenue(): number {
     return this.topProductsByRevenue().reduce((sum, product) => sum + (product.caGenere || 0), 0);
   }
 
@@ -116,12 +116,10 @@ export default class TopProductsComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return DATE_FORMAT_ISO_DATE(date);
-
   }
 
   getMonthLabel(): string {
     if (!this.selectedMonth()) return '';
     return retriveMonthLabel(this.selectedMonth());
-
   }
 }

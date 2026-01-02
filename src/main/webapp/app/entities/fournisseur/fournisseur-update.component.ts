@@ -39,7 +39,7 @@ import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisse
 export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   fournisseur?: IFournisseur;
   groupes: IGroupeFournisseur[] = [];
-  header: string = '';
+  header = '';
   isSaving = false;
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
@@ -117,13 +117,13 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   private createFromForm(): IFournisseur {
     return {
       ...new Fournisseur(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      libelle: this.editForm.get(['libelle'])!.value,
-      groupeFournisseurId: this.editForm.get(['groupeFournisseurId'])!.value,
-      addressePostal: this.editForm.get(['addresspostale'])!.value,
-      phone: this.editForm.get(['phone'])!.value,
-      mobile: this.editForm.get(['mobile'])!.value,
+      id: this.editForm.get(['id']).value,
+      code: this.editForm.get(['code']).value,
+      libelle: this.editForm.get(['libelle']).value,
+      groupeFournisseurId: this.editForm.get(['groupeFournisseurId']).value,
+      addressePostal: this.editForm.get(['addresspostale']).value,
+      phone: this.editForm.get(['phone']).value,
+      mobile: this.editForm.get(['mobile']).value,
     };
   }
 

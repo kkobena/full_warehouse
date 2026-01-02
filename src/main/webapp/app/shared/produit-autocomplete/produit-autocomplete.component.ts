@@ -1,4 +1,4 @@
-import { Component, effect, forwardRef, inject, input, OnDestroy, output, signal, viewChild } from '@angular/core';
+import { Component, forwardRef, inject, input, OnDestroy, output, signal, viewChild } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -42,11 +42,6 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
   private readonly searchSubscription: Subscription;
 
   constructor() {
-    effect(() => {
-      const selected = this._produitSelected();
-      this.onChange(selected);
-      this.produitbox().hide();
-    });
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
   }
 
@@ -136,15 +131,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
       .subscribe(res => {
         const result = res.body || [];
         this.produits.set(result);
-        if (result.length === 1) {
-          const selected = result[0];
-          this.produitSelected = selected;
-          this.selectProduit.set(selected);
-          this.selectedProduit.emit(selected);
-        } else {
-          this.produitSelected = null;
-          this.selectProduit.set(null);
-        }
+        // Don't auto-select or clear while typing - let the user choose from suggestions
       });
   }
 }

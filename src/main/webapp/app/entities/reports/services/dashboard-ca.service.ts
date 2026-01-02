@@ -2,13 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
-import {
-  IDailyCA,
-  IDashboardCASummary,
-  IDashboardCAEvolution,
-  IPaymentMethodCA,
-  IProductFamilyCA,
-} from 'app/shared/model/report';
+import { IDailyCA, IDashboardCASummary, IDashboardCAEvolution, IPaymentMethodCA, IProductFamilyCA } from 'app/shared/model/report';
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 
 type EntityArrayResponseType = HttpResponse<IDailyCA[]>;
@@ -71,7 +65,7 @@ export class DashboardCAService {
   /**
    * Get top products by CA
    */
-  getTopProducts(startDate: string, endDate: string, limit: number = 10): Observable<TopProductsResponseType> {
+  getTopProducts(startDate: string, endDate: string, limit = 10): Observable<TopProductsResponseType> {
     const params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('limit', limit.toString());
     return this.http.get<ITopProduct[]>(`${this.resourceUrl}/top-products`, { params, observe: 'response' });
   }

@@ -17,10 +17,12 @@
         </table>
 
         <div class="row" th:if="${isLastPage}">
-          <div class="today"><span th:text="${currentDate}"></span></div>
+          <div class="today">
+            <span th:text="${currentDate}"></span>
+          </div>
         </div>
       </main>
       <footer th:if="${isLastPage}" th:insert="~{common/receipt/footer}"></footer>
     </div>
   </body>
-</html>
+</html>;

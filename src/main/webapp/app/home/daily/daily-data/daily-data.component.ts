@@ -8,13 +8,23 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { SelectModule } from 'primeng/select';
-import {ButtonModule} from "primeng/button";
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'jhi-daily-data',
   templateUrl: '../../home-base/home-base.component.html',
   styleUrls: ['../../home-base/home-base.component.scss'],
-  imports: [CommonModule, FormsModule, DecimalPipe, SelectModule, TableModule, FaIconComponent, ChartModule, ToggleButtonModule,ButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DecimalPipe,
+    SelectModule,
+    TableModule,
+    FaIconComponent,
+    ChartModule,
+    ToggleButtonModule,
+    ButtonModule,
+  ],
 })
 export class DailyDataComponent extends HomeBaseComponent {
   constructor() {

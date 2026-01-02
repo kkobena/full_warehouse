@@ -50,7 +50,6 @@ export const DATE_FROM_STRING_FR = (date: string): string | null => {
   return null;
 };
 
-
 export const priceRangeValidator =
   (min: number, max: number): ValidatorFn =>
   (control: AbstractControl<number>): ValidationErrors | null => {

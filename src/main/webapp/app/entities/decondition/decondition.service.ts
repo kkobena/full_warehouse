@@ -1,17 +1,17 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import moment from 'moment';
 
-import {SERVER_API_URL} from 'app/app.constants';
-import {createRequestOption} from 'app/shared/util/request-util';
-import {IDecondition} from 'app/shared/model/decondition.model';
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOption } from 'app/shared/util/request-util';
+import { IDecondition } from 'app/shared/model/decondition.model';
 
 type EntityResponseType = HttpResponse<IDecondition>;
 type EntityArrayResponseType = HttpResponse<IDecondition[]>;
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class DeconditionService {
   private readonly http = inject(HttpClient);
 
@@ -20,18 +20,16 @@ export class DeconditionService {
   create(decondition: IDecondition): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(decondition);
     return this.http
-      .post<IDecondition>(this.resourceUrl, copy, {observe: 'response'})
+      .post<IDecondition>(this.resourceUrl, copy, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
-      .get<IDecondition[]>(this.resourceUrl, {params: options, observe: 'response'})
+      .get<IDecondition[]>(this.resourceUrl, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
-
-
 
   private convertDateFromClient(decondition: IDecondition): IDecondition {
     const copy: IDecondition = Object.assign({}, decondition, {

@@ -29,11 +29,13 @@
       <tbody>
         <tr>
           <td>
-            <span>Facture de: <span class="tiers-payant-info" th:text="${entity.name}"></span></span>
+            <span>
+              Facture de: <span class="tiers-payant-info" th:text="${entity.name}"></span>
+            </span>
           </td>
           <td style="text-align: right">
-            <span class="invoice-num"
-              >Numéro:
+            <span class="invoice-num">
+              Numéro:
               <th:block th:text="${entity.numFacture}"></th:block>
             </span>
           </td>
@@ -55,4 +57,4 @@
       </tbody>
     </table>
   </div>
-</header>
+</header>;

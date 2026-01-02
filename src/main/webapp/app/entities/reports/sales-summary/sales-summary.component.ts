@@ -32,8 +32,8 @@ import { TranslateService } from '@ngx-translate/core';
     ToolbarModule,
     DividerModule,
     WarehouseCommonModule,
-    Tag
-  ]
+    Tag,
+  ],
 })
 export default class SalesSummaryComponent implements OnInit {
   summaries = signal<IDailySalesSummary[]>([]);
@@ -46,7 +46,7 @@ export default class SalesSummaryComponent implements OnInit {
     { label: 'Tous', value: null },
     { label: 'Vente ordonnancées (VO)', value: 'ThirdPartySales' },
     { label: 'Vente au comptant (VNO)', value: 'CashSale' },
-    { label: 'Vente aux dépôts', value: 'VenteDepot' }
+    { label: 'Vente aux dépôts', value: 'VenteDepot' },
   ];
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
@@ -72,8 +72,8 @@ export default class SalesSummaryComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    const startDateStr = this.formatDate(this.startDate()!);
-    const endDateStr = this.formatDate(this.endDate()!);
+    const startDateStr = this.formatDate(this.startDate());
+    const endDateStr = this.formatDate(this.endDate());
     const typeVente = this.selectedTypeVente();
 
     const request = typeVente

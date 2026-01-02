@@ -39,8 +39,8 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
     InputText,
     IconField,
     InputIcon,
-    Drawer
-  ]
+    Drawer,
+  ],
 })
 export default class ABCParetoComponent implements OnInit {
   products = signal<IABCPareto[]>([]);
@@ -50,12 +50,12 @@ export default class ABCParetoComponent implements OnInit {
   selectedClassePareto = signal<ClassePareto | null>(null);
   helpDrawerVisible = signal<boolean>(false);
 
-  categorieOptions = signal<Array<{ label: string; value: string }>>([]);
-  classeParetoOptions = signal<Array<{ label: string; value: ClassePareto }>>([
+  categorieOptions = signal<{ label: string; value: string }[]>([]);
+  classeParetoOptions = signal<{ label: string; value: ClassePareto }[]>([
     { label: 'Toutes', value: '' as any },
     { label: 'Classe A (80% du CA)', value: ClassePareto.A },
     { label: 'Classe B (15% du CA)', value: ClassePareto.B },
-    { label: 'Classe C (5% du CA)', value: ClassePareto.C }
+    { label: 'Classe C (5% du CA)', value: ClassePareto.C },
   ]);
 
   ClassePareto = ClassePareto;
@@ -98,7 +98,7 @@ export default class ABCParetoComponent implements OnInit {
       next: (res: HttpResponse<IABCParetoSummary>) => {
         this.summary.set(res.body ?? null);
       },
-      error: () => {
+      error() {
         console.error('Error loading summary');
       },
     });
@@ -129,7 +129,7 @@ export default class ABCParetoComponent implements OnInit {
 
   exportToPdf(): void {
     this.abcParetoService.exportABCParetoToPdf().subscribe({
-      next: (res: HttpResponse<Blob>) => {
+      next(res: HttpResponse<Blob>) {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
@@ -140,7 +140,7 @@ export default class ABCParetoComponent implements OnInit {
           window.URL.revokeObjectURL(url);
         }
       },
-      error: () => {
+      error() {
         console.error('Error exporting PDF');
       },
     });
@@ -149,10 +149,7 @@ export default class ABCParetoComponent implements OnInit {
   private extractFilterOptions(products: IABCPareto[]): void {
     // Extract unique categories
     const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
-    this.categorieOptions.set([
-      { label: 'Toutes les catégories', value: '' },
-      ...categories.map(c => ({ label: c!, value: c! }))
-    ]);
+    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
   }
 
   getClasseParetoLabel(classePareto: ClassePareto | undefined): string {

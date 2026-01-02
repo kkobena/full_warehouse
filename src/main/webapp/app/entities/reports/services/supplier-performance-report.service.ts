@@ -31,7 +31,7 @@ export class SupplierPerformanceReportService {
   /**
    * Get top suppliers by purchase volume
    */
-  getTopSuppliersByVolume(limit: number = 10): Observable<EntityArrayResponseType> {
+  getTopSuppliersByVolume(limit = 10): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('limit', limit.toString());
     return this.http.get<ISupplierPerformance[]>(`${this.resourceUrl}/top`, { params, observe: 'response' });
   }
@@ -39,7 +39,7 @@ export class SupplierPerformanceReportService {
   /**
    * Get suppliers by performance score
    */
-  getSuppliersByPerformanceScore(minScore: number = 70): Observable<EntityArrayResponseType> {
+  getSuppliersByPerformanceScore(minScore = 70): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('minScore', minScore.toString());
     return this.http.get<ISupplierPerformance[]>(`${this.resourceUrl}/score`, { params, observe: 'response' });
   }

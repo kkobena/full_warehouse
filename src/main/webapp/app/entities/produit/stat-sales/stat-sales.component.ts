@@ -1,11 +1,7 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import {
-  DailySaleProduitHistoriqueComponent
-} from './daily-sale-produit-historique/daily-sale-produit-historique.component';
-import {
-  YearlySaleProduitHistoriqueComponent
-} from './yearly-sale-produit-historique/yearly-sale-produit-historique.component';
+import { DailySaleProduitHistoriqueComponent } from './daily-sale-produit-historique/daily-sale-produit-historique.component';
+import { YearlySaleProduitHistoriqueComponent } from './yearly-sale-produit-historique/yearly-sale-produit-historique.component';
 import { ProduitAuditingParam } from '../../../shared/model/produit-record.model';
 import { Button } from 'primeng/button';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
@@ -28,10 +24,10 @@ import { FormsModule } from '@angular/forms';
     ProduitAutocompleteComponent,
     Toolbar,
     Tooltip,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './stat-sales.component.html',
-  styleUrl: './stat-sales.component.scss'
+  styleUrl: './stat-sales.component.scss',
 })
 export class StatSalesComponent implements AfterViewInit {
   readonly dailySaleProduitHistoriqueComponent = viewChild(DailySaleProduitHistoriqueComponent);
@@ -65,7 +61,7 @@ export class StatSalesComponent implements AfterViewInit {
   }
 
   onClear(event: any): void {
-    //this.resetData();
+    // this.resetData();
   }
 
   load(): void {
@@ -88,7 +84,7 @@ export class StatSalesComponent implements AfterViewInit {
     const params: ProduitAuditingParam = {
       produitId: this.produit.id,
       fromDate: this.dateDebut()?.submitValue,
-      toDate: this.dateFin()?.submitValue
+      toDate: this.dateFin()?.submitValue,
     };
     this.produitAuditingParamService.setParameter(params);
     return params;
@@ -97,6 +93,4 @@ export class StatSalesComponent implements AfterViewInit {
   protected updateParam(): void {
     this.produitAuditingParamService.setParameter(this.buildQuery());
   }
-
-
 }

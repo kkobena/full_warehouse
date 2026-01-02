@@ -34,10 +34,7 @@ export class SalesForecastService {
    * Get historical vs forecast comparison
    */
   getHistoricalVsForecast(startDate: string, endDate: string, monthsAhead: number): Observable<ForecastResponseType> {
-    const params = new HttpParams()
-      .set('startDate', startDate)
-      .set('endDate', endDate)
-      .set('monthsAhead', monthsAhead.toString());
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('monthsAhead', monthsAhead.toString());
     return this.http.get<ISalesForecast[]>(`${this.resourceUrl}/historical`, { params, observe: 'response' });
   }
 

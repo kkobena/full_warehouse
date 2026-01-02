@@ -4,8 +4,12 @@
       <th style="width: 15%">Date</th>
       <th style="width: 15%">Mode de paiement</th>
       <th style="width: 30%">Opérateur</th>
-      <th style="width: 20%" class="text-right">Montant attendu</th>
-      <th style="width: 20%" class="text-right">Montant payé</th>
+      <th style="width: 20%" class="text-right">
+        Montant attendu
+      </th>
+      <th style="width: 20%" class="text-right">
+        Montant payé
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -34,10 +38,12 @@
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td class="datatable-footer-total-label" colspan="3">TOTAL GENERAL</td>
+      <td class="datatable-footer-total-label" colspan="3">
+        TOTAL GENERAL
+      </td>
       <td class="unit" th:text="${reportSummary.paidAmountToString}"></td>
       <td class="unit" th:text="${reportSummary.formattedSolde}"></td>
       <td></td>
     </tr>
   </tfoot>
-</table>
+</table>;

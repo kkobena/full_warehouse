@@ -1,15 +1,4 @@
-import {
-  Component,
-  effect,
-  forwardRef,
-  inject,
-  input,
-  OnDestroy,
-  OnInit,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
+import { Component, effect, forwardRef, inject, input, OnDestroy, OnInit, output, signal, viewChild } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -28,10 +17,10 @@ import { ScanDetectorService } from '../scan-detector.service';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ProduitSearchAutocompleteScannerComponent),
-      multi: true
-    }
+      multi: true,
+    },
   ],
-  templateUrl: './produit-search-autocomplete-scanner.component.html'
+  templateUrl: './produit-search-autocomplete-scanner.component.html',
 })
 export class ProduitSearchAutocompleteScannerComponent implements ControlValueAccessor, OnDestroy, OnInit {
   produits = signal<ProduitSearch[]>([]);
@@ -73,9 +62,12 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     return this._produitSelected();
   }
 
-  set produitSelected(value: ProduitSearch | null) {
+  set produitSelected(value: any) {
+    if (typeof value === 'string') {
+      return;
+    }
     if (this._produitSelected() !== value) {
-      this._produitSelected.set(value);
+      this._produitSelected.set(value as ProduitSearch | null);
       this.onChange(value);
     }
   }
@@ -140,11 +132,9 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     }, 50);
   }
 
-  private onChange: (_: any) => void = () => {
-  };
+  private onChange: (_: any) => void = () => {};
 
-  private onTouched: () => void = () => {
-  };
+  private onTouched: () => void = () => {};
 
   private setupBarcodeScanner(): void {
     // OFFLINE CAPABILITY: The barcode scanner detection works entirely offline
@@ -207,12 +197,15 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
 
   private searchByBarcode(barcode: string): void {
     this.produitService
-      .search({
-        page: 0,
-        size: 1,
-        search: barcode,
-        storageId: this.storageId()
-      }, this.storageId() !== null)
+      .search(
+        {
+          page: 0,
+          size: 1,
+          search: barcode,
+          storageId: this.storageId(),
+        },
+        this.storageId() !== null,
+      )
       .subscribe(res => {
         const result = res.body || [];
         if (result.length === 1) {
@@ -223,10 +216,8 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
           this.produits.set([selected]);
         } else if (result.length > 1) {
           this.produits.set(result);
-          this.produitSelected = null;
           this.selectProduit.set(null);
         } else {
-          this.produitSelected = null;
           this.selectProduit.set(null);
           this.produits.set([]);
         }
@@ -235,12 +226,15 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
 
   private loadProduits(search: string): void {
     this.produitService
-      .search({
-        page: 0,
-        size: this.pageSize(),
-        search,
-        storageId: this.storageId()
-      }, this.storageId() !== null)
+      .search(
+        {
+          page: 0,
+          size: this.pageSize(),
+          search,
+          storageId: this.storageId(),
+        },
+        this.storageId() !== null,
+      )
       .subscribe(res => {
         const result = res.body || [];
         this.produits.set(result);
@@ -250,7 +244,6 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
           this.selectProduit.set(selected);
           this.selectedProduit.emit(selected);
         } else {
-          this.produitSelected = null;
           this.selectProduit.set(null);
         }
       });

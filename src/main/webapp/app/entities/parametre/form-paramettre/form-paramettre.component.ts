@@ -20,7 +20,7 @@ import { KeyFilter } from 'primeng/keyfilter';
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-paramettre.component.html',
   styleUrls: ['./form-paramettre.scss'],
-  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, Checkbox, Textarea, KeyFilter]
+  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, Checkbox, Textarea, KeyFilter],
 })
 export class FormParamettreComponent implements OnInit {
   header = '';
@@ -30,7 +30,7 @@ export class FormParamettreComponent implements OnInit {
   protected editForm = this.fb.group({
     name: [Validators.required],
     description: [null, [Validators.required]],
-    value: [null, [Validators.required]]
+    value: [null, [Validators.required]],
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -46,7 +46,7 @@ export class FormParamettreComponent implements OnInit {
     this.editForm.patchValue({
       value,
       name: entity.name,
-      description: entity.description
+      description: entity.description,
     });
   }
 
@@ -63,7 +63,7 @@ export class FormParamettreComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -79,7 +79,7 @@ export class FormParamettreComponent implements OnInit {
     return {
       ...this.entity,
       description: this.editForm.get(['description']).value,
-      value: this.editForm.get(['value']).value
+      value: this.editForm.get(['value']).value,
     };
   }
 }

@@ -27,16 +27,20 @@ import { Card } from 'primeng/card';
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
             <label for="libelle">Libellé<span class="required">*</span></label>
-            <input required="true"  autocomplete="off" class="w-full"   pInputText id="libelle" [(ngModel)]="motif().libelle" [disabled]="isSaving()"
-                   maxlength="100" autofocus />
+            <input
+              required="true"
+              autocomplete="off"
+              class="w-full"
+              pInputText
+              id="libelle"
+              [(ngModel)]="motif().libelle"
+              [disabled]="isSaving()"
+              maxlength="100"
+            />
             <small class="text-muted">Maximum 100 caractères</small>
           </div>
-
-
         </div>
       </p-card>
-
-
 
       @if (errorMessage()) {
         <div class="alert alert-danger mt-3" role="alert">
@@ -47,8 +51,7 @@ import { Card } from 'primeng/card';
     </div>
 
     <div class="modal-footer">
-      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler"
-                severity="secondary">
+      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler" severity="secondary">
       </p-button>
       <p-button
         (onClick)="save()"
@@ -61,7 +64,6 @@ import { Card } from 'primeng/card';
       </p-button>
     </div>
   `,
-
 })
 export class MotifRetourProduitFormModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);

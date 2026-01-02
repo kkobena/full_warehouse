@@ -163,7 +163,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       .exportToPdf(this.buildParams())
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: blod => {
+        next(blod) {
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },

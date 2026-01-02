@@ -40,8 +40,8 @@
       <div class="alert alert-info mb-4">
         <strong><i class="pi pi-info-circle me-2"></i>Information :</strong>
         <p class="mb-0 mt-2">
-          Le modèle de réapprovisionnement détermine comment sont calculés les seuils de stock minimum (<strong>qtySeuilMini</strong>) et les quantités de
-          réapprovisionnement (<strong>qtyAppro</strong>) pour vos produits.
+          Le modèle de réapprovisionnement détermine comment sont calculés les seuils de stock minimum (<strong>qtySeuilMini</strong>) et
+          les quantités de réapprovisionnement (<strong>qtyAppro</strong>) pour vos produits.
         </p>
         <p class="mb-0 mt-2">
           Cette configuration s'applique globalement à tous les produits lors du calcul automatique quotidien (entre 9h et 11h).
@@ -61,12 +61,7 @@
             @for (model of availableModels(); track model.value) {
               <div class="model-option-card" [class.selected]="selectedModel() === model.value">
                 <div class="model-option-header">
-                  <p-radioButton
-                    name="modelReappro"
-                    [value]="model.value"
-                    [(ngModel)]="selectedModel"
-                    [inputId]="'model-' + model.value"
-                  />
+                  <p-radioButton name="modelReappro" [value]="model.value" [(ngModel)]="selectedModel" [inputId]="'model-' + model.value" />
                   <label [for]="'model-' + model.value" class="model-option-label">
                     {{ model.label }}
                   </label>
@@ -101,7 +96,8 @@
                     </ul>
                     <div class="alert alert-warning mt-2 mb-0">
                       <i class="pi pi-exclamation-triangle me-2"></i>
-                      <strong>Prérequis :</strong> Nécessite la configuration SEMOIS pour chaque produit (classe de criticité, délai de livraison, etc.).
+                      <strong>Prérequis :</strong> Nécessite la configuration SEMOIS pour chaque produit (classe de criticité, délai de
+                      livraison, etc.).
                     </div>
                   </div>
                 }
@@ -112,7 +108,14 @@
 
         <!-- Actions -->
         <div class="d-flex justify-content-end gap-2">
-          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="goBack()" [disabled]="isSaving()" />
+          <p-button
+            label="Annuler"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="goBack()"
+            [disabled]="isSaving()"
+          />
           <p-button
             label="Enregistrer"
             icon="pi pi-save"
@@ -172,7 +175,8 @@
 
       <div class="alert alert-secondary mb-0">
         <strong><i class="pi pi-calendar me-2"></i>Calcul automatique :</strong>
-        Le réapprovisionnement est recalculé automatiquement tous les jours entre 9h et 11h. Le modèle sélectionné sera appliqué lors du prochain calcul.
+        Le réapprovisionnement est recalculé automatiquement tous les jours entre 9h et 11h. Le modèle sélectionné sera appliqué lors du
+        prochain calcul.
       </div>
     </div>
   </div>

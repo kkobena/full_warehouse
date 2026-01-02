@@ -153,14 +153,14 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.next();
   }
 
-  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+  printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
 
@@ -271,7 +271,7 @@ export class AchatDepotComponent implements OnInit {
           saveAs(blob, fileName);
         }
       },
-      error: err => {
+      error(err) {
         console.error("Erreur lors de l'exportation:", err);
       },
     });

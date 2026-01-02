@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 
@@ -26,7 +26,7 @@ Chart.register(...registerables);
     `,
   ],
 })
-export class BarChartWidgetComponent implements OnInit, AfterViewInit {
+export class BarChartWidgetComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() config: any;
 
@@ -79,7 +79,7 @@ export class BarChartWidgetComponent implements OnInit, AfterViewInit {
           y: {
             beginAtZero: true,
             ticks: {
-              callback: value => {
+              callback(value) {
                 return new Intl.NumberFormat('fr-FR', {
                   notation: 'compact',
                   compactDisplay: 'short',

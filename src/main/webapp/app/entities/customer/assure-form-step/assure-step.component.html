@@ -128,8 +128,7 @@
         <!-- Téléphone -->
         <div class="form-field form-field-full">
           <label for="field_phone">Téléphone</label>
-          <input pInputText pKeyFilter="int" id="field_phone" formControlName="phone" type="tel" class="w-full"
-                 autocomplete="off" />
+          <input pInputText pKeyFilter="int" id="field_phone" formControlName="phone" type="tel" class="w-full" autocomplete="off" />
         </div>
 
         <!-- Email -->
@@ -163,8 +162,7 @@
         <div class="form-field form-field-full">
           <label>Sexe</label>
           <div class="radio-group">
-            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
-                           value="M"></p-radioButton>
+            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
             <label for="masculin" class="radio-label">Masculin</label>
             <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radioButton>
             <label for="feminin" class="radio-label">Feminin</label>
@@ -177,7 +175,7 @@
   <!-- Section 3: Assurances Complémentaires -->
   @if (editForm.valid) {
     <div class="mt-2">
-      <jhi-complementaire-step  [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" #complementaireStep />
+      <jhi-complementaire-step [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" #complementaireStep />
     </div>
   }
 </form>

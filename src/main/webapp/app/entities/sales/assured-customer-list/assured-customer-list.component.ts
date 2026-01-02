@@ -54,11 +54,9 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Debounce search input
-    this.searchSubject$
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.loadPage(1);
-      });
+    this.searchSubject$.pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)).subscribe(() => {
+      this.loadPage(1);
+    });
   }
 
   ngOnDestroy(): void {
@@ -93,7 +91,6 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   protected cancel(): void {
     this.activeModal.dismiss();
   }
-
 
   protected loadPage(page?: number): void {
     const pageToLoad: number = page || this.page || 1;

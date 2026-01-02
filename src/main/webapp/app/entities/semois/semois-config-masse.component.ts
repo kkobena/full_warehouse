@@ -31,17 +31,7 @@ interface IPreviewClassificationItem {
   selector: 'jhi-semois-config-masse',
   templateUrl: './semois-config-masse.component.html',
   styleUrl: './semois-config-masse.component.scss',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    ToolbarModule,
-    NgbNavModule,
-    TableModule,
-    Tag,
-    InputTextModule,
-    WarehouseCommonModule
-  ]
+  imports: [CommonModule, FormsModule, ButtonModule, ToolbarModule, NgbNavModule, TableModule, Tag, InputTextModule, WarehouseCommonModule],
 })
 export default class SemoisConfigMasseComponent implements OnInit {
   activeTab = 'classification-abc'; // Tab actif par défaut
@@ -55,7 +45,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
   // Configuration auto
   autoConfig = {
     includeNoSales: false,
-    overwriteExisting: false
+    overwriteExisting: false,
   };
 
   importNbMois = 12;
@@ -71,8 +61,6 @@ export default class SemoisConfigMasseComponent implements OnInit {
   previousState(): void {
     window.history.back();
   }
-
-
 
   previewAutoClassification(): void {
     this.isPreviewLoading.set(true);
@@ -118,7 +106,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
             abcRotation,
             rotationRate,
             classeSemoisProposee: classeSemois,
-            coefficientSecurite
+            coefficientSecurite,
           });
         });
 
@@ -127,21 +115,23 @@ export default class SemoisConfigMasseComponent implements OnInit {
       },
       error: () => {
         this.isPreviewLoading.set(false);
-        alert('Erreur lors du chargement de la prévisualisation. Vérifiez que l\'analyse ABC de rotation est disponible.');
-      }
+        alert("Erreur lors du chargement de la prévisualisation. Vérifiez que l'analyse ABC de rotation est disponible.");
+      },
     });
   }
 
   confirmAutoClassification(): void {
-    if (!this.previewData() || this.previewData()!.length === 0) {
-      alert('Aucune donnée à appliquer. Veuillez d\'abord prévisualiser.');
+    if (!this.previewData() || this.previewData().length === 0) {
+      alert("Aucune donnée à appliquer. Veuillez d'abord prévisualiser.");
       return;
     }
 
     if (
       !confirm(
-        `Confirmer la création/mise à jour de ${this.previewData()!.length} configurations SEMOIS basées sur l'analyse ABC ?\n\n` +
-        `${this.autoConfig.overwriteExisting ? 'ATTENTION : Les configurations existantes seront écrasées.' : 'Les configurations existantes seront préservées.'}`
+        `Confirmer la création/mise à jour de ${this.previewData().length} configurations SEMOIS basées sur l'analyse ABC ?\n\n` +
+          (this.autoConfig.overwriteExisting
+            ? 'ATTENTION : Les configurations existantes seront écrasées.'
+            : 'Les configurations existantes seront préservées.'),
       )
     ) {
       return;
@@ -150,7 +140,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
     this.isProcessing.set(true);
 
     // Créer les configurations une par une (batch API pourrait être ajouté côté backend)
-    const preview = this.previewData()!;
+    const preview = this.previewData();
     let processed = 0;
     let errors = 0;
 
@@ -158,7 +148,7 @@ export default class SemoisConfigMasseComponent implements OnInit {
       this.semoisService
         .initializeConfiguration({
           produitId: item.produitId,
-          classeCriticite: item.classeSemoisProposee
+          classeCriticite: item.classeSemoisProposee,
         })
         .subscribe({
           next: () => {
@@ -176,19 +166,22 @@ export default class SemoisConfigMasseComponent implements OnInit {
               alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
               this.previewData.set(null);
             }
-          }
+          },
         });
     });
   }
 
   getPreviewCountByClasse(classe: string): number {
     if (!this.previewData()) return 0;
-    return this.previewData()!.filter(p => p.classeSemoisProposee === classe).length;
+    return this.previewData().filter(p => p.classeSemoisProposee === classe).length;
   }
 
-
   confirmInitAll(): void {
-    if (!confirm('Confirmer l\'initialisation de tous les produits actifs sans configuration SEMOIS ?\n\nClasse par défaut : B (Rotation moyenne)')) {
+    if (
+      !confirm(
+        "Confirmer l'initialisation de tous les produits actifs sans configuration SEMOIS ?\n\nClasse par défaut : B (Rotation moyenne)",
+      )
+    ) {
       return;
     }
 
@@ -200,18 +193,17 @@ export default class SemoisConfigMasseComponent implements OnInit {
       },
       error: () => {
         this.isProcessing.set(false);
-        alert('Erreur lors de l\'initialisation.');
-      }
+        alert("Erreur lors de l'initialisation.");
+      },
     });
   }
-
 
   confirmImportHistorique(): void {
     if (
       !confirm(
         `Confirmer l'import de ${this.importNbMois} mois de données historiques ?\n\n` +
-        `Cette opération peut prendre plusieurs minutes.\n` +
-        `Les mois importés seront gelés automatiquement.`
+          `Cette opération peut prendre plusieurs minutes.\n` +
+          `Les mois importés seront gelés automatiquement.`,
       )
     ) {
       return;
@@ -226,24 +218,21 @@ export default class SemoisConfigMasseComponent implements OnInit {
       },
       error: () => {
         this.isProcessing.set(false);
-        alert('Erreur lors de l\'import historique.');
-      }
+        alert("Erreur lors de l'import historique.");
+      },
     });
   }
-
-
 
   loadAggregationStatus(): void {
     this.semoisService.getAggregationStatus().subscribe({
       next: res => {
         this.aggregationStatus.set(res.body);
       },
-      error: () => {
-        console.error('Erreur lors du chargement du statut d\'agrégation');
-      }
+      error() {
+        console.error("Erreur lors du chargement du statut d'agrégation");
+      },
     });
   }
-
 
   getClasseLabel(classe?: ClasseCriticite): string {
     return getClasseCriticiteInfo(classe).label;

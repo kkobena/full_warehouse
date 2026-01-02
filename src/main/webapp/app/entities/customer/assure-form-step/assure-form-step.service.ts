@@ -2,15 +2,14 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 import { ICustomer } from '../../../shared/model/customer.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AssureFormStepService {
   assure: WritableSignal<ICustomer> = signal<ICustomer>(null);
   typeAssure: WritableSignal<string> = signal<string>(null);
   isEdition: WritableSignal<boolean> = signal<boolean>(false);
 
-  constructor() {
-  }
+  constructor() {}
 
   setAssure(customer: ICustomer): void {
     this.assure.set(customer);

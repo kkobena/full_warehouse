@@ -7,7 +7,7 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters ">
+        <div class="pharma-toolbar-filters">
           <p-select
             [(ngModel)]="selectedCategorie"
             [options]="categorieOptions()"
@@ -35,32 +35,11 @@
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button
-            label="Aide"
-            icon="pi pi-question-circle"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="toggleHelpDrawer()"
-          />
-          <p-button
-            label="Top 50 Contributeurs"
-            icon="pi pi-star"
-            severity="info"
-            (onClick)="showTopContributors()"
-          />
+          <p-button label="Aide" icon="pi pi-question-circle" severity="secondary" [outlined]="true" (onClick)="toggleHelpDrawer()" />
+          <p-button label="Top 50 Contributeurs" icon="pi pi-star" severity="info" (onClick)="showTopContributors()" />
 
-          <p-button
-            label="Exporter PDF"
-            icon="pi pi-file-pdf"
-            severity="danger"
-            (onClick)="exportToPdf()"
-          />
-          <p-button
-            label="Rafraîchir"
-            icon="pi pi-refresh"
-            severity="primary"
-            (onClick)="loadABCPareto()"
-          />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="danger" (onClick)="exportToPdf()" />
+          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadABCPareto()" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -70,7 +49,7 @@
   @if (summary()) {
     <div class="row mt-3">
       <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 data-card" style="border-left: 4px solid #4CAF50;">
+        <div class="card h-100 data-card" style="border-left: 4px solid #4caf50">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="A" severity="success" />
@@ -80,7 +59,7 @@
           <div class="card-body">
             <div class="text-center">
               <h2 class="text-success fw-bold mb-2">{{ summary()!.nbProduitsA }}</h2>
-              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseA | number:'1.2-2' }}% du CA)</p>
+              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseA | number: '1.2-2' }}% du CA)</p>
               <p-progressBar [value]="summary()!.pctCaClasseA || 0" [showValue]="false" severity="success" />
               <hr class="my-3" />
               <div class="fw-semibold fs-5">{{ formatCurrency(summary()!.caClasseA) }} FCFA</div>
@@ -91,7 +70,7 @@
       </div>
 
       <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 data-card" style="border-left: 4px solid #2196F3;">
+        <div class="card h-100 data-card" style="border-left: 4px solid #2196f3">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="B" severity="info" />
@@ -101,7 +80,7 @@
           <div class="card-body">
             <div class="text-center">
               <h2 class="text-info fw-bold mb-2">{{ summary()!.nbProduitsB }}</h2>
-              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseB | number:'1.2-2' }}% du CA)</p>
+              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseB | number: '1.2-2' }}% du CA)</p>
               <p-progressBar [value]="summary()!.pctCaClasseB || 0" [showValue]="false" severity="info" />
               <hr class="my-3" />
               <div class="fw-semibold fs-5">{{ formatCurrency(summary()!.caClasseB) }} FCFA</div>
@@ -112,7 +91,7 @@
       </div>
 
       <div class="col-12 col-md-4 mb-2">
-        <div class="card h-100 data-card" style="border-left: 4px solid #FF9800;">
+        <div class="card h-100 data-card" style="border-left: 4px solid #ff9800">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="C" severity="warn" />
@@ -122,7 +101,7 @@
           <div class="card-body">
             <div class="text-center">
               <h2 class="text-warning fw-bold mb-2">{{ summary()!.nbProduitsC }}</h2>
-              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseC | number:'1.2-2' }}% du CA)</p>
+              <p class="text-sm text-muted mb-3">Produits ({{ summary()!.pctCaClasseC | number: '1.2-2' }}% du CA)</p>
               <p-progressBar [value]="summary()!.pctCaClasseC || 0" [showValue]="false" severity="warn" />
               <hr class="my-3" />
               <div class="fw-semibold fs-5">{{ formatCurrency(summary()!.caClasseC) }} FCFA</div>
@@ -170,13 +149,7 @@
             </h5>
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input
-                pInputText
-                type="text"
-                placeholder="Rechercher..."
-                #globalFilter
-                (input)="$any($event.target).value"
-              />
+              <input pInputText type="text" placeholder="Rechercher..." #globalFilter (input)="$any($event.target).value" />
             </p-iconfield>
           </div>
         </div>
@@ -196,14 +169,14 @@
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Rang</th>
-                  <th>Produit </th>
-                  <th>Code CIP </th>
-                  <th>Catégorie </th>
-                  <th class="text-end">CA Total </th>
-                  <th class="text-end">Contribution % </th>
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Catégorie</th>
+                  <th class="text-end">CA Total</th>
+                  <th class="text-end">Contribution %</th>
                   <th class="text-end">CA Cumulé %</th>
-                  <th>Classe Pareto </th>
-                  <th class="text-end">Nb Ventes </th>
+                  <th>Classe Pareto</th>
+                  <th class="text-end">Nb Ventes</th>
                 </tr>
               </ng-template>
 
@@ -213,18 +186,18 @@
                   <td>{{ product.libelle }}</td>
                   <td>{{ product.codeCip }}</td>
                   <td>{{ product.categorie }}</td>
-                  <td class="text-end">{{ product.caTotal | number:'1.0-0' }} F</td>
+                  <td class="text-end">{{ product.caTotal | number: '1.0-0' }} F</td>
                   <td class="text-end">
-                    <span class="fw-semibold">{{ product.contributionPct | number:'1.2-2' }}%</span>
+                    <span class="fw-semibold">{{ product.contributionPct | number: '1.2-2' }}%</span>
                   </td>
                   <td class="text-end">
                     <div class="d-flex align-items-center justify-content-end gap-2">
-                      <span class="fw-semibold">{{ product.caCumulePct | number:'1.2-2' }}%</span>
+                      <span class="fw-semibold">{{ product.caCumulePct | number: '1.2-2' }}%</span>
                       <p-progressBar
                         [value]="product.caCumulePct || 0"
                         [showValue]="false"
                         [severity]="getCumulativePercentageColor(product.caCumulePct)"
-                        style="width: 100px; height: 10px;"
+                        style="width: 100px; height: 10px"
                       />
                     </div>
                   </td>
@@ -241,7 +214,7 @@
               <ng-template #emptymessage>
                 <tr>
                   <td colspan="9" class="text-center p-4">
-                    <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucun produit trouvé</p>
                   </td>
                 </tr>
@@ -257,7 +230,7 @@
   <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
-        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem;"></i>
+        <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
         <span class="fw-bold fs-5">Guide d'utilisation - Analyse ABC Pareto</span>
       </div>
     </ng-template>
@@ -265,12 +238,10 @@
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2">
-          <i class="pi pi-info-circle me-2"></i>Qu'est-ce que l'analyse ABC Pareto ?
-        </h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que l'analyse ABC Pareto ?</h6>
         <p class="text-sm text-muted">
-          L'analyse ABC Pareto (règle 80/20) est une méthode de classification qui permet d'identifier les produits les plus rentables.
-          Elle repose sur le principe que <strong>20% des produits génèrent environ 80% du chiffre d'affaires</strong>.
+          L'analyse ABC Pareto (règle 80/20) est une méthode de classification qui permet d'identifier les produits les plus rentables. Elle
+          repose sur le principe que <strong>20% des produits génèrent environ 80% du chiffre d'affaires</strong>.
         </p>
       </div>
 
@@ -278,11 +249,9 @@
 
       <!-- Classification -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-chart-pie me-2"></i>Classification des produits
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification des produits</h6>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #E8F5E9; border-left: 4px solid #4CAF50;">
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="A" severity="success" />
             <span class="fw-bold">Classe A - Produits stratégiques</span>
@@ -297,7 +266,7 @@
           </ul>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #E3F2FD; border-left: 4px solid #2196F3;">
+        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="B" severity="info" />
             <span class="fw-bold">Classe B - Produits intermédiaires</span>
@@ -311,7 +280,7 @@
           </ul>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #FFF3E0; border-left: 4px solid #FF9800;">
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="C" severity="warn" />
             <span class="fw-bold">Classe C - Produits occasionnels</span>
@@ -331,9 +300,7 @@
 
       <!-- Métriques -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-calculator me-2"></i>Comprendre les métriques
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Rang</p>
@@ -366,9 +333,7 @@
 
       <!-- Exploitation -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse</h6>
 
         <div class="alert alert-warning">
           <strong><i class="pi pi-exclamation-triangle me-2"></i>Points d'attention :</strong>
@@ -384,36 +349,34 @@
 
       <!-- Exemples pratiques -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3">
-          <i class="pi pi-book me-2"></i>Exemples pratiques
-        </h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples pratiques</h6>
 
-        <div class="card mb-2" style="border-left: 3px solid #4CAF50;">
+        <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit classe A en rupture</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action immédiate :</strong> Commander en urgence, proposer une alternative au client,
-              augmenter le stock de sécurité pour éviter toute rupture future.
+              <strong>Action immédiate :</strong> Commander en urgence, proposer une alternative au client, augmenter le stock de sécurité
+              pour éviter toute rupture future.
             </p>
           </div>
         </div>
 
-        <div class="card mb-2" style="border-left: 3px solid #FF9800;">
+        <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit classe C avec stock élevé</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Organiser une promotion pour écouler le stock,
-              réduire la quantité commandée, voire envisager le déréférencement.
+              <strong>Action :</strong> Organiser une promotion pour écouler le stock, réduire la quantité commandée, voire envisager le
+              déréférencement.
             </p>
           </div>
         </div>
 
-        <div class="card" style="border-left: 3px solid #2196F3;">
+        <div class="card" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Négociation fournisseur</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Stratégie :</strong> Utilisez l'analyse pour négocier de meilleurs prix sur les produits classe A
-              (volumes importants = pouvoir de négociation).
+              <strong>Stratégie :</strong> Utilisez l'analyse pour négocier de meilleurs prix sur les produits classe A (volumes importants
+              = pouvoir de négociation).
             </p>
           </div>
         </div>

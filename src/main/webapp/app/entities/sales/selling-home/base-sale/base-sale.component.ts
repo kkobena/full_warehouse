@@ -434,7 +434,7 @@ export class BaseSaleComponent {
     }
   }
 
-  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+  printReceiptForTauri(saleId: SaleId, isEdition = false): void {
     /*  this.spinner().show(); */
     this.salesService
       .getEscPosReceiptForTauri(saleId, isEdition)

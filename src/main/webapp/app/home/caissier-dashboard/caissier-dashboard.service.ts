@@ -44,14 +44,14 @@ export class CaissierDashboardService {
     return this.http.get<IStatistiquesRapides>(`${this.resourceUrl}/statistiques-rapides`, { observe: 'response' });
   }
 
-  getVentesRecentes(limit: number = 10): Observable<VentesRecentesResponseType> {
+  getVentesRecentes(limit = 10): Observable<VentesRecentesResponseType> {
     return this.http.get<IVenteRecente[]>(`${this.resourceUrl}/ventes-recentes`, {
       params: { limit: limit.toString() },
       observe: 'response',
     });
   }
 
-  getTopProduits(limit: number = 10): Observable<TopProduitsResponseType> {
+  getTopProduits(limit = 10): Observable<TopProduitsResponseType> {
     return this.http.get<ITopProduit[]>(`${this.resourceUrl}/top-produits`, {
       params: { limit: limit.toString() },
       observe: 'response',
@@ -71,11 +71,7 @@ export class CaissierDashboardService {
   }
 
   ouvrirCaisse(montantOuverture: number): Observable<HttpResponse<any>> {
-    return this.http.post<any>(
-      `${this.resourceUrl}/ouvrir-caisse`,
-      { montantOuverture },
-      { observe: 'response' }
-    );
+    return this.http.post<any>(`${this.resourceUrl}/ouvrir-caisse`, { montantOuverture }, { observe: 'response' });
   }
 
   fermerCaisse(): Observable<HttpResponse<any>> {

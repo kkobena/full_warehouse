@@ -1,6 +1,13 @@
 <div class="container-fluid">
   <div class="pharma-nav-tabs-container">
-    <div #nav="ngbNav" [(activeId)]="activeTab" (navChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+    <div
+      #nav="ngbNav"
+      [(activeId)]="activeTab"
+      (navChange)="onTabChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
       <ng-container ngbNavItem="historique">
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-history"></i>
@@ -46,4 +53,3 @@
     </div>
   </div>
 </div>
-

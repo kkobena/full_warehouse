@@ -9,8 +9,7 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts"
-                    appendTo="body" size="large" />
+          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts" appendTo="body" size="large" />
 
           <p-multiSelect
             [(ngModel)]="selectedUsersId"
@@ -54,14 +53,12 @@
           </p-floatlabel>
 
           <p-floatlabel class="pharma-hide-mobile" variant="on">
-            <p-select [(ngModel)]="fromTime" [options]="hous" appendTo="body" id="fromHour"
-                      size="large" />
+            <p-select [(ngModel)]="fromTime" [options]="hous" appendTo="body" id="fromHour" size="large" />
             <label for="fromHour">De</label>
           </p-floatlabel>
 
           <p-floatlabel class="pharma-hide-mobile" variant="on">
-            <p-select [(ngModel)]="toTime" [options]="hous" appendTo="body" id="toHour"
-                      size="large" />
+            <p-select [(ngModel)]="toTime" [options]="hous" appendTo="body" id="toHour" size="large" />
             <label for="toHour">À</label>
           </p-floatlabel>
         </div>
@@ -120,8 +117,7 @@
               @for (item of summary; track item.libelle) {
                 <div class="field">
                   <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
-                  <span
-                    class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
+                  <span class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
                 </div>
               }
             </div>
@@ -144,15 +140,13 @@
                 @for (item of recap.datas; track item.libelle) {
                   <div class="field">
                     <label> {{ item.libelle }}</label>
-                    <span
-                      class="badge text-bg-secondary fs-5 rounded-pill">{{ item.value | number }}</span>
+                    <span class="badge text-bg-secondary fs-5 rounded-pill">{{ item.value | number }}</span>
                   </div>
                 }
                 @for (item of recap.summary; track item.libelle) {
                   <div class="field">
                     <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
-                    <span
-                      class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
+                    <span class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
                   </div>
                 }
               </div>

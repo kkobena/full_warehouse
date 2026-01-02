@@ -9,7 +9,7 @@ const reportsRoute: Routes = [
     loadComponent: () => import('./sales-reports/sales-reports.component'),
     data: {
       authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Rapports Chiffre d\'Affaires',
+      pageTitle: "Rapports Chiffre d'Affaires",
     },
     canActivate: [UserRouteAccessService],
   },

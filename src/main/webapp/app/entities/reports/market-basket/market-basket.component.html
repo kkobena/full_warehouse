@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <div class="pharma-toolbar ">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-shopping-bag"></i>
       <span class="pharma-toolbar-title">Analyse du Panier (Cross-selling)</span>
@@ -10,38 +10,53 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters pt-1">
           <p-floatlabel variant="on">
-          <p-datePicker id="fromDate" [style]="{ 'max-width': '160px' }"
-                        appendTo="body"  [(ngModel)]="startDate" dateFormat="dd/mm/yy" [showIcon]="true" />
+            <p-datePicker
+              id="fromDate"
+              [style]="{ 'max-width': '160px' }"
+              appendTo="body"
+              [(ngModel)]="startDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+            />
             <label for="fromDate">Date début</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-          <p-datePicker id="endDate" [style]="{ 'max-width': '160px' }" appendTo="body"  [(ngModel)]="endDate" dateFormat="dd/mm/yy"  [showIcon]="true" />
+            <p-datePicker
+              id="endDate"
+              [style]="{ 'max-width': '160px' }"
+              appendTo="body"
+              [(ngModel)]="endDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+            />
             <label for="fromDate">Date fin</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-          <p-inputNumber
-            [(ngModel)]="minSupport"
-            [min]="0"
-            [max]="100"
-            [step]="0.5"
-            suffix="%"
-            id="supportmini"
-            [style]="{ 'max-width': '140px' }" />
+            <p-inputNumber
+              [(ngModel)]="minSupport"
+              [min]="0"
+              [max]="100"
+              [step]="0.5"
+              suffix="%"
+              id="supportmini"
+              [style]="{ 'max-width': '140px' }"
+            />
             <label for="supportmini">Support min</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-          <p-inputNumber
-            [(ngModel)]="minConfidence"
-            [min]="0"
-            [max]="100"
-            [step]="5"
-            suffix="%"
-            id="confidencemini"
-            [style]="{ 'max-width': '140px' }" />
+            <p-inputNumber
+              [(ngModel)]="minConfidence"
+              [min]="0"
+              [max]="100"
+              [step]="5"
+              suffix="%"
+              id="confidencemini"
+              [style]="{ 'max-width': '140px' }"
+            />
             <label for="confidencemini">Confiance min</label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-          <p-inputNumber id="limit" [(ngModel)]="limit" [min]="10" [max]="200" [step]="10"  [style]="{ 'max-width': '140px' }" />
+            <p-inputNumber id="limit" [(ngModel)]="limit" [min]="10" [max]="200" [step]="10" [style]="{ 'max-width': '140px' }" />
             <label for="limit">Limite</label>
           </p-floatlabel>
         </div>
@@ -57,8 +72,8 @@
 
   <!-- Loading spinner -->
   @if (isLoading()) {
-    <div class="flex justify-content-center align-items-center" style="min-height: 400px;">
-      <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    <div class="flex justify-content-center align-items-center" style="min-height: 400px">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
     </div>
   } @else {
     <!-- Summary Cards -->
@@ -154,10 +169,10 @@
       @if (sum.mostFrequentPair && sum.mostFrequentPair !== 'Aucune') {
         <div class="row mt-2">
           <div class="col-12 mb-2">
-            <div class="card data-card" style="border-left: 4px solid #4CAF50;">
+            <div class="card data-card" style="border-left: 4px solid #4caf50">
               <div class="card-body">
                 <div class="d-flex align-items-center gap-2">
-                  <i class="pi pi-star-fill text-success" style="font-size: 1.5rem;"></i>
+                  <i class="pi pi-star-fill text-success" style="font-size: 1.5rem"></i>
                   <div>
                     <strong class="text-success">Paire la plus fréquente !</strong>
                     <p class="m-0 mt-1 text-sm text-muted">
@@ -187,7 +202,7 @@
           <div class="card-body p-0">
             @if (associations().length === 0) {
               <div class="text-center p-4">
-                <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                 <p class="mt-3 text-muted">Aucune association trouvée avec ces critères</p>
                 <p class="text-sm text-muted">Essayez de réduire les seuils de support et confiance</p>
               </div>
@@ -246,21 +261,15 @@
               </div>
 
               <!-- Explanation Panel -->
-              <div class="mt-3 mx-3 mb-3 p-3 rounded" style="background-color: #F5F5F5;">
+              <div class="mt-3 mx-3 mb-3 p-3 rounded" style="background-color: #f5f5f5">
                 <div class="fw-semibold mb-2">
                   <i class="pi pi-info-circle"></i>
                   Comprendre les métriques
                 </div>
                 <div class="row text-sm">
-                  <div class="col-12 col-md-4">
-                    <strong>Support :</strong> % de transactions contenant les deux produits
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <strong>Confiance :</strong> Probabilité d'acheter B quand on achète A
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <strong>Lift :</strong> Force de la corrélation (> 1 = corrélation positive)
-                  </div>
+                  <div class="col-12 col-md-4"><strong>Support :</strong> % de transactions contenant les deux produits</div>
+                  <div class="col-12 col-md-4"><strong>Confiance :</strong> Probabilité d'acheter B quand on achète A</div>
+                  <div class="col-12 col-md-4"><strong>Lift :</strong> Force de la corrélation (> 1 = corrélation positive)</div>
                 </div>
               </div>
             }

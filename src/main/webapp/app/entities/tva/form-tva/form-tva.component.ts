@@ -19,7 +19,7 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
   styleUrls: ['./form-tva.scss'],
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
-  header: string = '';
+  header = '';
   private readonly taux = viewChild.required<ElementRef>('taux');
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({

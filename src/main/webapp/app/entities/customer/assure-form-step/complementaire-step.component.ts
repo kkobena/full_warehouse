@@ -170,7 +170,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
-        this.tiersPayants = res.body!.filter(tp => !alreadyAddedIds.includes(tp.id));
+        this.tiersPayants = res.body.filter(tp => !alreadyAddedIds.includes(tp.id));
         if (this.tiersPayants.length === 0) {
           this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }

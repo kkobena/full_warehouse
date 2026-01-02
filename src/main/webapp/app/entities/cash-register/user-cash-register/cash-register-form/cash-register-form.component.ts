@@ -1,23 +1,18 @@
-import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
-import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
-import {Button} from "primeng/button";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {InputNumber} from "primeng/inputnumber";
-import {CashRegisterService} from "../../cash-register.service";
-import {ConfigurationService} from "../../../../shared/configuration.service";
-import {ErrorService} from "../../../../shared/error.service";
-import {Toast} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Button } from 'primeng/button';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { InputNumber } from 'primeng/inputnumber';
+import { CashRegisterService } from '../../cash-register.service';
+import { ConfigurationService } from '../../../../shared/configuration.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-cash-register-form',
   providers: [MessageService],
-  imports: [
-    Button,
-    ReactiveFormsModule,
-    InputNumber,
-    Toast
-  ],
+  imports: [Button, ReactiveFormsModule, InputNumber, Toast],
   templateUrl: './cash-register-form.component.html',
   styleUrl: './cash-register-form.component.scss',
 })
@@ -44,7 +39,6 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.setCashFundControlFocus();
-
   }
 
   ngOnInit(): void {
@@ -57,13 +51,11 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
         this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount);
       }
     });
-
   }
-
 
   protected openCashRegister(): void {
     if (this.editForm.valid) {
-      this.entityService.openCashRegister({cashFundAmount: this.editForm.get(['cashFundAmount']).value}).subscribe({
+      this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount']).value }).subscribe({
         next: res => {
           if (res.body) {
             this.activeModal.close(true);
@@ -73,9 +65,8 @@ export class CashRegisterFormComponent implements OnInit, AfterViewInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: this.errorService.getErrorMessage(err)
+            detail: this.errorService.getErrorMessage(err),
           });
-
         },
       });
     }

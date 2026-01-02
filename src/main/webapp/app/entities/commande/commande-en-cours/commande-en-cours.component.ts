@@ -134,7 +134,7 @@ export class CommandeEnCoursComponent implements OnInit {
 
   fusionner(): void {
     const ids = this.selections.map(e => {
-      return { id: e.id!, orderDate: e.orderDate! };
+      return { id: e.id, orderDate: e.orderDate };
     });
     const fournisseursIdArray = this.selections.map(e => e.fournisseur.id);
     const firstId = fournisseursIdArray[0];
@@ -166,7 +166,7 @@ export class CommandeEnCoursComponent implements OnInit {
     this.commandeService
       .deleteSelectedCommandes(
         this.selections.map(e => {
-          return { id: e.id!, orderDate: e.orderDate! };
+          return { id: e.id, orderDate: e.orderDate };
         }),
       )
       .subscribe(() => {

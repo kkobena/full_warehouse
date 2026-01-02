@@ -23,11 +23,13 @@
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td class="datatable-footer-total-label" colspan="2">TOTAL GENERAL</td>
+      <td class="datatable-footer-total-label" colspan="2">
+        TOTAL GENERAL
+      </td>
       <td class="unit" colspan="2" th:text="${' (NOMBRE DE BONS='+#lists.size(entity.facturesDetails) +')'}"></td>
       <td></td>
       <td class="unit" th:text="${#numbers.formatInteger(grandTotal.e1,3,'WHITESPACE')}"></td>
       <td class="unit" th:text="${#numbers.formatInteger(grandTotal.e2,3,'WHITESPACE')}"></td>
     </tr>
   </tfoot>
-</table>
+</table>;

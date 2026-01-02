@@ -103,7 +103,7 @@ export class FormeProduitComponent implements OnInit {
       this.modalService,
       FormFormeProduitComponent,
       {
-        entity: entity,
+        entity,
         header: 'Modification de ' + entity.libelle,
       },
       () => {

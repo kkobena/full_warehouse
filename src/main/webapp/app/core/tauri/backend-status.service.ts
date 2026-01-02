@@ -24,7 +24,7 @@ export class BackendStatusService {
     message: 'Checking backend status...',
   });
 
-  private backendUrl: string = 'http://localhost:9080';
+  private backendUrl = 'http://localhost:9080';
   private checkInterval?: any;
   private readonly ngZone = inject(NgZone);
 

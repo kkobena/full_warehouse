@@ -30,6 +30,6 @@ export class ABCPareto implements IABCPareto {
     public contributionPct?: number,
     public caCumulePct?: number,
     public classePareto?: ClassePareto,
-    public rang?: number
+    public rang?: number,
   ) {}
 }

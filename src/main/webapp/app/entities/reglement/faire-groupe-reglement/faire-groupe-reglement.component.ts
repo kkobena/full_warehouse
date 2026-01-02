@@ -180,7 +180,7 @@ export class FaireGroupeReglementComponent implements OnInit {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
         } catch (error) {}
       },
-      error: () => {},
+      error() {},
     });
   }
   private computeMontantRestant(d: ReglementFactureDossier): number {

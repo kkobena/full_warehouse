@@ -3,10 +3,18 @@
     <tr>
       <th style="width: 18%">Date règlement</th>
       <th style="width: 16%">N° Facture</th>
-      <th class="text-right" style="width: 16%">Nbre Dossiers</th>
-      <th class="text-right" style="width: 17%">Montant Attendu</th>
-      <th class="text-right" style="width: 17%">Montant Règlé</th>
-      <th class="text-right" style="width: 16%">Montant Restant</th>
+      <th class="text-right" style="width: 16%">
+        Nbre Dossiers
+      </th>
+      <th class="text-right" style="width: 17%">
+        Montant Attendu
+      </th>
+      <th class="text-right" style="width: 17%">
+        Montant Règlé
+      </th>
+      <th class="text-right" style="width: 16%">
+        Montant Restant
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -39,11 +47,13 @@
   </tbody>
   <tfoot class="datatable-footer">
     <tr class="tr-footer">
-      <td class="datatable-footer-total-label" colspan="2">TOTAL GENERAL</td>
+      <td class="datatable-footer-total-label" colspan="2">
+        TOTAL GENERAL
+      </td>
       <td class="unit" th:text="${' (NOMBRE DE DOSSIERS= '+totalDossier +' )'}"></td>
       <td></td>
       <td class="unit" th:text="${paidAmount}"></td>
       <td></td>
     </tr>
   </tfoot>
-</table>
+</table>;

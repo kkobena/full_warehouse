@@ -30,8 +30,8 @@ import { Card } from 'primeng/card';
     RippleModule,
     InputTextModule,
     KeyFilterModule,
-    Card
-  ]
+    Card,
+  ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;
@@ -45,7 +45,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
     firstName: [null, [Validators.required, Validators.min(1)]],
     lastName: [null, [Validators.required, Validators.min(1)]],
     phone: [null, [Validators.required, Validators.min(1)]],
-    email: []
+    email: [],
   });
   private readonly messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
@@ -87,7 +87,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
       firstName: customer.firstName,
       lastName: customer.lastName,
       email: customer.email,
-      phone: customer.phone
+      phone: customer.phone,
     });
   }
 
@@ -104,7 +104,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
       lastName: formValue.lastName,
       email: formValue.email,
       phone: formValue.phone,
-      type: 'STANDARD'
+      type: 'STANDARD',
     };
   }
 
@@ -112,11 +112,11 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
     result
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-        error: (error: any) => this.onSaveError(error)
+        error: (error: any) => this.onSaveError(error),
       });
   }
 
@@ -129,13 +129,13 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: this.errorService.getErrorMessage(error)
+        detail: this.errorService.getErrorMessage(error),
       });
     } else {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Erreur interne du serveur.'
+        detail: 'Erreur interne du serveur.',
       });
     }
   }

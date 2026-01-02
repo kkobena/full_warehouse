@@ -1,10 +1,10 @@
-import {Component, OnInit, OnDestroy, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {interval, Subject} from 'rxjs';
-import {takeUntil, switchMap, startWith} from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { interval, Subject } from 'rxjs';
+import { takeUntil, switchMap, startWith } from 'rxjs/operators';
 
-import {VendeurDashboardService} from './vendeur-dashboard.service';
+import { VendeurDashboardService } from './vendeur-dashboard.service';
 import {
   IVendeurDashboard,
   IMesPerformances,
@@ -18,17 +18,17 @@ import {
   IClientFidele,
 } from './vendeur-dashboard.model';
 
-import {ButtonModule} from 'primeng/button';
-import {Card} from 'primeng/card';
-import {TableModule} from 'primeng/table';
-import {ChartModule} from 'primeng/chart';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {Tag} from 'primeng/tag';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
-import {SpinnerComponent} from '../../shared/spinner/spinner.component';
-import {Tooltip} from "primeng/tooltip";
-import {Toast} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import { ButtonModule } from 'primeng/button';
+import { Card } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { ChartModule } from 'primeng/chart';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { Tag } from 'primeng/tag';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { Tooltip } from 'primeng/tooltip';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-vendeur-dashboard',
@@ -120,7 +120,7 @@ export class VendeurDashboardComponent implements OnInit, OnDestroy {
       .pipe(
         startWith(0),
         switchMap(() => this.vendeurService.getDashboardData()),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: res => {

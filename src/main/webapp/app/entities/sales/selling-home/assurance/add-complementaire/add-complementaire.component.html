@@ -1,4 +1,4 @@
-<div class="modal-header ">
+<div class="modal-header">
   <h4 class="modal-title fw-bold">
     <i class="pi pi-plus-circle me-2"></i>
     AJOUTER UN TIERS PAYANT
@@ -50,8 +50,6 @@
           />
         </div>
 
-
-
         @if (selectedTiersPayant) {
           <div class="border-top pt-2 mt-2">
             <!-- Taux and Matricule in one row -->
@@ -62,18 +60,9 @@
                     <i class="pi pi-percentage me-1"></i>
                     Taux (%)
                   </label>
-                  <input
-                    formControlName="taux"
-                    id="taux"
-                    max="100"
-                    min="5"
-                    pInputText
-                    placeholder="Taux"
-                    type="number"
-                  />
+                  <input formControlName="taux" id="taux" max="100" min="5" pInputText placeholder="Taux" type="number" />
                   <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
                 </div>
-
               </div>
               <div class="col-md-6">
                 <div class="form-field form-field-full">
@@ -90,14 +79,8 @@
                     placeholder="Matricule"
                     type="text"
                   />
-                  <small class="text-muted">Initial: {{ selectedTiersPayant.num  }}</small>
-
-
-
+                  <small class="text-muted">Initial: {{ selectedTiersPayant.num }}</small>
                 </div>
-
-
-
               </div>
             </div>
 
@@ -113,38 +96,21 @@
                     (onChange)="onPrioriteToggle($event)"
                     [(ngModel)]="isPrioriteEnabled"
                     [disabled]="selectedTiersPayant.categorie === 0"
-                    [ngModelOptions]="{standalone: true}"
+                    [ngModelOptions]="{ standalone: true }"
                     inputId="prioriteSwitch"
                   />
-                  <input
-                    [(ngModel)]="prioriteValue"
-                    [ngModelOptions]="{standalone: true}"
-                    id="priorite"
-                    type="hidden"
-                  />
-
+                  <input [(ngModel)]="prioriteValue" [ngModelOptions]="{ standalone: true }" id="priorite" type="hidden" />
                 </div>
-
               </div>
             }
           </div>
         }
       </div>
-
-
-
-
     </p-card>
   </div>
 
   <div class="modal-footer bg-light p-2">
-    <p-button
-      (click)="cancel()"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    />
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [loading]="isSaving"

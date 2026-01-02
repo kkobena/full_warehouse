@@ -61,7 +61,7 @@ export class DepotRetourListComponent implements OnInit {
   protected selectedDepot: IMagasin | null = null;
   protected fromDate: Date | null = new Date();
   protected toDate: Date | null = new Date();
-  protected search: string = '';
+  protected search = '';
 
   protected retourDepots = signal<IRetourDepot[]>([]);
   protected loading = signal<boolean>(false);

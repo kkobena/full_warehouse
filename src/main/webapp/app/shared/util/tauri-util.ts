@@ -60,7 +60,7 @@ export const printPdf2 = async (base64: string, fileName: string): Promise<void>
     await open(path);
   }
 };
-export const handleBlobForTauri = (blob: Blob, filename: string, type: string = 'pdf'): void => {
+export const handleBlobForTauri = (blob: Blob, filename: string, type = 'pdf'): void => {
   const reader = new FileReader();
   reader.onload = () => {
     const result = reader.result;

@@ -13,9 +13,7 @@ import { HttpResponse } from '@angular/common/http';
 import { IStorage } from '../../../shared/model/magasin.model';
 import { Toast } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import {
-  ProduitSearchAutocompleteScannerComponent
-} from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
+import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { IProduit, ProduitSearch, ProduitStockSearch } from '../../../shared/model/produit.model';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
@@ -56,10 +54,10 @@ export interface IRepartitionRow {
     ProduitSearchAutocompleteScannerComponent,
     QuantiteProdutSaisieComponent,
     ConfirmDialogComponent,
-    ConfirmDialog
+    ConfirmDialog,
   ],
   providers: [MessageService, ConfirmationService],
-  styleUrl: './manual-repartition.component.scss'
+  styleUrl: './manual-repartition.component.scss',
 })
 export class ManualRepartitionComponent implements OnInit {
   protected repartitionService = inject(RepartitionStockService);
@@ -85,7 +83,7 @@ export class ManualRepartitionComponent implements OnInit {
     this.storageService.fetchUserStorages().subscribe({
       next: (res: HttpResponse<IStorage[]>) => {
         this.storages = res.body || [];
-      }
+      },
     });
   }
 
@@ -108,7 +106,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Emplacement',
-        detail: 'Veuillez sélectionner un emplacement'
+        detail: 'Veuillez sélectionner un emplacement',
       });
       this.produitSelected = null;
       return;
@@ -121,7 +119,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'info',
         summary: 'Recherche',
-        detail: 'Aucun stock trouvé pour ce produit dans l\'emplacement sélectionné'
+        detail: "Aucun stock trouvé pour ce produit dans l'emplacement sélectionné",
       });
       this.produitSelected = null;
       this.produitbox()?.getFocus();
@@ -133,7 +131,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Stock insuffisant',
-        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition'
+        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
       });
       this.produitSelected = null;
       this.produitbox()?.getFocus();
@@ -153,7 +151,7 @@ export class ManualRepartitionComponent implements OnInit {
         () => {
           this.produitSelected = null;
           this.produitbox()?.getFocus();
-        }
+        },
       );
     } else {
       // Stock destination found - focus quantity input
@@ -170,7 +168,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Stock insuffisant',
-        detail: 'La quantité disponible est insuffisante pour créer une répartition'
+        detail: 'La quantité disponible est insuffisante pour créer une répartition',
       });
       this.produitSelected = null;
       this.produitbox()?.getFocus();
@@ -185,8 +183,8 @@ export class ManualRepartitionComponent implements OnInit {
         id: produit.id,
         libelle: produit.libelle,
         codeCip: produit.fournisseurProduit?.codeCip,
-        stockProduits: [] as IStockProduit[]
-      }
+        stockProduits: [] as IStockProduit[],
+      },
     };
 
     const newRow: IRepartitionRow = {
@@ -197,7 +195,7 @@ export class ManualRepartitionComponent implements OnInit {
       errors: [],
       availableDestinations: [],
       createNewDestination: true,
-      seuilMini: 1
+      seuilMini: 1,
     };
 
     this.validateRow(newRow);
@@ -221,7 +219,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Stock',
-        detail: 'Stock source non trouvé'
+        detail: 'Stock source non trouvé',
       });
       return;
     }
@@ -231,7 +229,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Stock insuffisant',
-        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition'
+        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
       });
       return;
     }
@@ -243,11 +241,11 @@ export class ManualRepartitionComponent implements OnInit {
       qtyStock: stock.quantite,
       storage: this.storages.find(s => s.id === stock.storage),
       produit: {
-        id: this.produitSelected!.id,
-        libelle: this.produitSelected!.libelle,
-        codeCip: this.produitSelected!.fournisseurProduit?.codeCip,
-        stockProduits: [] as IStockProduit[]
-      }
+        id: this.produitSelected.id,
+        libelle: this.produitSelected.libelle,
+        codeCip: this.produitSelected.fournisseurProduit?.codeCip,
+        stockProduits: [] as IStockProduit[],
+      },
     }));
 
     const stockSource: IStockProduit = {
@@ -258,8 +256,8 @@ export class ManualRepartitionComponent implements OnInit {
         id: this.produitSelected.id,
         libelle: this.produitSelected.libelle,
         codeCip: this.produitSelected.fournisseurProduit?.codeCip,
-        stockProduits: availableDestinations
-      }
+        stockProduits: availableDestinations,
+      },
     };
 
     this.addRow(stockSource, quantity);
@@ -267,7 +265,7 @@ export class ManualRepartitionComponent implements OnInit {
     this.messageService.add({
       severity: 'success',
       summary: 'Ajout',
-      detail: `Produit ajouté avec quantité ${quantity}`
+      detail: `Produit ajouté avec quantité ${quantity}`,
     });
 
     // Clear selection and focus back to search
@@ -276,16 +274,16 @@ export class ManualRepartitionComponent implements OnInit {
     this.produitbox()?.getFocus();
   }
 
-  protected addRow(stockSource: IStockProduit, quantity: number = 1): void {
+  protected addRow(stockSource: IStockProduit, quantity = 1): void {
     const availableDestinations = this.getAvailableDestinations(stockSource);
 
     const newRow: IRepartitionRow = {
       id: `row-${Date.now()}-${Math.random()}`,
       stockSource,
-      quantity: quantity,
+      quantity,
       isValid: false,
       errors: [],
-      availableDestinations
+      availableDestinations,
     };
 
     this.validateRow(newRow);
@@ -293,7 +291,7 @@ export class ManualRepartitionComponent implements OnInit {
   }
 
   protected getAvailableDestinations(stockSource: IStockProduit): IStockProduit[] {
-    if (!stockSource || !stockSource.produit?.stockProduits) {
+    if (!stockSource?.produit?.stockProduits) {
       return [];
     }
 
@@ -311,8 +309,6 @@ export class ManualRepartitionComponent implements OnInit {
   protected removeRow(row: IRepartitionRow): void {
     this.repartitionRows = this.repartitionRows.filter(r => r.id !== row.id);
   }
-
-
 
   protected onQuantityChange(row: IRepartitionRow): void {
     this.validateRow(row);
@@ -348,7 +344,7 @@ export class ManualRepartitionComponent implements OnInit {
       }
     }
 
-    if (row.stockSource && row.stockDestination && row.stockSource.id === row.stockDestination.id) {
+    if (row.stockSource?.id === row.stockDestination?.id) {
       row.errors.push('Source et destination doivent être différents');
       row.isValid = false;
     }
@@ -377,7 +373,7 @@ export class ManualRepartitionComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Validation',
-        detail: 'Veuillez corriger les erreurs avant de soumettre'
+        detail: 'Veuillez corriger les erreurs avant de soumettre',
       });
       return;
     }
@@ -385,10 +381,10 @@ export class ManualRepartitionComponent implements OnInit {
     const requests: IManualRepartitionRequest[] = this.repartitionRows
       .filter(row => row.isValid && row.stockSource && (row.stockDestination || row.createNewDestination))
       .map(row => ({
-        stockSourceId: row.stockSource!.id!,
-        stockDestinationId: row.stockDestination?.id ,
+        stockSourceId: row.stockSource.id,
+        stockDestinationId: row.stockDestination?.id,
         quantity: row.quantity,
-        seuilMini: row.seuilMini
+        seuilMini: row.seuilMini,
       }));
 
     this.isSaving = true;
@@ -398,7 +394,7 @@ export class ManualRepartitionComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: `${requests.length} répartition(s) effectuée(s) avec succès`
+          detail: `${requests.length} répartition(s) effectuée(s) avec succès`,
         });
         this.repartitionRows = [];
         this.produitSelected = null;
@@ -409,13 +405,11 @@ export class ManualRepartitionComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du traitement des répartitions'
+          detail: 'Erreur lors du traitement des répartitions',
         });
-      }
+      },
     });
   }
-
-
 
   get validRowsCount(): number {
     return this.repartitionRows?.filter(r => r.isValid)?.length ?? 0;
@@ -443,8 +437,4 @@ export class ManualRepartitionComponent implements OnInit {
     row.stockDestination = undefined;
     this.validateRow(row);
   }
-
-
-
-
 }

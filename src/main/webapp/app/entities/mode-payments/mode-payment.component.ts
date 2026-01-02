@@ -74,7 +74,7 @@ export class ModePaymentComponent implements OnInit {
       this.modalService,
       ModePaymentUpdateComponent,
       {
-        entity: entity,
+        entity,
         title: 'Modification de ' + entity.libelle,
       },
       () => {

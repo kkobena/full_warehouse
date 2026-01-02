@@ -137,7 +137,7 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   protected onChangeTierPayant(index: number): void {
-    const tps = this.thirdPartySaleLinesFomArray.at(index) as AbstractControl;
+    const tps = this.thirdPartySaleLinesFomArray.at(index);
     showCommonModal(
       this.modalService,
       AddComplementaireComponent,
@@ -300,7 +300,7 @@ export class CustomerEditModalComponent implements OnInit {
 
   private patchAyantDroitForm(): void {
     if (this.ayantDroit) {
-      const ayantDroitControl = this.editForm.get('ayantDroit') as AbstractControl;
+      const ayantDroitControl = this.editForm.get('ayantDroit');
       if (!ayantDroitControl) {
         this.editForm.addControl(
           'ayantDroit',

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
@@ -36,7 +36,7 @@ import { Card } from 'primeng/card';
     Card,
   ],
 })
-export class FormLotComponent implements OnInit {
+export class FormLotComponent implements OnInit, AfterViewInit {
   header = 'Ajout de lot';
   entity?: ILot;
   deliveryItem?: AbstractOrderItem;
@@ -74,6 +74,7 @@ export class FormLotComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly renderer = inject(Renderer2);
   private readonly elementRef = inject(ElementRef);
+  private numLotInput = viewChild.required<ElementRef>('numLotInput');
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -96,7 +97,11 @@ export class FormLotComponent implements OnInit {
       .setValidators([Validators.required, Validators.min(1), Validators.max(this.getValidLotQuantity())]);
     this.editForm.get('quantityReceived').updateValueAndValidity();
   }
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.numLotInput().nativeElement.focus();
+    }, 100);
+  }
   updateForm(entity: ILot): void {
     this.editForm.patchValue({
       numLot: entity.numLot,

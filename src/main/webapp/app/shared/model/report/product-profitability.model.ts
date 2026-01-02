@@ -38,6 +38,6 @@ export class ProductProfitability implements IProductProfitability {
     public prixAchatUnitaire?: number,
     public prixVenteUnitaire?: number,
     public tauxRotationAnnuel?: number,
-    public bcgCategory?: BCGCategory
+    public bcgCategory?: BCGCategory,
   ) {}
 }

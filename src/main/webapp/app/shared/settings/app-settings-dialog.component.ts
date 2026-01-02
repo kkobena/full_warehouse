@@ -121,8 +121,8 @@ import { BackendManagerService } from '../services/backend-manager.service';
   `,
 })
 export class AppSettingsDialogComponent implements OnInit {
-  protected apiServerUrl: string = '';
-  protected errorMsg: string = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
+  protected apiServerUrl = '';
+  protected errorMsg = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
   protected testing = false;
   protected connectionTestResult: boolean | null = null;
   protected isRestarting = false;

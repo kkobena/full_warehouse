@@ -74,7 +74,7 @@ export class DepotComponent implements OnInit {
   onDelete(depot: IMagasin): void {
     this.confimDialog().onConfirm(
       () => {
-        this.magasinService.delete(depot.id!).subscribe({
+        this.magasinService.delete(depot.id).subscribe({
           next: () => {
             this.loadAll();
           },

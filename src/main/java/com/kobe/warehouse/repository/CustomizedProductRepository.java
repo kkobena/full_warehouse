@@ -15,7 +15,6 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
-import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.Rayon_;
@@ -30,20 +29,15 @@ import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.StorageType;
-import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.EtatProduitService;
-import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
-import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -56,6 +50,7 @@ import jakarta.persistence.criteria.SetJoin;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -65,13 +60,10 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -80,9 +72,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     private final Logger LOG = LoggerFactory.getLogger(CustomizedProductRepository.class);
     private final StockProduitRepository stockProduitRepository;
-    private final LogsService logsService;
+
     private final ProduitRepository produitRepository;
-    private final RayonProduitRepository rayonProduitRepository;
+
     private final StorageService storageService;
     private final EtatProduitService etatProduitService;
     private final SalesLineRepository salesLineRepository;
@@ -90,25 +82,22 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final InventoryTransactionService inventoryTransactionService;
     private final EntityManager em;
     private final MagasinRepository magasinRepository;
-    private final SuggestionReassortService suggestionReassortService;
+
 
     public CustomizedProductRepository(
         StockProduitRepository stockProduitRepository,
-        LogsService logsService,
+
         ProduitRepository produitRepository,
-        RayonProduitRepository rayonProduitRepository,
         StorageService storageService,
         EtatProduitService etatProduitService,
         SalesLineRepository salesLineRepository,
         OrderLineRepository orderLineRepository,
         InventoryTransactionService inventoryTransactionService,
         EntityManager em,
-        MagasinRepository magasinRepository, SuggestionReassortService suggestionReassortService
+        MagasinRepository magasinRepository
     ) {
         this.stockProduitRepository = stockProduitRepository;
-        this.logsService = logsService;
         this.produitRepository = produitRepository;
-        this.rayonProduitRepository = rayonProduitRepository;
         this.storageService = storageService;
         this.etatProduitService = etatProduitService;
         this.salesLineRepository = salesLineRepository;
@@ -116,50 +105,17 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.inventoryTransactionService = inventoryTransactionService;
         this.em = em;
         this.magasinRepository = magasinRepository;
-        this.suggestionReassortService = suggestionReassortService;
     }
 
     @Override
     public void save(StockProduitDTO dto) throws Exception {
         StockProduit stockProduit = buildStockProduitFromStockProduitDTO(dto);
-        Produit produit = em.find(Produit.class, dto.getProduitId());
+        Produit produit = findProduitById(dto.getProduitId()).orElseThrow(() -> new Exception("Le produit n'existe pas " + dto.getProduitId()));
         stockProduit.setProduit(produit);
-        em.merge(stockProduit);
-        em.refresh(produit);
+        stockProduitRepository.save(stockProduit);
+
     }
 
-    @Override
-    public void update(StockProduitDTO dto) throws Exception {
-        StockProduit stockProduit = buildStockProduitFromStockProduitDTO(dto, em.find(StockProduit.class, dto.getId()));
-        em.merge(stockProduit);
-    }
-
-    @Override
-    public void save(FournisseurProduitDTO dto) throws Exception {
-        FournisseurProduit fournisseurProduit = buildFournisseurProduitFromFournisseurProduitDTO(dto);
-        Produit produit = em.find(Produit.class, dto.getProduitId());
-        fournisseurProduit.setProduit(produit);
-        em.merge(fournisseurProduit);
-        em.refresh(produit);
-    }
-
-    @Override
-    public void update(FournisseurProduitDTO dto) throws Exception {
-        FournisseurProduit fournisseurProduit = buildFournisseurProduitFromFournisseurProduitDTO(
-            dto,
-            em.find(FournisseurProduit.class, dto.getId())
-        );
-        Produit produit = em.find(Produit.class, dto.getProduitId());
-        fournisseurProduit.setProduit(produit);
-        em.merge(fournisseurProduit);
-        em.refresh(produit);
-    }
-
-    @Override
-    public void removeFournisseurProduit(Integer id) {
-        FournisseurProduit fournisseurProduit = em.find(FournisseurProduit.class, id);
-        em.remove(fournisseurProduit);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -181,90 +137,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return Optional.ofNullable(lastDateProjection).map(LastDateProjection::getUpdatedAt).orElse(null);
     }
 
-    @Override
-    public void save(Produit produit) throws Exception {
-        produitRepository.save(produit);
-    }
-
-    @Override
-    public FournisseurProduit fournisseurProduitProduit(Produit produit, ProduitDTO dto) {
-        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-        fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-        fournisseurProduit.setCodeCip(dto.getCodeCip());
-        fournisseurProduit.setPrixAchat(dto.getCostAmount());
-        fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
-        fournisseurProduit.setProduit(produit);
-        return fournisseurProduit;
-    }
-
-    @Override
-    public StockProduit stockProduitFromProduitDTO(ProduitDTO dto) {
-        return null;
-    }
-
-    @Override
-    public void updateDetail(ProduitDTO dto) {
-        final Produit produit = buildDetailProduitFromProduitDTO(dto, em.find(Produit.class, dto.getId()));
-        em.merge(produit);
-        logsService.create(
-            TransactionType.UPDATE_PRODUCT,
-            String.format("Modification du produit %s", produit.getLibelle()),
-            produit.getId().toString()
-        );
-    }
-
-    @Override
-    public StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg) {
-        Magasin magasin = storageService.getConnectedUserMagasin();
-        Set<StockProduit> stockProduits = produit.getStockProduits();
-        StockProduit stockProduit = null;
-        StockProduit stockReserve = null;
-        if (stockProduits.size() == 1) {
-            stockProduit = stockProduits.iterator().next();
-
-        } else {
-            for (StockProduit sp : stockProduits) {
-                Storage storage = sp.getStorage();
-                StorageType storageType = storage.getStorageType();
-                if (storage.getMagasin().getId().equals(magasin.getId()) && storageType == StorageType.PRINCIPAL) {
-                    stockProduit = sp;
-                }
-                if (storage.getMagasin().getId().equals(magasin.getId()) && storageType == StorageType.SAFETY_STOCK) {
-                    stockReserve = sp;
-
-                }
-            }
-
-        }
-        assert stockProduit != null;
-        stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduit.setQtyStock(stockProduit.getQtyStock() + (stockIn + stockUg));
-        stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
-        stockProduit.setQtyVirtual(stockProduit.getQtyStock());
-        stockProduit = stockProduitRepository.save(stockProduit);
-        if (nonNull(stockReserve)) {
-            suggestionReassortService.createSuggestionReassort(stockReserve);
-        }
-        return stockProduit;
-    }
-
-    @Override
-    public void updateFromCommande(ProduitDTO dto, Produit produit) {
-        produit.setTva(this.tvaFromId(dto.getTvaId()));
-        if (StringUtils.hasLength(dto.getCodeEanLaboratoire())) {
-            produit.setCodeEanLaboratoire(dto.getCodeEanLaboratoire());
-        }
-
-        produit.setUpdatedAt(LocalDateTime.now());
-        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
-        buildRayonProduits(produit, dto, rayonProduits);
-        em.merge(produit);
-        logsService.create(
-            TransactionType.UPDATE_PRODUCT,
-            String.format("Modification du produit %s", produit.getLibelle()),
-            produit.getId().toString()
-        );
-    }
 
     @Override
     public List<ProduitDTO> lite(ProduitCriteria produitCriteria) {
@@ -307,10 +179,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return q.getResultList();
     }
 
-    @Override
-    public List<Produit> findByIds(Set<Integer> ids) {
-        return this.produitRepository.findAllById(ids);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -388,77 +256,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
             );
     }
 
-    @Override
-    public void save(ProduitDTO dto, Rayon rayon) throws Exception {
-        Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
-        Produit produit = ProduitBuilder.fromDTO(dto, rayon, reserveStorage);
-        produit = produitRepository.save(produit);
-        stockProduitRepository.saveAll(produit.getStockProduits());
-        logsService.create(
-            TransactionType.CREATE_PRODUCT,
-            String.format("Création du produit %s", produit.getLibelle()),
-            produit.getId().toString()
-        );
-    }
-
-    @Override
-    public void update(ProduitDTO dto) throws Exception {
-        Storage reserveStorage = storageService.getDefaultConnectedUserReserveStorage();
-        Produit produitToUpdate = em.find(Produit.class, dto.getId());
-        Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produitToUpdate.getId());
-        boolean mustUpdateRayon = false;
-        if (rayonProduits.isEmpty()) {
-            mustUpdateRayon = true;
-        } else {
-            Optional<RayonProduit> optionalRayonProduit = rayonProduits
-                .stream()
-                .filter(rayonProduit ->
-                    rayonProduit.getRayon().getStorage().getStorageType().name().equalsIgnoreCase(StorageType.PRINCIPAL.getValue())
-                )
-                .findFirst();
-            if (optionalRayonProduit.isPresent()) {
-                RayonProduit rayonProduit = optionalRayonProduit.get();
-                if (!rayonProduit.getRayon().getId().equals(dto.getRayonId())) {
-                    mustUpdateRayon = true;
-                }
-            }
-        }
-        if (mustUpdateRayon) {
-            updateProduitDetails(produitToUpdate.getProduits(), dto);
-        }
-        Produit produit = ProduitBuilder.buildProduitFromProduitDTO(dto, produitToUpdate);
-        buildRayonProduits(produit, dto, rayonProduits);
-        updateStockInfo(reserveStorage, produit, dto);
-        em.merge(produit);
-        logsService.create(
-            TransactionType.UPDATE_PRODUCT,
-            String.format("Modification du produit %s", produit.getLibelle()),
-            produit.getId().toString()
-        );
-    }
-
-    private void updateStockInfo(Storage reserveStorage, Produit produit, ProduitDTO dto) {
-        boolean hasStockInfo = dto.getStockReassort() != null || dto.getQtySeuilMini() != null || dto.getSeuilMini() != null;
-        if (!hasStockInfo) {
-            return;
-        }
-        boolean hasReserveStorage = false;
-        for (StockProduit sp : produit.getStockProduits()) {
-            if (sp.getStorage().getStorageType() == StorageType.PRINCIPAL) {
-                sp.setStockReassort(dto.getStockReassort());
-                sp.setSeuilMini(dto.getQtySeuilMini());
-                stockProduitRepository.save(sp);
-            } else {
-                hasReserveStorage = true;
-                sp.setSeuilMini(dto.getSeuilMini());
-                stockProduitRepository.save(sp);
-            }
-
-            if (!hasReserveStorage && nonNull(dto.getSeuilMini())) {
-                createReserve(reserveStorage, produit, dto);
-            }
-        }
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -489,40 +286,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
     }
 
-    @Override
-    public int produitTotalStock(Produit produit) {
-        return produit.getStockProduits().stream().map(StockProduit::getQtyStock).reduce(0, Integer::sum);
-    }
-
-    @Override
-    public int produitTotalStockWithQantityUg(Produit produit) {
-        return produit.getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
-    }
-
-    private void updateProduitDetails(List<Produit> produits, ProduitDTO produitDTO) {
-        for (Produit p : produits) {
-            Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(p.getId());
-            buildRayonProduits(p, produitDTO, rayonProduits);
-            produitRepository.save(p);
-        }
-    }
-
-    private void buildRayonProduits(Produit produitToUpdate, ProduitDTO
-        produitDTO, Set<RayonProduit> rayonProduits) {
-        Set<RayonProduit> newSet = new HashSet<>();
-        if (!rayonProduits.isEmpty()) {
-            for (RayonProduit r : rayonProduits) {
-                if (r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL) {
-                    newSet.add(r.setRayon(rayonFromId(produitDTO.getRayonId())));
-                } else {
-                    newSet.add(r);
-                }
-            }
-        } else {
-            newSet.add(new RayonProduit().setProduit(produitToUpdate).setRayon(rayonFromId(produitDTO.getRayonId())));
-        }
-        produitToUpdate.setRayonProduits(newSet);
-    }
 
     private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Produit> root, ProduitCriteria
         produitCriteria) {
@@ -754,13 +517,11 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return predicates;
     }
 
-    private void createReserve(Storage storage, Produit produit, ProduitDTO produitDTO) {
-        if (isNull(produitDTO.getSeuilMini())) {
-            return;
-        }
-        StockProduit stockProduit = ProduitBuilder.createReserve(storage, produitDTO);
-        stockProduit.setProduit(produit);
-        produit.getStockProduits().add(stockProduit);
-        stockProduitRepository.save(stockProduit);
+
+    @Cacheable(cacheNames = "produits", key = "#id")
+    public Optional<Produit> findProduitById(Integer id) {
+        return produitRepository.findById(id);
     }
+
+
 }

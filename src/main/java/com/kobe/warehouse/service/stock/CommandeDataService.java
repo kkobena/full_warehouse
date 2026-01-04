@@ -14,7 +14,6 @@ import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 
 public interface CommandeDataService {
     CommandeDTO findOneById(CommandeId id);
@@ -23,7 +22,7 @@ public interface CommandeDataService {
 
     Resource exportCommandeToCsv(CommandeId id) throws IOException;
 
-    Resource exportCommandeToPdf(CommandeId id) throws IOException;
+    byte[] exportCommandeToPdf(CommandeId id);
 
     List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter);
 
@@ -32,8 +31,6 @@ public interface CommandeDataService {
     Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable);
 
     Resource getRuptureCsv(String reference);
-
-    ResponseEntity<byte[]> exportPdf(CommandeId id);
 
     List<AchatDTO> fetchReportTableauPharmacienData(MvtParam mvtParam);
 }

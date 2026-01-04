@@ -1,5 +1,15 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+// Variables
+$primary-blue: #008cba;
+$primary-light: #5bc0de;
+$success-green: #43ac6a;
+$warning-orange: #e99002;
+$danger-red: #f04124;
+$info-color: #17a2b8;
+$secondary-purple: #6f42c1;
 
 // Specific styles for produit component
 .red-400 {
@@ -17,63 +27,155 @@
 }
 
 .expanded-content {
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
 }
 
-::ng-deep .p-card .info-title {
-  background-color: var(--p-sky-400);
+// Data Card Styles (Dashboard-like)
+.data-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: #fff;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
 }
 
-::ng-deep .p-card .warn-title {
-  background-color: var(--p-orange-400);
-}
-
-::ng-deep .p-card .secondary-title {
-  background-color: var(--p-purple-400);
-}
-
-::ng-deep .p-card .primary-title {
-  background-color: var(--p-primary-color);
-}
-
-::ng-deep .p-card .p-card-title .card-title {
-  color: #ffffff;
-  padding: 0.5rem;
-  margin: -1.25rem -1.25rem 1.25rem -1.25rem;
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-}
-
-.card-title {
-  font-size: 1.2rem;
-  font-weight: 600;
+// Compact Card Headers
+.compact-header {
+  padding: 0.5rem 0.75rem;
   display: flex;
-  align-items: center;
-}
-
-.field {
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #dfe7ef;
-}
-
-.field:last-child {
   border-bottom: none;
+
+  .card-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  &.primary-header {
+    background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
+  }
+
+  &.warning-header {
+    background: linear-gradient(135deg, $warning-orange 0%, #ffa940 100%);
+  }
+
+  &.info-header {
+    background: linear-gradient(135deg, $info-color 0%, #5bc0de 100%);
+  }
+
+  &.secondary-header {
+    background: linear-gradient(135deg, $secondary-purple 0%, #9b6dd3 100%);
+  }
+
+  &.success-header {
+    background: linear-gradient(135deg, $success-green 0%, #52c41a 100%);
+  }
+
+  &.danger-header {
+    background: linear-gradient(135deg, $danger-red 0%, #ff6b6b 100%);
+  }
 }
 
-.field label {
-  font-weight: 600;
-  color: #6c757d;
+// Info Grid - Compact 2 columns layout
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #eee;
+
+    &:nth-child(odd) {
+      border-right: 1px solid #eee;
+    }
+
+    &:nth-last-child(-n + 2) {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .info-value {
+      font-size: 0.8rem;
+      color: #333;
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
 
-.field span {
-  color: #495057;
-  text-align: right;
-  font-weight: 600;
+// Compact Table Styles
+.compact-table {
+  ::ng-deep {
+    .p-datatable-table {
+      font-size: 0.8rem;
+    }
+
+    .pharma-table-head th {
+      padding: 0.4rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    tbody td {
+      padding: 0.35rem 0.5rem;
+    }
+  }
 }
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+
+    .info-item {
+      border-right: none !important;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .compact-header {
+    padding: 0.4rem 0.5rem;
+
+    .card-title {
+      font-size: 0.8rem;
+    }
+  }
+
+  .info-item {
+    .info-label,
+    .info-value {
+      font-size: 0.7rem;
+    }
+  }
+}
+
 .p-floatlabel {
   min-width: 130px !important;
 }

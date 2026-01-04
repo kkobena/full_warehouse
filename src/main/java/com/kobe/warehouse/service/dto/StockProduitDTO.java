@@ -11,6 +11,7 @@ public class StockProduitDTO {
 
     private Integer id;
     private int qtyStock;
+    private int totalStockQuantity;
     private int qtyVirtual;
     private int qtyUG;
     private Integer storageId;
@@ -40,6 +41,15 @@ public class StockProduitDTO {
         this.produitLibelle = p.getLibelle();
         this.stockReassort = s.getStockReassort();
         this.seuilMini = s.getSeuilMini();
+        this.totalStockQuantity = s.getTotalStockQuantity();
+    }
+
+    public int getTotalStockQuantity() {
+        return totalStockQuantity;
+    }
+
+    public void setTotalStockQuantity(int totalStockQuantity) {
+        this.totalStockQuantity = totalStockQuantity;
     }
 
     public StockProduitDTO() {}

@@ -33,6 +33,7 @@ export interface IProduit {
   quantityReceived?: number;
   produitId?: number;
   produits?: IProduit[];
+  parent?: IProduit;
   qtyAppro?: number;
   qtySeuilMini?: number;
   chiffre?: boolean;
@@ -75,6 +76,7 @@ export interface IProduit {
   dciId?: number;
   stockReassort?: number;
   seuilMini?: number;
+  qtyReserve?: number;
   categorie?: string; // categorie ABC
   codeEanLaboratoire?: string;
 }

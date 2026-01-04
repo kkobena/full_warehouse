@@ -14,7 +14,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-// eslint-disable-next-line @typescript-eslint/no-deprecated
+
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';

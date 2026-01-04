@@ -47,10 +47,12 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { finalize } from 'rxjs/operators';
-import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { ImportProduitReponseModalComponent } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { CardModule } from 'primeng/card';
 import { FloatLabel } from 'primeng/floatlabel';
+import { FormTransfertStockComponent } from './form-transfert-stock/form-transfert-stock.component';
+import { FormStockProduitComponent } from './form-stock-produit/form-stock-produit.component';
+import { IStockProduit } from '../../shared/model/stock-produit.model';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -99,14 +101,10 @@ export class ProduitComponent implements OnInit {
   protected search: string;
   protected package = TypeProduit.PACKAGE;
   protected detail = TypeProduit.DETAIL;
-  protected fileDialog = false;
-  protected jsonDialog = false;
-  protected displayDialog = false;
   protected responsedto!: IResponseDto;
   protected isSaving = false;
   protected splitbuttons: MenuItem[];
   protected criteria: IProduitCriteria;
-  protected onErrorOccur = false;
   protected configuration?: IConfiguration | null;
   protected isMono = true;
   protected rowExpandMode: ExpandMode = 'single';
@@ -236,7 +234,7 @@ export class ProduitComponent implements OnInit {
     this.registerChangeInProduits();
   }
 
-  registerChangeInProduits(): void {
+  protected registerChangeInProduits(): void {
     this.loadPage();
   }
 
@@ -253,21 +251,32 @@ export class ProduitComponent implements OnInit {
   }
 
   addDetail(produit: IProduit): void {
-    const modalRef = this.modalService.open(DetailFormDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.produit = produit;
+    showCommonModal(
+      this.modalService,
+      DetailFormDialogComponent,
+      {
+        produit,
+      },
+      resp => {
+        this.registerChangeInProduits();
+      },
+      'lg',
+    );
   }
 
   editDetail(produit: IProduit): void {
-    const modalRef = this.modalService.open(DetailFormDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.entity = produit;
+    showCommonModal(
+      this.modalService,
+      DetailFormDialogComponent,
+      {
+        entity: produit,
+        produit: produit.parent,
+      },
+      resp => {
+        this.registerChangeInProduits();
+      },
+      'lg',
+    );
   }
 
   openInfoDialog(message: string, infoClass: string): void {
@@ -283,12 +292,17 @@ export class ProduitComponent implements OnInit {
     if (produit.produits.length === 0) {
       this.openInfoDialog("Le produit n'a pas de détail. Vous devriez en ajouter d'abord", 'alert alert-info');
     } else {
-      const modalRef = this.modalService.open(DeconditionDialogComponent, {
-        size: '60%',
-        backdrop: 'static',
-        centered: true,
-      });
-      modalRef.componentInstance.produit = produit;
+      showCommonModal(
+        this.modalService,
+        DeconditionDialogComponent,
+        {
+          produit,
+        },
+        resp => {
+          this.registerChangeInProduits();
+        },
+        'lg',
+      );
     }
   }
 
@@ -330,18 +344,6 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
-  protected onImportJsonFile(): void {
-    showCommonModal(
-      this.modalService,
-      FileUploadDialogComponent,
-      { accept: '.json' },
-      result => {
-        this.uploadJsonDataResponse(this.produitService.uploadJsonData(result));
-      },
-      'lg',
-    );
-  }
-
   protected onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
@@ -374,10 +376,61 @@ export class ProduitComponent implements OnInit {
       FormProduitFournisseurComponent,
       {
         produit,
-        header: 'Ajouter un fournisseur au produit ' + produit.libelle,
+        header: 'Ajouter un fournisseur au produit ',
       },
       resp => {
         produit.fournisseurProduits.push(resp);
+      },
+      'lg',
+    );
+  }
+
+  protected onTransfererStock(produit: IProduit, stockProduitSrc: IStockProduit): void {
+    showCommonModal(
+      this.modalService,
+      FormTransfertStockComponent,
+      {
+        produit,
+        stockProduitSrc,
+      },
+      (resp: IStockProduit[]) => {
+        produit.stockProduits = resp;
+      },
+      'xl',
+    );
+  }
+
+  protected openFormStockProduit(produit: IProduit): void {
+    showCommonModal(
+      this.modalService,
+      FormStockProduitComponent,
+      {
+        produit,
+      },
+      (resp: IStockProduit[]) => {
+        if (resp && resp.length > 0) {
+          produit.stockProduits = [...(produit.stockProduits || []), ...resp];
+        }
+      },
+      'lg',
+    );
+  }
+
+  protected onEditStock(produit: IProduit, stockProduit: IStockProduit): void {
+    showCommonModal(
+      this.modalService,
+      FormStockProduitComponent,
+      {
+        produit,
+        stockProduit,
+      },
+      (resp: IStockProduit[]) => {
+        if (resp && resp.length > 0) {
+          const index = produit.stockProduits?.findIndex(sp => sp.id === resp[0].id);
+          if (index !== undefined && index >= 0 && produit.stockProduits) {
+            produit.stockProduits[index] = resp[0];
+          }
+        }
       },
       'lg',
     );
@@ -390,7 +443,7 @@ export class ProduitComponent implements OnInit {
       {
         entity: fournisseurProduit,
         produit,
-        header: 'Modification du produit ' + produit.libelle,
+        header: 'Modification du produit ',
       },
       resp => {
         const newFours = produit.fournisseurProduits.filter(e => e.id !== resp.id);

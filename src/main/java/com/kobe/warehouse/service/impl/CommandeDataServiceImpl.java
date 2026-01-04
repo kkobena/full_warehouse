@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,8 +103,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     }
 
     @Override
-    public Resource exportCommandeToPdf(CommandeId id) throws IOException {
-        return getResource(commandeReportService.printCommandeEnCours(findOneById(id)));
+    public byte[] exportCommandeToPdf(CommandeId id) {
+        return commandeReportService.export(findOneById(id));
     }
 
     @Override
@@ -189,11 +187,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     @Override
     public Resource getRuptureCsv(String reference) {
         return exportationCsvService.getRutureFileByOrderReference(reference);
-    }
-
-    @Override
-    public ResponseEntity<byte[]> exportPdf(CommandeId id) {
-        return null;
     }
 
     @Override

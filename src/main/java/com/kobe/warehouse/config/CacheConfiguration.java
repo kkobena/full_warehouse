@@ -43,6 +43,7 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 // Report caches - shorter TTL for fresher data
                 buildCache("dailySalesReport", 15, TimeUnit.MINUTES, 100),
+                buildCache("produits", 15, TimeUnit.MINUTES, 100),
                 buildCache("dashboardAlertCounts", 5, TimeUnit.MINUTES, 100),
                 buildCache("dashboardCA", 15, TimeUnit.MINUTES, 100),
                 buildCache("profitability", 15, TimeUnit.MINUTES, 100),

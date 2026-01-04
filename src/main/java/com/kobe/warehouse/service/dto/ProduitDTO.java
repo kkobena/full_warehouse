@@ -1,16 +1,15 @@
 package com.kobe.warehouse.service.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+
 import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
-import java.time.LocalDate;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -18,8 +17,8 @@ import java.util.Set;
 public class ProduitDTO {
 
     private Integer prixMnp = 0;
-    private Set<StockProduitDTO> stockProduits;
-    private Set<FournisseurProduitDTO> fournisseurProduits;
+    private List<StockProduitDTO> stockProduits;
+    private List<FournisseurProduitDTO> fournisseurProduits;
     private Boolean dateperemption = false;
     private Boolean chiffre = true;
     private List<RayonProduitDTO> rayonProduits;
@@ -62,8 +61,8 @@ public class ProduitDTO {
     private StockProduitDTO stockProduit;
     private FournisseurProduitDTO fournisseurProduit;
     private String qtyStatus;
-    private Integer qtyAppro = 0;
-    private Integer qtySeuilMini = 0;
+    private Integer qtyAppro;
+    private Integer qtySeuilMini;
     private int totalQuantity;
     private int qtyReserve;
     private Integer seuilMini;
@@ -80,7 +79,7 @@ public class ProduitDTO {
     private String displayStatut;
     private int saleOfPointStock;
     private int saleOfPointVirtualStock;
-    private String expirationDate;
+
     private String displayField;
 
     private TableauDTO tableau;
@@ -92,6 +91,8 @@ public class ProduitDTO {
     private String dciCode;
     private String categorie;
     private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
+    private ProduitDTO parent;
+
 
     public String getRemiseCode() {
         return remiseCode;
@@ -123,6 +124,15 @@ public class ProduitDTO {
 
     public ProduitDTO laboratoireLibelle(String laboratoireLibelle) {
         this.laboratoireLibelle = laboratoireLibelle;
+        return this;
+    }
+
+    public ProduitDTO getParent() {
+        return parent;
+    }
+
+    public ProduitDTO setParent(ProduitDTO parent) {
+        this.parent = parent;
         return this;
     }
 
@@ -206,10 +216,6 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO expirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-        return this;
-    }
 
     public ProduitDTO formeLibelle(String formeLibelle) {
         this.formeLibelle = formeLibelle;
@@ -541,21 +547,33 @@ public class ProduitDTO {
         this.tvaTaux = tvaTaux;
     }
 
-    public Set<StockProduitDTO> getStockProduits() {
+    public List<StockProduitDTO> getStockProduits() {
         return stockProduits;
     }
 
-    public ProduitDTO setStockProduits(Set<StockProduitDTO> stockProduits) {
-        this.stockProduits = stockProduits;
+    public ProduitDTO setStockProduits(List<StockProduitDTO> stockProduits) {
+        if (!CollectionUtils.isEmpty(stockProduits)) {
+            this.stockProduits = new ArrayList<>(stockProduits);
+            this.stockProduits.sort(Comparator.comparing(StockProduitDTO::getId));
+        } else {
+            this.stockProduits = stockProduits;
+        }
+
         return this;
     }
 
-    public Set<FournisseurProduitDTO> getFournisseurProduits() {
+    public List<FournisseurProduitDTO> getFournisseurProduits() {
         return fournisseurProduits;
     }
 
-    public ProduitDTO setFournisseurProduits(Set<FournisseurProduitDTO> fournisseurProduits) {
-        this.fournisseurProduits = fournisseurProduits;
+    public ProduitDTO setFournisseurProduits(List<FournisseurProduitDTO> fournisseurProduits) {
+        if (!CollectionUtils.isEmpty(fournisseurProduits)) {
+            this.fournisseurProduits = new ArrayList<>(fournisseurProduits);
+            this.fournisseurProduits.sort(Comparator.comparing(FournisseurProduitDTO::getFournisseurLibelle));
+        } else {
+            this.fournisseurProduits = fournisseurProduits;
+        }
+
         return this;
     }
 
@@ -721,13 +739,6 @@ public class ProduitDTO {
         return this;
     }
 
-    public String getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
 
     public String getDisplayField() {
         return displayField;

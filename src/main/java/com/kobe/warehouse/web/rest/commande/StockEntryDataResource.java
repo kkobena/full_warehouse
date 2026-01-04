@@ -49,21 +49,19 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/etiquettes/{id}/{orderDate}")
-    public ResponseEntity<Resource> getPdf(
+    public ResponseEntity<byte[]> getEtiquettesPdf(
         @PathVariable Integer id,
         @PathVariable LocalDate orderDate,
-        @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt,
-        HttpServletRequest request
-    ) throws IOException {
-        final Resource resource = stockEntryDataServicetryService.printEtiquette(new CommandeId(id, orderDate), startAt);
-        return Utils.printPDF(resource, request);
+        @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt
+    ) {
+        String fileName = "etiquettes_" + id + "_" + orderDate + ".pdf";
+        return Utils.printPDF(stockEntryDataServicetryService.printEtiquette(new CommandeId(id, orderDate), startAt), fileName);
     }
 
     @GetMapping("/commandes/data/entree-stock/pdf/{id}/{orderDate}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate, HttpServletRequest request)
-        throws IOException {
-        final Resource resource = stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate));
-        return Utils.printPDF(resource, request);
+    public ResponseEntity<byte[]> getDeliveryReceiptPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
+        String fileName = "bon_livraison_" + id + "_" + orderDate + ".pdf";
+        return Utils.printPDF(stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate)), fileName);
     }
 
     @GetMapping("/commandes/data/entree-stock/list-bon-livraison")

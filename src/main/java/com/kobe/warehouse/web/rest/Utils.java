@@ -27,6 +27,13 @@ public final class Utils {
         return getDocument(resource, "application/pdf", request);
     }
 
+    public static ResponseEntity<byte[]> printPDF(byte[] pdfContent, String fileName) {
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+            .body(pdfContent);
+    }
+
     public static ResponseEntity<Resource> exportCsv(Resource resource, HttpServletRequest request) {
         return getDocument(resource, "text/csv", request);
     }

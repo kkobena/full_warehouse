@@ -21,9 +21,9 @@ public interface StockEntryDataService {
 
     Optional<DeliveryReceiptDTO> findOneById(CommandeId id);
 
-    Resource printEtiquette(CommandeId id, int startAt) throws IOException;
+    byte[] printEtiquette(CommandeId id, int startAt);
 
-    Resource exportToPdf(CommandeId id) throws IOException;
+    byte[] exportToPdf(CommandeId id);
 
     Slice<DeliveryReceiptProjection> fetchAllReceipts(String searchTerm);
 

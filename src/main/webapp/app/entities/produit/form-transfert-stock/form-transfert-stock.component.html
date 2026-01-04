@@ -1,0 +1,141 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" data-dismiss="modal" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+        <!-- Product Info -->
+        <div class="form-field form-field-full">
+          <div class="info-box">
+            <i class="pi pi-box me-2"></i>
+            <span class="info-label fw-bold">{{ produit?.libelle }}</span>
+            @if (produit?.codeCip) {
+              <span class="text-muted ms-2">({{ produit.codeCip }})</span>
+            }
+          </div>
+        </div>
+        <!-- Source information (read-only) -->
+        <div class="form-field form-field-full">
+          <span class="field-label">Emplacement source</span>
+          <div class="info-box">
+            <span class="info-label">{{ getStorageDisplayName(stockProduitSrc!) }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <span class="field-label">Quantité disponible</span>
+            <div class="info-box">
+              <span class="info-value">{{ stockProduitSrc?.qtyStock ?? 0 }}</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <span class="field-label">Seuil mini source</span>
+            <div class="info-box">
+              <span class="info-value">{{ stockProduitSrc?.seuilMini ?? 0 }}</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <span class="field-label">Quantité transférable max</span>
+            <div class="info-box info-highlight">
+              <span class="info-value">{{ maxTransferableQty }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destination information (auto-detected or new reserve) -->
+        @if (!isCreatingNewReserve && stockProduitDest) {
+          <div class="form-field form-field-full">
+            <span class="field-label">Emplacement destination</span>
+            <div class="info-box">
+              <span class="info-label">{{ getStorageDisplayName(stockProduitDest) }}</span>
+              <span class="stock-info ml-2">(Stock actuel: {{ stockProduitDest.qtyStock ?? 0 }})</span>
+            </div>
+          </div>
+        }
+
+        <!-- Creating new reserve section -->
+        @if (isCreatingNewReserve) {
+          <div class="form-field form-field-full">
+            <div class="info-message">
+              <i class="pi pi-info-circle"></i>
+              <span>Un nouvel emplacement de type "Réserve" sera créé pour ce produit.</span>
+            </div>
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="field_seuilMini">Seuil mini de la nouvelle réserve<span class="required">*</span></label>
+            <input
+              #seuilMiniInput
+              autocomplete="off"
+              formControlName="seuilMini"
+              id="field_seuilMini"
+              name="seuilMini"
+              pInputText
+              pKeyFilter="pint"
+              type="number"
+              min="0"
+            />
+            @if (editForm.get('seuilMini')!.invalid && (editForm.get('seuilMini')!.dirty || editForm.get('seuilMini')!.touched)) {
+              <div>
+                @if (editForm.get('seuilMini')?.errors?.required) {
+                  <small class="form-text text-danger">Ce champ est obligatoire.</small>
+                }
+                @if (editForm.get('seuilMini')?.errors?.min) {
+                  <small class="form-text text-danger">Le seuil mini ne peut pas être négatif.</small>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Quantity input -->
+        <div class="form-field form-field-full">
+          <label for="field_quantity">Quantité à transférer<span class="required">*</span></label>
+          <input
+            #quantityInput
+            autocomplete="off"
+            formControlName="quantity"
+            id="field_quantity"
+            name="quantity"
+            pInputText
+            pKeyFilter="pint"
+            type="number"
+            [max]="maxTransferableQty"
+            min="1"
+          />
+          @if (editForm.get('quantity')!.invalid && (editForm.get('quantity')!.dirty || editForm.get('quantity')!.touched)) {
+            <div>
+              @if (editForm.get('quantity')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+              @if (editForm.get('quantity')?.errors?.min) {
+                <small class="form-text text-danger">La quantité doit être au moins 1.</small>
+              }
+              @if (editForm.get('quantity')?.errors?.max) {
+                <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}.</small>
+              }
+            </div>
+          }
+          @if (maxTransferableQty === 0) {
+            <small class="form-text text-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+              Aucune quantité disponible pour le transfert (stock au seuil minimum).
+            </small>
+          }
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary" type="button" />
+    <p-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" raised="true" severity="primary" type="submit" />
+  </div>
+</form>
+<jhi-toast-alert #alert></jhi-toast-alert>

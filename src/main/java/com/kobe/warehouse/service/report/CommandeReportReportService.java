@@ -34,7 +34,7 @@ public class CommandeReportReportService extends CommonReportService {
         this.storageService = storageService;
     }
 
-    public String printCommandeEnCours(CommandeDTO commande) {
+    public byte[] export(CommandeDTO commande) {
         this.commande = commande;
         Magasin magasin = storageService.getUser().getMagasin();
         List<OrderLineDTO> orderLineDTOList = getItems();
@@ -48,13 +48,12 @@ public class CommandeReportReportService extends CommonReportService {
         if (orderLineDTOList.size() > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.COMMANDE_ITEMS, orderLineDTOList.subList(0, Constant.COMMANDE_PAGE_SIZE));
             getParameters().put(Constant.IS_LAST_PAGE, false);
-
-            return super.printMultiplesReceiptPage();
+            return super.exportMultiplePagesToByteArray();
         } else {
             getParameters().put(Constant.COMMANDE_ITEMS, orderLineDTOList);
             getParameters().put(Constant.IS_LAST_PAGE, true);
             getParameters().put(Constant.PAGE_COUNT, "1/1");
-            return super.printOneReceiptPage();
+            return super.exportReportToPdf();
         }
     }
 

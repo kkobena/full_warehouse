@@ -109,13 +109,12 @@ public class CommandeDataResource {
     }
 
     @GetMapping("/commandes/pdf/{id}/{orderDate}")
-    public ResponseEntity<Resource> getPdf(
+    public ResponseEntity<byte[]> getPdf(
         @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate,
-        HttpServletRequest request
-    ) throws IOException {
-        final Resource resource = commandeDataService.exportCommandeToPdf(new CommandeId(id, orderDate));
-        return Utils.printPDF(resource, request);
+        @PathVariable("orderDate") LocalDate orderDate
+    ) {
+        String fileName = "commande_" + id + "_" + orderDate + ".pdf";
+        return Utils.printPDF(commandeDataService.exportCommandeToPdf(new CommandeId(id, orderDate)), fileName);
     }
 
     @GetMapping("/commandes/pageable-order-lines/{id}/{orderDate}")

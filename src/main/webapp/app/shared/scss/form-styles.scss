@@ -461,3 +461,40 @@ jhi-complementaire-step {
     margin-bottom: 1rem;
   }
 }
+.info-box {
+  background-color: var(--p-surface-100);
+  border: 1px solid var(--p-surface-300);
+  border-radius: var(--p-border-radius);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+
+  .info-label {
+    font-weight: 500;
+    color: var(--p-text-color);
+  }
+
+  .info-value {
+    font-weight: 600;
+    color: var(--p-primary-color);
+    font-size: 1.1rem;
+  }
+
+  &.info-highlight {
+    background-color: var(--p-primary-50);
+    border-color: var(--p-primary-200);
+
+    .info-value {
+      color: var(--p-primary-700);
+    }
+  }
+}
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .form-field {
+    flex: 1;
+  }
+}

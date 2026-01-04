@@ -323,7 +323,7 @@ $gray-border: #e2e8f0;
   .card-header {
     background: linear-gradient(135deg, $gray-light 0%, #ffffff 100%);
     border-bottom: 2px solid $gray-border;
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -353,7 +353,7 @@ $gray-border: #e2e8f0;
   }
 
   .card-body {
-    padding: 1.5rem;
+    padding: 1rem;
 
     &.p-0 {
       padding: 0;

@@ -20,13 +20,12 @@ import com.kobe.warehouse.service.facturation.service.EditionDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -178,17 +177,18 @@ public class EditionFactureResource {
     }
 
     @GetMapping("/edition-factures/pdf/{id}/{invoiceDate}")
-    public ResponseEntity<Resource> exportToPdf(HttpServletRequest request, @PathVariable Long id, @PathVariable LocalDate invoiceDate) {
-        return Utils.printPDF(editionService.printToPdf(new FactureItemId(id, invoiceDate)), request);
+    public ResponseEntity<byte[]> exportToPdf(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
+        String fileName = "facture_" + id + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+        return Utils.printPDF(editionService.printToPdf(new FactureItemId(id, invoiceDate)), fileName);
     }
 
     @GetMapping("/edition-factures/pdf")
-    public ResponseEntity<Resource> exportAllInvoices(
-        HttpServletRequest request,
+    public ResponseEntity<byte[]> exportAllInvoices(
         @RequestParam(name = "generationCode") Integer generationCode,
         @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
     ) {
-        return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(generationCode, isGroup)), request);
+        String fileName = "factures_" + generationCode + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+        return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(generationCode, isGroup)), fileName);
     }
 
     @GetMapping("/edition-factures/{id}/{invoiceDate}")

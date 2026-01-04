@@ -38,7 +38,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -57,19 +56,19 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final FacturationReportService facturationReportService;
-    private final GroupeFactureReportService groupeFactureReportService;
+    private final FacturationPdfExportService facturationPdfExportService;
+    private final GroupeFacturePdfExportService groupeFacturePdfExportService;
 
     public EditionDataServiceImpl(
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationReportService facturationReportService,
-        GroupeFactureReportService groupeFactureReportService
+        FacturationPdfExportService facturationPdfExportService,
+        GroupeFacturePdfExportService groupeFacturePdfExportService
     ) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-        this.facturationReportService = facturationReportService;
-        this.groupeFactureReportService = groupeFactureReportService;
+        this.facturationPdfExportService = facturationPdfExportService;
+        this.groupeFacturePdfExportService = groupeFacturePdfExportService;
     }
 
     @Override
@@ -186,9 +185,9 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Resource printToPdf(FactureEditionResponse factureEditionResponse) {
+    public byte[] printToPdf(FactureEditionResponse factureEditionResponse) {
         if (factureEditionResponse.isGroup()) {
-            return groupeFactureReportService.printToPdf(
+            return groupeFacturePdfExportService.exportToPdf(
                 getFactureTiersPayant(factureEditionResponse.generationCode(), true)
                     .stream()
                     .map(this::buildGroupeFactureDtoFromEntity)
@@ -196,16 +195,16 @@ public class EditionDataServiceImpl implements EditionDataService {
             );
         }
 
-        return this.facturationReportService.printToPdf(getFactureTiersPayant(factureEditionResponse.generationCode(), false));
+        return this.facturationPdfExportService.exportToPdf(getFactureTiersPayant(factureEditionResponse.generationCode(), false));
     }
 
     @Override
-    public Resource printToPdf(FactureItemId id) {
+    public byte[] printToPdf(FactureItemId id) {
         FactureTiersPayant factureTiersPayant = getFactureTiersPayant(id);
         if (Objects.nonNull(factureTiersPayant.getTiersPayant())) {
-            return this.facturationReportService.printToPdf(factureTiersPayant);
+            return this.facturationPdfExportService.exportToPdf(factureTiersPayant);
         }
-        return this.groupeFactureReportService.printToPdf(buildGroupeFactureDtoFromEntity(factureTiersPayant));
+        return this.groupeFacturePdfExportService.exportToPdf(buildGroupeFactureDtoFromEntity(factureTiersPayant));
     }
 
     @Override

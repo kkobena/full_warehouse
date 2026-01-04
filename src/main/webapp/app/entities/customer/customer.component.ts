@@ -346,6 +346,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
           this.loadPage();
         }
       },
+      'xl',
     );
   }
 

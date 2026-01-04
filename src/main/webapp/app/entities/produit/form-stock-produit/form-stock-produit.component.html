@@ -1,0 +1,165 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" data-dismiss="modal" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+        <!-- Product Info -->
+        <div class="form-field form-field-full">
+          <div class="info-box">
+            <i class="pi pi-box me-2"></i>
+            <span class="info-label fw-bold">{{ produit?.libelle }}</span>
+            @if (produit?.codeCip) {
+              <span class="text-muted ms-2">({{ produit.codeCip }})</span>
+            }
+          </div>
+        </div>
+
+        <!-- Stock Rayon Info (if exists in create mode) -->
+        @if (!isEditMode && stockRayonProduit) {
+          <div class="form-field form-field-full">
+            <span class="field-label">Stock Rayon actuel</span>
+            <div class="form-row">
+              <div class="form-field">
+                <div class="info-box">
+                  <span class="info-label">Quantité</span>
+                  <span class="info-value ms-2">{{ stockRayonProduit.qtyStock ?? 0 }}</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <div class="info-box">
+                  <span class="info-label">Seuil mini</span>
+                  <span class="info-value ms-2">{{ stockRayonProduit.seuilMini ?? 0 }}</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <div class="info-box info-highlight">
+                  <span class="info-label">Transférable</span>
+                  <span class="info-value ms-2">{{ maxTransferableQty }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Seuil Mini -->
+        <div class="form-field form-field-full">
+          <label for="field_seuilMini">Seuil mini<span class="required">*</span></label>
+          <input
+            #seuilMiniInput
+            autocomplete="off"
+            formControlName="seuilMini"
+            id="field_seuilMini"
+            name="seuilMini"
+            pInputText
+            pKeyFilter="pint"
+            type="number"
+            min="0"
+          />
+          @if (editForm.get('seuilMini')!.invalid && (editForm.get('seuilMini')!.dirty || editForm.get('seuilMini')!.touched)) {
+            <div>
+              @if (editForm.get('seuilMini')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+              @if (editForm.get('seuilMini')?.errors?.min) {
+                <small class="form-text text-danger">Le seuil mini ne peut pas être négatif.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Stock Reassort (only for PRINCIPAL/Rayon in edit mode) -->
+        @if (isEditMode && isStockRayon) {
+          <div class="form-field form-field-full">
+            <label for="field_stockReassort">Stock de réassort</label>
+            <input
+              #stockReassortInput
+              autocomplete="off"
+              formControlName="stockReassort"
+              id="field_stockReassort"
+              name="stockReassort"
+              pInputText
+              pKeyFilter="pint"
+              type="number"
+              min="0"
+            />
+            @if (editForm.get('stockReassort')!.invalid && (editForm.get('stockReassort')!.dirty || editForm.get('stockReassort')!.touched)) {
+              <div>
+                @if (editForm.get('stockReassort')?.errors?.min) {
+                  <small class="form-text text-danger">Le stock de réassort ne peut pas être négatif.</small>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Transfer Option (only in create mode and if stock rayon exists) -->
+        @if (!isEditMode && stockRayonProduit && maxTransferableQty > 0) {
+          <div class="form-field form-field-full">
+            <div class="p-field-checkbox">
+              <p-checkbox formControlName="withTransfer" [binary]="true" inputId="withTransfer" />
+              <label for="withTransfer" class="ms-2">Transférer du stock depuis le rayon</label>
+            </div>
+          </div>
+
+          @if (withTransfer) {
+            <div class="form-field form-field-full">
+              <label for="field_transferQuantity">Quantité à transférer<span class="required">*</span></label>
+              <input
+                autocomplete="off"
+                formControlName="transferQuantity"
+                id="field_transferQuantity"
+                name="transferQuantity"
+                pInputText
+                pKeyFilter="pint"
+                type="number"
+                [max]="maxTransferableQty"
+                min="1"
+              />
+              @if (editForm.get('transferQuantity')!.invalid && (editForm.get('transferQuantity')!.dirty || editForm.get('transferQuantity')!.touched)) {
+                <div>
+                  @if (editForm.get('transferQuantity')?.errors?.required) {
+                    <small class="form-text text-danger">Ce champ est obligatoire.</small>
+                  }
+                  @if (editForm.get('transferQuantity')?.errors?.min) {
+                    <small class="form-text text-danger">La quantité doit être au moins 1.</small>
+                  }
+                  @if (editForm.get('transferQuantity')?.errors?.max) {
+                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}.</small>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- Info message for create mode -->
+        @if (!isEditMode) {
+          <div class="form-field form-field-full">
+            <div class="info-message">
+              <i class="pi pi-info-circle"></i>
+              <span>Un emplacement de type "Réserve" sera créé pour ce produit avec un stock initial de 0.</span>
+            </div>
+          </div>
+        }
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary" type="button" />
+    <p-button
+      [loading]="isSaving"
+      [disabled]="!isFormValid()"
+      icon="pi pi-check"
+      [label]="isEditMode ? 'Modifier' : 'Créer'"
+      raised="true"
+      severity="primary"
+      type="submit"
+    />
+  </div>
+</form>
+<jhi-toast-alert #alert></jhi-toast-alert>

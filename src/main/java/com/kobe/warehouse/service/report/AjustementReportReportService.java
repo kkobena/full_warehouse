@@ -64,7 +64,7 @@ public class AjustementReportReportService extends CommonReportService {
         return "ajsutement";
     }
 
-    public String print(Ajust ajust) {
+    public byte[] export(Ajust ajust) {
         this.ajust = ajust;
         Magasin magasin = storageService.getUser().getMagasin();
         List<Ajustement> items = this.ajust.getAjustements();
@@ -78,13 +78,12 @@ public class AjustementReportReportService extends CommonReportService {
         if (itemSize > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.ITEMS, items.subList(0, Constant.COMMANDE_PAGE_SIZE));
             getParameters().put(Constant.IS_LAST_PAGE, false);
-
-            return super.printMultiplesReceiptPage();
+            return super.exportMultiplePagesToByteArray();
         } else {
             getParameters().put(Constant.ITEMS, items);
             getParameters().put(Constant.IS_LAST_PAGE, true);
             getParameters().put(Constant.PAGE_COUNT, "1/1");
-            return super.printOneReceiptPage();
+            return super.exportReportToPdf();
         }
     }
 }

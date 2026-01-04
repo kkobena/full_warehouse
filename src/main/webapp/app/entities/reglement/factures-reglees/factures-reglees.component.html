@@ -226,8 +226,8 @@
           <td>{{ reglement.user }}</td>
           <td>
             <p-buttonGroup>
-              <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye" severity="info"/>
-              <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print" severity="secondary"/>
+              <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye" severity="info" />
+              <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print" severity="secondary" />
               <p-button
                 (click)="onDelete(reglement)"
                 [rounded]="true"
@@ -237,7 +237,6 @@
                 styleClass="p-button-danger"
               />
             </p-buttonGroup>
-
           </td>
           <td class="text-center">
             <p-tableCheckbox [value]="reglement"></p-tableCheckbox>

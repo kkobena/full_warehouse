@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import com.kobe.warehouse.service.stock.ProduitService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -33,20 +35,20 @@ public class OrderLineServiceImpl implements OrderLineService {
     private final OrderLineRepository orderLineRepository;
     private final FournisseurProduitService fournisseurProduitService;
     private final ProduitRepository produitRepository;
-    private final CustomizedProductService customizedProductService;
+    private final ProduitService produitService;
     private final OrderLineIdGeneratorService orderLineIdGeneratorService;
 
     public OrderLineServiceImpl(
         OrderLineRepository orderLineRepository,
         FournisseurProduitService fournisseurProduitService,
         ProduitRepository produitRepository,
-        CustomizedProductService customizedProductService,
+        ProduitService produitService,
         OrderLineIdGeneratorService orderLineIdGeneratorService
     ) {
         this.orderLineRepository = orderLineRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.produitRepository = produitRepository;
-        this.customizedProductService = customizedProductService;
+        this.produitService = produitService;
         this.orderLineIdGeneratorService = orderLineIdGeneratorService;
     }
 
@@ -230,12 +232,12 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Integer fournisseurId) {
-        return customizedProductService.getFournisseurProduitByCriteria(criteria, fournisseurId);
+        return produitService.getFournisseurProduitByCriteria(criteria, fournisseurId);
     }
 
     @Override
     public int produitTotalStockWithQantitUg(Produit produit) {
-        return customizedProductService.produitTotalStock(produit);
+        return produitService.produitTotalStock(produit);
     }
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {

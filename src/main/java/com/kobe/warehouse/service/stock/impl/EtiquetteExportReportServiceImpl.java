@@ -1,10 +1,5 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -15,11 +10,8 @@ import com.kobe.warehouse.service.pdf.EtiquetteBarcodeReplacedElement;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,9 +20,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openpdf.text.DocumentException;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -89,15 +78,14 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         return "etiquettes";
     }
 
-    private String printEtiquettes(List<EtiquetteDTO> items, int startAt) {
+    private byte[] printEtiquettes(List<EtiquetteDTO> items, int startAt) {
         Magasin magasin = storageService.getUser().getMagasin();
         this.items = items;
         templateFile = Constant.ETIQUETES_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.ITEMS, ListUtils.partition(items, 5));
         getParameters().put(Constant.ETIQUETES_BEGIN, startAt);
-        String filePath = getDestFilePath();
-        try (OutputStream outputStream = new FileOutputStream(filePath)) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             SharedContext sharedContext = renderer.getSharedContext();
             EtiquetteBarcodeReplacedElement ref = new EtiquetteBarcodeReplacedElement(
@@ -108,18 +96,17 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             sharedContext.getTextRenderer().setSmoothingThreshold(0);
             sharedContext.setPrint(true);
             renderer.setDocumentFromString(this.getTemplateAsHtml());
-
             renderer.layout();
             renderer.createPDF(outputStream);
-        } catch (IOException | DocumentException e) {
-            log.error("printOneReceiptPage ===>>", e);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de la génération du PDF des étiquettes", e);
         }
-        return filePath;
     }
 
-    public Resource print(List<OrderLine> orderLines, int startAt) throws MalformedURLException {
+    public byte[] export(List<OrderLine> orderLines, int startAt) {
         var magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
-        return this.getResource(printEtiquettes(buildEtiquettes(orderLines, magasin, startAt), startAt));
+        return printEtiquettes(buildEtiquettes(orderLines, magasin, startAt), startAt);
     }
 
     private List<EtiquetteDTO> buildEtiquettes(List<OrderLine> orderLines, String rasionSociale, int startAt) {
@@ -164,22 +151,4 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             .setLibelle(fournisseurProduit.getProduit().getLibelle());
     }
 
-    private String generateBarcodeImage(String code) throws WriterException, IOException {
-        BitMatrix matrix = new MultiFormatWriter().encode(code, BarcodeFormat.CODE_128, 200, 50);
-        File tempFile = File.createTempFile("barcode-" + code, ".png");
-        MatrixToImageWriter.writeToPath(matrix, "PNG", tempFile.toPath());
-        return tempFile.getAbsolutePath();
     }
-
-    public ResponseEntity<byte[]> generatePdf(List<OrderLine> orderLines, int startAt) {
-        Magasin magasin = storageService.getUser().getMagasin();
-        this.items = buildEtiquettes(orderLines, magasin.getName().toUpperCase(), startAt);
-        templateFile = Constant.ETIQUETES_TEMPLATE_FILE;
-        getParameters().put(Constant.MAGASIN, magasin);
-        getParameters().put(Constant.ITEMS, ListUtils.partition(items, 5));
-        getParameters().put(Constant.ETIQUETES_BEGIN, startAt);
-        super.getCommonParameters();
-
-        return super.genererPdf();
-    }
-}

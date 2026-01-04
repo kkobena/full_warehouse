@@ -14,7 +14,8 @@
 
         <div class="form-field form-field-full">
           <label for="numLot">Numéro de Lot<span class="required">*</span></label>
-          <input #numLotInput
+          <input
+            #numLotInput
             (blur)="onValidateNumLot($event)"
             autocomplete="off"
             formControlName="numLot"

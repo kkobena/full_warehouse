@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.enumeration.CodeGrilleRemise;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
-import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.GrilleRemiseRepository;
 import com.kobe.warehouse.repository.RemiseClientRepository;
 import com.kobe.warehouse.repository.RemiseProduitRepository;
@@ -25,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.kobe.warehouse.service.stock.ProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,21 +38,21 @@ public class RemiseServiceImpl implements RemiseService {
     private final RemiseProduitRepository remiseProduitRepository;
     private final RemiseClientRepository remiseClientRepository;
     private final GrilleRemiseRepository grilleRemiseRepository;
-    private final CustomizedProductService customizedProductService;
+    private final ProduitService produitService;
 
     public RemiseServiceImpl(
         RemiseRepository remiseRepository,
         RemiseProduitRepository remiseProduitRepository,
         RemiseClientRepository remiseClientRepository,
         GrilleRemiseRepository grilleRemiseRepository,
-        CustomizedProductService customizedProductService
+        ProduitService produitService
     ) {
         this.remiseRepository = remiseRepository;
         this.remiseProduitRepository = remiseProduitRepository;
         this.remiseClientRepository = remiseClientRepository;
         this.grilleRemiseRepository = grilleRemiseRepository;
 
-        this.customizedProductService = customizedProductService;
+        this.produitService = produitService;
     }
 
     @Override
@@ -125,16 +126,16 @@ public class RemiseServiceImpl implements RemiseService {
         List<Produit> produits;
 
         if (remiseProduits.all()) {
-            produits = this.customizedProductService.find(
+            produits = this.produitService.find(
                     new ProduitCriteria().setSearch(remiseProduits.search()).setRayonId(remiseProduits.rayonId())
                 );
         } else {
-            produits = this.customizedProductService.findByIds(remiseProduits.produitIds());
+            produits = this.produitService.findByIds(remiseProduits.produitIds());
         }
         produits.forEach(produit -> {
             produit.setCodeRemise(codeRemise);
             try {
-                this.customizedProductService.save(produit);
+                this.produitService.update(produit);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

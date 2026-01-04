@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
@@ -17,11 +16,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
@@ -29,7 +25,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,9 +34,6 @@ import java.util.Set;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.boot.jaxb.mapping.GenerationTiming;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -137,7 +129,7 @@ public class Produit implements Serializable {
 
     @NotNull
     @Column(name = "deconditionnable", nullable = false)
-    private Boolean deconditionnable;
+    private Boolean deconditionnable= false;
 
     @NotAudited
     @ManyToOne(fetch = FetchType.LAZY)
@@ -149,7 +141,6 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @NotAudited
@@ -209,6 +200,7 @@ public class Produit implements Serializable {
 
 
     @NotAudited
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
@@ -221,7 +213,7 @@ public class Produit implements Serializable {
      */
     @Min(value = 0)
     @Column(name = "seuil_decond", comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
-    private Integer seuilDeconditionnement;
+    private Integer seuilDeconditionnement= 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "code_remise", length = 6, comment = "Code de remise qui seront mappés sur les grilles de remises")

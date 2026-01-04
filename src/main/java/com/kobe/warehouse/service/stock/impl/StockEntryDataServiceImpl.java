@@ -86,8 +86,8 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
-    public Resource exportToPdf(CommandeId id) throws IOException {
-        return this.getResource(receiptReportService.print(commandeRepository.getReferenceById(id)));
+    public byte[] exportToPdf(CommandeId id) {
+        return receiptReportService.export(commandeRepository.getReferenceById(id));
     }
 
     private long receiptCount(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO) {
@@ -187,11 +187,11 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
-    public Resource printEtiquette(CommandeId commandeId, int startAt) throws IOException {
-        return this.etiquetteExportService.print(
-                this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
-                startAt
-            );
+    public byte[] printEtiquette(CommandeId commandeId, int startAt) {
+        return this.etiquetteExportService.export(
+            this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
+            startAt
+        );
     }
 
     @Override

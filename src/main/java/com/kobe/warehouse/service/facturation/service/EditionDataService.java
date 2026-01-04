@@ -15,7 +15,6 @@ import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -38,9 +37,9 @@ public interface EditionDataService {
 
     List<FactureTiersPayant> getFactureTiersPayant(Integer generationCode, boolean isGroup);
 
-    Resource printToPdf(FactureEditionResponse factureEditionResponse);
+    byte[] printToPdf(FactureEditionResponse factureEditionResponse);
 
-    Resource printToPdf(FactureItemId id);
+    byte[] printToPdf(FactureItemId id);
 
     Page<FacturationGroupeDossier> findGroupeFactureReglementData(FactureItemId id, Pageable pageable);
 

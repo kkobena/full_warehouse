@@ -67,7 +67,7 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
         return this.deliveryReceipt.getReceiptReference();
     }
 
-    public String print(Commande deliveryReceipt) {
+    public byte[] export(Commande deliveryReceipt) {
         this.deliveryReceipt = deliveryReceipt;
         Magasin magasin = storageService.getUser().getMagasin();
         List<OrderLine> receiptItems = getItems();
@@ -82,12 +82,12 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
         if (itemSize > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.ITEMS, receiptItems.subList(0, Constant.COMMANDE_PAGE_SIZE));
             getParameters().put(Constant.IS_LAST_PAGE, false);
-            return super.printMultiplesReceiptPage();
+            return super.exportMultiplePagesToByteArray();
         } else {
             getParameters().put(Constant.ITEMS, receiptItems);
             getParameters().put(Constant.IS_LAST_PAGE, true);
             getParameters().put(Constant.PAGE_COUNT, "1/1");
-            return super.printOneReceiptPage();
+            return super.exportReportToPdf();
         }
     }
 }

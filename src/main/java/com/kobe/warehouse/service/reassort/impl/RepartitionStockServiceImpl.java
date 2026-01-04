@@ -168,7 +168,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         stockProduit.setStorage(reserveStorage);
         stockProduit.setQtyStock(queryDto.quantity());
         stockProduit.setQtyUG(0);
-        stockProduit.setQtyVirtual(queryDto.seuilMini());
+        stockProduit.setQtyVirtual(queryDto.quantity());
         stockProduit.setSeuilMini(queryDto.seuilMini());
         stockProduit.setCreatedAt(LocalDateTime.now());
         stockProduit.setUpdatedAt(stockProduit.getCreatedAt());

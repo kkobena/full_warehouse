@@ -19,8 +19,7 @@
   <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
   <div class="pharma-sales-header">
     <div class="header-left">
-      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left"
-                pTooltip="Retour">
+      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
       </p-button>
 
       <div class="page-title">
@@ -170,8 +169,7 @@
 
       @if (active === 'assurance' || active === 'carnet') {
         <div class="insurance-data-bar">
-          <jhi-assurance-data (inputToFocusEvent)="getControlToFocus($event)"
-                              #assuranceDataComponent></jhi-assurance-data>
+          <jhi-assurance-data (inputToFocusEvent)="getControlToFocus($event)" #assuranceDataComponent></jhi-assurance-data>
         </div>
         @if (showInsuranceTogle()) {
           <div class="insurance-data-bar-wrapper">
@@ -248,7 +246,7 @@
                 <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">
                   <i class="pi pi-database"></i>
                   <span
-                  >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                    >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
                   >
                 </div>
               }
@@ -263,7 +261,7 @@
               <div class="meta-item price-display">
                 <i class="pi pi-tag"></i>
                 <span
-                >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+                  >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
                 >
               </div>
             </div>

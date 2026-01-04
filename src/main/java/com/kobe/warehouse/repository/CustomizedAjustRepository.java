@@ -136,8 +136,8 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         return this.em.find(Ajust.class, id);
     }
 
-    public Resource exportToPdf(Integer id) throws IOException {
-        return this.getResource(this.ajustementReportService.print(findbyId(id)));
+    public byte[] exportToPdf(Integer id) {
+        return this.ajustementReportService.export(findbyId(id));
     }
 
     public Optional<AjustDTO> getOneById(Integer id) {

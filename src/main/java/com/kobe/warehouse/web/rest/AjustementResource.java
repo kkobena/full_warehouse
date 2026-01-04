@@ -114,9 +114,9 @@ public class AjustementResource {
     }
 
     @GetMapping("/ajustements/pdf/{id}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Integer id, HttpServletRequest request) throws IOException {
-        final Resource resource = this.ajustService.exportToPdf(id);
-        return Utils.printPDF(resource, request);
+    public ResponseEntity<byte[]> getPdf(@PathVariable Integer id) {
+        String fileName = "ajustement_" + id + ".pdf";
+        return Utils.printPDF(this.ajustService.exportToPdf(id), fileName);
     }
 
     @GetMapping("/ajustements/{id}")

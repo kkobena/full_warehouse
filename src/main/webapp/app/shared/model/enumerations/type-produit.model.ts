@@ -1,4 +1,4 @@
 export const enum TypeProduit {
-  DETAIL,
-  PACKAGE,
+  DETAIL = 'DETAIL',
+  PACKAGE = 'PACKAGE',
 }

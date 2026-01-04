@@ -24,7 +24,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'jhi-form-produit-fournisseur',
   templateUrl: './form-produit-fournisseur.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['./form-produit.scss'],
   imports: [
     CommonModule,
     FormsModule,
@@ -55,7 +55,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     prixAchat: [null, [Validators.required, Validators.min(1)]],
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
     fournisseurId: [null, [Validators.required]],
-    principal: [null, [Validators.required]],
+    principal: [false, [Validators.required]],
   });
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
@@ -83,12 +83,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     }
 
     this.populate();
-    if (!this.hasPrincipal() && !this.entity) {
-      this.editForm.get('principal').setValue(true);
-    } else if (this.entity) {
-      this.editForm.get('principal').setValue(this.entity.principal);
-    } else {
-      this.editForm.get('principal').setValue(false);
+    if (this.entity && this.produit) {
+      this.editForm.get('principal').setValue(this.entity.id === this.produit.fournisseurProduit?.id);
     }
   }
 
@@ -96,25 +92,6 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.fournisseurSelect().el.nativeElement.focus();
     }, 100);
-  }
-
-  hasPrincipal(): boolean {
-    if (this.isEmpty()) {
-      return false;
-    }
-    const principal = this.produit.fournisseurProduits.some(e => e.principal);
-    if (principal) {
-      return principal;
-    }
-    return false;
-  }
-
-  isEmpty(): boolean {
-    const itemLength = this.produit.fournisseurProduits.length;
-    if (itemLength) {
-      return itemLength <= 0;
-    }
-    return true;
   }
 
   updateForm(produitFournisseur: IFournisseurProduit): void {
@@ -128,40 +105,38 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.activeModal.dismiss();
   }
 
-  populate(): void {
-    if (this.entity) {
-      this.fournisseurService
-        .query({
-          page: 0,
-          size: 9999,
-        })
-        .subscribe((res: HttpResponse<IFournisseur[]>) => {
+  protected populate(): void {
+    this.fournisseurService
+      .query({
+        page: 0,
+        size: 9999,
+      })
+      .subscribe((res: HttpResponse<IFournisseur[]>) => {
+        if (this.entity) {
           this.fournisseurs = res.body || [];
-        });
-    } else {
-      this.fournisseurService.query().subscribe((res: HttpResponse<IFournisseur[]>) => {
-        this.fournisseurs = res.body || [];
+        } else {
+          this.fournisseurs = res.body.filter(p => this.produit?.fournisseurProduits?.some(fp => fp.fournisseurId !== p.id)) || [];
+        }
       });
-    }
   }
 
-  handlePrixAchatInput(event: any): void {
+  protected handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(['prixUni']).value);
     this.isValid = value < unitPrice;
   }
 
-  handlePrixUnitaireInput(event: any): void {
+  protected handlePrixUnitaireInput(event: any): void {
     const value = Number(event.target.value);
     const costAmount = Number(this.editForm.get(['prixAchat']).value);
     this.isValid = costAmount < value;
   }
 
-  onChange(event: any): void {
+  protected onChange(event: any): void {
     this.fournisseurSelectedId = event.value;
   }
 

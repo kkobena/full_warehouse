@@ -349,7 +349,7 @@
             <ng-template #header>
               <div class="section-header">
                 <i class="pi pi-th-large"></i>
-                <span>Déconditionnement</span>
+                <span>Informations sur le détail du produit</span>
               </div>
             </ng-template>
 
@@ -365,14 +365,14 @@
                     [binary]="true"
                   >
                   </p-checkbox>
-                  <label for="deconditionnable">Produit déconditionnable ?</label>
+                  <label for="deconditionnable">Produit vendable à l'unité ?</label>
                 </div>
               </div>
 
               @if (isDeconditionnable) {
                 <!-- Quantité par unité -->
                 <div class="form-field">
-                  <label for="field_itemQty">Quantité par unité</label>
+                  <label for="field_itemQty">Nombre d'unités par conditionnement</label>
                   <input
                     pInputText
                     pKeyFilter="int"
@@ -400,7 +400,7 @@
 
                 <!-- Prix de vente unitaire -->
                 <div class="form-field">
-                  <label for="field_itemRegularUnitPrice">Prix de vente unitaire</label>
+                  <label for="field_itemRegularUnitPrice">Prix de vente</label>
                   <input
                     pInputText
                     pKeyFilter="int"
@@ -434,3 +434,4 @@
     </div>
   </div>
 </div>
+<jhi-toast-alert #alert></jhi-toast-alert>

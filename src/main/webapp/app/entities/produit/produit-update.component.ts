@@ -34,6 +34,7 @@ import { SelectModule } from 'primeng/select';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { Toolbar } from 'primeng/toolbar';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-produit-update',
@@ -51,6 +52,7 @@ import { Toolbar } from 'primeng/toolbar';
     Card,
     Checkbox,
     Toolbar,
+    ToastAlertComponent,
   ],
 })
 export class ProduitUpdateComponent implements OnInit {
@@ -125,7 +127,7 @@ export class ProduitUpdateComponent implements OnInit {
     });
   }
 
-  populate(produit: IProduit): void {
+  protected populate(produit: IProduit): void {
     if (produit) {
       if (produit.deconditionnable) {
         this.isDeconditionnable = true;
@@ -192,7 +194,7 @@ export class ProduitUpdateComponent implements OnInit {
     });
   }
 
-  updateForm(produit: IProduit): void {
+  private updateForm(produit: IProduit): void {
     this.editForm.patchValue({
       id: produit.id,
       libelle: produit.libelle,
@@ -222,11 +224,11 @@ export class ProduitUpdateComponent implements OnInit {
     });
   }
 
-  previousState(): void {
+  protected previousState(): void {
     window.history.back();
   }
 
-  save(): void {
+  protected save(): void {
     this.isSaving = true;
     const produit = this.createFromForm();
     if (produit.id !== undefined) {
@@ -236,19 +238,19 @@ export class ProduitUpdateComponent implements OnInit {
     }
   }
 
-  handleCostInput(event: any): void {
+  protected handleCostInput(event: any): void {
     const value = Number(event.target.value);
     const unitPrice = Number(this.editForm.get(['regularUnitPrice']).value);
     this.isValid = value < unitPrice;
   }
 
-  handleUnitPriceInput(event: any): void {
+  protected handleUnitPriceInput(event: any): void {
     const value = Number(event.target.value);
     const costAmount = Number(this.editForm.get(['costAmount']).value);
     this.isValid = costAmount < value;
   }
 
-  handleItemQty(event: any): void {
+  protected handleItemQty(event: any): void {
     const itemQty = event.target.value;
     if (Number(itemQty) > 0) {
       const costAmount = Number(this.editForm.get(['costAmount']).value);
@@ -263,19 +265,19 @@ export class ProduitUpdateComponent implements OnInit {
     }
   }
 
-  handleItemCost(event: any): void {
+  protected handleItemCost(event: any): void {
     const value = Number(event.target.value);
     const itemRegularUnitPrice = Number(this.editForm.get(['itemRegularUnitPrice']).value);
     this.isValid = value < itemRegularUnitPrice;
   }
 
-  handleItemPrice(event: any): void {
+  protected handleItemPrice(event: any): void {
     const value = event.target.value;
     const itemCostAmount = Number(this.editForm.get(['itemCostAmount']).value);
     this.isValid = itemCostAmount < Number(value);
   }
 
-  onDeconditionnable(value: boolean): void {
+  protected onDeconditionnable(value: boolean): void {
     this.isDeconditionnable = value;
     if (this.isDeconditionnable) {
       this.editForm.get('itemRegularUnitPrice').setValidators([Validators.required, Validators.min(1)]);
@@ -294,19 +296,19 @@ export class ProduitUpdateComponent implements OnInit {
     }
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError(),
     });
   }
 
-  protected onSaveSuccess(): void {
+  private onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError(): void {
+  private onSaveError(): void {
     this.isSaving = false;
   }
 

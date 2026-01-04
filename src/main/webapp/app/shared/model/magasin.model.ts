@@ -60,5 +60,4 @@ export interface IStorage {
 export const enum StorageType {
   PRINCIPAL = 'Stockage principal',
   SAFETY_STOCK = 'Reserve',
-  POINT_DE_VENTE = 'Point de vente',
 }

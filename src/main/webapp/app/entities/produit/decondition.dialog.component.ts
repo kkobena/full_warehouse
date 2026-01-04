@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { IProduit } from '../../shared/model/produit.model';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -11,13 +11,16 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { InputText } from 'primeng/inputtext';
 import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'jhi-decondition',
   templateUrl: 'decondition-dialog.component.html',
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, Card, Button],
+  styleUrls: ['./detail-form-dialog.scss'],
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, Card, Button, ToastAlertComponent],
 })
-export class DeconditionDialogComponent {
+export class DeconditionDialogComponent implements AfterViewInit {
   activeModal = inject(NgbActiveModal);
   isSaving = false;
   isNotValid = false;
@@ -25,13 +28,24 @@ export class DeconditionDialogComponent {
   protected deconditionService = inject(DeconditionService);
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
-    qtyMvt: [null, [Validators.required, Validators.min(1)]],
+    qtyMvt: [1, [Validators.required, Validators.min(1)]],
   });
+  private itemQty = viewChild.required<ElementRef>('qtyMvt');
 
   save(): void {
     this.isSaving = true;
     const decondition = this.createFromForm();
     this.subscribeToSaveResponse(this.deconditionService.create(decondition));
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const input = this.itemQty()?.nativeElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 100);
   }
 
   cancel(): void {

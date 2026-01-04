@@ -75,9 +75,7 @@ export class ProduitService {
 
   updateDetail(produit: IProduit): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(produit);
-    return this.http
-      .put<IProduit>(`${this.resourceUrl}/detail`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.put<IProduit>(`${this.resourceUrl}/detail`, copy, { observe: 'response' });
   }
 
   updateDefaultFournisseur(id: number, checked: boolean): Observable<HttpResponse<{}>> {

@@ -1,35 +1,56 @@
 <div class="modal-header">
-  <h4 class="modal-title">Ajouter un détail au produit {{ produit?.libelle }}</h4>
+  <h4 class="modal-title">Ajouter un détail au produit </h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      @if (isNotValid) {
-        <div class="alert alert-dismissible alert-danger">
-          <strong>Stock insuffisant </strong>
-        </div>
-      }
-
       <div class="form-grid-compact">
-        <label for="field_libelle">Nombre de cartons à déconditioner<span class="required">*</span></label>
-        <input
-          (keyup)="onQuantitySoldBoxChanged($event)"
-          formControlName="qtyMvt"
-          id="field_libelle"
-          name="qtyMvt"
-          pInputText
-          type="number"
-        />
-        @if (editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)) {
-          <div>
-            @if (editForm.get('qtyMvt')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-            }
+        @if (isNotValid) {
+          <div class="alert alert-dismissible alert-danger">
+            <strong>Stock insuffisant </strong>
           </div>
         }
+        <div class="form-field form-field-full">
+          <div class="info-box">
+            <i class="pi pi-box me-2"></i>
+            <span class="info-label fw-bold">{{ produit?.libelle }}</span>
+            @if (produit?.codeCip) {
+              <span class="text-muted ms-2">({{ produit.codeCip }})</span>
+            }
+          </div>
+        </div>
+        <div class="form-field form-field-full">
+          <span class="field-label">Stock actuel</span>
+          <div class="info-box info-highlight">
+
+            <span class="info-value"> {{ produit.totalQuantity ?? 0 }} </span>
+          </div>
+        </div>
+
+
+        <div class="form-field form-field-full">
+          <label for="field_libelle">Nombre de cartons à déconditioner<span class="required">*</span></label>
+          <input #qtyMvt
+            (keyup)="onQuantitySoldBoxChanged($event)"
+            formControlName="qtyMvt"
+            id="field_libelle"
+            name="qtyMvt"
+            pInputText
+            type="number"
+          />
+          @if (editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)) {
+            <div>
+              @if (editForm.get('qtyMvt')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
+              }
+            </div>
+          }
+        </div>
       </div>
+
     </p-card>
   </div>
 
@@ -53,3 +74,4 @@
     ></p-button>
   </div>
 </form>
+<jhi-toast-alert #alert></jhi-toast-alert>

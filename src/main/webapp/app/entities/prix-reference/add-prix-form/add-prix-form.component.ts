@@ -34,9 +34,9 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
   selector: 'jhi-add-prix-form',
-  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent, DecimalPipe, ConfirmDialog],
+  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent, ConfirmDialog],
   templateUrl: './add-prix-form.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['add-prix-form.scss'],
   providers: [ConfirmationService],
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {

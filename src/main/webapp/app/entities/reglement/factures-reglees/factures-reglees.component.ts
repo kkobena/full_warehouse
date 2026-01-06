@@ -32,7 +32,6 @@ import { PrimeNG } from 'primeng/config';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { RecapParam } from '../../ticketZ/model/recap-param.model';
 import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({

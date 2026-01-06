@@ -1,22 +1,28 @@
 logging:
   level:
-    javax:
-      management:
-        remote:
-          rmi: OFF
-    com.kobe.warehouse.service: INFO
+    # === Logs applicatifs (métier) ===
+    com.kobe.warehouse: INFO
 
-    # Logs SQL (DEBUG pour voir les requêtes en détail)
-    # ATTENTION: Très verbeux, à n'activer qu'en dev
+    # === Spring Framework ===
+    org.springframework: WARN
+
+    # === Hibernate / JPA ===
+    org.hibernate: WARN
     org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
 
-    # Logs transaction (pour debug)
+    # === Transactions ===
     org.springframework.transaction: OFF
     org.springframework.orm.jpa: OFF
-    org.hibernate.type.descriptor.sql: OFF
 
-    org.springframework: OFF
+    # === RMI / JMX (inutile en prod) ===
+    javax.management.remote.rmi: OFF
+
+    # === Serveur web (Tomcat / Undertow) ===
+    org.apache.catalina: WARN
+
+
 
 
   # Pattern de log avec timing

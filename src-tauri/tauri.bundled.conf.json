@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "PharmaSmart-Standalone",
-  "version": "0.0.1",
-  "identifier": "com.kobe.warehouse.standalone",
+  "productName": "PharmaSmart",
+  "version": "0.0.2",
+  "identifier": "com.kobe.pharmasmart",
   "build": {
     "beforeDevCommand": "npm run start",
     "devUrl": "http://localhost:4200",
@@ -47,7 +47,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "PharmaSmart Standalone",
+        "title": "PharmaSmart",
         "width": 1280,
         "height": 800,
         "resizable": true,

@@ -293,8 +293,8 @@
       <version>1.1.1</version>
     </dependency>
     <dependency>
-      <groupId>com.google.firebase</groupId>
       <artifactId>firebase-admin</artifactId>
+      <groupId>com.google.firebase</groupId>
       <version>9.2.0</version>
     </dependency>
 
@@ -419,7 +419,7 @@
     <dependency>
       <artifactId>spring-boot-starter-aop</artifactId>
       <groupId>org.springframework.boot</groupId>
-<version>4.0.0-M2</version>
+      <version>4.0.0-M2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -451,8 +451,8 @@
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-graphql</artifactId>
+      <groupId>org.springframework.boot</groupId>
     </dependency>
 
     <!--  <dependency>
@@ -657,13 +657,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>webapp build prod</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <executable>npm</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>webapp:prod</argument>
@@ -671,7 +665,13 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>npm</executable>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build prod</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
             <groupId>org.codehaus.mojo</groupId>
@@ -719,13 +719,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>webapp build tauri</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <executable>npm</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>tauri:build</argument>
@@ -733,7 +727,13 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>npm</executable>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build tauri</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
             <groupId>org.codehaus.mojo</groupId>
@@ -781,13 +781,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>webapp build tauri bundled-jre</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <executable>npm</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>tauri:build:bundled-jre</argument>
@@ -795,7 +789,13 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>npm</executable>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build tauri bundled-jre</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
             <groupId>org.codehaus.mojo</groupId>
@@ -830,13 +830,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>webapp build dev</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
                 <configuration>
-                  <executable>npm</executable>
                   <arguments>
                     <argument>run</argument>
                     <argument>webapp:build</argument>
@@ -844,7 +838,13 @@
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
+                  <executable>npm</executable>
                 </configuration>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <id>webapp build dev</id>
+                <phase>generate-resources</phase>
               </execution>
             </executions>
             <groupId>org.codehaus.mojo</groupId>
@@ -909,5 +909,5 @@
       <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
-  <version>0.2.2-SNAPSHOT</version>
+  <version>0.2.2</version>
 </project>

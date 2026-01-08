@@ -2,5 +2,5 @@ export const environment = {
   VERSION: __VERSION__,
   DEBUG_INFO_ENABLED: true,
   production: true,
-  apiServerUrl: 'http://localhost:9080',
+  apiServerUrl: '', // Vide pour utiliser des URLs relatives en mode web
 };

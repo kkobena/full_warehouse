@@ -37,7 +37,7 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/list")
-    public ResponseEntity<List<DeliveryReceiptDTO>> fetch(@Valid DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
+    public ResponseEntity<List<DeliveryReceiptDTO>> fetch( DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
         Page<DeliveryReceiptDTO> page = stockEntryDataServicetryService.fetchAllReceipts(receiptFilter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());

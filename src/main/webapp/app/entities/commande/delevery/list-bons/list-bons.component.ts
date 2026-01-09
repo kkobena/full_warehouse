@@ -118,10 +118,10 @@ export class ListBonsComponent implements OnInit {
       query.fournisseurId = this.fournisseurId();
     }
     if (this.dtStart()) {
-      query.dtStart = DATE_FORMAT_ISO_DATE(this.dtStart());
+      query.fromDate = DATE_FORMAT_ISO_DATE(this.dtStart());
     }
     if (this.dtEnd()) {
-      query.dtEnd = DATE_FORMAT_ISO_DATE(this.dtEnd());
+      query.toDate = DATE_FORMAT_ISO_DATE(this.dtEnd());
     }
 
     this.entityService.query(query).subscribe({

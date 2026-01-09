@@ -7,6 +7,7 @@ export interface IRepartitionStockProduit {
   created?: Date;
   produitName?: string;
   produitCode?: string;
+  codeCip?: string;
   codeEanFabricant?: string;
   stockProduitSrc?: IStockProduit;
   stockProduitDest?: IStockProduit;
@@ -85,8 +86,8 @@ export interface IRepartitionSearchQuery {
   storageId?: number;
   userId?: number;
   searchTerm?: string;
-  dateDebut?: Date;
-  dateFin?: Date;
+  dateDebut?: string;
+  dateFin?: string;
   typeRepartition?: string;
   stockProduitId?: number;
   page?: number;

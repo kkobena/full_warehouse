@@ -37,7 +37,7 @@
           <span class="pharma-entity-name">{{ item.produitName }}</span>
         </td>
         <td>
-          <span class="pharma-code">{{ item.produitCode }}</span>
+          <span class="pharma-code">{{ item.codeCip }}</span>
         </td>
         <td>
           @if (item.stockProduitSrc) {
@@ -47,7 +47,7 @@
           }
         </td>
         <td>
-          <p-tag [value]="item.stockProduitDest?.storageName" severity="primary" />
+          <p-tag [value]="item.stockProduitDest?.storageName" severity="info" />
         </td>
         <td class="text-right">
           <span class="pharma-qty-value">{{ item.mvtQty | number }}</span>

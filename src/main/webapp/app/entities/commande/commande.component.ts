@@ -86,8 +86,8 @@ export class CommandeComponent implements OnInit {
     { label: 'Manuelle', value: 'MANUELLE' },
   ];
   protected selectedStatut: RetourBonStatut | null = null;
-  protected dtStart: Date | null = null;
-  protected dtEnd: Date | null = null;
+  protected dtStart: Date | null = new Date();
+  protected dtEnd: Date | null = new Date();
   protected statutOptions = [
     { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
     { label: 'Clôturé', value: RetourBonStatut.CLOSED },
@@ -201,6 +201,9 @@ export class CommandeComponent implements OnInit {
         break;
       case 'RETOUR_FOURNISSEUR':
         this.retourBonListComponent().onSearch();
+        break;
+      case 'REPARTITION_STOCK':
+        this.repartitionStockComponent()?.onSearch();
         break;
     }
   }

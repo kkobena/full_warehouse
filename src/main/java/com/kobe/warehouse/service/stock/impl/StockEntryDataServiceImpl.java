@@ -170,19 +170,13 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
                 cb.or(cb.equal(root.get(OrderLine_.commande).get(Commande_.user).get(AppUser_.id), deliveryReceiptFilterDTO.getUserId()))
             );
         }
-        if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate()) && Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
-            predicates.add(
-                cb.between(
-                    root.get(OrderLine_.commande).get(Commande_.orderDate),
-                    deliveryReceiptFilterDTO.getFromDate(),
-                    deliveryReceiptFilterDTO.getToDate()
-                )
-            );
-        } else if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate())) {
-            predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderDate), deliveryReceiptFilterDTO.getFromDate()));
-        } else if (Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
-            predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderDate), deliveryReceiptFilterDTO.getToDate()));
-        }
+        predicates.add(
+            cb.between(
+                root.get(OrderLine_.commande).get(Commande_.orderDate),
+                deliveryReceiptFilterDTO.getFromDate(),
+                deliveryReceiptFilterDTO.getToDate()
+            )
+        );
         return predicates;
     }
 

@@ -11,7 +11,7 @@ public class RepartitionStockProduitDto {
     private LocalDateTime created;
     private String produitName;
     private String produitCode;
-    private String codeEanFabricant;
+    private String codeCip;
     private StockProduitDTO stockProduitSrc;
     private StockProduitDTO stockProduitDest;
     private Integer destFinalStock;
@@ -67,12 +67,12 @@ public class RepartitionStockProduitDto {
         this.produitCode = produitCode;
     }
 
-    public String getCodeEanFabricant() {
-        return codeEanFabricant;
+    public String getCodeCip() {
+        return codeCip;
     }
 
-    public void setCodeEanFabricant(String codeEanFabricant) {
-        this.codeEanFabricant = codeEanFabricant;
+    public void setCodeCip(String codeCip) {
+        this.codeCip = codeCip;
     }
 
     public StockProduitDTO getStockProduitSrc() {

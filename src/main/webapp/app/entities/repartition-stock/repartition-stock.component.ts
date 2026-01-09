@@ -11,7 +11,6 @@ import { DividerModule } from 'primeng/divider';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { APPEND_TO } from '../../shared/constants/pagination.constants';
-import { RepartitionStockService } from './repartition-stock.service';
 import { RepartitionListComponent } from './repartition-list/repartition-list.component';
 import { SuggestionReassortComponent } from './suggestion-reassort/suggestion-reassort.component';
 import { ManualRepartitionComponent } from './manual-repartition/manual-repartition.component';
@@ -43,10 +42,6 @@ export class RepartitionStockComponent {
   readonly dtStart = input<Date | null>(null);
   readonly dtEnd = input<Date | null>(null);
   readonly search = input('');
-  protected translate = inject(TranslateService);
-  protected repartitionService = inject(RepartitionStockService);
-  protected router = inject(Router);
-  protected activatedRoute = inject(ActivatedRoute);
   protected repartitionList = viewChild(RepartitionListComponent);
   protected suggestionRayonComponent = viewChild('suggestionRayon', { read: SuggestionReassortComponent });
   protected suggestionReserveComponent = viewChild('suggestionReserve', { read: SuggestionReassortComponent });
@@ -66,9 +61,5 @@ export class RepartitionStockComponent {
     } else if (this.activeTab === 'reserve') {
       this.suggestionReserveComponent()?.loadSuggestions();
     }
-  }
-
-  protected onRefreshHistory(): void {
-    this.repartitionList()?.onSearch();
   }
 }

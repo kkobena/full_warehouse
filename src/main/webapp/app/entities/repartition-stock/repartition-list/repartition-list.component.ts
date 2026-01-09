@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, input, Input, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -8,6 +8,7 @@ import { IRepartitionStockProduit } from '../repartition-stock.model';
 import { RepartitionStockService } from '../repartition-stock.service';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-repartition-list',
@@ -16,10 +17,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   imports: [CommonModule, TableModule, ButtonModule, TagModule, FormsModule],
 })
 export class RepartitionListComponent implements OnInit {
-  // TODO: remplacer par signal inputs quand angular 20+ sera la norme
-  @Input() searchTerm = '';
-  @Input() fromDate?: Date;
-  @Input() toDate?: Date;
+  readonly searchTerm = input('', { alias: 'searchTerm' });
+  readonly fromDate = input<Date | undefined>(undefined, { alias: 'fromDate' });
+  readonly toDate = input<Date | undefined>(undefined, { alias: 'toDate' });
 
   protected repartitionService = inject(RepartitionStockService);
   protected modalService = inject(NgbModal);
@@ -44,9 +44,9 @@ export class RepartitionListComponent implements OnInit {
       .query({
         page: this.page,
         size: this.itemsPerPage,
-        searchTerm: this.searchTerm,
-        dateDebut: this.fromDate,
-        dateFin: this.toDate,
+        searchTerm: this.searchTerm(),
+        dateDebut: DATE_FORMAT_ISO_DATE(this.fromDate()),
+        dateFin: DATE_FORMAT_ISO_DATE(this.toDate()),
       })
       .subscribe({
         next: (res: HttpResponse<IRepartitionStockProduit[]>) => {
@@ -58,15 +58,15 @@ export class RepartitionListComponent implements OnInit {
       });
   }
 
-  protected onSuccess(data: IRepartitionStockProduit[] | null, headers: any): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.rowData = data ?? [];
-    this.loading = false;
-  }
-
   protected onPageChange(event: any): void {
     this.page = event.page;
     this.itemsPerPage = event.rows;
     this.loadAll();
+  }
+
+  private onSuccess(data: IRepartitionStockProduit[] | null, headers: any): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.rowData = data ?? [];
+    this.loading = false;
   }
 }

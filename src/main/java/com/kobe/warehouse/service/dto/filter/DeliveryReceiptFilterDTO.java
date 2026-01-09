@@ -106,4 +106,20 @@ public class DeliveryReceiptFilterDTO {
         this.statut = statut;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "DeliveryReceiptFilterDTO{" +
+            "fromDate=" + fromDate +
+            ", toDate=" + toDate +
+            ", search='" + search + '\'' +
+            ", searchByRef='" + searchByRef + '\'' +
+            ", start=" + start +
+            ", limit=" + limit +
+            ", fournisseurId=" + fournisseurId +
+            ", userId=" + userId +
+            ", all=" + all +
+            ", statut=" + statut +
+            '}';
+    }
 }

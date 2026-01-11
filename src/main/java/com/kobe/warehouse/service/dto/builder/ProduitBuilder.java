@@ -122,20 +122,20 @@ public final class ProduitBuilder {
     }
 
 
-    private static ProduitDTO laboratoire(ProduitDTO produitDTO, Produit produit) {
+    private static void laboratoire(ProduitDTO produitDTO, Produit produit) {
         Laboratoire laboratoire = produit.getLaboratoire();
         if (laboratoire != null) {
             produitDTO.laboratoireId(laboratoire.getId()).laboratoireLibelle(laboratoire.getLibelle());
         }
-        return produitDTO;
+
     }
 
-    private static ProduitDTO formProduit(ProduitDTO produitDTO, Produit produit) {
+    private static void formProduit(ProduitDTO produitDTO, Produit produit) {
         FormProduit formProduit = produit.getForme();
         if (formProduit != null) {
             produitDTO.formeId(formProduit.getId()).formeLibelle(formProduit.getLibelle());
         }
-        return produitDTO;
+
     }
 
     private static void updateCategorieABC(ProduitDTO produitDTO, Produit produit) {
@@ -456,6 +456,13 @@ public final class ProduitBuilder {
     }
 
     public static StockProduit stockProduitFromProduitDTO(Storage storage, ProduitDTO produitDTO) {
+        StockProduit stockProduit = createCommonStockProduitInfo(storage, produitDTO);
+        stockProduit.setStockMaxi(produitDTO.getStockMaxi());
+        stockProduit.setStockReassort(produitDTO.getStockReassort());
+        return stockProduit;
+    }
+
+    private static StockProduit createCommonStockProduitInfo(Storage storage, ProduitDTO produitDTO) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyStock(0);
         stockProduit.setQtyVirtual(0);
@@ -464,20 +471,11 @@ public final class ProduitBuilder {
         stockProduit.setQtyUG(0);
         stockProduit.setStorage(storage);
         stockProduit.setSeuilMini(produitDTO.getQtySeuilMini());
-        stockProduit.setStockReassort(produitDTO.getStockReassort());
         return stockProduit;
     }
 
     public static StockProduit createReserve(Storage storage, ProduitDTO produitDTO) {
-        StockProduit stockProduit = new StockProduit();
-        stockProduit.setQtyStock(0);
-        stockProduit.setQtyVirtual(0);
-        stockProduit.setCreatedAt(LocalDateTime.now());
-        stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
-        stockProduit.setQtyUG(0);
-        stockProduit.setStorage(storage);
-        stockProduit.setSeuilMini(produitDTO.getSeuilMini());
-        return stockProduit;
+        return createCommonStockProduitInfo(storage, produitDTO);
     }
 
     public static FournisseurProduit fournisseurProduitFromDTO(ProduitDTO dto) {

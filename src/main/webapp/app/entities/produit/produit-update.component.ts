@@ -101,6 +101,7 @@ export class ProduitUpdateComponent implements OnInit {
     codeEanLaboratoire: [],
     stockReassort: [],
     seuilMini: [],
+    stockMaxi: [],
   });
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -220,6 +221,7 @@ export class ProduitUpdateComponent implements OnInit {
       dciId: produit.dciId,
       stockReassort: produit.stockReassort,
       seuilMini: produit.seuilMini,
+      stockMaxi: produit.stockMaxi,
       codeEanLaboratoire: produit.codeEanLaboratoire,
     });
   }
@@ -341,6 +343,7 @@ export class ProduitUpdateComponent implements OnInit {
       codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value,
       stockReassort: this.editForm.get(['stockReassort']).value,
       seuilMini: this.editForm.get(['seuilMini']).value,
+      stockMaxi: this.editForm.get(['stockMaxi'])!.value,
     };
   }
 }

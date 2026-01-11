@@ -63,7 +63,7 @@ public class StockUpdateService {
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduitRepository.save(stockProduit);
-        suggestionReassortService.createSuggestionReassort(stockProduit);
+        suggestionReassortService.createRayonSuggestionReassort(stockProduit);
 
         return new StockUpdateResult(quantityBefore, quantityAfter);
     }

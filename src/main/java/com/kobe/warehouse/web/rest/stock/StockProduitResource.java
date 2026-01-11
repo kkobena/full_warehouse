@@ -2,12 +2,15 @@ package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.stock.StockProduitService;
+import com.kobe.warehouse.service.stock.dto.StockProduitSearchDTO;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST controller for managing StockProduit
@@ -32,8 +35,8 @@ public class StockProduitResource {
     @PostMapping
     public ResponseEntity<StockProduitDTO> createStockProduit(@Valid @RequestBody StockProduitDTO dto) {
         LOG.debug("REST request to create StockProduit: {}", dto);
-        StockProduitDTO result = stockProduitService.createStockProduit(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body( stockProduitService.createStockProduit(dto));
     }
 
     /**
@@ -50,8 +53,7 @@ public class StockProduitResource {
     ) {
         LOG.debug("REST request to update StockProduit: id={}, dto={}", id, dto);
         dto.setId(id);
-        StockProduitDTO result = stockProduitService.updateStockProduit(dto);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(stockProduitService.updateStockProduit(dto));
     }
 
     /**
@@ -65,5 +67,14 @@ public class StockProduitResource {
         LOG.debug("REST request to get StockProduit: id={}", id);
         StockProduitDTO result = stockProduitService.getStockProduit(id);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/search-for-repartition")
+    public ResponseEntity<List<StockProduitSearchDTO>> searchForRepartition(
+        @RequestParam Integer storageId,
+        @RequestParam String searchTerm
+    ) {
+        LOG.debug("REST request to search stock produits for repartition: storageId={}, searchTerm={}", storageId, searchTerm);
+        return ResponseEntity.ok(stockProduitService.searchStockProduitsForRepartition(storageId, searchTerm));
     }
 }

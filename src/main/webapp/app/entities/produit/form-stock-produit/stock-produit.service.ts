@@ -8,9 +8,9 @@ type EntityResponseType = HttpResponse<IStockProduit>;
 
 @Injectable({ providedIn: 'root' })
 export class StockProduitService {
-  protected http = inject(HttpClient);
-  protected applicationConfigService = inject(ApplicationConfigService);
-  protected resourceUrl = this.applicationConfigService.getEndpointFor('api/stock-produit');
+  private readonly http = inject(HttpClient);
+  private readonly applicationConfigService = inject(ApplicationConfigService);
+  private readonly resourceUrl = this.applicationConfigService.getEndpointFor('api/stock-produit');
 
   /**
    * Create a new stock produit (reserve)

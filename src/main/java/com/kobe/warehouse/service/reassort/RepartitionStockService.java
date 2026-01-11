@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.reassort;
 
 import com.kobe.warehouse.domain.LigneReassort;
+import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
@@ -19,5 +20,10 @@ public interface RepartitionStockService {
     void process(List<RepartionQueryDto> datas);
 
     Page<RepartitionStockProduitDto> fetchRepartitionStockProduits(RepartionSearchQueryDto searchQueryDto, Pageable pageable);
+
+    /*
+    Lors de l'ajout de stock de reserve , on peut transférer transférer du stock du stock de rayon vers le stock de reserve
+     */
+    void transferStockBetweenStorages(StockProduit stockProduitDest);
 
 }

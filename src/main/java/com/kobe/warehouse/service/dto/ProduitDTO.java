@@ -84,6 +84,7 @@ public class ProduitDTO {
 
     private TableauDTO tableau;
     private int unitPrice;
+    private Integer stockMaxi;
     private String remiseCode;
     private EtatProduit etatProduit;
     private Integer dciId;
@@ -110,6 +111,14 @@ public class ProduitDTO {
     public ProduitDTO setPrixReference(List<PrixReferenceDTO> prixReference) {
         this.prixReference = prixReference;
         return this;
+    }
+
+    public Integer getStockMaxi() {
+        return stockMaxi;
+    }
+
+    public void setStockMaxi(Integer stockMaxi) {
+        this.stockMaxi = stockMaxi;
     }
 
     public ProduitDTO displayStatut(String displayStatut) {

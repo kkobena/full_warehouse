@@ -24,6 +24,8 @@ public class StockProduitDTO {
     private StorageType type;
     private Integer stockReassort;
     private Integer seuilMini;
+    private Integer stockMaxi;
+    private boolean withTransfer;
     public StockProduitDTO(StockProduit s) {
         this.id = s.getId();
         this.qtyStock = s.getQtyStock();
@@ -42,14 +44,24 @@ public class StockProduitDTO {
         this.stockReassort = s.getStockReassort();
         this.seuilMini = s.getSeuilMini();
         this.totalStockQuantity = s.getTotalStockQuantity();
+        this. stockMaxi= s.getStockMaxi();
     }
 
     public int getTotalStockQuantity() {
         return totalStockQuantity;
     }
 
-    public void setTotalStockQuantity(int totalStockQuantity) {
+    public boolean isWithTransfer() {
+        return withTransfer;
+    }
+
+    public void setWithTransfer(boolean withTransfer) {
+        this.withTransfer = withTransfer;
+    }
+
+    public StockProduitDTO setTotalStockQuantity(int totalStockQuantity) {
         this.totalStockQuantity = totalStockQuantity;
+        return this;
     }
 
     public StockProduitDTO() {}
@@ -94,8 +106,9 @@ public class StockProduitDTO {
         return type;
     }
 
-    public void setType(StorageType type) {
+    public StockProduitDTO setType(StorageType type) {
         this.type = type;
+        return this;
     }
 
     public String getStorageType() {
@@ -150,6 +163,14 @@ public class StockProduitDTO {
     public StockProduitDTO setQtyStock(int qtyStock) {
         this.qtyStock = qtyStock;
         return this;
+    }
+
+    public Integer getStockMaxi() {
+        return stockMaxi;
+    }
+
+    public void setStockMaxi(Integer stockMaxi) {
+        this.stockMaxi = stockMaxi;
     }
 
     public Integer getId() {

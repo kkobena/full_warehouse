@@ -373,6 +373,7 @@
                                 <tr class="pharma-table-head">
                                   <th>Stockage</th>
                                   <th class="text-end">Stock.Mini</th>
+                                  <th class="text-end">Stock.Maxi</th>
                                   <th class="text-end">Stock.Réassort</th>
                                   <th class="text-end">Qté</th>
                                   <th class="text-end">Actions</th>
@@ -383,6 +384,9 @@
                                   <td>{{ stock.storageName }}</td>
                                   <td class="text-end">
                                     <span>{{ stock.seuilMini | number }}</span>
+                                  </td>
+                                  <td class="text-end">
+                                    <span>{{ stock.stockMaxi | number }}</span>
                                   </td>
                                   <td class="text-end">
                                     <span>{{ stock.stockReassort | number }}</span>

@@ -30,7 +30,9 @@ public interface SuggestionReassortService {
      *
      * @param stockProduit
      */
-    void createSuggestionReassort(StockProduit stockProduit);
+    void createRayonSuggestionReassort(StockProduit stockProduit);
+
+    void createReserveSuggestionReassort(StockProduit stockProduit);
 
    // void createSuggestionReassort(List<StockProduit> stockProduits, AppUser user);
 

@@ -18,9 +18,11 @@ export interface IStockProduit {
   type?: string; // code type
   seuilMini?: number;
   stockReassort?: number;
+  stockMaxi?: number;
   totalStockQuantity?: number;
   storage?: IStorage;
   produit?: IProduitBasic;
+  withTransfer?: boolean;
 }
 
 export interface IProduitBasic {

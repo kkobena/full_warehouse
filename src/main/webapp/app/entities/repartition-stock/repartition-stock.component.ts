@@ -57,9 +57,9 @@ export class RepartitionStockComponent {
 
   protected onTabChange(navChangeEvent: any): void {
     if (this.activeTab === 'rayon') {
-      this.suggestionRayonComponent()?.loadSuggestions();
+      this.suggestionRayonComponent()?.reloadSuggestions();
     } else if (this.activeTab === 'reserve') {
-      this.suggestionReserveComponent()?.loadSuggestions();
+      this.suggestionReserveComponent()?.reloadSuggestions();
     }
   }
 }

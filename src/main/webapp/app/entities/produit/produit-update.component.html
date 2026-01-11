@@ -310,18 +310,26 @@
             </ng-template>
 
             <div class="row">
-              <div class="col-md-6 form-grid-compact">
+              <div class="col-md-4 form-grid-compact">
                 <!-- Quantité réappro -->
                 <div class="form-field form-field-full">
-                  <label for="qtyAppro">Quantité de réapprovisionnement</label>
+                  <label for="qtyAppro">Quantité de réappro</label>
                   <input pInputText pKeyFilter="int" class="w-full" id="qtyAppro" formControlName="qtyAppro" autocomplete="off" />
                 </div>
               </div>
-              <div class="col-md-6 form-grid-compact">
+              <div class="col-md-4 form-grid-compact">
                 <!-- Quantité seuil mini -->
                 <div class="form-field form-field-full">
                   <label for="qtySeuilMini">Quantité seuil minimum</label>
                   <input pInputText pKeyFilter="int" id="qtySeuilMini" class="w-full" formControlName="qtySeuilMini" autocomplete="off" />
+                </div>
+              </div>
+
+
+              <div class="col-md-4 form-grid-compact">
+                <div class="form-field form-field-full">
+                  <label for="stockMaxi">Stock maximum en rayon</label>
+                  <input pInputText pKeyFilter="int" id="stockMaxi" class="w-full" formControlName="stockMaxi" autocomplete="off" />
                 </div>
               </div>
             </div>

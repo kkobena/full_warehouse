@@ -76,6 +76,7 @@ export interface IProduit {
   dciId?: number;
   stockReassort?: number;
   seuilMini?: number;
+  stockMaxi?: number; // stock maxi rayon
   qtyReserve?: number;
   categorie?: string; // categorie ABC
   codeEanLaboratoire?: string;
@@ -137,6 +138,7 @@ export class Produit implements IProduit {
     public codeCip?: string,
     public fournisseurId?: number,
     public rayonId?: number,
+    public stockMaxi?: number,
     public displayField?: string,
     public rayonProduits?: IRayonProduit[],
   ) {}

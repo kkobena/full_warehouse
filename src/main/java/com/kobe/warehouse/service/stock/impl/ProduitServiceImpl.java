@@ -269,9 +269,10 @@ public class ProduitServiceImpl implements ProduitService {
         stockProduitRepository.save(stockProduit);
 
     }
+
     @Override
     @Transactional(readOnly = true)
-    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId){
+    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId) {
         return customizedProductService.getFournisseurProduitByCriteria(criteteria, fournisseurId);
     }
 
@@ -285,6 +286,7 @@ public class ProduitServiceImpl implements ProduitService {
     public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
         return customizedProductService.productsLiteList(produitCriteria, pageable);
     }
+
     @Override
     public int produitTotalStock(Produit produit) {
         return produit.getStockProduits().stream().map(StockProduit::getQtyStock).reduce(0, Integer::sum);
@@ -319,9 +321,10 @@ public class ProduitServiceImpl implements ProduitService {
     public StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg) {
         Magasin magasin = storageService.getConnectedUserMagasin();
         Set<StockProduit> stockProduits = produit.getStockProduits();
+        boolean isSingleStock = stockProduits.size() == 1;
         StockProduit stockProduit = null;
-        StockProduit stockReserve = null;
-        if (stockProduits.size() == 1) {
+
+        if (isSingleStock) {
             stockProduit = stockProduits.iterator().next();
 
         } else {
@@ -331,10 +334,7 @@ public class ProduitServiceImpl implements ProduitService {
                 if (storage.getMagasin().getId().equals(magasin.getId()) && storageType == StorageType.PRINCIPAL) {
                     stockProduit = sp;
                 }
-                if (storage.getMagasin().getId().equals(magasin.getId()) && storageType == StorageType.SAFETY_STOCK) {
-                    stockReserve = sp;
 
-                }
             }
 
         }
@@ -344,14 +344,17 @@ public class ProduitServiceImpl implements ProduitService {
         stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduit = stockProduitRepository.save(stockProduit);
-        if (nonNull(stockReserve)) {
-            suggestionReassortService.createSuggestionReassort(stockReserve);
+        if (!isSingleStock) {
+            suggestionReassortService.createRayonSuggestionReassort(stockProduit);
+            suggestionReassortService.createReserveSuggestionReassort(stockProduit);
         }
+
         return stockProduit;
     }
+
     @Override
     public void update(Produit produit) {
-        updateProduit( produit);
+        updateProduit(produit);
     }
 
 
@@ -372,6 +375,7 @@ public class ProduitServiceImpl implements ProduitService {
             produit.getId().toString()
         );
     }
+
     @Override
     public Produit findReferenceById(Integer id) {
         return produitRepository.getReferenceById(id);
@@ -522,19 +526,20 @@ public class ProduitServiceImpl implements ProduitService {
         }
         boolean hasReserveStorage = false;
         for (StockProduit sp : produit.getStockProduits()) {
+            sp.setStockMaxi(dto.getStockMaxi());
             if (sp.getStorage().getStorageType() == StorageType.PRINCIPAL) {
                 sp.setStockReassort(dto.getStockReassort());
                 sp.setSeuilMini(dto.getQtySeuilMini());
-                stockProduitRepository.save(sp);
             } else {
                 hasReserveStorage = true;
                 sp.setSeuilMini(dto.getSeuilMini());
-                stockProduitRepository.save(sp);
-            }
 
-            if (!hasReserveStorage && nonNull(dto.getSeuilMini())) {
-                createReserve(reserveStorage, produit, dto);
             }
+            stockProduitRepository.save(sp);
+
+        }
+        if (!hasReserveStorage && nonNull(dto.getSeuilMini())) {
+            createReserve(reserveStorage, produit, dto);
         }
     }
 
@@ -542,7 +547,7 @@ public class ProduitServiceImpl implements ProduitService {
         if (isNull(produitDTO.getSeuilMini())) {
             return;
         }
-        StockProduit stockProduit = ProduitBuilder.createReserve(storage, produitDTO);
+        StockProduit stockProduit = ProduitBuilder.stockProduitFromProduitDTO(storage, produitDTO);
         stockProduit.setProduit(produit);
         produit.getStockProduits().add(stockProduit);
         stockProduitRepository.save(stockProduit);

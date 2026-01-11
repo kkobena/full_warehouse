@@ -169,7 +169,7 @@ public class AjustementService extends FileResourceService {
             p.setQtyUG(0);
             ajustement.setStockAfter(p.getQtyStock());
             ajustement = this.ajustementRepository.save(ajustement);
-            stockProduitRepository.save(p);
+          p=  stockProduitRepository.save(p);
             FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
             String desc = String.format(
                 "Ajustement du produit %s %s quantité initiale %d quantité ajustéé %d quantité finale %d",
@@ -180,7 +180,8 @@ public class AjustementService extends FileResourceService {
                 p.getQtyStock()
             );
             inventoryTransactionService.save(ajustement);
-            suggestionReassortService.createSuggestionReassort(p);
+            suggestionReassortService.createRayonSuggestionReassort(p);
+            suggestionReassortService.createReserveSuggestionReassort(p);
 
             logsService.create(transactionType, desc, ajustement.getId().toString());
         }

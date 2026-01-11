@@ -70,7 +70,7 @@ public class StockProduit implements Serializable {
     @NotAudited
     @Min(value = 0)
     @Column(name = "stock_reassort", comment = "Quantite de reassort pour la reconstitution de stock")
-    private Integer stockReassort;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
+    private Integer stockReassort=0;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
     // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
     @NotAudited
     @Min(value = 0)
@@ -85,6 +85,10 @@ public class StockProduit implements Serializable {
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy;
+
+    @NotAudited
+    @Column(name = "stock_maxi", comment = "Stock maximum en rayon pour la suggestion de reassort réserve")
+    private Integer stockMaxi;
 
     public Integer getId() {
         return id;
@@ -183,6 +187,14 @@ public class StockProduit implements Serializable {
     public StockProduit setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
         return this;
+    }
+
+    public Integer getStockMaxi() {
+        return stockMaxi;
+    }
+
+    public void setStockMaxi(Integer stockMaxi) {
+        this.stockMaxi = stockMaxi;
     }
 
     public StockProduit qtyStock(Integer qtyStock) {

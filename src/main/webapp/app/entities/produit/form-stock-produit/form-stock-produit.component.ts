@@ -34,6 +34,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   editForm = this.fb.group({
     seuilMini: [null, [Validators.required, Validators.min(0)]],
     stockReassort: [null, [Validators.min(0)]],
+    stockMaxi: [null],
     withTransfer: [false],
     transferQuantity: [null, [Validators.min(1)]],
   });
@@ -44,7 +45,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly seuilMiniInput = viewChild<ElementRef>('seuilMiniInput');
-  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
+  //  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
 
   ngOnInit(): void {
     this.isEditMode = !!this.stockProduit?.id;
@@ -53,6 +54,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       this.editForm.patchValue({
         seuilMini: this.stockProduit!.seuilMini,
         stockReassort: this.stockProduit!.stockReassort,
+        stockMaxi: this.stockProduit!.stockMaxi,
       });
       this.editForm.get('withTransfer')!.disable();
       this.editForm.get('transferQuantity')!.disable();
@@ -149,14 +151,19 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   private createStockProduit(): void {
     const seuilMini = this.editForm.get('seuilMini')!.value;
     const stockReassort = this.editForm.get('stockReassort')!.value;
+    let transferQuantity = 0;
+    if (this.withTransfer && this.stockRayonProduit) {
+      transferQuantity = this.editForm.get('transferQuantity')!.value;
+    }
 
     const newStock: IStockProduit = {
       produitId: this.produit!.id,
       seuilMini,
       stockReassort: stockReassort || 0,
-      qtyStock: 0,
+      qtyStock: transferQuantity || 0,
       qtyVirtual: 0,
       qtyUG: 0,
+      withTransfer: this.withTransfer && this.stockRayonProduit && transferQuantity > 0,
     };
 
     this.stockProduitService
@@ -166,11 +173,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
         next: response => {
           const createdStock = response.body!;
 
-          if (this.withTransfer && this.stockRayonProduit) {
-            this.executeTransfer(createdStock);
-          } else {
-            this.onSaveSuccess([createdStock]);
-          }
+          this.onSaveSuccess([createdStock]);
         },
         error: (error: HttpErrorResponse) => this.onSaveError(error),
       });
@@ -201,6 +204,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       ...this.stockProduit,
       seuilMini: this.editForm.get('seuilMini')!.value,
       stockReassort: this.editForm.get('stockReassort')!.value,
+      stockMaxi: this.editForm.get('stockMaxi')!.value,
     };
 
     this.stockProduitService

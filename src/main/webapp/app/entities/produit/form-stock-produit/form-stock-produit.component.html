@@ -73,27 +73,57 @@
 
         <!-- Stock Reassort (only for PRINCIPAL/Rayon in edit mode) -->
         @if (isEditMode && isStockRayon) {
-          <div class="form-field form-field-full">
-            <label for="field_stockReassort">Stock de réassort</label>
-            <input
-              #stockReassortInput
-              autocomplete="off"
-              formControlName="stockReassort"
-              id="field_stockReassort"
-              name="stockReassort"
-              pInputText
-              pKeyFilter="pint"
-              type="number"
-              min="0"
-            />
-            @if (editForm.get('stockReassort')!.invalid && (editForm.get('stockReassort')!.dirty || editForm.get('stockReassort')!.touched)) {
-              <div>
-                @if (editForm.get('stockReassort')?.errors?.min) {
-                  <small class="form-text text-danger">Le stock de réassort ne peut pas être négatif.</small>
-                }
-              </div>
-            }
+
+          <div class="form-row">
+
+            <div class="form-field">
+              <label for="field_stockReassort">Stock de réassort</label>
+              <input
+                #stockReassortInput
+                autocomplete="off"
+                formControlName="stockReassort"
+                id="field_stockReassort"
+                name="stockReassort"
+                pInputText
+                pKeyFilter="int"
+                type="number"
+                min="0"
+              />
+              @if (editForm.get('stockReassort')!.invalid && (editForm.get('stockReassort')!.dirty || editForm.get('stockReassort')!.touched)) {
+                <div>
+                  @if (editForm.get('stockReassort')?.errors?.min) {
+                    <small class="form-text text-danger">Le stock de réassort ne peut pas être négatif.</small>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-field">
+              <label for="field_stockMaxi">Stock maximum en rayon</label>
+              <input
+                #stockMaxiInput
+                autocomplete="off"
+                formControlName="stockMaxi"
+                id="field_stockMaxi"
+                name="stockMaxi"
+                pInputText
+                pKeyFilter="int"
+                type="number"
+                min="0"
+              />
+              @if (editForm.get('stockMaxi')!.invalid && (editForm.get('stockMaxi')!.dirty || editForm.get('stockMaxi')!.touched)) {
+                <div>
+                  @if (editForm.get('stockMaxi')?.errors?.min) {
+                    <small class="form-text text-danger">Le stock de maximun ne peut pas être négatif.</small>
+                  }
+                </div>
+              }
+            </div>
+
           </div>
+
+
+
         }
 
         <!-- Transfer Option (only in create mode and if stock rayon exists) -->

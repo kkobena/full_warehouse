@@ -204,9 +204,6 @@
         <div class="search-section-header">
           <i class="pi pi-search"></i>
           <span>Recherche de produit</span>
-          <!-- <p-tag severity="info" class="ml-auto" icon="pi pi-barcode">
-             <span>Scanner activé</span>
-           </p-tag>-->
         </div>
 
         <div class="search-controls">
@@ -240,7 +237,7 @@
           </div>
 
           <!-- Product Meta Information -->
-          @if (produitSelected) {
+          @if (produitSelected && !isScannedProduct()) {
             <div class="product-meta">
               @if (showStock) {
                 <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">

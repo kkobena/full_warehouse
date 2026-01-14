@@ -98,6 +98,9 @@ public class StockProduitService {
         if (dto.getStockReassort() != null) {
             stockProduit.setStockReassort(dto.getStockReassort());
         }
+        if (dto.getStockMaxi() != null) {
+            stockProduit.setStockMaxi(dto.getStockMaxi());
+        }
         stockProduit.setUpdatedAt(LocalDateTime.now());
 
         stockProduit = stockProduitRepository.save(stockProduit);

@@ -96,6 +96,8 @@
                 [context]="{ componentParent: this, suggestion: suggestion }"
                 [singleClickEdit]="true"
                 [stopEditingWhenCellsLoseFocus]="true"
+                [enableCellEditingOnBackspace]="true"
+                [enterNavigatesVerticallyAfterEdit]="true"
                 class="ag-theme-alpine pharma-grid"
                 [style.height]="getGridHeight(suggestion.ligneReassorts?.length ?? 0)"
                 style="width: 100%"

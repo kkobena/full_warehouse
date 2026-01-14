@@ -12,9 +12,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
@@ -23,11 +26,13 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.LastModifiedBy;
 
+import static java.util.Objects.isNull;
+
 /**
  * A StockProduit.
  */
 @Entity
-@Table(name = "stock_produit", uniqueConstraints = @UniqueConstraint(columnNames = { "storage_id", "produit_id" }))
+@Table(name = "stock_produit", uniqueConstraints = @UniqueConstraint(columnNames = {"storage_id", "produit_id"}))
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class StockProduit implements Serializable {
 
@@ -70,7 +75,7 @@ public class StockProduit implements Serializable {
     @NotAudited
     @Min(value = 0)
     @Column(name = "stock_reassort", comment = "Quantite de reassort pour la reconstitution de stock")
-    private Integer stockReassort=0;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
+    private Integer stockReassort = 0;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
     // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
     @NotAudited
     @Min(value = 0)
@@ -172,6 +177,9 @@ public class StockProduit implements Serializable {
     }
 
     public Integer getTotalStockQuantity() {
+        if (isNull(totalStockQuantity)) {
+            totalStockQuantity = Objects.requireNonNullElse(qtyStock, 0) + Objects.requireNonNullElse(qtyUG, 0);
+        }
         return totalStockQuantity;
     }
 

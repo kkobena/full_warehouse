@@ -15,8 +15,6 @@ import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
-import { provideAnimations } from '@angular/platform-browser/animations';
-
 import { environment } from '../environments/environment';
 import routes from './app.routes';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
@@ -26,6 +24,7 @@ import { provideTranslateService, MissingTranslationHandler } from '@ngx-transla
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './config/translation.config';
 import { translationInitializer } from './shared/language/translation.initializer';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 // --- Navigation error handler ---
 function handleNavigationError(e: NavigationError) {
@@ -55,9 +54,6 @@ if (environment.DEBUG_INFO_ENABLED) {
 // --- AppConfig standalone Angular 21 ---
 export const appConfig: ApplicationConfig = {
   providers: [
-    // --- Core Angular ---
-    // Note: In Angular 21, HttpClient is provided by default, but we still need
-    // provideHttpClient() for custom configuration like withInterceptorsFromDi()
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptorsFromDi()),
 
@@ -89,5 +85,7 @@ export const appConfig: ApplicationConfig = {
 
     // --- Interceptors ---
     httpInterceptorProviders,
+    // --- ✅ Animations pour ngx-spinner ---
+    provideAnimationsAsync(),
   ],
 };

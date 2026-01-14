@@ -26,6 +26,7 @@ public class StockProduitDTO {
     private Integer seuilMini;
     private Integer stockMaxi;
     private boolean withTransfer;
+
     public StockProduitDTO(StockProduit s) {
         this.id = s.getId();
         this.qtyStock = s.getQtyStock();
@@ -44,7 +45,7 @@ public class StockProduitDTO {
         this.stockReassort = s.getStockReassort();
         this.seuilMini = s.getSeuilMini();
         this.totalStockQuantity = s.getTotalStockQuantity();
-        this. stockMaxi= s.getStockMaxi();
+        this.stockMaxi = s.getStockMaxi();
     }
 
     public int getTotalStockQuantity() {
@@ -64,7 +65,8 @@ public class StockProduitDTO {
         return this;
     }
 
-    public StockProduitDTO() {}
+    public StockProduitDTO() {
+    }
 
     public String getProduitLibelle() {
         return produitLibelle;

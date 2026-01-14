@@ -26,6 +26,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   produits = signal<ProduitSearch[]>([]);
   produitbox = viewChild.required<AutoComplete>('produitbox');
   selectProduit = signal<ProduitSearch | null>(null);
+  private isScanning = false; // Variable booléenne normale pour synchronisation immédiate
   includeDetails = input<boolean>(true);
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
@@ -50,7 +51,10 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     effect(() => {
       const selected = this._produitSelected();
       this.onChange(selected);
-      this.produitbox().hide();
+      const autocomplete = this.produitbox();
+      if (autocomplete) {
+        autocomplete.hide();
+      }
     });
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
   }
@@ -66,7 +70,13 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
     if (typeof value === 'string') {
       return;
     }
+    // BLOQUER TOUTE mise à jour pendant le scan pour éviter que le binding réaffiche le produit
+    if (this.isScanning) {
+      console.warn('Setter bloqué pendant le scan. Valeur ignorée:', value?.libelle || value);
+      return;
+    }
     if (this._produitSelected() !== value) {
+      console.warn('Setter autorisé. Mise à jour avec:', value?.libelle || value);
       this._produitSelected.set(value as ProduitSearch | null);
       this.onChange(value);
     }
@@ -84,6 +94,10 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   writeValue(value: any): void {
+    // Bloquer TOUTE mise à jour du parent pendant le scan
+    if (this.isScanning) {
+      return;
+    }
     this.produitSelected = value;
   }
 
@@ -121,15 +135,76 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   onNgModelChange(value: ProduitSearch | null): void {
+    // Bloquer pendant le scan pour éviter que PrimeNG déclenche des mises à jour
+    if (this.isScanning) {
+      return;
+    }
     this.produitSelected = value;
   }
 
   getFocus(): void {
     setTimeout(() => {
       const el = this.produitbox().inputEL?.nativeElement;
+      const autocomplete = this.produitbox();
+
       el.focus();
       el.select();
+
+      // Forcer la fermeture du dropdown pour éviter d'afficher "Aucun produit"
+      if (autocomplete) {
+        autocomplete.hide();
+
+        // Forcer à nouveau après un court délai
+        setTimeout(() => {
+          autocomplete.hide();
+        }, 10);
+
+        setTimeout(() => {
+          autocomplete.hide();
+        }, 50);
+
+        setTimeout(() => {
+          autocomplete.hide();
+        }, 100);
+      }
     }, 50);
+  }
+
+  reset(): void {
+    // Désactiver le mode scan
+    this.isScanning = false;
+
+    // Mettre un tableau vide pour éviter le message "Aucun produit"
+    // Note: On ne met PAS un produit factice car ça pourrait créer des problèmes
+    this.produits.set([]);
+
+    // Réinitialiser tous les états internes
+    this._produitSelected.set(null);
+    this.selectProduit.set(null);
+
+    // Forcer la fermeture du panel de suggestions de manière agressive
+    const autocomplete = this.produitbox();
+    if (autocomplete) {
+      autocomplete.hide();
+
+      // Continuer à forcer la fermeture pendant 200ms
+      const hideInterval = setInterval(() => {
+        autocomplete.hide();
+      }, 10);
+
+      setTimeout(() => {
+        clearInterval(hideInterval);
+      }, 200);
+    }
+
+    // Vider l'input du composant AutoComplete
+    const inputEl = autocomplete?.inputEL?.nativeElement;
+    if (inputEl) {
+      inputEl.value = '';
+    }
+
+    // Forcer la mise à jour du ngModel
+    this.onChange(null);
   }
 
   private onChange: (_: any) => void = () => {};
@@ -137,52 +212,61 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private onTouched: () => void = () => {};
 
   private setupBarcodeScanner(): void {
-    // OFFLINE CAPABILITY: The barcode scanner detection works entirely offline
-    // It uses keyboard event timing to detect rapid input from barcode scanners
-    // Only the product search API call requires a network connection
-    // GLOBAL SCAN: Works regardless of which field has focus
-    this.keydownListener = (event: KeyboardEvent) => {
-      const scannedCode = this.scanDetectorService.keyPressed(event.key);
+    // Variable pour stocker l'intervalle de vidage
+    let clearInputInterval: any = null;
 
-      if (scannedCode) {
-        // Prevent default behavior to avoid typing into focused fields
-        event.preventDefault();
-        event.stopPropagation();
+    // Configurer le callback appelé dès le DÉBUT du scan (touches rapides détectées)
+    this.scanDetectorService.setScanStartCallback(() => {
+      this.isScanning = true;
 
-        // Get reference to the product input
-        const inputEl = this.produitbox().inputEL?.nativeElement;
+      const inputEl = this.produitbox().inputEL?.nativeElement;
 
-        // Clear any text that might have been typed into the product input
-        if (inputEl) {
+      // Vider immédiatement l'input
+      if (inputEl) {
+        inputEl.value = '';
+      }
+
+      // Démarrer une boucle qui vide l'input en continu pendant le scan
+      clearInputInterval = setInterval(() => {
+        if (inputEl && inputEl.value !== '') {
           inputEl.value = '';
         }
+      }, 5);
+    });
 
-        // Clear any other focused input that might have received scanner characters
-        const activeElement = document.activeElement as HTMLInputElement;
-        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-          // Store the current value to potentially restore it
-          const currentValue = activeElement.value;
-
-          // Check if the current value ends with partial barcode data
-          // If it does, remove it (barcode chars would be the last chars typed rapidly)
-          if (currentValue.length > 0) {
-            activeElement.value = '';
-          }
-        }
-
-        // Emit the scanned barcode
-        this.onBarcodeScanned.emit(scannedCode);
-
-        // Search for product by barcode (requires network connection)
-        this.searchByBarcode(scannedCode);
-
-        // Focus the product search field after scan for better UX
-        if (inputEl) {
-          setTimeout(() => {
-            inputEl.focus();
-          }, 100);
-        }
+    // Configurer le callback pour recevoir le code complet une fois le scan terminé
+    this.scanDetectorService.setScanCallback((scannedCode: string) => {
+      // Arrêter la boucle de vidage
+      if (clearInputInterval) {
+        clearInterval(clearInputInterval);
+        clearInputInterval = null;
       }
+
+      const inputEl = this.produitbox().inputEL?.nativeElement;
+
+      // Vider l'input une dernière fois
+      if (inputEl) {
+        inputEl.value = '';
+      }
+
+      // Clear any other focused input that might have received scanner characters
+      const activeElement = document.activeElement as HTMLInputElement;
+      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        activeElement.value = '';
+      }
+
+      // Emit the scanned barcode
+      this.onBarcodeScanned.emit(scannedCode);
+
+      this.searchByBarcode(scannedCode);
+
+      setTimeout(() => {
+        this.isScanning = false;
+      }, 600);
+    });
+
+    this.keydownListener = (event: KeyboardEvent) => {
+      this.scanDetectorService.keyPressed(event.key);
     };
 
     document.addEventListener('keydown', this.keydownListener, true);
@@ -193,9 +277,14 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       document.removeEventListener('keydown', this.keydownListener, true);
       this.keydownListener = undefined;
     }
+    // Nettoyer les callbacks pour éviter les fuites mémoire
+    this.scanDetectorService.setScanCallback(null);
+    this.scanDetectorService.setScanStartCallback(null);
   }
 
   private searchByBarcode(barcode: string): void {
+    // isScanning est déjà activé dans le callback du scanner (setupBarcodeScanner)
+
     this.produitService
       .search(
         {
@@ -210,16 +299,25 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
         const result = res.body || [];
         if (result.length === 1) {
           const selected = result[0];
-          this.produitSelected = selected;
+
+          // Vider les suggestions pour éviter que PrimeNG réaffiche
+          this.produits.set([]);
+
+          // NE PAS mettre à jour produitSelected pour éviter l'affichage dans l'input
+          // On émet directement au parent sans passer par le modèle
           this.selectProduit.set(selected);
           this.selectedProduit.emit(selected);
-          this.produits.set([selected]);
+
+          // La boucle de vidage continue de tourner (démarrée dans setScanStartCallback)
+          // Elle sera arrêtée par le timeout dans setScanCallback
         } else if (result.length > 1) {
           this.produits.set(result);
           this.selectProduit.set(null);
+          this.isScanning = false;
         } else {
           this.selectProduit.set(null);
           this.produits.set([]);
+          this.isScanning = false;
         }
       });
   }

@@ -27,6 +27,7 @@ export class ForceStockService {
   ): void {
     confimDialog.onConfirm(
       () => {
+        salesLine.forceStock = true;
         processQtyRequestedFn(salesLine);
       },
       this.translateLabel('forcerStockHeader'),

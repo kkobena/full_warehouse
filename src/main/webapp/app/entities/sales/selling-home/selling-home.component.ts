@@ -169,6 +169,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected sidebarCollapsed = signal(false);
   protected isCashRegisterOpen = signal(false);
   protected countPendingSales = signal(0);
+  protected isScannedProduct = signal(false);
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
@@ -273,19 +274,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLoadPrevente(sales: ISales, toEdit = false): void {
     if (!toEdit && sales.statut !== SalesStatut.CLOSED) {
-      // modification vente cloturee
-      // 1 annuler la vente originale
-      // gerer ordonnance de la vente vo
-      // Afficher
-      // Avoir
-      // suggestion auto
-      // moidfier info client vo
-      // modifier date vo
-      // suggestion d'une vente
-      // annulerVenteAnterieur
-      // vente vo à exclure
-      // annulerVenteAnterieur
-      // notification
       this.router.navigate(['/sales', false, 'new']);
     } else {
       this.currentSaleService.setCurrentSale(sales);
@@ -653,7 +641,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   onSave(saveResponse: SaveResponse): void {
     if (saveResponse.success) {
       const selectedProduit = this.produitSelected;
-      this.updateDisplayForProduct(selectedProduit.libelle, this.quantyBox().value, selectedProduit.regularUnitPrice);
+      if (selectedProduit) {
+        this.updateDisplayForProduct(selectedProduit.libelle, this.quantyBox().value, selectedProduit.regularUnitPrice);
+      }
       this.updateProduitQtyBox();
     } else {
       if (saveResponse.error.error?.errorKey === 'stock' || saveResponse.error.error?.errorKey === 'stockChInsufisant') {
@@ -755,12 +745,29 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected onSelectProduct(selectedProduit?: ProduitSearch): void {
     this.produitSelected = selectedProduit || null;
-    this.quantyBox().reset(1);
-    this.quantyBox().focusProduitControl();
+
+    if (!this.produitSelected) {
+      return;
+    }
+
+    // Mettre à jour le statut du stock
     if (this.produitSelected.totalQuantity > 0) {
       this.stockSeverity = 'success';
     } else {
       this.stockSeverity = 'danger';
+    }
+
+    // Si le produit est scanné, l'ajouter automatiquement avec quantité 1
+    if (this.isScannedProduct()) {
+      this.isScannedProduct.set(false); // Réinitialiser le flag
+
+      // Ajouter le produit avec quantité 1
+      // Après succès, updateProduitQtyBox() sera appelé automatiquement et nettoiera tout
+      this.onAddNewQty(1);
+    } else {
+      // Sélection manuelle : mettre le focus sur la quantité
+      this.quantyBox().reset(1);
+      this.quantyBox().focusProduitControl();
     }
   }
 
@@ -775,10 +782,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onBarcodeScanned(barcode: string): void {
-    // Optional: Log or handle barcode scan event
-    console.log('Barcode scanned:', barcode);
-    // The product will be automatically selected by the autocomplete component
-    // No additional action needed here unless you want to add custom logic
+    // Définir le signal pour indiquer qu'un produit est scanné
+    this.isScannedProduct.set(true);
+    // Le produit sera automatiquement recherché et sélectionné par le composant autocomplete
+    // L'ajout automatique sera géré dans onSelectProduct
   }
 
   protected isAssurance(): boolean {
@@ -900,14 +907,21 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateProduitQtyBox(): void {
+    // Vider d'abord le produit sélectionné AVANT de mettre le focus
+    this.produitSelected = null;
+
+    // Réinitialiser le composant autocomplete pour vider complètement
+    this.produitbox().reset();
+
+    // Ensuite reset la quantité
     if (this.quantyBox()) {
       this.quantyBox().reset(1);
     }
+
+    // Enfin mettre le focus
     if (this.check) {
       this.produitbox().getFocus();
     }
-
-    this.produitSelected = null;
   }
 
   private processQtyRequested(salesLine: ISalesLine): void {
@@ -1071,16 +1085,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private checkEmptyBon(): boolean {
-    if (this.isPresale) {
-      return false;
-    }
-    if (this.currentSaleService.currentSale() && this.currentSaleService.isVenteSansBon()) {
-      return false;
-    }
-    return this.currentSaleService.currentSale().tiersPayants.some(isBonEmpty);
-  }
-
-  private checkEmptyBon1(): boolean {
     if (this.isPresale) {
       return false;
     }

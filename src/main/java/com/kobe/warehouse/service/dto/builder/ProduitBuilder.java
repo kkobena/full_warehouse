@@ -248,6 +248,7 @@ public final class ProduitBuilder {
         if (nonNull(fournisseurProduit)) {
             produitDTO.setFournisseurProduit(fournisseurProduit)
                 .setCodeCip(fournisseurProduit.getCodeCip())
+                .setCodeEan(fournisseurProduit.getCodeEan())
                 .setFournisseurId(fournisseurProduit.getFournisseurId())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
@@ -308,7 +309,7 @@ public final class ProduitBuilder {
         produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
         produitDTO.setDateperemption(produit.getCheckExpiryDate());
         produitDTO.setChiffre(produit.getChiffre());
-        produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEanLaboratoire());
+        produitDTO.setDeconditionnable(produit.getDeconditionnable());
 
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
@@ -510,7 +511,7 @@ public final class ProduitBuilder {
             produit.setCodeRemise(CodeRemise.fromValue(produitDTO.getRemiseCode()));
         }
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
+        produit.setCodeEanLaboratoire(produitDTO.getCodeEanLaboratoire());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());

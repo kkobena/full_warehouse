@@ -141,30 +141,17 @@ export class SuggestionReassortComponent {
       width: 150,
       minWidth: 130,
       editable: true,
-      cellEditor: 'agNumberCellEditor',
+      type: ['rightAligned', 'numericColumn'],
       cellEditorParams: {
         min: 1,
         max: (params: any) => params.data.stockAvailable || 999999,
         precision: 0,
       },
-      type: 'numericColumn',
       valueFormatter: (params: ValueFormatterParams) => this.formatNumber(params.value),
       cellClass: 'pharma-qty-highlight text-right editable-cell',
       cellStyle: { cursor: 'pointer' },
     },
-    {
-      headerName: '',
-      field: 'checkbox',
-      width: 50,
-      maxWidth: 50,
-      pinned: 'right',
-      suppressSizeToFit: false,
-      cellClass: 'text-center',
-      headerClass: 'text-center',
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      lockPosition: 'right',
-    },
+
     {
       headerName: 'Actions',
       width: 90,
@@ -187,6 +174,21 @@ export class SuggestionReassortComponent {
         }
       },
     },
+    /* {
+      headerName: '',
+      width: 50,
+      maxWidth: 50,
+      pinned: 'right',
+      suppressSizeToFit: false,
+       cellClass: 'text-center',
+        headerClass: 'text-center',
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      lockPosition: 'right',
+      sortable: false,
+      filter: false,
+      resizable: false,
+    },*/
   ];
 
   protected defaultColDef: ColDef = {
@@ -197,16 +199,22 @@ export class SuggestionReassortComponent {
 
   protected gridOptions: GridOptions = {
     animateRows: true,
-    rowSelection: 'multiple',
-    suppressRowClickSelection: true,
+    rowSelection: {
+      mode: 'multiRow',
+      enableClickSelection: false,
+      checkboxes: true,
+      headerCheckbox: true,
+    },
+
     enableCellTextSelection: true,
     enterNavigatesVertically: true,
     enterNavigatesVerticallyAfterEdit: true,
     suppressMovableColumns: true,
     suppressMenuHide: true,
     enableBrowserTooltips: true,
-    singleClickEdit: false, // Double-click to edit
+    singleClickEdit: true, // Double-click to edit
     stopEditingWhenCellsLoseFocus: true,
+
     // Excel-like navigation
     navigateToNextCell: params => {
       const previousCell = params.previousCellPosition;

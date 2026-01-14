@@ -116,7 +116,6 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
             boolean destIsReserveStorage = stockProduitSrc.getStorage().getStorageType() == StorageType.PRINCIPAL;
 
-
             boolean isNewStockDest = isNull(queryDto.stockDestinationId());
             StockProduit stockProduitDest = destIsReserveStorage ? produit.getStockProduits().stream().filter(stockProduit -> stockProduit.getStorage().getId().equals(storageReserve.getId())).findFirst().orElse(null) : produit.getStockProduits().stream().filter(stockProduit -> stockProduit.getStorage().getId().equals(storagePrincipal.getId())).findFirst().orElse(null);
 

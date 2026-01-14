@@ -110,10 +110,7 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/update-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO);
-        return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/assurance" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO));
     }
 
     @PutMapping("/sales/update-item/price/assurance")

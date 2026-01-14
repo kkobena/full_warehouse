@@ -743,6 +743,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.produitbox().getFocus();
   }
 
+  /**
+   * Gère la sélection manuelle d'un produit (clic dans le dropdown de l'autocomplete)
+   */
   protected onSelectProduct(selectedProduit?: ProduitSearch): void {
     this.produitSelected = selectedProduit || null;
 
@@ -757,18 +760,30 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.stockSeverity = 'danger';
     }
 
-    // Si le produit est scanné, l'ajouter automatiquement avec quantité 1
-    if (this.isScannedProduct()) {
-      this.isScannedProduct.set(false); // Réinitialiser le flag
+    // Sélection manuelle : mettre le focus sur la quantité
+    this.quantyBox().reset(1);
+    this.quantyBox().focusProduitControl();
+  }
 
-      // Ajouter le produit avec quantité 1
-      // Après succès, updateProduitQtyBox() sera appelé automatiquement et nettoiera tout
-      this.onAddNewQty(1);
+  /**
+   * Gère un produit trouvé via scan de code-barres (auto-ajout avec quantité 1)
+   */
+  protected onScannedProduct(scannedProduit: ProduitSearch): void {
+    // Marquer comme produit scanné pour masquer les métadonnées
+    this.isScannedProduct.set(true);
+
+    // Mettre à jour le produit sélectionné pour la validation du stock
+    this.produitSelected = scannedProduit;
+
+    // Mettre à jour le statut du stock
+    if (scannedProduit.totalQuantity > 0) {
+      this.stockSeverity = 'success';
     } else {
-      // Sélection manuelle : mettre le focus sur la quantité
-      this.quantyBox().reset(1);
-      this.quantyBox().focusProduitControl();
+      this.stockSeverity = 'danger';
     }
+
+    // Ajouter automatiquement avec quantité 1
+    this.onAddNewQty(1);
   }
 
   protected onSaveKeyDown(saveSale: boolean): void {
@@ -782,10 +797,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onBarcodeScanned(barcode: string): void {
-    // Définir le signal pour indiquer qu'un produit est scanné
-    this.isScannedProduct.set(true);
-    // Le produit sera automatiquement recherché et sélectionné par le composant autocomplete
-    // L'ajout automatique sera géré dans onSelectProduct
+    // Événement informatif : un code-barres a été scanné
+    // Le produit sera traité via onScannedProduct si trouvé
   }
 
   protected isAssurance(): boolean {
@@ -910,6 +923,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Vider d'abord le produit sélectionné AVANT de mettre le focus
     this.produitSelected = null;
 
+    // Réinitialiser le flag isScannedProduct APRÈS avoir vidé produitSelected
+    // pour éviter que la condition (produitSelected && !isScannedProduct()) soit vraie
+    this.isScannedProduct.set(false);
+
     // Réinitialiser le composant autocomplete pour vider complètement
     this.produitbox().reset();
 
@@ -925,10 +942,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processQtyRequested(salesLine: ISalesLine): void {
-    if (this.isComptant()) {
-      this.processQtyRequestedForVNO(salesLine);
-    } else if (this.isVoSale()) {
-      this.processQtyRequestedVo(salesLine);
+    if (salesLine && salesLine.id) {
+      if (this.isComptant()) {
+        this.processQtyRequestedForVNO(salesLine);
+      } else if (this.isVoSale()) {
+        this.processQtyRequestedVo(salesLine);
+      }
     }
   }
 
@@ -1048,6 +1067,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onStockOutError(stockError: StockError): void {
+    console.error('Stock out error', stockError);
     const salesLine = stockError.saleLine;
     this.onStockError(salesLine, stockError.err);
   }

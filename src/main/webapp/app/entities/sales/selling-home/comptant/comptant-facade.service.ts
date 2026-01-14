@@ -96,14 +96,11 @@ export class ComptantFacadeService implements OnDestroy {
 
   addItemToSale(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(
-      this.salesService
-        .addItemComptant({
-          ...salesLine,
-          saleCompositeId: sale.saleId,
-        })
-        .pipe(switchMap(res => this.salesService.find(sale.saleId))),
-    );
+    const item = {
+      ...salesLine,
+      saleCompositeId: sale.saleId,
+    };
+    this.handleSaleUpdate(this.salesService.addItemComptant(item).pipe(switchMap(res => this.salesService.find(sale.saleId))), item);
   }
 
   removeItemFromSale(id: SaleLineId): void {

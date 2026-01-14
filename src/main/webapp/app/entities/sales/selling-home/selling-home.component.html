@@ -214,6 +214,7 @@
               (onBarcodeScanned)="onBarcodeScanned($event)"
               (onKeyEnter)="onSaveKeyDown($event)"
               (selectedProduit)="onSelectProduct($event)"
+              (scannedProduit)="onScannedProduct($event)"
               [(ngModel)]="produitSelected"
               [autofocus]="true"
               [enableScanner]="true"

@@ -113,7 +113,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final TiersPayantCalculationService tiersPayantCalculationService;
     private final SaleIdGeneratorService idGeneratorService;
     private final ConsommationService consommationService;
-    private final ObjectMapper objectMapper ;
+    private final ObjectMapper objectMapper;
 
     public ThirdPartySaleServiceImpl(
         ThirdPartySaleLineService ThirdPartySaleLineService,
@@ -354,12 +354,20 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.displayNet(sales.getPartAssure());
     }
 
+    private SalesLine getSalesLine(SaleLineId saleLineId, SaleId salesId, Integer produitId) {
+        if (nonNull(saleLineId)) {
+            return salesLineService.getOneById(saleLineId);
+        }
+        return salesLineService.findBySalesIdAndProduitId(salesId, produitId).orElseThrow(() -> new GenericError("Ligne de vente introuvable"));
+
+    }
+
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        SalesLine oldsalesline = (SalesLine) salesLine.clone();
+        SalesLine salesLine = getSalesLine(saleLineDTO.getSaleLineId(), saleLineDTO.getSaleCompositeId(), saleLineDTO.getProduitId());
+
         salesLineService.updateItemQuantityRequested(
             saleLineDTO,
             salesLine,
@@ -368,7 +376,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales);
-        //   thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);

@@ -4,6 +4,7 @@ import {
   effect,
   forwardRef,
   inject,
+  Injector,
   input,
   isDevMode,
   OnDestroy,
@@ -21,7 +22,7 @@ import { DecimalPipe } from '@angular/common';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../constants/pagination.constants';
 import { ProduitSearch } from '../model/produit.model';
 import { ProduitService } from '../../entities/produit/produit.service';
-import { catchError, debounceTime, filter, of, Subject } from 'rxjs';
+import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
 import { ScanDetectorService, ScanEvent } from '../scan-detector.service';
 
 @Component({
@@ -62,6 +63,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private readonly produitService = inject(ProduitService);
   private readonly scanDetectorService = inject(ScanDetectorService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly searchTrigger$ = new Subject<string>();
 
   private isScanning = false;
@@ -69,6 +71,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private manualSearchTimeout: ReturnType<typeof setTimeout> | null = null;
   private keydownListener?: (event: KeyboardEvent) => void;
   private animationFrameId: number | null = null;
+  private scanSubscription?: Subscription;
   private readonly _produitSelected = signal<ProduitSearch | null>(null);
 
   constructor() {
@@ -105,14 +108,33 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   ngOnInit(): void {
+    // Setup initial state
     if (this.enableScanner()) {
       this.setupBarcodeScanner();
     }
+
+    // Watch for changes in enableScanner (pour basculer entre scanner local et global)
+    effect(
+      () => {
+        const enabled = this.enableScanner();
+        if (enabled && !this.keydownListener) {
+          // Scanner activé et pas encore configuré
+          this.setupBarcodeScanner();
+        } else if (!enabled && this.keydownListener) {
+          // Scanner désactivé mais encore configuré
+          this.removeBarcodeScanner();
+          this.isScanning = false;
+          this.stopInputClearLoop();
+        }
+      },
+      { injector: this.injector },
+    );
   }
 
   ngOnDestroy(): void {
     this.removeBarcodeScanner();
     this.stopInputClearLoop();
+    this.scanSubscription?.unsubscribe();
     if (this.manualSearchTimeout) {
       clearTimeout(this.manualSearchTimeout);
       this.manualSearchTimeout = null;
@@ -233,8 +255,11 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   private onTouched: () => void = () => {};
 
   private setupBarcodeScanner(): void {
+    // Nettoyer l'ancienne subscription pour éviter les fuites mémoire
+    this.scanSubscription?.unsubscribe();
+
     // Utiliser l'Observable RxJS au lieu des callbacks
-    this.scanDetectorService.onScanEvent$
+    this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete'),
@@ -326,10 +351,18 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   private removeBarcodeScanner(): void {
+    // Nettoyer la subscription
+    this.scanSubscription?.unsubscribe();
+    this.scanSubscription = undefined;
+
+    // Nettoyer le listener
     if (this.keydownListener) {
       document.removeEventListener('keydown', this.keydownListener, true);
       this.keydownListener = undefined;
     }
+
+    // Reset le service pour éviter les états incohérents
+    this.scanDetectorService.forceReset();
   }
 
   private searchByBarcode(barcode: string): void {

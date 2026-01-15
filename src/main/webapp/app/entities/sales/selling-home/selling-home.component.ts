@@ -87,6 +87,7 @@ import { DeconditionnementService } from '../validator/deconditionnement.service
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
 import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
+import { GlobalScannerService } from '../../../shared/global-scanner.service';
 import { SellingHomeShortcutsService } from './racourci/selling-home-shortcuts.service';
 import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
@@ -203,6 +204,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly forceStockService = inject(ForceStockService);
   private readonly shortcutsService = inject(SellingHomeShortcutsService);
   private readonly keyboardService = inject(KeyboardShortcutsService);
+  protected readonly globalScannerService = inject(GlobalScannerService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
   private readonly cashRegisterService = inject(CashRegisterService);
@@ -342,7 +344,86 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
+    // Raccourci F2 pour toggle scanner global
+    if (event.key === 'F2') {
+      event.preventDefault();
+      this.toggleGlobalScanner();
+      return;
+    }
+
+    // Si le scanner global est activé, traiter les touches
+    if (this.globalScannerService.enabled()) {
+      const scanResult = this.globalScannerService.processKey(event.key);
+
+      // Si un scan est en cours (frappes rapides), bloquer la propagation
+      if (scanResult.isScanInProgress) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      // Si un scan vient de se terminer avec un code valide
+      if (scanResult.completedCode) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.onGlobalScan(scanResult.completedCode);
+        return;
+      }
+    }
+
+    // Sinon, laisser le comportement normal (raccourcis clavier, saisie, etc.)
     this.keyboardService.handleKeyboardEvent(event);
+  }
+
+  /**
+   * Toggle le scanner global (raccourci F2)
+   */
+  toggleGlobalScanner(): void {
+    this.globalScannerService.toggle();
+    if (this.globalScannerService.enabled()) {
+      this.alert().showInfo('Scanner global activé (F2 pour désactiver)');
+    } else {
+      this.alert().showInfo('Scanner global désactivé');
+    }
+  }
+
+  /**
+   * Gère un scan provenant du scanner global
+   */
+  private onGlobalScan(barcode: string): void {
+    // Rechercher le produit par code-barres
+    this.produitService
+      .search(
+        {
+          page: 0,
+          size: 1,
+          search: barcode,
+          storageId: null,
+        },
+        false,
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          const result = res.body || [];
+          if (result.length === 1) {
+            // Produit trouvé : utiliser la même logique que onScannedProduct
+            this.onScannedProduct(result[0]);
+          } else if (result.length > 1) {
+            // Plusieurs résultats : mettre dans l'autocomplete pour sélection
+            this.produitbox().produits.set(result);
+            this.produitbox().getFocus();
+            this.alert().showInfo(`${result.length} produits trouvés pour "${barcode}"`);
+          } else {
+            // Aucun produit trouvé
+            this.alert().showWarning(`Aucun produit trouvé pour le code "${barcode}"`);
+            this.produitbox().getFocus();
+          }
+        },
+        error: () => {
+          this.alert().showError('Erreur lors de la recherche du produit');
+        },
+      });
   }
 
   manageAmountDiv(): void {

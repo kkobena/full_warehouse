@@ -1,0 +1,7 @@
+# .gitattributes
+# normaliser les SQL et code source
+*.sql text eol=lf
+*.java text eol=lf
+*.kt text eol=lf
+*.ts text eol=lf
+*.js text eol=lf

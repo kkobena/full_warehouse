@@ -1,18 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Button } from 'primeng/button';
+import { KeyboardShortcut } from '../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
+import { SellingHomeShortcutsService } from '../../entities/sales/selling-home/racourci/selling-home-shortcuts.service';
 
-interface ShortcutCategory {
-  title: string;
-  icon: string;
-  shortcuts: Shortcut[];
-}
-
-interface Shortcut {
-  keys: string;
+interface ShortcutDisplay {
+  keys: string[];
   description: string;
   badge?: string;
+}
+
+interface CategoryDisplay {
+  title: string;
+  icon: string;
+  shortcuts: ShortcutDisplay[];
+  order: number; // For sorting categories
 }
 
 @Component({
@@ -21,35 +24,92 @@ interface Shortcut {
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
     <div class="modal-header">
-      <h4 class="modal-title"><i class="bi bi-keyboard"></i> Raccourcis Clavier - PharmaSmart</h4>
+      <h4 class="modal-title">
+        <i class="bi bi-keyboard"></i> Raccourcis Clavier - PharmaSmart
+        @if (isRunningInTauri) {
+          <span class="badge bg-success ms-2">Mode Desktop</span>
+        } @else {
+          <span class="badge bg-info ms-2">Mode Web</span>
+        }
+      </h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
     </div>
 
     <div class="modal-body">
-      <div class="alert alert-info mb-4">
-        <i class="bi bi-lightbulb"></i>
-        <strong>Astuce :</strong> Appuyez sur <kbd>F1</kbd> n'importe quand pour afficher cette aide.
+      <!-- Environment Info -->
+      <div [class]="isRunningInTauri ? 'alert alert-success mb-4' : 'alert alert-info mb-4'">
+        <i class="bi bi-info-circle"></i>
+        @if (isRunningInTauri) {
+          <strong>Mode Desktop Tauri :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
+          sont pas disponibles dans le navigateur.
+        } @else {
+          <strong>Mode Navigateur Web :</strong> Les raccourcis Ctrl (comme Ctrl+S, Ctrl+P) sont réservés par le navigateur. Utilisez
+          les touches F1-F11 et Alt+Lettre à la place.
+        }
       </div>
 
+      <!-- Quick Start Guide -->
+      <div class="alert alert-light border mb-4">
+        <h6 class="mb-2"><i class="bi bi-lightbulb-fill text-warning"></i> Démarrage Rapide</h6>
+        <div class="quick-start-flow">
+          <kbd>F2</kbd>
+          <span class="flow-arrow">→</span>
+          <span class="flow-text">Rechercher produit</span>
+          <span class="flow-arrow">→</span>
+          <kbd>F3</kbd>
+          <span class="flow-arrow">→</span>
+          <span class="flow-text">Quantité</span>
+          <span class="flow-arrow">→</span>
+          <kbd>F5</kbd>
+          <span class="flow-arrow">→</span>
+          <span class="flow-text">Ajouter</span>
+          <span class="flow-arrow">→</span>
+          <kbd>F9</kbd>
+          <span class="flow-arrow">→</span>
+          <span class="flow-text">Finaliser</span>
+        </div>
+      </div>
+
+      <!-- Shortcuts Grid -->
       <div class="shortcuts-grid">
-        @for (category of shortcutCategories; track category.title) {
-          <div class="shortcut-category mb-4">
+        @for (category of sortedCategories; track category.title) {
+          <div class="shortcut-category mb-4" [class.tauri-only]="category.title.includes('Tauri')">
             <h5 class="category-title">
               <i class="bi {{ category.icon }}"></i>
               {{ category.title }}
+              @if (category.title.includes('Tauri')) {
+                <span class="badge bg-success badge-sm ms-2">Desktop</span>
+              }
+              @if (category.title.includes('Web')) {
+                <span class="badge bg-info badge-sm ms-2">Web</span>
+              }
             </h5>
             <div class="shortcuts-list">
               @for (shortcut of category.shortcuts; track shortcut.keys) {
                 <div class="shortcut-item">
                   <div class="shortcut-keys">
-                    @for (key of parseKeys(shortcut.keys); track key; let isLast = $last) {
-                      <kbd>{{ key }}</kbd>
+                    @for (key of shortcut.keys; track key; let isLast = $last) {
+                      <kbd [class.modifier-key]="isModifierKey(key)">{{ key }}</kbd>
                       @if (!isLast) {
                         <span class="key-separator">+</span>
                       }
                     }
                     @if (shortcut.badge) {
-                      <span class="badge bg-success ms-2">{{ shortcut.badge }}</span>
+                      <span
+                        [class]="
+                          'badge ms-2 ' +
+                          (shortcut.badge === 'Essentiel' || shortcut.badge === 'Important'
+                            ? 'bg-danger'
+                            : shortcut.badge === 'Tauri'
+                              ? 'bg-success'
+                              : shortcut.badge === 'Web'
+                                ? 'bg-info'
+                                : shortcut.badge === 'Admin'
+                                  ? 'bg-warning'
+                                  : 'bg-secondary')
+                        "
+                        >{{ shortcut.badge }}</span
+                      >
                     }
                   </div>
                   <div class="shortcut-description">{{ shortcut.description }}</div>
@@ -60,14 +120,38 @@ interface Shortcut {
         }
       </div>
 
+      <!-- Tips Section -->
       <div class="tips-section mt-4 p-3 bg-light rounded">
-        <h6 class="mb-3"><i class="bi bi-star"></i> Conseils d'Utilisation</h6>
+        <h6 class="mb-3"><i class="bi bi-star-fill text-warning"></i> Conseils d'Utilisation</h6>
         <ul class="small mb-0">
-          <li><strong>Débutants :</strong> Commencez par F2 (produit) → F3 (quantité) → F9 (finaliser)</li>
-          <li><strong>Experts :</strong> Utilisez Alt + touches pour éviter les conflits avec le navigateur</li>
-          <li><strong>Navigation :</strong> Les raccourcis F1-F4 fonctionnent même dans les champs de saisie</li>
+          @if (isRunningInTauri) {
+            <li><strong>Mode Expert :</strong> Les raccourcis Ctrl permettent un flux de travail ultra-rapide</li>
+            <li><strong>Ctrl+K :</strong> Recherche omnidirectionnelle pour trouver n'importe quoi rapidement</li>
+            <li><strong>Ctrl+Enter :</strong> Finalisation express sans quitter le clavier</li>
+            <li><strong>Productivité :</strong> Mémorisez Ctrl+F (produit), Ctrl+E (client), Ctrl+S (attente)</li>
+          } @else {
+            <li><strong>Débutants :</strong> Commencez par F2 (produit) → F3 (quantité) → F9 (finaliser)</li>
+            <li><strong>Navigation :</strong> Les touches Alt+Lettre sont sûres et ne conflictent pas avec le navigateur</li>
+            <li><strong>Touches F :</strong> F1-F11 fonctionnent même dans les champs de saisie</li>
+          }
           <li><strong>Annulation :</strong> La touche Échap annule toujours l'action en cours</li>
+          <li><strong>Aide :</strong> Appuyez sur F1 n'importe quand pour réafficher cette aide</li>
         </ul>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend-section mt-3 p-3 border rounded">
+        <h6 class="mb-2"><i class="bi bi-info-square"></i> Légende</h6>
+        <div class="d-flex flex-wrap gap-3">
+          <span><span class="badge bg-danger">Essentiel</span> = Raccourci indispensable</span>
+          <span><span class="badge bg-danger">Important</span> = Très utilisé</span>
+          @if (isRunningInTauri) {
+            <span><span class="badge bg-success">Tauri</span> = Exclusif desktop</span>
+            <span><span class="badge bg-warning">Admin</span> = Droits requis</span>
+          } @else {
+            <span><span class="badge bg-info">Web</span> = Optimisé navigateur</span>
+          }
+        </div>
       </div>
     </div>
 
@@ -87,13 +171,36 @@ interface Shortcut {
   styles: [
     `
       .modal-body {
-        max-height: 70vh;
+        max-height: 75vh;
         overflow-y: auto;
+      }
+
+      .quick-start-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 6px;
+      }
+
+      .flow-arrow {
+        color: #3498db;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .flow-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
       }
 
       .shortcuts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         gap: 1.5rem;
       }
 
@@ -102,6 +209,16 @@ interface Shortcut {
         border-radius: 8px;
         padding: 1rem;
         background: #ffffff;
+        transition: all 0.3s ease;
+      }
+
+      .shortcut-category:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .shortcut-category.tauri-only {
+        border-left: 4px solid #28a745;
       }
 
       .category-title {
@@ -111,11 +228,18 @@ interface Shortcut {
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 2px solid #3498db;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
       .category-title i {
         color: #3498db;
-        margin-right: 0.5rem;
+      }
+
+      .category-title .badge-sm {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
       }
 
       .shortcuts-list {
@@ -128,9 +252,10 @@ interface Shortcut {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.5rem;
+        padding: 0.6rem;
         border-radius: 4px;
         transition: background-color 0.2s;
+        gap: 1rem;
       }
 
       .shortcut-item:hover {
@@ -141,12 +266,13 @@ interface Shortcut {
         display: flex;
         align-items: center;
         gap: 0.25rem;
-        min-width: 120px;
+        min-width: 140px;
+        flex-shrink: 0;
       }
 
       kbd {
         display: inline-block;
-        padding: 0.25rem 0.5rem;
+        padding: 0.3rem 0.6rem;
         font-size: 0.85rem;
         font-weight: 600;
         line-height: 1;
@@ -154,8 +280,20 @@ interface Shortcut {
         background-color: #f8f9fa;
         border: 1px solid #ced4da;
         border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         font-family: 'Courier New', monospace;
+        transition: all 0.2s;
+      }
+
+      kbd:hover {
+        background-color: #e9ecef;
+        transform: scale(1.05);
+      }
+
+      kbd.modifier-key {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
       }
 
       .key-separator {
@@ -173,15 +311,12 @@ interface Shortcut {
 
       .tips-section {
         border: 1px solid #d4edda;
+        background: #d4edda !important;
       }
 
       .tips-section h6 {
         color: #155724;
         font-weight: 600;
-      }
-
-      .tips-section h6 i {
-        color: #ffc107;
       }
 
       .tips-section ul {
@@ -190,15 +325,24 @@ interface Shortcut {
       }
 
       .tips-section li {
-        padding: 0.25rem 0;
-        color: #495057;
+        padding: 0.4rem 0;
+        color: #155724;
       }
 
       .tips-section li::before {
-        content: '▸ ';
+        content: '✓ ';
         color: #28a745;
         font-weight: bold;
         margin-right: 0.5rem;
+      }
+
+      .legend-section {
+        background: #f8f9fa;
+      }
+
+      .legend-section h6 {
+        color: #495057;
+        font-weight: 600;
       }
 
       .alert {
@@ -209,6 +353,26 @@ interface Shortcut {
 
       .bi {
         font-size: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .shortcuts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .shortcut-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .shortcut-description {
+          text-align: left;
+          margin-top: 0.5rem;
+        }
+
+        .quick-start-flow {
+          font-size: 0.85rem;
+        }
       }
 
       @media print {
@@ -228,93 +392,142 @@ interface Shortcut {
         .shortcut-item {
           page-break-inside: avoid;
         }
+
+        .shortcut-category:hover {
+          box-shadow: none;
+          transform: none;
+        }
       }
     `,
   ],
 })
-export class ShortcutsHelpDialogComponent {
-  shortcutCategories: ShortcutCategory[] = [
-    {
-      title: 'Navigation Principale',
-      icon: 'bi-compass',
-      shortcuts: [
-        { keys: 'F1', description: "Afficher l'aide des raccourcis", badge: 'Essentiel' },
-        { keys: 'F2', description: 'Rechercher un produit' },
-        { keys: 'F3', description: 'Modifier la quantité' },
-        { keys: 'F4', description: 'Sélectionner un client' },
-        { keys: 'F5', description: 'Ajouter le produit au panier' },
-        { keys: 'Échap', description: 'Annuler/Quitter' },
-      ],
-    },
-    {
-      title: 'Types de Vente',
-      icon: 'bi-cart-check',
-      shortcuts: [
-        { keys: 'Alt+1', description: 'Vente Comptant' },
-        { keys: 'Alt+2', description: 'Vente Assurance' },
-        { keys: 'Alt+3', description: 'Vente Carnet' },
-      ],
-    },
-    {
-      title: 'Finalisation',
-      icon: 'bi-check-circle',
-      shortcuts: [
-        { keys: 'F9', description: 'Finaliser la vente (paiement)', badge: 'Important' },
-        { keys: 'F10', description: 'Mettre en attente' },
-        { keys: 'F11', description: 'Voir ventes en attente' },
-      ],
-    },
-    {
-      title: 'Gestion Quantité',
-      icon: 'bi-plus-minus',
-      shortcuts: [
-        { keys: 'Alt+↑', description: 'Augmenter de +1' },
-        { keys: 'Alt+↓', description: 'Diminuer de -1' },
-        { keys: 'Alt+Shift+↑', description: 'Augmenter de +10' },
-        { keys: 'Alt+Shift+↓', description: 'Diminuer de -10' },
-      ],
-    },
-    {
-      title: 'Actions Produit',
-      icon: 'bi-box-seam',
-      shortcuts: [
-        { keys: 'Suppr', description: 'Retirer ligne sélectionnée' },
-        { keys: 'F6', description: 'Effacer sélection produit' },
-        { keys: 'F7', description: 'Voir détails stock' },
-      ],
-    },
-    {
-      title: 'Remises',
-      icon: 'bi-percent',
-      shortcuts: [
-        { keys: 'Alt+R', description: 'Appliquer remise' },
-        { keys: 'Alt+Shift+R', description: 'Retirer remise' },
-      ],
-    },
-    {
-      title: 'Navigation Rapide',
-      icon: 'bi-cursor',
-      shortcuts: [
-        { keys: 'Alt+V', description: 'Champ vendeur' },
-        { keys: 'Alt+C', description: 'Recherche client' },
-        { keys: 'Alt+P', description: 'Recherche produit' },
-        { keys: 'Alt+Q', description: 'Champ quantité' },
-      ],
-    },
-    {
-      title: 'Impression',
-      icon: 'bi-printer',
-      shortcuts: [
-        { keys: 'Alt+I', description: 'Imprimer facture' },
-        { keys: 'Alt+T', description: 'Imprimer ticket' },
-      ],
-    },
-  ];
+export class ShortcutsHelpDialogComponent implements OnInit {
+  public activeModal = inject(NgbActiveModal);
+  public shortcutsService?: SellingHomeShortcutsService;
 
-  constructor(public activeModal: NgbActiveModal) {}
+  sortedCategories: CategoryDisplay[] = [];
+  isRunningInTauri = false;
 
-  parseKeys(keys: string): string[] {
-    return keys.split('+');
+  ngOnInit(): void {
+    if (this.shortcutsService) {
+      this.isRunningInTauri = this.shortcutsService.isRunningInTauri();
+      this.loadDynamicShortcuts();
+    }
+  }
+
+  private loadDynamicShortcuts(): void {
+    const shortcutsByCategory = this.shortcutsService?.getShortcutsByCategory();
+    const categories: CategoryDisplay[] = [];
+
+    if (!shortcutsByCategory) {
+      return;
+    }
+
+    shortcutsByCategory.forEach((shortcuts, categoryName) => {
+      const categoryDisplay: CategoryDisplay = {
+        title: categoryName,
+        icon: this.getCategoryIcon(categoryName),
+        shortcuts: shortcuts.map(s => this.convertToDisplay(s)),
+        order: this.getCategoryOrder(categoryName),
+      };
+      categories.push(categoryDisplay);
+    });
+
+    // Sort categories by order
+    this.sortedCategories = categories.sort((a, b) => a.order - b.order);
+  }
+
+  private convertToDisplay(shortcut: KeyboardShortcut): ShortcutDisplay {
+    const keys: string[] = [];
+
+    // Build key combination
+    if (shortcut.ctrl) keys.push('Ctrl');
+    if (shortcut.alt) keys.push('Alt');
+    if (shortcut.shift) keys.push('Shift');
+    if (shortcut.meta) keys.push('Cmd');
+
+    // Format the main key
+    const mainKey = this.formatKey(shortcut.key);
+    keys.push(mainKey);
+
+    return {
+      keys,
+      description: shortcut.description,
+      badge: shortcut.badge,
+    };
+  }
+
+  private formatKey(key: string): string {
+    // Special key formatting
+    const keyMap: Record<string, string> = {
+      arrowup: '↑',
+      arrowdown: '↓',
+      arrowleft: '←',
+      arrowright: '→',
+      escape: 'Échap',
+      delete: 'Suppr',
+      backspace: '⌫',
+      enter: 'Entrée',
+      ' ': 'Espace',
+    };
+
+    const lowerKey = key.toLowerCase();
+    if (keyMap[lowerKey]) {
+      return keyMap[lowerKey];
+    }
+
+    // F-keys stay uppercase
+    if (key.match(/^F\d+$/i)) {
+      return key.toUpperCase();
+    }
+
+    // Single letters stay as-is
+    if (key.length === 1) {
+      return key.toUpperCase();
+    }
+
+    // Everything else capitalize first letter
+    return key.charAt(0).toUpperCase() + key.slice(1);
+  }
+
+  private getCategoryIcon(categoryName: string): string {
+    const iconMap: Record<string, string> = {
+      Aide: 'bi-question-circle',
+      Navigation: 'bi-compass',
+      'Navigation Rapide': 'bi-cursor',
+      'Actions Produit': 'bi-box-seam',
+      'Types de Vente': 'bi-cart-check',
+      Finalisation: 'bi-check-circle',
+      'Gestion Quantité': 'bi-plus-minus',
+      Remises: 'bi-percent',
+      Impression: 'bi-printer',
+      '⚡ Tauri Desktop': 'bi-lightning-charge',
+      '🌐 Web Safe': 'bi-globe',
+    };
+
+    return iconMap[categoryName] || 'bi-keyboard';
+  }
+
+  private getCategoryOrder(categoryName: string): number {
+    const orderMap: Record<string, number> = {
+      Aide: 1,
+      Navigation: 2,
+      'Actions Produit': 3,
+      'Types de Vente': 4,
+      Finalisation: 5,
+      'Gestion Quantité': 6,
+      Remises: 7,
+      'Navigation Rapide': 8,
+      Impression: 9,
+      '⚡ Tauri Desktop': 10,
+      '🌐 Web Safe': 11,
+    };
+
+    return orderMap[categoryName] || 99;
+  }
+
+  isModifierKey(key: string): boolean {
+    return ['Ctrl', 'Alt', 'Shift', 'Cmd'].includes(key);
   }
 
   printShortcuts(): void {

@@ -416,7 +416,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.alert().showInfo(`${result.length} produits trouvés pour "${barcode}"`);
           } else {
             // Aucun produit trouvé
-            this.alert().showWarning(`Aucun produit trouvé pour le code "${barcode}"`);
+            this.alert().showWarn(`Aucun produit trouvé pour le code "${barcode}"`);
             this.produitbox().getFocus();
           }
         },

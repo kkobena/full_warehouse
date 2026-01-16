@@ -9,9 +9,9 @@ import { BalanceCaisseWrapper } from './balance-caisse.model';
   providedIn: 'root',
 })
 export class BalanceMvtCaisseService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/balances';
+  private readonly resourceUrl = SERVER_API_URL + 'api/balances';
 
   query(req?: any): Observable<HttpResponse<BalanceCaisseWrapper>> {
     const options = createRequestOptions(req);

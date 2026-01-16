@@ -18,7 +18,6 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -291,8 +289,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     }
 
     @Override
-    public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
-        return this.balanceReportService.exportToPdf(
+    public byte[] exportToPdf(MvtParam mvtParam) {
+        return this.balanceReportService.exportToPdfBytes(
                 getBalanceCaisse(mvtParam),
                 new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
             );

@@ -43,7 +43,7 @@ public class MobilePharmacistDashboardService {
     private final TableauPharmacienService tableauPharmacienService;
 
     public MobilePharmacistDashboardService(
-        @Qualifier("tableauPharmacienServiceImpl") TableauPharmacienService tableauPharmacienService
+        TableauPharmacienService tableauPharmacienService
     ) {
         this.tableauPharmacienService = tableauPharmacienService;
     }

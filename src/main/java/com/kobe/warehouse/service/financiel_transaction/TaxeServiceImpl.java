@@ -10,7 +10,6 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -54,8 +52,8 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
     }
 
     @Override
-    public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
-        return this.tvaReportService.exportToPdf(
+    public byte[] exportToPdf(MvtParam mvtParam) {
+        return this.tvaReportService.exportToPdfBytes(
                 this.fetchTaxe(mvtParam, true),
                 new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
                 StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())

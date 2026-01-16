@@ -33,7 +33,7 @@ import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class TableauPharmacienServiceRefactoredTest {
+class TableauPharmacienServiceImplTest {
 
     @Mock
     private SalesRepository salesRepository;
@@ -63,7 +63,7 @@ class TableauPharmacienServiceRefactoredTest {
     private TableauPharmacienCalculator calculator;
     private TableauPharmacienAggregator aggregator;
 
-    private TableauPharmacienServiceRefactored service;
+    private TableauPharmacienServiceImpl service;
 
     private MvtParam mvtParam;
 
@@ -74,7 +74,7 @@ class TableauPharmacienServiceRefactoredTest {
         aggregator = new TableauPharmacienAggregator(calculator);
 
         // Manually create service with all dependencies
-        service = new TableauPharmacienServiceRefactored(
+        service = new TableauPharmacienServiceImpl(
             salesRepository,
             commandeDataService,
             reponseRetourBonItemRepository,

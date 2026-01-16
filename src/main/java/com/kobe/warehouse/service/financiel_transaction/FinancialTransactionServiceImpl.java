@@ -50,7 +50,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -137,11 +136,11 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     @Override
-    public Resource exportToPdf(TransactionFilterDTO transactionFilter) throws IOException {
+    public byte[] exportToPdf(TransactionFilterDTO transactionFilter) {
         List<MvtCaisseDTO> mvtCaisses = fetchAll(transactionFilter, Pageable.unpaged()).getContent();
         MvtCaisseWrapper mvtCaisseWrapper = buildMvtCaisseWrapper(transactionFilter);
         Pair pair = buildPeriode(transactionFilter);
-        return this.mvtCaisseReportService.exportToPdf(
+        return this.mvtCaisseReportService.exportToPdfBytes(
                 new ArrayList<>(mvtCaisses),
                 mvtCaisseWrapper,
                 new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())

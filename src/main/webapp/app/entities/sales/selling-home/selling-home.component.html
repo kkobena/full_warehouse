@@ -69,24 +69,7 @@
         </div>
       }
 
-      <!-- Global Scanner Toggle Button -->
-      <p-button
-        (click)="toggleGlobalScanner()"
-        [outlined]="!globalScannerService.enabled()"
-        [severity]="globalScannerService.enabled() ? 'success' : 'secondary'"
-        class="global-scanner-btn"
-        icon="pi pi-barcode"
-        pTooltip="Scanner global (F2)"
-        size="small"
-        tooltipPosition="bottom"
-      >
-        <ng-template #content>
-          <i class="pi pi-barcode"></i>
-          @if (globalScannerService.enabled()) {
-            <span class="scanner-status-dot"></span>
-          }
-        </ng-template>
-      </p-button>
+
 
       <!-- Pending Sales Button -->
       <p-button
@@ -230,7 +213,6 @@
           <div class="product-search-input">
             <jhi-produit-search-autocomplete-scanner
               #produitbox
-              (onBarcodeScanned)="onBarcodeScanned($event)"
               (onKeyEnter)="onSaveKeyDown($event)"
               (selectedProduit)="onSelectProduct($event)"
               (scannedProduit)="onScannedProduct($event)"

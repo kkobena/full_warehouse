@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple test to verify calculator and aggregator work correctly
  */
-class TableauPharmacienServiceRefactoredSimpleTest {
+class TableauPharmacienServiceImplSimpleTest {
 
     private TableauPharmacienCalculator calculator;
     private TableauPharmacienAggregator aggregator;

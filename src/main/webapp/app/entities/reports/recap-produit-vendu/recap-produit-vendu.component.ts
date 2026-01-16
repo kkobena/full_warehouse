@@ -374,7 +374,7 @@ export default class RecapProduitVenduComponent implements OnInit {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
           if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, `${fileName}.xlsx`);
+            handleBlobForTauri(blob, `${fileName}.xlsx`, 'excel');
           } else {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -408,7 +408,7 @@ export default class RecapProduitVenduComponent implements OnInit {
         if (res.body) {
           const blob = new Blob([res.body], { type: 'text/csv' });
           if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, `${fileName}.csv`);
+            handleBlobForTauri(blob, `${fileName}.csv`, 'csv');
           } else {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');

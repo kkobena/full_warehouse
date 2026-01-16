@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { BaseScannerService, ScanProcessResult } from './scanner/base-scanner.service';
+import { BaseScannerService, ScanProcessResult } from './scanner';
 
 const STORAGE_KEY = 'pharma_global_scanner_enabled';
 

@@ -84,6 +84,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   private mvtParamServiceService = inject(MvtParamServiceService);
   private chartColorsUtilsService = inject(ChartColorsUtilsService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+
   ngOnInit(): void {
     this.exportMenus = [
       {
@@ -163,9 +164,12 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       .exportToPdf(this.buildParams())
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next(blod) {
-          const blobUrl = URL.createObjectURL(blod);
-          window.open(blobUrl);
+        next: blob => {
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'tableau-pharmacien', 'excel');
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
         },
         error: () => {
           this.alert().showError("Une erreur est survenue lors de l'export PDF");
@@ -183,7 +187,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         next: resp => {
           const blob = resp.body;
           if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, 'tableau-pharmacien');
+            handleBlobForTauri(blob, 'tableau-pharmacien', 'excel');
           } else {
             saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
           }

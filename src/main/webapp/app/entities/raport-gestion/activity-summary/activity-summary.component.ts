@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { ActivitySummaryService } from './activity-summary.service';
 import { ChiffreAffaire } from './model/chiffre-affaire.model';
 import { GroupeFournisseurAchat } from './model/groupe-fournisseur-achat.model';
@@ -20,10 +20,25 @@ import { TableModule } from 'primeng/table';
 import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { finalize } from 'rxjs/operators';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-activity-summary',
-  imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule, Card],
+  imports: [
+    CommonModule,
+    Toolbar,
+    DatePicker,
+    FloatLabel,
+    FormsModule,
+    Button,
+    IconField,
+    InputIcon,
+    InputText,
+    TableModule,
+    Card,
+    ToastAlertComponent,
+  ],
   templateUrl: './activity-summary.component.html',
   styleUrl: './activity-summary.component.scss',
 })
@@ -47,7 +62,7 @@ export class ActivitySummaryComponent {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly activitySummaryService = inject(ActivitySummaryService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -67,17 +82,21 @@ export class ActivitySummaryComponent {
 
   protected printAll(): void {
     this.loadingPdf = true;
-    this.activitySummaryService.onPrintPdf(this.buildRequest()).subscribe({
-      next: blob => {
-        this.loadingPdf = false;
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, 'rapport-activite');
-        } else {
-          window.open(URL.createObjectURL(blob));
-        }
-      },
-      error: () => (this.loadingPdf = false),
-    });
+    this.activitySummaryService
+      .onPrintPdf(this.buildRequest())
+      .pipe(finalize(() => (this.loadingPdf = false)))
+
+      .subscribe({
+        next: blob => {
+          this.loadingPdf = false;
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'rapport-activite');
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
+        },
+        error: () => this.alert().showError("Une erreur est survenue lors de l'export PDF"),
+      });
   }
 
   protected getRecetteTotal(): number {

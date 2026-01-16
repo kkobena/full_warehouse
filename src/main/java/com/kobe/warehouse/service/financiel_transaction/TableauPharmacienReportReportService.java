@@ -9,11 +9,9 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -36,11 +34,10 @@ public class TableauPharmacienReportReportService extends CommonReportService {
     ) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
-
         this.storageService = storageService;
     }
 
-    private String print(
+    private void prepareParameters(
         TableauPharmacienWrapper tableauPharmacienWrapper,
         List<GroupeFournisseurDTO> groupeFournisseurs,
         ReportPeriode reportPeriode,
@@ -59,16 +56,6 @@ public class TableauPharmacienReportReportService extends CommonReportService {
         getParameters().put(Constant.TABLEAU_PHARMACIEN_GROUP_FOURNISSEUR, groupeFournisseurs);
         getParameters().put(Constant.TABLEAU_PHARMACIEN_GROUP_MONTH, "month".equals(groupeBy));
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
-        if (itemSize > Constant.PAGE_SIZE) {
-            getParameters().put(Constant.ITEMS, items.subList(0, Constant.PAGE_SIZE));
-            getParameters().put(Constant.IS_LAST_PAGE, false);
-            return super.printMultiplesReceiptPage();
-        } else {
-            getParameters().put(Constant.ITEMS, items);
-            getParameters().put(Constant.IS_LAST_PAGE, true);
-            getParameters().put(Constant.PAGE_COUNT, "1/1");
-            return super.printOneReceiptPage();
-        }
     }
 
     @Override
@@ -102,12 +89,23 @@ public class TableauPharmacienReportReportService extends CommonReportService {
         return "tableau_pharmacien";
     }
 
-    public Resource exportToPdf(
+    public byte[] exportToPdf(
         TableauPharmacienWrapper tableauPharmacienWrapper,
         List<GroupeFournisseurDTO> groupeFournisseurs,
         ReportPeriode reportPeriode,
         String groupeBy
-    ) throws MalformedURLException {
-        return this.getResource(print(tableauPharmacienWrapper, groupeFournisseurs, reportPeriode, groupeBy));
+    ) {
+        prepareParameters(tableauPharmacienWrapper, groupeFournisseurs, reportPeriode, groupeBy);
+        int itemSize = items.size();
+        if (itemSize > Constant.PAGE_SIZE) {
+            getParameters().put(Constant.ITEMS, items.subList(0, Constant.PAGE_SIZE));
+            getParameters().put(Constant.IS_LAST_PAGE, false);
+            return super.exportMultiplePagesToByteArray();
+        } else {
+            getParameters().put(Constant.ITEMS, items);
+            getParameters().put(Constant.IS_LAST_PAGE, true);
+            getParameters().put(Constant.PAGE_COUNT, "1/1");
+            return super.exportReportToPdf();
+        }
     }
 }

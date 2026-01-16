@@ -58,4 +58,11 @@ public final class Utils {
         return getDocument(resource, "application/vnd.ms-excel", request);
         // @org.springdoc.core.annotations.ParameterObject
     }
+
+    public static ResponseEntity<byte[]> exportExcel(byte[] excelContent, String fileName) {
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+            .body(excelContent);
+    }
 }

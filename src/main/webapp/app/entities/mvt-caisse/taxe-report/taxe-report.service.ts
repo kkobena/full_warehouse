@@ -10,9 +10,9 @@ import { TaxeWrapper } from './taxe-report.model';
   providedIn: 'root',
 })
 export class TaxeReportService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/taxe-report';
+  private readonly resourceUrl = SERVER_API_URL + 'api/taxe-report';
 
   query(req?: any): Observable<HttpResponse<TaxeWrapper>> {
     const options = createRequestOptions(req);

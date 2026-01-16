@@ -40,7 +40,7 @@ interface CategoryDisplay {
       <div [class]="isRunningInTauri ? 'alert alert-success mb-4' : 'alert alert-info mb-4'">
         <i class="bi bi-info-circle"></i>
         @if (isRunningInTauri) {
-          <strong>Mode Desktop Tauri :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
+          <strong>Mode Application :</strong> Vous avez accès à tous les raccourcis, y compris les raccourcis Ctrl avancés qui ne
           sont pas disponibles dans le navigateur.
         } @else {
           <strong>Mode Navigateur Web :</strong> Les raccourcis Ctrl (comme Ctrl+S, Ctrl+P) sont réservés par le navigateur. Utilisez
@@ -73,12 +73,12 @@ interface CategoryDisplay {
       <!-- Shortcuts Grid -->
       <div class="shortcuts-grid">
         @for (category of sortedCategories; track category.title) {
-          <div class="shortcut-category mb-4" [class.tauri-only]="category.title.includes('Tauri')">
+          <div class="shortcut-category mb-4" [class.desktop-only]="category.title.includes('Desktop')">
             <h5 class="category-title">
               <i class="bi {{ category.icon }}"></i>
               {{ category.title }}
-              @if (category.title.includes('Tauri')) {
-                <span class="badge bg-success badge-sm ms-2">Desktop</span>
+              @if (category.title.includes('Desktop')) {
+                <span class="badge bg-success badge-sm ms-2">Application</span>
               }
               @if (category.title.includes('Web')) {
                 <span class="badge bg-info badge-sm ms-2">Web</span>
@@ -100,7 +100,7 @@ interface CategoryDisplay {
                           'badge ms-2 ' +
                           (shortcut.badge === 'Essentiel' || shortcut.badge === 'Important'
                             ? 'bg-danger'
-                            : shortcut.badge === 'Tauri'
+                            : shortcut.badge === 'Desktop'
                               ? 'bg-success'
                               : shortcut.badge === 'Web'
                                 ? 'bg-info'
@@ -146,7 +146,7 @@ interface CategoryDisplay {
           <span><span class="badge bg-danger">Essentiel</span> = Raccourci indispensable</span>
           <span><span class="badge bg-danger">Important</span> = Très utilisé</span>
           @if (isRunningInTauri) {
-            <span><span class="badge bg-success">Tauri</span> = Exclusif desktop</span>
+            <span><span class="badge bg-success">Desktop</span> = Exclusif application</span>
             <span><span class="badge bg-warning">Admin</span> = Droits requis</span>
           } @else {
             <span><span class="badge bg-info">Web</span> = Optimisé navigateur</span>
@@ -217,7 +217,7 @@ interface CategoryDisplay {
         transform: translateY(-2px);
       }
 
-      .shortcut-category.tauri-only {
+      .shortcut-category.desktop-only {
         border-left: 4px solid #28a745;
       }
 
@@ -291,9 +291,10 @@ interface CategoryDisplay {
       }
 
       kbd.modifier-key {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-color: #667eea;
+        background-color: #e9ecef;
+        color: #495057;
+        border-color: #adb5bd;
+        font-weight: 700;
       }
 
       .key-separator {
@@ -501,8 +502,8 @@ export class ShortcutsHelpDialogComponent implements OnInit {
       'Gestion Quantité': 'bi-plus-minus',
       Remises: 'bi-percent',
       Impression: 'bi-printer',
-      '⚡ Tauri Desktop': 'bi-lightning-charge',
-      '🌐 Web Safe': 'bi-globe',
+      '⚡ Desktop': 'bi-lightning-charge',
+      '🌐 Web': 'bi-globe',
     };
 
     return iconMap[categoryName] || 'bi-keyboard';
@@ -519,8 +520,8 @@ export class ShortcutsHelpDialogComponent implements OnInit {
       Remises: 7,
       'Navigation Rapide': 8,
       Impression: 9,
-      '⚡ Tauri Desktop': 10,
-      '🌐 Web Safe': 11,
+      '⚡ Desktop': 10,
+      '🌐 Web': 11,
     };
 
     return orderMap[categoryName] || 99;

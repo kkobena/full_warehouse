@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,7 +30,7 @@ public interface FinancialTransactionService {
 
     Optional<FinancialTransactionDTO> findById(PaymentId id);
 
-    Resource exportToPdf(TransactionFilterDTO transactionFilter) throws IOException;
+    byte[] exportToPdf(TransactionFilterDTO transactionFilter);
 
     byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException;
 

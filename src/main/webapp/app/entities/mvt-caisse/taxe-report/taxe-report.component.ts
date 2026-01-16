@@ -122,9 +122,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
             window.open(URL.createObjectURL(blob));
           }
         },
-        error: () => {
-          this.alert().showError("Une erreur est survenue lors de l'export PDF");
-        },
+        error: () => this.alert().showError("Une erreur est survenue lors de l'export PDF"),
       });
     this.updateParam();
   }

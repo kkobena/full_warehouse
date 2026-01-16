@@ -15,7 +15,6 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -93,7 +91,7 @@ public class FinancialTransactionResource {
     }
 
     @GetMapping("/payment-transactions/pdf")
-    public ResponseEntity<Resource> exportToPdf(
+    public ResponseEntity<byte[]> exportToPdf(
         @RequestParam(value = "search", required = false) String search,
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate,
@@ -103,11 +101,9 @@ public class FinancialTransactionResource {
         @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
         @RequestParam(value = "order", required = false) Order order,
         @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
-        @RequestParam(value = "toTime", required = false) LocalTime toTime,
-        HttpServletRequest request
-    ) throws IOException {
-        final Resource resource =
-            this.financialTransactionService.exportToPdf(
+        @RequestParam(value = "toTime", required = false) LocalTime toTime
+    ) {
+        return Utils.printPDF(this.financialTransactionService.exportToPdf(
                     new TransactionFilterDTO(
                         fromDate,
                         toDate,
@@ -120,8 +116,7 @@ public class FinancialTransactionResource {
                         fromTime,
                         toTime
                     )
-                );
-        return Utils.printPDF(resource, request);
+                ), "mvt-caisse.pdf");
     }
 
     @GetMapping("/payment-transactions")
@@ -200,8 +195,8 @@ public class FinancialTransactionResource {
 
     @GetMapping("/payment-transactions/print-receipt/{id}/{transactionDate}")
     public ResponseEntity<Void> printReceipt(
-        @PathVariable(name = "id") long id,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
+        @PathVariable( "id") long id,
+        @PathVariable( "transactionDate") LocalDate transactionDate
     ) {
         this.financialTransactionService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();

@@ -25,7 +25,6 @@ import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
 import com.kobe.warehouse.service.dto.records.ReglementTiersPayantResult;
-import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,7 +33,6 @@ import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -131,9 +129,8 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     }
 
     @Override
-    public Resource printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement)
-        throws ReportFileExportException {
-        return this.activitySummaryReportService.printToPdf(
+    public byte[] printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement) {
+        return this.activitySummaryReportService.printToPdfBytes(
                 new ActivitySummaryRecord(
                     getChiffreAffaire(fromDate, toDate),
                     fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
@@ -187,7 +184,6 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
                 offset,
                 limit
             );
-            System.err.println(jsonResult);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.info(e.getLocalizedMessage());

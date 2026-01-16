@@ -39,28 +39,7 @@ public class TvaReportReportService extends CommonReportService {
         this.storageService = storageService;
     }
 
-    private String print(TaxeWrapperDTO taxeWrapper, ReportPeriode reportPeriode, boolean groupByDate) {
-        this.items = taxeWrapper.getTaxes();
-        Magasin magasin = storageService.getUser().getMagasin();
-        int itemSize = items.size();
-        templateFile = Constant.TVA_TEMPLATE_FILE;
-        getParameters().put(Constant.MAGASIN, magasin);
-        getParameters().put(Constant.TVA_GROUP_DATE, groupByDate);
-        getParameters().put(Constant.REPORT_TITLE, this.buildPeriode("Rapport Tva", reportPeriode));
-        getParameters().put(Constant.ITEM_SIZE, itemSize);
-        getParameters().put(Constant.REPORT_SUMMARY, taxeWrapper);
-        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
-        if (itemSize > Constant.PAGE_SIZE) {
-            getParameters().put(Constant.ITEMS, items.subList(0, Constant.PAGE_SIZE));
-            getParameters().put(Constant.IS_LAST_PAGE, false);
-            return super.printMultiplesReceiptPage();
-        } else {
-            getParameters().put(Constant.ITEMS, items);
-            getParameters().put(Constant.IS_LAST_PAGE, true);
-            getParameters().put(Constant.PAGE_COUNT, "1/1");
-            return super.printOneReceiptPage();
-        }
-    }
+
 
     @Override
     protected List<TaxeDTO> getItems() {
@@ -93,7 +72,27 @@ public class TvaReportReportService extends CommonReportService {
         return "rapport_tva";
     }
 
-    public Resource exportToPdf(TaxeWrapperDTO taxeWrapper, ReportPeriode reportPeriode, boolean groupByDate) throws MalformedURLException {
-        return this.getResource(print(taxeWrapper, reportPeriode, groupByDate));
+
+    public byte[] exportToPdfBytes(TaxeWrapperDTO taxeWrapper, ReportPeriode reportPeriode, boolean groupByDate) {
+        this.items = taxeWrapper.getTaxes();
+        Magasin magasin = storageService.getUser().getMagasin();
+        int itemSize = items.size();
+        templateFile = Constant.TVA_TEMPLATE_FILE;
+        getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.TVA_GROUP_DATE, groupByDate);
+        getParameters().put(Constant.REPORT_TITLE, this.buildPeriode("Rapport Tva", reportPeriode));
+        getParameters().put(Constant.ITEM_SIZE, itemSize);
+        getParameters().put(Constant.REPORT_SUMMARY, taxeWrapper);
+        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
+        if (itemSize > Constant.PAGE_SIZE) {
+            getParameters().put(Constant.ITEMS, items.subList(0, Constant.PAGE_SIZE));
+            getParameters().put(Constant.IS_LAST_PAGE, false);
+            return super.exportMultiplePagesToByteArray();
+        } else {
+            getParameters().put(Constant.ITEMS, items);
+            getParameters().put(Constant.IS_LAST_PAGE, true);
+            getParameters().put(Constant.PAGE_COUNT, "1/1");
+            return super.exportReportToPdf();
+        }
     }
 }

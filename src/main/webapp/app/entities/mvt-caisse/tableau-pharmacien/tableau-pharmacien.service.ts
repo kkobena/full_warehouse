@@ -10,8 +10,8 @@ import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.mod
   providedIn: 'root',
 })
 export class TableauPharmacienService {
-  public resourceUrl = SERVER_API_URL + 'api/';
-  protected http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/';
+  private readonly http = inject(HttpClient);
 
   query(req?: any): Observable<HttpResponse<TableauPharmacienWrapper>> {
     const options = createRequestOptions(req);
@@ -23,7 +23,7 @@ export class TableauPharmacienService {
 
   exportToPdf(req: any): Observable<Blob> {
     const options = createRequestOptions(req);
-    return this.http.get(`${this.resourceUrl}/tableau-pharmacien/pdf`, {
+    return this.http.get(`${this.resourceUrl}tableau-pharmacien/pdf`, {
       params: options,
       responseType: 'blob',
     });
@@ -39,7 +39,7 @@ export class TableauPharmacienService {
 
   exportToExcel(req: any): Observable<HttpResponse<Blob>> {
     const options = createRequestOptions(req);
-    return this.http.get(`${this.resourceUrl}/tableau-pharmacien/excel`, {
+    return this.http.get(`${this.resourceUrl}tableau-pharmacien/excel`, {
       params: options,
       observe: 'response',
       responseType: 'blob',

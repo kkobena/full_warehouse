@@ -21,7 +21,6 @@ export interface SalesShortcutCallbacks {
   switchToComptant: () => void;
   switchToAssurance: () => void;
   switchToCarnet: () => void;
-  switchToDepotAgree: () => void;
 
   // Payment & Finalization
   finalizeSale: () => void;
@@ -41,7 +40,7 @@ export interface SalesShortcutCallbacks {
   printInvoice: () => void;
   printReceipt: () => void;
 
-  // Tauri-specific advanced features
+  // Desktop-specific advanced features
   forceStock?: () => void;
   quickSearch?: () => void;
   toggleFullscreen?: () => void;
@@ -86,7 +85,7 @@ export class SellingHomeShortcutsService {
   }
 
   /**
-   * Shortcuts available in both Tauri and Web
+   * Shortcuts available in both Desktop and Web
    */
   private registerCommonShortcuts(): void {
     if (!this.callbacks) return;
@@ -199,10 +198,10 @@ export class SellingHomeShortcutsService {
     });
 
     // ==========================================
-    // SALE TYPES - Alt combinations
+    // SALE TYPES - Alt + Letter combinations
     // ==========================================
     this.keyboardService.registerShortcut({
-      key: '1',
+      key: 'o',
       alt: true,
       category: 'Types de Vente',
       description: 'Basculer vers Vente Comptant',
@@ -210,7 +209,7 @@ export class SellingHomeShortcutsService {
     });
 
     this.keyboardService.registerShortcut({
-      key: '2',
+      key: 'a',
       alt: true,
       category: 'Types de Vente',
       description: 'Basculer vers Vente Assurance',
@@ -218,19 +217,11 @@ export class SellingHomeShortcutsService {
     });
 
     this.keyboardService.registerShortcut({
-      key: '3',
+      key: 'k',
       alt: true,
       category: 'Types de Vente',
       description: 'Basculer vers Vente Carnet',
       action: () => this.callbacks.switchToCarnet(),
-    });
-
-    this.keyboardService.registerShortcut({
-      key: '4',
-      alt: true,
-      category: 'Types de Vente',
-      description: 'Basculer vers Vente Dépôt Agréé',
-      action: () => this.callbacks.switchToDepotAgree(),
     });
 
     // ==========================================
@@ -346,7 +337,7 @@ export class SellingHomeShortcutsService {
   }
 
   /**
-   * Tauri-specific shortcuts (can use Ctrl combinations safely)
+   * Desktop-specific shortcuts (can use Ctrl combinations safely)
    * These provide a more desktop-like, power-user experience
    */
   private registerTauriShortcuts(): void {
@@ -362,9 +353,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 's',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Mettre la vente en attente',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.savePending(),
     });
@@ -372,9 +363,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'Enter',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Finaliser rapidement (paiement)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.finalizeSale(),
     });
@@ -382,9 +373,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'n',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Nouvelle vente (annuler vente actuelle)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.cancelSale(),
     });
@@ -393,9 +384,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'f',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Recherche rapide produit (focus)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.focusProductSearch(),
     });
@@ -403,9 +394,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'k',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Recherche omnidirectionnelle',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => {
         // Quick search across products/customers/pending sales
@@ -420,9 +411,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'e',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Recherche client rapide',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.focusCustomer(),
     });
@@ -431,9 +422,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'p',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Imprimer ticket (thermal)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.printReceipt(),
     });
@@ -442,9 +433,9 @@ export class SellingHomeShortcutsService {
       key: 'p',
       ctrl: true,
       shift: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Imprimer facture (A4)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.printInvoice(),
     });
@@ -453,9 +444,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'd',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Appliquer remise rapide',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.applyDiscount(),
     });
@@ -464,9 +455,9 @@ export class SellingHomeShortcutsService {
       key: 'd',
       ctrl: true,
       shift: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Retirer toutes les remises',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.removeDiscount(),
     });
@@ -477,7 +468,7 @@ export class SellingHomeShortcutsService {
         key: 'f',
         ctrl: true,
         shift: true,
-        category: '⚡ Tauri Desktop',
+        category: '⚡ Desktop',
         description: 'Forcer le stock (outrepasser limite)',
         badge: 'Admin',
         environmentRestriction: 'tauri',
@@ -489,9 +480,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'Delete',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Supprimer ligne sélectionnée (confirmé)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.removeSelectedLine(),
     });
@@ -499,9 +490,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'Backspace',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Effacer produit sélectionné',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.clearProduct(),
     });
@@ -510,9 +501,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '=',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Augmenter quantité (+1)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.incrementQuantity(1),
     });
@@ -520,9 +511,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '-',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Diminuer quantité (-1)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.decrementQuantity(1),
     });
@@ -531,9 +522,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'b',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Afficher ventes en attente (sidebar)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.viewPendingSales(),
     });
@@ -541,9 +532,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'h',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Afficher historique stock',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.viewProductStock(),
     });
@@ -552,9 +543,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '1',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Basculer vers Comptant (rapide)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.switchToComptant(),
     });
@@ -562,9 +553,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '2',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Basculer vers Assurance (rapide)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.switchToAssurance(),
     });
@@ -572,35 +563,35 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '3',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: 'Basculer vers Carnet (rapide)',
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.callbacks.switchToCarnet(),
     });
 
-    // Quick add customer (Tauri-specific UX enhancement)
+    // Quick add customer (Desktop-specific UX enhancement)
     if (this.callbacks.quickCustomerAdd) {
       this.keyboardService.registerShortcut({
         key: 'a',
         ctrl: true,
         shift: true,
-        category: '⚡ Tauri Desktop',
+        category: '⚡ Desktop',
         description: 'Ajout client rapide',
-        badge: 'Tauri',
+        badge: 'Desktop',
         environmentRestriction: 'tauri',
         action: () => this.callbacks.quickCustomerAdd(),
       });
     }
 
-    // Fullscreen toggle (Tauri-specific)
+    // Fullscreen toggle (Desktop-specific)
     if (this.callbacks.toggleFullscreen) {
       this.keyboardService.registerShortcut({
         key: 'F11',
         ctrl: true,
-        category: '⚡ Tauri Desktop',
+        category: '⚡ Desktop',
         description: 'Basculer plein écran',
-        badge: 'Tauri',
+        badge: 'Desktop',
         environmentRestriction: 'tauri',
         action: () => this.callbacks.toggleFullscreen(),
       });
@@ -610,9 +601,9 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: '/',
       ctrl: true,
-      category: '⚡ Tauri Desktop',
+      category: '⚡ Desktop',
       description: "Aide raccourcis (alternative à F1)",
-      badge: 'Tauri',
+      badge: 'Desktop',
       environmentRestriction: 'tauri',
       action: () => this.openShortcutsHelp(),
     });
@@ -633,7 +624,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 's',
       alt: true,
-      category: '🌐 Web Safe',
+      category: '🌐 Web',
       description: 'Sauvegarder (mettre en attente)',
       badge: 'Web',
       environmentRestriction: 'web',
@@ -643,7 +634,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'f',
       alt: true,
-      category: '🌐 Web Safe',
+      category: '🌐 Web',
       description: 'Finaliser la vente',
       badge: 'Web',
       environmentRestriction: 'web',
@@ -653,7 +644,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'n',
       alt: true,
-      category: '🌐 Web Safe',
+      category: '🌐 Web',
       description: 'Nouvelle vente',
       badge: 'Web',
       environmentRestriction: 'web',
@@ -663,7 +654,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'b',
       alt: true,
-      category: '🌐 Web Safe',
+      category: '🌐 Web',
       description: 'Ventes en attente',
       badge: 'Web',
       environmentRestriction: 'web',
@@ -673,7 +664,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'h',
       alt: true,
-      category: '🌐 Web Safe',
+      category: '🌐 Web',
       description: 'Historique/Stock produit',
       badge: 'Web',
       environmentRestriction: 'web',

@@ -6,7 +6,7 @@ import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from './warehouse-util';
 
 export const saveBase64ToFile = async (base64: string, fileName: string, ext: string): Promise<void> => {
   const path = await save({
-    defaultPath: (await downloadDir()) + `/${fileName}_${DATE_FORMAT_DD_MM_YYYY_HH_MM_SS}.${ext}`,
+    defaultPath: (await downloadDir()) + `/${fileName}_${DATE_FORMAT_DD_MM_YYYY_HH_MM_SS()}.${ext}`,
     filters: [
       {
         name: ext.toUpperCase(),
@@ -41,7 +41,7 @@ export const printExcel = async (base64: string, fileName: string): Promise<void
 
 export const printPdf2 = async (base64: string, fileName: string): Promise<void> => {
   const path = await save({
-    defaultPath: (await downloadDir()) + `/${fileName}_${DATE_FORMAT_DD_MM_YYYY_HH_MM_SS}.pdf`,
+    defaultPath: (await downloadDir()) + `/${fileName}_${DATE_FORMAT_DD_MM_YYYY_HH_MM_SS()}.pdf`,
     filters: [
       {
         name: 'Pdf',

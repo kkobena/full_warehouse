@@ -98,4 +98,26 @@ public class MvtCaisseReportReportService extends CommonReportService {
         throws MalformedURLException {
         return this.getResource(print(items, mvtCaisseWrapper, reportPeriode));
     }
+
+    public byte[] exportToPdfBytes(ArrayList<MvtCaisseDTO> items, MvtCaisseWrapper mvtCaisseWrapper, ReportPeriode reportPeriode) {
+        this.items = items;
+        Magasin magasin = storageService.getUser().getMagasin();
+        int itemSize = items.size();
+        templateFile = Constant.MVT_CAISSE_TEMPLATE_FILE;
+        getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.REPORT_TITLE, this.buildPeriode("Mouvements de caisse", reportPeriode));
+        getParameters().put(Constant.ITEM_SIZE, itemSize);
+        getParameters().put(Constant.REPORT_SUMMARY, mvtCaisseWrapper);
+        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
+        if (itemSize > Constant.PAGE_SIZE) {
+            getParameters().put(Constant.ITEMS, items.subList(0, Constant.PAGE_SIZE));
+            getParameters().put(Constant.IS_LAST_PAGE, false);
+            return super.exportMultiplePagesToByteArray();
+        } else {
+            getParameters().put(Constant.ITEMS, items);
+            getParameters().put(Constant.IS_LAST_PAGE, true);
+            getParameters().put(Constant.PAGE_COUNT, "1/1");
+            return super.exportReportToPdf();
+        }
+    }
 }

@@ -6,14 +6,13 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.projection.*;
 import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import com.kobe.warehouse.service.dto.records.Amount;
-import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.Resource;
+
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -68,19 +67,7 @@ public class ActivitySummaryReportService extends CommonReportService {
         return "activity_summary";
     }
 
-    public String print(ActivitySummaryRecord activitySummaryRecord) {
-        Magasin magasin = storageService.getUser().getMagasin();
-        templateFile = Constant.ACTIVITY_SUMMARY;
-        getParameters().put(Constant.MAGASIN, magasin);
-        getParameters().put(Constant.ENTITY, activitySummaryRecord);
-        getParameters().put("totalRecette", getTotalRecette(activitySummaryRecord.chiffreAffaire().recettes()));
-        getParameters().put("totalMvt", getTotalMouvementCaisse(activitySummaryRecord.chiffreAffaire().mouvementCaisses()));
-        getParameters().put("totauxAchat", getTotalAchatTiersPayant(activitySummaryRecord.achatTiersPayants()));
-        getParameters().put("totauxReglement", getTotalReglementTiersPayants(activitySummaryRecord.reglementTiersPayants()));
-        getParameters().put("totauxGroupeFour", getTotaGroupeFournisseurAchat(activitySummaryRecord.groupeFournisseurAchats()));
-        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
-        return super.printOneReceiptPage(getDestFilePath());
-    }
+
 
     private BigDecimal getTotalRecette(List<Recette> recettes) {
         return recettes.stream().map(Recette::getMontantReel).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -124,12 +111,19 @@ public class ActivitySummaryReportService extends CommonReportService {
         return new Amount(montantTtc, montantTva, montantHt);
     }
 
-    public Resource printToPdf(ActivitySummaryRecord activitySummaryRecord) throws ReportFileExportException {
-        try {
-            return this.getResource(print(activitySummaryRecord));
-        } catch (Exception e) {
-            log.error("printToPdf", e);
-            throw new ReportFileExportException();
-        }
+
+
+    public byte[] printToPdfBytes(ActivitySummaryRecord activitySummaryRecord) {
+        Magasin magasin = storageService.getUser().getMagasin();
+        templateFile = Constant.ACTIVITY_SUMMARY;
+        getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.ENTITY, activitySummaryRecord);
+        getParameters().put("totalRecette", getTotalRecette(activitySummaryRecord.chiffreAffaire().recettes()));
+        getParameters().put("totalMvt", getTotalMouvementCaisse(activitySummaryRecord.chiffreAffaire().mouvementCaisses()));
+        getParameters().put("totauxAchat", getTotalAchatTiersPayant(activitySummaryRecord.achatTiersPayants()));
+        getParameters().put("totauxReglement", getTotalReglementTiersPayants(activitySummaryRecord.reglementTiersPayants()));
+        getParameters().put("totauxGroupeFour", getTotaGroupeFournisseurAchat(activitySummaryRecord.groupeFournisseurAchats()));
+        getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
+        return super.exportReportToPdf();
     }
 }

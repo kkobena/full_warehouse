@@ -321,7 +321,6 @@ export class NavigationService {
       },
     ];
 
-    // Add additional account menu items if provided
     if (options.additionalAccountMenuItems) {
       accountChildren.push(...options.additionalAccountMenuItems);
     }
@@ -332,12 +331,10 @@ export class NavigationService {
       children: accountChildren,
     });
 
-    // Filter by authority if user is authenticated
     if (account) {
       return this.filterByAuthority(allItems, account.authorities);
     }
 
-    // Return unauthenticated menu items
     return [];
   }
 

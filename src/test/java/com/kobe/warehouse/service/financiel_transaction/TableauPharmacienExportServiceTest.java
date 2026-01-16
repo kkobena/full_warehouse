@@ -11,6 +11,8 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWra
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TableauPharmacienExportServiceTest {
 
     @Mock
-    private ExcelExportService excelExportService;
+    private ReportExcelExportService excelExportService;
 
     private TableauPharmacienExportService exportService;
 

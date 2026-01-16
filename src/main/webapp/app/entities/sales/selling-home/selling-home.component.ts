@@ -141,7 +141,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
   protected canFocusLastModeInput = false;
-  protected isLargeScreen = true;
   protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];
@@ -153,7 +152,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected produitSelected?: ProduitSearch | null = null;
   protected appendTo = 'body';
   protected remise: IRemise[] = [];
-  protected base64 = ';base64,';
   protected event: any;
   protected stockSeverity = 'success';
   protected commentaire?: string;
@@ -166,6 +164,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected printTicket = true;
   protected active = 'comptant';
   protected showInsuranceDataBar = signal(true);
+  protected isLargeScreen = signal(true);
   protected showInsuranceTogle = signal(false);
   protected sidebarCollapsed = signal(false);
   protected isCashRegisterOpen = signal(false);
@@ -218,8 +217,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initCustomerEffect();
     this.quantityMessage = this.translateLabel('stockInsuffisant');
     handleSaleEvents(this.saleEventManager, ['saveResponse', 'completeSale', 'responseEvent', 'inputBoxFocus'], event => {
-      console.error(event, 'handling event');
-
       switch (event.name) {
         case 'saveResponse':
           this.handleSaveResponse(event);
@@ -293,7 +290,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     const width = window.innerWidth;
     if (width < 1800) {
-      this.isLargeScreen = false;
+      this.isLargeScreen.set(false);
     }
     this.currentSaleService.setCurrentSale(null);
     this.selectedCustomerService.setCustomer(null);
@@ -407,6 +404,14 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.assuranceComponent().finalyseSale(true);
     } else if (this.isCartnet()) {
       this.carnetComponent().finalyseSale(true);
+    }
+  }
+
+  deleteCurrent(): void {
+    if (this.isAssurance()) {
+      this.assuranceComponent().deleteCurrent();
+    } else if (this.isCartnet()) {
+      this.carnetComponent().deleteCurrent();
     }
   }
 
@@ -657,6 +662,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onFinalyse(finalyseSale: FinalyseSale): void {
+    console.error('on delete finalyseSale', finalyseSale);
     if (finalyseSale.success) {
       if (!finalyseSale.putOnStandBy) {
         if (this.printTicket) {
@@ -789,7 +795,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onSaveKeyDown(saveSale: boolean): void {
-    if (saveSale && this.currentSaleService.currentSale().salesLines.length > 0) {
+    if (saveSale && this.currentSaleService.currentSale()?.salesLines.length > 0) {
       if (this.isVoSale() && this.currentSaleService.currentSale().amountToBePaid === 0) {
         this.save();
       } else {
@@ -874,6 +880,14 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.saveAssurance();
     } else if (content === 'standby') {
       this.setEnAttenteAssurance();
+    } else if (content === 'delete') {
+      this.confimDialog().onConfirm(
+        () => {
+          this.deleteCurrent();
+        },
+        'Annulation de la vente',
+        'Êtes-vous sûr de vouloir annuler cette vente ?',
+      );
     }
   };
 
@@ -1264,9 +1278,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       switchToCarnet: () => {
         this.active = 'carnet';
-      },
-      switchToDepotAgree: () => {
-        this.active = 'depot-agree';
       },
 
       // Payment & Finalization

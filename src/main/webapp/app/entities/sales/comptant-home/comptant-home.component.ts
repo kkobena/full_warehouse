@@ -6,6 +6,7 @@ import {
   effect,
   HostListener,
   inject,
+  input,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
@@ -105,6 +106,7 @@ import { CashRegisterService } from '../../cash-register/cash-register.service';
 export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
+  readonly isSmallScreen = signal(window.innerWidth < 1800);
   comptantComponent = viewChild<ComptantComponent>('comptant');
   userBox = viewChild<any>('userBox');
   accountService = inject(AccountService);
@@ -410,10 +412,6 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.quantyBox().reset(1);
       }
     }
-  }
-
-  onCustomerOverlay(evnt: boolean): void {
-    this.produitbox().getFocus();
   }
 
   removeCustomer(): void {
@@ -830,7 +828,6 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       switchToComptant() {},
       switchToAssurance() {},
       switchToCarnet() {},
-      switchToDepotAgree() {},
 
       // Payment & Finalization
       finalizeSale: () => this.manageAmountDiv(),

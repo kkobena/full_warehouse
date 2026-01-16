@@ -128,6 +128,7 @@
               </a>
               <ng-template ngbNavContent>
                 <jhi-comptant
+                  [isSmallScreen]="!isLargeScreen()"
                   [(isCashRegisterOpen)]="isCashRegisterOpen"
                   #comptant
                   (inputToFocusEvent)="getControlToFocus($event)"
@@ -147,7 +148,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-assurance #assurance [isPresale]="isPresale"></jhi-assurance>
+                <jhi-assurance [isSmallScreen]="!isLargeScreen()" #assurance [isPresale]="isPresale"></jhi-assurance>
               </ng-template>
             </ng-container>
 
@@ -158,7 +159,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-carnet #carnet [isPresale]="isPresale"></jhi-carnet>
+                <jhi-carnet [isSmallScreen]="!isLargeScreen()" #carnet [isPresale]="isPresale"></jhi-carnet>
               </ng-template>
             </ng-container>
           </div>
@@ -171,7 +172,7 @@
 
       @if (active === 'assurance' || active === 'carnet') {
         <div class="insurance-data-bar">
-          <jhi-assurance-data (inputToFocusEvent)="getControlToFocus($event)" #assuranceDataComponent></jhi-assurance-data>
+          <jhi-assurance-data  (inputToFocusEvent)="getControlToFocus($event)" #assuranceDataComponent></jhi-assurance-data>
         </div>
         @if (showInsuranceTogle()) {
           <div class="insurance-data-bar-wrapper">

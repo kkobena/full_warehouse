@@ -11,6 +11,8 @@ import { BaseSaleComponent } from '../base-sale/base-sale.component';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CardModule } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-assurance',
@@ -26,6 +28,8 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     CardModule,
     SpinnerComponent,
+    ButtonGroup,
+    Tooltip,
   ],
   templateUrl: '../base-sale/base-sale.component.html',
   styleUrls: ['../base-sale/base-sale.scss'],

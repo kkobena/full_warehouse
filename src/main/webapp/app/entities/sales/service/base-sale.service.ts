@@ -129,11 +129,17 @@ export class BaseSaleService {
       content: 'standby',
     });
   }
+  onDeleteSale(): void {
+    this.saleEventManager.broadcast({
+      name: 'completeSale',
+      content: 'delete',
+    });
+  }
 
   onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
     this.saleEventManager.broadcast({
       name: 'responseEvent',
-      content: new FinalyseSale(true, null, response.saleId, putOnStandBy),
+      content: new FinalyseSale(true, null, response?.saleId, putOnStandBy),
     });
   }
 

@@ -112,9 +112,8 @@ export class VoSalesService {
       .get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
-
-  deletePrevente(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/prevente/${id}`, { observe: 'response' });
+  deletePrevente(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   printInvoice(id: SaleId): Observable<Blob> {

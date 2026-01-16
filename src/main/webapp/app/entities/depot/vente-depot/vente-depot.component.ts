@@ -679,7 +679,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       switchToComptant() {},
       switchToAssurance() {},
       switchToCarnet() {},
-      switchToDepotAgree() {},
 
       // Payment & Finalization
       finalizeSale: () => this.manageAmountDiv(),

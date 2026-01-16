@@ -31,6 +31,8 @@ import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog
 import { CardModule } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   templateUrl: './base-sale.component.html',
@@ -46,10 +48,13 @@ import { TauriPrinterService } from '../../../../shared/services/tauri-printer.s
     ConfirmDialogComponent,
     CardModule,
     SpinnerComponent,
+    ButtonGroup,
+    Tooltip,
   ],
   styleUrls: ['./base-sale.scss'],
 })
 export class BaseSaleComponent {
+  readonly isSmallScreen = input(false);
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
   amountComputingComponent = viewChild<AmountComputingComponent>('amountComputing');
   readonly isPresale = input(false);
@@ -73,6 +78,7 @@ export class BaseSaleComponent {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly tauriPrinterService = inject(TauriPrinterService);
+
   protected get entryAmount(): number {
     return this.modeReglementComponent()?.getInputSum() || 0;
   }
@@ -120,6 +126,10 @@ export class BaseSaleComponent {
     this.baseSaleService.onCompleteSale();
   }
 
+  onDelete(): void {
+    this.baseSaleService.onDeleteSale();
+  }
+
   onLoadPrevente(): void {
     this.modeReglementComponent().buildPreventeReglementInput();
   }
@@ -127,6 +137,7 @@ export class BaseSaleComponent {
   computExtraInfo(): void {
     this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire || null;
   }
+
   onFinalyseSale(): void {
     this.onCompleteSale();
   }
@@ -158,7 +169,6 @@ export class BaseSaleComponent {
       'Vente différé',
       'Voullez-vous regler le reste en différé ?',
       null,
-      () => {},
     );
   }
 
@@ -448,6 +458,28 @@ export class BaseSaleComponent {
           }
         },
         error: err => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+      });
+  }
+
+  deleteCurrent(): void {
+    const sale = this.currentSaleService.currentSale();
+    if (!sale || !sale.saleId) {
+      return;
+    }
+    const saleId: SaleId = sale.saleId;
+    this.spinner().show();
+    this.isSaving = true;
+    this.salesService
+      .deletePrevente(saleId)
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner().hide();
+        }),
+      )
+      .subscribe({
+        next: () => this.baseSaleService.onFinalyseSuccess(null, true),
+        error: err => this.baseSaleService.onFinalyseError(err),
       });
   }
 }

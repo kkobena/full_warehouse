@@ -29,6 +29,8 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 import { showCommonModal } from '../sale-helper';
 import { CashRegisterFormComponent } from '../../../cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-comptant',
@@ -44,12 +46,15 @@ import { CashRegisterFormComponent } from '../../../cash-register/user-cash-regi
     ModeReglementComponent,
     ConfirmDialogComponent,
     SpinnerComponent,
+    ButtonGroup,
+    Tooltip,
   ],
   templateUrl: './comptant.component.html',
   styleUrls: ['./comptant.scss'],
 })
 export class ComptantComponent {
   readonly isPresale = input(false);
+  readonly isSmallScreen = input(false);
   readonly isCashRegisterOpen = model(false);
   readonly appendTo = 'body';
   readonly inputToFocusEvent = output<InputToFocus>();
@@ -155,6 +160,17 @@ export class ComptantComponent {
 
   onKeyDown(event: any): void {
     this.save();
+  }
+
+  delete(): void {
+    const sale = this.currentSaleService.currentSale();
+    if (sale.id) {
+      this.facade.delete(sale);
+    }
+  }
+
+  confirmRemove(): void {
+    this.confimDialog().onConfirm(() => this.delete(), 'Annulation', 'Voulez-vous annuler cette vente ?');
   }
 
   save(): void {

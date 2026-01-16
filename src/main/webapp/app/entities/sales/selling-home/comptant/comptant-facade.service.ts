@@ -48,6 +48,22 @@ export class ComptantFacadeService implements OnDestroy {
     this.openUninsuredCustomerSubject.complete();
   }
 
+  delete(sale: ISales): void {
+    if (sale.id) {
+      this.spinnerService.next(true);
+      this.salesService
+        .deletePrevente(sale.saleId)
+        .pipe(
+          finalize(() => this.spinnerService.next(false)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: () => this.onFinalyseSuccess(null, true),
+          error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
+        });
+    }
+  }
+
   confirmDiffereSale(entryAmount: number): void {
     this.currentSaleService.currentSale().differe = true;
     if (!this.currentSaleService.currentSale().customerId) {
@@ -223,7 +239,7 @@ export class ComptantFacadeService implements OnDestroy {
   }
 
   private onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
-    this.finalyseSaleSubject.next({ saleId: response.saleId, success: true, putOnStandBy });
+    this.finalyseSaleSubject.next({ saleId: response?.saleId, success: true, putOnStandBy });
   }
 
   private onFinalyseError(err: any): void {

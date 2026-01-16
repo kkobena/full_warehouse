@@ -16,21 +16,51 @@
           <jhi-amount-computing #amountComputing [entryAmount]="entryAmount"></jhi-amount-computing>
         </div>
         <div class="col-12 d-flex justify-content-center">
-          <p-button
-            class="mr-1"
-            [raised]="true"
-            (click)="onFinalyseSale()"
-            icon="pi pi-check"
-            label="Terminer"
-            severity="success"
-          ></p-button>
-          <p-button
-            [raised]="true"
-            (click)="putCurrentSaleOnStandBy()"
-            icon="pi pi-times"
-            label="En attente"
-            severity="secondary"
-          ></p-button>
+          @if (isSmallScreen()) {
+            <p-buttonGroup>
+              <p-button size="small" [raised]="true" (click)="onFinalyseSale()" icon="pi pi-check" pTooltip="Valider"
+                        severity="success"/>
+              <p-button
+                size="small"
+                [raised]="true"
+                (click)="putCurrentSaleOnStandBy()"
+                icon="pi pi-pause"
+                pTooltip="En attente"
+                severity="secondary"
+              />
+              <p-button
+                size="small"
+                [raised]="true"
+                (click)="onDelete()"
+                icon="pi pi-trash"
+                pTooltip="Annuler"
+                severity="danger"
+              />
+            </p-buttonGroup>
+          }@else {
+
+            <p-buttonGroup>
+              <p-button size="small" [raised]="true" (click)="onFinalyseSale()" icon="pi pi-check" label="Valider"
+                        severity="success"/>
+              <p-button
+                size="small"
+                [raised]="true"
+                (click)="putCurrentSaleOnStandBy()"
+                icon="pi pi-pause"
+                label="En attente"
+                severity="secondary"
+              />
+              <p-button
+                size="small"
+                [raised]="true"
+                (click)="onDelete()"
+                icon="pi pi-trash"
+                label="Annuler"
+                severity="danger"
+              />
+            </p-buttonGroup>
+          }
+
         </div>
       </div>
     </div>

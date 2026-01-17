@@ -18,16 +18,12 @@ import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
-import com.kobe.warehouse.service.excel.ExcelExportUtil;
-import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -176,19 +172,6 @@ public class LotServiceImpl implements LotService {
             findPerimeSum(lotFilterParam),
             lotFilterParam.getFromDate(),
             lotFilterParam.getToDate()
-        );
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void export(HttpServletResponse response, ExportFormat type, LotFilterParam lotFilterParam) throws IOException {
-        ExcelExportUtil.writeToResponse(
-            response,
-            type,
-            "produit_perimes",
-            "Liste des produits perimes",
-            LotPerimeDTO.class,
-            this.findLotsPerimes(lotFilterParam, Pageable.unpaged()).getContent()
         );
     }
 

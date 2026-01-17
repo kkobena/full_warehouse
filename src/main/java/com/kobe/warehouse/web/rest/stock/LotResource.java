@@ -1,19 +1,22 @@
 package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.service.dto.LotDTO;
-import com.kobe.warehouse.service.excel.model.ExportFormat;
+import com.kobe.warehouse.service.report.excel.LotPerimeExcelCsvReportService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import com.kobe.warehouse.web.util.PaginationUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +33,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class LotResource {
 
     private final LotService lotService;
+    private final LotPerimeExcelCsvReportService lotPerimeExcelCsvReportService;
 
-    public LotResource(LotService lotService) {
+    public LotResource(LotService lotService, LotPerimeExcelCsvReportService lotPerimeExcelCsvReportService) {
         this.lotService = lotService;
+        this.lotPerimeExcelCsvReportService = lotPerimeExcelCsvReportService;
     }
 
     @PostMapping("/lot/add-to-commande")
@@ -79,9 +84,37 @@ public class LotResource {
         return lotService.generatePdf(lotFilterParam);
     }
 
-    @GetMapping("/lot/export/{format}")
-    public void export(@PathVariable("format") ExportFormat type, HttpServletResponse response, LotFilterParam lotFilterParam)
-        throws IOException {
-        lotService.export(response, type, lotFilterParam);
+    @GetMapping(value = "/lot/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public ResponseEntity<byte[]> exportToExcel(LotFilterParam lotFilterParam) {
+        try {
+            byte[] excelData = lotPerimeExcelCsvReportService.exportToExcel(lotFilterParam);
+            String filename = buildFilename("produits_perimes", ".xlsx");
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping(value = "/lot/export/csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportToCsv(LotFilterParam lotFilterParam) {
+        try {
+            byte[] csvData = lotPerimeExcelCsvReportService.exportToCsv(lotFilterParam);
+            String filename = buildFilename("produits_perimes", ".csv");
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private String buildFilename(String baseName, String extension) {
+        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + extension;
     }
 }

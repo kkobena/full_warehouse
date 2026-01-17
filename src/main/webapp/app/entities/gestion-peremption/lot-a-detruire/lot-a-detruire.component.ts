@@ -138,12 +138,12 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExport('EXCEL'),
+        command: () => this.onExport('excel'),
       },
       {
         label: 'Csv',
         icon: 'pi pi-file-export',
-        command: () => this.onExport('CSV'),
+        command: () => this.onExport('csv'),
       },
     ];
     this.onSearch();

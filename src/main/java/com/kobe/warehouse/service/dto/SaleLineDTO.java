@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
-import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
-import com.alibaba.excel.annotation.ExcelProperty;
+
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SaleId;
@@ -11,60 +10,60 @@ import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@ExcelIgnoreUnannotated
+
 public class SaleLineDTO {
 
-    @ExcelProperty("ID")
+
     private Long id;
 
-    @ExcelProperty("Qté vendue")
+
     private Integer quantitySold;
 
-    @ExcelProperty("Qté demandée")
+
     private Integer quantityRequested;
 
-    @ExcelProperty("Prix unitaire")
+
     private Integer regularUnitPrice;
 
     private Integer discountUnitPrice;
     private Integer netUnitPrice;
 
-    @ExcelProperty("Montant remise")
+
     private Integer discountAmount;
 
-    @ExcelProperty("Montant vente")
+
     private Integer salesAmount;
 
-    @ExcelProperty("Montant HT")
+
     private Integer htAmount;
 
-    @ExcelProperty("Montant net")
+
     private Integer netAmount;
 
-    @ExcelProperty("Montant TVA")
+
     private Integer taxAmount;
 
-    @ExcelProperty("Prix achat")
+
     private Integer costAmount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @ExcelProperty("Produit")
+
     private String produitLibelle;
 
-    @ExcelProperty("Code CIP")
+
     private String code;
 
-    @ExcelProperty("Produit ID")
+
     private Integer produitId;
 
     private Long saleId;
 
-    @ExcelProperty("Qté initiale en stock")
+
     private Integer quantityStock;
 
-    @ExcelProperty("Qté avoir")
+
     private Integer quantiyAvoir;
 
     private Integer calculationBasePrice;
@@ -74,7 +73,7 @@ public class SaleLineDTO {
     private boolean toIgnore;
     private LocalDateTime effectiveUpdateDate;
 
-    @ExcelProperty("Valeur taxe")
+
     private Integer taxValue;
 
     private boolean forceStock; // mis pour forcer le stock a la vente

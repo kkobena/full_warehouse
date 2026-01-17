@@ -39,4 +39,18 @@ export class StockDepotService {
       responseType: 'blob',
     });
   }
+
+  exportToExcel(saleId: SaleId): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.resourceUrl}/export/${saleId.id}/${saleId.saleDate}/excel`, {
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  exportToCsv(saleId: SaleId): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.resourceUrl}/export/${saleId.id}/${saleId.saleDate}/csv`, {
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
 }

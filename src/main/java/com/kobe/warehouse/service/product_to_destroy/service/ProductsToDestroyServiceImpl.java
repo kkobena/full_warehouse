@@ -23,8 +23,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.errors.GenericError;
-import com.kobe.warehouse.service.excel.ExcelExportUtil;
-import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
@@ -32,8 +30,6 @@ import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyPayload
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroySumDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductsToDestroyPayload;
 import com.kobe.warehouse.service.utils.DateUtil;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -273,18 +269,6 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
                 this.productsToDestroyRepository.buildEditing(this.userService.getUser().getId(), produidToDestroyFilter.searchTerm()),
                 pageable
             ).map(this::buildProductToDestroy);
-    }
-
-    @Override
-    public void export(HttpServletResponse response, ExportFormat type, ProductToDestroyFilter produidToDestroyFilter) throws IOException {
-        ExcelExportUtil.writeToResponse(
-            response,
-            type,
-            "produits_a_detruire",
-            "Liste des produits à détruire",
-            ProductToDestroyDTO.class,
-            this.findAll(produidToDestroyFilter, Pageable.unpaged()).getContent()
-        );
     }
 
     @Override

@@ -1,34 +1,34 @@
 package com.kobe.warehouse.service.stock.dto;
 
-import com.alibaba.excel.annotation.ExcelProperty;
+
 
 public class StockDepotExportDTO {
 
-    @ExcelProperty("Produit ID")
+
     private Integer produitId;
 
-    @ExcelProperty("Code CIP")
+
     private String code;
 
-    @ExcelProperty("Produit")
+
     private String produitLibelle;
 
-    @ExcelProperty("Code ean")
+
     private String codeEan;
 
-    @ExcelProperty("Qté vendue")
+
     private Integer quantitySold;
 
-    @ExcelProperty("Qté demandée")
+
     private Integer quantityRequested;
 
-    @ExcelProperty("Prix unitaire")
+
     private Integer regularUnitPrice;
 
-    @ExcelProperty("Valeur taxe")
+
     private Integer taxValue;
 
-    @ExcelProperty("Prix achat")
+
     private Integer costAmount;
 
     public Integer getProduitId() {

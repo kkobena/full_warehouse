@@ -6,20 +6,30 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.BiConsumer;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 /**
  * Service générique pour l'export Excel des rapports
- * Utilise Apache POI pour créer des fichiers .xlsx
+ * Utilise Apache POI SXSSFWorkbook pour créer des fichiers .xlsx avec streaming (meilleure gestion mémoire)
  */
 @Service
 public class ReportExcelExportService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final int ROW_ACCESS_WINDOW_SIZE = 100;
 
     /**
      * Crée un fichier Excel avec en-tête et données
@@ -32,8 +42,13 @@ public class ReportExcelExportService {
      * @return ByteArray du fichier Excel
      */
     public <T> byte[] createExcelReport(String title, String[] headers, List<T> data, BiConsumer<Row, T> rowMapper) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet(sanitizeSheetName(title));
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+
+            SXSSFSheet sheet = workbook.createSheet(sanitizeSheetName(title));
+
+            // Activer le suivi des colonnes pour autoSizeColumn
+            sheet.trackAllColumnsForAutoSizing();
 
             // Créer les styles
             CellStyle titleStyle = createTitleStyle(workbook);
@@ -102,7 +117,7 @@ public class ReportExcelExportService {
 
     // Styles
 
-    private CellStyle createTitleStyle(Workbook workbook) {
+    private CellStyle createTitleStyle(SXSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
@@ -114,7 +129,7 @@ public class ReportExcelExportService {
         return style;
     }
 
-    private CellStyle createHeaderStyle(Workbook workbook) {
+    private CellStyle createHeaderStyle(SXSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBold(true);
@@ -131,7 +146,7 @@ public class ReportExcelExportService {
         return style;
     }
 
-    private CellStyle createDateStyle(Workbook workbook) {
+    private CellStyle createDateStyle(SXSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setItalic(true);

@@ -6,16 +6,19 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.excel.model.ExportFormat;
+import com.kobe.warehouse.service.report.excel.StockDepotExcelCsvReportService;
 import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +32,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class StockDepotResource {
 
     private final GestionStockDepotService gestionStockDepotService;
+    private final StockDepotExcelCsvReportService stockDepotExcelCsvReportService;
 
-    public StockDepotResource(GestionStockDepotService gestionStockDepotService) {
+    public StockDepotResource(
+        GestionStockDepotService gestionStockDepotService,
+        StockDepotExcelCsvReportService stockDepotExcelCsvReportService
+    ) {
         this.gestionStockDepotService = gestionStockDepotService;
+        this.stockDepotExcelCsvReportService = stockDepotExcelCsvReportService;
     }
 
     @GetMapping
@@ -85,13 +93,43 @@ public class StockDepotResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/export/{id}/{saleDate}/{format}")
-    public void export(
-        @PathVariable("format") ExportFormat type,
+    @GetMapping(value = "/export/{id}/{saleDate}/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public ResponseEntity<byte[]> exportToExcel(
         @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        HttpServletResponse response
-    ) throws IOException {
-        gestionStockDepotService.export(response, type, new SaleId(id, saleDate));
+        @PathVariable("saleDate") LocalDate saleDate
+    ) {
+        try {
+            byte[] excelData = stockDepotExcelCsvReportService.exportToExcel(new SaleId(id, saleDate));
+            String filename = buildFilename("vente_depot_stock_" + id + "_" + saleDate, ".xlsx");
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping(value = "/export/{id}/{saleDate}/csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportToCsv(
+        @PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate
+    ) {
+        try {
+            byte[] csvData = stockDepotExcelCsvReportService.exportToCsv(new SaleId(id, saleDate));
+            String filename = buildFilename("vente_depot_stock_" + id + "_" + saleDate, ".csv");
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private String buildFilename(String baseName, String extension) {
+        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + extension;
     }
 }

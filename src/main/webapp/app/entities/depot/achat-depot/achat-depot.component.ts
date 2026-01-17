@@ -100,12 +100,12 @@ export class AchatDepotComponent implements OnInit {
       {
         label: 'Exporter en CSV',
         icon: 'pi pi-file',
-        command: () => this.exportWithFormat('CSV'),
+        command: () => this.exportWithFormat('csv'),
       },
       {
         label: 'Exporter en Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.exportWithFormat('EXCEL'),
+        command: () => this.exportWithFormat('excel'),
       },
       {
         label: 'Exporter en PDF',
@@ -245,9 +245,11 @@ export class AchatDepotComponent implements OnInit {
     };
   }
 
-  private async onExport(format: string, saleId: SaleId): Promise<void> {
-    this.stockDepotService.export(format, saleId).subscribe({
-      next: async resp => {
+  private onExport(format: string, saleId: SaleId): void {
+    const exportObservable = format === 'excel' ? this.stockDepotService.exportToExcel(saleId) : this.stockDepotService.exportToCsv(saleId);
+
+    exportObservable.subscribe({
+      next: resp => {
         const blob = resp.body;
         if (!blob) {
           return;
@@ -260,20 +262,14 @@ export class AchatDepotComponent implements OnInit {
         );
 
         if (this.tauriPrinterService.isRunningInTauri()) {
-          // Tauri version - save file using dialog
           try {
-            handleBlobForTauri(blob, fileName);
-          } catch (error) {
-            console.error('Erreur lors de la sauvegarde du fichier dans Tauri:', error);
-          }
+            handleBlobForTauri(blob, fileName, format);
+          } catch (error) {}
         } else {
-          // Web version - download file directly
           saveAs(blob, fileName);
         }
       },
-      error(err) {
-        console.error("Erreur lors de l'exportation:", err);
-      },
+      error: err => this.onError(),
     });
   }
 }

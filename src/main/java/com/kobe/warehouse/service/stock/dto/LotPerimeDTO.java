@@ -1,52 +1,50 @@
 package com.kobe.warehouse.service.stock.dto;
 
-import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
-import com.alibaba.excel.annotation.ExcelProperty;
 
-@ExcelIgnoreUnannotated
+
+
 public class LotPerimeDTO {
 
     private Integer produitId;
 
     private Integer id;
 
-    @ExcelProperty("Numéro de lot")
+
     private String numLot;
 
-    @ExcelProperty("Fournisseur")
+
     private String fournisseur;
 
-    @ExcelProperty("Nom du produit")
+
     private String produitName;
 
-    @ExcelProperty("Code du produit")
+
     private String produitCode;
 
-    @ExcelProperty("Date de péremption")
+
     private String datePeremption;
 
-    @ExcelProperty("Quantité")
+
     private int quantity;
 
-    @ExcelProperty("Prix d'achat")
+
     private int prixAchat;
 
-    @ExcelProperty("Prix de vente")
+
     private int prixVente;
 
-    @ExcelProperty("Prix total de vente")
+
     private int prixTotalVente;
 
-    @ExcelProperty("Prix total d'achat")
+
     private int prixTotaAchat;
 
-    @ExcelProperty("Statut de péremption")
+
     private String statutPerime;
 
-    @ExcelProperty("Nom du rayon")
+
     private String rayonName;
 
-    @ExcelProperty("Famille du produit")
     private String familleProduitName;
 
     private PeremptionStatut peremptionStatut;

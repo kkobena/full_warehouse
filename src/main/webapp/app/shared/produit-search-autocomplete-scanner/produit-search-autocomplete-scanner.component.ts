@@ -41,7 +41,6 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   produits = signal<ProduitSearch[]>([]);
   produitbox = viewChild.required<AutoComplete>('produitbox');
   selectProduit = signal<ProduitSearch | null>(null);
-
   includeDetails = input<boolean>(true);
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
@@ -50,6 +49,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   style = input<{}>({ width: '100%' });
   inputStyle = input<{}>({ width: '100%' });
   enableScanner = input<boolean>(true);
+  disabled = input<boolean>(false);
 
   selectedProduit = output<ProduitSearch | null>();
   scannedProduit = output<ProduitSearch>();

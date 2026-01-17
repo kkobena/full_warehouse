@@ -160,11 +160,13 @@ export class ProduitFournisseurSearch {
 
 export class ProduitRayonSearch {
   code: string;
+  id: number;
   libelle: string;
 }
 
 export class ProduitStockSearch {
   quantite: number;
+  id: number;
   qteUg: number;
   storage: number;
   storageType: StorageType;

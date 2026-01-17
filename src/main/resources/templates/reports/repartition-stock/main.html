@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Historique des Repartitions de Stock</title>
+    <style th:replace="~{common/css}"></style>
+  </head>
+  <body>
+  <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <strong>Total mouvements:</strong>
+                  <span th:text="${totalMouvements}">0</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th class="text-right">Qte Mvt</th>
+              <th>Source</th>
+              <th class="text-right">Stock Init.</th>
+              <th class="text-right">Stock Final</th>
+              <th>Destination</th>
+              <th class="text-right">Stock Init.</th>
+              <th class="text-right">Stock Final</th>
+              <th>Utilisateur</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="repartition : ${repartitions}">
+              <td th:text="${repartition.created != null ? #temporals.format(repartition.created, 'dd/MM/yyyy HH:mm') : ''}"></td>
+              <td th:text="${repartition.produitName}"></td>
+              <td th:text="${repartition.codeCip}"></td>
+              <td class="text-right" th:text="${repartition.mvtQty}"></td>
+              <td th:text="${repartition.stockProduitSrc != null ? repartition.stockProduitSrc.storageName : '-'}"></td>
+              <td class="text-right" th:text="${repartition.sourceInitStock != null ? repartition.sourceInitStock : '-'}"></td>
+              <td class="text-right" th:text="${repartition.sourceFinalStock != null ? repartition.sourceFinalStock : '-'}"></td>
+              <td th:text="${repartition.stockProduitDest != null ? repartition.stockProduitDest.storageName : '-'}"></td>
+              <td class="text-right" th:text="${repartition.destInitStock != null ? repartition.destInitStock : '-'}"></td>
+              <td class="text-right" th:text="${repartition.destFinalStock != null ? repartition.destFinalStock : '-'}"></td>
+              <td th:text="${repartition.userFullName}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="11" class="text-right">
+                <strong>Total mouvements: <span th:text="${repartitions.size()}"></span></strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

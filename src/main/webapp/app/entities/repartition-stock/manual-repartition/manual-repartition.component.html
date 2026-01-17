@@ -39,7 +39,7 @@
           [enableScanner]="true"
           [includeDetails]="true"
           [pageSize]="10"
-          [storageId]="selectedStorageId"
+          [disabled]="!selectedStorageId"
           class="pharma-autocomplete"
         >
         </jhi-produit-search-autocomplete-scanner>
@@ -107,8 +107,8 @@
                       <i class="pi pi-building"></i>
                       {{ row.stockSource?.storage?.name }}
                     </span>
-                    <span class="stock-type-badge" [class.reserve-badge]="row.stockSource?.storage?.storageType === 'SAFETY_STOCK'">
-                      {{ row.stockSource?.storage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
+                    <span class="stock-type-badge" [class.reserve-badge]="row.stockSource?.storage?.type === 'SAFETY_STOCK'">
+                      {{ row.stockSource?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                     </span>
                   </div>
 
@@ -126,7 +126,7 @@
             <!-- Stock Destination Column -->
             <td>
               <div class="stock-card destination-card">
-                @if (row.availableDestinations.length === 0 && !row.createNewDestination) {
+                @if (row.availableDestinations.length === 0 ) {
                   <div class="no-destination">
                     <div class="no-destination-content">
                       <i class="pi pi-info-circle"></i>
@@ -142,50 +142,16 @@
                       }
                     </div>
                   </div>
-                } @else if (row.createNewDestination) {
-                  <div class="create-destination">
-                    <div class="create-destination-header">
-                      <i class="pi pi-plus-circle me-2 text-success"></i>
-                      <span>Création d'une nouvelle réserve</span>
-                    </div>
-                    <div class="create-destination-body">
-                      <div class="row g-2">
-                        <div class="col-6">
-                          <label class="form-label">Quantité</label>
-                          <p-inputNumber
-                            [(ngModel)]="row.quantity"
-                            (ngModelChange)="onQuantityChange(row)"
-                            [max]="maxQuantityForRow(row)"
-                            [min]="1"
-                            [showButtons]="true"
-                            [style]="{ width: '100%' }"
-                            size="small"
-                          />
-                        </div>
-                        <div class="col-6">
-                          <label class="form-label">Stock minimum</label>
-                          <p-inputNumber
-                            [(ngModel)]="row.seuilMini"
-                            (ngModelChange)="onSeuilMiniChange(row)"
-                            [min]="1"
-                            [showButtons]="true"
-                            [style]="{ width: '100%' }"
-                            size="small"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 } @else {
                   <div class="stock-card-inline">
                     <!-- Storage Info -->
                     <div class="storage-section">
                       <span class="stock-storage-name">
                         <i class="pi pi-building"></i>
-                        {{ row.stockDestination.storage?.name }}
+                        {{ row.stockDestination?.storage?.name }}
                       </span>
-                      <span class="stock-type-badge" [class.reserve-badge]="row.stockDestination.storage?.storageType === 'SAFETY_STOCK'">
-                        {{ row.stockDestination.storage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
+                      <span class="stock-type-badge" [class.reserve-badge]="row.stockDestination?.storage?.type === 'SAFETY_STOCK'">
+                        {{ row.stockDestination?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                       </span>
                     </div>
 
@@ -193,7 +159,7 @@
                     <div class="stock-info">
                       <div class="stock-item">
                         <label>Actuel</label>
-                        <span class="stock-value current">{{ row.stockDestination.qtyStock || 0 }}</span>
+                        <span class="stock-value current">{{ row.stockDestination?.qtyStock || 0 }}</span>
                       </div>
 
                       <div class="transfer-arrow">
@@ -202,7 +168,7 @@
 
                       <div class="stock-item">
                         <label>Après</label>
-                        <span class="stock-value after">{{ (row.stockDestination.qtyStock || 0) + row.quantity }}</span>
+                        <span class="stock-value after"> {{ getDestinationAfterQty(row) }}</span>
                       </div>
                     </div>
                   </div>

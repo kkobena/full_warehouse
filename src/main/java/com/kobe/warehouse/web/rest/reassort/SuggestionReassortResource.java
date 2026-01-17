@@ -35,8 +35,8 @@ public class SuggestionReassortResource {
         @RequestParam(required = false) TypeReassort typeReassort
     ) {
         LOG.debug("REST request to get open suggestions, type: {}", typeReassort);
-        List<SuggestionReassortDto> suggestions = suggestionReassortService.getOpenningSuggestions(typeReassort);
-        return ResponseEntity.ok().body(suggestions);
+
+        return ResponseEntity.ok().body(suggestionReassortService.getOpenningSuggestions(typeReassort));
     }
 
     /**

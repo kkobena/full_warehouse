@@ -6,7 +6,10 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RepartitionStockProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.SuggestionReassort;
+import com.kobe.warehouse.domain.enumeration.StatutReassort;
 import com.kobe.warehouse.domain.enumeration.StorageType;
+import com.kobe.warehouse.domain.enumeration.TypeReassort;
 import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import com.kobe.warehouse.repository.RepartitionStockProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
@@ -18,6 +21,7 @@ import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
+import com.kobe.warehouse.service.report.pdf.RepartitionStockPdfReportService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +34,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -38,19 +41,29 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
     private final StorageService storageService;
     private final RepartitionStockProduitRepository repartitionStockProduitRepository;
     private final StockProduitRepository stockProduitRepository;
+    private final RepartitionStockPdfReportService repartitionStockPdfReportService;
 
-    public RepartitionStockServiceImpl(StorageService storageService, RepartitionStockProduitRepository repartitionStockProduitRepository, StockProduitRepository stockProduitRepository) {
+    public RepartitionStockServiceImpl(StorageService storageService, RepartitionStockProduitRepository repartitionStockProduitRepository, StockProduitRepository stockProduitRepository, RepartitionStockPdfReportService repartitionStockPdfReportService) {
         this.storageService = storageService;
         this.repartitionStockProduitRepository = repartitionStockProduitRepository;
         this.stockProduitRepository = stockProduitRepository;
+        this.repartitionStockPdfReportService = repartitionStockPdfReportService;
     }
 
     @Override
-    public void process(Set<LigneReassort> ligneReassorts) {
+    public void process(SuggestionReassort suggestionReassort) {
+        if (isNull(suggestionReassort) || suggestionReassort.getStatut() != StatutReassort.OPEN) {
+            return;
+        }
+
+        Set<LigneReassort> ligneReassorts = suggestionReassort.getLigneReassorts();
         if (CollectionUtils.isEmpty(ligneReassorts)) {
             return;
         }
-        AppUser user = getCurrentUser();
+        AppUser user = suggestionReassort.getLastUserEdit();
+
+        TypeReassort typeReassort = suggestionReassort.getTypeReassort();
+        Storage srcStorage = typeReassort == TypeReassort.RESERVE ? storageService.getDefaultConnectedUserMainStorage() : storageService.getDefaultConnectedUserReserveStorage();
         for (LigneReassort reassort : ligneReassorts) {
             StockProduit stockProduitDest = reassort.getStockProduit();
             StockProduit stockProduitSrc = reassort.getStockProduitSrc();
@@ -58,12 +71,17 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
             RepartitionStockProduit repartitionStockProduit = createBaseRepartitionStockProduit(user);
             setDestinationStockInfo(repartitionStockProduit, stockProduitDest, reassort.getQuantity(), stockProduitDest.getTotalStockQuantity(), stockDesFinal);
-            if (nonNull(stockProduitSrc)) {
-                setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockProduitSrc.getTotalStockQuantity(), stockProduitSrc.getTotalStockQuantity() - reassort.getQuantity());
-                updateStockQuantity(stockProduitSrc, stockProduitSrc.getTotalStockQuantity() - reassort.getQuantity());
-            }
+            stockProduitSrc = isNull(stockProduitSrc) ? stockProduitDest.getProduit().getStockProduits().stream()
+                .filter(sp -> sp.getStorage().getId().equals(srcStorage.getId()))
+                .findFirst()
+                .orElseThrow(() -> new GenericError("Stock source inconnu")) : stockProduitSrc;
 
-            updateStockQuantity(stockProduitDest, stockProduitDest.getTotalStockQuantity() + reassort.getQuantity());
+            int stockSrcFinal = stockProduitSrc.getTotalStockQuantity() - reassort.getQuantity();
+            setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockProduitSrc.getTotalStockQuantity(), stockSrcFinal);
+            updateStockQuantity(stockProduitSrc, stockSrcFinal);
+
+
+            updateStockQuantity(stockProduitDest, stockDesFinal);
 
             repartitionStockProduitRepository.save(repartitionStockProduit);
         }
@@ -115,34 +133,19 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             Produit produit = stockProduitSrc.getProduit();
 
             boolean destIsReserveStorage = stockProduitSrc.getStorage().getStorageType() == StorageType.PRINCIPAL;
-
-            boolean isNewStockDest = isNull(queryDto.stockDestinationId());
-            StockProduit stockProduitDest = destIsReserveStorage ? produit.getStockProduits().stream().filter(stockProduit -> stockProduit.getStorage().getId().equals(storageReserve.getId())).findFirst().orElse(null) : produit.getStockProduits().stream().filter(stockProduit -> stockProduit.getStorage().getId().equals(storagePrincipal.getId())).findFirst().orElse(null);
-
+            StockProduit stockProduitDest = destIsReserveStorage ? getStockByStorage(produit.getStockProduits(), storageReserve) : getStockByStorage(produit.getStockProduits(), storagePrincipal);
+            if (isNull(stockProduitDest)) {
+                throw new GenericError("Stock source inconnu");
+            }
             int stockSrc = stockProduitSrc.getTotalStockQuantity();
             if (stockSrc <= queryDto.quantity()) {
                 continue;
             }
             int stockSrcFinal = stockSrc - queryDto.quantity();
-            int stockDestFinal;
-            int destInitStock = 0;
 
-            if (nonNull(stockProduitDest)) {
-                destInitStock = stockProduitDest.getTotalStockQuantity();
-                stockDestFinal = stockProduitDest.getTotalStockQuantity() + queryDto.quantity();
+            int destInitStock = stockProduitDest.getTotalStockQuantity();
+            int stockDestFinal = stockProduitDest.getTotalStockQuantity() + queryDto.quantity();
 
-            } else {
-                if (!destIsReserveStorage) {
-                    throw new GenericError("Le produit " + produit.getLibelle() + " n'a pas de stock dans le stockage principal");
-                }
-                stockProduitDest = createReserveStockProduit(queryDto, stockProduitSrc, storageReserve);
-                if (nonNull(stockProduitDest)) {
-                    stockDestFinal = stockProduitDest.getQtyStock();
-                } else {
-                    throw new GenericError("Le produit " + produit.getLibelle() + " n'a pas de stock dans le stockage de réserve");
-                }
-
-            }
 
             RepartitionStockProduit repartitionStockProduit = createBaseRepartitionStockProduit(getCurrentUser());
             setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockSrc, stockSrcFinal);
@@ -150,31 +153,12 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             repartitionStockProduitRepository.save(repartitionStockProduit);
 
             updateStockQuantity(stockProduitSrc, stockSrcFinal);
-            if (!isNewStockDest) {
-                updateStockQuantity(stockProduitDest, stockDestFinal);
-            }
+            updateStockQuantity(stockProduitDest, stockDestFinal);
 
         }
 
     }
 
-    private StockProduit createReserveStockProduit(RepartionQueryDto queryDto, StockProduit stockProduitSrc, Storage reserveStorage) {
-        Storage sourceStorage = stockProduitSrc.getStorage();
-        if (sourceStorage.getStorageType() == StorageType.SAFETY_STOCK) {
-            return null;
-        }
-        Produit produit = stockProduitSrc.getProduit();
-        StockProduit stockProduit = new StockProduit();
-        stockProduit.setProduit(produit);
-        stockProduit.setStorage(reserveStorage);
-        stockProduit.setQtyStock(queryDto.quantity());
-        stockProduit.setQtyUG(0);
-        stockProduit.setQtyVirtual(queryDto.quantity());
-        stockProduit.setSeuilMini(queryDto.seuilMini());
-        stockProduit.setCreatedAt(LocalDateTime.now());
-        stockProduit.setUpdatedAt(stockProduit.getCreatedAt());
-        return stockProduitRepository.save(stockProduit);
-    }
 
 
     @Override
@@ -203,7 +187,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         Storage stockageRayon = storageService.getDefaultConnectedUserMainStorage();
         Produit produit = stockProduitDest.getProduit();
         Set<StockProduit> stockProduits = produit.getStockProduits();
-        StockProduit stockProduitSrc = getStockRayon(stockProduits, stockageRayon);
+        StockProduit stockProduitSrc = getStockByStorage(stockProduits, stockageRayon);
         if (isNull(stockProduitSrc)) {
             return;
         }
@@ -215,6 +199,26 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockSrcInitial, stockSrcFinal);
         repartitionStockProduitRepository.save(repartitionStockProduit);
         updateStockQuantity(stockProduitSrc, stockSrcFinal);
+    }
+
+    @Override
+    public byte[] exportRepartitionStockProduits(RepartionSearchQueryDto searchQueryDto) {
+        Integer typeRepartitionOrdinal = searchQueryDto.typeRepartition() != null
+            ? searchQueryDto.typeRepartition().ordinal()
+            : null;
+
+        List<RepartitionStockProduitDto> repartitions = repartitionStockProduitRepository.findRepartitionStockProduits(
+            searchQueryDto.userId(),
+            typeRepartitionOrdinal,
+            searchQueryDto.storageId(),
+            searchQueryDto.stockProduitId(),
+            searchQueryDto.searchTerm(),
+            searchQueryDto.dateDebut(),
+            searchQueryDto.dateFin(),
+            Pageable.unpaged()
+        ).getContent().stream().map(this::mapProjectionToDto).toList();
+
+        return repartitionStockPdfReportService.export(repartitions, searchQueryDto);
     }
 
     /**
@@ -360,12 +364,12 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         return dto;
     }
 
-    private StockProduit getStockRayon(Set<StockProduit> stockProduits, Storage storageRayon) {
+    private StockProduit getStockByStorage(Set<StockProduit> stockProduits, Storage storage) {
         if (CollectionUtils.isEmpty(stockProduits)) {
             return null;
         }
         return stockProduits.stream()
-            .filter(sp -> Objects.equals(sp.getStorage(), storageRayon))
+            .filter(sp -> Objects.equals(sp.getStorage(), storage))
             .findFirst()
             .orElse(null);
     }

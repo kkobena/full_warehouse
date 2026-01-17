@@ -289,6 +289,19 @@
                     />
                   }
 
+                  @if (active === 'REPARTITION_STOCK') {
+                    <p-button
+                      (click)="exportRepartitionStockToPdf()"
+                      [raised]="true"
+                      icon="pi pi-file-pdf"
+                      label="Exporter PDF"
+                      pTooltip="Exporter l'historique en PDF"
+                      severity="warn"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+
                   @if ((active === 'REQUESTED' || active === 'SUGGESTIONS') && selectionLength > 1) {
                     <p-button
                       (click)="fusionner()"

@@ -38,10 +38,10 @@
             </p-buttonGroup>
           } @else {
             <p-buttonGroup>
-              <p-button size="small" [raised]="true" (click)="save()" icon="pi pi-check" label="Valider"
+              <p-button  [raised]="true" (click)="save()" icon="pi pi-check" label="Valider"
                         severity="success"/>
               <p-button
-                size="small"
+
                 [raised]="true"
                 (click)="putCurrentSaleOnStandBy()"
                 icon="pi pi-pause"
@@ -49,7 +49,7 @@
                 severity="secondary"
               />
               <p-button
-                size="small"
+
                 [raised]="true"
                 (click)="confirmRemove()"
                 icon="pi pi-trash"

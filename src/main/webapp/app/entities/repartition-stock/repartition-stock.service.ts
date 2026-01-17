@@ -11,10 +11,10 @@ type SuggestionResponseType = HttpResponse<ISuggestionReassort>;
 
 @Injectable({ providedIn: 'root' })
 export class RepartitionStockService {
-  protected http = inject(HttpClient);
-  protected applicationConfigService = inject(ApplicationConfigService);
-  protected resourceUrl = this.applicationConfigService.getEndpointFor('api/repartition-stock');
-  protected suggestionUrl = this.applicationConfigService.getEndpointFor('api/suggestion-reassort');
+  private readonly http = inject(HttpClient);
+  private readonly applicationConfigService = inject(ApplicationConfigService);
+  private readonly resourceUrl = this.applicationConfigService.getEndpointFor('api/repartition-stock');
+  private readonly suggestionUrl = this.applicationConfigService.getEndpointFor('api/suggestion-reassort');
 
   /**
    * Fetch repartition stock history with filters
@@ -80,6 +80,17 @@ export class RepartitionStockService {
     return this.http.get<any[]>(this.applicationConfigService.getEndpointFor('api/stock-produit/search-for-repartition'), {
       params,
       observe: 'response',
+    });
+  }
+
+  /**
+   * Export repartition stock history to PDF
+   */
+  exportToPdf(req: IRepartitionSearchQuery): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/export/pdf`, {
+      params: options,
+      responseType: 'blob',
     });
   }
 }

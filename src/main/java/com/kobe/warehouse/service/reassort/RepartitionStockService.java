@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.reassort;
 
 import com.kobe.warehouse.domain.LigneReassort;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.SuggestionReassort;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 public interface RepartitionStockService {
 
-    void process(Set<LigneReassort> ligneReassorts);
+    void process(SuggestionReassort suggestionReassort );
 
     void processReassortStockRayon(Set<LigneReassort> ligneReassorts);
 
@@ -25,5 +26,5 @@ public interface RepartitionStockService {
     Lors de l'ajout de stock de reserve , on peut transférer transférer du stock du stock de rayon vers le stock de reserve
      */
     void transferStockBetweenStorages(StockProduit stockProduitDest);
-
+   byte[] exportRepartitionStockProduits(RepartionSearchQueryDto searchQueryDto);
 }

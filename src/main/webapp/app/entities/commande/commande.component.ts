@@ -334,4 +334,8 @@ export class CommandeComponent implements OnInit {
       semoisComp.searchText.set(value);
     }
   }
+
+  protected exportRepartitionStockToPdf(): void {
+    this.repartitionStockComponent()?.exportToPdf();
+  }
 }

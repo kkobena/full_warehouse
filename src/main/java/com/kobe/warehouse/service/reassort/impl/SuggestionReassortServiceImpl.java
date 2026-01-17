@@ -128,11 +128,10 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
             LOG.debug("Impossible de valider une suggestion de reassort qui n'est pas en statut OPEN");
             return;
         }
-        AppUser user = getCurrentUser();
-        repartitionStockService.process(suggestionReassort.getLigneReassorts());
-        suggestionReassort.setStatut(StatutReassort.CLOSED);
         suggestionReassort.setUpdatedAt(LocalDateTime.now());
-        suggestionReassort.setLastUserEdit(user);
+        suggestionReassort.setLastUserEdit(getCurrentUser());
+        repartitionStockService.process(suggestionReassort);
+        suggestionReassort.setStatut(StatutReassort.CLOSED);
         suggestionReassortRepository.save(suggestionReassort);
     }
 

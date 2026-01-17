@@ -1,6 +1,5 @@
 import { Component, inject, input, viewChild, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterModule } from '@angular/router';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -15,6 +14,11 @@ import { RepartitionListComponent } from './repartition-list/repartition-list.co
 import { SuggestionReassortComponent } from './suggestion-reassort/suggestion-reassort.component';
 import { ManualRepartitionComponent } from './manual-repartition/manual-repartition.component';
 import { NgbNav, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { RepartitionStockService } from './repartition-stock.service';
+import { DATE_FORMAT_ISO_DATE } from '../../shared/util/warehouse-util';
+import { formatDate } from '@angular/common';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-repartition-stock',
@@ -48,11 +52,29 @@ export class RepartitionStockComponent {
 
   protected activeTab = 'historique';
   protected readonly appendTo = APPEND_TO;
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly repartitionStockService = inject(RepartitionStockService);
 
   onSearch(): void {
     if (this.activeTab === 'historique') {
       this.repartitionList()?.onSearch();
     }
+  }
+
+  exportToPdf(): void {
+    this.repartitionStockService
+      .exportToPdf({
+        dateDebut: DATE_FORMAT_ISO_DATE(this.dtStart()),
+        dateFin: DATE_FORMAT_ISO_DATE(this.dtEnd()),
+        searchTerm: this.search() || null,
+      })
+      .subscribe(blob => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'Repartition_Stock');
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
+      });
   }
 
   protected onTabChange(navChangeEvent: any): void {

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 import java.time.LocalDate;
@@ -92,5 +96,47 @@ public class RepartitionStockResource {
 
         repartitionStockService.process(requests);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * {@code GET /api/repartition-stock/export/pdf} : Export stock repartition history to PDF
+     *
+     * @param storageId       filter by storage
+     * @param userId          filter by user
+     * @param searchTerm      search in product name/code
+     * @param dateDebut       start date filter
+     * @param dateFin         end date filter
+     * @param typeRepartition filter by repartition type
+     * @param stockProduitId  filter by stock product
+     * @return the {@link ResponseEntity} with PDF content
+     */
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportRepartitionStockToPdf(
+        @RequestParam(required = false) Integer storageId,
+        @RequestParam(required = false) Integer userId,
+        @RequestParam(required = false) String searchTerm,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+        @RequestParam(required = false) String typeRepartition,
+        @RequestParam(required = false) Integer stockProduitId
+    ) {
+        LOG.debug("REST request to export repartition stock history to PDF");
+
+        RepartionSearchQueryDto searchQuery = new RepartionSearchQueryDto(
+            storageId,
+            userId,
+            searchTerm,
+            dateDebut,
+            dateFin,
+            typeRepartition != null ? TypeRepartition.valueOf(typeRepartition) : null,
+            stockProduitId
+        );
+
+        String filename = "Repartition_Stock_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(repartitionStockService.exportRepartitionStockProduits(searchQuery));
     }
 }

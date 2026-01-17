@@ -3,18 +3,17 @@ import { FormsModule } from '@angular/forms';
 import { RepartitionStockService } from '../repartition-stock.service';
 import { IStockProduit } from '../../../shared/model/stock-produit.model';
 import { ButtonModule } from 'primeng/button';
-import { InputNumber } from 'primeng/inputnumber';
 import { Select } from 'primeng/select';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { StorageService } from '../../../entities/storage/storage.service';
+import { StorageService } from '../../storage/storage.service';
 import { HttpResponse } from '@angular/common/http';
 import { IStorage } from '../../../shared/model/magasin.model';
 import { Toast } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
-import { IProduit, ProduitSearch, ProduitStockSearch } from '../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../shared/model/produit.model';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialog } from 'primeng/confirmdialog';
@@ -46,7 +45,6 @@ export interface IRepartitionRow {
     WarehouseCommonModule,
     FormsModule,
     ButtonModule,
-    InputNumber,
     Select,
     TableModule,
     TooltipModule,
@@ -90,10 +88,17 @@ export class ManualRepartitionComponent implements OnInit {
   protected onStorageChange(): void {
     this.produitSelected = null;
     this.repartitionRows = [];
-    this.produitbox()?.getFocus();
+    this.setProductBoxFocus();
+  }
+
+  private setProductBoxFocus(): void {
+    setTimeout(() => {
+      this.produitbox()?.getFocus();
+    }, 50);
   }
 
   /**
+
    * Handle product selection from autocomplete
    * Use stocks from ProduitSearch and check for destination
    */
@@ -122,7 +127,7 @@ export class ManualRepartitionComponent implements OnInit {
         detail: "Aucun stock trouvé pour ce produit dans l'emplacement sélectionné",
       });
       this.produitSelected = null;
-      this.produitbox()?.getFocus();
+      this.setProductBoxFocus();
       return;
     }
 
@@ -134,7 +139,7 @@ export class ManualRepartitionComponent implements OnInit {
         detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
       });
       this.produitSelected = null;
-      this.produitbox()?.getFocus();
+      this.setProductBoxFocus();
       return;
     }
 
@@ -142,66 +147,17 @@ export class ManualRepartitionComponent implements OnInit {
     const otherStocks = produit.stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
 
     if (otherStocks.length === 0) {
-      // No destination found - show confirm dialog
-      this.confirmDialog()?.onConfirm(
-        () => this.createNewDestinationRow(produit, stockInSelectedStorage),
-        'Création de destination',
-        'Aucune destination disponible pour ce produit. Voulez-vous créer une nouvelle destination ?',
-        'pi pi-question-circle',
-        () => {
-          this.produitSelected = null;
-          this.produitbox()?.getFocus();
-        },
-      );
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Stock Réserve',
+        detail: 'Ce produit ne possède de réserve. Vous devez en créer une pour pouvoir effectuer une répartition.',
+      });
+      this.produitSelected = null;
+      this.setProductBoxFocus();
     } else {
       // Stock destination found - focus quantity input
       this.quantityBox()?.focusProduitControl();
     }
-  }
-
-  /**
-   * Create a row with new destination creation form
-   */
-  protected createNewDestinationRow(produit: ProduitSearch, stockSource: ProduitStockSearch): void {
-    // Safety check: ensure stock quantity is > 0
-    if (!stockSource.quantite || stockSource.quantite <= 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Stock insuffisant',
-        detail: 'La quantité disponible est insuffisante pour créer une répartition',
-      });
-      this.produitSelected = null;
-      this.produitbox()?.getFocus();
-      return;
-    }
-
-    const stockProduit: IStockProduit = {
-      id: stockSource.storage,
-      qtyStock: stockSource.quantite,
-      storage: this.storages.find(s => s.id === stockSource.storage),
-      produit: {
-        id: produit.id,
-        libelle: produit.libelle,
-        codeCip: produit.fournisseurProduit?.codeCip,
-        stockProduits: [] as IStockProduit[],
-      },
-    };
-
-    const newRow: IRepartitionRow = {
-      id: `row-${Date.now()}-${Math.random()}`,
-      stockSource: stockProduit,
-      quantity: 1,
-      isValid: false,
-      errors: [],
-      availableDestinations: [],
-      createNewDestination: true,
-      seuilMini: 1,
-    };
-
-    this.validateRow(newRow);
-    this.repartitionRows.push(newRow);
-
-    this.produitSelected = null;
   }
 
   /**
@@ -237,7 +193,7 @@ export class ManualRepartitionComponent implements OnInit {
     // Map other stocks to IStockProduit for destinations
     const otherStocks = this.produitSelected.stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
     const availableDestinations: IStockProduit[] = otherStocks.map(stock => ({
-      id: stock.storage,
+      id: stock.id,
       qtyStock: stock.quantite,
       storage: this.storages.find(s => s.id === stock.storage),
       produit: {
@@ -249,7 +205,7 @@ export class ManualRepartitionComponent implements OnInit {
     }));
 
     const stockSource: IStockProduit = {
-      id: stockInSelectedStorage.storage,
+      id: stockInSelectedStorage.id,
       qtyStock: stockInSelectedStorage.quantite,
       storage: this.storages.find(s => s.id === stockInSelectedStorage.storage),
       produit: {
@@ -262,24 +218,18 @@ export class ManualRepartitionComponent implements OnInit {
 
     this.addRow(stockSource, quantity);
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Ajout',
-      detail: `Produit ajouté avec quantité ${quantity}`,
-    });
-
     // Clear selection and focus back to search
     this.produitSelected = null;
     this.quantityBox()?.reset();
-    this.produitbox()?.getFocus();
+    this.setProductBoxFocus();
   }
 
   protected addRow(stockSource: IStockProduit, quantity = 1): void {
     const availableDestinations = this.getAvailableDestinations(stockSource);
-
     const newRow: IRepartitionRow = {
       id: `row-${Date.now()}-${Math.random()}`,
       stockSource,
+      stockDestination: availableDestinations.length > 0 ? availableDestinations[0] : undefined,
       quantity,
       isValid: false,
       errors: [],
@@ -294,15 +244,8 @@ export class ManualRepartitionComponent implements OnInit {
     if (!stockSource?.produit?.stockProduits) {
       return [];
     }
-
     const produitStocks = stockSource.produit.stockProduits;
-
-    // Si la source est SAFETY_STOCK (Reserve), afficher uniquement le rayon (PRINCIPAL)
-    if (stockSource.storage?.storageType === 'SAFETY_STOCK') {
-      return produitStocks.filter(sp => sp.storage?.storageType === 'PRINCIPAL' && sp.id !== stockSource.id);
-    }
-
-    // Sinon, afficher tous les autres stocks sauf la source
+    console.log('produitStocks', produitStocks);
     return produitStocks.filter(sp => sp.id !== stockSource.id);
   }
 
@@ -328,20 +271,9 @@ export class ManualRepartitionComponent implements OnInit {
     }
 
     // Check destination only if not creating a new one
-    if (!row.createNewDestination && !row.stockDestination) {
+    if (!row.stockDestination) {
       row.errors.push('Stock destination requis');
       row.isValid = false;
-    }
-
-    // Check seuil mini if creating new destination
-    if (row.createNewDestination) {
-      if (row.seuilMini === undefined || row.seuilMini === null) {
-        row.errors.push('Seuil minimum requis');
-        row.isValid = false;
-      } else if (row.seuilMini <= 0) {
-        row.errors.push('Seuil minimum doit être > 0');
-        row.isValid = false;
-      }
     }
 
     if (row.stockSource?.id === row.stockDestination?.id) {
@@ -377,9 +309,9 @@ export class ManualRepartitionComponent implements OnInit {
       });
       return;
     }
-
+    console.log(this.repartitionRows, 'repartitionRows');
     const requests: IManualRepartitionRequest[] = this.repartitionRows
-      .filter(row => row.isValid && row.stockSource && (row.stockDestination || row.createNewDestination))
+      .filter(row => row.isValid && row.stockSource && row.stockDestination)
       .map(row => ({
         stockSourceId: row.stockSource.id,
         stockDestinationId: row.stockDestination?.id,
@@ -398,7 +330,7 @@ export class ManualRepartitionComponent implements OnInit {
         });
         this.repartitionRows = [];
         this.produitSelected = null;
-        this.produitbox()?.getFocus();
+        this.setProductBoxFocus();
       },
       error: () => {
         this.isSaving = false;
@@ -420,12 +352,12 @@ export class ManualRepartitionComponent implements OnInit {
    * Can create if source is PRINCIPAL (Rayon) and no SAFETY_STOCK exists
    */
   protected canCreateReserve(row: IRepartitionRow): boolean {
-    if (!row.stockSource || row.stockSource.storage?.storageType !== 'PRINCIPAL') {
+    if (!row.stockSource || row.stockSource.storage?.type !== 'PRINCIPAL') {
       return false;
     }
 
     // Check if there's already a SAFETY_STOCK for this product
-    const hasReserve = row.stockSource.produit?.stockProduits?.some(sp => sp.storage?.storageType === 'SAFETY_STOCK');
+    const hasReserve = row.stockSource.produit?.stockProduits?.some(sp => sp.storage?.type === 'SAFETY_STOCK');
     return !hasReserve;
   }
 
@@ -436,5 +368,11 @@ export class ManualRepartitionComponent implements OnInit {
     row.createNewDestination = true;
     row.stockDestination = undefined;
     this.validateRow(row);
+  }
+
+  getDestinationAfterQty(row: IRepartitionRow): number {
+    const current = Number(row?.stockDestination?.qtyStock ?? 0);
+    const qty = Number(row?.quantity ?? 0);
+    return current + qty;
   }
 }

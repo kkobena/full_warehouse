@@ -22,7 +22,11 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -89,6 +93,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
 
     @Column(name = "montant_regle")
     private Integer montantRegle = 0;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "repartitions")
+    private List<RepartitionTiersPayantParTva> repartitions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(

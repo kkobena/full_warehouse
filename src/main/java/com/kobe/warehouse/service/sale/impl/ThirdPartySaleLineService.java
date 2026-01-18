@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.id_generator.AssuranceItemIdGeneratorService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,16 +19,13 @@ public class ThirdPartySaleLineService {
 
     private final AssuranceItemIdGeneratorService assuranceItemIdGeneratorService;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final StorageService storageService;
 
     public ThirdPartySaleLineService(
         AssuranceItemIdGeneratorService assuranceItemIdGeneratorService,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        StorageService storageService
+        ThirdPartySaleLineRepository thirdPartySaleLineRepository
     ) {
         this.assuranceItemIdGeneratorService = assuranceItemIdGeneratorService;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-        this.storageService = storageService;
     }
 
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {

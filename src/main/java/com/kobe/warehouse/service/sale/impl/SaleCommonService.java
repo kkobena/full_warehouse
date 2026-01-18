@@ -28,6 +28,9 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,9 +38,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -52,6 +52,7 @@ public class SaleCommonService {
     private final PosteRepository posteRepository;
     private final CustomerDisplayService afficheurPosService;
     private final SaleIdGeneratorService idGeneratorService;
+    private final ObjectMapper objectMapper;
 
     public SaleCommonService(
         ReferenceService referenceService,
@@ -61,7 +62,7 @@ public class SaleCommonService {
         CashRegisterService cashRegisterService,
         PosteRepository posteRepository,
         CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService
+        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper
     ) {
         this.referenceService = referenceService;
 
@@ -72,6 +73,7 @@ public class SaleCommonService {
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
         this.idGeneratorService = idGeneratorService;
+        this.objectMapper = objectMapper;
     }
 
     public void computeSaleEagerAmount(Sales c) {
@@ -163,13 +165,14 @@ public class SaleCommonService {
 
     public String buildTvaData(Set<SalesLine> salesLines) {
         if (salesLines != null && !salesLines.isEmpty()) {
-            JSONArray array = new JSONArray();
+
+            ArrayNode array = objectMapper.createArrayNode();
             salesLines
                 .stream()
                 .filter(saleLine -> saleLine.getTaxValue() > 0)
                 .collect(Collectors.groupingBy(SalesLine::getTaxValue))
                 .forEach((k, v) -> {
-                    JSONObject json = new JSONObject();
+                    ObjectNode json = objectMapper.createObjectNode();
 
                     int totalTva = 0;
                     for (SalesLine item : v) {
@@ -177,11 +180,9 @@ public class SaleCommonService {
                         int htAmont = (int) Math.ceil(item.getSalesAmount() / valeurTva);
                         totalTva += (item.getSalesAmount() - htAmont);
                     }
-                    try {
-                        json.put("tva", k);
-                        json.put("amount", totalTva);
-                        array.put(json);
-                    } catch (JSONException _) {}
+                    json.put("tva", k);
+                    json.put("amount", totalTva);
+                    array.add(json);
                 });
             if (!array.isEmpty()) {
                 return array.toString();

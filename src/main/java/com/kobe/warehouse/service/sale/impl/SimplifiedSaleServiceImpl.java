@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
@@ -48,8 +49,8 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
     private final SalesLineService salesLineService;
     private final PaymentService paymentService;
 
-    public SimplifiedSaleServiceImpl(PaymentService paymentService, CashSaleRepository cashSaleRepository, ReferenceService referenceService, StorageService storageService, UserRepository userRepository, SaleLineServiceFactory saleLineServiceFactory, CashRegisterService cashRegisterService, PosteRepository posteRepository, CustomerDisplayService afficheurPosService, SaleIdGeneratorService idGeneratorService, UninsuredCustomerRepository uninsuredCustomerRepository) {
-        super(referenceService, storageService, userRepository, saleLineServiceFactory, cashRegisterService, posteRepository, afficheurPosService, idGeneratorService);
+    public SimplifiedSaleServiceImpl(PaymentService paymentService, CashSaleRepository cashSaleRepository, ReferenceService referenceService, StorageService storageService, UserRepository userRepository, SaleLineServiceFactory saleLineServiceFactory, CashRegisterService cashRegisterService, PosteRepository posteRepository, CustomerDisplayService afficheurPosService, SaleIdGeneratorService idGeneratorService, UninsuredCustomerRepository uninsuredCustomerRepository, ObjectMapper objectMapper) {
+        super(referenceService, storageService, userRepository, saleLineServiceFactory, cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,objectMapper);
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
         this.storageService = storageService;
         this.cashSaleRepository = cashSaleRepository;

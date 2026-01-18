@@ -44,7 +44,11 @@
       "WebFetch(domain:angular.love)",
       "Bash(npm view:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run webapp:build:dev:*)"
+      "Bash(npm run webapp:build:dev:*)",
+      "Bash(cmd /c copy:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(mvnw.cmd compile:*)",
+      "Bash(cmd /c:*)"
     ],
     "deny": [],
     "ask": []

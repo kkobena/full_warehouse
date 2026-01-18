@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
@@ -88,7 +89,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
         CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService
+        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper
     ) {
         super(
             referenceService,
@@ -98,7 +99,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService
+            idGeneratorService,objectMapper
         );
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;

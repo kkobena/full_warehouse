@@ -370,7 +370,7 @@
                 <!--   <th style="width: 5%">T.ACHAT</th>-->
                 @if (showLotColumn()) {
                   <th style="width: 7%">Lots</th>
-                  <th style="width: 7%">Date péremption</th>
+
                 }
 
                 <th style="width: 6%"></th>
@@ -514,11 +514,7 @@
                     }
                   </td>
 
-                  <td>
-                    @for (lot of orderLine.lots; track lot.numLot) {
-                      <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
-                    }
-                  </td>
+
                 }
                 <td class="d-flex justify-content-end" style="text-align: right">
                   <p-buttonGroup>

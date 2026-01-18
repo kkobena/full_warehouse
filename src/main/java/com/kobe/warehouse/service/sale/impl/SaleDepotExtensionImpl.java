@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.sale.impl;
 
 import static java.util.Objects.isNull;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.Magasin;
@@ -74,7 +75,8 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         SaleIdGeneratorService idGeneratorService,
         VenteDepotRepository venteDepotRepository,
         StockUpdateService stockUpdateService,
-        InventoryTransactionService inventoryTransactionService
+        InventoryTransactionService inventoryTransactionService,
+        ObjectMapper objectMapper
     ) {
         super(
             referenceService,
@@ -84,7 +86,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService
+            idGeneratorService,objectMapper
         );
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.VenteDepot);
         this.storageService = storageService;

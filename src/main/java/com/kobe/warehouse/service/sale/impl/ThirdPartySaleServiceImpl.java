@@ -146,7 +146,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService
+            idGeneratorService,objectMapper
         );
         this.idGeneratorService = idGeneratorService;
         this.thirdPartySaleLineService = ThirdPartySaleLineService;

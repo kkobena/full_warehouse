@@ -24,6 +24,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -108,6 +110,10 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @OneToMany(mappedBy = "factureTiersPayant")
     private List<ThirdPartySaleLine> facturesDetails = new ArrayList<>();
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "repartitions")
+    private List<RepartitionTiersPayantParTva> repartitions = new ArrayList<>();
+
     @Transient
     private boolean isNew = true;
 
@@ -130,6 +136,14 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     public FactureTiersPayant setGenerationCode(Integer generationCode) {
         this.generationCode = generationCode;
         return this;
+    }
+
+    public List<RepartitionTiersPayantParTva> getRepartitions() {
+        return repartitions;
+    }
+
+    public void setRepartitions(List<RepartitionTiersPayantParTva> repartitions) {
+        this.repartitions = repartitions;
     }
 
     public LocalDate getInvoiceDate() {

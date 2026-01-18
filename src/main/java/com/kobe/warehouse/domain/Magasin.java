@@ -92,6 +92,12 @@ public class Magasin implements Serializable {
     @Column(name = "manager_last_name", length = 100)
     private String managerLastName;
 
+    @Column(name = "fne_point_of_sale")
+    private String fnePointOfSale;
+
+    @Column(name = "fne_secret_key")
+    private String fneSecretKey;
+
     public String getManagerFirstName() {
         return managerFirstName;
     }
@@ -99,6 +105,22 @@ public class Magasin implements Serializable {
     public Magasin setManagerFirstName(String managerFirstName) {
         this.managerFirstName = managerFirstName;
         return this;
+    }
+
+    public String getFnePointOfSale() {
+        return fnePointOfSale;
+    }
+
+    public void setFnePointOfSale(String fnePointOfSale) {
+        this.fnePointOfSale = fnePointOfSale;
+    }
+
+    public String getFneSecretKey() {
+        return fneSecretKey;
+    }
+
+    public void setFneSecretKey(String fneSecretKey) {
+        this.fneSecretKey = fneSecretKey;
     }
 
     public String getManagerLastName() {

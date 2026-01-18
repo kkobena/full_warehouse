@@ -119,6 +119,14 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
         return this;
     }
 
+    public List<RepartitionTiersPayantParTva> getRepartitions() {
+        return repartitions;
+    }
+
+    public void setRepartitions(List<RepartitionTiersPayantParTva> repartitions) {
+        this.repartitions = repartitions;
+    }
+
     public LocalDate getSaleDate() {
         return saleDate;
     }

@@ -10,9 +10,7 @@ public class FneInvoice {
     private String clientNcc;
     @NotNull
     private String clientCompanyName;
-    @NotNull
     private String clientPhone;
-    @NotNull
     private String clientEmail;
     @NotNull
     private String pointOfSale;

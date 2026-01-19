@@ -18,6 +18,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -25,16 +29,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @IdClass(AssuranceSaleId.class)
 @Table(
     name = "third_party_sale_line",
-    indexes = { @Index(columnList = "num_bon", name = "third_party_sale_line_num_bon") },
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "client_tiers_payant_id", "sale_id", "sale_date" }) }
+    indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")},
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})}
 )
 public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Serializable, Cloneable {
 

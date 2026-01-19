@@ -31,7 +31,16 @@ public class ServiceUtil {
     public static long computeHtaxe(long ttc, double taxe) {
         return (long) (ttc / (1 + (taxe / 100)));
     }
+    public static int arrondiTauxCouverture(int taux) {
 
+        int arrondi = Math.round(taux / 5f) * 5;
+
+        return Math.min(100, arrondi);
+
+    }
+    private double calculHt(int ttc, int tva) {
+        return (ttc) * 1.0 / (1 + (tva / 100.f));
+    }
     public static boolean isPaymentMode(String modePayment) {
         return (
             ModePaimentCode.MTN.name().equalsIgnoreCase(modePayment) ||

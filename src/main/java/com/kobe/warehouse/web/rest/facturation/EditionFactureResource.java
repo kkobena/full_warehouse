@@ -232,4 +232,14 @@ public class EditionFactureResource {
     ) {
         return ResponseEntity.ok().body(editionService.findDossierFacture(new FactureItemId(id, invoiceDate), isGroup));
     }
+
+    @GetMapping("/edition-factures/certify/{id}/{invoiceDate}")
+    public ResponseEntity<Void> certify(
+        @PathVariable Long id,
+        @PathVariable LocalDate invoiceDate,
+        @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
+    ) {
+        editionService.certifyFacture(new FactureItemId(id, invoiceDate), isGroup);
+        return ResponseEntity.ok().build();
+    }
 }

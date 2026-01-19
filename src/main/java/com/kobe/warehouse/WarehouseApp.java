@@ -113,8 +113,5 @@ public class WarehouseApp {
         }
     }
 
-    @Bean
-    public HttpClient httpClient() {
-        return HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).followRedirects(HttpClient.Redirect.NORMAL).build();
-    }
+
 }

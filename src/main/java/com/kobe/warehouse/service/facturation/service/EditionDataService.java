@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
@@ -12,11 +13,12 @@ import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface EditionDataService {
     Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams, Pageable pageable);
@@ -46,4 +48,6 @@ public interface EditionDataService {
     Page<FacturationDossier> findFactureReglementData(FactureItemId id, Pageable pageable);
 
     DossierFactureProjection findDossierFacture(FactureItemId id, boolean isGroup);
+
+    void certifyFacture(FactureItemId id,boolean isGroup) throws GenericError;
 }

@@ -51,7 +51,7 @@ public interface FacturationRepository
         Sort sort
     );
 
-    default Specification<FactureTiersPayant> fetchByIs(Set<FactureItemId> ids) {
+    default Specification<FactureTiersPayant> fetchByIds(Set<FactureItemId> ids) {
         return (root, _, cb) -> {
             In<Long> selectionIds = cb.in(root.get(FactureTiersPayant_.id));
             ids.forEach(factureItemId -> selectionIds.value(factureItemId.getId()));

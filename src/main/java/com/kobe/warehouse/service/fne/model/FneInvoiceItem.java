@@ -1,6 +1,10 @@
 package com.kobe.warehouse.service.fne.model;
 
-public record FneInvoiceItem() {}
+import jakarta.validation.constraints.NotNull;
+
+public record FneInvoiceItem(String[] taxes, @NotNull String reference, @NotNull String description,
+                             @NotNull Double amount) {
+}
 /*
  private final int quantity = 1;
     private String[] taxes = { "TVAD" };

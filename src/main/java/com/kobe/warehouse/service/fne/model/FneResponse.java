@@ -1,11 +1,8 @@
 package com.kobe.warehouse.service.fne.model;
 
-public class FneResponse {
+import jakarta.validation.constraints.NotNull;
 
-    private String ncc;
-    private String reference;
-    private String token;
-    private Boolean warning;
+public record FneResponse(@NotNull String reference, @NotNull String token) {
 
-    private FneResponseInvoice invoice;
+
 }

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.service.fne.model.FneResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,20 +19,21 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(
     name = "facture_tiers_payant",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_facture", "invoice_date" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"num_facture", "invoice_date"})},
     indexes = {
         @Index(columnList = "generation_code", name = "generation_code_index"),
         @Index(columnList = "num_facture", name = "num_facture_index"),
@@ -113,6 +115,10 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "repartitions")
     private List<RepartitionTiersPayantParTva> repartitions = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "fne_response")
+    private FneResponse fneResponse;
 
     @Transient
     private boolean isNew = true;
@@ -304,6 +310,14 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     public FactureTiersPayant setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
+    }
+
+    public FneResponse getFneResponse() {
+        return fneResponse;
+    }
+
+    public void setFneResponse(FneResponse fneResponse) {
+        this.fneResponse = fneResponse;
     }
 
     @Override

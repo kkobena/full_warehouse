@@ -4,5 +4,5 @@ import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.service.errors.GenericError;
 
 public interface FneService {
-    void create(FactureItemId factureItemId) throws GenericError;
+    void create(FactureItemId factureItemId, boolean isGroup) throws GenericError;
 }

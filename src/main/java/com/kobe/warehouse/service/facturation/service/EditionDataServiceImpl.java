@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
@@ -27,15 +28,8 @@ import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.facturation.specification.EditionDataSpecification;
+import com.kobe.warehouse.service.fne.service.FneService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -48,6 +42,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 @Service
 @Transactional
 public class EditionDataServiceImpl implements EditionDataService {
@@ -58,26 +61,28 @@ public class EditionDataServiceImpl implements EditionDataService {
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final FacturationPdfExportService facturationPdfExportService;
     private final GroupeFacturePdfExportService groupeFacturePdfExportService;
+    private final FneService fneService;
 
     public EditionDataServiceImpl(
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationPdfExportService facturationPdfExportService,
-        GroupeFacturePdfExportService groupeFacturePdfExportService
+        GroupeFacturePdfExportService groupeFacturePdfExportService, FneService fneService
     ) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationPdfExportService = facturationPdfExportService;
         this.groupeFacturePdfExportService = groupeFacturePdfExportService;
+        this.fneService = fneService;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams, Pageable pageable) {
         return this.thirdPartySaleLineRepository.findAll(
-                buildFetchSpecification(editionSearchParams),
-                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "sale.updatedAt"))
-            ).map(this::fromThirdPartySaleLine);
+            buildFetchSpecification(editionSearchParams),
+            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "sale.updatedAt"))
+        ).map(this::fromThirdPartySaleLine);
     }
 
     @Override
@@ -86,9 +91,9 @@ public class EditionDataServiceImpl implements EditionDataService {
         try {
             if (editionSearchParams.modeEdition() == ModeEditionEnum.GROUP) {
                 return this.thirdPartySaleLineRepository.fetchGroup(
-                        EditionDataSpecification.aThirdPartySaleLine(editionSearchParams),
-                        pageable
-                    );
+                    EditionDataSpecification.aThirdPartySaleLine(editionSearchParams),
+                    pageable
+                );
             }
             return this.thirdPartySaleLineRepository.fetch(EditionDataSpecification.aThirdPartySaleLine(editionSearchParams), pageable);
         } catch (Exception e) {
@@ -148,7 +153,7 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     @Override
     public void deleteFacture(Set<FactureItemId> ids) {
-        List<FactureTiersPayant> factureTiersPayants = this.facturationRepository.findAll(this.facturationRepository.fetchByIs(ids));
+        List<FactureTiersPayant> factureTiersPayants = this.facturationRepository.findAll(this.facturationRepository.fetchByIds(ids));
         factureTiersPayants.forEach(t -> {
             List<ThirdPartySaleLine> thirdPartySaleLines = t.getFacturesDetails();
             thirdPartySaleLines.forEach(thirdPartySaleLine -> {
@@ -172,16 +177,16 @@ public class EditionDataServiceImpl implements EditionDataService {
         var generatedDate = LocalDate.parse(yyyymm + "01", DateTimeFormatter.ofPattern("yyyyMMdd"));
         if (isGroup) {
             return this.facturationRepository.findAllByGenerationCodeAndGroupeFactureTiersPayantIsNull(
-                    generationCode,
-                    generatedDate,
-                    Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "groupeTiersPayant.name"))
-                );
-        }
-        return this.facturationRepository.findAll(
                 generationCode,
                 generatedDate,
-                Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "tiersPayant.fullName"))
+                Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "groupeTiersPayant.name"))
             );
+        }
+        return this.facturationRepository.findAll(
+            generationCode,
+            generatedDate,
+            Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "tiersPayant.fullName"))
+        );
     }
 
     @Override
@@ -223,6 +228,12 @@ public class EditionDataServiceImpl implements EditionDataService {
             return this.facturationRepository.findGroupDossierFacture(id.getId(), id.getInvoiceDate());
         }
         return this.facturationRepository.findSingleDossierFacture(id.getId(), id.getInvoiceDate());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void certifyFacture(FactureItemId id, boolean isGroup) throws GenericError {
+        fneService.create(id, isGroup);
     }
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {

@@ -3,10 +3,13 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import jakarta.validation.constraints.NotNull;
+
+import java.io.Serial;
 import java.io.Serializable;
 
 public class MagasinDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private Integer id;
 
@@ -30,6 +33,8 @@ public class MagasinDTO implements Serializable {
     private String managerFirstName;
     private String email;
     private String managerLastName;
+    private String fnePointOfSale;
+    private String fneSecretKey;
 
     public MagasinDTO() {}
 
@@ -53,6 +58,8 @@ public class MagasinDTO implements Serializable {
         managerFirstName = magasin.getManagerFirstName();
         managerLastName = magasin.getManagerLastName();
         email = magasin.getEmail();
+        fnePointOfSale = magasin.getFnePointOfSale();
+        fneSecretKey = magasin.getFneSecretKey();
     }
 
     public TypeMagasin getTypeMagasin() {
@@ -204,6 +211,24 @@ public class MagasinDTO implements Serializable {
 
     public MagasinDTO setCompteBancaire(String compteBancaire) {
         this.compteBancaire = compteBancaire;
+        return this;
+    }
+
+    public String getFnePointOfSale() {
+        return fnePointOfSale;
+    }
+
+    public MagasinDTO setFnePointOfSale(String fnePointOfSale) {
+        this.fnePointOfSale = fnePointOfSale;
+        return this;
+    }
+
+    public String getFneSecretKey() {
+        return fneSecretKey;
+    }
+
+    public MagasinDTO setFneSecretKey(String fneSecretKey) {
+        this.fneSecretKey = fneSecretKey;
         return this;
     }
 

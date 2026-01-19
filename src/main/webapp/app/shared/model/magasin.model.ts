@@ -22,6 +22,8 @@ export interface IMagasin {
   email?: string;
   compteBancaire?: string;
   registreImposition?: string;
+  fnePointOfSale?: string;
+  fneSecretKey?: string;
   primaryStorage?: IStorage;
   pointOfSale?: IStorage;
 }

@@ -42,6 +42,8 @@ export class MagasinUpdateComponent implements OnInit {
     phone: [null, [Validators.required]],
     address: [],
     note: [],
+    fneSecretKey: [],
+    fnePointOfSale: [],
     registre: [],
     welcomeMessage: [],
     compteContribuable: [],
@@ -76,6 +78,8 @@ export class MagasinUpdateComponent implements OnInit {
       note: magasin.note,
       registre: magasin.registre,
       welcomeMessage: magasin.welcomeMessage,
+      fnePointOfSale: magasin.fnePointOfSale,
+      fneSecretKey: magasin.fneSecretKey,
     });
   }
 
@@ -125,6 +129,8 @@ export class MagasinUpdateComponent implements OnInit {
       compteContribuable: this.editForm.get(['compteContribuable']).value,
       numComptable: this.editForm.get(['numComptable']).value,
       registreImposition: this.editForm.get(['registreImposition']).value,
+      fneSecretKey: this.editForm.get(['fneSecretKey']).value,
+      fnePointOfSale: this.editForm.get(['fnePointOfSale']).value,
     };
   }
 }

@@ -144,6 +144,22 @@
                   <span>{{ magasin.registreImposition }}</span>
                 </div>
               </div>
+
+              <div class="detail-item">
+                <label>FNE Point de vente</label>
+                <div class="detail-value">
+                  <i class="pi pi-shop detail-icon"></i>
+                  <span>{{ magasin.fnePointOfSale }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>FNE Clé secrète</label>
+                <div class="detail-value">
+                  <i class="pi pi-key detail-icon"></i>
+                  <span>{{ magasin.fneSecretKey ? '••••••••' : '' }}</span>
+                </div>
+              </div>
             </div>
           </p-card>
           <p-card>

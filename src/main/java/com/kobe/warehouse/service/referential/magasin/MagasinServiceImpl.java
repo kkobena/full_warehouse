@@ -105,6 +105,8 @@ public class MagasinServiceImpl implements MagasinService {
         magasin.setTypeMagasin(dto.getTypeMagasin());
         magasin.setManagerLastName(dto.getManagerLastName());
         magasin.setManagerFirstName(dto.getManagerFirstName());
+        magasin.setFneSecretKey(dto.getFneSecretKey());
+        magasin.setFnePointOfSale(dto.getFnePointOfSale());
         return magasin;
     }
 }

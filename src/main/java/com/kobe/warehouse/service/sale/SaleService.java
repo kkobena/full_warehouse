@@ -67,4 +67,8 @@ public interface SaleService {
     void removeRemiseFromCashSale(SaleId saleId);
 
     List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
+
+    void upddateCashSaleAmounts(CashSale c);
+
+    void upddateCashSaleAmountsOnRemovingItem(CashSale c, com.kobe.warehouse.domain.SalesLine saleLine);
 }

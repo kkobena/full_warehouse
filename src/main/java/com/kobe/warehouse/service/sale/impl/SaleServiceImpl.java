@@ -45,6 +45,7 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SaleService;
+import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -73,6 +74,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final PaymentService paymentService;
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
+    private final SalesManager salesManager;
 
     public SaleServiceImpl(
         SalesRepository salesRepository,
@@ -89,7 +91,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
         CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper
+        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
+        SalesManager salesManager
     ) {
         super(
             referenceService,
@@ -111,6 +114,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.paymentService = paymentService;
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
+        this.salesManager = salesManager;
     }
 
     private AppUser getUserFormImport() {
@@ -211,7 +215,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.cashSaleRepository.save(cashSale);
     }
 
-    private void computeCashSaleAmountToPaid(CashSale c) {
+    @Override
+    public void computeCashSaleAmountToPaid(CashSale c) {
         c.setAmountToBePaid(c.getNetAmount());
         c.setRestToPay(c.getAmountToBePaid());
         c.setAmountToBeTakenIntoAccount(0);
@@ -243,7 +248,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return new CashSaleDTO(sale);
     }
 
-    private void upddateCashSaleAmounts(CashSale c) {
+    @Override
+    public void upddateCashSaleAmounts(CashSale c) {
         computeSaleEagerAmount(c);
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
@@ -252,30 +258,17 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantityRequested(
-            saleLineDTO,
-            salesLine,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantitySold(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemRegularPrice(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
     private void finalizeSaleLineUpdate(SalesLine salesLine) {
@@ -287,7 +280,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
-        return new SaleLineDTO(createOrUpdateSaleLine(dto));
+        return salesManager.addOrUpdateSaleLine(dto, findOneById(dto.getSaleCompositeId()));
     }
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
@@ -355,15 +348,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public void deleteSaleLineById(SaleLineId id) {
-        SalesLine salesLine = salesLineService.getOneById(id);
-        CashSale sales = (CashSale) salesLine.getSales();
-        sales.removeSalesLine(salesLine);
-        upddateCashSaleAmountsOnRemovingItem(sales, salesLine);
-        sales.setUpdatedAt(LocalDateTime.now());
-        sales.setEffectiveUpdateDate(sales.getUpdatedAt());
-        cashSaleRepository.save(sales);
-        salesLineService.deleteSaleLine(salesLine);
-        this.displayNet(sales.getNetAmount());
+        salesManager.deleteSaleLineById(salesLineService.getOneById(id));
     }
 
     @Override
@@ -404,7 +389,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
 
-    private void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
+    @Override
+    public void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
         computeSaleEagerAmountOnRemovingItem(c, saleLine);
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);

@@ -12,6 +12,7 @@ import com.kobe.warehouse.service.errors.*;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.calculation.dto.*;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -72,6 +73,7 @@ class ThirdPartySaleServiceImplTest {
     @Mock private ThirdPartySaleLineService thirdPartySaleLineService;
     @Mock private ConsommationService consommationService;
     @Mock private ObjectMapper objectMapper;
+    @Mock private SalesManager salesManager;
 
     private ThirdPartySaleServiceImpl thirdPartySaleService;
 
@@ -114,7 +116,8 @@ class ThirdPartySaleServiceImplTest {
             tiersPayantCalculationService,
             saleIdGeneratorService,
             consommationService,
-            objectMapper
+            objectMapper,
+            salesManager
         );
 
         setupTestData();
@@ -300,25 +303,17 @@ class ThirdPartySaleServiceImplTest {
         SaleLineDTO dto = new SaleLineDTO();
         dto.setProduitId(1);
         dto.setQuantityRequested(2);
-        dto.setSaleId(1L);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.findBySalesIdAndProduitId(any(), anyInt())).thenReturn(Optional.empty());
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        lenient().when(salesLineService.create(any(), anyInt(), any())).thenReturn(testSalesLine);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(2400));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
-        lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.addOrUpdateSaleLine(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.createOrUpdateSaleLine(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).create(any(), anyInt(), any());
+        verify(salesManager).addOrUpdateSaleLine(eq(dto), eq(testSale));
     }
 
     @Test
@@ -327,24 +322,17 @@ class ThirdPartySaleServiceImplTest {
         SaleLineDTO dto = new SaleLineDTO();
         dto.setProduitId(1);
         dto.setQuantityRequested(3);
-        dto.setSaleId(1L);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.findBySalesIdAndProduitId(any(), anyInt())).thenReturn(Optional.of(testSalesLine));
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(3600));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
-        lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.addOrUpdateSaleLine(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.createOrUpdateSaleLine(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateSaleLine(any(), any(), anyInt());
+        verify(salesManager).addOrUpdateSaleLine(eq(dto), eq(testSale));
     }
 
     // ============================================
@@ -355,20 +343,13 @@ class ThirdPartySaleServiceImplTest {
     void testDeleteSaleLineById_Success() {
         // Given
         SaleLineId id = new SaleLineId(1L, testDate);
-        lenient().when(salesLineService.getOneById(id)).thenReturn(testSalesLine);
-        lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.ZERO);
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
-        lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
+        when(salesLineService.getOneById(id)).thenReturn(testSalesLine);
 
         // When
         thirdPartySaleService.deleteSaleLineById(id);
 
         // Then
-        verify(salesLineService).deleteSaleLine(testSalesLine);
+        verify(salesManager).deleteSaleLineById(testSalesLine);
     }
 
     // ============================================
@@ -1037,75 +1018,41 @@ class ThirdPartySaleServiceImplTest {
     @Test
     void testUpdateItemQuantityRequested_WithOptionPrixProduit() throws Exception {
         // Given - Product with OptionPrixProduit
-        OptionPrixProduit optionPrix = new OptionPrixProduit();
-        optionPrix.setId(1);
-        optionPrix.setPrice(1500);  // Prix spécifique pour le tiers payant
-        optionPrix.setRate(1.25f);  // 125% du prix régulier
-        optionPrix.setType(OptionPrixType.REFERENCE);
-        optionPrix.setEnabled(true);
-        optionPrix.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        optionPrix.setProduit(testProduit);
-
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setQuantityRequested(3);  // Change quantity from 1 to 3
-        dto.setSalesAmount(3600);  // 1200 * 3
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(3600));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(720));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(2880));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
-        verify(tiersPayantCalculationService).calculate(any());
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
     }
 
     @Test
     void testUpdateItemQuantityRequested_WithPourcentageType() throws Exception {
         // Given - Product with POURCENTAGE type OptionPrixProduit
-        OptionPrixProduit optionPrix = new OptionPrixProduit();
-        optionPrix.setId(1);
-        optionPrix.setRate(0.85f);  // 85% du prix régulier
-        optionPrix.setType(OptionPrixType.POURCENTAGE);
-        optionPrix.setEnabled(true);
-        optionPrix.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        optionPrix.setProduit(testProduit);
-
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setQuantityRequested(2);
-        dto.setSalesAmount(2040);  // 1200 * 0.85 * 2
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(2040));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(408));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(1632));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
     }
 
     // ============================================
@@ -1115,61 +1062,41 @@ class ThirdPartySaleServiceImplTest {
     @Test
     void testUpdateItemQuantitySold_WithOptionPrixProduit() {
         // Given - Product with OptionPrixProduit
-        OptionPrixProduit optionPrix = new OptionPrixProduit();
-        optionPrix.setId(1);
-        optionPrix.setPrice(1800);  // Prix spécifique
-        optionPrix.setType(OptionPrixType.REFERENCE);
-        optionPrix.setEnabled(true);
-        optionPrix.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        optionPrix.setProduit(testProduit);
-
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setQuantitySold(2);  // Quantité vendue
-        dto.setSalesAmount(3600);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemQuantitySold(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantitySold(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantitySold(any(SalesLine.class), any(SaleLineDTO.class), anyInt());
-        verify(thirdPartySaleRepository).saveAndFlush(any(ThirdPartySales.class));
+        verify(salesManager).updateItemQuantitySold(eq(dto), eq(testSale));
     }
 
     @Test
     void testUpdateItemQuantitySold_WithMixedReferenceType() {
         // Given - MIXED_REFERENCE_POURCENTAGE type
-        OptionPrixProduit optionPrix = new OptionPrixProduit();
-        optionPrix.setId(1);
-        optionPrix.setPrice(1000);  // Prix de référence
-        optionPrix.setRate(0.95f);  // 95% du prix de référence
-        optionPrix.setType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
-        optionPrix.setEnabled(true);
-        optionPrix.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        optionPrix.setProduit(testProduit);
-
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setQuantitySold(3);
-        dto.setSalesAmount(2850);  // 1000 * 0.95 * 3
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemQuantitySold(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantitySold(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantitySold(any(SalesLine.class), any(SaleLineDTO.class), anyInt());
+        verify(salesManager).updateItemQuantitySold(eq(dto), eq(testSale));
     }
 
     // ============================================
@@ -1330,65 +1257,37 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setRegularUnitPrice(1500);  // Update price from 1200 to 1500
-        dto.setSalesAmount(1500);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(1500));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(300));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(1200));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemRegularPrice(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemRegularPrice(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemRegularPrice(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
-        verify(thirdPartySaleRepository, atLeast(1)).saveAndFlush(any(ThirdPartySales.class));
+        verify(salesManager).updateItemRegularPrice(eq(dto), eq(testSale));
     }
 
     @Test
     void testUpdateItemRegularPrice_WithOptionPrixProduit() throws Exception {
         // Given - Product with OptionPrixProduit REFERENCE type
-        OptionPrixProduit optionPrix = new OptionPrixProduit();
-        optionPrix.setId(1);
-        optionPrix.setPrice(2000);  // Prix spécifique pour le tiers payant
-        optionPrix.setType(OptionPrixType.REFERENCE);
-        optionPrix.setEnabled(true);
-        optionPrix.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        optionPrix.setProduit(testProduit);
-
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setRegularUnitPrice(2000);
-        dto.setSalesAmount(2000);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(2000));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(400));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(1600));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemRegularPrice(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemRegularPrice(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemRegularPrice(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
-        verify(tiersPayantCalculationService).calculate(any());
+        verify(salesManager).updateItemRegularPrice(eq(dto), eq(testSale));
     }
 
     @Test
@@ -1398,38 +1297,13 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setRegularUnitPrice(5000);  // High price that might exceed plafond
-        dto.setSalesAmount(5000);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-
-        // Mock computeThirdPartySaleAmounts to return error message
-        ThirdPartySales spySale = spy(testSale);
-        testSalesLine.setSales(spySale);
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(5000));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(1000));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(4000));
-
-        TiersPayantLineOutput lineOutput = new TiersPayantLineOutput();
-        lineOutput.setClientTiersPayantId(1);
-        lineOutput.setMontant(BigDecimal.valueOf(4000));
-        lineOutput.setFinalTaux(80);
-        lineOutput.setRepartitions(new ArrayList<>());
-        calcResult.setTiersPayantLines(List.of(lineOutput));
-        calcResult.setItemShares(new ArrayList<>());
-        calcResult.setWarningMessage("Plafond dépassé");  // Warning message triggers exception
-
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(spySale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemRegularPrice(any(), any())).thenThrow(new PlafondVenteException(new ThirdPartySaleDTO(), "Plafond dépassé"));
 
         // When & Then
-        assertThrows(PlafondVenteException.class, () -> {
-            thirdPartySaleService.updateItemRegularPrice(dto);
-        });
-
-        verify(salesLineService).updateItemRegularPrice(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
+        assertThrows(PlafondVenteException.class, () -> thirdPartySaleService.updateItemRegularPrice(dto));
     }
 
 
@@ -1780,167 +1654,57 @@ class ThirdPartySaleServiceImplTest {
         SaleLineDTO dto = new SaleLineDTO();
         dto.setProduitId(1);
         dto.setQuantityRequested(2);
-        dto.setSaleId(1L);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        // Add a second tiers payant to test the double forEach loop (lines 1066-1077)
-        TiersPayant tiersPayant2 = new TiersPayant();
-        tiersPayant2.setId(2);
-        tiersPayant2.setFullName("Mutuelle Test 2");
-
-        ClientTiersPayant clientTiersPayant2 = new ClientTiersPayant();
-        clientTiersPayant2.setId(2);
-        clientTiersPayant2.setTiersPayant(tiersPayant2);
-        clientTiersPayant2.setTaux((short) 70);
-        clientTiersPayant2.setPriorite(PrioriteTiersPayant.R1);
-        clientTiersPayant2.setAssuredCustomer(testCustomer);
-        clientTiersPayant2.setNum("NUM002");
-
-        ThirdPartySaleLine tpLine2 = new ThirdPartySaleLine();
-        tpLine2.setId(2L);
-        tpLine2.setSale(testSale);
-        tpLine2.setClientTiersPayant(clientTiersPayant2);
-        tpLine2.setMontant(840);
-        tpLine2.setTaux((short) 70);
-        tpLine2.setRepartitions(new ArrayList<>());
-
-        testSale.getThirdPartySaleLines().add(tpLine2);
-
-        // Create prix references for both tiers payants
-        OptionPrixProduit prixRef1 = new OptionPrixProduit();
-        prixRef1.setId(1);
-        prixRef1.setPrice(1500);
-        prixRef1.setRate(1.25f);
-        prixRef1.setType(OptionPrixType.REFERENCE);
-        prixRef1.setEnabled(true);
-        prixRef1.setTiersPayant(testClientTiersPayant.getTiersPayant());
-        prixRef1.setProduit(testProduit);
-
-        OptionPrixProduit prixRef2 = new OptionPrixProduit();
-        prixRef2.setId(2);
-        prixRef2.setPrice(1300);
-        prixRef2.setRate(1.08f);
-        prixRef2.setType(OptionPrixType.POURCENTAGE);
-        prixRef2.setEnabled(true);
-        prixRef2.setTiersPayant(tiersPayant2);
-        prixRef2.setProduit(testProduit);
-
-        lenient().when(salesLineService.findBySalesIdAndProduitId(any(), anyInt())).thenReturn(Optional.empty());
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        lenient().when(salesLineService.create(any(), anyInt(), any())).thenReturn(testSalesLine);
-
-        // KEY: Mock prixRererenceService to return multiple prix references
-        when(prixRererenceService.findByProduitIdAndTiersPayantIds(anyInt(), anySet()))
-            .thenReturn(List.of(prixRef1, prixRef2));
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(2400));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
-        lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.addOrUpdateSaleLine(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.createOrUpdateSaleLine(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).create(any(), anyInt(), any());
-        // Verify prix references service was called with correct parameters (covers lines 1066-1077)
-        verify(prixRererenceService).findByProduitIdAndTiersPayantIds(eq(1), anySet());
+        verify(salesManager).addOrUpdateSaleLine(eq(dto), eq(testSale));
     }
 
     @Test
     void testUpdateItemQuantityRequested_WithPrixReferencesMatching() throws Exception {
-        // Given - Test that prix references are correctly matched to tiers payant (lines 1068-1075)
+        // Given - Test that prix references are correctly matched to tiers payant
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setQuantityRequested(3);
-        dto.setSalesAmount(3600);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        // Create a prix reference with matching tiers payant ID
-        OptionPrixProduit prixRef = new OptionPrixProduit();
-        prixRef.setId(1);
-        prixRef.setPrice(1800);
-        prixRef.setRate(1.5f);
-        prixRef.setType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
-        prixRef.setEnabled(true);
-        prixRef.setTiersPayant(testClientTiersPayant.getTiersPayant());  // ID = 1, matches testClientTiersPayant
-        prixRef.setProduit(testProduit);
-
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-
-        // KEY: Mock to return prix reference that should match the condition on line 1068
-        when(prixRererenceService.findByProduitIdAndTiersPayantIds(anyInt(), anySet()))
-            .thenReturn(List.of(prixRef));
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(3600));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(720));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(2880));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemQuantityRequested(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
-        verify(tiersPayantCalculationService).calculate(any());
-        // Verify prix references were retrieved (covers lines 1066-1075)
-        verify(prixRererenceService).findByProduitIdAndTiersPayantIds(eq(1), anySet());
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
     }
 
     @Test
     void testUpdateItemRegularPrice_WithNonMatchingPrixReference() throws Exception {
-        // Given - Test case where prix reference does NOT match tiers payant (line 1068 condition false)
+        // Given - Test case where prix reference does NOT match tiers payant
         SaleLineDTO dto = new SaleLineDTO();
         dto.setSaleLineId(new SaleLineId(1L, testDate));
         dto.setProduitId(1);
         dto.setRegularUnitPrice(1500);
-        dto.setSalesAmount(1500);
+        dto.setSaleCompositeId(new SaleId(1L, testDate));
 
-        // Create a prix reference with NON-matching tiers payant ID
-        TiersPayant differentTiersPayant = new TiersPayant();
-        differentTiersPayant.setId(999);  // Different ID, will not match testClientTiersPayant (ID=1)
-        differentTiersPayant.setFullName("Other Mutuelle");
-
-        OptionPrixProduit prixRef = new OptionPrixProduit();
-        prixRef.setId(1);
-        prixRef.setPrice(2000);
-        prixRef.setRate(1.5f);
-        prixRef.setType(OptionPrixType.REFERENCE);
-        prixRef.setEnabled(true);
-        prixRef.setTiersPayant(differentTiersPayant);  // ID = 999, does NOT match testClientTiersPayant (ID=1)
-        prixRef.setProduit(testProduit);
-
-        lenient().when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
-        lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
-
-        // KEY: Mock to return prix reference that will NOT match (tests line 1068 condition = false)
-        when(prixRererenceService.findByProduitIdAndTiersPayantIds(anyInt(), anySet()))
-            .thenReturn(List.of(prixRef));
-
-        CalculationResult calcResult = new CalculationResult();
-        calcResult.setTotalSaleAmount(BigDecimal.valueOf(1500));
-        calcResult.setTotalPatientShare(BigDecimal.valueOf(300));
-        calcResult.setTotalTiersPayant(BigDecimal.valueOf(1200));
-        calcResult.setTiersPayantLines(new ArrayList<>());
-        calcResult.setItemShares(new ArrayList<>());
-        lenient().when(tiersPayantCalculationService.calculate(any())).thenReturn(calcResult);
+        when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
+        when(salesManager.updateItemRegularPrice(any(), any())).thenReturn(dto);
 
         // When
         SaleLineDTO result = thirdPartySaleService.updateItemRegularPrice(dto);
 
         // Then
         assertNotNull(result);
-        verify(salesLineService).updateItemRegularPrice(any(SaleLineDTO.class), any(SalesLine.class), anyInt());
-        // Verify prix references service was called (covers line 1066)
-        verify(prixRererenceService).findByProduitIdAndTiersPayantIds(eq(1), anySet());
+        verify(salesManager).updateItemRegularPrice(eq(dto), eq(testSale));
     }
 
     @Test

@@ -62,6 +62,7 @@ import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculationInput;
@@ -117,6 +118,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final SaleIdGeneratorService idGeneratorService;
     private final ConsommationService consommationService;
     private final ObjectMapper objectMapper;
+    private final SalesManager salesManager;
 
     public ThirdPartySaleServiceImpl(
         ThirdPartySaleLineService ThirdPartySaleLineService,
@@ -139,7 +141,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         LogsService logService,
         TiersPayantCalculationService tiersPayantCalculationService,
         SaleIdGeneratorService idGeneratorService,
-        ConsommationService consommationService, ObjectMapper objectMapper
+        ConsommationService consommationService,
+        ObjectMapper objectMapper,
+        SalesManager salesManager
     ) {
         super(
             referenceService,
@@ -149,7 +153,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService, objectMapper
+            idGeneratorService,
+            objectMapper
         );
         this.idGeneratorService = idGeneratorService;
         this.thirdPartySaleLineService = ThirdPartySaleLineService;
@@ -168,6 +173,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.tiersPayantCalculationService = tiersPayantCalculationService;
         this.consommationService = consommationService;
         this.objectMapper = objectMapper;
+        this.salesManager = salesManager;
     }
 
     @Override
@@ -305,44 +311,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
-        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
-        ThirdPartySales thirdPartySales;
-        if (salesLineOp.isPresent()) {
-            SalesLine salesLine = salesLineOp.get();
-            salesLineService.updateSaleLine(dto, salesLine, storageId);
-            thirdPartySales = (ThirdPartySales) salesLine.getSales();
-            updateAmounts(thirdPartySales);
-            var message = reComputeAndApplyAmounts(thirdPartySales, null, true);
-            // thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
-            if (StringUtils.hasLength(message)) {
-                throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
-            }
-            return new SaleLineDTO(salesLine);
-        }
-        thirdPartySales = findById(dto.getSaleCompositeId());
-        SalesLine salesLine = salesLineService.create(dto, storageId, thirdPartySales);
-        updateAmounts(thirdPartySales);
-        var message = reComputeAndApplyAmounts(thirdPartySales, null, true);
-        //   thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
-        if (StringUtils.hasLength(message)) {
-            throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
-        }
-        this.displayNet(thirdPartySales.getPartAssure());
-        return new SaleLineDTO(salesLine);
+        return salesManager.addOrUpdateSaleLine(dto, findById(dto.getSaleCompositeId()));
     }
 
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void deleteSaleLineById(SaleLineId id) {
-        SalesLine salesLine = salesLineService.getOneById(id);
-        ThirdPartySales sales = (ThirdPartySales) salesLine.getSales();
-        sales.removeSalesLine(salesLine);
-        sales.setUpdatedAt(LocalDateTime.now());
-        sales.setEffectiveUpdateDate(sales.getUpdatedAt());
-        salesLineService.deleteSaleLine(salesLine);
-        upddateSaleAmountsOnRemovingItem(sales);
-        this.displayNet(sales.getPartAssure());
+        salesManager.deleteSaleLineById(salesLineService.getOneById(id));
     }
 
     private SalesLine getSalesLine(SaleLineId saleLineId, SaleId salesId, Integer produitId) {
@@ -357,39 +332,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
-        SalesLine salesLine = getSalesLine(saleLineDTO.getSaleLineId(), saleLineDTO.getSaleCompositeId(), saleLineDTO.getProduitId());
-
-        salesLineService.updateItemQuantityRequested(
-            saleLineDTO,
-            salesLine,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
-        Sales sales = salesLine.getSales();
-        ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
-        var message = computeThirdPartySaleAmounts(thirdPartySales);
-        this.displayNet(thirdPartySales.getPartAssure());
-        if (StringUtils.hasLength(message)) {
-            throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
-        }
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
-
-        Sales sales = salesLine.getSales();
-        ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
-
-        var message = computeThirdPartySaleAmounts(thirdPartySales);
-        thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
-        this.displayNet(thirdPartySales.getPartAssure());
-        if (StringUtils.hasLength(message)) {
-            throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
-        }
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemRegularPrice(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
@@ -515,12 +464,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
-        ThirdPartySales thirdPartySales = (ThirdPartySales) salesLine.getSales();
-        thirdPartySaleRepository.saveAndFlush(thirdPartySales);
-        this.displayNet(thirdPartySales.getPartAssure());
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantitySold(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
@@ -643,7 +587,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return reComputeAndApplyAmounts(c, clientTiersPayants, isUpdate);
     }
 
-    private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) {
+    @Override
+    public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) {
         computeSaleEagerAmount(thirdPartySales);
 
         applRemiseToSale(thirdPartySales);
@@ -651,7 +596,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return upddateThirdPartySaleAmounts(thirdPartySales, true, null);
     }
 
-    private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) {
+    @Override
+    public void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) {
         computeSaleEagerAmount(c);
         applRemiseToSale(c);
         reComputeAndApplyAmounts(c, null, true);

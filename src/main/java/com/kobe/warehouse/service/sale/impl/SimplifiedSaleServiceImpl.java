@@ -111,7 +111,7 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
         specification = specification.and(cashSaleRepository.hasCaissier(storageService.getUser()));
         Pageable page = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
         return cashSaleRepository.findAll(specification, page)
-            .map(cashSale -> SaleDTO.toSaleDTOConverter(cashSale));
+            .map(SaleDTO::toSaleDTOConverter);
     }
 
 

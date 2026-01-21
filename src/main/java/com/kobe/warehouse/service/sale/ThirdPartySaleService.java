@@ -86,4 +86,8 @@ public interface ThirdPartySaleService {
     void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
+
+    String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales);
+
+    void upddateSaleAmountsOnRemovingItem(ThirdPartySales c);
 }

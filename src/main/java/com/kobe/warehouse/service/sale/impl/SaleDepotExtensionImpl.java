@@ -38,6 +38,7 @@ import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -62,6 +63,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     private final CashRegisterService cashRegisterService;
     private final StockUpdateService stockUpdateService;
     private final InventoryTransactionService inventoryTransactionService;
+    private final SalesManager salesManager;
 
     public SaleDepotExtensionImpl(
         RemiseRepository remiseRepository,
@@ -76,7 +78,8 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         VenteDepotRepository venteDepotRepository,
         StockUpdateService stockUpdateService,
         InventoryTransactionService inventoryTransactionService,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        SalesManager salesManager
     ) {
         super(
             referenceService,
@@ -95,6 +98,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         this.cashRegisterService = cashRegisterService;
         this.stockUpdateService = stockUpdateService;
         this.inventoryTransactionService = inventoryTransactionService;
+        this.salesManager = salesManager;
     }
 
     @Override
@@ -124,30 +128,17 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantityRequested(
-            saleLineDTO,
-            salesLine,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemQuantitySold(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
-        finalizeSaleLineUpdate(salesLine);
-        return new SaleLineDTO(salesLine);
+        return salesManager.updateItemRegularPrice(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
 
     private void finalizeSaleLineUpdate(SalesLine salesLine) {
@@ -159,7 +150,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
-        return new SaleLineDTO(createOrUpdateSaleLine(dto));
+        return salesManager.addOrUpdateSaleLine(dto, findOne(dto.getSaleCompositeId()));
     }
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
@@ -210,15 +201,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     @Override
     public void deleteSaleLineById(SaleLineId id) {
-        SalesLine salesLine = salesLineService.getOneById(id);
-        VenteDepot sales = (VenteDepot) salesLine.getSales();
-        sales.removeSalesLine(salesLine);
-        upddateAmountsOnRemovingItem(sales, salesLine);
-        sales.setUpdatedAt(LocalDateTime.now());
-        sales.setEffectiveUpdateDate(sales.getUpdatedAt());
-        venteDepotRepository.save(sales);
-        salesLineService.deleteSaleLine(salesLine);
-        // this.displayNet(sales.getNetAmount());
+        salesManager.deleteSaleLineById(salesLineService.getOneById(id));
     }
 
     @Override
@@ -262,23 +245,21 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     public void processDiscount(UpdateSaleInfo keyValue) {
         venteDepotRepository
             .findById(keyValue.id())
-            .ifPresent(venteDepot -> {
-                remiseRepository
-                    .findById(keyValue.value())
-                    .ifPresent(remise -> {
-                        if (venteDepot.getRemise() != null) {
-                            this.removeRemise(venteDepot);
-                        }
-                        if (remise instanceof RemiseProduit remiseProduit) {
-                            this.applyRemiseProduit(venteDepot, remiseProduit);
-                        } else {
-                            this.applyRemiseClient(venteDepot, (RemiseClient) remise);
-                        }
-                        computeAmountToPaid(venteDepot);
-                        arrondirMontantCaisse(venteDepot);
-                        this.venteDepotRepository.save(venteDepot);
-                    });
-            });
+            .ifPresent(venteDepot -> remiseRepository
+                .findById(keyValue.value())
+                .ifPresent(remise -> {
+                    if (venteDepot.getRemise() != null) {
+                        this.removeRemise(venteDepot);
+                    }
+                    if (remise instanceof RemiseProduit remiseProduit) {
+                        this.applyRemiseProduit(venteDepot, remiseProduit);
+                    } else {
+                        this.applyRemiseClient(venteDepot, (RemiseClient) remise);
+                    }
+                    computeAmountToPaid(venteDepot);
+                    arrondirMontantCaisse(venteDepot);
+                    this.venteDepotRepository.save(venteDepot);
+                }));
     }
 
     @Override

@@ -301,6 +301,27 @@ public class SaleCommonService {
         sales.setAmountToBePaid(roundedAmount(sales.getNetAmount()));
     }
 
+    public void computeCashSaleAmountToPaid(CashSale c) {
+        c.setAmountToBePaid(c.getNetAmount());
+        c.setRestToPay(c.getAmountToBePaid());
+        c.setAmountToBeTakenIntoAccount(0);
+    }
+
+    public void upddateCashSaleAmounts(CashSale c) {
+        computeSaleEagerAmount(c);
+        this.proccessDiscount(c);
+        computeCashSaleAmountToPaid(c);
+        arrondirMontantCaisse(c);
+    }
+
+    public void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
+        computeSaleEagerAmountOnRemovingItem(c, saleLine);
+        this.proccessDiscount(c);
+        computeCashSaleAmountToPaid(c);
+        computeSaleLazyAmountOnRemovingItem(c, saleLine);
+        computeTvaAmountOnRemovingItem(c, saleLine);
+    }
+
     public void removeRemise(Sales sales) {
         sales.setRemise(null);
         sales.setDiscountAmount(0);

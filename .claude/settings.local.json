@@ -48,7 +48,9 @@
       "Bash(cmd /c copy:*)",
       "Bash(powershell -Command:*)",
       "Bash(mvnw.cmd compile:*)",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(cmd //c \"mvnw.cmd clean compile -DskipTests\":*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

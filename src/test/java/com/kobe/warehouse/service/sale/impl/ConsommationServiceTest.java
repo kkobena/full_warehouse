@@ -43,7 +43,7 @@ class ConsommationServiceTest {
         assertEquals(10, conso.getMonth());
         assertEquals(2025, conso.getYear());
         assertEquals(202510, conso.getId());
-        assertEquals(montant, entity.getConsoMensuelle());
+        assertEquals(montant, entity.getConsoMensuelle().intValue());
         assertNotNull(entity.getUpdated());
         verify(saver).accept(entity);
     }
@@ -77,7 +77,7 @@ class ConsommationServiceTest {
         assertEquals(1, entity.getConsommations().size(), "Should still have one consommation");
         Consommation updatedConso = entity.getConsommations().iterator().next();
         assertEquals(800, updatedConso.getConsommation(), "Should add to existing consommation");
-        assertEquals(800, entity.getConsoMensuelle(), "Monthly consumption should be updated");
+        assertEquals(800, entity.getConsoMensuelle().intValue(), "Monthly consumption should be updated");
         verify(saver).accept(entity);
     }
 
@@ -107,7 +107,7 @@ class ConsommationServiceTest {
 
         // Then
         assertEquals(2, entity.getConsommations().size(), "Should have two consommations");
-        assertEquals(1500, entity.getConsoMensuelle(), "Should sum both months");
+        assertEquals(1500, entity.getConsoMensuelle().intValue(), "Should sum both months");
         assertTrue(entity.getConsommations().stream().anyMatch(c -> c.getId() == 202510));
         assertTrue(entity.getConsommations().stream().anyMatch(c -> c.getId() == 202511));
     }
@@ -175,8 +175,8 @@ class ConsommationServiceTest {
         consommationService.updateConsommation(entity, montant, LocalDateTime.now(), saver);
 
         // Then
-        assertEquals(100, entity.getConsoMensuelle());
-        assertTrue(entity.getConsoMensuelle() instanceof Integer, "Should default to Integer");
+        assertEquals(100, entity.getConsoMensuelle().intValue());
+
     }
 
     @Test

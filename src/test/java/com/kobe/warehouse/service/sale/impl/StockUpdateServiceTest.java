@@ -47,7 +47,6 @@ class StockUpdateServiceTest {
     @DisplayName("Should update stock successfully with sufficient quantity")
     void testUpdateStock_SuccessfulUpdate() {
         // Given
-        int storageId = 1;
         int initialQtyStock = 100;
         int initialQtyUG = 10;
         int quantityRequested = 5;
@@ -55,8 +54,6 @@ class StockUpdateServiceTest {
 
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
-
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, stockProduit);
@@ -72,6 +69,7 @@ class StockUpdateServiceTest {
             )
         );
 
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(logsService, never()).create(eq(TransactionType.FORCE_STOCK), anyString(), anyString());
     }
 
@@ -79,15 +77,12 @@ class StockUpdateServiceTest {
     @DisplayName("Should log force stock when quantity is insufficient")
     void testUpdateStock_ForceStockLogged() {
         // Given
-        int storageId = 1;
         int initialQtyStock = 5;
         int initialQtyUG = 0;
         int quantityRequested = 10; // More than available
 
         SalesLine salesLine = createSalesLine(quantityRequested, 0, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
-
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, stockProduit);
@@ -96,6 +91,7 @@ class StockUpdateServiceTest {
         assertEquals(5, result.quantityBefore());
         assertEquals(-5, result.quantityAfter());
 
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(logsService).create(eq(TransactionType.FORCE_STOCK), eq(TransactionType.FORCE_STOCK.getValue()), anyString());
     }
 
@@ -103,7 +99,6 @@ class StockUpdateServiceTest {
     @DisplayName("Should log price modification when sale price exceeds usual price")
     void testUpdateStock_PriceModificationLogged() {
         // Given
-        int storageId = 1;
         int usualPrice = 100;
         int salePrice = 150; // Higher than usual
 
@@ -112,13 +107,12 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
-
         // When
         stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
         ArgumentCaptor<String> descriptionCaptor = ArgumentCaptor.forClass(String.class);
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(logsService).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), descriptionCaptor.capture(), anyString());
 
         String description = descriptionCaptor.getValue();
@@ -131,7 +125,6 @@ class StockUpdateServiceTest {
     @DisplayName("Should not log price modification when sale price is equal or lower")
     void testUpdateStock_NoPriceModificationWhenPriceLower() {
         // Given
-        int storageId = 1;
         int usualPrice = 150;
         int salePrice = 100; // Lower than usual
 
@@ -140,12 +133,11 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
-
         // When
         stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(logsService, never()).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), anyString(), anyString());
     }
 
@@ -153,7 +145,6 @@ class StockUpdateServiceTest {
     @DisplayName("Should handle UG (Gestion d'Urgence) quantities correctly")
     void testUpdateStock_WithUGQuantities() {
         // Given
-        int storageId = 1;
         int initialQtyStock = 100;
         int initialQtyUG = 20;
         int quantityRequested = 10;
@@ -162,12 +153,11 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
-
         // When
         stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(stockProduitRepository).save(
             argThat(
                 sp ->
@@ -181,17 +171,15 @@ class StockUpdateServiceTest {
     @DisplayName("Should update timestamp on stock")
     void testUpdateStock_TimestampUpdated() {
         // Given
-        int storageId = 1;
         SalesLine salesLine = createSalesLine(5, 0, 1000);
         StockProduit stockProduit = createStockProduit(100, 10);
         LocalDateTime oldTimestamp = stockProduit.getUpdatedAt();
-
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         stockUpdateService.updateStock(salesLine, stockProduit);
 
         // Then
+        verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(stockProduitRepository).save(
             argThat(sp -> sp.getUpdatedAt() != null && (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp)))
         );

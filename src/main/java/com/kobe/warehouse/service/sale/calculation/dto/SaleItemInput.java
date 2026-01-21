@@ -13,6 +13,7 @@ public class SaleItemInput {
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private List<TiersPayantPrixInput> prixAssurances = new ArrayList<>();
     private BigDecimal totalSalesAmount;
+    private int tvaRate = 0; // TVA rate in percentage (e.g., 5, 10, 20)
 
     public Long getSalesLineId() {
         return salesLineId;
@@ -68,5 +69,13 @@ public class SaleItemInput {
 
     public void setPrixAssurances(List<TiersPayantPrixInput> prixAssurances) {
         this.prixAssurances = prixAssurances;
+    }
+
+    public int getTvaRate() {
+        return tvaRate;
+    }
+
+    public void setTvaRate(int tvaRate) {
+        this.tvaRate = tvaRate;
     }
 }

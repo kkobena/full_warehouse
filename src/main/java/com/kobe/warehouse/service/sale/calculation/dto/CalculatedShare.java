@@ -18,6 +18,7 @@ public class CalculatedShare {
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private List<Rate> rates = new ArrayList<>();
     private Long saleLineId;
+    private Map<Integer, List<TvaRepartitionDto>> tvaRepartitionsByTiersPayant = new HashMap<>();
 
     public boolean hasPriceOption() {
         return !rates.isEmpty() || nonNull(calculationBasePrice);
@@ -85,5 +86,13 @@ public class CalculatedShare {
 
     public void setSaleLineId(Long saleLineId) {
         this.saleLineId = saleLineId;
+    }
+
+    public Map<Integer, List<TvaRepartitionDto>> getTvaRepartitionsByTiersPayant() {
+        return tvaRepartitionsByTiersPayant;
+    }
+
+    public void setTvaRepartitionsByTiersPayant(Map<Integer, List<TvaRepartitionDto>> tvaRepartitionsByTiersPayant) {
+        this.tvaRepartitionsByTiersPayant = tvaRepartitionsByTiersPayant;
     }
 }

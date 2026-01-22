@@ -25,6 +25,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -80,6 +81,20 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     @Column(name = "montant_regle")
     private int montantRegle;
+
+    @NotNull
+    @Column(name = "montant_ttc", precision = 15, scale = 2, nullable = false)
+    private BigDecimal montantTtc = BigDecimal.ZERO;
+    @NotNull
+    @Column(name = "montant_tva", precision = 15, scale = 2, nullable = false)
+    private BigDecimal montantTva = BigDecimal.ZERO;
+    @NotNull
+    @Column(name = "montant_net", precision = 15, scale = 2, nullable = false)
+    private BigDecimal montantNet = BigDecimal.ZERO;
+    @NotNull
+    @Column(name = "montant_ht", precision = 15, scale = 2, nullable = false)
+    private BigDecimal montantHt = BigDecimal.ZERO;
+
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -310,6 +325,38 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     public FactureTiersPayant setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
+    }
+
+    public BigDecimal getMontantTtc() {
+        return montantTtc;
+    }
+
+    public void setMontantTtc(BigDecimal montantTtc) {
+        this.montantTtc = montantTtc;
+    }
+
+    public BigDecimal getMontantTva() {
+        return montantTva;
+    }
+
+    public void setMontantTva(BigDecimal montantTva) {
+        this.montantTva = montantTva;
+    }
+
+    public BigDecimal getMontantNet() {
+        return montantNet;
+    }
+
+    public void setMontantNet(BigDecimal montantNet) {
+        this.montantNet = montantNet;
+    }
+
+    public BigDecimal getMontantHt() {
+        return montantHt;
+    }
+
+    public void setMontantHt(BigDecimal montantHt) {
+        this.montantHt = montantHt;
     }
 
     public FneResponse getFneResponse() {

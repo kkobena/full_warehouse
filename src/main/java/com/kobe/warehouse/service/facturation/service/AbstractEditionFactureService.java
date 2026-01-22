@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -14,17 +15,17 @@ import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
+import org.springframework.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -154,7 +155,18 @@ public abstract class AbstractEditionFactureService implements EditionService {
             factureTiersPayant.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
         }
         factureTiersPayant = this.facturationRepository.saveAndFlush(factureTiersPayant);
+
+
         for (ThirdPartySaleLine saleLine : saleLines) {
+            List<RepartitionTiersPayantParTva> repartitions= saleLine.getRepartitions();
+            if (!CollectionUtils.isEmpty(repartitions)) {
+                for (RepartitionTiersPayantParTva repartition : repartitions) {
+                    factureTiersPayant.setMontantTtc(factureTiersPayant.getMontantTtc().add(BigDecimal.valueOf(repartition.montantTtc())));
+                    factureTiersPayant.setMontantTva(factureTiersPayant.getMontantTva().add(BigDecimal.valueOf(repartition.montantTva())));
+                    factureTiersPayant.setMontantNet(factureTiersPayant.getMontantNet().add(BigDecimal.valueOf(repartition.montantNet())));
+                    factureTiersPayant.setMontantHt(factureTiersPayant.getMontantHt().add(BigDecimal.valueOf(repartition.montantHt())));
+                }
+            }
             saleLine.setFactureTiersPayant(factureTiersPayant);
             factureTiersPayant.getFacturesDetails().add(saleLine);
             thirdPartySaleLineRepository.saveAndFlush(saleLine);

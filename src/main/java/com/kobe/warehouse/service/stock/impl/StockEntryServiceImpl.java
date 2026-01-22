@@ -851,14 +851,5 @@ public class StockEntryServiceImpl implements StockEntryService {
         fournisseurProduitService.update(fournisseurProduit);
     }
 
-    private int skipFirstLigne(CSVRecord cSVRecord, int index) {
-        if (index < 1) {
-            try {
-                return Integer.parseInt(cSVRecord.get(1));
-            } catch (Exception e) {
-                return -1;
-            }
-        }
-        return 0;
-    }
+
 }

@@ -1,0 +1,272 @@
+package com.kobe.warehouse.service.sale.impl;
+
+import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
+import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleRepository;
+import com.kobe.warehouse.repository.TiersPayantRepository;
+import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
+import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
+import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Objects.isNull;
+
+/**
+ * Implémentation du service de gestion des clients tiers-payants.
+ * Ce service gère toutes les opérations liées aux tiers-payants dans les ventes.
+ */
+@Service
+@Transactional
+public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
+
+    private final ThirdPartySaleLineService thirdPartySaleLineService;
+    private final ClientTiersPayantRepository clientTiersPayantRepository;
+    private final TiersPayantRepository tiersPayantRepository;
+    private final ThirdPartySaleRepository thirdPartySaleRepository;
+    private final ConsommationService consommationService;
+    private final StorageService storageService;
+    private final SaleIdGeneratorService idGeneratorService;
+    private final ThirdPartyCalculationManager calculationManager;
+
+    public ThirdPartyClientManagerImpl(
+        ThirdPartySaleLineService thirdPartySaleLineService,
+        ClientTiersPayantRepository clientTiersPayantRepository,
+        TiersPayantRepository tiersPayantRepository,
+        ThirdPartySaleRepository thirdPartySaleRepository,
+        ConsommationService consommationService,
+        StorageService storageService,
+        SaleIdGeneratorService idGeneratorService,
+        ThirdPartyCalculationManager calculationManager
+    ) {
+        this.thirdPartySaleLineService = thirdPartySaleLineService;
+        this.clientTiersPayantRepository = clientTiersPayantRepository;
+        this.tiersPayantRepository = tiersPayantRepository;
+        this.thirdPartySaleRepository = thirdPartySaleRepository;
+        this.consommationService = consommationService;
+        this.storageService = storageService;
+        this.idGeneratorService = idGeneratorService;
+        this.calculationManager = calculationManager;
+    }
+
+    @Override
+    public List<ClientTiersPayant> getClientTiersPayants(Set<Integer> ids) {
+        return clientTiersPayantRepository.findAllByIdIn(ids);
+    }
+
+    @Override
+    public String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales)
+        throws NumBonAlreadyUseException, GenericError {
+        List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(
+            dto.getTiersPayants().stream().map(ClientTiersPayantDTO::getId).collect(java.util.stream.Collectors.toSet())
+        );
+        for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
+            dto
+                .getTiersPayants()
+                .stream()
+                .filter(ctpdto -> Objects.equals(ctpdto.getId(), clientTiersPayant.getId()))
+                .findFirst()
+                .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
+
+            if (dto.getNumBon() != null && checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
+                throw new NumBonAlreadyUseException(dto.getNumBon());
+            }
+
+            ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
+                dto.getNumBon(),
+                clientTiersPayant,
+                0
+            );
+
+            thirdPartySaleLine.setSale(thirdPartySales);
+            thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+        }
+        return calculationManager.upddateThirdPartySaleAmounts(thirdPartySales, true, clientTiersPayants);
+    }
+
+    @Override
+    public boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId, Long currentSaleId) {
+        if (!StringUtils.hasLength(numBon)) {
+            return false;
+        }
+        if (isNull(currentSaleId)) {
+            return thirdPartySaleLineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
+                numBon,
+                clientTiersPayantId,
+                SalesStatut.CLOSED
+            ) > 0;
+        }
+        return thirdPartySaleLineService.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
+            numBon,
+            currentSaleId,
+            clientTiersPayantId,
+            SalesStatut.CLOSED
+        ) > 0;
+    }
+
+    @Override
+    public String addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
+        throws NumBonAlreadyUseException, GenericError {
+        ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
+        ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(saleId.getId());
+
+        if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
+            throw new NumBonAlreadyUseException(dto.getNumBon());
+        }
+
+        ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
+            dto.getNumBon(),
+            clientTiersPayant,
+            0
+        );
+        thirdPartySaleLine.setSale(thirdPartySales);
+        thirdPartySaleLineService.save(thirdPartySaleLine);
+        thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+
+        return calculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
+    }
+
+    @Override
+    public String removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) {
+        Optional<ThirdPartySaleLine> saleLineOpt = thirdPartySaleLineService.findFirstByClientTiersPayantIdAndSaleId(
+            clientTiersPayantId,
+            saleId
+        );
+
+        if (saleLineOpt.isPresent()) {
+            ThirdPartySaleLine thirdPartySaleLine = saleLineOpt.get();
+            ThirdPartySales thirdPartySales = thirdPartySaleLine.getSale();
+            thirdPartySaleLine.setSale(null);
+            thirdPartySales.getThirdPartySaleLines().remove(thirdPartySaleLine);
+            thirdPartySaleLineService.delete(thirdPartySaleLine);
+
+            return calculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
+        }
+        return null;
+    }
+
+    @Override
+    public void updateClientTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine) {
+        consommationService.updateConsommation(
+            thirdPartySaleLine.getClientTiersPayant(),
+            thirdPartySaleLine.getMontant(),
+            thirdPartySaleLine.getUpdated(),
+            clientTiersPayantRepository::save
+        );
+    }
+
+    @Override
+    public void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine) {
+        TiersPayant tiersPayant = thirdPartySaleLine.getClientTiersPayant().getTiersPayant();
+        tiersPayant.setUser(storageService.getUser());
+        consommationService.updateConsommation(
+            tiersPayant,
+            thirdPartySaleLine.getMontant(),
+            thirdPartySaleLine.getUpdated(),
+            tiersPayantRepository::save
+        );
+    }
+
+    @Override
+    public int buildConsommationId() {
+        return consommationService.buildConsommationId();
+    }
+
+    @Override
+    public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
+        return thirdPartySaleLineService.findAllBySaleId(saleId);
+    }
+
+    @Override
+    public ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy) {
+        ThirdPartySaleLine clone = (ThirdPartySaleLine) original.clone();
+        clone.setId(idGeneratorService.nextId());
+        clone.setSaleDate(LocalDate.now());
+        clone.setStatut(ThirdPartySaleStatut.DELETE);
+        clone.setMontant(clone.getMontant() * (-1));
+        clone.setSale(copy);
+        thirdPartySaleLineService.save(clone);
+        original.setStatut(ThirdPartySaleStatut.DELETE);
+        thirdPartySaleLineService.save(original);
+        return clone;
+    }
+
+    @Override
+    public void updateThirdPartySaleLine(
+        String numBon,
+        ThirdPartySaleLine thirdPartySaleLine,
+        Integer clientTiersPayantId,
+        Integer montant
+    ) throws NumBonAlreadyUseException {
+        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+
+        if (!clientTiersPayant.getId().equals(clientTiersPayantId)) {
+            clientTiersPayant = clientTiersPayantRepository.getReferenceById(clientTiersPayantId);
+            thirdPartySaleLine.setClientTiersPayant(clientTiersPayant);
+        }
+
+        if (StringUtils.hasLength(numBon)) {
+            SaleId saleId = thirdPartySaleLine.getSale().getId();
+            if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayantId, saleId.getId())) {
+                throw new NumBonAlreadyUseException(numBon);
+            }
+            thirdPartySaleLine.setNumBon(numBon);
+        }
+
+        if (montant != null) {
+            thirdPartySaleLine.setMontant(montant);
+        }
+
+        thirdPartySaleLineService.save(thirdPartySaleLine);
+    }
+
+    @Override
+    public Optional<ThirdPartySaleLine> findSaleLineByClientTiersPayantId(ThirdPartySales sale, Integer clientTiersPayantId) {
+        return sale
+            .getThirdPartySaleLines()
+            .stream()
+            .filter(line -> line.getClientTiersPayant().getId().equals(clientTiersPayantId))
+            .findFirst();
+    }
+
+    @Override
+    public String saveTiersPayantLinesOnChangeCustomer(ThirdPartySales thirdPartySales) {
+        List<ClientTiersPayant> clientTiersPayants = ((AssuredCustomer) thirdPartySales.getCustomer())
+            .getClientTiersPayants()
+            .stream()
+            .sorted(Comparator.comparingInt(c -> c.getPriorite().getValue()))
+            .toList();
+
+        for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
+            ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
+                null,
+                clientTiersPayant,
+                0
+            );
+            thirdPartySaleLine.setSale(thirdPartySales);
+            thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+        }
+
+        return calculationManager.reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, true);
+    }
+}

@@ -99,6 +99,7 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
       if (isDevMode()) {
         console.debug('[Scanner] Setter bloqué pendant le scan');
       }
+      console.log('[Scanner] Setter bloqué pendant le scan');
       return;
     }
     if (this._produitSelected() !== value) {
@@ -164,22 +165,24 @@ export class ProduitSearchAutocompleteScannerComponent implements ControlValueAc
   }
 
   searchFn(event: any): void {
-    // Ne pas marquer comme recherche manuelle si on est déjà en mode scan
-    // Cela permet au scanner de continuer sans être bloqué
-    if (!this.isScanning) {
-      this.isManualSearching = true;
-
-      // Annuler le timeout précédent s'il existe
-      if (this.manualSearchTimeout) {
-        clearTimeout(this.manualSearchTimeout);
-      }
-
-      // Réinitialiser après un délai (plus long que le délai de détection du scanner)
-      this.manualSearchTimeout = setTimeout(() => {
-        this.isManualSearching = false;
-        this.manualSearchTimeout = null;
-      }, 600);
+    // If a scan was wrongly detected (e.g., from fast typing), abort it.
+    // User interaction with the search box should always have priority.
+    if (this.isScanning) {
+      this.isScanning = false;
+      this.stopInputClearLoop();
     }
+
+    // Flag that a manual search is in progress to prevent the scanner from starting.
+    this.isManualSearching = true;
+
+    // Debounce the reset of the manual search flag.
+    if (this.manualSearchTimeout) {
+      clearTimeout(this.manualSearchTimeout);
+    }
+    this.manualSearchTimeout = setTimeout(() => {
+      this.isManualSearching = false;
+      this.manualSearchTimeout = null;
+    }, 600); // Must be longer than the scan detector's timeout.
 
     this.searchTrigger$.next(event.query);
   }

@@ -15,8 +15,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { ProduitSearch } from '../../../shared/model/produit.model';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ConfirmDialog } from 'primeng/confirmdialog';
 
 export interface IManualRepartitionRequest {
   stockSourceId: number;
@@ -51,20 +49,16 @@ export interface IRepartitionRow {
     Toast,
     ProduitSearchAutocompleteScannerComponent,
     QuantiteProdutSaisieComponent,
-    ConfirmDialogComponent,
-    ConfirmDialog,
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService],
   styleUrl: './manual-repartition.component.scss',
 })
 export class ManualRepartitionComponent implements OnInit {
   protected repartitionService = inject(RepartitionStockService);
   protected storageService = inject(StorageService);
   protected messageService = inject(MessageService);
-  protected confirmationService = inject(ConfirmationService);
   protected produitbox = viewChild<ProduitSearchAutocompleteScannerComponent>('produitbox');
   protected quantityBox = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
-  protected confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   allStocks: IStockProduit[] = [];
   repartitionRows: IRepartitionRow[] = [];

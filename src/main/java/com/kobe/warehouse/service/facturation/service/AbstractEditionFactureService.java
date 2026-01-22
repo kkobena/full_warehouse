@@ -20,11 +20,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import org.springframework.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -155,22 +157,42 @@ public abstract class AbstractEditionFactureService implements EditionService {
             factureTiersPayant.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
         }
         factureTiersPayant = this.facturationRepository.saveAndFlush(factureTiersPayant);
-
+        List<RepartitionTiersPayantParTva> facturesRepartitions = new ArrayList<>();
+        List<RepartitionTiersPayantParTva> finalFacturesRepartitions = new ArrayList<>();
 
         for (ThirdPartySaleLine saleLine : saleLines) {
-            List<RepartitionTiersPayantParTva> repartitions= saleLine.getRepartitions();
+            List<RepartitionTiersPayantParTva> repartitions = saleLine.getRepartitions();
+
             if (!CollectionUtils.isEmpty(repartitions)) {
                 for (RepartitionTiersPayantParTva repartition : repartitions) {
                     factureTiersPayant.setMontantTtc(factureTiersPayant.getMontantTtc().add(BigDecimal.valueOf(repartition.montantTtc())));
                     factureTiersPayant.setMontantTva(factureTiersPayant.getMontantTva().add(BigDecimal.valueOf(repartition.montantTva())));
                     factureTiersPayant.setMontantNet(factureTiersPayant.getMontantNet().add(BigDecimal.valueOf(repartition.montantNet())));
                     factureTiersPayant.setMontantHt(factureTiersPayant.getMontantHt().add(BigDecimal.valueOf(repartition.montantHt())));
+                    facturesRepartitions.add(repartition);
                 }
             }
             saleLine.setFactureTiersPayant(factureTiersPayant);
             factureTiersPayant.getFacturesDetails().add(saleLine);
             thirdPartySaleLineRepository.saveAndFlush(saleLine);
         }
+        Map<Integer, List<RepartitionTiersPayantParTva>> repartitionByTva = facturesRepartitions.stream()
+            .collect(Collectors.groupingBy(RepartitionTiersPayantParTva::tva));
+        repartitionByTva.forEach((tva, repartitions) -> {
+            BigDecimal montantTtc = BigDecimal.ZERO;
+            BigDecimal montantTva = BigDecimal.ZERO;
+            BigDecimal montantNet = BigDecimal.ZERO;
+            BigDecimal montantHt = BigDecimal.ZERO;
+            for (RepartitionTiersPayantParTva repartition : repartitions) {
+                montantTtc = montantTtc.add(BigDecimal.valueOf(repartition.montantTtc()));
+                montantTva = montantTva.add(BigDecimal.valueOf(repartition.montantTva()));
+                montantNet = montantNet.add(BigDecimal.valueOf(repartition.montantNet()));
+                montantHt = montantHt.add(BigDecimal.valueOf(repartition.montantHt()));
+            }
+            //double montantTtc, double montantTva, double montantNet, double montantHt, int tva
+            finalFacturesRepartitions.add(new RepartitionTiersPayantParTva(montantTtc.doubleValue(), montantTva.doubleValue(), montantNet.doubleValue(), montantHt.doubleValue(), tva));
+        });
+        factureTiersPayant.setRepartitions(finalFacturesRepartitions);
     }
 
     protected int getLastFactureNumero() {

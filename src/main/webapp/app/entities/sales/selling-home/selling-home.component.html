@@ -219,7 +219,6 @@
               (scannedProduit)="onScannedProduct($event)"
               [(ngModel)]="produitSelected"
               [autofocus]="true"
-              [enableScanner]="!globalScannerService.enabled()"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
               class="pharma-autocomplete"

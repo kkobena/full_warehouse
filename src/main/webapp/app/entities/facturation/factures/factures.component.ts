@@ -4,7 +4,7 @@ import { FactureService } from '../facture.service';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { MenuItem, PrimeIcons } from 'primeng/api';
+import { ConfirmationService, MenuItem, PrimeIcons } from 'primeng/api';
 import { ToolbarModule } from 'primeng/toolbar';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
@@ -33,13 +33,15 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { DatePicker } from 'primeng/datepicker';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Select } from 'primeng/select';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-factures',
+  providers: [ConfirmationService],
   imports: [
     ToolbarModule,
     WarehouseCommonModule,
@@ -56,8 +58,8 @@ import { TauriPrinterService } from '../../../shared/services/tauri-printer.serv
     InputText,
     ToggleSwitch,
     DatePicker,
-    ConfirmDialogComponent,
     Select,
+    ConfirmDialogModule,
   ],
   templateUrl: './factures.component.html',
   styleUrl: './factures.component.scss',
@@ -92,9 +94,10 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   private readonly factureStateService = inject(FactureStateService);
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private toDateMinusOneMonth: Date = null;
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -224,8 +227,13 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   }
 
   onDelete(id: FactureId): void {
-    this.confimDialog().onConfirm(
-      () => {
+    this.confirmationService.confirm({
+      message: 'Êtes-vous sûr de vouloir suprimer ?',
+      header: ' Suppression',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => {
         this.factureService.delete(id).subscribe({
           next: () => {
             this.loadPage();
@@ -235,9 +243,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
           },
         });
       },
-      'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
-    );
+    });
   }
 
   exportPdf(id: FactureId): void {

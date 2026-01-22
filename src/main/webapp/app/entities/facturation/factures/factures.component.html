@@ -11,12 +11,12 @@
         <div class="pharma-toolbar-filters">
           <div class="mr-1 d-flex align-items-center">
             <label class="input-label me-1">Groupées</label>
-            <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureGroup" />
+            <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureGroup"/>
           </div>
 
           <div class="mr-1 d-flex align-items-center">
             <label class="input-label me-1">Provisoires</label>
-            <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureProvisoire" />
+            <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureProvisoire"/>
           </div>
 
           <p-floatlabel variant="on">
@@ -52,7 +52,7 @@
           </p-floatlabel>
 
           <p-floatlabel variant="on">
-            <input [(ngModel)]="search" id="search" pInputText type="text" />
+            <input [(ngModel)]="search" id="search" pInputText type="text"/>
             <label for="search">Rechercher par numéro</label>
           </p-floatlabel>
 
@@ -244,7 +244,7 @@
 
               @if (elRow.statut === 'NOT_PAID') {
                 <p-button
-                  (click)="onDelete(elRow.factureItemId)"
+                  (click)=" onDelete(elRow.factureItemId)"
                   [rounded]="true"
                   [text]="true"
                   icon="pi pi-trash"
@@ -264,4 +264,5 @@
   }
 </div>
 
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+
+<p-confirmdialog></p-confirmdialog>

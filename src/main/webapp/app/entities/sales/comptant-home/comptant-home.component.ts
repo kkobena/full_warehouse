@@ -107,6 +107,7 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
   readonly isSmallScreen = signal(window.innerWidth < 1800);
+  protected isScannedProduct = signal(false);
   comptantComponent = viewChild<ComptantComponent>('comptant');
   userBox = viewChild<any>('userBox');
   accountService = inject(AccountService);
@@ -475,6 +476,27 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Gère un produit trouvé via scan de code-barres (auto-ajout avec quantité 1)
+   */
+  protected onScannedProduct(scannedProduit: ProduitSearch): void {
+    // Marquer comme produit scanné pour masquer les métadonnées
+    this.isScannedProduct.set(true);
+
+    // Mettre à jour le produit sélectionné pour la validation du stock
+    this.produitSelected = scannedProduit;
+
+    // Mettre à jour le statut du stock
+    if (scannedProduit.totalQuantity > 0) {
+      this.stockSeverity = 'success';
+    } else {
+      this.stockSeverity = 'danger';
+    }
+
+    // Ajouter automatiquement avec quantité 1
+    this.onAddNewQty(1);
+  }
+
   protected onSaveKeyDown(saveSale: boolean): void {
     if (saveSale && this.currentSaleService.currentSale().salesLines.length > 0) {
       this.manageAmountDiv();
@@ -482,7 +504,8 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onBarcodeScanned(barcode: string): void {
-    console.log('Barcode scanned:', barcode);
+    // Événement informatif : un code-barres a été scanné
+    // Le produit sera traité via onScannedProduct si trouvé
   }
 
   private handleInvalidStock(reason: string, qytMvt: number): void {
@@ -571,14 +594,25 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateProduitQtyBox(): void {
+    // Vider d'abord le produit sélectionné AVANT de mettre le focus
+    this.produitSelected = null;
+
+    // Réinitialiser le flag isScannedProduct APRÈS avoir vidé produitSelected
+    // pour éviter que la condition (produitSelected && !isScannedProduct()) soit vraie
+    this.isScannedProduct.set(false);
+
+    // Réinitialiser le composant autocomplete pour vider complètement
+    this.produitbox().reset();
+
+    // Ensuite reset la quantité
     if (this.quantyBox()) {
       this.quantyBox().reset(1);
     }
+
+    // Enfin mettre le focus
     if (this.check) {
       this.produitbox().getFocus();
     }
-
-    this.produitSelected = null;
   }
 
   private processQtyRequested(salesLine: ISalesLine): void {

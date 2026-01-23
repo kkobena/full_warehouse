@@ -147,12 +147,11 @@
           <div class="product-search-input">
             <jhi-produit-search-autocomplete-scanner
               #produitbox
-              (onBarcodeScanned)="onBarcodeScanned($event)"
               (onKeyEnter)="onSaveKeyDown($event)"
               (selectedProduit)="onSelectProduct($event)"
+              (scannedProduit)="onScannedProduct($event)"
               [(ngModel)]="produitSelected"
               [autofocus]="true"
-              [enableScanner]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
               class="pharma-autocomplete"
@@ -173,7 +172,7 @@
           </div>
 
           <!-- Product Meta Information -->
-          @if (produitSelected) {
+          @if (produitSelected && !isScannedProduct()) {
             <div class="product-meta">
               @if (showStock) {
                 <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">

@@ -170,16 +170,16 @@ public class TicketZServiceImpl implements TicketZService {
                             summary.put(modePaimentCode, new Tuple(montant, montant1, 0L));
                         }
 
-                        ticketZDataUser.add(new TicketZData(firstProjection.libelle(), montant, montant1, modePaimentCode.getSortOrder()));
+                        ticketZDataUser.add(new TicketZData(firstProjection.libelle(), montant, montant1, modePaimentCode.getSortOrder(), modePaimentCode));
                         List<TicketZCreditProjection> userCredit = creditProjectionsMap.remove(userId);
                         if (!CollectionUtils.isEmpty(userCredit)) {
                             long totalCredit = userCredit.stream().mapToLong(TicketZCreditProjection::montant).sum();
-                            ticketZDataUser.add(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101));
+                            ticketZDataUser.add(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101, null));
                             creditAmount.addAndGet(totalCredit);
                         }
                     });
                 if (montantMobileCount.get() > 1) {
-                    summaryMobile.add(new TicketZData("Total Mobile", montantMobile.get(), montantMobile2.get(), 100));
+                    summaryMobile.add(new TicketZData("Total Mobile", montantMobile.get(), montantMobile2.get(), 100, null));
                 }
                 ticketZDataUser.sort(Comparator.comparing(TicketZData::sortOrder));
                 ticketZRecaps.add(new TicketZRecap(userId, userName, ticketZDataUser, summaryMobile));
@@ -196,25 +196,25 @@ public class TicketZServiceImpl implements TicketZService {
             creditAmount.addAndGet(totalCredit);
 
             ticketZRecaps.add(
-                new TicketZRecap(userId, userName, List.of(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101)), List.of())
+                new TicketZRecap(userId, userName, List.of(new TicketZData("Crédit(vno/vo)", totalCredit, totalCredit, 101, null)), List.of())
             );
         });
 
         // build summary
         List<TicketZData> summaryData = new ArrayList<>();
         List<PaymentMode> paymentModes = this.paymentModeService.fetch();
-        if (userCount.get() > 1) {
+        if (userCount.get() >= 1) {
             summary.forEach((modePaimentCode, tuple) -> {
                 String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);
-                summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder()));
+                summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder(), modePaimentCode));
             });
 
             if (montantMobileCountG.get() > 1) {
-                summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 101));
+                summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 101, null));
             }
 
             if (creditAmount.get() > 0) {
-                summaryData.add(new TicketZData("Crédit(vno/vo)", creditAmount.get(), creditAmount.get(), 100));
+                summaryData.add(new TicketZData("Crédit(vno/vo)", creditAmount.get(), creditAmount.get(), 100, null));
             }
         }
 

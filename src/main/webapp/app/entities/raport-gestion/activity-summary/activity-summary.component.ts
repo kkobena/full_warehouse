@@ -17,11 +17,11 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-activity-summary',
@@ -36,8 +36,8 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     InputIcon,
     InputText,
     TableModule,
-    Card,
     ToastAlertComponent,
+    Tooltip,
   ],
   templateUrl: './activity-summary.component.html',
   styleUrl: './activity-summary.component.scss',

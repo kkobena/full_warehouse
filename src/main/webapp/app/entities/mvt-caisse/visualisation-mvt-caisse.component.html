@@ -121,111 +121,123 @@
   <div class="row mt-3 mb-3 px-2">
     @if (mvtCaisses && mvtCaisses.length > 0) {
       <div class="col-md-12 col-lg-8 col-xl-9 col-xxl-9 col-sm-12 mb-2">
-        <p-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading"
-          [paginator]="true"
-          [rowsPerPageOptions]="[10, 20, 30, 50]"
-          [rows]="itemsPerPage"
-          [showCurrentPageReport]="false"
-          [totalRecords]="totalItems"
-          [value]="mvtCaisses"
-          dataKey="id"
-          selectionMode="multiple"
-          stripedRows="true"
-          class="pharma-table"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Type</th>
-              <th>Référence</th>
-              <th>Date</th>
-              <th>Montant</th>
-              <th>Mode règlement</th>
-              <th>Opérateur</th>
-              <th>Client</th>
+        <div class="card  data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-list text-primary"></i>
+              Liste des mouvements
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <p-table
+              (onLazyLoad)="lazyLoading($event)"
+              [lazy]="true"
+              [loading]="loading"
+              [paginator]="true"
+              [rowsPerPageOptions]="[10, 20, 30, 50]"
+              [rows]="itemsPerPage"
+              [showCurrentPageReport]="false"
+              [totalRecords]="totalItems"
+              [value]="mvtCaisses"
+              dataKey="id"
+              selectionMode="multiple"
+              stripedRows="true"
+              class="pharma-table"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Type</th>
+                  <th>Référence</th>
+                  <th>Date</th>
+                  <th>Montant</th>
+                  <th>Mode règlement</th>
+                  <th>Opérateur</th>
+                  <th>Client</th>
 
-              <th [hidden]="true" style="width: 15px"></th>
-            </tr>
-          </ng-template>
-          <ng-template let-mvtCaisse #body>
-            <tr>
-              <td>
-                <span class="pharma-badge pharma-badge-info">{{ mvtCaisse.transactionType }}</span>
-              </td>
-              <td>
-                <span class="pharma-code"> {{ mvtCaisse.reference }}</span>
-              </td>
-              <td>{{ mvtCaisse.date }}</td>
-              @if (mvtCaisse.type === 'SORTIE_CAISSE') {
-                <td class="text-danger amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
-              } @else {
-                <td class="amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
-              }
+                  <th [hidden]="true" style="width: 15px"></th>
+                </tr>
+              </ng-template>
+              <ng-template let-mvtCaisse #body>
+                <tr>
+                  <td>
+                    <span class="pharma-badge pharma-badge-info">{{ mvtCaisse.transactionType }}</span>
+                  </td>
+                  <td>
+                    <span class="pharma-code"> {{ mvtCaisse.reference }}</span>
+                  </td>
+                  <td>{{ mvtCaisse.date }}</td>
+                  @if (mvtCaisse.type === 'SORTIE_CAISSE') {
+                    <td class="text-danger amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
+                  } @else {
+                    <td class="amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
+                  }
 
-              <td>
-                <span class="pharma-badge pharma-badge-primary">{{ mvtCaisse.paymentModeLibelle }}</span>
-              </td>
-              <td>{{ mvtCaisse.userFullName }}</td>
-              <td>{{ mvtCaisse.organisme }}</td>
+                  <td>
+                    <span class="pharma-badge pharma-badge-primary">{{ mvtCaisse.paymentModeLibelle }}</span>
+                  </td>
+                  <td>{{ mvtCaisse.userFullName }}</td>
+                  <td>{{ mvtCaisse.organisme }}</td>
 
-              <td [hidden]="true" class="text-right">
-                <div class="btn-group">
-                  <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye" pTooltip="Voir"></p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+                  <td [hidden]="true" class="text-right">
+                    <div class="btn-group">
+                      <p-button severity="info" size="small" [rounded]="true" icon="pi pi-eye" pTooltip="Voir"></p-button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
       </div>
       @if (mvtCaisseSum) {
         <div class="col-md-12 col-lg-4 col-xl-3 col-xxl-3 col-sm-12 pharma-smart">
-          <p-card>
-            <ng-template #title>
-              <div class="card-title primary-title">
-                <i class="pi pi-money-bill mr-2"></i>
+          <div class="card  data-card mb-2">
+            <div class="card-header">
+              <h5 class="card-title">
+                <i class="pi pi-money-bill text-primary"></i>
                 Totaux
-              </div>
-            </ng-template>
-            <div class="grid">
-              <div class="col-12">
-                @if (mvtCaisseSum.totalPaymentAmount > 0) {
-                  <div class="field">
-                    <label>Total ventes</label>
-                    <span>{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
-                  </div>
-                }
-                @if (mvtCaisseSum.creditedAmount > 0) {
-                  <div class="field">
-                    <label>Total entrée</label>
-                    <span class="text-success">{{ mvtCaisseSum.creditedAmount | number }}</span>
-                  </div>
-                }
-                @if (mvtCaisseSum.debitedAmount > 0) {
-                  <div class="field">
-                    <label>Total sortiee</label>
-                    <span class="text-danger">{{ mvtCaisseSum.debitedAmount * -1 | number }}</span>
-                  </div>
-                }
-                @if (mvtCaisseSum.debitedAmount > 0) {
-                  <div class="field">
-                    <label>Total Mobile</label>
-                    <span>{{ mvtCaisseSum.totalMobileAmount | number }}</span>
-                  </div>
-                }
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="grid">
+                <div class="col-12">
+                  @if (mvtCaisseSum.totalPaymentAmount > 0) {
+                    <div class="field">
+                      <label>Total ventes</label>
+                      <span>{{ mvtCaisseSum.totalPaymentAmount | number }}</span>
+                    </div>
+                  }
+                  @if (mvtCaisseSum.creditedAmount > 0) {
+                    <div class="field">
+                      <label>Total entrée</label>
+                      <span class="text-success">{{ mvtCaisseSum.creditedAmount | number }}</span>
+                    </div>
+                  }
+                  @if (mvtCaisseSum.debitedAmount > 0) {
+                    <div class="field">
+                      <label>Total sortiee</label>
+                      <span class="text-danger">{{ mvtCaisseSum.debitedAmount * -1 | number }}</span>
+                    </div>
+                  }
+                  @if (mvtCaisseSum.debitedAmount > 0) {
+                    <div class="field">
+                      <label>Total Mobile</label>
+                      <span>{{ mvtCaisseSum.totalMobileAmount | number }}</span>
+                    </div>
+                  }
+                </div>
               </div>
             </div>
-          </p-card>
+          </div>
           @if (mvtCaisseSum.modesPaiementAmounts.length > 0) {
-            <div class="mt-2">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title info-title">
-                    <i class="pi pi-wallet mr-2"></i>
-                    Modes règlements
-                  </div>
-                </ng-template>
+            <div class="card data-card mb-2">
+              <div class="card-header">
+                <h5 class="card-title">
+                  <i class="pi pi-wallet text-info"></i>
+                  Modes règlements
+                </h5>
+              </div>
+              <div class="card-body">
                 <div class="grid">
                   <div class="col-12">
                     @for (mode of mvtCaisseSum.modesPaiementAmounts; track mode.key) {
@@ -236,18 +248,18 @@
                     }
                   </div>
                 </div>
-              </p-card>
+              </div>
             </div>
           }
           @if (mvtCaisseSum.typeTransactionAmounts.length > 0) {
-            <div class="mt-2">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title secondary-title">
-                    <i class="pi pi-info-circle mr-2"></i>
-                    Types mouvements
-                  </div>
-                </ng-template>
+            <div class="card  data-card mb-2">
+              <div class="card-header">
+                <h5 class="card-title">
+                  <i class="pi pi-info-circle text-secondary"></i>
+                  Types mouvements
+                </h5>
+              </div>
+              <div class="card-body">
                 <div class="grid">
                   <div class="col-12">
                     @for (mode of mvtCaisseSum.typeTransactionAmounts; track mode.key) {
@@ -262,7 +274,7 @@
                     }
                   </div>
                 </div>
-              </p-card>
+              </div>
             </div>
           }
         </div>

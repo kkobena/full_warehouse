@@ -141,106 +141,145 @@
           </div>
         </div>
       }
-      <div class="row col-md-12 col-12 pharma-smart">
-        <div class="col-md-4 col-4">
-          <p-card>
-            <ng-template #title>
-              <div class="card-title primary-title">
-                <i class="pi pi-info-circle mr-2"></i>
-                Information sur la vente
-              </div>
-            </ng-template>
-            <div class="grid">
-              <div class="col-12">
-                <div class="field">
-                  <label>Total TTC</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
-                </div>
-
-                <div class="field">
-                  <label>Total TVA</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
-                </div>
-
-                <div class="field">
-                  <label>Total TH</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
-                </div>
-
-                <div class="field">
-                  <label>Total comptant</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
-                </div>
-                <div class="field">
-                  <label>Total achat</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
-                </div>
-
-                <div class="field">
-                  <label>Marge</label>
-                  <span>{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
-                </div>
-                <div class="field">
-                  <label>Ratio V/A</label>
-                  <span>{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
-                </div>
-                <div class="field">
-                  <label>Ratio A/V</label>
-                  <span>{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
-                </div>
+      <!-- Balance Summary Cards -->
+      <div class="balance-cards-container mt-3">
+        <!-- Card 1: Information sur la vente -->
+        <div class="balance-card balance-card-primary">
+          <div class="balance-card-header">
+            <div class="balance-card-icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <div class="balance-card-header-content">
+              <h3 class="balance-card-title">Information sur la vente</h3>
+              <span class="balance-card-subtitle">Détails des transactions</span>
+            </div>
+          </div>
+          <div class="balance-card-body">
+            <div class="balance-item">
+              <span class="balance-item-label">Total TTC</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
               </div>
             </div>
-          </p-card>
-        </div>
-        @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
-          <div class="col-md-4 col-4">
-            <p-card>
-              <ng-template #title>
-                <div class="card-title info-title">
-                  <i class="pi pi-wallet mr-2"></i>
-                  Montant ventes par modes règlement
-                </div>
-              </ng-template>
-              <div class="grid">
-                <div class="col-12">
-                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
-                    <div class="field">
-                      <label>{{ mvtCaisse.libelle }}</label>
-                      <span>{{ mvtCaisse.value | number }}</span>
-                    </div>
-                  }
-                </div>
+
+            <div class="balance-item">
+              <span class="balance-item-label">Total TVA</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
               </div>
-            </p-card>
+            </div>
+
+            <div class="balance-item">
+              <span class="balance-item-label">Total HT</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
+              </div>
+            </div>
+
+            <div class="balance-item">
+              <span class="balance-item-label">Total comptant</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
+              </div>
+            </div>
+
+            <div class="balance-item">
+              <span class="balance-item-label">Total achat</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
+              </div>
+            </div>
+
+            <div class="balance-item balance-item-highlight">
+              <span class="balance-item-label">Marge</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
+                <span class="balance-item-currency">FCFA</span>
+              </div>
+            </div>
+
+            <div class="balance-item balance-item-small">
+              <span class="balance-item-label">Ratio V/A</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
+                <span class="balance-item-currency">%</span>
+              </div>
+            </div>
+
+            <div class="balance-item balance-item-small">
+              <span class="balance-item-label">Ratio A/V</span>
+              <div class="balance-item-value-wrapper">
+                <span class="balance-item-value">{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
+                <span class="balance-item-currency">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Montant ventes par modes règlement -->
+        @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
+          <div class="balance-card balance-card-success">
+            <div class="balance-card-header">
+              <div class="balance-card-icon balance-card-icon-small">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="balance-card-header-content">
+                <h3 class="balance-card-title">Modes de règlement</h3>
+                <span class="balance-card-subtitle">Répartition des paiements</span>
+              </div>
+            </div>
+            <div class="balance-card-body">
+              @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
+                <div class="balance-item">
+                  <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
+                  <div class="balance-item-value-wrapper">
+                    <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
+                    <span class="balance-item-currency">FCFA</span>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         }
+
+        <!-- Card 3: Information sur les mouvements de caisse -->
         @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
-          <div class="col-md-4 col-4">
-            <p-card>
-              <ng-template #title>
-                <div class="card-title secondary-title">
-                  <i class="pi pi-money-bill mr-2"></i>
-                  Information sur les mouvements de caisse
-                </div>
-              </ng-template>
-              <div class="grid">
-                <div class="col-12">
-                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
-                    @if (mvtCaisse.key === 'SORTIE_CAISSE') {
-                      <div class="field">
-                        <label>{{ mvtCaisse.libelle }}</label>
-                        <span class="text-danger">{{ mvtCaisse.value * -1 | number }}</span>
-                      </div>
-                    } @else {
-                      <div class="field">
-                        <label>{{ mvtCaisse.libelle }}</label>
-                        <span>{{ mvtCaisse.value | number }}</span>
-                      </div>
-                    }
-                  }
-                </div>
+          <div class="balance-card balance-card-warning">
+            <div class="balance-card-header">
+              <div class="balance-card-icon balance-card-icon-small">
+                <i class="pi pi-arrows-v"></i>
               </div>
-            </p-card>
+              <div class="balance-card-header-content">
+                <h3 class="balance-card-title">Mouvements de caisse</h3>
+                <span class="balance-card-subtitle">Entrées & Sorties</span>
+              </div>
+            </div>
+            <div class="balance-card-body">
+              @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
+                @if (mvtCaisse.key === 'SORTIE_CAISSE') {
+                  <div class="balance-item balance-item-danger">
+                    <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
+                    <div class="balance-item-value-wrapper">
+                      <span class="balance-item-value">{{ mvtCaisse.value * -1 | number }}</span>
+                      <span class="balance-item-currency">FCFA</span>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="balance-item">
+                    <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
+                    <div class="balance-item-value-wrapper">
+                      <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
+                      <span class="balance-item-currency">FCFA</span>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
           </div>
         }
       </div>

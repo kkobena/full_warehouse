@@ -137,11 +137,18 @@ public class MobileCashSummaryService {
             return List.of();
         }
         return items.stream()
-            .map(data -> new SummaryItemDTO(
-                data.libelle(),
-                data.value(),
-                data.secondValue()
-            ))
+            .map(data -> {
+                String key = data.modePaimentCode() != null
+                    ? data.modePaimentCode().name()
+                    : data.libelle().toUpperCase().replace(" ", "_");
+                return new SummaryItemDTO(
+                    key,
+                    data.libelle(),
+                    data.value(),
+                    data.secondValue(),
+                    SummaryItemDTO.TYPE_AMOUNT
+                );
+            })
             .toList();
     }
 
@@ -162,14 +169,23 @@ public class MobileCashSummaryService {
 
         // Calculate from global summary first
         for (TicketZData data : ticketZ.summaries()) {
-            categorizeAmount(data.libelle().toUpperCase(), data.value(), totals);
+            if (data.modePaimentCode() != null) {
+                categorizeAmountByCode(data.modePaimentCode(), data.value(), totals);
+            } else {
+                // Fallback to label-based categorization for special items (credit, mobile total, etc.)
+                categorizeAmount(data.libelle().toUpperCase(), data.value(), totals);
+            }
         }
 
         // If no global summary, sum from individual cashier data
         if (ticketZ.summaries().isEmpty() && !ticketZ.datas().isEmpty()) {
             for (TicketZRecap recap : ticketZ.datas()) {
                 for (TicketZData data : recap.datas()) {
-                    categorizeAmount(data.libelle().toUpperCase(), data.value(), totals);
+                    if (data.modePaimentCode() != null) {
+                        categorizeAmountByCode(data.modePaimentCode(), data.value(), totals);
+                    } else {
+                        categorizeAmount(data.libelle().toUpperCase(), data.value(), totals);
+                    }
                 }
             }
         }
@@ -179,6 +195,30 @@ public class MobileCashSummaryService {
                           totals.virements + totals.mobileMoney + totals.credit;
 
         return totals;
+    }
+
+    private void categorizeAmountByCode(com.kobe.warehouse.domain.enumeration.ModePaimentCode code, long value, Totals totals) {
+        if (code == null) {
+            return;
+        }
+
+        switch (code.getPaymentGroup()) {
+            case CASH:
+                totals.especes += value;
+                break;
+            case CB:
+                totals.cartes += value;
+                break;
+            case CHEQUE:
+                totals.cheques += value;
+                break;
+            case VIREMENT:
+                totals.virements += value;
+                break;
+            case MOBILE:
+                totals.mobileMoney += value;
+                break;
+        }
     }
 
     private void categorizeAmount(String label, long value, Totals totals) {

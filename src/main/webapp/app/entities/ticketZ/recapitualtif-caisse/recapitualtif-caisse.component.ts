@@ -18,7 +18,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MenuItem, MessageService } from 'primeng/api';
 import { SplitButton } from 'primeng/splitbutton';
 import { Tooltip } from 'primeng/tooltip';
-import { Card } from 'primeng/card';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
@@ -42,7 +41,6 @@ import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
     SelectModule,
     SplitButton,
     Tooltip,
-    Card,
     SpinnerComponent,
     Toast,
   ],
@@ -74,10 +72,12 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private hasValidEmail: WritableSignal<boolean> = signal<boolean>(false);
   private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
     this.loadAllUsers();
     this.initializeMenus();
     this.checkEmailConfiguration();
+    this.fetchTickets();
   }
 
   ngOnDestroy(): void {
@@ -175,7 +175,6 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
           this.ticketZ = ticketZ;
         }),
         catchError(error => {
-          console.error('Error fetching tickets:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',

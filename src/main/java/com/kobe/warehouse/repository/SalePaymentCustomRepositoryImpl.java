@@ -33,24 +33,32 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<TicketZProjection> query = cb.createQuery(TicketZProjection.class);
         Root<SalePayment> root = query.from(SalePayment.class);
+
+        var paymentModeJoin = root.join(SalePayment_.paymentMode);
+        var cashRegisterJoin = root.join(SalePayment_.cashRegister);
+        var userJoin = cashRegisterJoin.join(CashRegister_.user);
+
         query
             .select(
                 cb.construct(
                     TicketZProjection.class,
-                    root.get(SalePayment_.paymentMode).get(PaymentMode_.code),
-                    root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
+                    paymentModeJoin.get(PaymentMode_.code),
+                    paymentModeJoin.get(PaymentMode_.libelle),
+                    userJoin.get(AppUser_.id),
+                    userJoin.get(AppUser_.firstName),
+                    userJoin.get(AppUser_.lastName),
                     cb.sumAsLong(root.get(SalePayment_.paidAmount)),
                     cb.sumAsLong(root.get(SalePayment_.reelAmount)),
                     root.get(SalePayment_.credit)
                 )
             )
             .groupBy(
-                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
-                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
-                root.get(SalePayment_.paymentMode).get(PaymentMode_.code)
+                userJoin.get(AppUser_.id),
+                userJoin.get(AppUser_.firstName),
+                userJoin.get(AppUser_.lastName),
+                paymentModeJoin.get(PaymentMode_.code),
+                paymentModeJoin.get(PaymentMode_.libelle),
+                root.get(SalePayment_.credit)
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
@@ -65,19 +73,22 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<VenteModePaimentRecord> query = cb.createQuery(VenteModePaimentRecord.class);
         Root<SalePayment> root = query.from(SalePayment.class);
+
+        var paymentModeJoin = root.join(SalePayment_.paymentMode);
+
         query
             .select(
                 cb.construct(
                     VenteModePaimentRecord.class,
-                    root.get(SalePayment_.paymentMode).get(PaymentMode_.code),
-                    root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
+                    paymentModeJoin.get(PaymentMode_.code),
+                    paymentModeJoin.get(PaymentMode_.libelle),
                     cb.sum(root.get(SalePayment_.reelAmount)),
                     cb.sum(root.get(SalePayment_.paidAmount))
                 )
             )
             .groupBy(
-                root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
-                root.get(SalePayment_.paymentMode).get(PaymentMode_.code)
+                paymentModeJoin.get(PaymentMode_.code),
+                paymentModeJoin.get(PaymentMode_.libelle)
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);

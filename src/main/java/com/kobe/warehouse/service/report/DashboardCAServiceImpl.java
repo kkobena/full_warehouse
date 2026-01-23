@@ -313,7 +313,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Transactional
     @CacheEvict(value = "dashboardCA", allEntries = true)
     public void refreshViews() {
-        entityManager.createNativeQuery("SELECT refresh_dashboard_ca_views()").executeUpdate();
+        entityManager.createNativeQuery("SELECT refresh_dashboard_ca_views()").getSingleResult();
     }
 
     // Helper methods

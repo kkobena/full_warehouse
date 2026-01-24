@@ -68,10 +68,8 @@ public class FneServiceImpl implements FneService {
         FneInvoice fneInvoice = new FneInvoice();
         fneInvoice.setEstablishment(magasin.getName());
         fneInvoice.setClientCompanyName(tiersPayant.getFullName());
-        fneInvoice.setClientEmail("test@gmail.com");
-        fneInvoice.setClientPhone("0757467789");
-        // fneInvoice.setClientEmail(tiersPayant.getEmail());
-        //
+        fneInvoice.setClientPhone(tiersPayant.getTelephone());
+        fneInvoice.setClientEmail(tiersPayant.getEmail());
         fneInvoice.setPointOfSale(magasin.getFnePointOfSale());
         fneInvoice.setClientNcc(tiersPayant.getNcc());
         fneInvoice.setItems(buildFromProduitCodeTva(factureTiersPayant));

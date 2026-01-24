@@ -1,11 +1,14 @@
 package com.kobe.warehouse.service.fne.model;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 public class FneInvoice {
 
-    private  List<FneInvoiceItem> items ;
+    private List<FneInvoiceItem> items;
     @NotNull
     private String clientNcc;
     @NotNull
@@ -18,6 +21,7 @@ public class FneInvoice {
     private String establishment;
     private String commercialMessage;
     private String footer;
+    private String template;
 
 
     public String getClientCompanyName() {
@@ -98,13 +102,20 @@ public class FneInvoice {
         return pointOfSale;
     }
 
+    public FneInvoice setTemplate(String template) {
+        this.template = template;
+        return this;
+    }
+
     public void setPointOfSale(String pointOfSale) {
         this.pointOfSale = pointOfSale;
     }
 
     public String getTemplate() {
-
-        return "B2B";
+        if (isNull(template)) {
+            return "B2B";
+        }
+        return template;
     }
 }
 

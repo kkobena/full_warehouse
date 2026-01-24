@@ -1,0 +1,72 @@
+@import '../../../shared/scss/modal-theme';
+
+@include modal-theme;
+
+// Specific styles for FNE certificate viewer
+.fne-certificate-body {
+  height: 80vh;
+  padding: 0;
+  overflow: hidden;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
+
+.modal-header {
+  .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+
+  p-button {
+    ::ng-deep .p-button {
+      min-width: 120px;
+    }
+  }
+}
+
+// Tauri loading message
+.text-center {
+  text-align: center;
+
+  .pi-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1rem;
+    color: var(--p-text-color);
+  }
+
+  small {
+    display: block;
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

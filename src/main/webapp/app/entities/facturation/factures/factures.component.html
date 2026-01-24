@@ -178,81 +178,122 @@
           <td class="pharma-total">{{ elRow.montantRestant | number }}</td>
           <td>{{ elRow.created | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td style="text-align: right">
-            <div class="btn-group" role="group">
-              @if (factureGroup) {
-                <p-button
-                  (click)="onOpenGroupeDetail(elRow)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-eye"
-                  pTooltip="Voir détail"
-                  severity="info"
-                />
-              } @else {
-                <p-button
-                  (click)="onOpenDetail(elRow)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-eye"
-                  pTooltip="Voir détail"
-                  severity="info"
-                />
-              }
+            <p-buttonGroup>
 
-              @if (!elRow.factureProvisoire && elRow.statut !== 'PAID') {
                 @if (factureGroup) {
                   <p-button
+                    (click)="onOpenGroupeDetail(elRow)"
                     [rounded]="true"
-                    [routerLink]="[
+                    [text]="true"
+                    icon="pi pi-eye"
+                    pTooltip="Voir détail"
+                    severity="info"
+                  />
+                } @else {
+                  <p-button
+                    (click)="onOpenDetail(elRow)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-eye"
+                    pTooltip="Voir détail"
+                    severity="info"
+                  />
+                }
+
+                @if (!elRow.factureProvisoire && elRow.statut !== 'PAID') {
+                  @if (factureGroup) {
+                    <p-button
+                      [rounded]="true"
+                      [routerLink]="[
                       '/reglement-facture',
                       elRow.factureItemId.id,
                       elRow.factureItemId.invoiceDate,
                       'groupes',
                       'faire-reglement',
                     ]"
-                    [text]="true"
-                    icon="pi pi-credit-card"
-                    pTooltip="Régler"
-                    severity="success"
-                  />
-                } @else {
-                  <p-button
-                    [rounded]="true"
-                    [routerLink]="[
+                      [text]="true"
+                      icon="pi pi-credit-card"
+                      pTooltip="Régler"
+                      severity="success"
+                    />
+                  } @else {
+                    <p-button
+                      [rounded]="true"
+                      [routerLink]="[
                       '/reglement-facture',
                       elRow.factureItemId.id,
                       elRow.factureItemId.invoiceDate,
                       'individuelle',
                       'faire-reglement',
                     ]"
-                    [text]="true"
-                    icon="pi pi-credit-card"
-                    pTooltip="Régler"
-                    severity="success"
-                  />
+                      [text]="true"
+                      icon="pi pi-credit-card"
+                      pTooltip="Régler"
+                      severity="success"
+                    />
+                  }
                 }
-              }
-              <p-button
-                (click)="exportPdf(elRow.factureItemId)"
-                [loading]="exporting"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-file-pdf"
-                pTooltip="Exporter en Pdf"
-                severity="warn"
-              />
-
-              @if (elRow.statut === 'NOT_PAID') {
                 <p-button
-                  (click)=" onDelete(elRow.factureItemId)"
+                  (click)="exportPdf(elRow.factureItemId)"
+                  [loading]="exporting"
                   [rounded]="true"
                   [text]="true"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
-                  severity="danger"
+                  icon="pi pi-file-pdf"
+                  pTooltip="Exporter en Pdf"
+                  severity="warn"
                 />
-              }
-            </div>
+
+                @if (!elRow.factureProvisoire) {
+                  @if (elRow.fneResponse) {
+                    <p-button
+                      (click)="openFneCertificateViewer(elRow.fneResponse.token, elRow.fneResponse.reference)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-file-check"
+                      pTooltip="Voir la facture certifiée FNE"
+                      tooltipPosition="left"
+                      severity="success"
+                    />
+                  } @else {
+                    @if (factureGroup) {
+                      <p-button
+                        (click)="onCertifyGroupInvoice(elRow.factureItemId)"
+                        [loading]="certifying"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-verified"
+                        pTooltip="Certifier la facture groupée"
+                        tooltipPosition="left"
+                        severity="secondary"
+                      />
+                    } @else {
+                      <p-button
+                        (click)="onCertify(elRow.factureItemId)"
+                        [loading]="certifying"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-verified"
+                        pTooltip="Certifier la facture"
+                        tooltipPosition="left"
+                        severity="secondary"
+                      />
+                    }
+                  }
+                }
+
+                @if (elRow.statut === 'NOT_PAID') {
+                  <p-button
+                    (click)=" onDelete(elRow.factureItemId)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    pTooltip="Supprimer"
+                    severity="danger"
+                  />
+                }
+
+            </p-buttonGroup>
+
           </td>
         </tr>
       </ng-template>

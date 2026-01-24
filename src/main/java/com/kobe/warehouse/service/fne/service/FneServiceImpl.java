@@ -47,18 +47,19 @@ public class FneServiceImpl implements FneService {
     }
 
     @Override
-    public void create(FactureItemId factureItemId, boolean isGroup) throws GenericError {
-        if (!isGroup){
-            facturationRepository.findById(factureItemId).ifPresent(this::createInvoice);
-        }else{
-            List<FactureTiersPayant> factureTiersPayants = facturationRepository.findById(factureItemId)
-                .orElseThrow(()-> new GenericError("Aucune facture trouvée")).getFactureTiersPayants();
-            for (FactureTiersPayant factureTiersPayant : factureTiersPayants) {
-                createInvoice(factureTiersPayant);
-            }
+    public FneResponse create(FactureItemId factureItemId) throws GenericError {
+        FactureTiersPayant factureTiersPayant = facturationRepository.findById(factureItemId)
+            .orElseThrow(() -> new GenericError("Aucune facture trouvée"));
+        return createInvoice(factureTiersPayant);
+    }
+
+    @Override
+    public void certifyGroupInvoice(FactureItemId factureItemId) throws GenericError {
+        List<FactureTiersPayant> factureTiersPayants = facturationRepository.findById(factureItemId)
+            .orElseThrow(() -> new GenericError("Aucune facture trouvée")).getFactureTiersPayants();
+        for (FactureTiersPayant factureTiersPayant : factureTiersPayants) {
+            createInvoice(factureTiersPayant);
         }
-
-
     }
 
     private FneInvoice buildFromFacture(FactureTiersPayant factureTiersPayant, Magasin magasin) {
@@ -67,8 +68,10 @@ public class FneServiceImpl implements FneService {
         FneInvoice fneInvoice = new FneInvoice();
         fneInvoice.setEstablishment(magasin.getName());
         fneInvoice.setClientCompanyName(tiersPayant.getFullName());
-        fneInvoice.setClientEmail(tiersPayant.getEmail());
-        fneInvoice.setClientPhone(tiersPayant.getTelephone());
+        fneInvoice.setClientEmail("test@gmail.com");
+        fneInvoice.setClientPhone("0757467789");
+        // fneInvoice.setClientEmail(tiersPayant.getEmail());
+        //
         fneInvoice.setPointOfSale(magasin.getFnePointOfSale());
         fneInvoice.setClientNcc(tiersPayant.getNcc());
         fneInvoice.setItems(buildFromProduitCodeTva(factureTiersPayant));
@@ -76,7 +79,7 @@ public class FneServiceImpl implements FneService {
     }
 
 
-    private void createInvoice(FactureTiersPayant factureTiersPayant) {
+    private FneResponse createInvoice(FactureTiersPayant factureTiersPayant) {
         try {
             Magasin magasin = storageService.getConnectedUserMagasin();
             FneInvoice fneInvoice = buildFromFacture(factureTiersPayant, magasin);
@@ -84,7 +87,7 @@ public class FneServiceImpl implements FneService {
 
 
             String jsonPayload = objectMapper.writeValueAsString(fneInvoice);
-            log.debug("JSON payload: {}", jsonPayload);
+            log.info("JSON payload: {}", jsonPayload);
 
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -108,9 +111,10 @@ public class FneServiceImpl implements FneService {
 
                 // Save response to database
                 saveResponse(fneResponse, factureTiersPayant);
+                return fneResponse;
             } else {
                 log.error("FNE API returned error status: {} - {}", response.statusCode(), response.body());
-                throw new GenericError("FNE API error: " + response.statusCode());
+                throw new GenericError("L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
             }
 
         } catch (Exception e) {
@@ -134,7 +138,7 @@ public class FneServiceImpl implements FneService {
         String reference = factureTiersPayant.getNumFacture();
         String description = "FACTURATION DU " + DateUtil.formatFr(factureTiersPayant.getDebutPeriode()) + " AU "
             + DateUtil.formatFr(factureTiersPayant.getFinPeriode());
-        repartitions.forEach(repartition -> fneInvoiceItems.add(new FneInvoiceItem(new String[]{TaxeEnum.getByValue(repartition.tva()).name()}, reference, description, repartition.montantHt())));
+        repartitions.forEach(repartition -> fneInvoiceItems.add(new FneInvoiceItem(1, new String[]{TaxeEnum.getByValue(repartition.tva()).name()}, reference, description, repartition.montantHt(), 0.0)));
         return fneInvoiceItems;
     }
 

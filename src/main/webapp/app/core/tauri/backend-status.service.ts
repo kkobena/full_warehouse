@@ -46,7 +46,6 @@ export class BackendStatusService {
         // Get the configured backend URL from Tauri
         try {
           this.backendUrl = await invoke<string>('get_backend_url_command');
-          console.log('[BackendStatusService] Backend URL:', this.backendUrl);
         } catch (error) {
           console.warn('[BackendStatusService] Failed to get backend URL, using default:', error);
         }

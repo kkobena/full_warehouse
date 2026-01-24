@@ -8,6 +8,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.kobe.warehouse.service.fne.model.FneResponse;
 import org.springframework.util.StringUtils;
 
 public class FactureDto extends FactureDtoWrapper {
@@ -36,6 +38,7 @@ public class FactureDto extends FactureDtoWrapper {
     private String periode;
     private InvoiceStatut statut;
     private List<FactureItemDto> items;
+    private FneResponse fneResponse;
 
     public FactureDto() {}
 
@@ -57,7 +60,8 @@ public class FactureDto extends FactureDtoWrapper {
         Integer montantRemiseVente,
         Integer itemMontantRegle,
         Long itemsCount,
-        Integer montant
+        Integer montant,
+        FneResponse fneResponse
     ) {
         this.created = created;
         this.factureId = id;
@@ -77,6 +81,7 @@ public class FactureDto extends FactureDtoWrapper {
         this.itemMontantRegle = itemMontantRegle;
         this.itemsCount = itemsCount;
         this.montant = montant;
+        this.fneResponse = fneResponse;
     }
 
     public FactureDto(
@@ -169,6 +174,15 @@ public class FactureDto extends FactureDtoWrapper {
 
     public String getGroupeNumFacture() {
         return groupeNumFacture;
+    }
+
+    public FneResponse getFneResponse() {
+        return fneResponse;
+    }
+
+    public FactureDto setFneResponse(FneResponse fneResponse) {
+        this.fneResponse = fneResponse;
+        return this;
     }
 
     public FactureDto setGroupeNumFacture(String groupeNumFacture) {

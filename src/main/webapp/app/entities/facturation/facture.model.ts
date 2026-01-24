@@ -30,6 +30,7 @@ export class Facture {
   items?: FactureItem[];
   factures?: Facture[];
   factureItemId?: FactureId;
+  fneResponse?: FneResponse;
 }
 
 export class FactureItem {
@@ -52,4 +53,8 @@ export class FactureItem {
 export class FactureId {
   id: number;
   invoiceDate: string;
+}
+export class FneResponse {
+  reference: string;
+  token: string;
 }

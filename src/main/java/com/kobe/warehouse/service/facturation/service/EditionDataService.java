@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
@@ -49,5 +48,5 @@ public interface EditionDataService {
 
     DossierFactureProjection findDossierFacture(FactureItemId id, boolean isGroup);
 
-    void certifyFacture(FactureItemId id,boolean isGroup) throws GenericError;
+
 }

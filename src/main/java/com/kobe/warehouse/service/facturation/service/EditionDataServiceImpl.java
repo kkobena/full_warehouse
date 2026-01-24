@@ -61,19 +61,19 @@ public class EditionDataServiceImpl implements EditionDataService {
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final FacturationPdfExportService facturationPdfExportService;
     private final GroupeFacturePdfExportService groupeFacturePdfExportService;
-    private final FneService fneService;
+
 
     public EditionDataServiceImpl(
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationPdfExportService facturationPdfExportService,
-        GroupeFacturePdfExportService groupeFacturePdfExportService, FneService fneService
+        GroupeFacturePdfExportService groupeFacturePdfExportService
     ) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationPdfExportService = facturationPdfExportService;
         this.groupeFacturePdfExportService = groupeFacturePdfExportService;
-        this.fneService = fneService;
+
     }
 
     @Override
@@ -230,11 +230,6 @@ public class EditionDataServiceImpl implements EditionDataService {
         return this.facturationRepository.findSingleDossierFacture(id.getId(), id.getInvoiceDate());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public void certifyFacture(FactureItemId id, boolean isGroup) throws GenericError {
-        fneService.create(id, isGroup);
-    }
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
         Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = this.thirdPartySaleLineRepository.canceledCriteria();

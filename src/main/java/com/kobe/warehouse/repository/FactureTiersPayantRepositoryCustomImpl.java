@@ -80,11 +80,13 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 cb.sum(sales.get(Sales_.discountAmount)),
                 cb.sum(details.get(ThirdPartySaleLine_.montantRegle)),
                 cb.count(details),
-                cb.sum(details.get(ThirdPartySaleLine_.montant))
+                cb.sum(details.get(ThirdPartySaleLine_.montant)),
+                root.get(FactureTiersPayant_.fneResponse)
             )
         );
 
         query.groupBy(
+            root.get(FactureTiersPayant_.fneResponse),
             root.get(FactureTiersPayant_.invoiceDate),
             root.get(FactureTiersPayant_.created),
             root.get(FactureTiersPayant_.id),

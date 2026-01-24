@@ -38,6 +38,8 @@ import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CertificationService } from '../certification.service';
+import { FneCertificateViewerComponent } from '../fne-certificate-viewer/fne-certificate-viewer.component';
 
 @Component({
   selector: 'jhi-factures',
@@ -86,6 +88,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   protected loadingBtn = false;
   protected loading!: boolean;
   protected exporting = false;
+  protected certifying = false;
   private readonly errorService = inject(ErrorService);
   private readonly factureService = inject(FactureService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -97,6 +100,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   private toDateMinusOneMonth: Date = null;
   private readonly confirmationService = inject(ConfirmationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly certificationService = inject(CertificationService);
 
   constructor() {
     this.translate.use('fr');
@@ -311,6 +315,73 @@ export class FacturesComponent implements OnInit, AfterViewInit {
     }
 
     this.onSearch();
+  }
+
+  onCertify(factureId: FactureId): void {
+    this.certifying = true;
+    this.certificationService.certify(factureId).subscribe({
+      next: response => {
+        this.certifying = false;
+        const fneResponse = response.body;
+
+        // Actualiser la liste pour récupérer la facture avec fneResponse
+        this.loadPage(this.page);
+
+        // Afficher le dialogue de confirmation pour visualiser la facture certifiée
+        this.confirmationService.confirm({
+          message: `Facture certifiée avec succès.\nRéférence: ${fneResponse.reference}\n\nVoulez-vous visualiser la facture certifiée FNE ?`,
+          header: 'Certification Réussie',
+          icon: 'pi pi-check-circle',
+          acceptLabel: 'Visualiser',
+          rejectLabel: 'Fermer',
+          rejectButtonProps: rejectButtonProps(),
+          acceptButtonProps: {
+            ...acceptButtonProps(),
+            label: 'Visualiser',
+            severity: 'info',
+          },
+          accept: () => {
+            this.openFneCertificateViewer(fneResponse.token, fneResponse.reference);
+          },
+        });
+      },
+      error: err => {
+        this.certifying = false;
+        this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+      },
+    });
+  }
+
+  openFneCertificateViewer(tokenUrl: string, reference: string): void {
+    const modalRef = this.modalService.open(FneCertificateViewerComponent, {
+      backdrop: 'static',
+      size: 'xl',
+      centered: true,
+      modalDialogClass: 'fne-certificate-modal',
+    });
+    modalRef.componentInstance.tokenUrl = tokenUrl;
+    modalRef.componentInstance.reference = reference;
+  }
+
+  onCertifyGroupInvoice(factureId: FactureId): void {
+    this.certifying = true;
+    this.certificationService.certifyGroupInvoice(factureId).subscribe({
+      next: () => {
+        this.certifying = false;
+
+        // Actualiser la liste pour récupérer les factures avec fneResponse
+        this.loadPage(this.page);
+
+        this.openInfoDialog(
+          'Toutes les factures du groupe ont été certifiées avec succès auprès du FNE.',
+          'alert alert-success',
+        );
+      },
+      error: err => {
+        this.certifying = false;
+        this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+      },
+    });
   }
 
   protected onSearchSuccess(data: Facture[] | null, headers: HttpHeaders, page: number): void {

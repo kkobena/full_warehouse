@@ -10,12 +10,16 @@ import com.kobe.warehouse.service.facturation.dto.DossierFactureSingleProjection
 import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
 import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
+import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
+import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Predicate;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +35,7 @@ import org.springframework.util.StringUtils;
 @Repository
 public interface FacturationRepository
     extends
-        JpaRepository<FactureTiersPayant, FactureItemId>, JpaSpecificationExecutor<FactureTiersPayant>, FactureTiersPayantRepositoryCustom {
+    JpaRepository<FactureTiersPayant, FactureItemId>, JpaSpecificationExecutor<FactureTiersPayant>, FactureTiersPayantRepositoryCustom {
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
@@ -51,6 +55,47 @@ public interface FacturationRepository
         Sort sort
     );
 
+    @Query(
+        "SELECT tp.id AS id, tp.name AS name, tp.fullName AS fullName, tp.telephone AS telephone,tp.email AS email, tp.adresse AS adresse, tp.ncc AS ncc, tp.categorie AS categorie FROM  FactureTiersPayant o JOIN  o.tiersPayant tp WHERE o.id=:id AND o.invoiceDate =:invoiceDate "
+    )
+    InfoTiersPayant getInfoTiersPayantByFactureId(@Param("id") Long id,
+                                                  @Param("invoiceDate") LocalDate invoiceDate);
+
+    @Query(
+        value = """
+            SELECT sl.quantity_requested       AS quantite,
+                   sl.tax_value                AS codeTva,
+                   four.code_cip               AS produitCode,
+                   prod.code_ean_labo          AS produitCodeEan,
+                   prod.libelle,
+                   sl.regular_unit_price       AS prixUnitaire,
+                   COALESCE(sl.taux_remise, 0) AS tauxRemise,
+                   tl.taux                     AS tauxCouverture,
+                      sl.calculation_base_price AS tarifReferenceAssurance
+            from sales_line sl
+                     JOIN third_party_sale_line tl ON tl.sale_id = sl.sales_id
+                AND tl.sale_sale_date = sl.sales_sale_date
+                     JOIN facture_tiers_payant fac ON fac.id = tl.facture_tiers_payant_id
+                AND fac.invoice_date = tl.invoice_date
+                     JOIN produit prod ON prod.id = sl.produit_id
+                     JOIN fournisseur_produit four ON four.id = prod.fournisseur_produit_principal_id
+            WHERE fac.invoice_date = :invoiceDate
+              AND fac.id = :id
+              AND fac.tiers_payant_id = :tiersPayantId
+
+            GROUP BY sl.id, sl.quantity_requested,
+                     sl.tax_value,
+                     four.code_cip,
+                     prod.code_ean_labo,
+                     prod.libelle, sl.regular_unit_price,
+                     sl.taux_remise,
+                     tl.taux,sl.calculation_base_price
+            """, nativeQuery = true
+    )
+    List<DetailProduitFacture> getDetailProduitFacture(@Param("id") Long id,
+                                                       @Param("invoiceDate") LocalDate invoiceDate, @Param("tiersPayantId") Integer tiersPayantId);
+
+
     default Specification<FactureTiersPayant> fetchByIds(Set<FactureItemId> ids) {
         return (root, _, cb) -> {
             In<Long> selectionIds = cb.in(root.get(FactureTiersPayant_.id));
@@ -63,37 +108,37 @@ public interface FacturationRepository
 
     @Query(
         value = """
-            SELECT
-                f.groupeFactureTiersPayant.id AS parentId,
-                f.groupeFactureTiersPayant.invoiceDate AS parentInvoiceDate,
-                f.invoiceDate AS invoiceDate,
-                f.id AS id,
-                f.numFacture AS numFacture,
-                f.debutPeriode AS debutPeriode,
-                f.finPeriode AS finPeriode,
-                tp.fullName AS organismeName,
-                f.montantRegle AS montantPaye,
-                SUM(s.montant) AS montantTotal,
-                SUM(s.montantRegle) AS montantDetailRegle,
-                COUNT(s.id) AS itemsCount
+                SELECT
+                    f.groupeFactureTiersPayant.id AS parentId,
+                    f.groupeFactureTiersPayant.invoiceDate AS parentInvoiceDate,
+                    f.invoiceDate AS invoiceDate,
+                    f.id AS id,
+                    f.numFacture AS numFacture,
+                    f.debutPeriode AS debutPeriode,
+                    f.finPeriode AS finPeriode,
+                    tp.fullName AS organismeName,
+                    f.montantRegle AS montantPaye,
+                    SUM(s.montant) AS montantTotal,
+                    SUM(s.montantRegle) AS montantDetailRegle,
+                    COUNT(s.id) AS itemsCount
 
-            FROM FactureTiersPayant f
-            JOIN f.tiersPayant tp
-            JOIN f.facturesDetails s
-            WHERE f.groupeFactureTiersPayant.id = :id
-              AND f.statut <> 'PAID'
-              AND f.invoiceDate = :invoiceDate
-              AND s.statut <> 'PAID'
-            GROUP BY f.invoiceDate,f.groupeFactureTiersPayant.id, f.groupeFactureTiersPayant.invoiceDate , f.id, f.numFacture, f.debutPeriode, f.finPeriode, tp.fullName, f.montantRegle
-            ORDER BY f.id
-        """,
+                FROM FactureTiersPayant f
+                JOIN f.tiersPayant tp
+                JOIN f.facturesDetails s
+                WHERE f.groupeFactureTiersPayant.id = :id
+                  AND f.statut <> 'PAID'
+                  AND f.invoiceDate = :invoiceDate
+                  AND s.statut <> 'PAID'
+                GROUP BY f.invoiceDate,f.groupeFactureTiersPayant.id, f.groupeFactureTiersPayant.invoiceDate , f.id, f.numFacture, f.debutPeriode, f.finPeriode, tp.fullName, f.montantRegle
+                ORDER BY f.id
+            """,
         countQuery = """
-            SELECT COUNT(f.id)
-            FROM FactureTiersPayant f
-            WHERE f.groupeFactureTiersPayant.id = :id
-              AND f.statut <> 'PAID'
-              AND f.invoiceDate = :invoiceDate
-        """
+                SELECT COUNT(f.id)
+                FROM FactureTiersPayant f
+                WHERE f.groupeFactureTiersPayant.id = :id
+                  AND f.statut <> 'PAID'
+                  AND f.invoiceDate = :invoiceDate
+            """
     )
     Page<FacturationGroupeDossier> findGroupeFactureById(
         @Param("id") Long id,
@@ -103,40 +148,40 @@ public interface FacturationRepository
 
     @Query(
         value = """
-            SELECT
-                f.invoiceDate AS invoiceDate,
-                s.createdAt AS saleDate,
-                t.id AS id,
-                s.numBon AS bonNumber,
-                CONCAT(cu.firstName, ' ', cu.lastName) AS customerFullName,
-                c.num AS matricule,
-                f.created AS facturationDate,
-                t.montantRegle AS montantPaye,
-                t.montant AS montantTotal,
-                f.id AS parentId
+                SELECT
+                    f.invoiceDate AS invoiceDate,
+                    s.createdAt AS saleDate,
+                    t.id AS id,
+                    s.numBon AS bonNumber,
+                    CONCAT(cu.firstName, ' ', cu.lastName) AS customerFullName,
+                    c.num AS matricule,
+                    f.created AS facturationDate,
+                    t.montantRegle AS montantPaye,
+                    t.montant AS montantTotal,
+                    f.id AS parentId
 
-            FROM ThirdPartySaleLine t
-            JOIN t.clientTiersPayant c
-            JOIN c.assuredCustomer cu
-            JOIN t.sale s
-            JOIN t.factureTiersPayant f
-            WHERE t.statut <> 'PAID'
-              AND f.id = :id
-              AND f.statut <> 'PAID'
-              AND f.invoiceDate = :invoiceDate
+                FROM ThirdPartySaleLine t
+                JOIN t.clientTiersPayant c
+                JOIN c.assuredCustomer cu
+                JOIN t.sale s
+                JOIN t.factureTiersPayant f
+                WHERE t.statut <> 'PAID'
+                  AND f.id = :id
+                  AND f.statut <> 'PAID'
+                  AND f.invoiceDate = :invoiceDate
 
-            ORDER BY t.id
+                ORDER BY t.id
 
-        """,
+            """,
         countQuery = """
-            SELECT COUNT(t.id)
-            FROM ThirdPartySaleLine t
-            JOIN t.factureTiersPayant f
-            WHERE t.statut <> 'PAID'
-              AND f.id = :id
-                AND f.statut <> 'PAID'
-              AND f.invoiceDate = :invoiceDate
-        """
+                SELECT COUNT(t.id)
+                FROM ThirdPartySaleLine t
+                JOIN t.factureTiersPayant f
+                WHERE t.statut <> 'PAID'
+                  AND f.id = :id
+                    AND f.statut <> 'PAID'
+                  AND f.invoiceDate = :invoiceDate
+            """
     )
     Page<FacturationDossier> findFacturationDossierByFactureId(
         @Param("id") Long id,
@@ -146,53 +191,53 @@ public interface FacturationRepository
 
     @Query(
         """
-            SELECT
-                f.id AS id,
-                f.invoiceDate AS invoiceDate,
-                f.created AS facturationDate,
-                g.name AS name,
-                f.numFacture AS numFacture,
-                SUM(s.montantRegle) AS montantDetailRegle,
-                SUM(f.montantRegle) AS montantPaye,
-                SUM(s.montant) AS montantTotal,
-                COUNT(s.id) as itemCount
+                SELECT
+                    f.id AS id,
+                    f.invoiceDate AS invoiceDate,
+                    f.created AS facturationDate,
+                    g.name AS name,
+                    f.numFacture AS numFacture,
+                    SUM(s.montantRegle) AS montantDetailRegle,
+                    SUM(f.montantRegle) AS montantPaye,
+                    SUM(s.montant) AS montantTotal,
+                    COUNT(s.id) as itemCount
 
-            FROM FactureTiersPayant f
-            JOIN f.groupeTiersPayant g
-            JOIN f.tiersPayant tp
-            JOIN f.facturesDetails s
-            WHERE f.id = :id
-              AND f.statut <> 'PAID'
-              AND s.statut <> 'PAID'
-               AND f.invoiceDate = :invoiceDate
-            GROUP BY f.id,f.invoiceDate, f.created, g.name, f.numFacture
-        """
+                FROM FactureTiersPayant f
+                JOIN f.groupeTiersPayant g
+                JOIN f.tiersPayant tp
+                JOIN f.facturesDetails s
+                WHERE f.id = :id
+                  AND f.statut <> 'PAID'
+                  AND s.statut <> 'PAID'
+                   AND f.invoiceDate = :invoiceDate
+                GROUP BY f.id,f.invoiceDate, f.created, g.name, f.numFacture
+            """
     )
     DossierFactureGroupProjection findGroupDossierFacture(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
     @Query(
         """
-            SELECT
-                f.id AS id,
-                f.invoiceDate AS invoiceDate,
-                f.created AS facturationDate,
-                COUNT(t.id) AS itemCount,
-                f.montantRegle AS montantPaye,
-                SUM(t.montant) AS montantTotal,
-                SUM(t.montantRegle) AS montantDetailRegle,
-                tp.categorie AS categorie,
-                tp.name AS name,
-                f.numFacture AS numFacture
+                SELECT
+                    f.id AS id,
+                    f.invoiceDate AS invoiceDate,
+                    f.created AS facturationDate,
+                    COUNT(t.id) AS itemCount,
+                    f.montantRegle AS montantPaye,
+                    SUM(t.montant) AS montantTotal,
+                    SUM(t.montantRegle) AS montantDetailRegle,
+                    tp.categorie AS categorie,
+                    tp.name AS name,
+                    f.numFacture AS numFacture
 
-            FROM FactureTiersPayant f
-            JOIN f.tiersPayant tp
-            JOIN f.facturesDetails t
-            WHERE f.statut <> 'PAID'
-                AND t.statut <> 'PAID'
-                AND f.invoiceDate = :invoiceDate
-              AND f.id = :id
-            GROUP BY f.invoiceDate ,f.id, f.created, f.montantRegle, tp.categorie, tp.name, f.numFacture
-        """
+                FROM FactureTiersPayant f
+                JOIN f.tiersPayant tp
+                JOIN f.facturesDetails t
+                WHERE f.statut <> 'PAID'
+                    AND t.statut <> 'PAID'
+                    AND f.invoiceDate = :invoiceDate
+                  AND f.id = :id
+                GROUP BY f.invoiceDate ,f.id, f.created, f.montantRegle, tp.categorie, tp.name, f.numFacture
+            """
     )
     DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 

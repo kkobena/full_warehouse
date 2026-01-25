@@ -6,19 +6,24 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.FneInvoice;
 import com.kobe.warehouse.service.fne.model.FneInvoiceItem;
 import com.kobe.warehouse.service.fne.model.FneResponse;
 import com.kobe.warehouse.service.fne.model.TaxeEnum;
 import com.kobe.warehouse.service.utils.DateUtil;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,10 +31,15 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class FneServiceImpl implements FneService {
-
+    private static final int SCALE_RATE = 2;
+    private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
     private static final Logger log = LoggerFactory.getLogger(FneServiceImpl.class);
     private final FacturationRepository facturationRepository;
     private final HttpClient httpClient;
@@ -66,16 +76,28 @@ public class FneServiceImpl implements FneService {
 
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
         FneInvoice fneInvoice = new FneInvoice();
+        if (tiersPayant.getCategorie() == TiersPayantCategorie.CARNET) {
+            fneInvoice.setTemplate("B2C");
+        }
+
         fneInvoice.setEstablishment(magasin.getName());
         fneInvoice.setClientCompanyName(tiersPayant.getFullName());
         fneInvoice.setClientPhone(tiersPayant.getTelephone());
         fneInvoice.setClientEmail(tiersPayant.getEmail());
         fneInvoice.setPointOfSale(magasin.getFnePointOfSale());
         fneInvoice.setClientNcc(tiersPayant.getNcc());
-        fneInvoice.setItems(buildFromProduitCodeTva(factureTiersPayant));
+        fneInvoice.setItems(retrieveInvoiceItems(factureTiersPayant, tiersPayant));
         return fneInvoice;
     }
 
+
+    private List<FneInvoiceItem> retrieveInvoiceItems(FactureTiersPayant factureTiersPayant, TiersPayant tiersPayant) {
+        if (tiersPayant.getCategorie() == TiersPayantCategorie.ASSURANCE) {
+            return buildFromProduitCodeTva(factureTiersPayant);
+        }
+        FactureItemId id = factureTiersPayant.getId();
+        return buildFromDetailProduit(facturationRepository.getDetailProduitFacture(id.getId(), id.getInvoiceDate(), tiersPayant.getId()));
+    }
 
     private FneResponse createInvoice(FactureTiersPayant factureTiersPayant) {
         try {
@@ -140,6 +162,19 @@ public class FneServiceImpl implements FneService {
         return fneInvoiceItems;
     }
 
+    private List<FneInvoiceItem> buildFromDetailProduit(List<DetailProduitFacture> detailProduitFactures) {
+
+        List<FneInvoiceItem> fneInvoiceItems = new ArrayList<>();
+        for (DetailProduitFacture detailProduitFacture : detailProduitFactures) {
+            String reference = detailProduitFacture.getProduitCode();
+            String description = detailProduitFacture.getLibelle();
+            double prixUniHt = ServiceUtil.calculHt(Objects.requireNonNullElse(detailProduitFacture.getTarifReferenceAssurance(), detailProduitFacture.getPrixUnitaire()), detailProduitFacture.getCodeTva());
+            BigDecimal prixUniHtAcharge = BigDecimal.valueOf(prixUniHt).multiply(BigDecimal.valueOf(detailProduitFacture.getTauxCouverture()).divide(ONE_HUNDRED, SCALE_RATE, ROUNDING_MODE));
+            fneInvoiceItems.add(new FneInvoiceItem(detailProduitFacture.getQuantite(), new String[]{TaxeEnum.getByValue(detailProduitFacture.getCodeTva()).name()}, reference, description, prixUniHtAcharge.setScale(SCALE_RATE, ROUNDING_MODE).doubleValue(), detailProduitFacture.getTauxRemise()));
+        }
+
+        return fneInvoiceItems;
+    }
 
     // 1428351F
 

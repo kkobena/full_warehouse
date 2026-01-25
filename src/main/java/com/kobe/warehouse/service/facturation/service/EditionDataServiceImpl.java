@@ -28,6 +28,8 @@ import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.facturation.specification.EditionDataSpecification;
+import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
+import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import com.kobe.warehouse.service.fne.service.FneService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import org.slf4j.Logger;
@@ -230,14 +232,24 @@ public class EditionDataServiceImpl implements EditionDataService {
         return this.facturationRepository.findSingleDossierFacture(id.getId(), id.getInvoiceDate());
     }
 
+    @Override
+    public List<DetailProduitFacture> getDetailProduitFacture(FactureItemId factureItemId, Integer tiersPayantId) {
+        return facturationRepository.getDetailProduitFacture(factureItemId.getId(), factureItemId.getInvoiceDate(), tiersPayantId);
+    }
+
+    @Override
+    public InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId) {
+        return facturationRepository.getInfoTiersPayantByFactureId(factureItemId.getId(), factureItemId.getInvoiceDate());
+    }
+
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
-        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = this.thirdPartySaleLineRepository.canceledCriteria();
+        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = thirdPartySaleLineRepository.canceledCriteria();
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
+            thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
         );
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(), editionSearchParams.endDate())
+            thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(), editionSearchParams.endDate())
         );
         if (editionSearchParams.factureProvisoire()) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(

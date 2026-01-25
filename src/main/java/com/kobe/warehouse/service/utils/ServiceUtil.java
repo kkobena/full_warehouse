@@ -38,7 +38,7 @@ public class ServiceUtil {
         return Math.min(100, arrondi);
 
     }
-    private double calculHt(int ttc, int tva) {
+    public static double calculHt(int ttc, int tva) {
         return (ttc) * 1.0 / (1 + (tva / 100.f));
     }
     public static boolean isPaymentMode(String modePayment) {

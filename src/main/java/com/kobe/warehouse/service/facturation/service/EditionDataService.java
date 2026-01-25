@@ -12,6 +12,8 @@ import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
+import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
+import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -47,6 +49,10 @@ public interface EditionDataService {
     Page<FacturationDossier> findFactureReglementData(FactureItemId id, Pageable pageable);
 
     DossierFactureProjection findDossierFacture(FactureItemId id, boolean isGroup);
+
+    List<DetailProduitFacture> getDetailProduitFacture(FactureItemId factureItemId, Integer tiersPayantId);
+
+    InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId);
 
 
 }

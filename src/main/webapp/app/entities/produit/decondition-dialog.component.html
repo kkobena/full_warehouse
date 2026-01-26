@@ -33,12 +33,12 @@
         <div class="form-field form-field-full">
           <label for="field_libelle">Nombre de cartons à déconditioner<span class="required">*</span></label>
           <input #qtyMvt
-            (keyup)="onQuantitySoldBoxChanged($event)"
-            formControlName="qtyMvt"
-            id="field_libelle"
-            name="qtyMvt"
-            pInputText
-            type="number"
+                 (keyup)="onQuantitySoldBoxChanged($event)"
+                 formControlName="qtyMvt"
+                 id="field_libelle"
+                 name="qtyMvt"
+                 pInputText
+                 type="number"
           />
           @if (editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)) {
             <div>

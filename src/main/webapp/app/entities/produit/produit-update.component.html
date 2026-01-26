@@ -10,7 +10,8 @@
         <p-toolbar>
           <ng-template #end>
             <div class="pharma-toolbar-actions">
-              <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true" (click)="previousState()"> </p-button>
+              <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true"
+                        (click)="previousState()"></p-button>
             </div>
           </ng-template>
         </p-toolbar>
@@ -18,8 +19,8 @@
 
       <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
         <jhi-alert-error></jhi-alert-error>
-        <input type="hidden" formControlName="id" />
-        <input type="hidden" formControlName="createdAt" />
+        <input type="hidden" formControlName="id"/>
+        <input type="hidden" formControlName="createdAt"/>
         <div class="card-grid-2col">
           <!-- Section 1: Champs Obligatoires -->
           <p-card>
@@ -198,7 +199,8 @@
               <!-- Code EAN -->
               <div class="form-field">
                 <label for="field_codeEan">Code EAN</label>
-                <input pInputText pKeyFilter="int" id="field_codeEan" formControlName="codeEan" class="w-full" autocomplete="off" />
+                <input pInputText pKeyFilter="int" id="field_codeEan" formControlName="codeEan" class="w-full"
+                       autocomplete="off"/>
               </div>
 
               <!-- Code EAN Laboratoire -->
@@ -314,14 +316,16 @@
                 <!-- Quantité réappro -->
                 <div class="form-field form-field-full">
                   <label for="qtyAppro">Quantité de réappro</label>
-                  <input pInputText pKeyFilter="int" class="w-full" id="qtyAppro" formControlName="qtyAppro" autocomplete="off" />
+                  <input pInputText pKeyFilter="int" class="w-full" id="qtyAppro" formControlName="qtyAppro"
+                         autocomplete="off"/>
                 </div>
               </div>
               <div class="col-md-4 form-grid-compact">
                 <!-- Quantité seuil mini -->
                 <div class="form-field form-field-full">
                   <label for="qtySeuilMini">Quantité seuil minimum</label>
-                  <input pInputText pKeyFilter="int" id="qtySeuilMini" class="w-full" formControlName="qtySeuilMini" autocomplete="off" />
+                  <input pInputText pKeyFilter="int" id="qtySeuilMini" class="w-full" formControlName="qtySeuilMini"
+                         autocomplete="off"/>
                 </div>
               </div>
 
@@ -329,7 +333,8 @@
               <div class="col-md-4 form-grid-compact">
                 <div class="form-field form-field-full">
                   <label for="stockMaxi">Stock maximum en rayon</label>
-                  <input pInputText pKeyFilter="int" id="stockMaxi" class="w-full" formControlName="stockMaxi" autocomplete="off" />
+                  <input pInputText pKeyFilter="int" id="stockMaxi" class="w-full" formControlName="stockMaxi"
+                         autocomplete="off"/>
                 </div>
               </div>
             </div>
@@ -339,14 +344,16 @@
                 <!-- Quantité Reassort -->
                 <div class="form-field form-field-full">
                   <label for="stockReassort">Quantité de réssort du stock rayon</label>
-                  <input pInputText pKeyFilter="int" class="w-full" id="stockReassort" formControlName="stockReassort" autocomplete="off" />
+                  <input pInputText pKeyFilter="int" class="w-full" id="stockReassort" formControlName="stockReassort"
+                         autocomplete="off"/>
                 </div>
               </div>
               <div class="col-md-6 form-grid-compact">
                 <!-- Quantité seuil mini reserve-->
                 <div class="form-field form-field-full">
                   <label for="seuilMini">Quanité mininum du stock de réserve</label>
-                  <input pInputText pKeyFilter="int" id="seuilMini" class="w-full" formControlName="seuilMini" autocomplete="off" />
+                  <input pInputText pKeyFilter="int" id="seuilMini" class="w-full" formControlName="seuilMini"
+                         autocomplete="off"/>
                 </div>
               </div>
             </div>
@@ -426,7 +433,8 @@
 
         <!-- Form Actions -->
         <div class="form-actions-compact">
-          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button" (click)="previousState()">
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button"
+                    (click)="previousState()">
           </p-button>
           <p-button
             label="Enregistrer"

@@ -179,3 +179,39 @@ $secondary-purple: #6f42c1;
 .p-floatlabel {
   min-width: 130px !important;
 }
+
+// Style pour le fournisseur principal
+.fournisseur-principal {
+  background: linear-gradient(to right, rgba(67, 172, 106, 0.08), rgba(67, 172, 106, 0.02)) !important;
+  border-left: 3px solid $success-green !important;
+  font-weight: 500;
+
+  td {
+    position: relative;
+
+    &:first-child {
+      padding-left: 0.6rem !important;
+
+      span {
+        font-weight: 600;
+        color: $success-green;
+      }
+    }
+  }
+
+  // Style spécifique pour le toggleswitch du fournisseur principal
+  ::ng-deep {
+    .p-toggleswitch {
+      .p-toggleswitch-slider {
+        background: $success-green !important;
+        box-shadow: 0 2px 4px rgba(67, 172, 106, 0.3);
+      }
+    }
+  }
+
+  // Animation subtile au hover
+  &:hover {
+    background: linear-gradient(to right, rgba(67, 172, 106, 0.12), rgba(67, 172, 106, 0.03)) !important;
+    transition: background 0.2s ease;
+  }
+}

@@ -16,11 +16,11 @@ type EntityArrayResponseType = HttpResponse<IProduit[]>;
 
 @Injectable({ providedIn: 'root' })
 export class ProduitService {
-  private http = inject(HttpClient);
-  private resourceUrl = SERVER_API_URL + 'api/produits';
-  private importationResourceUrl = SERVER_API_URL + 'api/importation';
-  private fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
-  private rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/produits';
+  private readonly importationResourceUrl = SERVER_API_URL + 'api/importation';
+  private readonly fournisseurProduitUrl = SERVER_API_URL + 'api/fournisseur-produits';
+  private readonly rayonProduitUrl = SERVER_API_URL + 'api/rayon-produits';
 
   create(produit: IProduit): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(produit);
@@ -78,8 +78,8 @@ export class ProduitService {
     return this.http.put<IProduit>(`${this.resourceUrl}/detail`, copy, { observe: 'response' });
   }
 
-  updateDefaultFournisseur(id: number, checked: boolean): Observable<HttpResponse<{}>> {
-    return this.http.put<{}>(`${this.fournisseurProduitUrl}/${id}/${checked}`, {}, { observe: 'response' });
+  updateDefaultFournisseur(id: number, prodduitId: number, checked: boolean): Observable<HttpResponse<void>> {
+    return this.http.put<void>(`${this.fournisseurProduitUrl}/${id}/${checked}/${prodduitId}`, null, { observe: 'response' });
   }
 
   deleteFournisseur(id: number): Observable<HttpResponse<{}>> {

@@ -102,6 +102,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       codeCip: produitFournisseur.codeCip,
       fournisseurId: produitFournisseur.fournisseurId,
       produitId: this.produit.id,
+      principal: this.produit.fournisseurProduit?.id === produitFournisseur.id,
     });
   }
 
@@ -148,7 +149,10 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
-    this.activeModal.close(produitFournisseur);
+    this.activeModal.close({
+      ...produitFournisseur,
+      principal: this.editForm.get(['principal']).value,
+    });
   }
 
   private onSaveError(error: HttpErrorResponse): void {

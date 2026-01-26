@@ -7,4 +7,7 @@ public class DefaultFournisseurException extends BadRequestAlertException {
     public DefaultFournisseurException() {
         super("Il existe déjà un fournisseur principal. Désactiver pour continuer ", "principal");
     }
+    public DefaultFournisseurException(String message) {
+        super(message, "defaultProviderError");
+    }
 }

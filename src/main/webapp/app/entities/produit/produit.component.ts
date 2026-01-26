@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
@@ -42,11 +42,9 @@ import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
-import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { finalize } from 'rxjs/operators';
 import { ImportProduitReponseModalComponent } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { CardModule } from 'primeng/card';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -161,7 +159,7 @@ export class ProduitComponent implements OnInit {
     this.populate();
   }
 
-  onOpenImportDialog(): void {
+  protected onOpenImportDialog(): void {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',
       size: 'lg',
@@ -176,7 +174,7 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  populate(): void {
+  protected populate(): void {
     this.familleService.query({ search: '' }).subscribe({
       next: res => {
         this.familles = res.body;
@@ -196,7 +194,7 @@ export class ProduitComponent implements OnInit {
       });
   }
 
-  loadPage(page?: number, dontNavigate?: boolean): void {
+  protected loadPage(page?: number, dontNavigate?: boolean): void {
     const pageToLoad: number = page || this.page || 1;
     let statut = 'ENABLE';
     if (this.criteria) {
@@ -238,11 +236,11 @@ export class ProduitComponent implements OnInit {
     this.loadPage();
   }
 
-  confirmDelete(produit: IProduit): void {
+  protected confirmDelete(produit: IProduit): void {
     this.confimDialog().onConfirm(() => this.delete(produit), 'Suppression', 'Voulez-vous supprimer ce produit ?');
   }
 
-  sort(): string[] {
+  protected sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     if (this.predicate !== 'libelle') {
       result.push('libelle');
@@ -250,7 +248,7 @@ export class ProduitComponent implements OnInit {
     return result;
   }
 
-  addDetail(produit: IProduit): void {
+  protected addDetail(produit: IProduit): void {
     showCommonModal(
       this.modalService,
       DetailFormDialogComponent,
@@ -264,7 +262,7 @@ export class ProduitComponent implements OnInit {
     );
   }
 
-  editDetail(produit: IProduit): void {
+  protected editDetail(produit: IProduit): void {
     showCommonModal(
       this.modalService,
       DetailFormDialogComponent,
@@ -279,7 +277,7 @@ export class ProduitComponent implements OnInit {
     );
   }
 
-  openInfoDialog(message: string, infoClass: string): void {
+  protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
       centered: true,
@@ -288,7 +286,7 @@ export class ProduitComponent implements OnInit {
     modalRef.componentInstance.infoClass = infoClass;
   }
 
-  decondition(produit: IProduit): void {
+  protected decondition(produit: IProduit): void {
     if (produit.produits.length === 0) {
       this.openInfoDialog("Le produit n'a pas de détail. Vous devriez en ajouter d'abord", 'alert alert-info');
     } else {
@@ -306,22 +304,22 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  onSearch(event: any): void {
+  protected onSearch(event: any): void {
     this.search = event.target.value;
     this.loadPage(0);
   }
 
-  filtreRayon(event: any): void {
+  protected filtreRayon(event: any): void {
     this.criteria.rayonId = event.value;
     this.loadPage(0);
   }
 
-  filtreFamilleProduit(event: any): void {
+  protected filtreFamilleProduit(event: any): void {
     this.criteria.familleId = event.value;
     this.loadPage(0);
   }
 
-  filtreClik(): void {
+  protected filtreClik(): void {
     if (this.selectedCriteria === 2) {
       this.criteria.deconditionnable = true;
       this.criteria.deconditionne = undefined;
@@ -344,11 +342,21 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
-  protected onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
+  protected onChangeDefaultProduitFournisseur(e: any, row: IProduit, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
-      this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
-        error: error => this.onActionError(four, error),
+      this.produitService.updateDefaultFournisseur(four.id, row.id, isChecked).subscribe({
+        next: () => {
+          if (isChecked) {
+            row.fournisseurProduit = four;
+          } else {
+            row.fournisseurProduit = null;
+          }
+        },
+        error: error => {
+          row.fournisseurProduit = four;
+          this.onActionError(error);
+        },
       });
     }
   }
@@ -380,6 +388,9 @@ export class ProduitComponent implements OnInit {
       },
       resp => {
         produit.fournisseurProduits.push(resp);
+        if (resp.principal) {
+          produit.fournisseurProduit = resp;
+        }
       },
       'lg',
     );
@@ -450,6 +461,9 @@ export class ProduitComponent implements OnInit {
         if (newFours) {
           newFours.push(resp);
           produit.fournisseurProduits = newFours;
+          if (resp.principal) {
+            produit.fournisseurProduit = resp;
+          }
         }
       },
       'lg',
@@ -457,7 +471,6 @@ export class ProduitComponent implements OnInit {
   }
 
   protected confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
-    console.log(four);
     this.confimDialog().onConfirm(
       () => this.onDeleteProduitFournisseur(four, produit),
       'Retrait de fournisseur',
@@ -491,23 +504,6 @@ export class ProduitComponent implements OnInit {
     );
   }
 
-  protected addPeremptionDate(produit: IProduit): void {
-    const modalRef = this.modalService.open(DatePeremptionFormComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.produit = produit;
-    modalRef.result.then(
-      () => {
-        this.loadPage();
-      },
-      () => {
-        this.loadPage();
-      },
-    );
-  }
-
   private showResponse(responsedto: IResponseDto): void {
     showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
@@ -522,50 +518,12 @@ export class ProduitComponent implements OnInit {
     this.ngbPaginationPage = this.page ?? 1;
   }
 
-  private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError(this.errorService.getErrorMessage(error));
-  }
-
-  private onActionError(el: IFournisseurProduit, error: HttpErrorResponse): void {
-    el.principal = false;
+  private onActionError(error: HttpErrorResponse): void {
     this.onCommonError(error);
   }
 
   private onCommonError(error: HttpErrorResponse): void {
     this.alert().showError(this.errorService.getErrorMessage(error));
-  }
-
-  private uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result
-      .pipe(
-        finalize(() => {
-          this.isSaving = false;
-        }),
-      )
-      .subscribe({
-        next: () => this.onPocesJsonSuccess(),
-        error: err => this.onSaveError(err),
-      });
-  }
-
-  private onPocesJsonSuccess(): void {
-    const interval = setInterval(() => {
-      this.produitService.findImortation().subscribe({
-        next: res => {
-          if (res.body) {
-            this.responsedto = res.body;
-            if (this.responsedto.completed) {
-              setTimeout(() => {}, 5000);
-              clearInterval(interval);
-            }
-          }
-        },
-        error() {
-          setTimeout(() => {}, 5000);
-          clearInterval(interval);
-        },
-      });
-    }, 10000);
   }
 
   private onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {

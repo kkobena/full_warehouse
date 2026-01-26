@@ -38,6 +38,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   private itemQty = viewChild.required<InputNumber>('itemQty');
   private readonly errorService = inject(ErrorService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateDetailForm(this.entity);
@@ -87,6 +88,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
     this.isSaving = false;
     this.activeModal.close('saved');
   }
+
   private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
     this.alert().showError(this.errorService.getErrorMessage(error));

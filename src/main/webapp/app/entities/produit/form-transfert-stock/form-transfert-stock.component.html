@@ -134,8 +134,10 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary" type="button" />
-    <p-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" raised="true" severity="primary" type="submit" />
+    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+              type="button"/>
+    <p-button [loading]="isSaving" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" raised="true"
+              severity="primary" type="submit"/>
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

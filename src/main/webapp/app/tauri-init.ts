@@ -14,7 +14,6 @@ export async function initializeTauri(): Promise<void> {
   // Check if we're actually running in Tauri runtime (not just browser with package installed)
   // @ts-ignore
   if (!window.__TAURI_INTERNALS__) {
-    console.log('ℹ️ Tauri not available (running in browser)');
     return;
   }
 
@@ -29,13 +28,9 @@ export async function initializeTauri(): Promise<void> {
         invoke,
       },
     };
-
-    console.log('✅ Tauri initialized successfully');
-    console.log('Available: window.__TAURI__.core.invoke');
-
     return;
   } catch (error) {
-    console.error('❌ Failed to initialize Tauri:', error);
+    console.error('Failed to initialize Tauri:', error);
   }
 }
 

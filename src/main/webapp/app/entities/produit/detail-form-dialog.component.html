@@ -1,10 +1,7 @@
-
 <div class="modal-header">
   <h4 class="modal-title">Ajouter un détail au produit</h4>
   <button (click)="cancel()" aria-label="Fermer" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
-
-
 
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -39,11 +36,12 @@
         </div>
         <div class="form-field form-field-full">
           <label for="itemQty">Nombre d'unités par conditionnement<span class="required">*</span></label>
-          <p-input-number #itemQty autocomplete="off" formControlName="itemQty" id="itemQty" name="itemQty" />
+          <p-input-number #itemQty autocomplete="off" formControlName="itemQty" id="itemQty" name="itemQty"/>
           @if (editForm.get('itemQty')!.invalid && (editForm.get('itemQty')!.dirty || editForm.get('itemQty')!.touched)) {
             <div>
               @if (editForm.get('itemQty')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
@@ -54,11 +52,12 @@
         <div class="form-row">
           <div class="form-field">
             <label for="field_costAmount">Prix achat<span class="required">*</span></label>
-            <p-input-number autocomplete="off" formControlName="costAmount" id="field_costAmount" name="costAmount" />
+            <p-input-number autocomplete="off" formControlName="costAmount" id="field_costAmount" name="costAmount"/>
             @if (editForm.get('costAmount')!.invalid && (editForm.get('costAmount')!.dirty || editForm.get('costAmount')!.touched)) {
               <div>
                 @if (editForm.get('costAmount')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
                 <small
                   [hidden]="!editForm.get('costAmount')?.errors?.number"
@@ -69,44 +68,44 @@
                 </small>
               </div>
             }
-          </div><div class="form-field">
-          <label for="field_regularUnitPrice">
-            Prix unitaire<span class="required">*</span></label>
-          <p-input-number autocomplete="off" formControlName="regularUnitPrice" id="field_regularUnitPrice" name="regularUnitPrice" />
-          @if (
-            editForm.get('regularUnitPrice')!.invalid &&
-            (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)
-            ) {
-            <div>
-              @if (editForm.get('regularUnitPrice')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-              }
-              <small
-                [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
-                class="form-text text-danger"
-                jhiTranslate="entity.validation.number"
-              >
-                This field should be a number.
-              </small>
-            </div>
-          }
-        </div>
+          </div>
+          <div class="form-field">
+            <label for="field_regularUnitPrice">
+              Prix unitaire<span class="required">*</span></label>
+            <p-input-number autocomplete="off" formControlName="regularUnitPrice" id="field_regularUnitPrice"
+                            name="regularUnitPrice"/>
+            @if (editForm.get('regularUnitPrice')!.invalid &&
+            (editForm.get('regularUnitPrice')!.dirty || editForm.get('regularUnitPrice')!.touched)) {
+              <div>
+                @if (editForm.get('regularUnitPrice')?.errors?.required) {
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
+                }
+                <small
+                  [hidden]="!editForm.get('regularUnitPrice')?.errors?.number"
+                  class="form-text text-danger"
+                  jhiTranslate="entity.validation.number"
+                >
+                  This field should be a number.
+                </small>
+              </div>
+            }
+          </div>
         </div>
         <div class="form-field form-field-full">
           <label for="field_libelle">Libellé<span class="required">*</span></label>
-          <input autocomplete="off" formControlName="libelle" id="field_libelle" name="libelle" pInputText type="text" />
+          <input autocomplete="off" formControlName="libelle" id="field_libelle" name="libelle" pInputText type="text"/>
           @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
             <div>
               @if (editForm.get('libelle')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
         </div>
       </div>
     </p-card>
-
-
 
 
   </div>

@@ -61,9 +61,9 @@ public class FournisseurProduitResource {
             .build();
     }
 
-    @PutMapping("/fournisseur-produits/{id}/{prodduitId}")
-    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Integer id, @PathVariable("prodduitId") Integer prodduitId) {
-        fournisseurProduitService.updateDefaultFournisseur(id, prodduitId);
+    @PutMapping("/fournisseur-produits/{id}/{checked}/{prodduitId}")
+    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Integer id, @PathVariable("checked") boolean checked, @PathVariable("prodduitId") Integer prodduitId) {
+        fournisseurProduitService.updateDefaultFournisseur(id, checked, prodduitId);
         return ResponseEntity.accepted().build();
     }
 

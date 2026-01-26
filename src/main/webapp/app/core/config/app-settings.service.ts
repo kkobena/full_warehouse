@@ -19,7 +19,7 @@ export class AppSettingsService {
   public settings$: Observable<AppSettings>;
   private settingsSubject: BehaviorSubject<AppSettings>;
   private initialized = false;
-  private initializationPromise: Promise<void> | null = null;
+  private readonly initializationPromise: Promise<void> | null = null;
 
   constructor() {
     const storedSettings = this.loadSettings();
@@ -111,7 +111,6 @@ export class AppSettingsService {
 
       // Get the configured backend URL from Tauri
       const tauriBackendUrl = await invoke<string>('get_backend_url_command');
-      console.log('[AppSettingsService] Tauri backend URL:', tauriBackendUrl);
 
       // Only update if not already set by user
       const currentSettings = this.settingsSubject.value;
@@ -119,13 +118,10 @@ export class AppSettingsService {
 
       // If user hasn't manually set a different URL, use the Tauri backend URL
       if (!storedSettings || storedSettings.apiServerUrl === environment.apiServerUrl) {
-        console.log('[AppSettingsService] Using Tauri backend URL:', tauriBackendUrl);
         this.settingsSubject.next({ apiServerUrl: tauriBackendUrl });
-      } else {
-        console.log('[AppSettingsService] Using user-configured URL:', currentSettings.apiServerUrl);
       }
     } catch (error) {
-      console.warn('[AppSettingsService] Failed to get Tauri backend URL:', error);
+      console.debug('[AppSettingsService] Failed to get Tauri backend URL:', error);
     } finally {
       this.initialized = true;
     }

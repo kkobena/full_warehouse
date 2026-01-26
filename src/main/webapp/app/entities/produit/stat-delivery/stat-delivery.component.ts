@@ -41,6 +41,7 @@ export class StatDeliveryComponent implements AfterViewInit {
   private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
+
   protected get fromDate(): Date | null {
     return this.dateDebut().value;
   }
@@ -48,10 +49,12 @@ export class StatDeliveryComponent implements AfterViewInit {
   protected get toDate(): Date | null {
     return this.dateFin().value;
   }
+
   onSelect(event: any): void {
     this.event = event;
     this.load();
   }
+
   ngAfterViewInit(): void {
     this.dateDebut().value = this.defaultDate;
     this.dateFin().value = this.defaultDate;

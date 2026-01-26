@@ -45,6 +45,7 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly seuilMiniInput = viewChild<ElementRef>('seuilMiniInput');
+
   //  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
 
   ngOnInit(): void {

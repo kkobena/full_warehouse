@@ -123,14 +123,13 @@
           </div>
 
 
-
         }
 
         <!-- Transfer Option (only in create mode and if stock rayon exists) -->
         @if (!isEditMode && stockRayonProduit && maxTransferableQty > 0) {
           <div class="form-field form-field-full">
             <div class="p-field-checkbox">
-              <p-checkbox formControlName="withTransfer" [binary]="true" inputId="withTransfer" />
+              <p-checkbox formControlName="withTransfer" [binary]="true" inputId="withTransfer"/>
               <label for="withTransfer" class="ms-2">Transférer du stock depuis le rayon</label>
             </div>
           </div>
@@ -158,7 +157,8 @@
                     <small class="form-text text-danger">La quantité doit être au moins 1.</small>
                   }
                   @if (editForm.get('transferQuantity')?.errors?.max) {
-                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}.</small>
+                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty }}
+                      .</small>
                   }
                 </div>
               }
@@ -180,7 +180,8 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary" type="button" />
+    <p-button (click)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+              type="button"/>
     <p-button
       [loading]="isSaving"
       [disabled]="!isFormValid()"

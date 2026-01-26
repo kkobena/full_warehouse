@@ -90,4 +90,7 @@ public interface ProduitService {
     Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId);
     List<Produit> find(ProduitCriteria produitCriteria);
     List<Produit> findByIds(Set<Integer> ids);
+    Optional<Produit> findProduitById(Integer id);
+    Produit updateProduit(Produit produit);
+    void deleteProduit(Integer id);
 }

@@ -72,6 +72,7 @@ export class AuditingComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
   private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
+
   /*
   protected get fromDate(): Date | null {
     return this.dateDebut().value;

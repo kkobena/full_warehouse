@@ -215,18 +215,7 @@
                   />
 
 
-                  <p-button
-                    (click)="addPeremptionDate(produit)"
-                    [hidden]="true"
-                    [rounded]="true"
-                    size="small"
-                    [text]="true"
-                    icon="pi pi-box"
-                    pTooltip="Ajout de lot"
-                    severity="help"
-                    tooltipPosition="left"
-                    type="button"
-                  />
+
 
 
                   @if (produit.deconditionnable && produit.produits?.length == 0) {
@@ -330,7 +319,7 @@
                             </div>
                             <div class="info-item">
                               <span class="info-label">Rayon</span>
-                              <span class="info-value">{{ elRow?.rayonProduits[0]?.libelleRayon }}</span>
+                              <span class="info-value">{{ elRow?.rayonProduits?.[0]?.libelleRayon }}</span>
                             </div>
 
                             <div class="info-item">
@@ -353,7 +342,8 @@
                       <div class="col-12 col-md-6 col-lg-4">
                         <div class="card data-card h-100">
                           <div class="card-header compact-header secondary-header">
-                            <h6 class="card-title m-0"><i class="pi pi-box me-2"></i>Répartition & Transfert de Stock</h6>
+                            <h6 class="card-title m-0"><i class="pi pi-box me-2"></i>Répartition & Transfert de Stock
+                            </h6>
                             @if (elRow?.stockProduits?.length === 1) {
                               <p-button
                                 [rounded]="true"
@@ -466,13 +456,13 @@
                                 </tr>
                               </ng-template>
                               <ng-template #body let-four>
-                                <tr>
+                                <tr [class.fournisseur-principal]="four.id === elRow.fournisseurProduit?.id">
                                   <td>
                                     <div class="d-flex align-items-center gap-1">
                                       <p-toggleswitch
-                                        (onChange)="onChangeDefaultProduitFournisseur($event, four)"
+                                        (onChange)="onChangeDefaultProduitFournisseur($event,elRow, four)"
                                         [ngModel]="four.id === elRow.fournisseurProduit?.id"
-                                        [disabled]="elRow.fournisseurProduits.length <= 1"
+                                        [disabled]="elRow.fournisseurProduits.length <= 1 || four.id === elRow.fournisseurProduit?.id"
                                         [pTooltip]="getToolTip(four)"
                                       ></p-toggleswitch>
                                       <span>{{ four.fournisseurLibelle }}</span>

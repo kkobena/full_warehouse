@@ -58,6 +58,13 @@
             android:exported="false"
             android:label="@string/sales_home_title" />
 
+        <!-- Full Sale Home Activity (with Tabs: Ongoing Sales + Preventes) -->
+        <activity
+            android:name=".ui.activity.FullSaleHomeActivity"
+            android:exported="false"
+            android:label="Ventes"
+            android:screenOrientation="fullSensor" />
+
         <!-- Comptant Sale Activity (POS Screen) -->
         <activity
             android:name=".ui.activity.ComptantSaleActivity"

@@ -74,6 +74,10 @@ class ComptantSaleViewModel(
     private val _saleFinalized = MutableLiveData<Sale?>()
     val saleFinalized: LiveData<Sale?> = _saleFinalized
 
+    // Sale put on hold successfully (saved as prevente)
+    private val _salePutOnHold = MutableLiveData<Sale?>()
+    val salePutOnHold: LiveData<Sale?> = _salePutOnHold
+
     // Validation result for product addition
     private val _validationResult = MutableLiveData<SaleStockValidator.ValidationResult?>()
     val validationResult: LiveData<SaleStockValidator.ValidationResult?> = _validationResult
@@ -388,6 +392,70 @@ class ComptantSaleViewModel(
         _saleFinalized.value = null
         _currentSale.value = Sale()
         _selectedCustomer.value = null
+    }
+
+    /**
+     * Put sale on hold (save as prevente)
+     * Saves current sale state without finalizing payment
+     * Similar to finalizeSale but saves as prevente instead of completing
+     */
+    fun putOnHold() {
+        val currentSaleValue = _currentSale.value
+        if (currentSaleValue == null || currentSaleValue.salesLines.isEmpty()) {
+            _errorMessage.value = "Le panier est vide"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            // Use cached account to retrieve cassierId
+            var cassierId = cachedAccount?.id
+
+            if (cassierId == null) {
+                // Fallback: try to load account if cache failed
+                val accountResult = authRepository.getAccount()
+                cassierId = accountResult.getOrNull()?.id
+                if (cassierId == null) {
+                    _errorMessage.value = "Impossible de récupérer l'ID du caissier"
+                    _isLoading.value = false
+                    return@launch
+                }
+                // Update cache for next time
+                cachedAccount = accountResult.getOrNull()
+                _currentAccount.value = cachedAccount
+            }
+
+            // Build sale object to save
+            val saleToSave = currentSaleValue.copy(
+                customerId = _selectedCustomer.value?.id,
+                customer = _selectedCustomer.value,
+                cassierId = cassierId
+            )
+
+            // Save sale as prevente
+            salesRepository.putCashSaleOnHold(saleToSave).fold(
+                onSuccess = { savedSale ->
+                    _salePutOnHold.value = savedSale
+                    _isLoading.value = false
+                    // Clear cart after successful save
+                    _currentSale.value = Sale()
+                    _selectedCustomer.value = null
+                },
+                onFailure = { error ->
+                    _errorMessage.value = error.message ?: "Erreur lors de la mise en attente"
+                    _isLoading.value = false
+                }
+            )
+        }
+    }
+
+    /**
+     * Clear put on hold result (after navigation)
+     */
+    fun clearPutOnHoldResult() {
+        _salePutOnHold.value = null
     }
 
     /**

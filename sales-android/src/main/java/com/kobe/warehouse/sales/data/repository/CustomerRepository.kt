@@ -107,6 +107,63 @@ class CustomerRepository(
     }
 
     /**
+     * Get customer insurance data (for Assurance sales)
+     * Includes tiers payants, plafond, encours
+     */
+    suspend fun getCustomerInsuranceData(customerId: Long): Result<com.kobe.warehouse.sales.domain.model.InsuranceData> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = customerApiService.getCustomerInsuranceData(customerId)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Failed to load insurance data: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Get customer carnet data (for Carnet sales)
+     * Includes limite credit, encours, credit disponible
+     */
+    suspend fun getCustomerCarnetData(customerId: Long): Result<com.kobe.warehouse.sales.domain.model.CarnetData> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = customerApiService.getCustomerCarnetData(customerId)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Failed to load carnet data: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Get ayants-droit (beneficiaries) for a customer
+     * Used in Assurance sales to select who the sale is for
+     */
+    suspend fun getAyantDroits(customerId: Long): Result<List<Customer>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = customerApiService.getAyantDroits(customerId)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Failed to load ayants-droit: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Clear cached data
      */
     fun clearCache() {

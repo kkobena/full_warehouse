@@ -44,12 +44,31 @@ class SalesRepository(
     private val gson = Gson()
 
     /**
-     * Get list of  sales
+     * Get list of ongoing sales (ventes en cours)
      */
     suspend fun getSales(search: String? = null): Result<List<Sale>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = salesApiService.getSales(search)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Get list of preventes (ventes mises en attente / on hold)
+     */
+    suspend fun getPreventes(search: String? = null): Result<List<Sale>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.getPreventes(search)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
@@ -97,6 +116,103 @@ class SalesRepository(
                     Result.success(response.body()!!)
                 } else {
                     // Parse error body to get meaningful error message
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Delete ongoing sale
+     */
+    suspend fun deleteSale(id: Long, date: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.deleteSale(id, date)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Put cash sale on hold (save as prevente)
+     * Saves current sale state without finalizing payment
+     */
+    suspend fun putCashSaleOnHold(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.putCashSaleOnHold(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize carnet sale (credit sale)
+     * Sale is added to customer's carnet (credit account)
+     */
+    suspend fun finalizeCarnetSale(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeCarnetSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Get carnet purchase history for a customer
+     */
+    suspend fun getCarnetHistory(customerId: Long): Result<List<Sale>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.getCarnetHistory(customerId)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize assurance sale (insurance sale)
+     */
+    suspend fun finalizeAssuranceSale(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeAssuranceSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
                     val errorMessage = parseErrorResponse(response.errorBody()?.string())
                     Result.failure(Exception(errorMessage))
                 }

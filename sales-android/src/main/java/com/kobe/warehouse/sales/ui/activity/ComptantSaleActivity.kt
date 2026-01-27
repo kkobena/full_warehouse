@@ -263,6 +263,13 @@ class ComptantSaleActivity : BaseActivity() {
                 handleValidationResult(it)
             }
         }
+
+        // Observe sale put on hold
+        viewModel.salePutOnHold.observe(this) { putOnHoldSale ->
+            putOnHoldSale?.let {
+                handleSalePutOnHold(it)
+            }
+        }
     }
 
     /**
@@ -350,16 +357,39 @@ class ComptantSaleActivity : BaseActivity() {
      * Handle intent extras (for viewing finalized sale)
      */
     private fun handleIntent() {
-        val saleId = intent.getLongExtra("SALE_ID", 0)
-        val saleDate = intent.getStringExtra("SALE_DATE")
+        // Try to get sale ID from different intent keys (for compatibility)
+        var saleId = intent.getLongExtra("SALE_ID", 0)
+        if (saleId == 0L) {
+            saleId = intent.getLongExtra("saleId", 0)
+        }
+
+        // Try to get sale date from different intent keys
+        var saleDate = intent.getStringExtra("SALE_DATE")
+        if (saleDate.isNullOrEmpty()) {
+            saleDate = intent.getStringExtra("saleDate")
+        }
+
+        // Check if in view-only mode or edit mode
         isViewMode = intent.getBooleanExtra("IS_VIEW_MODE", false)
+        val isPrevente = intent.getBooleanExtra("isPrevente", false)
 
-        if (isViewMode && saleId > 0 && !saleDate.isNullOrEmpty()) {
-            // Load sale for viewing
-            viewModel.loadSale(saleId, saleDate)
+        // Load sale if ID and date are provided
+        if (saleId > 0 && !saleDate.isNullOrEmpty()) {
+            if (isViewMode) {
+                // View-only mode (finalized sale)
+                viewModel.loadSale(saleId, saleDate)
+                disableEditing()
+            } else {
+                // Edit mode (ongoing sale or prevente)
+                viewModel.loadSale(saleId, saleDate)
 
-            // Disable all editing features
-            disableEditing()
+                // Update toolbar title
+                if (isPrevente) {
+                    supportActionBar?.title = "Reprise prévente"
+                } else {
+                    supportActionBar?.title = "Modifier vente"
+                }
+            }
         }
     }
 
@@ -512,5 +542,72 @@ class ComptantSaleActivity : BaseActivity() {
                     .show()
             }
         }
+    }
+
+    /**
+     * Inflate options menu
+     */
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_comptant_sale, menu)
+        return true
+    }
+
+    /**
+     * Handle menu item selection
+     */
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_put_on_hold -> {
+                confirmPutOnHold()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    /**
+     * Confirm put on hold
+     */
+    private fun confirmPutOnHold() {
+        // Check if cart has items
+        val currentSale = viewModel.currentSale.value
+        if (currentSale == null || currentSale.salesLines.isEmpty()) {
+            Toast.makeText(this, "Le panier est vide", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Show confirmation dialog
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Mettre en attente")
+            .setMessage("Voulez-vous mettre cette vente en attente ? Vous pourrez la reprendre plus tard depuis l'onglet 'Préventes'.")
+            .setPositiveButton("Mettre en attente") { _, _ ->
+                putOnHold()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    /**
+     * Put sale on hold
+     */
+    private fun putOnHold() {
+        viewModel.putOnHold()
+    }
+
+    /**
+     * Handle sale put on hold success
+     */
+    private fun handleSalePutOnHold(sale: Sale) {
+        // Show success message
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Vente mise en attente")
+            .setMessage("La vente ${sale.numberTransaction} a été mise en attente avec succès. Vous pouvez la reprendre depuis l'onglet 'Préventes'.")
+            .setPositiveButton("OK") { _, _ ->
+                // Clear the result and close activity
+                viewModel.clearPutOnHoldResult()
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 }

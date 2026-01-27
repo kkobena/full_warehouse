@@ -15,10 +15,18 @@ import retrofit2.http.*
 interface SalesApiService {
 
     /**
-     * Get list of ongoing sales (ventes)
+     * Get list of ongoing sales (ventes en cours)
      */
     @GET("api/sales/simplified")
     suspend fun getSales(
+        @Query("search") search: String? = null
+    ): Response<List<Sale>>
+
+    /**
+     * Get list of preventes (ventes mises en attente)
+     */
+    @GET("api/sales/prevente")
+    suspend fun getPreventes(
         @Query("search") search: String? = null
     ): Response<List<Sale>>
 
@@ -38,6 +46,50 @@ interface SalesApiService {
      */
     @POST("api/sales/simplified/save")
     suspend fun createCashSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Delete ongoing sale
+     */
+    @DELETE("api/sales/ongoing/{id}/{date}")
+    suspend fun deleteSale(
+        @Path("id") id: Long,
+        @Path("date") date: String
+    ): Response<Unit>
+
+    /**
+     * Put cash sale on hold (save as prevente)
+     * Saves current sale state without finalizing
+     */
+    @PUT("api/sales/comptant/put-on-hold")
+    suspend fun putCashSaleOnHold(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Finalize carnet sale (credit sale)
+     * Sale is added to customer's carnet account
+     */
+    @POST("api/sales/carnet/save")
+    suspend fun finalizeCarnetSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Get carnet purchase history for a customer
+     */
+    @GET("api/sales/carnet/history/{customerId}")
+    suspend fun getCarnetHistory(
+        @Path("customerId") customerId: Long
+    ): Response<List<Sale>>
+
+    /**
+     * Finalize assurance sale (insurance sale)
+     * Sale with insurance data (tiers payants, prescription, etc.)
+     */
+    @POST("api/sales/assurance/save")
+    suspend fun finalizeAssuranceSale(
         @Body sale: Sale
     ): Response<Sale>
 }

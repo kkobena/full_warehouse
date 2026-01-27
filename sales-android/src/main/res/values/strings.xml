@@ -61,4 +61,94 @@
     <string name="paper_roll_58mm">58mm (par défaut)</string>
     <string name="paper_roll_80mm">80mm (large)</string>
     <string name="paper_roll_size_description">Sélectionnez la taille du rouleau de papier de votre imprimante thermique</string>
+
+    <!-- Phase 2: UnifiedSaleActivity Strings -->
+    <string name="nouvelle_vente">Nouvelle Vente</string>
+    <string name="finaliser_vente">Finaliser la vente</string>
+    <string name="type_vente">Type de vente</string>
+    <string name="comptant">Comptant</string>
+    <string name="assurance">Assurance</string>
+    <string name="carnet">Carnet</string>
+
+    <!-- Customer Zone -->
+    <string name="client">Client</string>
+    <string name="obligatoire">Obligatoire</string>
+    <string name="expand_collapse">Développer/Réduire</string>
+    <string name="rechercher_client">Rechercher un client…</string>
+    <string name="changer">Changer</string>
+
+    <!-- Insurance Data -->
+    <string name="donnees_assurance">Données d\'assurance</string>
+    <string name="tiers_payant_principal">Tiers payant principal</string>
+    <string name="taux_couverture_principal">Taux de couverture principal</string>
+    <string name="taux_couverture">Taux de couverture</string>
+    <string name="type_prescription">Type de prescription</string>
+    <string name="numero_bon">Numéro de bon</string>
+    <string name="selectionner_ayant_droit">Sélectionner un ayant-droit</string>
+    <string name="ajouter_tiers_payant_complementaire">+ Ajouter tiers payant complémentaire</string>
+    <string name="repartition_paiement">Répartition du paiement</string>
+    <string name="part_assurance">Part assurance</string>
+    <string name="part_client">Part client</string>
+    <string name="remove">Supprimer</string>
+
+    <!-- Carnet Info -->
+    <string name="informations_carnet">Informations Carnet</string>
+    <string name="limite_credit">Limite de crédit</string>
+    <string name="encours_actuel">Encours actuel</string>
+    <string name="credit_disponible">Crédit disponible</string>
+    <string name="utilisation_credit">Utilisation du crédit</string>
+    <string name="warning">Avertissement</string>
+    <string name="voir_historique_carnet">Voir l\'historique</string>
+
+    <!-- Product & Cart -->
+    <string name="produits">Produits</string>
+    <string name="rechercher_produit">Rechercher un produit…</string>
+    <string name="panier">Panier</string>
+
+    <!-- Payment -->
+    <string name="paiement">Paiement</string>
+    <string name="total">Total</string>
+    <string name="currency_fcfa">FCFA</string>
+    <string name="mode_paiement">Mode de paiement</string>
+    <string name="vente_carnet_paiement_info">Pour une vente carnet, le montant sera ajouté à l\'encours du client. Aucun paiement immédiat requis.</string>
+    <string name="info">Information</string>
+
+    <!-- Icons Content Descriptions -->
+    <string name="ic_cash">Espèces</string>
+    <string name="ic_insurance">Assurance</string>
+    <string name="ic_credit_card">Carte de crédit</string>
+    <string name="ic_person">Personne</string>
+    <string name="ic_person_add">Ajouter une personne</string>
+    <string name="ic_search">Rechercher</string>
+    <string name="ic_barcode_scanner">Scanner code-barres</string>
+    <string name="ic_check">Valider</string>
+    <string name="ic_close">Fermer</string>
+    <string name="ic_edit">Modifier</string>
+    <string name="ic_add">Ajouter</string>
+    <string name="ic_history">Historique</string>
+    <string name="ic_expand_more">Développer</string>
+
+    <!-- Ayant Droit -->
+    <string name="selectionner_ayant_droit_info">Sélectionnez le bénéficiaire pour cette vente</string>
+    <string name="aucun_ayant_droit">Aucun ayant-droit enregistré</string>
+    <string name="select">Sélectionner</string>
+
+    <!-- Tiers Payant -->
+    <string name="selectionner_tiers_payant">Sélectionner un tiers payant</string>
+    <string name="rechercher_tiers_payant">Rechercher un tiers payant…</string>
+    <string name="rechercher_tiers_payant_info">Saisissez au moins 2 caractères pour rechercher</string>
+
+    <!-- Carnet -->
+    <string name="historique_carnet">Historique Carnet</string>
+    <string name="historique_carnet_info">Historique des achats carnet du client</string>
+    <string name="aucune_vente_carnet">Aucune vente carnet enregistrée</string>
+
+    <!-- Sale Transformation -->
+    <string name="transformer_vente">Transformer la vente</string>
+    <string name="transformer">Transformer</string>
+    <string name="type_actuel">Type actuel: %s</string>
+    <string name="nouveau_type">Nouveau type</string>
+    <string name="transformation_comptant_info">La transformation vers Assurance ou Carnet nécessitera la sélection d\'un client et des données spécifiques.</string>
+    <string name="transformation_assurance_info">La transformation vers Comptant supprimera les données d\'assurance. Le panier sera conservé.</string>
+    <string name="transformation_carnet_info">La transformation vers Comptant supprimera les données carnet. Le panier sera conservé.</string>
 </resources>

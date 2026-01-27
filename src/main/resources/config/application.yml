@@ -32,7 +32,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        generate_statistics: false
+        generate_statistics: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: pharma_smart
         cache:
@@ -49,6 +49,7 @@ spring:
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
+
     hibernate:
       ddl-auto: none
       naming:

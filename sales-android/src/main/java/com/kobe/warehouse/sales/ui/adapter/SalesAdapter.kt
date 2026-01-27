@@ -14,9 +14,14 @@ import com.kobe.warehouse.sales.data.model.Sale
 /**
  * Sales Adapter
  * RecyclerView adapter for displaying sales list
+ *
+ * Features:
+ * - Click to open sale
+ * - Optional delete callback
  */
 class SalesAdapter(
-    private val onSaleClick: (Sale) -> Unit
+    private val onSaleClick: (Sale) -> Unit,
+    private val onSaleDelete: ((Sale) -> Unit)? = null
 ) : ListAdapter<Sale, SalesAdapter.SaleViewHolder>(SaleDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SaleViewHolder {
@@ -45,6 +50,14 @@ class SalesAdapter(
 
             // Click to view sale details
             cardView.setOnClickListener { onSaleClick(sale) }
+
+            // Long click to delete (if callback provided)
+            if (onSaleDelete != null) {
+                cardView.setOnLongClickListener {
+                    onSaleDelete.invoke(sale)
+                    true
+                }
+            }
         }
     }
 

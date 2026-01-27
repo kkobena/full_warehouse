@@ -15,8 +15,10 @@ logging:
     org.springframework.transaction: WARN
     org.springframework.orm.jpa: WARN
     org.hibernate.type.descriptor.sql: WARN
+    org.hibernate.stat: INFO
 
     org.springframework: OFF
+
 
 
   # Pattern de log avec timing

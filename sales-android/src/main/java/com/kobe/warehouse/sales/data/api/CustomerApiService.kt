@@ -40,6 +40,33 @@ interface CustomerApiService {
      */
     @GET("api/customers/default")
     suspend fun getDefaultCustomer(): Response<Customer>
+
+    /**
+     * Get customer insurance data (for Assurance sales)
+     * Returns tiers payants, plafond, encours
+     */
+    @GET("api/customers/{id}/insurance-data")
+    suspend fun getCustomerInsuranceData(
+        @Path("id") customerId: Long
+    ): Response<com.kobe.warehouse.sales.domain.model.InsuranceData>
+
+    /**
+     * Get customer carnet data (for Carnet sales)
+     * Returns limite credit, encours, credit disponible
+     */
+    @GET("api/customers/{id}/carnet-data")
+    suspend fun getCustomerCarnetData(
+        @Path("id") customerId: Long
+    ): Response<com.kobe.warehouse.sales.domain.model.CarnetData>
+
+    /**
+     * Get ayants-droit (beneficiaries) for a customer
+     * Used in Assurance sales to select who the sale is for
+     */
+    @GET("api/customers/{id}/ayant-droits")
+    suspend fun getAyantDroits(
+        @Path("id") customerId: Long
+    ): Response<List<Customer>>
 }
 
 /**

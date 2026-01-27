@@ -24,6 +24,21 @@ class SalesHomeViewModelFactory(
 }
 
 /**
+ * ViewModelFactory for FullSaleHomeViewModel
+ */
+class FullSaleHomeViewModelFactory(
+    private val salesRepository: SalesRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(FullSaleHomeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return FullSaleHomeViewModel(salesRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+/**
  * ViewModelFactory for ComptantSaleViewModel
  */
 class ComptantSaleViewModelFactory(

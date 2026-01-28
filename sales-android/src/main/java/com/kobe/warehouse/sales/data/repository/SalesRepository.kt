@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Sale
+import com.kobe.warehouse.sales.domain.model.UpdateSaleInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -204,7 +205,49 @@ class SalesRepository(
     }
 
     /**
+     * Create assurance sale (insurance sale)
+     * Creates a new sale with tiers payants (insurance providers)
+     */
+    suspend fun createAssuranceSale(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.createAssuranceSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Put assurance sale on hold (save as prevente)
+     * Saves current insurance sale state without finalizing
+     */
+    suspend fun putAssuranceSaleOnHold(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.putAssuranceSaleOnHold(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Finalize assurance sale (insurance sale)
+     * Completes sale with insurance data (tiers payants, prescription, etc.)
+     * Backend calculates partAssure, partTiersPayant, costAmount
      */
     suspend fun finalizeAssuranceSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
@@ -212,6 +255,82 @@ class SalesRepository(
                 val response = salesApiService.finalizeAssuranceSale(sale)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Transform sale between types (COMPTANT, ASSURANCE, CARNET)
+     * Converts an existing sale from one nature to another
+     *
+     * @param natureVente Target sale type: COMPTANT, ASSURANCE, or CARNET
+     * @param saleId Sale ID
+     * @param saleDate Sale date (format: yyyy-MM-dd)
+     * @return Result with new SaleId after transformation
+     */
+    suspend fun transformSale(
+        natureVente: String,
+        saleId: Long,
+        saleDate: String
+    ): Result<com.kobe.warehouse.sales.data.model.SaleId> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.transformSale(natureVente, saleId, saleDate)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Add discount to sale
+     * Applies discount based on sale type (comptant, assurance, or carnet)
+     */
+    suspend fun addDiscountToSale(
+        updateSaleInfo: UpdateSaleInfo,
+        saleType: String = "COMPTANT"
+    ): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = when (saleType) {
+                    "ASSURANCE" -> salesApiService.addDiscountToAssuranceSale(updateSaleInfo)
+                    "CARNET" -> salesApiService.addDiscountToCarnetSale(updateSaleInfo)
+                    else -> salesApiService.addDiscountToCashSale(updateSaleInfo)
+                }
+
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Remove discount from cash sale
+     */
+    suspend fun removeDiscountFromSale(id: Long, saleDate: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.removeDiscountFromCashSale(id, saleDate)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
                 } else {
                     val errorMessage = parseErrorResponse(response.errorBody()?.string())
                     Result.failure(Exception(errorMessage))

@@ -6,98 +6,97 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Tiers Payant Repository
- * Handles insurance provider data operations
+ * Repository for Tiers Payant (Insurance Provider) operations
  */
 class TiersPayantRepository(
-    private val tiersPayantApiService: TiersPayantApiService
+    private val tiersPayantApi: TiersPayantApiService
 ) {
 
-    // Cache active tiers payants
-    private var cachedActiveTiersPayants: List<TiersPayant>? = null
+    /**
+     * Get all active tiers payants
+     */
+    suspend fun getAllTiersPayants(): Result<List<TiersPayant>> = withContext(Dispatchers.IO) {
+        try {
+            val response = tiersPayantApi.getAllTiersPayants()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Erreur: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     /**
      * Search tiers payants by name or code
      */
-    suspend fun searchTiersPayants(query: String, size: Int = 50): Result<List<TiersPayant>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = tiersPayantApiService.searchTiersPayants(query, size)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!.filter { it.enabled })
-                } else {
-                    Result.failure(Exception("Failed to search tiers payants: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
+    suspend fun searchTiersPayants(query: String): Result<List<TiersPayant>> = withContext(Dispatchers.IO) {
+        try {
+            val response = tiersPayantApi.searchTiersPayants(query)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Erreur: ${response.message()}"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
     /**
      * Get tiers payant by ID
      */
-    suspend fun getTiersPayantById(id: Long): Result<TiersPayant> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = tiersPayantApiService.getTiersPayantById(id)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Tiers payant not found"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
+    suspend fun getTiersPayantById(id: Long): Result<TiersPayant> = withContext(Dispatchers.IO) {
+        try {
+            val response = tiersPayantApi.getTiersPayantById(id)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Erreur: ${response.message()}"))
             }
-        }
-    }
-
-    /**
-     * Get all active tiers payants
-     */
-    suspend fun getActiveTiersPayants(forceRefresh: Boolean = false): Result<List<TiersPayant>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                // Return cached if available
-                if (!forceRefresh && cachedActiveTiersPayants != null) {
-                    return@withContext Result.success(cachedActiveTiersPayants!!)
-                }
-
-                val response = tiersPayantApiService.getActiveTiersPayants()
-                if (response.isSuccessful && response.body() != null) {
-                    cachedActiveTiersPayants = response.body()!!
-                    Result.success(cachedActiveTiersPayants!!)
-                } else {
-                    Result.failure(Exception("Failed to load active tiers payants: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
     /**
      * Get tiers payants for a specific customer
+     * Returns the customer's principal and complementaire insurance providers
      */
-    suspend fun getCustomerTiersPayants(customerId: Long): Result<List<TiersPayant>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = tiersPayantApiService.getCustomerTiersPayants(customerId)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to load customer tiers payants: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
+    suspend fun getTiersPayantsForCustomer(customerId: Long): Result<List<TiersPayant>> = withContext(Dispatchers.IO) {
+        try {
+            val response = tiersPayantApi.getTiersPayantsForCustomer(customerId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Erreur: ${response.message()}"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
     /**
-     * Clear cached data
+     * Validate if a tiers payant is valid for a customer
+     * Checks:
+     * - Insurance not expired
+     * - Coverage still active
+     * - Plafonds not exceeded
      */
-    fun clearCache() {
-        cachedActiveTiersPayants = null
+    suspend fun validateTiersPayantForCustomer(
+        customerId: Long,
+        tiersPayantId: Long
+    ): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val response = tiersPayantApi.validateTiersPayantForCustomer(customerId, tiersPayantId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Erreur: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

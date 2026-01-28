@@ -1,7 +1,9 @@
 package com.kobe.warehouse.sales.data.api
 
 import com.kobe.warehouse.sales.data.model.Sale
+import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.SaleLine
+import com.kobe.warehouse.sales.domain.model.UpdateSaleInfo
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -85,12 +87,79 @@ interface SalesApiService {
     ): Response<List<Sale>>
 
     /**
+     * Create assurance sale
+     * Creates a new insurance sale with tiers payants
+     */
+    @POST("api/sales/assurance")
+    suspend fun createAssuranceSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Put assurance sale on hold
+     * Saves insurance sale as prevente without finalizing
+     */
+    @PUT("api/sales/assurance/put-on-hold")
+    suspend fun putAssuranceSaleOnHold(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
      * Finalize assurance sale (insurance sale)
      * Sale with insurance data (tiers payants, prescription, etc.)
+     * Backend calculates partAssure, partTiersPayant, costAmount
      */
-    @POST("api/sales/assurance/save")
+    @PUT("api/sales/assurance/save")
     suspend fun finalizeAssuranceSale(
         @Body sale: Sale
     ): Response<Sale>
+
+    /**
+     * Transform sale between types (COMPTANT, ASSURANCE, CARNET)
+     * Converts an existing sale from one nature to another
+     * Backend endpoint: GET /api/sales/assurance/transform
+     */
+    @GET("api/sales/assurance/transform")
+    suspend fun transformSale(
+        @Query("natureVente") natureVente: String,
+        @Query("saleId") saleId: Long,
+        @Query("saleDate") saleDate: String
+    ): Response<SaleId>
+
+    /**
+     * Add discount to cash sale
+     * Applies discount to the entire sale
+     */
+    @PUT("api/sales/comptant/add-remise")
+    suspend fun addDiscountToCashSale(
+        @Body updateSaleInfo: UpdateSaleInfo
+    ): Response<Void>
+
+    /**
+     * Remove discount from cash sale
+     */
+    @DELETE("api/sales/comptant/remove-remise/{id}/{saleDate}")
+    suspend fun removeDiscountFromCashSale(
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String
+    ): Response<Void>
+
+    /**
+     * Add discount to assurance sale
+     * Applies discount to the entire sale
+     */
+    @PUT("api/sales/assurance/add-remise")
+    suspend fun addDiscountToAssuranceSale(
+        @Body updateSaleInfo: UpdateSaleInfo
+    ): Response<Void>
+
+    /**
+     * Add discount to carnet sale
+     * Applies discount to the entire sale
+     */
+    @PUT("api/sales/carnet/add-remise")
+    suspend fun addDiscountToCarnetSale(
+        @Body updateSaleInfo: UpdateSaleInfo
+    ): Response<Void>
 }
 

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <!-- Rank Badge -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:cardBackgroundColor="?attr/colorPrimary"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+
+        <TextView
+            android:id="@+id/tv_rank"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="1"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="?attr/colorOnPrimary"
+            android:textStyle="bold"
+            tools:text="1" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Product Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/tv_product_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nom du produit"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="?android:attr/textColorPrimary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="Paracétamol 500mg" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tv_quantity_sold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 vendus"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="150 vendus" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" • "
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <TextView
+                android:id="@+id/tv_total_sales"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 FCFA"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                tools:text="75 000 FCFA" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

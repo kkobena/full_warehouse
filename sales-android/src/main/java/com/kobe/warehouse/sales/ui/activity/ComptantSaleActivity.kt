@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.*
+import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.repository.*
 import com.kobe.warehouse.sales.databinding.ActivityComptantSaleBinding
 import com.kobe.warehouse.sales.ui.adapter.CartAdapter

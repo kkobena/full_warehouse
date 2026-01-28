@@ -73,6 +73,15 @@
             android:parentActivityName=".ui.activity.SalesHomeActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Unified Sale Activity (Multi-type sales: Comptant, Assurance, Carnet) -->
+        <activity
+            android:name=".ui.activity.UnifiedSaleActivity"
+            android:exported="false"
+            android:label="@string/nouvelle_vente"
+            android:parentActivityName=".ui.activity.FullSaleHomeActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="fullSensor" />
+
         <!-- Sale Detail Activity (View Sale Details) -->
         <activity
             android:name=".ui.activity.SaleDetailActivity"

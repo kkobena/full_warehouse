@@ -91,8 +91,8 @@ class ComptantSaleViewModelTest {
         // Given
         val query = "Paracetamol"
         val mockProducts = listOf(
-            Product(id = 1, productName = "Paracetamol 500mg", regularUnitPrice = 100, currentStockQuantity = 50),
-            Product(id = 2, productName = "Paracetamol 1g", regularUnitPrice = 150, currentStockQuantity = 30)
+            Product(id = 1, libelle = "Paracetamol 500mg", regularUnitPrice = 100, totalQuantity = 50),
+            Product(id = 2, libelle = "Paracetamol 1g", regularUnitPrice = 150, totalQuantity = 30)
         )
         whenever(productRepository.searchProducts(query)).thenReturn(Result.success(mockProducts))
 
@@ -104,7 +104,7 @@ class ComptantSaleViewModelTest {
         val result = viewModel.products.value
         assertNotNull(result)
         assertEquals(2, result.size)
-        assertEquals("Paracetamol 500mg", result[0].productName)
+        assertEquals("Paracetamol 500mg", result[0].libelle)
     }
 
     @Test
@@ -140,10 +140,10 @@ class ComptantSaleViewModelTest {
         // Given
         val product = Product(
             id = 1,
-            productName = "Paracetamol 500mg",
+            libelle = "Paracetamol 500mg",
             regularUnitPrice = 100,
-            currentStockQuantity = 50,
-            productCode = "PARA500"
+            totalQuantity = 50,
+            code = "PARA500"
         )
 
         // When
@@ -162,10 +162,10 @@ class ComptantSaleViewModelTest {
         // Given
         val product = Product(
             id = 1,
-            productName = "Paracetamol 500mg",
+            libelle = "Paracetamol 500mg",
             regularUnitPrice = 100,
-            currentStockQuantity = 50,
-            productCode = "PARA500"
+            totalQuantity = 50,
+            code = "PARA500"
         )
         viewModel.addProductToCart(product, quantity = 2)
 
@@ -244,10 +244,10 @@ class ComptantSaleViewModelTest {
         // Given
         val product = Product(
             id = 1,
-            productName = "Paracetamol 500mg",
+            libelle = "Paracetamol 500mg",
             regularUnitPrice = 100,
-            currentStockQuantity = 50,
-            productCode = "PARA500"
+            totalQuantity = 50,
+            code = "PARA500"
         )
         viewModel.addProductToCart(product, quantity = 2)
 
@@ -284,17 +284,17 @@ class ComptantSaleViewModelTest {
         // Given
         val product1 = Product(
             id = 1,
-            productName = "Product 1",
+            libelle = "Product 1",
             regularUnitPrice = 100,
-            currentStockQuantity = 50,
-            productCode = "P1"
+            totalQuantity = 50,
+            code = "P1"
         )
         val product2 = Product(
             id = 2,
-            productName = "Product 2",
+            libelle = "Product 2",
             regularUnitPrice = 200,
-            currentStockQuantity = 30,
-            productCode = "P2"
+            totalQuantity = 30,
+            code = "P2"
         )
 
         // When
@@ -312,17 +312,17 @@ class ComptantSaleViewModelTest {
         // Given
         val product1 = Product(
             id = 1,
-            productName = "Product 1",
+            libelle = "Product 1",
             regularUnitPrice = 100,
-            currentStockQuantity = 50,
-            productCode = "P1"
+            totalQuantity = 50,
+            code = "P1"
         )
         val product2 = Product(
             id = 2,
-            productName = "Product 2",
+            libelle = "Product 2",
             regularUnitPrice = 200,
-            currentStockQuantity = 30,
-            productCode = "P2"
+            totalQuantity = 30,
+            code = "P2"
         )
 
         // When

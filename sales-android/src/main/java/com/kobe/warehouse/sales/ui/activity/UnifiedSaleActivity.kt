@@ -1,42 +1,78 @@
 package com.kobe.warehouse.sales.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import androidx.activity.viewModels
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.sales.R
+import com.kobe.warehouse.sales.data.api.AuthApiService
+import com.kobe.warehouse.sales.data.api.CustomerApiService
+import com.kobe.warehouse.sales.data.api.PaymentApiService
+import com.kobe.warehouse.sales.data.api.ProductApiService
+import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Customer
+import com.kobe.warehouse.sales.data.model.Product
+import com.kobe.warehouse.sales.data.repository.AuthRepository
+import com.kobe.warehouse.sales.data.repository.CustomerRepository
+import com.kobe.warehouse.sales.data.repository.PaymentRepository
+import com.kobe.warehouse.sales.data.repository.ProductRepository
+import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.databinding.ActivityUnifiedSaleBinding
 import com.kobe.warehouse.sales.domain.model.SaleType
-import com.kobe.warehouse.sales.ui.adapter.CustomerSearchAdapter
-import com.kobe.warehouse.sales.ui.dialog.AyantDroitDialog
+import com.kobe.warehouse.sales.ui.adapter.CartAdapter
+import com.kobe.warehouse.sales.ui.adapter.ProductAdapter
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModelFactory
+import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
 
 /**
  * Unified Sale Activity
  *
- * Handles all types of sales: Comptant, Assurance, Carnet
- * Provides adaptive UI based on selected sale type
+ * Handles all types of sales (Comptant, Assurance, Carnet) in a single unified interface
+ * Uses UnifiedSaleViewModel to manage state and business logic
  */
-class UnifiedSaleActivity : BaseActivity() {
+class UnifiedSaleActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityUnifiedSaleBinding
-    private lateinit var tokenManager: TokenManager
-    private lateinit var customerSearchAdapter: CustomerSearchAdapter
-    private var selectedAyantDroit: Customer? = null
+    private lateinit var viewModel: UnifiedSaleViewModel
 
-    private val viewModel: UnifiedSaleViewModel by viewModels {
-        UnifiedSaleViewModelFactory(
-            salesRepository = (application as PharmaSmartApplication).salesRepository,
-            productRepository = (application as PharmaSmartApplication).productRepository,
-            customerRepository = (application as PharmaSmartApplication).customerRepository,
-            paymentRepository = (application as PharmaSmartApplication).paymentRepository,
-            authRepository = (application as PharmaSmartApplication).authRepository,
-            tokenManager = tokenManager
-        )
+    private lateinit var productAdapter: ProductAdapter
+    private lateinit var cartAdapter: CartAdapter
+
+    companion object {
+        const val EXTRA_SALE_TYPE = "extra_sale_type"
+        const val EXTRA_SALE_ID = "extra_sale_id"
+        const val EXTRA_SALE_DATE = "extra_sale_date"
+
+        // Sale type constants
+        const val SALE_TYPE_COMPTANT = "COMPTANT"
+        const val SALE_TYPE_ASSURANCE = "ASSURANCE"
+        const val SALE_TYPE_CARNET = "CARNET"
+
+        // Request codes
+        private const val REQUEST_SELECT_CUSTOMER = 1001
+    }
+
+    // Customer selection launcher
+    private val customerSelectionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.getParcelableExtra<Customer>("selected_customer")?.let { customer ->
+                viewModel.selectCustomer(customer)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,405 +80,339 @@ class UnifiedSaleActivity : BaseActivity() {
         binding = ActivityUnifiedSaleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        tokenManager = TokenManager(this)
-
         setupToolbar()
-        setupSaleTypeSelector()
-        setupCustomerZone()
-        setupInsuranceDataZone()
-        setupCarnetInfoZone()
-        setupProductCartZone()
-        setupPaymentZone()
-        setupFabButton()
+        setupViewModel()
+        setupAdapters()
+        setupListeners()
         observeViewModel()
+
+        // Load sale if editing
+        handleIntent(intent)
     }
 
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.nouvelle_vente)
-
-        binding.toolbar.setNavigationOnClickListener {
-            onBackPressed()
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+            title = "Vente"
         }
     }
 
-    /**
-     * Setup Sale Type Selector (Chips)
-     */
-    private fun setupSaleTypeSelector() {
-        val saleTypeSelector = binding.includeSaleTypeSelector
+    private fun setupViewModel() {
+        val tokenManager = TokenManager(this)
+        val apiClient = ApiClient.create(tokenManager = tokenManager)
 
-        saleTypeSelector.chipGroupSaleType.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
+        val salesApi = apiClient.create(SalesApiService::class.java)
+        val productApi = apiClient.create(ProductApiService::class.java)
+        val paymentApi = apiClient.create(PaymentApiService::class.java)
+        val customerApi = apiClient.create(CustomerApiService::class.java)
+        val authApi = apiClient.create(AuthApiService::class.java)
 
-            val selectedSaleType = when (checkedIds.first()) {
-                R.id.chipComptant -> SaleType.Comptant
-                R.id.chipAssurance -> {
-                    // Will be set to Assurance once customer and tiers payants are selected
-                    // For now, just notify that customer is required
-                    showCustomerRequired()
-                    SaleType.Comptant // Temporary, will change when customer selected
+        val salesRepository = SalesRepository(salesApi)
+        val productRepository = ProductRepository(productApi)
+        val paymentRepository = PaymentRepository(paymentApi)
+        val customerRepository = CustomerRepository(customerApi)
+        val authRepository = AuthRepository(authApi, tokenManager)
+
+        val factory = UnifiedSaleViewModelFactory(
+            salesRepository,
+            productRepository,
+            paymentRepository,
+            customerRepository,
+            authRepository,
+            tokenManager
+        )
+
+        viewModel = ViewModelProvider(this, factory)[UnifiedSaleViewModel::class.java]
+    }
+
+    private fun setupAdapters() {
+        // Product search adapter
+        productAdapter = ProductAdapter(
+            onProductClick = { product ->
+                showAddToCartDialog(product)
+            }
+        )
+        // TODO: Setup product recycler view with includeProductCart binding
+        // binding.includeProductCart.rvProductSearchResults.apply {
+        //     layoutManager = LinearLayoutManager(this@UnifiedSaleActivity)
+        //     adapter = productAdapter
+        // }
+
+        // Cart adapter
+        cartAdapter = CartAdapter(
+            onIncrementClick = { line ->
+                viewModel.updateLineQuantity(line, line.quantitySold + 1)
+            },
+            onDecrementClick = { line ->
+                val newQty = (line.quantitySold - 1).coerceAtLeast(0)
+                viewModel.updateLineQuantity(line, newQty)
+            },
+            onRemoveClick = { line ->
+                viewModel.removeLineFromCart(line)
+            },
+            onQuantityChange = { line, newQuantity ->
+                viewModel.updateLineQuantity(line, newQuantity)
+            }
+        )
+        // TODO: Setup cart recycler view with includeProductCart binding
+        // binding.includeProductCart.rvCart.apply {
+        //     layoutManager = LinearLayoutManager(this@UnifiedSaleActivity)
+        //     adapter = cartAdapter
+        // }
+    }
+
+    private fun setupListeners() {
+        // TODO: Sale type spinner - Setup with includeSaleTypeSelector binding
+        // val saleTypes = arrayOf("Comptant", "Assurance", "Carnet")
+        // val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, saleTypes)
+        // spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        // binding.includeSaleTypeSelector.spinnerSaleType.adapter = spinnerAdapter
+
+        /* TODO: Enable this when spinner is properly bound
+        binding.includeSaleTypeSelector.spinnerSaleType.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val newType = when (position) {
+                    0 -> SaleType.Comptant
+                    1 -> {
+                        if (viewModel.selectedCustomer.value != null) {
+                            SaleType.Assurance(viewModel.selectedCustomer.value!!, emptyList())
+                        } else {
+                            Toast.makeText(this@UnifiedSaleActivity, "Sélectionnez un client d'abord", Toast.LENGTH_SHORT).show()
+                            binding.spinnerSaleType.setSelection(0)
+                            return
+                        }
+                    }
+                    2 -> {
+                        if (viewModel.selectedCustomer.value != null) {
+                            SaleType.Carnet(viewModel.selectedCustomer.value!!)
+                        } else {
+                            Toast.makeText(this@UnifiedSaleActivity, "Sélectionnez un client d'abord", Toast.LENGTH_SHORT).show()
+                            binding.spinnerSaleType.setSelection(0)
+                            return
+                        }
+                    }
+                    else -> SaleType.Comptant
                 }
-                R.id.chipCarnet -> {
-                    // Will be set to Carnet once customer is selected
-                    showCustomerRequired()
-                    SaleType.Comptant // Temporary, will change when customer selected
-                }
-                else -> SaleType.Comptant
+                viewModel.changeSaleType(newType)
             }
 
-            viewModel.onSaleTypeChanged(selectedSaleType)
-        }
-    }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+        })
+        */
 
-    /**
-     * Setup Customer Zone
-     */
-    private fun setupCustomerZone() {
-        val customerZone = binding.includeCustomerZone
+        // TODO: Customer selection - Bind to proper layout include
+        // binding.includeCustomerZone.btnSelectCustomer.setOnClickListener {
+        //     val intent = Intent(this, CustomerSelectionActivity::class.java)
+        //     customerSelectionLauncher.launch(intent)
+        // }
 
-        // Expand/Collapse customer zone
-        customerZone.layoutCustomerHeader.setOnClickListener {
-            toggleCustomerZone()
-        }
+        // TODO: Product search - Bind to proper layout include
+        // binding.includeProductCart.btnSearchProduct.setOnClickListener {
+        //     val query = binding.includeProductCart.etProductSearch.text.toString()
+        //     viewModel.searchProducts(query)
+        // }
 
-        // Customer search
-        customerZone.etCustomerSearch.setOnEditorActionListener { _, _, _ ->
-            val query = customerZone.etCustomerSearch.text.toString()
-            if (query.length >= 2) {
-                viewModel.searchCustomers(query)
-            }
-            true
-        }
+        // TODO: Clear search - Bind to proper layout include
+        // binding.includeProductCart.btnClearSearch.setOnClickListener {
+        //     binding.includeProductCart.etProductSearch.text?.clear()
+        // }
 
-        // Change customer button
-        customerZone.btnChangeCustomer.setOnClickListener {
-            clearSelectedCustomer()
-        }
+        // TODO: Put on hold action - Bind to proper button
+        // binding.btnPutOnHold.setOnClickListener {
+        //     confirmPutOnHold()
+        // }
 
-        // Setup customer search results RecyclerView
-        customerSearchAdapter = CustomerSearchAdapter { customer ->
-            viewModel.selectCustomer(customer)
-        }
-        customerZone.rvCustomerSearchResults.apply {
-            layoutManager = LinearLayoutManager(this@UnifiedSaleActivity)
-            adapter = customerSearchAdapter
-        }
-    }
-
-    /**
-     * Setup Insurance Data Zone
-     */
-    private fun setupInsuranceDataZone() {
-        val insuranceZone = binding.includeInsuranceData
-
-        // Select ayant droit button
-        insuranceZone.btnSelectAyantDroit.setOnClickListener {
-            val customer = viewModel.selectedCustomer.value
-            if (customer != null) {
-                openAyantDroitDialog(customer.id)
-            } else {
-                showSnackbar("Veuillez sélectionner un client d'abord")
-            }
-        }
-
-        // Remove ayant droit button
-        insuranceZone.btnRemoveAyantDroit.setOnClickListener {
-            clearAyantDroit()
-        }
-
-        // TODO: Setup other insurance data fields in Task #5
-        // - Tiers payant selection
-        // - Prescription type selection
-        // - Coverage rate input
-    }
-
-    /**
-     * Open ayant droit selection dialog
-     */
-    private fun openAyantDroitDialog(customerId: Long) {
-        // TODO: Load ayants-droit from ViewModel
-        // For now, show placeholder dialog
-        showSnackbar("Chargement des ayants-droit...")
-        // This will be fully implemented in Task #5
-    }
-
-    /**
-     * Show selected ayant droit
-     */
-    private fun showSelectedAyantDroit(ayantDroit: Customer) {
-        selectedAyantDroit = ayantDroit
-        val insuranceZone = binding.includeInsuranceData
-
-        insuranceZone.layoutSelectedAyantDroit.visibility = View.VISIBLE
-        insuranceZone.tvAyantDroitName.text = "${ayantDroit.firstName} ${ayantDroit.lastName} (Bénéficiaire)"
-    }
-
-    /**
-     * Clear selected ayant droit
-     */
-    private fun clearAyantDroit() {
-        selectedAyantDroit = null
-        binding.includeInsuranceData.layoutSelectedAyantDroit.visibility = View.GONE
-    }
-
-    /**
-     * Setup Carnet Info Zone
-     */
-    private fun setupCarnetInfoZone() {
-        val carnetZone = binding.includeCarnetInfo
-
-        // View carnet history button
-        carnetZone.btnViewCarnetHistory.setOnClickListener {
-            // TODO: Open carnet history dialog in Task #6
-            showSnackbar("Historique carnet à implémenter")
-        }
-    }
-
-    /**
-     * Setup Product & Cart Zone
-     */
-    private fun setupProductCartZone() {
-        val productCartZone = binding.includeProductCart
-
-        // Product search
-        productCartZone.etProductSearch.setOnEditorActionListener { _, _, _ ->
-            val query = productCartZone.etProductSearch.text.toString()
-            if (query.length >= 2) {
-                viewModel.searchProducts(query)
-            }
-            true
-        }
-
-        // Barcode scanner button
-        productCartZone.tilProductSearch.setEndIconOnClickListener {
-            // TODO: Launch barcode scanner
-            showSnackbar("Scanner code-barres à implémenter")
-        }
-
-        // Setup product search results RecyclerView
-        productCartZone.rvProductSearchResults.layoutManager = LinearLayoutManager(this)
-        // TODO: Set adapter
-
-        // Setup cart RecyclerView
-        productCartZone.rvCart.layoutManager = LinearLayoutManager(this)
-        // TODO: Set adapter
-    }
-
-    /**
-     * Setup Payment Zone
-     */
-    private fun setupPaymentZone() {
-        val paymentZone = binding.includePaymentZone
-
-        // Setup payment modes RecyclerView
-        paymentZone.rvPaymentModes.layoutManager = LinearLayoutManager(this)
-        // TODO: Set adapter when created
-    }
-
-    /**
-     * Setup Finalize Sale FAB Button
-     */
-    private fun setupFabButton() {
+        // Finalize sale action (using FAB which exists in main layout)
         binding.fabFinalizeSale.setOnClickListener {
-            viewModel.finalizeSale()
+            // TODO: Navigate to payment screen
+            Toast.makeText(this, "Finalisation - à implémenter", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Observe ViewModel LiveData
-     */
     private fun observeViewModel() {
-        // Observe current sale type
+        // Sale type
         viewModel.currentSaleType.observe(this) { saleType ->
             updateUIForSaleType(saleType)
         }
 
-        // Observe customer required state
-        viewModel.isCustomerRequired.observe(this) { isRequired ->
-            binding.includeCustomerZone.tvCustomerRequired.visibility =
-                if (isRequired) View.VISIBLE else View.GONE
-        }
-
-        // Observe selected customer
+        // Customer
         viewModel.selectedCustomer.observe(this) { customer ->
-            if (customer != null) {
-                showSelectedCustomer(customer)
-            } else {
-                clearSelectedCustomerUI()
-            }
+            // TODO: Update customer UI with proper binding
+            // if (customer != null) {
+            //     binding.includeCustomerZone.tvCustomerName.text = "${customer.firstName} ${customer.lastName}"
+            //     binding.includeCustomerZone.layoutCustomerInfo.visibility = View.VISIBLE
+            // } else {
+            //     binding.includeCustomerZone.layoutCustomerInfo.visibility = View.GONE
+            // }
         }
 
-        // Observe customer search results
-        viewModel.customerSearchResults.observe(this) { customers ->
-            val customerZone = binding.includeCustomerZone
-            if (customers.isEmpty()) {
-                customerZone.rvCustomerSearchResults.visibility = View.GONE
-            } else {
-                customerZone.rvCustomerSearchResults.visibility = View.VISIBLE
-                customerSearchAdapter.submitList(customers)
-            }
+        // Customer required
+        viewModel.customerRequired.observe(this) { required ->
+            // TODO: Update customer required indicator with proper binding
+            // binding.includeCustomerZone.btnSelectCustomer.isEnabled = true
+            // if (required) {
+            //     binding.includeCustomerZone.tvCustomerRequired.visibility = View.VISIBLE
+            // } else {
+            //     binding.includeCustomerZone.tvCustomerRequired.visibility = View.GONE
+            // }
         }
 
-        // Observe cart total
-        viewModel.cartTotal.observe(this) { total ->
-            binding.includePaymentZone.tvTotalAmount.text = total.toString()
+        // Products
+        viewModel.products.observe(this) { products ->
+            productAdapter.submitList(products)
+            // TODO: Update UI with product search results
+            // binding.includeProductCart.rvProductSearchResults.visibility =
+            //     if (products.isEmpty()) View.GONE else View.VISIBLE
         }
 
-        // Observe carnet data
-        viewModel.carnetData.observe(this) { carnetData ->
-            carnetData?.let { updateCarnetInfo(it) }
+        // Cart
+        viewModel.currentSale.observe(this) { sale ->
+            cartAdapter.submitList(sale.salesLines)
+
+            // TODO: Update totals and cart UI
+            // binding.includePaymentZone.tvTotalAmount.text = formatAmount(sale.salesAmount) + " FCFA"
+            // binding.includeProductCart.chipCartCount.text = "${sale.salesLines.size} article(s)"
+
+            // Enable/disable finalize button
+            val hasItems = sale.salesLines.isNotEmpty()
+            binding.fabFinalizeSale.isEnabled = hasItems
         }
 
-        // Observe error messages
+        // Errors
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
-                showSnackbar(it)
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 viewModel.clearError()
             }
         }
 
-        // Observe loading state
-        viewModel.isLoading.observe(this) { isLoading ->
-            // TODO: Show/hide loading indicator
+        viewModel.customerValidationError.observe(this) { error ->
+            error?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                viewModel.clearCustomerValidationError()
+            }
+        }
+
+        viewModel.stockValidationError.observe(this) { error ->
+            error?.let {
+                showForceStockDialog(it)
+            }
+        }
+
+        // Sale saved
+        viewModel.saleSaved.observe(this) { sale ->
+            sale?.let {
+                Toast.makeText(this, "Vente mise en attente", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 
-    /**
-     * Update UI based on selected sale type
-     */
     private fun updateUIForSaleType(saleType: SaleType) {
-        when (saleType) {
-            is SaleType.Comptant -> {
-                // Customer optional
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.GONE
-                // Hide insurance and carnet zones
-                binding.includeInsuranceData.root.visibility = View.GONE
-                binding.includeCarnetInfo.root.visibility = View.GONE
-                // Show payment mode selection
-                binding.includePaymentZone.layoutPaymentModeSelection.visibility = View.VISIBLE
-                binding.includePaymentZone.layoutCarnetPaymentInfo.visibility = View.GONE
+        supportActionBar?.title = when (saleType) {
+            is SaleType.Comptant -> "Vente Comptant"
+            is SaleType.Assurance -> "Vente Assurance"
+            is SaleType.Carnet -> "Vente Carnet"
+        }
+
+        // TODO: Show/hide type-specific UI elements
+        // when (saleType) {
+        //     is SaleType.Assurance -> {
+        //         binding.includeInsuranceData.root.visibility = View.VISIBLE
+        //         // Display tiers payants
+        //     }
+        //     is SaleType.Carnet -> {
+        //         binding.includeCarnetInfo.root.visibility = View.VISIBLE
+        //     }
+        //     else -> {
+        //         binding.includeInsuranceData.root.visibility = View.GONE
+        //         binding.includeCarnetInfo.root.visibility = View.GONE
+        //     }
+        // }
+    }
+
+    private fun showAddToCartDialog(product: Product) {
+        // TODO: Create proper dialog with quantity input
+        // For now, use simple dialog
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Ajouter au panier")
+            .setMessage("${product.libelle}\nPrix: ${formatAmount(product.regularUnitPrice)} FCFA")
+            .setPositiveButton("Ajouter") { dialog, which ->
+                // TODO: Get quantity from dialog input
+                val quantity = 1
+                viewModel.addProductToCart(product, quantity)
             }
-            is SaleType.Assurance -> {
-                // Customer mandatory
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.VISIBLE
-                // Show insurance zone, hide carnet zone
-                binding.includeInsuranceData.root.visibility = View.VISIBLE
-                binding.includeCarnetInfo.root.visibility = View.GONE
-                // Show payment mode selection (for client part)
-                binding.includePaymentZone.layoutPaymentModeSelection.visibility = View.VISIBLE
-                binding.includePaymentZone.layoutCarnetPaymentInfo.visibility = View.GONE
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showForceStockDialog(message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Stock insuffisant")
+            .setMessage(message + "\n\nVoulez-vous forcer le stock ?")
+            .setPositiveButton("Forcer") { _, _ ->
+                // TODO: Add product with force stock
+                viewModel.clearStockValidationError()
             }
-            is SaleType.Carnet -> {
-                // Customer mandatory
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.VISIBLE
-                // Hide insurance zone, show carnet zone
-                binding.includeInsuranceData.root.visibility = View.GONE
-                binding.includeCarnetInfo.root.visibility = View.VISIBLE
-                // Hide payment mode selection, show carnet info
-                binding.includePaymentZone.layoutPaymentModeSelection.visibility = View.GONE
-                binding.includePaymentZone.layoutCarnetPaymentInfo.visibility = View.VISIBLE
+            .setNegativeButton("Annuler") { _, _ ->
+                viewModel.clearStockValidationError()
             }
+            .show()
+    }
+
+    private fun confirmPutOnHold() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Mettre en attente")
+            .setMessage("Voulez-vous mettre cette vente en attente (prévente) ?")
+            .setPositiveButton("Oui") { _, _ ->
+                viewModel.putOnHold()
+            }
+            .setNegativeButton("Non", null)
+            .show()
+    }
+
+    private fun handleIntent(intent: Intent) {
+        // Check if editing existing sale
+        val saleId = intent.getLongExtra(EXTRA_SALE_ID, 0L)
+        val saleDate = intent.getStringExtra(EXTRA_SALE_DATE)
+
+        if (saleId > 0 && saleDate != null) {
+            viewModel.loadSale(saleId, saleDate)
+        }
+
+        // TODO: Set initial sale type via spinner
+        // val saleType = intent.getStringExtra(EXTRA_SALE_TYPE)
+        // val initialType = when (saleType) {
+        //     SALE_TYPE_ASSURANCE -> 1
+        //     SALE_TYPE_CARNET -> 2
+        //     else -> 0 // COMPTANT
+        // }
+        // binding.includeSaleTypeSelector.spinnerSaleType.setSelection(initialType)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_unified_sale, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            R.id.action_transform -> {
+                // TODO: Show transform sale dialog
+                Toast.makeText(this, "Transformation - à implémenter", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
-    /**
-     * Toggle Customer Zone expansion
-     */
-    private fun toggleCustomerZone() {
-        val customerZone = binding.includeCustomerZone
-        val isExpanded = customerZone.layoutCustomerContent.visibility == View.VISIBLE
-
-        if (isExpanded) {
-            customerZone.layoutCustomerContent.visibility = View.GONE
-            customerZone.ivExpandCustomer.rotation = 0f
-        } else {
-            customerZone.layoutCustomerContent.visibility = View.VISIBLE
-            customerZone.ivExpandCustomer.rotation = 180f
-        }
-    }
-
-    /**
-     * Show customer required message
-     */
-    private fun showCustomerRequired() {
-        showSnackbar(getString(R.string.obligatoire) + ": " + getString(R.string.client))
-        // Expand customer zone
-        binding.includeCustomerZone.layoutCustomerContent.visibility = View.VISIBLE
-        binding.includeCustomerZone.ivExpandCustomer.rotation = 180f
-    }
-
-    /**
-     * Show selected customer info
-     */
-    private fun showSelectedCustomer(customer: com.kobe.warehouse.sales.data.model.Customer) {
-        val customerZone = binding.includeCustomerZone
-
-        // Hide search field, show selected customer
-        customerZone.tilCustomerSearch.visibility = View.GONE
-        customerZone.rvCustomerSearchResults.visibility = View.GONE
-        customerZone.layoutSelectedCustomer.visibility = View.VISIBLE
-
-        // Set customer info
-        customerZone.tvCustomerName.text = "${customer.firstName} ${customer.lastName}"
-        customerZone.tvCustomerPhone.text = "Tel: ${customer.phone}"
-
-        // Show insurance info if available
-        // TODO: Implement when customer insurance data is available
-    }
-
-    /**
-     * Clear selected customer UI
-     */
-    private fun clearSelectedCustomerUI() {
-        val customerZone = binding.includeCustomerZone
-
-        // Show search field, hide selected customer
-        customerZone.tilCustomerSearch.visibility = View.VISIBLE
-        customerZone.layoutSelectedCustomer.visibility = View.GONE
-        customerZone.etCustomerSearch.text?.clear()
-        customerZone.rvCustomerSearchResults.visibility = View.GONE
-
-        // Clear ayant droit if any
-        clearAyantDroit()
-    }
-
-    /**
-     * Clear selected customer (call ViewModel)
-     */
-    private fun clearSelectedCustomer() {
-        viewModel.clearCustomer()
-    }
-
-    /**
-     * Update carnet info display
-     */
-    private fun updateCarnetInfo(carnetData: com.kobe.warehouse.sales.domain.model.CarnetData) {
-        val carnetZone = binding.includeCarnetInfo
-
-        carnetZone.tvLimiteCredit.text = "${carnetData.limiteCredit} FCFA"
-        carnetZone.tvEncours.text = "${carnetData.encours} FCFA"
-        carnetZone.tvCreditDisponible.text = "${carnetData.creditDisponible} FCFA"
-
-        // Credit usage progress
-        val usagePercentage = carnetData.getCreditUsagePercentage()
-        carnetZone.tvCreditUsagePercentage.text = "$usagePercentage%"
-        carnetZone.progressCreditUsage.progress = usagePercentage
-
-        // Show warning if usage > 90%
-        if (usagePercentage >= 90) {
-            carnetZone.cardCreditWarning.visibility = View.VISIBLE
-            carnetZone.tvCreditWarning.text = "Attention: le client utilise $usagePercentage% de sa limite de crédit"
-        } else {
-            carnetZone.cardCreditWarning.visibility = View.GONE
-        }
-    }
-
-    /**
-     * Show snackbar message
-     */
-    private fun showSnackbar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    private fun formatAmount(amount: Int): String {
+        return amount.toString().reversed().chunked(3).joinToString(" ").reversed()
     }
 }

@@ -31,6 +31,12 @@ data class Customer(
     @SerializedName("remiseId")
     val remiseId: Long? = null,
 
+    // Carnet credit fields
+    @SerializedName("creditLimit")
+    val creditLimit: Int? = null,
+
+    @SerializedName("currentBalance")
+    val currentBalance: Int? = null
 
 ) : Parcelable {
 
@@ -54,6 +60,53 @@ data class Customer(
         return "$first$last"
     }
 
+    /**
+     * Get available credit for carnet sales
+     * Returns creditLimit - currentBalance
+     */
+    fun getAvailableCredit(): Int {
+        val limit = creditLimit ?: 0
+        val balance = currentBalance ?: 0
+        return limit - balance
+    }
+
+    /**
+     * Check if customer is eligible for carnet sales
+     * Eligible if creditLimit is set and > 0
+     */
+    fun isEligibleForCarnet(): Boolean {
+        return (creditLimit ?: 0) > 0
+    }
+
+    /**
+     * Get formatted credit limit
+     */
+    fun getFormattedCreditLimit(): String {
+        val limit = creditLimit ?: 0
+        return "${formatAmount(limit)} FCFA"
+    }
+
+    /**
+     * Get formatted current balance
+     */
+    fun getFormattedCurrentBalance(): String {
+        val balance = currentBalance ?: 0
+        return "${formatAmount(balance)} FCFA"
+    }
+
+    /**
+     * Get formatted available credit
+     */
+    fun getFormattedAvailableCredit(): String {
+        return "${formatAmount(getAvailableCredit())} FCFA"
+    }
+
+    /**
+     * Format amount with space as thousand separator
+     */
+    private fun formatAmount(amount: Int): String {
+        return amount.toString().reversed().chunked(3).joinToString(" ").reversed()
+    }
 
 }
 

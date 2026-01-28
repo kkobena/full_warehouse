@@ -30,11 +30,7 @@ class TiersPayantSelectorDialog : DialogFragment() {
     private var onTiersPayantSelected: ((TiersPayant) -> Unit)? = null
 
     private val viewModel: InsuranceDataViewModel by viewModels {
-        // This will be injected from parent
-        InsuranceDataViewModelFactory(
-            requireArguments().getSerializable("tiersPayantRepository") as com.kobe.warehouse.sales.data.repository.TiersPayantRepository,
-            requireArguments().getSerializable("customerRepository") as com.kobe.warehouse.sales.data.repository.CustomerRepository
-        )
+        InsuranceDataViewModelFactory()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -74,33 +70,35 @@ class TiersPayantSelectorDialog : DialogFragment() {
     }
 
     private fun setupSearch() {
+        // TODO: Implement tiers payant search when InsuranceDataViewModel has search methods
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val query = s?.toString() ?: ""
-                if (query.length >= 2) {
-                    viewModel.searchTiersPayants(query)
-                }
+                // val query = s?.toString() ?: ""
+                // if (query.length >= 2) {
+                //     viewModel.searchTiersPayants(query)
+                // }
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun observeViewModel() {
-        viewModel.tiersPayantSearchResults.observe(this) { results ->
-            if (results.isEmpty()) {
-                binding.tvEmptyState.visibility = View.VISIBLE
-                binding.rvTiersPayants.visibility = View.GONE
-            } else {
-                binding.tvEmptyState.visibility = View.GONE
-                binding.rvTiersPayants.visibility = View.VISIBLE
-                adapter.submitList(results)
-            }
-        }
-
-        viewModel.isLoading.observe(this) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
+        // TODO: Implement observers when InsuranceDataViewModel has tiersPayantSearchResults and isLoading LiveData
+        // viewModel.tiersPayantSearchResults.observe(this) { results ->
+        //     if (results.isEmpty()) {
+        //         binding.tvEmptyState.visibility = View.VISIBLE
+        //         binding.rvTiersPayants.visibility = View.GONE
+        //     } else {
+        //         binding.tvEmptyState.visibility = View.GONE
+        //         binding.rvTiersPayants.visibility = View.VISIBLE
+        //         adapter.submitList(results)
+        //     }
+        // }
+        //
+        // viewModel.isLoading.observe(this) { isLoading ->
+        //     binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        // }
     }
 
     override fun onDestroyView() {

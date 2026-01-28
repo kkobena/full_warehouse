@@ -33,7 +33,13 @@ data class Product(
   val forceStock: Boolean = false,
 
   @SerializedName("deconditionnable")
-  val deconditionnable: Boolean = false
+  val deconditionnable: Boolean = false,
+
+  @SerializedName("itemQty")
+  val itemQty: Int? = 1, // Number of units per box (for déconditionnement)
+
+  @SerializedName("seuilDeconditionnement")
+  val seuilDeconditionnement: Int? = 0 // Minimum detail stock threshold for auto-déconditionnement
 ) : Parcelable {
 
   /**

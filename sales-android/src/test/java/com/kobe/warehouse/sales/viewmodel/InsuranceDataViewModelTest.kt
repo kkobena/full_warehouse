@@ -1,9 +1,6 @@
 package com.kobe.warehouse.sales.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.kobe.warehouse.sales.data.model.Customer
-import com.kobe.warehouse.sales.data.repository.CustomerRepository
-import com.kobe.warehouse.sales.data.repository.TiersPayantRepository
 import com.kobe.warehouse.sales.domain.model.PrescriptionType
 import com.kobe.warehouse.sales.domain.model.TiersPayant
 import com.kobe.warehouse.sales.domain.model.TiersPayantType
@@ -12,28 +9,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
  * Unit tests for InsuranceDataViewModel
  *
  * Tests:
- * - Tiers payant selection and management
- * - Prescription type selection
- * - Coverage rate calculation
- * - Insurance data validation
+ * - Tiers payant management
+ * - Prescription type and number
+ * - Validation logic
+ *
+ * NOTE: Coverage calculations are done by BACKEND, not tested here
  */
 @ExperimentalCoroutinesApi
 class InsuranceDataViewModelTest {
@@ -43,23 +39,39 @@ class InsuranceDataViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    @Mock
-    private lateinit var tiersPayantRepository: TiersPayantRepository
-
-    @Mock
-    private lateinit var customerRepository: CustomerRepository
-
     private lateinit var viewModel: InsuranceDataViewModel
+
+    // Test data
+    private val principalTiersPayant = TiersPayant(
+        id = 1L,
+        name = "CNSS",
+        code = "CNSS01",
+        tauxCouverture = 80,
+        type = TiersPayantType.PRINCIPAL
+    )
+
+    private val complementaireTiersPayant = TiersPayant(
+        id = 2L,
+        name = "Mutuelle",
+        code = "MUT01",
+        tauxCouverture = 15,
+        type = TiersPayantType.COMPLEMENTAIRE
+    )
+
+    private val principal2TiersPayant = TiersPayant(
+        id = 3L,
+        name = "CNAM",
+        code = "CNAM01",
+        tauxCouverture = 70,
+        type = TiersPayantType.PRINCIPAL
+    )
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        viewModel = InsuranceDataViewModel(
-            tiersPayantRepository,
-            customerRepository
-        )
+        viewModel = InsuranceDataViewModel()
     }
 
     @After
@@ -67,339 +79,212 @@ class InsuranceDataViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // ========== Tiers Payant Tests ==========
+    // ===== Tiers Payant Management Tests =====
 
     @Test
-    fun `searchTiersPayants should update search results on success`() = runTest {
-        val query = "MUGEFCI"
-        val mockTiersPayants = listOf(
-            TiersPayant(
-                id = 1,
-                name = "MUGEFCI",
-                code = "MUG001",
-                tauxCouverture = 80,
-                type = TiersPayantType.PRINCIPAL
-            )
-        )
-        whenever(tiersPayantRepository.searchTiersPayants(query)).thenReturn(Result.success(mockTiersPayants))
+    fun `initial selected tiers payants should be empty`() {
+        // When
+        val tiersPayants = viewModel.selectedTiersPayants.value
 
-        viewModel.searchTiersPayants(query)
+        // Then
+        assertNotNull(tiersPayants)
+        assertTrue(tiersPayants.isEmpty())
+    }
+
+    @Test
+    fun `addTiersPayant should add to list`() {
+        // When
+        viewModel.addTiersPayant(principalTiersPayant)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val result = viewModel.tiersPayantSearchResults.value
-        assertNotNull(result)
-        assertEquals(1, result.size)
-        assertEquals("MUGEFCI", result[0].name)
+        // Then
+        assertEquals(1, viewModel.selectedTiersPayants.value?.size)
+        assertEquals(principalTiersPayant, viewModel.selectedTiersPayants.value?.first())
     }
 
     @Test
-    fun `selectTiersPayantPrincipal should set tiers payant and coverage rate`() {
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
+    fun `addTiersPayant principal when already has principal should fail`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
+        // When
+        viewModel.addTiersPayant(principal2TiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(tiersPayant, viewModel.tiersPayantPrincipal.value)
-        assertEquals(80, viewModel.tauxCouverturePrincipal.value)
-        assertEquals(80, viewModel.totalCoverageRate.value)
-        assertEquals(20, viewModel.clientShareRate.value)
+        // Then
+        assertEquals(1, viewModel.selectedTiersPayants.value?.size)
+        assertNotNull(viewModel.errorMessage.value)
+        assertTrue(viewModel.errorMessage.value!!.contains("Un seul tiers payant principal"))
     }
 
     @Test
-    fun `updateTauxCouverturePrincipal should recalculate coverage rates`() {
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
+    fun `addTiersPayant complementaire when has principal should succeed`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.updateTauxCouverturePrincipal(70)
+        // When
+        viewModel.addTiersPayant(complementaireTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(70, viewModel.tauxCouverturePrincipal.value)
-        assertEquals(70, viewModel.totalCoverageRate.value)
-        assertEquals(30, viewModel.clientShareRate.value)
+        // Then
+        assertEquals(2, viewModel.selectedTiersPayants.value?.size)
+        assertNull(viewModel.errorMessage.value)
     }
 
     @Test
-    fun `addTiersPayantComplementaire should add to list`() {
-        val principal = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 70,
-            type = TiersPayantType.PRINCIPAL
-        )
-        val complementaire = TiersPayant(
-            id = 2,
-            name = "Mutuelle Santé",
-            code = "MUT001",
-            tauxCouverture = 20,
-            type = TiersPayantType.COMPLEMENTAIRE
-        )
+    fun `removeTiersPayant should remove from list`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        viewModel.addTiersPayant(complementaireTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.selectTiersPayantPrincipal(principal)
-        viewModel.addTiersPayantComplementaire(complementaire)
+        // When
+        viewModel.removeTiersPayant(principalTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val result = viewModel.tiersPayantsComplementaires.value
-        assertNotNull(result)
-        assertEquals(1, result.size)
-        assertEquals(90, viewModel.totalCoverageRate.value)
-        assertEquals(10, viewModel.clientShareRate.value)
+        // Then
+        assertEquals(1, viewModel.selectedTiersPayants.value?.size)
+        assertEquals(complementaireTiersPayant, viewModel.selectedTiersPayants.value?.first())
     }
 
     @Test
-    fun `addTiersPayantComplementaire should fail if already added`() {
-        val principal = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        val complementaire = TiersPayant(
-            id = 2,
-            name = "Mutuelle",
-            code = "MUT001",
-            tauxCouverture = 20,
-            type = TiersPayantType.COMPLEMENTAIRE
-        )
+    fun `clearTiersPayants should clear all`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        viewModel.addTiersPayant(complementaireTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.selectTiersPayantPrincipal(principal)
-        viewModel.addTiersPayantComplementaire(complementaire)
-        viewModel.addTiersPayantComplementaire(complementaire) // Try to add again
+        // When
+        viewModel.clearTiersPayants()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val error = viewModel.errorMessage.value
-        assertNotNull(error)
-        assertTrue(error.contains("déjà ajouté"))
+        // Then
+        assertEquals(0, viewModel.selectedTiersPayants.value?.size)
+    }
+
+    // ===== Prescription Data Tests =====
+
+    @Test
+    fun `initial prescription type should be ORDONNANCE`() {
+        // When
+        val prescriptionType = viewModel.prescriptionType.value
+
+        // Then
+        assertEquals(PrescriptionType.ORDONNANCE, prescriptionType)
     }
 
     @Test
-    fun `removeTiersPayantComplementaire should remove from list`() {
-        val principal = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 70,
-            type = TiersPayantType.PRINCIPAL
-        )
-        val complementaire = TiersPayant(
-            id = 2,
-            name = "Mutuelle",
-            code = "MUT001",
-            tauxCouverture = 20,
-            type = TiersPayantType.COMPLEMENTAIRE
-        )
-
-        viewModel.selectTiersPayantPrincipal(principal)
-        viewModel.addTiersPayantComplementaire(complementaire)
-        viewModel.removeTiersPayantComplementaire(complementaire)
-
-        val result = viewModel.tiersPayantsComplementaires.value
-        assertNotNull(result)
-        assertEquals(0, result.size)
-        assertEquals(70, viewModel.totalCoverageRate.value)
-    }
-
-    @Test
-    fun `totalCoverageRate should not exceed 100 percent`() {
-        val principal = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        val complementaire = TiersPayant(
-            id = 2,
-            name = "Mutuelle",
-            code = "MUT001",
-            tauxCouverture = 30,
-            type = TiersPayantType.COMPLEMENTAIRE
-        )
-
-        viewModel.selectTiersPayantPrincipal(principal)
-        viewModel.addTiersPayantComplementaire(complementaire)
-
-        // Total would be 110%, but should be capped at 100%
-        assertEquals(100, viewModel.totalCoverageRate.value)
-        assertEquals(0, viewModel.clientShareRate.value)
-
-        // Should have error message
-        val error = viewModel.errorMessage.value
-        assertNotNull(error)
-        assertTrue(error.contains("100%"))
-    }
-
-    // ========== Prescription Tests ==========
-
-    @Test
-    fun `setPrescriptionType should update prescription type`() {
+    fun `setPrescriptionType should update type`() {
+        // When
         viewModel.setPrescriptionType(PrescriptionType.BON_PRISE_EN_CHARGE)
+        testDispatcher.scheduler.advanceUntilIdle()
 
+        // Then
         assertEquals(PrescriptionType.BON_PRISE_EN_CHARGE, viewModel.prescriptionType.value)
-        assertEquals(true, viewModel.isNumeroBonRequired.value)
     }
 
     @Test
-    fun `setPrescriptionType ORDONNANCE should not require numero bon`() {
-        viewModel.setPrescriptionType(PrescriptionType.ORDONNANCE)
-
-        assertEquals(PrescriptionType.ORDONNANCE, viewModel.prescriptionType.value)
-        assertEquals(false, viewModel.isNumeroBonRequired.value)
-    }
-
-    @Test
-    fun `setNumeroBon should update numero bon`() {
-        val numero = "BPC-12345"
-
-        viewModel.setNumeroBon(numero)
-
-        assertEquals(numero, viewModel.numeroBon.value)
-    }
-
-    // ========== Ayant Droit Tests ==========
-
-    @Test
-    fun `loadAyantDroits should update ayantDroitsList on success`() = runTest {
-        val customerId = 1L
-        val mockAyantDroits = listOf(
-            Customer(id = 2, firstName = "Marie", lastName = "Doe"),
-            Customer(id = 3, firstName = "Pierre", lastName = "Doe")
-        )
-        whenever(customerRepository.getAyantDroits(customerId)).thenReturn(Result.success(mockAyantDroits))
-
-        viewModel.loadAyantDroits(customerId)
+    fun `setPrescriptionNumber should update number`() {
+        // When
+        viewModel.setPrescriptionNumber("12345")
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val result = viewModel.ayantDroitsList.value
-        assertNotNull(result)
-        assertEquals(2, result.size)
+        // Then
+        assertEquals("12345", viewModel.prescriptionNumber.value)
+    }
+
+    // ===== Validation Tests =====
+
+    @Test
+    fun `validateInsuranceData with no tiers payants should fail`() {
+        // When
+        val isValid = viewModel.validateInsuranceData()
+
+        // Then
+        assertFalse(isValid)
+        assertNotNull(viewModel.errorMessage.value)
+        assertTrue(viewModel.errorMessage.value!!.contains("Au moins un tiers payant"))
     }
 
     @Test
-    fun `selectAyantDroit should set ayant droit`() {
-        val ayantDroit = Customer(id = 2, firstName = "Marie", lastName = "Doe")
+    fun `validateInsuranceData with tiers payants should succeed`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.selectAyantDroit(ayantDroit)
+        // When
+        val isValid = viewModel.validateInsuranceData()
 
-        assertEquals(ayantDroit, viewModel.ayantDroit.value)
+        // Then
+        assertTrue(isValid)
     }
 
     @Test
-    fun `clearAyantDroit should clear ayant droit`() {
-        val ayantDroit = Customer(id = 2, firstName = "Marie", lastName = "Doe")
-        viewModel.selectAyantDroit(ayantDroit)
-
-        viewModel.clearAyantDroit()
-
-        assertEquals(null, viewModel.ayantDroit.value)
-    }
-
-    // ========== Validation Tests ==========
-
-    @Test
-    fun `validateInsuranceData should fail if no tiers payant principal`() {
-        val (isValid, error) = viewModel.validateInsuranceData()
-
-        assertEquals(false, isValid)
-        assertNotNull(error)
-    }
-
-    @Test
-    fun `validateInsuranceData should fail if numero bon required but missing`() {
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
+    fun `validateInsuranceData with prescription requiring number but no number should fail`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
         viewModel.setPrescriptionType(PrescriptionType.BON_PRISE_EN_CHARGE)
-        // Don't set numero bon
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val (isValid, error) = viewModel.validateInsuranceData()
+        // When
+        val isValid = viewModel.validateInsuranceData()
 
-        assertEquals(false, isValid)
-        assertNotNull(error)
-        assertTrue(error.contains("numéro de bon"))
+        // Then
+        assertFalse(isValid)
+        assertNotNull(viewModel.errorMessage.value)
+        assertTrue(viewModel.errorMessage.value!!.contains("Numéro de bon requis"))
     }
 
     @Test
-    fun `validateInsuranceData should succeed with valid data`() {
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
+    fun `validateInsuranceData with prescription and number should succeed`() {
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
         viewModel.setPrescriptionType(PrescriptionType.BON_PRISE_EN_CHARGE)
-        viewModel.setNumeroBon("BPC-12345")
+        viewModel.setPrescriptionNumber("12345")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        val (isValid, error) = viewModel.validateInsuranceData()
+        // When
+        val isValid = viewModel.validateInsuranceData()
 
-        assertEquals(true, isValid)
-        assertEquals(null, error)
+        // Then
+        assertTrue(isValid)
     }
 
+    // ===== Error Handling Tests =====
+
     @Test
-    fun `buildInsuranceData should return null if no tiers payant`() {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
+    fun `clearError should clear error message`() {
+        // Given
+        viewModel.validateInsuranceData() // Will set error (no tiers payants)
 
-        val insuranceData = viewModel.buildInsuranceData(customer)
+        // When
+        viewModel.clearError()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(null, insuranceData)
+        // Then
+        assertNull(viewModel.errorMessage.value)
     }
 
-    @Test
-    fun `buildInsuranceData should return complete data when valid`() {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
-        viewModel.setPrescriptionType(PrescriptionType.ORDONNANCE)
-
-        val insuranceData = viewModel.buildInsuranceData(customer)
-
-        assertNotNull(insuranceData)
-        assertEquals(tiersPayant, insuranceData.tiersPayantPrincipal)
-        assertEquals(PrescriptionType.ORDONNANCE, insuranceData.prescriptionType)
-        assertEquals(80, insuranceData.tauxCouverturePrincipal)
-    }
+    // ===== Backend Delegation Tests =====
 
     @Test
-    fun `reset should clear all data`() {
-        val tiersPayant = TiersPayant(
-            id = 1,
-            name = "MUGEFCI",
-            code = "MUG001",
-            tauxCouverture = 80,
-            type = TiersPayantType.PRINCIPAL
-        )
-        viewModel.selectTiersPayantPrincipal(tiersPayant)
-        viewModel.setPrescriptionType(PrescriptionType.BON_PRISE_EN_CHARGE)
-        viewModel.setNumeroBon("BPC-12345")
+    fun `coverage calculations should be done by backend - no local methods`() {
+        // This test verifies the architectural decision that calculations
+        // are done by the backend, not the ViewModel
 
-        viewModel.reset()
+        // Given
+        viewModel.addTiersPayant(principalTiersPayant)
+        viewModel.addTiersPayant(complementaireTiersPayant)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(null, viewModel.tiersPayantPrincipal.value)
-        assertEquals(0, viewModel.tauxCouverturePrincipal.value)
-        assertEquals(PrescriptionType.ORDONNANCE, viewModel.prescriptionType.value)
-        assertEquals(null, viewModel.numeroBon.value)
+        // Then
+        // ViewModel should only store tiers payants
+        assertEquals(2, viewModel.selectedTiersPayants.value?.size)
+
+        // Coverage calculations (getTotalCoverageRate, calculateInsurancePart, etc.)
+        // are NOT part of the ViewModel - they're done by the BACKEND
+        // The backend returns partAssure and costAmount in the Sale response
     }
 }

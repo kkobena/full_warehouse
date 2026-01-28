@@ -39,12 +39,8 @@ class CustomerSearchAdapter(
                 tvCustomerPhone.text = customer.phone ?: ""
 
                 // Display customer type
-                val customerType = when {
-                    customer.type?.contains("ASSURANCE") == true -> "Assuré"
-                    customer.type?.contains("CARNET") == true -> "Carnet"
-                    else -> "Comptant"
-                }
-                tvCustomerType.text = customerType
+                // TODO: Add type field to Customer model for proper type display
+                tvCustomerType.text = "Client"
 
                 root.setOnClickListener {
                     onCustomerClick(customer)

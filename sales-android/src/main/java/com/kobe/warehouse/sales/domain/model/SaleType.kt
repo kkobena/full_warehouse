@@ -29,11 +29,11 @@ sealed class SaleType {
      * - Prescription data required
      * - Split payment: client part + insurance part
      *
-     * @property customer The insured customer
+     * @property saleCustomer The insured customer
      * @property tiersPayants List of insurance providers (principal + optional complementaires)
      */
     data class Assurance(
-        val customer: Customer,
+        val saleCustomer: Customer,
         val tiersPayants: List<TiersPayant>
     ) : SaleType() {
         override fun toString(): String = "ASSURANCE"
@@ -49,10 +49,10 @@ sealed class SaleType {
      * - Credit limit check required
      * - Payment deferred (added to customer's carnet)
      *
-     * @property customer The customer with carnet account
+     * @property saleCustomer The customer with carnet account
      */
     data class Carnet(
-        val customer: Customer
+        val saleCustomer: Customer
     ) : SaleType() {
         override fun toString(): String = "CARNET"
         fun getDisplayName(): String = "Vente Carnet"
@@ -72,7 +72,7 @@ sealed class SaleType {
      */
     fun getCustomer(): Customer? = when (this) {
         is Comptant -> null
-        is Assurance -> customer
-        is Carnet -> customer
+        is Assurance -> saleCustomer
+        is Carnet -> saleCustomer
     }
 }

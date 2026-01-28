@@ -37,9 +37,9 @@ class AyantDroitAdapter(
             binding.apply {
                 tvAyantDroitName.text = "${ayantDroit.firstName} ${ayantDroit.lastName}"
 
-                // Display relation (if available in customer data)
-                // This could be "Enfant", "Conjoint(e)", etc.
-                tvAyantDroitRelation.text = ayantDroit.type ?: "Bénéficiaire"
+                // Display relation
+                // TODO: Add type field to Customer model for proper relation display
+                tvAyantDroitRelation.text = "Bénéficiaire"
 
                 root.setOnClickListener {
                     onAyantDroitClick(ayantDroit)

@@ -185,8 +185,9 @@ class VenteEnCoursFragment : Fragment() {
      */
     private fun deleteSale(sale: Sale) {
         val saleDate = sale.updatedAt ?: sale.createdAt
-        if (saleDate != null) {
-            viewModel.deleteSale(sale.id, saleDate, isPrevente = false)
+        val saleId = sale.id
+        if (saleDate != null && saleId != null) {
+            viewModel.deleteSale(saleId, saleDate, isPrevente = false)
 
             // Show success message
             Snackbar.make(

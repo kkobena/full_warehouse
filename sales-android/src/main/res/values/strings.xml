@@ -151,4 +151,73 @@
     <string name="transformation_comptant_info">La transformation vers Assurance ou Carnet nécessitera la sélection d\'un client et des données spécifiques.</string>
     <string name="transformation_assurance_info">La transformation vers Comptant supprimera les données d\'assurance. Le panier sera conservé.</string>
     <string name="transformation_carnet_info">La transformation vers Comptant supprimera les données carnet. Le panier sera conservé.</string>
+
+    <!-- Phase 4.1: Discount Dialog -->
+    <string name="discount_dialog_title">Appliquer une remise</string>
+    <string name="discount_original_amount">Montant initial</string>
+    <string name="discount_type_label">Type de remise</string>
+    <string name="discount_percentage">Pourcentage</string>
+    <string name="discount_fixed">Montant fixe</string>
+    <string name="discount_value_hint">Valeur de la remise</string>
+    <string name="discount_quick_amounts">Montants rapides</string>
+    <string name="discount_amount">Remise</string>
+    <string name="discount_net_amount">Montant net</string>
+    <string name="discount_apply">Appliquer</string>
+    <string name="discount_error_value">Veuillez saisir une valeur</string>
+    <string name="discount_error_percentage_range">Le pourcentage doit être entre 1 et 100</string>
+    <string name="discount_error_fixed_amount">Le montant fixe doit être supérieur à 0</string>
+    <string name="discount_error_exceeds_amount">Le montant de la remise ne peut pas dépasser le montant initial</string>
+    <string name="discount_success">Remise appliquée avec succès</string>
+    <string name="discount_remove_success">Remise supprimée avec succès</string>
+    <string name="discount_error">Erreur lors de l\'application de la remise</string>
+    <string name="discount_remove_confirmation">Êtes-vous sûr de vouloir supprimer la remise ?</string>
+    <string name="remove_discount">Supprimer la remise</string>
+    <string name="apply_discount">Appliquer une remise</string>
+
+    <!-- Phase 4.2: Déconditionnement Dialog -->
+    <string name="deconditionnement_title">Déconditionnement</string>
+    <string name="deconditionnement_stock_boite">Stock boîte</string>
+    <string name="deconditionnement_stock_detail">Stock détail</string>
+    <string name="deconditionnement_item_qty">Unités par boîte</string>
+    <string name="deconditionnement_explanation">Le déconditionnement permet de casser une boîte pour obtenir des unités individuelles. Cette opération est irréversible.</string>
+    <string name="deconditionnement_qty_to_decondition">Nombre de boîtes à déconditionner</string>
+    <string name="deconditionnement_quantity_hint">Quantité</string>
+    <string name="deconditionnement_result">Résultat</string>
+    <string name="deconditionnement_confirm">Déconditionner</string>
+    <string name="deconditionnement_success">Déconditionnement effectué avec succès</string>
+    <string name="deconditionnement_error">Erreur lors du déconditionnement</string>
+    <string name="deconditionnement_error_qty">La quantité doit être supérieure à 0</string>
+    <string name="deconditionnement_error_stock">Stock insuffisant pour cette opération</string>
+    <string name="deconditionnement_result_format">%1$d boîte(s) → %2$d unité(s)</string>
+
+    <!-- Phase 4.3: Force Stock Dialog -->
+    <string name="force_stock_title">Stock insuffisant</string>
+    <string name="force_stock_available">Stock disponible</string>
+    <string name="force_stock_requested">Quantité demandée</string>
+    <string name="force_stock_shortage">Manque</string>
+    <string name="force_stock_warning">Vous êtes sur le point d\'ajouter ce produit malgré un stock insuffisant. Cette action sera enregistrée et nécessite une autorisation.</string>
+    <string name="force_stock_authority_required">Autorisation requise: PR_FORCE_STOCK</string>
+    <string name="force_stock_reason_hint">Raison du forçage de stock (obligatoire)</string>
+    <string name="force_stock_force">Forcer l\'ajout</string>
+    <string name="force_stock_success">Produit ajouté avec stock forcé</string>
+    <string name="force_stock_error">Erreur lors du forçage de stock</string>
+    <string name="force_stock_error_reason">Veuillez saisir une raison</string>
+    <string name="force_stock_confirmation">Stock insuffisant. Voulez-vous forcer l\'ajout ?</string>
+
+    <!-- Phase 4.6: Sales Dashboard -->
+    <string name="sales_dashboard_title">Tableau de bord</string>
+    <string name="dashboard_period">Période</string>
+    <string name="dashboard_today">Aujourd\'hui</string>
+    <string name="dashboard_week">Cette semaine</string>
+    <string name="dashboard_month">Ce mois</string>
+    <string name="dashboard_total_sales">Chiffre d\'affaires</string>
+    <string name="dashboard_sales_count">Nombre de ventes</string>
+    <string name="dashboard_average_basket">Panier moyen</string>
+    <string name="dashboard_objective">Objectif</string>
+    <string name="dashboard_top_products">Top produits vendus</string>
+    <string name="dashboard_refresh">Actualiser</string>
+    <string name="dashboard_no_data">Aucune donnée disponible</string>
+    <string name="dashboard_loading">Chargement des données…</string>
+    <string name="dashboard_error">Erreur lors du chargement des données</string>
+    <string name="dashboard_quantity_sold">%d vendu(s)</string>
 </resources>

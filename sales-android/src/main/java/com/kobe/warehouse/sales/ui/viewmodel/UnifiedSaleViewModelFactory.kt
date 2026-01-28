@@ -10,13 +10,13 @@ import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.utils.TokenManager
 
 /**
- * Factory for creating UnifiedSaleViewModel
+ * Factory for creating UnifiedSaleViewModel with dependencies
  */
 class UnifiedSaleViewModelFactory(
     private val salesRepository: SalesRepository,
     private val productRepository: ProductRepository,
-    private val customerRepository: CustomerRepository,
     private val paymentRepository: PaymentRepository,
+    private val customerRepository: CustomerRepository,
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager
 ) : ViewModelProvider.Factory {
@@ -27,8 +27,8 @@ class UnifiedSaleViewModelFactory(
             return UnifiedSaleViewModel(
                 salesRepository,
                 productRepository,
-                customerRepository,
                 paymentRepository,
+                customerRepository,
                 authRepository,
                 tokenManager
             ) as T

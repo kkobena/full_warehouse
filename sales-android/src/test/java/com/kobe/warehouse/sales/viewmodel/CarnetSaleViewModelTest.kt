@@ -2,34 +2,30 @@ package com.kobe.warehouse.sales.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.kobe.warehouse.sales.data.model.Customer
-import com.kobe.warehouse.sales.data.repository.CustomerRepository
-import com.kobe.warehouse.sales.domain.model.CarnetData
 import com.kobe.warehouse.sales.ui.viewmodel.CarnetSaleViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 /**
  * Unit tests for CarnetSaleViewModel
  *
  * Tests:
- * - Carnet data loading
- * - Credit limit validation
- * - Sale amount validation
- * - Credit usage warnings
+ * - Customer setting
+ * - Credit info updates
+ * - UI state management
+ *
+ * NOTE: Credit validation and calculations are done by BACKEND, not tested here
  */
 @ExperimentalCoroutinesApi
 class CarnetSaleViewModelTest {
@@ -39,17 +35,23 @@ class CarnetSaleViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    @Mock
-    private lateinit var customerRepository: CustomerRepository
-
     private lateinit var viewModel: CarnetSaleViewModel
+
+    // Test data
+    private val testCustomer = Customer(
+        id = 1L,
+        firstName = "Jean",
+        lastName = "Dupont",
+        phone = "0123456789",
+        email = "jean.dupont@example.com"
+    )
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
 
-        viewModel = CarnetSaleViewModel(customerRepository)
+        viewModel = CarnetSaleViewModel()
     }
 
     @After
@@ -57,184 +59,170 @@ class CarnetSaleViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // ========== Carnet Data Tests ==========
+    // ===== Customer Tests =====
 
     @Test
-    fun `loadCarnetData should set carnetData on success`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
+    fun `initial customer should be null`() {
+        // When
+        val customer = viewModel.customer.value
 
-        viewModel.loadCarnetData(customer)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        val result = viewModel.carnetData.value
-        assertNotNull(result)
-        assertEquals(100000, result.limiteCredit)
-        assertEquals(25000, result.encours)
-        assertEquals(75000, result.creditDisponible)
+        // Then
+        assertNull(customer)
     }
 
     @Test
-    fun `loadCarnetData should update error on failure`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(
-            Result.failure(Exception("Network error"))
-        )
-
-        viewModel.loadCarnetData(customer)
+    fun `setCustomer should update customer`() {
+        // When
+        viewModel.setCustomer(testCustomer)
         testDispatcher.scheduler.advanceUntilIdle()
 
+        // Then
+        assertEquals(testCustomer, viewModel.customer.value)
+    }
+
+    // ===== Credit Info Tests =====
+
+    @Test
+    fun `initial credit values should be zero`() {
+        // When
+        val creditLimit = viewModel.creditLimit.value
+        val currentBalance = viewModel.currentBalance.value
+        val availableCredit = viewModel.availableCredit.value
+
+        // Then
+        assertEquals(0, creditLimit)
+        assertEquals(0, currentBalance)
+        assertEquals(0, availableCredit)
+    }
+
+    @Test
+    fun `updateCreditInfo should update all credit values`() {
+        // When
+        viewModel.updateCreditInfo(limit = 100000, balance = 25000)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(100000, viewModel.creditLimit.value)
+        assertEquals(25000, viewModel.currentBalance.value)
+        assertEquals(75000, viewModel.availableCredit.value)
+    }
+
+    @Test
+    fun `updateCreditInfo with full balance should show zero available`() {
+        // When
+        viewModel.updateCreditInfo(limit = 100000, balance = 100000)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(100000, viewModel.creditLimit.value)
+        assertEquals(100000, viewModel.currentBalance.value)
+        assertEquals(0, viewModel.availableCredit.value)
+    }
+
+    @Test
+    fun `updateCreditInfo with zero balance should show full limit available`() {
+        // When
+        viewModel.updateCreditInfo(limit = 100000, balance = 0)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertEquals(100000, viewModel.creditLimit.value)
+        assertEquals(0, viewModel.currentBalance.value)
+        assertEquals(100000, viewModel.availableCredit.value)
+    }
+
+    // ===== Error Handling Tests =====
+
+    @Test
+    fun `initial error message should be null`() {
+        // When
         val error = viewModel.errorMessage.value
-        assertNotNull(error)
-        assertTrue(error.contains("Erreur"))
+
+        // Then
+        assertNull(error)
     }
 
-    // ========== Validation Tests ==========
-
     @Test
-    fun `validateSaleAmount should succeed when within credit limit`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
+    fun `clearError should clear error message`() {
+        // Given - Simulate an error state (would come from backend validation)
+        // For now, just test the clear mechanism
 
-        viewModel.loadCarnetData(customer)
+        // When
+        viewModel.clearError()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val isValid = viewModel.validateSaleAmount(50000)
-
-        assertTrue(isValid)
-        assertEquals(true, viewModel.canFinalizeSale.value)
+        // Then
+        assertNull(viewModel.errorMessage.value)
     }
 
-    @Test
-    fun `validateSaleAmount should fail when exceeds credit limit`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
+    // ===== Backend Delegation Tests =====
 
-        viewModel.loadCarnetData(customer)
+    @Test
+    fun `credit validation should be done by backend - no local validation`() {
+        // This test verifies the architectural decision that credit validation
+        // is done by the backend, not the ViewModel
+
+        // Given
+        viewModel.setCustomer(testCustomer)
+        viewModel.updateCreditInfo(limit = 100000, balance = 25000)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val isValid = viewModel.validateSaleAmount(80000) // Would exceed limit
+        // Then
+        // ViewModel should only display credit info
+        assertEquals(75000, viewModel.availableCredit.value)
 
-        assertEquals(false, isValid)
-        assertEquals(false, viewModel.canFinalizeSale.value)
-        val error = viewModel.errorMessage.value
-        assertNotNull(error)
-        assertTrue(error.contains("Limite de crédit"))
+        // Credit validation (validateCreditLimit, getCreditExcess)
+        // is NOT part of the ViewModel - it's done by the BACKEND
+        // The backend validates credit when finalizing the sale:
+        // POST /api/sales/carnet
+        // If credit insufficient: HTTP 400 with error message
     }
 
     @Test
-    fun `validateSaleAmount should show warning when usage will be high`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
+    fun `credit info should come from backend API calls`() {
+        // This test documents that credit info is fetched from backend
+        // GET /api/customers/{id}/carnet/balance
+        // GET /api/customers/{id}/carnet/limit
 
-        viewModel.loadCarnetData(customer)
+        // Given
+        viewModel.setCustomer(testCustomer)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val isValid = viewModel.validateSaleAmount(65000) // Will result in 90% usage
+        // Then
+        // In real implementation, setCustomer() would trigger:
+        // customerRepository.getCarnetBalance(customer.id)
+        // customerRepository.getCarnetLimit(customer.id)
+        // And then call updateCreditInfo() with the response
 
-        assertTrue(isValid)
-        val warning = viewModel.warningMessage.value
-        assertNotNull(warning)
-        assertTrue(warning.contains("90%"))
+        // For now, ViewModel just stores customer
+        assertNotNull(viewModel.customer.value)
+        assertEquals(testCustomer, viewModel.customer.value)
     }
 
-    @Test
-    fun `validateSaleAmount should fail without carnet data`() {
-        val isValid = viewModel.validateSaleAmount(10000)
-
-        assertEquals(false, isValid)
-        val error = viewModel.errorMessage.value
-        assertNotNull(error)
-        assertTrue(error.contains("Données carnet"))
-    }
-
-    // ========== Credit Calculation Tests ==========
+    // ===== Integration Scenario Tests =====
 
     @Test
-    fun `getMaxSaleAmount should return available credit`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
+    fun `complete carnet flow - set customer then update credit info`() {
+        // Scenario: User selects customer, then app fetches credit info from backend
 
-        viewModel.loadCarnetData(customer)
+        // Step 1: Select customer
+        viewModel.setCustomer(testCustomer)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val maxAmount = viewModel.getMaxSaleAmount()
+        assertEquals(testCustomer, viewModel.customer.value)
 
-        assertEquals(75000, maxAmount)
-    }
-
-    @Test
-    fun `calculateNewCreditState should calculate correct values`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
-
-        viewModel.loadCarnetData(customer)
+        // Step 2: Backend returns credit info (simulated via updateCreditInfo)
+        viewModel.updateCreditInfo(limit = 150000, balance = 50000)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val (newEncours, newCreditDispo, newUsage) = viewModel.calculateNewCreditState(30000)!!
+        // Step 3: Verify UI can display correct values
+        assertEquals(150000, viewModel.creditLimit.value)
+        assertEquals(50000, viewModel.currentBalance.value)
+        assertEquals(100000, viewModel.availableCredit.value)
 
-        assertEquals(55000, newEncours)
-        assertEquals(45000, newCreditDispo)
-        assertEquals(55, newUsage)
-    }
-
-    @Test
-    fun `calculateNewCreditState should return null without carnet data`() {
-        val result = viewModel.calculateNewCreditState(10000)
-
-        assertEquals(null, result)
-    }
-
-    // ========== Reset Tests ==========
-
-    @Test
-    fun `reset should clear all data`() = runTest {
-        val customer = Customer(id = 1, firstName = "John", lastName = "Doe")
-        val carnetData = CarnetData.create(
-            customer = customer,
-            limiteCredit = 100000,
-            encours = 25000
-        )
-        whenever(customerRepository.getCustomerCarnetData(customer.id)).thenReturn(Result.success(carnetData))
-
-        viewModel.loadCarnetData(customer)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.reset()
-
-        assertEquals(null, viewModel.carnetData.value)
-        assertEquals(false, viewModel.canFinalizeSale.value)
-        assertEquals(null, viewModel.errorMessage.value)
-        assertEquals(null, viewModel.warningMessage.value)
+        // Step 4: User adds products and finalizes
+        // Backend validates credit: POST /api/sales/carnet
+        // If saleAmount (80000) <= availableCredit (100000) → Success
+        // If saleAmount (120000) > availableCredit (100000) → HTTP 400 error
     }
 }

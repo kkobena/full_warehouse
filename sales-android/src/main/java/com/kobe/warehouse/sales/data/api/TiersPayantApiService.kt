@@ -7,19 +7,22 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Tiers Payant API Service
- * Retrofit interface for tiers payant (insurance provider) endpoints
+ * API Service for Tiers Payant (Insurance Provider) operations
  */
 interface TiersPayantApiService {
 
     /**
-     * Search tiers payants
-     * Returns list of insurance providers matching search query
+     * Get all active tiers payants
+     */
+    @GET("api/tiers-payants")
+    suspend fun getAllTiersPayants(): Response<List<TiersPayant>>
+
+    /**
+     * Search tiers payants by name or code
      */
     @GET("api/tiers-payants/search")
     suspend fun searchTiersPayants(
-        @Query("q") query: String,
-        @Query("size") size: Int = 50
+        @Query("q") query: String
     ): Response<List<TiersPayant>>
 
     /**
@@ -31,18 +34,19 @@ interface TiersPayantApiService {
     ): Response<TiersPayant>
 
     /**
-     * Get all active tiers payants
-     * Returns only enabled insurance providers
-     */
-    @GET("api/tiers-payants/actifs")
-    suspend fun getActiveTiersPayants(): Response<List<TiersPayant>>
-
-    /**
      * Get tiers payants for a specific customer
-     * Returns customer's principal and complementary insurance providers
      */
-    @GET("api/customers/{customerId}/tiers-payants")
-    suspend fun getCustomerTiersPayants(
+    @GET("api/tiers-payants/customer/{customerId}")
+    suspend fun getTiersPayantsForCustomer(
         @Path("customerId") customerId: Long
     ): Response<List<TiersPayant>>
+
+    /**
+     * Validate if a tiers payant is valid for a customer
+     */
+    @GET("api/tiers-payants/validate")
+    suspend fun validateTiersPayantForCustomer(
+        @Query("customerId") customerId: Long,
+        @Query("tiersPayantId") tiersPayantId: Long
+    ): Response<Boolean>
 }

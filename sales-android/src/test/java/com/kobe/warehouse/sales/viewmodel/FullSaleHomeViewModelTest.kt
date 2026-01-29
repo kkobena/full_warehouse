@@ -52,7 +52,19 @@ class FullSaleHomeViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
+
+        // Mock repository responses for init {} calls
+        // This prevents null pointer exceptions when ViewModel is created
+        whenever(salesRepository.getSales(anyOrNull()))
+            .thenReturn(Result.success(emptyList()))
+        whenever(salesRepository.getPreventes(anyOrNull()))
+            .thenReturn(Result.success(emptyList()))
+
         viewModel = FullSaleHomeViewModel(salesRepository)
+
+        // Advance scheduler to process init {} calls
+        // This ensures the ViewModel is in a clean state before each test
+        testDispatcher.scheduler.advanceUntilIdle()
     }
 
     @After

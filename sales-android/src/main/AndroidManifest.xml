@@ -52,6 +52,13 @@
             android:exported="false"
             android:screenOrientation="fullSensor" />
 
+        <!-- Sale Menu Selection Activity (Choose between Simple Sales or Full Menu) -->
+        <activity
+            android:name=".ui.activity.SaleMenuSelectionActivity"
+            android:exported="false"
+            android:label="Menu Principal"
+            android:screenOrientation="fullSensor" />
+
         <!-- Sales Home Activity (Ongoing Sales List) - Main Screen -->
         <activity
             android:name=".ui.activity.SalesHomeActivity"
@@ -88,6 +95,8 @@
             android:exported="false"
             android:label="Détail de la vente"
             android:parentActivityName=".ui.activity.SalesHomeActivity" />
+
+        <!-- Note: SalesDashboardActivity removed - not needed in this module -->
 
     </application>
 

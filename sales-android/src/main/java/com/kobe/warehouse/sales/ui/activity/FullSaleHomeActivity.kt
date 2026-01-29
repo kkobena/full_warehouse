@@ -169,9 +169,10 @@ class FullSaleHomeActivity : BaseActivity() {
 
     /**
      * Create new sale
+     * Opens UnifiedSaleActivity to allow all sale types (Comptant, Assurance, Carnet)
      */
     private fun createNewSale() {
-        val intent = Intent(this, ComptantSaleActivity::class.java)
+        val intent = Intent(this, UnifiedSaleActivity::class.java)
         startActivity(intent)
     }
 

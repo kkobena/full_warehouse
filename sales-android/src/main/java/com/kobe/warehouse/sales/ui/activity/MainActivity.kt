@@ -29,9 +29,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupUI() {
-        // Navigate to Sales Home
+        // Navigate to Sale Menu Selection (choose between Simple Sales or Full Menu)
         findViewById<MaterialCardView>(R.id.cardSales)?.setOnClickListener {
-            startActivity(Intent(this, SalesHomeActivity::class.java))
+            startActivity(Intent(this, SaleMenuSelectionActivity::class.java))
         }
 
         // Logout button

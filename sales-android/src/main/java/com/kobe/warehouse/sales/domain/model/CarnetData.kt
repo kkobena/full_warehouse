@@ -41,12 +41,7 @@ data class CarnetData(
         return encours >= limiteCredit
     }
 
-    /**
-     * Check if customer has available credit
-     */
-    fun hasAvailableCredit(): Boolean {
-        return creditDisponible > 0
-    }
+
 
     /**
      * Check if a sale amount can be added without exceeding credit limit
@@ -64,23 +59,7 @@ data class CarnetData(
         return creditDisponible.coerceAtLeast(0)
     }
 
-    /**
-     * Calculate new encours after adding a sale
-     * @param saleAmount Amount of the new sale
-     * @return New encours value
-     */
-    fun calculateNewEncours(saleAmount: Int): Int {
-        return encours + saleAmount
-    }
 
-    /**
-     * Calculate new available credit after adding a sale
-     * @param saleAmount Amount of the new sale
-     * @return New available credit value
-     */
-    fun calculateNewCreditDisponible(saleAmount: Int): Int {
-        return limiteCredit - calculateNewEncours(saleAmount)
-    }
 
     /**
      * Get credit usage percentage

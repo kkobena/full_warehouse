@@ -1,4 +1,5 @@
 # Plan d'Implémentation - Module Mobile FullSale Android
+## En tant que Architecte Expert & Développeur Mobile Kotlin
 
 ## Vue d'ensemble
 
@@ -94,7 +95,6 @@ Le MVP correspond à la **Phase 1** et permet de:
 🛠️ Infrastructure (utils/, printer/, service/)
    ├── TokenManager     # JWT token management
    ├── NetworkManager   # Connectivity monitoring
-   ├── OfflineManager   # Cache & offline support
    └── UnifiedPrinterService # Thermal printing
 ```
 
@@ -455,13 +455,10 @@ sealed class SaleType {
 - `CarnetSaleViewModel.kt` (nouveau)
   - `carnetClient: LiveData<Customer>`
   - `encours: LiveData<Int>`
-  - `limiteCredit: LiveData<Int>`
-  - `creditAvailable: LiveData<Int>`
   - `canFinalizeSale: LiveData<Boolean>` (encours + sale <= limite)
 
 **API Endpoints**:
-- Réutiliser endpoints sales avec `natureVente=CARNET`
-- `GET /api/customers/{id}/encours` - Obtenir encours client
+
 
 **Fichiers à créer**:
 - ✨ `ui/components/CarnetClientInfo.kt`
@@ -525,14 +522,14 @@ sealed class SaleType {
 
 ### Objectifs
 Améliorer la robustesse de l'application avec support offline complet, synchronisation intelligente et optimisations de performance.
-
+## NB:  on ne fait pas de vente offline, donc supprimer la partie vente offline
 ### 3.1 Offline-First Architecture
 
 **Stratégie**:
 - Cache local Room pour ventes en cours/préventes
 - Queue d'actions offline (add item, finalize, put on hold)
 - Synchronisation automatique au retour online
-- Indicateur UI état offline/online
+- Indicateur UI état online
 
 **Room Database Enhancement**:
 - Entités:

@@ -16,6 +16,7 @@ import com.kobe.warehouse.sales.domain.model.TiersPayant
  */
 class TiersPayantComplementaireAdapter(
     private val onTauxChanged: (TiersPayant, Int) -> Unit,
+    private val onNumeroBonChanged: (TiersPayant, String) -> Unit,
     private val onRemove: (TiersPayant) -> Unit
 ) : ListAdapter<TiersPayant, TiersPayantComplementaireAdapter.ComplementaireViewHolder>(ComplementaireDiffCallback()) {
 
@@ -25,7 +26,7 @@ class TiersPayantComplementaireAdapter(
             parent,
             false
         )
-        return ComplementaireViewHolder(binding, onTauxChanged, onRemove)
+        return ComplementaireViewHolder(binding, onTauxChanged, onNumeroBonChanged, onRemove)
     }
 
     override fun onBindViewHolder(holder: ComplementaireViewHolder, position: Int) {
@@ -35,11 +36,13 @@ class TiersPayantComplementaireAdapter(
     class ComplementaireViewHolder(
         private val binding: ItemTiersPayantComplementaireBinding,
         private val onTauxChanged: (TiersPayant, Int) -> Unit,
+        private val onNumeroBonChanged: (TiersPayant, String) -> Unit,
         private val onRemove: (TiersPayant) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private var currentTiersPayant: TiersPayant? = null
-        private var textWatcher: TextWatcher? = null
+        private var tauxTextWatcher: TextWatcher? = null
+        private var bonTextWatcher: TextWatcher? = null
 
         fun bind(tiersPayant: TiersPayant) {
             currentTiersPayant = tiersPayant
@@ -47,14 +50,18 @@ class TiersPayantComplementaireAdapter(
             binding.apply {
                 tvTiersPayantName.text = tiersPayant.name
 
-                // Remove previous text watcher
-                textWatcher?.let { etTauxCouverture.removeTextChangedListener(it) }
+                // Remove previous text watchers
+                tauxTextWatcher?.let { etTauxCouverture.removeTextChangedListener(it) }
+                bonTextWatcher?.let { etNumeroBon.removeTextChangedListener(it) }
 
                 // Set current taux
                 etTauxCouverture.setText(tiersPayant.tauxCouverture.toString())
 
-                // Add new text watcher
-                textWatcher = object : TextWatcher {
+                // Set current numero bon
+                etNumeroBon.setText(tiersPayant.numeroBon ?: "")
+
+                // Add text watcher for taux
+                tauxTextWatcher = object : TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                     override fun afterTextChanged(s: Editable?) {
@@ -64,7 +71,18 @@ class TiersPayantComplementaireAdapter(
                         }
                     }
                 }
-                etTauxCouverture.addTextChangedListener(textWatcher)
+                etTauxCouverture.addTextChangedListener(tauxTextWatcher)
+
+                // Add text watcher for numero bon
+                bonTextWatcher = object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    override fun afterTextChanged(s: Editable?) {
+                        val numeroBon = s?.toString()?.trim() ?: ""
+                        onNumeroBonChanged(tiersPayant, numeroBon)
+                    }
+                }
+                etNumeroBon.addTextChangedListener(bonTextWatcher)
 
                 // Remove button
                 btnRemoveTiersPayant.setOnClickListener {

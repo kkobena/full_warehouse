@@ -57,37 +57,7 @@ class CarnetValidator {
         return ValidationResult(errors.isEmpty(), errors)
     }
 
-    /**
-     * Validate sale amount for carnet
-     */
-    fun validateSaleAmount(carnetData: CarnetData?, saleAmount: Int): ValidationResult {
-        if (carnetData == null) {
-            return ValidationResult(false, listOf("Les données carnet sont obligatoires"))
-        }
 
-        val errors = mutableListOf<String>()
-
-        if (saleAmount <= 0) {
-            errors.add("Le montant de la vente doit être supérieur à 0")
-        }
-
-        // Use CarnetData's own validation
-        val (dataValid, dataError) = carnetData.validate(saleAmount)
-        if (!dataValid && dataError != null) {
-            errors.add(dataError)
-        }
-
-        // Check if adding this sale would exceed credit limit
-        if (!carnetData.canAddSale(saleAmount)) {
-            val available = carnetData.creditDisponible
-            errors.add(
-                "Cette vente dépasserait la limite de crédit. " +
-                        "Crédit disponible: $available FCFA, Montant demandé: $saleAmount FCFA"
-            )
-        }
-
-        return ValidationResult(errors.isEmpty(), errors)
-    }
 
     /**
      * Validate customer has carnet account

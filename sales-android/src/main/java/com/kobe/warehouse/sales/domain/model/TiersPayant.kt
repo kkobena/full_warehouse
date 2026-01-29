@@ -39,7 +39,13 @@ data class TiersPayant(
     /**
      * Remote customer reference (for insurance system integration)
      */
-    val remoteCustomer: Customer? = null
+    val remoteCustomer: Customer? = null,
+
+    /**
+     * Numéro de bon (prescription number) for this tiers payant
+     * Required for insurance reimbursement
+     */
+    val numeroBon: String? = null
 ) {
     /**
      * Check if this tiers payant is the principal insurance provider
@@ -56,7 +62,8 @@ data class TiersPayant(
      */
     fun getDisplayName(): String {
         val typeLabel = if (isPrincipal()) "Principal" else "Complémentaire"
-        return "$name ($typeLabel - $tauxCouverture%)"
+        val bonInfo = if (!numeroBon.isNullOrEmpty()) " - Bon: $numeroBon" else ""
+        return "$name ($typeLabel - $tauxCouverture%)$bonInfo"
     }
 }
 

@@ -52,4 +52,10 @@
 
     <!-- Divider Color -->
     <color name="divider">#E5E7EB</color>
+
+    <!-- Menu Selection Cards - Professional Theme -->
+    <color name="card_simple_sales_bg">#D1ECF1</color>         <!-- Light Cyan -->
+    <color name="card_simple_sales_text">#0C4A6E</color>       <!-- Dark Blue Text -->
+    <color name="card_full_menu_bg">#065F46</color>            <!-- Dark Emerald Green -->
+    <color name="card_full_menu_text">#ECFDF5</color>          <!-- Light Green Text -->
 </resources>

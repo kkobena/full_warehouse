@@ -101,9 +101,32 @@ class SalesHomeActivity : BaseActivity() {
      * Setup button listeners
      */
     private fun setupListeners() {
+        // Nouvelle vente simplifiée (comptant simple)
         binding.btnNewSale.setOnClickListener {
-            openComptantSale()
+            showSaleTypeDialog()
         }
+    }
+
+    /**
+     * Show dialog to choose between simple sale and full sale
+     */
+    private fun showSaleTypeDialog() {
+        val options = arrayOf(
+            "Vente Simplifiée (Comptant)",
+            "Vente Complète (Tous types)"
+        )
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Type de vente")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> openComptantSale() // Vente simplifiée
+                    1 -> openFullSaleHome()  // Vente complète
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
     }
 
     /**
@@ -150,10 +173,18 @@ class SalesHomeActivity : BaseActivity() {
     }
 
     /**
-     * Open new comptant sale
+     * Open new comptant sale (simple sale)
      */
     private fun openComptantSale() {
         val intent = Intent(this, ComptantSaleActivity::class.java)
+        startActivity(intent)
+    }
+
+    /**
+     * Open full sale home (with tabs: ongoing sales + préventes)
+     */
+    private fun openFullSaleHome() {
+        val intent = Intent(this, FullSaleHomeActivity::class.java)
         startActivity(intent)
     }
 

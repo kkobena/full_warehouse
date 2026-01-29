@@ -20,9 +20,9 @@ interface TiersPayantApiService {
     /**
      * Search tiers payants by name or code
      */
-    @GET("api/tiers-payants/search")
+    @GET("api/tiers-payants")
     suspend fun searchTiersPayants(
-        @Query("q") query: String
+        @Query("search") query: String
     ): Response<List<TiersPayant>>
 
     /**

@@ -21,6 +21,20 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnSurface" />
 
+        <!-- Selected Tiers Payants Summary -->
+        <TextView
+            android:id="@+id/tvTiersPayants"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="Principal: CNAM (80%), Complémentaire: Mutuelle Santé (15%)" />
+
         <!-- Tiers Payant Principal -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilTiersPayantPrincipal"

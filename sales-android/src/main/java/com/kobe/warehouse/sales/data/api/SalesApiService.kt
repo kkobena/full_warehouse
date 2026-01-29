@@ -78,13 +78,7 @@ interface SalesApiService {
         @Body sale: Sale
     ): Response<Sale>
 
-    /**
-     * Get carnet purchase history for a customer
-     */
-    @GET("api/sales/carnet/history/{customerId}")
-    suspend fun getCarnetHistory(
-        @Path("customerId") customerId: Long
-    ): Response<List<Sale>>
+
 
     /**
      * Create assurance sale

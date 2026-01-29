@@ -185,24 +185,7 @@ class SalesRepository(
         }
     }
 
-    /**
-     * Get carnet purchase history for a customer
-     */
-    suspend fun getCarnetHistory(customerId: Long): Result<List<Sale>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = salesApiService.getCarnetHistory(customerId)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
+
 
     /**
      * Create assurance sale (insurance sale)

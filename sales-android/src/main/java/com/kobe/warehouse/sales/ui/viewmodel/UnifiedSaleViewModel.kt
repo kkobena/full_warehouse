@@ -31,7 +31,7 @@ class UnifiedSaleViewModel(
     private val customerRepository: CustomerRepository,
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager
-) : ViewModel() {
+) : ViewModel(), ISaleViewModel {
 
     // ===== Sale Type State =====
 
@@ -62,7 +62,7 @@ class UnifiedSaleViewModel(
     // ===== Current Sale State =====
 
     private val _currentSale = MutableLiveData<Sale>(Sale())
-    val currentSale: LiveData<Sale> = _currentSale
+    override val currentSale: LiveData<Sale> = _currentSale
 
     private val _isEditMode = MutableLiveData(false)
     val isEditMode: LiveData<Boolean> = _isEditMode
@@ -137,6 +137,46 @@ class UnifiedSaleViewModel(
         // Update sale type
         val customer = _selectedCustomer.value
         if (customer != null && _tiersPayants.value?.isNotEmpty() == true) {
+            _currentSaleType.value = SaleType.Assurance(
+                saleCustomer = customer,
+                tiersPayants = _tiersPayants.value ?: emptyList()
+            )
+        }
+    }
+
+    fun updateTiersPayantTaux(tiersPayant: TiersPayant, newTaux: Int) {
+        val current = _tiersPayants.value ?: emptyList()
+        _tiersPayants.value = current.map { tp ->
+            if (tp.id == tiersPayant.id) {
+                tp.copy(tauxCouverture = newTaux)
+            } else {
+                tp
+            }
+        }
+
+        // Update sale type
+        val customer = _selectedCustomer.value
+        if (customer != null) {
+            _currentSaleType.value = SaleType.Assurance(
+                saleCustomer = customer,
+                tiersPayants = _tiersPayants.value ?: emptyList()
+            )
+        }
+    }
+
+    fun updateTiersPayantNumeroBon(tiersPayant: TiersPayant, numeroBon: String) {
+        val current = _tiersPayants.value ?: emptyList()
+        _tiersPayants.value = current.map { tp ->
+            if (tp.id == tiersPayant.id) {
+                tp.copy(numeroBon = numeroBon.ifEmpty { null })
+            } else {
+                tp
+            }
+        }
+
+        // Update sale type
+        val customer = _selectedCustomer.value
+        if (customer != null) {
             _currentSaleType.value = SaleType.Assurance(
                 saleCustomer = customer,
                 tiersPayants = _tiersPayants.value ?: emptyList()
@@ -263,6 +303,12 @@ class UnifiedSaleViewModel(
     private val _saleSaved = MutableLiveData<Sale?>()
     val saleSaved: LiveData<Sale?> = _saleSaved
 
+    private val _saleFinalized = MutableLiveData<Sale?>()
+    val saleFinalized: LiveData<Sale?> = _saleFinalized
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
     fun putOnHold() {
         val sale = _currentSale.value
 
@@ -314,6 +360,70 @@ class UnifiedSaleViewModel(
             // TODO: Implement transformation API call
             // salesRepository.transformSale(sale.id, newType)
             _errorMessage.value = "Transformation de vente non encore implémentée"
+        }
+    }
+
+    override fun finalizeSale(payments: List<com.kobe.warehouse.sales.data.model.Payment>, montantVerse: Int, montantRendu: Int) {
+        if (!validateSaleBeforeFinalize()) {
+            return
+        }
+
+        val currentSaleValue = _currentSale.value ?: return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            // Get cassier ID from current account
+            val accountResult = authRepository.getAccount()
+            val cassierId = accountResult.getOrNull()?.id
+
+            if (cassierId == null) {
+                _errorMessage.value = "Impossible de récupérer l'ID du caissier"
+                _isLoading.value = false
+                return@launch
+            }
+
+            // Calculate payrollAmount = salesAmount - discountAmount
+            val calculatedPayrollAmount = currentSaleValue.salesAmount - (currentSaleValue.discountAmount ?: 0)
+
+            // Build complete sale object with all data
+            val completeSale = currentSaleValue.copy(
+                customerId = _selectedCustomer.value?.id,
+                customer = _selectedCustomer.value,
+                cassierId = cassierId,
+                payrollAmount = calculatedPayrollAmount,
+                payments = payments.toMutableList(),
+                montantVerse = montantVerse
+            )
+
+            // Call appropriate endpoint based on sale type
+            val result = when (_currentSaleType.value) {
+                is SaleType.Comptant -> {
+                    salesRepository.createCashSale(completeSale)
+                }
+                is SaleType.Assurance -> {
+                    salesRepository.finalizeAssuranceSale(completeSale)
+                }
+                is SaleType.Carnet -> {
+                    salesRepository.finalizeCarnetSale(completeSale)
+                }
+                else -> {
+                    salesRepository.createCashSale(completeSale)
+                }
+            }
+
+            result.fold(
+                onSuccess = { finalizedSale ->
+                    _saleFinalized.value = finalizedSale
+                    _isLoading.value = false
+                    // DON'T clear cart here - let Activity handle it after printing
+                },
+                onFailure = { error ->
+                    _errorMessage.value = error.message ?: "Erreur de finalisation"
+                    _isLoading.value = false
+                }
+            )
         }
     }
 

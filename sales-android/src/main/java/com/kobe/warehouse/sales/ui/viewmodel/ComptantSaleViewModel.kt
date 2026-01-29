@@ -33,7 +33,7 @@ class ComptantSaleViewModel(
     private val paymentRepository: PaymentRepository,
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager
-) : ViewModel() {
+) : ViewModel(), ISaleViewModel {
 
     // Stock validator instance
     private val stockValidator = SaleStockValidator()
@@ -45,7 +45,7 @@ class ComptantSaleViewModel(
 
     // Current sale state (managed locally)
     private val _currentSale = MutableLiveData<Sale>()
-    val currentSale: LiveData<Sale> = _currentSale
+    override val currentSale: LiveData<Sale> = _currentSale
 
     // Product search results
     private val _products = MutableLiveData<List<Product>>()
@@ -328,7 +328,7 @@ class ComptantSaleViewModel(
      * 2. Print receipt (optional)
      * 3. Call resetAfterSale() to clear and start new sale
      */
-    fun finalizeSale(payments: List<Payment>, montantVerse: Int, montantRendu: Int) {
+    override fun finalizeSale(payments: List<Payment>, montantVerse: Int, montantRendu: Int) {
         val currentSaleValue = _currentSale.value
         if (currentSaleValue == null || currentSaleValue.salesLines.isEmpty()) {
             _errorMessage.value = "Le panier est vide"

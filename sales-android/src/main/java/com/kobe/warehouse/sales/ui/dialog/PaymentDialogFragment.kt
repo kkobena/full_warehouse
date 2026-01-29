@@ -1,17 +1,14 @@
 package com.kobe.warehouse.sales.ui.dialog
 
-import android.app.Dialog
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.PaymentApiService
 import com.kobe.warehouse.sales.data.model.Payment
@@ -20,6 +17,8 @@ import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.databinding.DialogPaymentBinding
 import com.kobe.warehouse.sales.ui.adapter.PaymentModeAdapter
 import com.kobe.warehouse.sales.ui.viewmodel.ComptantSaleViewModel
+import com.kobe.warehouse.sales.ui.viewmodel.ISaleViewModel
+import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
 
@@ -41,7 +40,7 @@ class PaymentDialogFragment : DialogFragment() {
 
     private lateinit var paymentModeAdapter: PaymentModeAdapter
     private lateinit var paymentRepository: PaymentRepository
-    private lateinit var saleViewModel: ComptantSaleViewModel
+    private lateinit var saleViewModel: ISaleViewModel
 
     private var totalAmount: Int = 0
     private var payrollAmount: Int = 0
@@ -70,8 +69,12 @@ class PaymentDialogFragment : DialogFragment() {
             totalAmount = it.getInt(ARG_TOTAL_AMOUNT, 0)
         }
 
-        // Get ViewModel from activity
-        saleViewModel = ViewModelProvider(requireActivity())[ComptantSaleViewModel::class.java]
+        // Get ViewModel from activity (try both ComptantSaleViewModel and UnifiedSaleViewModel)
+        saleViewModel = try {
+            ViewModelProvider(requireActivity())[ComptantSaleViewModel::class.java]
+        } catch (e: Exception) {
+            ViewModelProvider(requireActivity())[UnifiedSaleViewModel::class.java]
+        }
 
         // Calculate payrollAmount = salesAmount - discount
         val currentSale = saleViewModel.currentSale.value

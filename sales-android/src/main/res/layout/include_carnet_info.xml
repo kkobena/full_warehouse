@@ -21,6 +21,19 @@
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnSurface" />
 
+        <!-- Customer Name -->
+        <TextView
+            android:id="@+id/tvCarnetCustomer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:background="?attr/colorPrimaryContainer"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textStyle="bold"
+            tools:text="Jean Dupont" />
+
         <!-- Credit Limit Info -->
         <LinearLayout
             android:layout_width="match_parent"

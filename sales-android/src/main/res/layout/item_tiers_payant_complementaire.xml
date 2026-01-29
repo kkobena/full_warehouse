@@ -60,6 +60,25 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Numéro de bon -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNumeroBon"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/numero_bon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNumeroBon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                tools:text="BON-2024-001" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

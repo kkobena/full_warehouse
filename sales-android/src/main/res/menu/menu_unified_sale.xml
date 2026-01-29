@@ -3,9 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_put_on_hold"
+        android:icon="@drawable/ic_pause"
+        android:title="@string/mettre_en_attente"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_transform"
         android:icon="@drawable/ic_refresh"
         android:title="@string/transformer_vente"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>

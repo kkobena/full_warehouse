@@ -151,6 +151,8 @@
     <string name="transformation_comptant_info">La transformation vers Assurance ou Carnet nécessitera la sélection d\'un client et des données spécifiques.</string>
     <string name="transformation_assurance_info">La transformation vers Comptant supprimera les données d\'assurance. Le panier sera conservé.</string>
     <string name="transformation_carnet_info">La transformation vers Comptant supprimera les données carnet. Le panier sera conservé.</string>
+    <string name="mettre_en_attente">Mettre en attente</string>
+    <string name="quantite">Quantité</string>
 
     <!-- Phase 4.1: Discount Dialog -->
     <string name="discount_dialog_title">Appliquer une remise</string>
@@ -220,4 +222,8 @@
     <string name="dashboard_loading">Chargement des données…</string>
     <string name="dashboard_error">Erreur lors du chargement des données</string>
     <string name="dashboard_quantity_sold">%d vendu(s)</string>
+
+    <!-- Sale Menu Selection -->
+    <string name="vente_simplifiee">Vente Simplifiée</string>
+    <string name="menu_complet">Menu Complet</string>
 </resources>

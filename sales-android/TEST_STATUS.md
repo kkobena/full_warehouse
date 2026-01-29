@@ -24,15 +24,16 @@ However, tests cannot run yet due to **compilation errors in existing code from 
 
 ---
 
-### 2. StockValidatorTest.kt (420+ lines)
-**Location:** `src/test/java/com/kobe/warehouse/sales/domain/validator/`
+### 2. ~~StockValidatorTest.kt~~ (SUPPRIMÉ)
+**Location:** ~~`src/test/java/com/kobe/warehouse/sales/domain/validator/`~~
 
-**Coverage:** 20+ test methods
-- ⚠️ Tests written for idealized API that doesn't match current implementation
-- Actual `StockValidator.kt` has simpler API
-- Tests need to be updated to match actual implementation
+**Raison:** `StockValidator.kt` était un doublon de `SaleStockValidator.kt`
 
-**Status:** ⚠️ Needs minor updates to match actual StockValidator API
+**Remplacement:**
+- ✅ `SaleStockValidator.kt` (service/) - Implémenté et utilisé
+- ⚠️ Tests à créer: `SaleStockValidatorTest.kt`
+
+**Status:** ❌ Fichier supprimé - Utiliser SaleStockValidator.kt à la place
 
 ---
 

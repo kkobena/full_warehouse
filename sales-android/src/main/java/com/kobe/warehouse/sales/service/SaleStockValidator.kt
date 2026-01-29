@@ -63,6 +63,7 @@ class SaleStockValidator {
         }
 
         // 2. Calculate total quantity in cart for this product
+      //TODO: revoir la comparaison avec l'id du produit
         val totalQuantityInCart = currentSale?.salesLines
             ?.filter { it.id == product.id }
             ?.sumOf { it.quantityRequested }

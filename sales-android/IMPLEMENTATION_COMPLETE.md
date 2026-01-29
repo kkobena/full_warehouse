@@ -227,7 +227,7 @@ Backend valide aussi lors de la finalisation (sécurité)
 **Tiers Payant:**
 ```
 GET    /api/tiers-payants
-GET    /api/tiers-payants/search?q={query}
+GET    /api/tiers-payants/?search={query}
 GET    /api/tiers-payants/{id}
 GET    /api/tiers-payants/customer/{customerId}
 GET    /api/tiers-payants/validate?customerId=&tiersPayantId=

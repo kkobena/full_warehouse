@@ -170,12 +170,6 @@ data class Sale(
     return statut == "PENDING"
   }
 
-  /**
-   * Check if sale is validated
-   */
-  fun isValidated(): Boolean {
-    return statut == "VALIDATED"
-  }
 
   /**
    * Sort sales lines by timestamp descending (most recent first)
@@ -217,7 +211,7 @@ data class Sale(
       // taxAmount = salesAmount - ceil(salesAmount / value)
       val taxAmount = if (product.vatRate > 0) {
         val value = 1.0 + (product.vatRate.toDouble() / 100.0)
-        val priceWithoutVat = kotlin.math.ceil(salesAmount / value).toInt()
+        val priceWithoutVat = ceil(salesAmount / value).toInt()
         salesAmount - priceWithoutVat
       } else {
         0

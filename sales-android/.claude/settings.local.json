@@ -9,7 +9,13 @@
       "Bash(java -version:*)",
       "Bash(./gradlew:*)",
       "Bash(where \"studio64.exe\")",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(./gradlew.bat test:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(gradle --version:*)",
+      "Bash(curl:*)",
+      "Bash(.gradlew.bat assembleDebug)"
     ],
     "deny": [],
     "ask": []

@@ -14,20 +14,37 @@ class CustomerRepository(
     private val customerApiService: CustomerApiService
 ) {
 
-    // Cache default customer
-    private var cachedDefaultCustomer: Customer? = null
-
     /**
-     * Search customers
+     * Search uninsured customers only
+     * Backend: GET /customers/uninsured?search=...
      */
-    suspend fun searchCustomers(search: String, size: Int = 20): Result<List<Customer>> {
+    suspend fun searchUninsuredCustomers(search: String): Result<List<Customer>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = customerApiService.searchCustomers(search, size)
+                val response = customerApiService.searchUninsuredCustomers(search)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Failed to search customers: ${response.message()}"))
+                    Result.failure(Exception("Failed to search uninsured customers: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Search assured customers only
+     * Backend: GET /customers/assured?search=...
+     */
+    suspend fun searchAssuredCustomers(search: String, size: Int = 20): Result<List<Customer>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = customerApiService.searchAssuredCustomers(search, size)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Failed to search assured customers: ${response.message()}"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -37,8 +54,9 @@ class CustomerRepository(
 
     /**
      * Get customer by ID
+     * Backend: GET /customers/{id}
      */
-    suspend fun getCustomerById(id: Long): Result<Customer> {
+    suspend fun getCustomerById(id: Int): Result<Customer> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = customerApiService.getCustomerById(id)
@@ -83,22 +101,28 @@ class CustomerRepository(
     }
 
     /**
-     * Get default customer (client comptant)
+     * Create uninsured customer (client comptant) - overload accepting Customer object
      */
-    suspend fun getDefaultCustomer(forceRefresh: Boolean = false): Result<Customer> {
+    suspend fun createUninsuredCustomer(customer: Customer): Result<Customer> {
+        return createUninsuredCustomer(
+            firstName = customer.firstName ?: "",
+            lastName = customer.lastName ?: "",
+            phone = customer.phone,
+            email = customer.email
+        )
+    }
+
+    /**
+     * Create insured customer (client assuré)
+     */
+    suspend fun createAssureCustomer(customer: Customer): Result<Customer> {
         return withContext(Dispatchers.IO) {
             try {
-                // Return cached if available
-                if (!forceRefresh && cachedDefaultCustomer != null) {
-                    return@withContext Result.success(cachedDefaultCustomer!!)
-                }
-
-                val response = customerApiService.getDefaultCustomer()
+                val response = customerApiService.createAssureCustomer(customer)
                 if (response.isSuccessful && response.body() != null) {
-                    cachedDefaultCustomer = response.body()!!
-                    Result.success(cachedDefaultCustomer!!)
+                    Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Failed to load default customer: ${response.message()}"))
+                    Result.failure(Exception("Failed to create assure customer: ${response.message()}"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -107,36 +131,17 @@ class CustomerRepository(
     }
 
     /**
-     * Get customer insurance data (for Assurance sales)
-     * Includes tiers payants, plafond, encours
+     * Get customer tiers payants
+     * Backend: GET /customers/tiers-payants/{id}
      */
-    suspend fun getCustomerInsuranceData(customerId: Long): Result<com.kobe.warehouse.sales.domain.model.InsuranceData> {
+    suspend fun getCustomerTiersPayants(customerId: Int): Result<List<com.kobe.warehouse.sales.data.model.ClientTiersPayant>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = customerApiService.getCustomerInsuranceData(customerId)
+                val response = customerApiService.getCustomerTiersPayants(customerId)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Failed to load insurance data: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
-
-    /**
-     * Get customer carnet data (for Carnet sales)
-     * Includes limite credit, encours, credit disponible
-     */
-    suspend fun getCustomerCarnetData(customerId: Long): Result<com.kobe.warehouse.sales.domain.model.CarnetData> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = customerApiService.getCustomerCarnetData(customerId)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to load carnet data: ${response.message()}"))
+                    Result.failure(Exception("Failed to load tiers payants: ${response.message()}"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -146,9 +151,9 @@ class CustomerRepository(
 
     /**
      * Get ayants-droit (beneficiaries) for a customer
-     * Used in Assurance sales to select who the sale is for
+     * Backend: GET /customers/ayant-droits/{id}
      */
-    suspend fun getAyantDroits(customerId: Long): Result<List<Customer>> {
+    suspend fun getAyantDroits(customerId: Int): Result<List<Customer>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = customerApiService.getAyantDroits(customerId)
@@ -164,9 +169,58 @@ class CustomerRepository(
     }
 
     /**
-     * Clear cached data
+     * Create Carnet customer with tiers payant
+     *
+     * @param firstName Customer first name
+     * @param lastName Customer last name
+     * @param phone Customer phone (optional)
+     * @param dateNaiss Date of birth (optional)
+     * @param tiersPayantId Tiers payant ID
+     * @param num Matricule number
+     * @param taux Coverage rate (percentage)
+     * @return Result with created Customer
      */
-    fun clearCache() {
-        cachedDefaultCustomer = null
+    suspend fun createCarnetCustomer(
+        firstName: String,
+        lastName: String,
+        phone: String?,
+        dateNaiss: String?,
+        tiersPayantId: Long,
+        num: String,
+        taux: Int
+    ): Result<Customer> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Build Customer object with tiers payant information
+                val customer = Customer(
+                    id = 0, // Will be assigned by backend
+                    firstName = firstName,
+                    lastName = lastName,
+                    phone = phone,
+                    // Note: Backend API should handle the tiers payant association
+                    // This might need adjustment based on actual backend API structure
+                    tiersPayants = listOf(
+                        com.kobe.warehouse.sales.data.model.ClientTiersPayant(
+                            customerId = 0,
+                            tiersPayantId = tiersPayantId,
+                            tiersPayantName = "", // Will be filled by backend
+                            num = num,
+                            taux = taux,
+                            priorite = com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R0,
+                            typeTiersPayant = "PRINCIPAL"
+                        )
+                    )
+                )
+
+                val response = customerApiService.createAssureCustomer(customer)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Erreur création client Carnet: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
     }
 }

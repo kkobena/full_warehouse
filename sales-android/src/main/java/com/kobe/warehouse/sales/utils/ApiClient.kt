@@ -51,6 +51,23 @@ object ApiClient {
     }
 
     /**
+     * Create Retrofit instance with specific authorization token
+     * Used for temporary authenticated sessions (e.g., authorization validation)
+     *
+     * @param token Full authorization header value (e.g., "Bearer abc123")
+     * @param baseUrl Optional base URL (default: from BuildConfig)
+     * @return Retrofit instance
+     */
+    fun createWithToken(token: String, baseUrl: String = DEFAULT_BASE_URL): Retrofit {
+        val gson = GsonBuilder().create()
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(createOkHttpClientWithToken(token))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
+
+    /**
      * Create OkHttpClient with interceptors
      */
     private fun createOkHttpClient(tokenManager: TokenManager): OkHttpClient {
@@ -60,6 +77,19 @@ object ApiClient {
             .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(createAuthInterceptor(tokenManager))
             .addInterceptor(createResponseInterceptor())
+            .addInterceptor(createLoggingInterceptor())
+            .build()
+    }
+
+    /**
+     * Create OkHttpClient with specific token
+     */
+    private fun createOkHttpClientWithToken(token: String): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .addInterceptor(createTokenInterceptor(token))
             .addInterceptor(createLoggingInterceptor())
             .build()
     }
@@ -127,6 +157,29 @@ object ApiClient {
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("x-PHARMA-SMART-ANDROID", "true")  // Custom header to identify Android client
+                .method(original.method, original.body)
+
+            chain.proceed(requestBuilder.build())
+        }
+    }
+
+    /**
+     * Create token interceptor with specific token
+     * Used for temporary authenticated sessions
+     */
+    private fun createTokenInterceptor(token: String): Interceptor {
+        return Interceptor { chain ->
+            val original = chain.request()
+            val requestBuilder = original.newBuilder()
+
+            // Add Authorization header with provided token
+            requestBuilder.header("Authorization", token)
+
+            // Add common headers
+            requestBuilder
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("x-PHARMA-SMART-ANDROID", "true")
                 .method(original.method, original.body)
 
             chain.proceed(requestBuilder.build())

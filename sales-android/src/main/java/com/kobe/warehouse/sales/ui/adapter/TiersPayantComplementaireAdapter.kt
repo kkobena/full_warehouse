@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kobe.warehouse.sales.databinding.ItemTiersPayantComplementaireBinding
-import com.kobe.warehouse.sales.domain.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.TiersPayant
 
 /**
  * Adapter for Tiers Payant Complementaire management
@@ -54,11 +54,11 @@ class TiersPayantComplementaireAdapter(
                 tauxTextWatcher?.let { etTauxCouverture.removeTextChangedListener(it) }
                 bonTextWatcher?.let { etNumeroBon.removeTextChangedListener(it) }
 
-                // Set current taux
-                etTauxCouverture.setText(tiersPayant.tauxCouverture.toString())
+                // Set current taux (default value)
+                etTauxCouverture.setText("80")
 
-                // Set current numero bon
-                etNumeroBon.setText(tiersPayant.numeroBon ?: "")
+                // Set current numero bon (empty by default)
+                etNumeroBon.setText("")
 
                 // Add text watcher for taux
                 tauxTextWatcher = object : TextWatcher {

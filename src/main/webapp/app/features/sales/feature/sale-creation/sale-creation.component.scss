@@ -1,0 +1,17 @@
+// ============================================
+// SALE CREATION (COMPTANT) - Spécificités uniquement
+// Les styles communs sont dans ../../shared/styles/sales-common
+// ============================================
+
+@import '../../../../shared/scss/pharma-nav';
+@import '../../shared/styles/sales-common';
+
+// Thème vert pour COMPTANT
+.empty-cart-state .empty-cart-icon {
+  background: linear-gradient(135deg, rgba(92, 184, 92, 0.1) 0%, rgba(92, 184, 92, 0.05) 100%);
+  box-shadow: 0 4px 12px rgba(92, 184, 92, 0.15);
+
+  i {
+    color: #5cb85c;
+  }
+}

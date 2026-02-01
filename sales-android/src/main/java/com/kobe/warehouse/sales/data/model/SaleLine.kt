@@ -71,6 +71,13 @@ data class SaleLine(
 
   @SerializedName("forceStock")
   val forceStock: Boolean = false,
+
+  @SerializedName("saleId")
+  val saleId: Long? = null,
+
+  @SerializedName("saleCompositeId")
+  val saleCompositeId: SaleId? = null,
+
   @SerializedName("saleLineId")
   var saleLineId: SaleLineId? = null,
 

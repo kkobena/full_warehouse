@@ -85,6 +85,37 @@ data class Sale(
   @SerializedName("typePrescription")
   val typePrescription: String = "PRESCRIPTION",
 
+  // Insurance/Carnet specific fields
+  @SerializedName("tiersPayants")
+  val tiersPayants: MutableList<ClientTiersPayant> = mutableListOf(),
+
+  @SerializedName("ayantDroit")
+  val ayantDroit: Customer? = null,
+
+  @SerializedName("ayantDroitId")
+  val ayantDroitId: Long? = null,
+
+  @SerializedName("thirdPartySaleLines")
+  val thirdPartySaleLines: MutableList<ThirdPartySaleLine> = mutableListOf(),
+
+  @SerializedName("partTiersPayant")
+  val partTiersPayant: Int? = null,
+
+  @SerializedName("partAssure")
+  val partAssure: Int? = null,
+
+  @SerializedName("sansBon")
+  val sansBon: Boolean = false,
+
+  @SerializedName("categorie")
+  val categorie: String = "VO",
+
+  @SerializedName("sellerId")
+  val sellerId: Long? = null,
+
+  @SerializedName("differe")
+  val differe: Boolean = false
+
   ) : Parcelable {
 
   /**

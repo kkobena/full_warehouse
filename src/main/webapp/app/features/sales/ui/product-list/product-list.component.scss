@@ -1,0 +1,38 @@
+.product-list-container {
+  height: 100%;
+}
+
+.product-list-table {
+  font-size: 0.9rem;
+}
+
+.selected-row {
+  background-color: #e3f2fd !important;
+  font-weight: 500;
+}
+
+.warning-row {
+  background-color: #fff3cd !important;
+  border-left: 3px solid #ffc107;
+}
+
+.product-info {
+  .product-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .product-code {
+    font-size: 0.85em;
+  }
+}
+
+.quantity-input {
+  width: 80px;
+  text-align: right;
+}
+
+.discount-amount {
+  color: #28a745;
+  font-weight: 500;
+}

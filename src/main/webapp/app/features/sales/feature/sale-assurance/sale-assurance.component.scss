@@ -1,0 +1,17 @@
+// ============================================
+// SALE ASSURANCE - Spécificités uniquement
+// Les styles communs sont dans ../../shared/styles/sales-common
+// ============================================
+
+@import '../../../../shared/scss/pharma-nav';
+@import '../../shared/styles/sales-common';
+
+// Thème bleu pour ASSURANCE
+.empty-cart-state .empty-cart-icon {
+  background: linear-gradient(135deg, rgba(91, 137, 166, 0.1) 0%, rgba(91, 137, 166, 0.05) 100%);
+  box-shadow: 0 4px 12px rgba(91, 137, 166, 0.15);
+
+  i {
+    color: #5b89a6;
+  }
+}

@@ -23,6 +23,7 @@ class CartAdapter(
     private val onDecrementClick: (SaleLine) -> Unit,
     private val onRemoveClick: (SaleLine) -> Unit,
     private val onQuantityChange: (SaleLine, Int) -> Unit = { _, _ -> },
+    private val onPriceClick: (SaleLine) -> Unit = { _ -> },
     private val isViewMode: Boolean = false  // Read-only mode
 ) : ListAdapter<SaleLine, CartAdapter.CartViewHolder>(CartDiffCallback()) {
 
@@ -83,6 +84,11 @@ class CartAdapter(
                 // Make quantity editable
                 tvQuantity.setOnClickListener {
                     showQuantityEditDialog(saleLine)
+                }
+
+                // Make price editable
+                tvUnitPrice.setOnClickListener {
+                    onPriceClick(saleLine)
                 }
 
                 // Disable decrement if quantity is 1

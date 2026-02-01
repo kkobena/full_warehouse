@@ -1,0 +1,146 @@
+﻿<!-- Notifications Toast -->
+<p-toast position="top-right" />
+
+<!-- Content spécifique CARNET -->
+<div class="sales-workspace">
+  <div class="content-grid">
+    <!-- Colonne gauche : Données client + Recherche produit + Liste produits -->
+    <div class="products-section">
+      
+      <!-- 1. Barre données CARNET (client + tiers payant unique) - EN PREMIER -->
+      <div class="carnet-data-section">
+        <app-insurance-data-bar
+          #insuranceDataBar
+          [customer]="selectedCustomer()"
+          [tiersPayants]="selectedCustomer()?.tiersPayants || []"
+          [saleType]="'CARNET'"
+          [ayantDroit]="null"
+          (customerSelected)="onCustomerSelected($event)"
+          (openCustomerList)="onOpenCustomerList()"
+          (editCustomer)="onEditCustomer()"
+          (addCustomer)="onAddCustomer()"
+          (editAyantDroit)="onEditAyantDroit()"
+          (loadAyantDroits)="onLoadAyantDroits()"
+          (addComplementaire)="onAddComplementaire()"
+          (removeTiersPayant)="onRemoveTiersPayant($event)"
+          (tiersPayantsChanged)="onTiersPayantsChanged($event)">
+        </app-insurance-data-bar>
+      </div>
+
+      <!-- 2. Recherche produit - APRÈS la sélection client -->
+      <div class="product-search-section">
+        <div class="search-section-header">
+          <i class="pi pi-search"></i>
+          <span>Recherche de produit</span>
+        </div>
+
+        <div class="search-controls">
+          <!-- Product Search Autocomplete -->
+          <div class="product-search-input">
+            <app-product-search
+              [autofocus]="hasCustomer()"
+              (productSelected)="onProductSelected($event)">
+            </app-product-search>
+          </div>
+
+          <!-- Quantity Input -->
+          <div class="quantity-input-wrapper">
+            <jhi-quantite-produt-saisie
+              (addQuantite)="onAddQuantity($event)"
+              [isValid]="!!selectedProduct() && hasCustomer()"
+              [disabledButton]="!selectedProduct() || !hasCustomer()">
+            </jhi-quantite-produt-saisie>
+          </div>
+
+          <!-- Product Meta -->
+          @if(selectedProduct()) {
+            <div class="product-meta">
+              <div class="meta-item">
+                <label>Prix:</label>
+                <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
+              </div>
+              <div class="meta-item">
+                <label>Stock:</label>
+                <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
+                  {{ selectedProduct()?.totalQuantity || 0 }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 3. Card: Liste des produits -->
+      <div class="product-list-card">
+        @if (currentSale()) {
+          <app-product-list
+            [salesLines]="salesLines()"
+            [isEditable]="!isSaving()"
+            [selectedLineId]="selectedLineId()"
+            [saleId]="currentSale()?.id"
+            [saleType]="'CARNET'"
+            (quantityChanged)="onLineQuantityChanged($event)"
+            (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+            (lineRemoved)="onLineRemoved($event)"
+            (lineSelected)="onLineSelected($event)"
+            (discountChanged)="onLineDiscountChanged($event)"
+            (authorizationRequired)="onAuthorizationRequired($event)" />
+        } @else {
+          <div class="empty-cart-state">
+            <div class="empty-cart-icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <h3>Panier vide</h3>
+            <p>Ajoutez des produits pour commencer une vente</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Colonne droite : Résumé + Actions -->
+    <div class="summary-section">
+      <!-- Card: Résumé de la vente -->
+      <div class="summary-card">
+        @if (currentSale()) {
+          <app-sale-summary
+            [totalAmount]="currentSale()?.salesAmount || 0"
+            [discountAmount]="currentSale()?.discountAmount || 0"
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [netAmount]="currentSale()?.netAmount || 0"
+            [itemCount]="salesLines().length"
+            [showCreditDetails]="true"
+            [currentRemise]="currentSale()?.remise"
+            (addRemise)="onAddRemise()"
+            (removeRemise)="onRemoveRemise()" />
+        } @else {
+          <div class="empty-summary-state">
+            <i class="pi pi-calculator"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Card: Actions -->
+      <div class="actions-card">
+        <app-sale-actions
+          [saleType]="'CARNET'"
+          (validate)="onValidate()"
+          (putOnHold)="onPutOnHold()"
+          (cancel)="onCancel()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Mode (optionnel pour crédit) -->
+  @if (currentSale()) {
+    <app-payment-mode
+      [amountToBePaid]="currentSale()!.salesAmount || 0"
+      [maxPaymentModes]="2"
+      [isDiffere]="currentSale()!.differe || false"
+      (paymentComplete)="onPaymentComplete($event)"
+      (validationError)="onPaymentError($event)"
+    />
+  }
+</div>
+
+<!-- Confirm Dialog -->
+<jhi-confirm-dialog #confirmDialog />

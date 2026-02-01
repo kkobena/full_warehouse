@@ -1,0 +1,182 @@
+<!-- Notifications Toast -->
+<p-toast position="top-right" />
+
+<!-- Content spécifique ASSURANCE -->
+<div class="sales-workspace">
+  <div class="content-grid">
+    <!-- Colonne gauche : Données assurance + Recherche produit + Liste produits -->
+    <div class="products-section">
+      
+      <!-- 1. Barre données ASSURANCE (client + tiers payants) - EN PREMIER -->
+      <div class="insurance-data-section">
+        <app-insurance-data-bar
+          #insuranceDataBar
+          [customer]="selectedCustomer()"
+          [tiersPayants]="selectedCustomer()?.tiersPayants || []"
+          [saleType]="'ASSURANCE'"
+          [ayantDroit]="currentSale()?.ayantDroit || null"
+          (customerSelected)="onCustomerSelectedFromBar($event)"
+          (openCustomerList)="onOpenCustomerList()"
+          (editCustomer)="onEditCustomer()"
+          (addCustomer)="onAddCustomer()"
+          (editAyantDroit)="onEditAyantDroit()"
+          (loadAyantDroits)="onLoadAyantDroits()"
+          (addComplementaire)="onAddComplementaire()"
+          (removeTiersPayant)="onRemoveTiersPayant($event)"
+          (tiersPayantsChanged)="onTiersPayantsChanged($event)">
+        </app-insurance-data-bar>
+      </div>
+
+      <!-- 2. Recherche produit - APRÈS la sélection client -->
+      <div class="product-search-section">
+        <div class="search-section-header">
+          <i class="pi pi-search"></i>
+          <span>Recherche de produit</span>
+        </div>
+
+        <div class="search-controls">
+          <!-- Product Search Autocomplete -->
+          <div class="product-search-input">
+            <app-product-search
+              [autofocus]="hasCustomer()"
+              (productSelected)="onProductSelected($event)">
+            </app-product-search>
+          </div>
+
+          <!-- Quantity Input -->
+          <div class="quantity-input-wrapper">
+            <jhi-quantite-produt-saisie
+              (addQuantite)="onAddQuantity($event)"
+              [isValid]="!!selectedProduct() && hasCustomer()"
+              [disabledButton]="!selectedProduct() || !hasCustomer()">
+            </jhi-quantite-produt-saisie>
+          </div>
+
+          <!-- Product Meta -->
+          @if(selectedProduct()) {
+            <div class="product-meta">
+              <div class="meta-item">
+                <label>Prix:</label>
+                <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
+              </div>
+              <div class="meta-item">
+                <label>Stock:</label>
+                <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
+                  {{ selectedProduct()?.totalQuantity || 0 }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 3. Card: Liste des produits -->
+      <div class="product-list-card">
+        @if (currentSale()) {
+          <app-product-list
+            [salesLines]="salesLines()"
+            [isEditable]="!isSaving()"
+            [selectedLineId]="selectedLineId()"
+            [saleId]="currentSale()?.id"
+            [saleType]="'ASSURANCE'"
+            (quantityChanged)="onLineQuantityChanged($event)"
+            (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+            (lineRemoved)="onLineRemoved($event)"
+            (lineSelected)="onLineSelected($event)"
+            (discountChanged)="onLineDiscountChanged($event)"
+            (authorizationRequired)="onAuthorizationRequired($event)" />
+        } @else {
+          <div class="empty-cart-state">
+            <div class="empty-cart-icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <h3>Panier vide</h3>
+            <p>Ajoutez des produits pour commencer une vente</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Colonne droite : Résumé + Actions -->
+    <div class="summary-section">
+      <!-- Card: Résumé de la vente -->
+      <div class="summary-card">
+        @if (currentSale()) {
+          <app-sale-summary
+            [totalAmount]="currentSale()?.salesAmount || 0"
+            [discountAmount]="currentSale()?.discountAmount || 0"
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [netAmount]="netAmount() || 0"
+            [amountToBePaid]="amountToBePaid() || 0"
+            [partAssurance]="currentSale()?.montantAssurance || 0"
+            [partClient]="currentSale()?.montantClient || 0"
+            [showAvoirBadge]="isAvoir()"
+            [saleType]="'ASSURANCE'" />
+        } @else {
+          <div class="empty-summary-state">
+            <i class="pi pi-calculator"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Card: Actions -->
+      <div class="actions-card">
+        <app-sale-actions
+          [canSave]="canSaveSale() && hasCustomer()"
+          [canPrint]="!!currentSale()?.saleId"
+          [isSaving]="isSaving()"
+          [saleType]="'ASSURANCE'"
+          (save)="onSave()"
+          (saveAndPrint)="onSaveAndPrint()"
+          (print)="onPrint()"
+          (saveAsPresale)="onSaveAsPresale()"
+          (cancel)="onCancel()"
+          (showPendingSales)="onShowPendingSales()" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Paiement -->
+@if (showPaymentModal()) {
+  <p-dialog 
+    [(visible)]="showPaymentModal" 
+    [modal]="true" 
+    [closable]="true"
+    [style]="{ width: '50vw' }"
+    header="Paiement">
+    <app-payment-mode
+      [amountToBePaid]="amountToBePaid() || 0"
+      [saleType]="'ASSURANCE'"
+      (paymentComplete)="onPaymentComplete($event)"
+      (cancel)="showPaymentModal.set(false)" />
+  </p-dialog>
+}
+
+<!-- Drawer Ventes en attente -->
+@if (showPendingSales()) {
+  <p-drawer 
+    [(visible)]="showPendingSales" 
+    position="right"
+    [style]="{ width: '50vw' }">
+    <ng-template #header>
+      <h5>Ventes en attente</h5>
+    </ng-template>
+    <app-pending-sales-list
+      [saleType]="'ASSURANCE'"
+      (saleResumed)="onPendingSaleResumed($event)"
+      (closed)="onPendingSalesClose()" />
+  </p-drawer>
+}
+
+<!-- Dialog de confirmation (rendu par ConfirmationService de PrimeNG) -->
+<!-- Pas besoin de composant ici, géré par ConfirmationService -->
+
+<!-- Spinner global -->
+<ngx-spinner 
+  name="sale-spinner"
+  [fullScreen]="true"
+  type="ball-scale-multiple"
+  size="medium">
+  <p class="text-white">Traitement en cours...</p>
+</ngx-spinner>

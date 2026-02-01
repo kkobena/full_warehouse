@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kobe.warehouse.sales.databinding.ItemTiersPayantBinding
-import com.kobe.warehouse.sales.domain.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.TiersPayant
 
 /**
  * Adapter for Tiers Payant selection (AutoCompleteTextView dropdown)
@@ -35,9 +35,9 @@ class TiersPayantAdapter(
 
         fun bind(tiersPayant: TiersPayant) {
             binding.apply {
-                tvTiersPayantName.text = tiersPayant.name
-                tvTiersPayantCode.text = tiersPayant.code ?: ""
-                tvTauxCouverture.text = "${tiersPayant.tauxCouverture}%"
+                tvTiersPayantName.text = tiersPayant.getDisplayName()
+                tvTiersPayantCode.text = tiersPayant.codeOrganisme ?: ""
+                tvTauxCouverture.text = tiersPayant.getCategoryLabel()
 
                 root.setOnClickListener {
                     onTiersPayantClick(tiersPayant)

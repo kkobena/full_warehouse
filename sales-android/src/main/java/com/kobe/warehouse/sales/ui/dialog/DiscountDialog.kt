@@ -12,8 +12,8 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.databinding.DialogDiscountBinding
-import com.kobe.warehouse.sales.domain.model.Discount
-import com.kobe.warehouse.sales.domain.model.DiscountType
+import com.kobe.warehouse.sales.data.model.Discount
+import com.kobe.warehouse.sales.data.model.DiscountType
 
 /**
  * Discount Dialog

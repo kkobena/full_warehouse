@@ -240,3 +240,4 @@ sales-android/fastlane/test_output
 sales-android/fastlane/readme.md
 /pharma-mobile-report/build/
 /pharma-mobile-report/release.jks
+/scripts/init_pharma_db/target/

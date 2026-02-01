@@ -1,0 +1,34 @@
+<p-floatlabel variant="on">
+  <p-autoComplete
+    #produitbox
+    [(ngModel)]="produitSelected"
+    (ngModelChange)="onNgModelChange($event)"
+    [suggestions]="produits()"
+    (completeMethod)="searchFn($event)"
+    (onSelect)="onSelect()"
+    (onKeyDown)="onKeyDown($event)"
+    [minLength]="PRODUIT_COMBO_MIN_LENGTH"
+    optionLabel="libelle"
+    [appendTo]="APPEND_TO"
+    [autofocus]="autofocus()"
+    [showClear]="showClear()"
+    [style]="style()"
+    [inputStyle]="inputStyle()"
+    [disabled]="disabled()"
+    placeholder=" ">
+    <ng-template #item let-item>
+      <div [style]="{ width: '100%' }">
+        <span [class.stockless]="item.totalQuantity <= 0" style="width: 20%; display: inline-block">
+          {{ item.fournisseurProduit?.codeCip }}
+        </span>
+        <span [class.stockless]="item.totalQuantity <= 0">
+          {{ item.libelle }}
+        </span>
+        <span [class.stockless]="item.totalQuantity <= 0" class="float-right">
+          {{ item.fournisseurProduit?.prixUni | number }}
+        </span>
+      </div>
+    </ng-template>
+  </p-autoComplete>
+  <label>{{ 'warehouseApp.labels.produits' | translate }}</label>
+</p-floatlabel>

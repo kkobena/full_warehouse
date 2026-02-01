@@ -42,4 +42,14 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_pharma_logo</item>
         <item name="postSplashScreenTheme">@style/Theme.PharmaSmart</item>
     </style>
+
+    <!-- Full Screen Dialog Theme -->
+    <style name="Theme.PharmaSmart.Dialog.FullScreen" parent="Theme.Material3.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/accent</item>
+    </style>
 </resources>

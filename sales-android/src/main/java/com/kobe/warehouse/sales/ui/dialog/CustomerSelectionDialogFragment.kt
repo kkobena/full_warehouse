@@ -114,6 +114,16 @@ class CustomerSelectionDialogFragment : DialogFragment() {
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
+
+        binding.btnCreateCustomer.setOnClickListener {
+            // Open create customer dialog
+            val createDialog = UninsuredCustomerCreateDialogFragment.newInstance { createdCustomer ->
+                // Customer created successfully, select it and close
+                saleViewModel.selectCustomer(createdCustomer)
+                dismiss()
+            }
+            createDialog.show(parentFragmentManager, UninsuredCustomerCreateDialogFragment.TAG)
+        }
     }
 
     private fun searchCustomers(query: String) {
@@ -121,7 +131,7 @@ class CustomerSelectionDialogFragment : DialogFragment() {
         binding.tvEmptyState.visibility = View.GONE
 
         coroutineScope.launch {
-            val result = customerRepository.searchCustomers(query)
+            val result = customerRepository.searchAssuredCustomers(query)
 
             binding.progressBar.visibility = View.GONE
 

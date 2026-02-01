@@ -23,7 +23,6 @@ console.log('📦 Preparing sidecar for Tauri build...');
 // Ensure sidecar directory exists
 if (!fs.existsSync(sidecarDir)) {
   fs.mkdirSync(sidecarDir, { recursive: true });
-  console.log('✅ Created sidecar directory');
 }
 
 // Check if wrapper script exists
@@ -78,7 +77,6 @@ console.log(`📋 Copying ${jarFile} to sidecar directory...`);
 const oldJars = fs.readdirSync(sidecarDir).filter(file => file.startsWith('pharmaSmart-') && file.endsWith('.jar'));
 oldJars.forEach(oldJar => {
   fs.unlinkSync(path.join(sidecarDir, oldJar));
-  console.log(`🗑️  Removed old JAR: ${oldJar}`);
 });
 
 // Copy new JAR
@@ -91,13 +89,8 @@ if (process.platform !== 'win32') {
   if (fs.existsSync(shScript)) {
     try {
       fs.chmodSync(shScript, '755');
-      console.log('✅ Made pharmasmart-backend.sh executable');
     } catch (error) {
       console.warn('⚠️  Could not make shell script executable:', error.message);
     }
   }
 }
-
-console.log('✅ Sidecar preparation complete!');
-console.log(`📦 Backend JAR: ${jarFile}`);
-console.log(`📁 Sidecar directory: ${sidecarDir}`);

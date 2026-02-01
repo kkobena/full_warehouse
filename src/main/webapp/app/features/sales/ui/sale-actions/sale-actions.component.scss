@@ -1,0 +1,100 @@
+// Import shared navigation styles
+@import '../../../../shared/scss/pharma-nav';
+
+// ============================================
+// SALE ACTIONS - Boutons d'action
+// ============================================
+
+.sale-actions-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+// Version Desktop : Boutons avec labels
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+  ::ng-deep {
+    .p-buttongroup {
+      display: flex;
+
+      .p-button {
+        min-width: 140px;
+        font-weight: 600;
+        border-radius: 0;
+
+        &:first-child {
+          border-top-left-radius: $pharma-radius;
+          border-bottom-left-radius: $pharma-radius;
+        }
+
+        &:last-child {
+          border-top-right-radius: $pharma-radius;
+          border-bottom-right-radius: $pharma-radius;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+
+    // Boutons additionnels (hors du groupe)
+    > .p-button:not(.p-buttongroup .p-button) {
+      min-width: 120px;
+      font-weight: 600;
+    }
+  }
+}
+
+// Version Mobile : ButtonGroup avec icon-only
+.action-buttons-mobile {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  ::ng-deep {
+    .p-buttongroup {
+      display: flex;
+      gap: 0;
+
+      .p-button {
+        border-radius: 0;
+        flex: 1;
+
+        &:first-child {
+          border-top-left-radius: $pharma-radius;
+          border-bottom-left-radius: $pharma-radius;
+        }
+
+        &:last-child {
+          border-top-right-radius: $pharma-radius;
+          border-bottom-right-radius: $pharma-radius;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .action-buttons {
+    gap: 0.5rem;
+
+    ::ng-deep .p-button {
+      min-width: auto;
+      font-size: 0.875rem;
+    }
+  }
+}

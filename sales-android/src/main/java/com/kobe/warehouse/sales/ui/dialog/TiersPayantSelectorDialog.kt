@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.databinding.DialogTiersPayantSelectorBinding
-import com.kobe.warehouse.sales.domain.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.TiersPayant
 import com.kobe.warehouse.sales.ui.adapter.TiersPayantAdapter
 import com.kobe.warehouse.sales.ui.viewmodel.InsuranceDataViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.InsuranceDataViewModelFactory

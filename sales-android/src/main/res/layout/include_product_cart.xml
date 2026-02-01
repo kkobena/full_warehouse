@@ -1,102 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- Product Search Card -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/produits"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="?attr/colorOnSurface" />
-
-        <!-- Product Search -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilProductSearch"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="@string/rechercher_produit"
-            app:endIconDrawable="@drawable/ic_barcode_scanner"
-            app:endIconMode="custom"
-            app:startIconDrawable="@drawable/ic_search">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etProductSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Product Search Results -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvProductSearchResults"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:maxHeight="200dp"
-            android:visibility="gone"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_product_list"
-            tools:visibility="visible" />
-
-        <!-- Cart Title with Item Count -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="12dp">
 
-            <TextView
-                android:layout_width="0dp"
+            <!-- Search Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilProductSearch"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/panier"
-                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+                android:hint="Rechercher un produit..."
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:startIconDrawable="@drawable/ic_search"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_barcode"
+                app:startIconTint="@color/primary"
+                app:endIconTint="@color/primary"
+                app:boxStrokeColor="@color/primary"
+                app:hintTextColor="@color/primary">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCartCount"
-                style="@style/Widget.Material3.Chip.Assist"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etProductSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionSearch" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Product Search Results -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProductSearchResults"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="3 articles" />
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:maxHeight="300dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_product_list"
+                tools:itemCount="3"
+                tools:visibility="visible" />
 
         </LinearLayout>
 
-        <!-- Cart Items -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCart"
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Cart Card (Expandable/Collapsible) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardCart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:maxHeight="300dp"
-            tools:itemCount="2"
-            tools:listitem="@layout/item_cart" />
+            android:orientation="vertical">
 
-        <!-- Empty Cart State -->
-        <com.kobe.warehouse.sales.ui.components.EmptyStateView
-            android:id="@+id/emptyCartView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            <!-- Cart Header (Cliquable pour expand/collapse) -->
+            <LinearLayout
+                android:id="@+id/headerCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_cart"
+                    app:tint="@color/primary"
+                    android:contentDescription="Panier" />
 
-</com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:text="Panier"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvCartItemCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:background="@drawable/badge_background"
+                    android:textSize="12sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="8dp"
+                    tools:text="3" />
+
+                <ImageView
+                    android:id="@+id/ivExpandCart"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_expand_less"
+                    android:contentDescription="Replier/Déplier"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutlineVariant" />
+
+            <!-- Cart Content (Expand/Collapse) -->
+            <LinearLayout
+                android:id="@+id/contentCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Action Buttons (visible when cart has items) -->
+                <LinearLayout
+                    android:id="@+id/cartActionsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClearCart"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vider"
+                        android:textSize="12sp"
+                        app:icon="@drawable/ic_delete"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/error" />
+
+                </LinearLayout>
+
+                <!-- Cart Items List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="400dp"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_cart"
+                    tools:itemCount="2" />
+
+                <!-- Empty Cart State -->
+                <LinearLayout
+                    android:id="@+id/emptyCartState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_empty_cart"
+                        app:tint="@color/text_secondary"
+                        android:contentDescription="Panier vide" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Panier vide"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

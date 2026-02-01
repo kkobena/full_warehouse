@@ -1,0 +1,34 @@
+[package]
+name = "init_pharma_db"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = "0.29"
+egui = "0.29"
+tokio = { version = "1", features = ["full"] }
+tokio-postgres = "0.7"
+
+[[bin]]
+name = "init_pharma_db"
+path = "src/main.rs"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
+# Supprime la fenêtre console sur Windows
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52", features = ["Win32_System_Console"] }
+
+# Configuration pour ne pas afficher la console Windows
+[package.metadata.winresource]
+OriginalFilename = "init_pharma_db.exe"
+ProductName = "Pharma DB Initializer"
+FileDescription = "Outil d'initialisation de base de données PostgreSQL pour Pharma Smart"
+LegalCopyright = "Copyright 2026"

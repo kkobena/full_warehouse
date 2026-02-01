@@ -1,0 +1,195 @@
+<!-- Notifications Toast -->
+<p-toast position="top-right" />
+
+<!-- Drawer pour ventes en attente -->
+<p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
+  <ng-template #header>
+    <div class="drawer-header-content">
+      <i class="pi pi-clock text-xl"></i>
+      <div class="drawer-header-text">
+        <h3>Ventes en attente</h3>
+        <span class="drawer-subtitle">Reprendre une vente en cours</span>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #content>
+    <!-- Le contenu sera fourni par le composant actif -->
+    <div class="pending-sales-placeholder">
+      <p>Liste des ventes en attente</p>
+    </div>
+  </ng-template>
+</p-drawer>
+
+<!-- Interface principale Point de Vente -->
+<div class="pharma-sales-layout">
+  <!-- HEADER TOOLBAR - Actions principales -->
+  <div class="pharma-sales-header">
+    <div class="header-left">
+      <!-- Bouton retour -->
+      <p-button
+        (click)="previousState()"
+        [rounded]="true"
+        [text]="true"
+        class="back-button"
+        icon="pi pi-arrow-left"
+        pTooltip="Retour"
+      ></p-button>
+
+      <!-- Titre de la page -->
+      <div class="page-title">
+        <h1>Point de Vente</h1>
+        <p class="subtitle">{{ getPageTitle() }}</p>
+      </div>
+
+      <!-- Sélection du vendeur -->
+      <div class="header-select-wrapper">
+        <label class="header-label">
+          <i class="pi pi-user"></i>
+          <span>Vendeur</span>
+        </label>
+        <p-select
+          #userBox
+          (onChange)="onSelectUser()"
+          [(ngModel)]="userSeller"
+          [appendTo]="appendTo"
+          [dataKey]="'id'"
+          [options]="userVendeurService.vendeurs()"
+          [placeholder]="'Sélectionner un vendeur'"
+          [style]="{ width: '200px' }"
+          class="pharma-select-modern"
+          optionLabel="abbrName"
+        ></p-select>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
+      @if (active() === 'comptant' && salesFacade.currentSale()) {
+        <div class="header-customer-wrapper">
+          <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+        </div>
+      }
+
+      <!-- Pending sales button (tous les tabs) -->
+      <p-button
+        (click)="openPendingSales()"
+        [badge]="countPendingSales().toString()"
+        [disabled]="salesFacade.currentSale() !== null || isPresale()"
+        [outlined]="true"
+        badgeSeverity="danger"
+        class="pending-sales-btn"
+        icon="pi pi-clock"
+        label="En attente"
+        severity="info"
+        size="small"
+      />
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="pharma-sales-body">
+    <!-- LEFT SIDEBAR - Navigation par type de vente -->
+    <div [class.collapsed]="sidebarCollapsed()" class="sales-sidebar pharma-nav-sidebar">
+      <div class="sidebar-card pharma-nav-sidebar-card">
+        <div class="sidebar-header pharma-nav-sidebar-header">
+          @if (!sidebarCollapsed()) {
+            <i class="pi pi-shopping-cart"></i>
+            <span>Type de vente</span>
+          }
+        </div>
+
+        <div class="sidebar-content pharma-nav-sidebar-content">
+          <!-- Navigation verticale avec NgbNav -->
+          <div
+            #nav="ngbNav"
+            (navChange)="onNavChange($event)"
+            [(activeId)]="active"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical"
+          >
+            <!-- Tab COMPTANT -->
+            <ng-container ngbNavItem="comptant">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                @if (!sidebarCollapsed()) {
+                  <i class="pi pi-money-bill"></i>
+                  <span>Comptant</span>
+                  <span class="link-arrow">›</span>
+                } @else {
+                  <i class="pi pi-money-bill" pTooltip="Comptant" tooltipPosition="right"></i>
+                }
+              </a>
+              <ng-template ngbNavContent>
+                <app-sale-creation 
+                  [isSmallScreen]="isSmallScreen()" 
+                  (productAddedSuccess)="onProductAddedSuccess()">
+                </app-sale-creation>
+              </ng-template>
+            </ng-container>
+
+            <!-- Tab ASSURANCE -->
+            <ng-container ngbNavItem="assurance">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                @if (!sidebarCollapsed()) {
+                  <i class="pi pi-shield"></i>
+                  <span>Assurance</span>
+                  <span class="link-arrow">›</span>
+                } @else {
+                  <i class="pi pi-shield" pTooltip="Assurance" tooltipPosition="right"></i>
+                }
+              </a>
+              <ng-template ngbNavContent>
+                <app-sale-assurance 
+                  [isSmallScreen]="isSmallScreen()" 
+                  (productAddedSuccess)="onProductAddedSuccess()">
+                </app-sale-assurance>
+              </ng-template>
+            </ng-container>
+
+            <!-- Tab CARNET -->
+            <ng-container ngbNavItem="carnet">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                @if (!sidebarCollapsed()) {
+                  <i class="pi pi-credit-card"></i>
+                  <span>Carnet</span>
+                  <span class="link-arrow">›</span>
+                } @else {
+                  <i class="pi pi-credit-card" pTooltip="Carnet" tooltipPosition="right"></i>
+                }
+              </a>
+              <ng-template ngbNavContent>
+                <app-sale-carnet 
+                  [isSmallScreen]="isSmallScreen()" 
+                  (productAddedSuccess)="onProductAddedSuccess()">
+                </app-sale-carnet>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Toggle collapse button -->
+        <div class="sidebar-footer">
+          <button (click)="toggleSidebar()" class="collapse-btn" type="button">
+            @if (!sidebarCollapsed()) {
+              <i class="pi pi-angle-left"></i>
+            } @else {
+              <i class="pi pi-angle-right"></i>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN WORK AREA -->
+    <div class="sales-workspace">
+      <!-- SALES CONTENT (zone pour le contenu du tab actif) -->
+      <div class="sale-content-area">
+        <div [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Composants de notification -->
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>

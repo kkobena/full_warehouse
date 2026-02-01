@@ -1,0 +1,91 @@
+// Pharma Variables
+$pharma-primary: #5b89a6;
+$pharma-primary-hover: #4a7690;
+$pharma-primary-dark: #3d617a;
+$pharma-secondary: #e8f4f8;
+$pharma-border: #dce6ec;
+$pharma-text: #2c3e50;
+$pharma-text-light: #6c757d;
+$pharma-radius: 6px;
+$pharma-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$pharma-transition: all 0.2s ease-in-out;
+
+.sale-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow;
+}
+
+.sale-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: white;
+  border: 2px solid $pharma-border;
+  border-radius: $pharma-radius;
+  color: $pharma-text;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $pharma-transition;
+  text-align: left;
+  width: 100%;
+
+  i {
+    font-size: 1.3rem;
+    color: $pharma-primary;
+    transition: $pharma-transition;
+  }
+
+  .sale-type-label {
+    flex: 1;
+  }
+
+  .link-arrow {
+    font-size: 1.5rem;
+    color: $pharma-text-light;
+    transition: $pharma-transition;
+    opacity: 0;
+  }
+
+  &:hover {
+    border-color: $pharma-primary;
+    background: $pharma-secondary;
+    transform: translateX(4px);
+
+    .link-arrow {
+      opacity: 1;
+    }
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-hover 100%);
+    border-color: $pharma-primary-dark;
+    color: white;
+    box-shadow: 0 4px 12px rgba($pharma-primary, 0.3);
+
+    i {
+      color: white;
+    }
+
+    .link-arrow {
+      color: white;
+      opacity: 1;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, $pharma-primary-hover 0%, $pharma-primary-dark 100%);
+      transform: translateX(4px);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid rgba($pharma-primary, 0.5);
+    outline-offset: 2px;
+  }
+}

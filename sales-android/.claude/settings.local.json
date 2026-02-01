@@ -15,7 +15,11 @@
       "Bash(ls:*)",
       "Bash(gradle --version:*)",
       "Bash(curl:*)",
-      "Bash(.gradlew.bat assembleDebug)"
+      "Bash(.gradlew.bat assembleDebug)",
+      "Bash(test:*)",
+      "Bash(.gradlew.bat testDebugUnitTest:*)",
+      "Bash(cmd.exe /c gradlew.bat assembleDebug)",
+      "Bash(./gradlew.bat:*)"
     ],
     "deny": [],
     "ask": []

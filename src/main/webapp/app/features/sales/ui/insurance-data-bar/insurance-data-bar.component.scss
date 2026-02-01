@@ -1,0 +1,513 @@
+// ============================================
+// INSURANCE DATA BAR COMPONENT STYLES
+// Uses pharma-nav SCSS variables for consistency
+// ============================================
+
+@import '../../../../shared/scss/pharma-nav';
+
+// Local theme variables (complementing pharma-nav)
+$pharma-success: #28a745;
+$pharma-success-light: #d4edda;
+$pharma-danger: #dc3545;
+$pharma-danger-light: #f8d7da;
+$pharma-info: #17a2b8;
+$pharma-info-light: #d1ecf1;
+$pharma-warning: #ffc107;
+$pharma-warning-light: #fff3cd;
+
+// ============================================
+// HOST COMPONENT
+// ============================================
+
+:host {
+  width: 100%;
+  display: block;
+}
+
+// ============================================
+// MAIN WRAPPER
+// ============================================
+
+.assurance-data-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+// ============================================
+// SEARCH SECTION
+// ============================================
+
+.search-section {
+  display: flex;
+  align-items: center;
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  // Style direct pour le champ input avec la classe search-input
+  ::ng-deep {
+    .search-input,
+    .p-inputtext {
+      width: 100%;
+      font-size: 0.8125rem !important;
+      padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
+      border-radius: $pharma-radius !important;
+      border: 2px solid $gray-300 !important;
+      transition: all 0.2s ease !important;
+
+      &:enabled:focus,
+      &:focus {
+        border-color: $pharma-primary !important;
+        box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1) !important;
+        outline: none !important;
+      }
+
+      &::placeholder {
+        color: $gray-400 !important;
+        font-style: italic !important;
+      }
+    }
+
+    .p-iconfield {
+      width: 100%;
+
+      .p-inputicon {
+        color: $gray-500;
+      }
+    }
+  }
+}
+
+// ============================================
+// CUSTOMER DATA GRID
+// ============================================
+
+.customer-data-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.15rem;
+
+  // Custom scrollbar for horizontal scroll
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $gray-100;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $gray-400;
+    border-radius: 3px;
+
+    &:hover {
+      background: $gray-500;
+    }
+  }
+}
+
+// ============================================
+// DATA CARDS (Common Styles)
+// ============================================
+
+.data-card {
+  flex: 1;
+  min-width: 280px;
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow-md;
+  border: 1px solid $gray-200;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: $pharma-primary;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.175rem 0.425rem;
+    border-bottom: 1px solid $gray-200;
+    background: $gray-50;
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: $gray-800;
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+
+    .edit-btn {
+      ::ng-deep .p-button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 0.1rem 0.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid $gray-100;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-size: 0.7rem;
+        color: $gray-600;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+      }
+
+      .info-value {
+        font-size: 0.8125rem;
+        color: $gray-900;
+        font-weight: 600;
+        text-align: right;
+
+        &.matricule {
+          font-family: 'Courier New', monospace;
+          background: $gray-100;
+          padding: 0.15rem 0.3rem;
+          border-radius: $pharma-radius-sm;
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    padding: 0.375rem 0.625rem;
+    background: $gray-50;
+    border-top: 1px solid $gray-200;
+
+    .change-customer-btn {
+      ::ng-deep .p-button {
+        width: 100%;
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: $pharma-shadow-sm;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// ASSURED CARD (Assuré)
+// ============================================
+
+.assured-card {
+  .card-header {
+    padding: 0;
+    background: linear-gradient(135deg, $pharma-primary-light 0%, lighten($pharma-primary-light, 3%) 100%);
+    border-bottom-color: lighten($pharma-primary, 30%);
+
+    .header-title {
+      color: $pharma-primary-dark;
+
+      i {
+        color: $pharma-primary;
+      }
+    }
+  }
+
+  &:hover {
+    border-color: $pharma-primary;
+  }
+}
+
+// ============================================
+// AYANT DROIT CARD
+// ============================================
+
+.ayant-droit-card {
+  .card-header {
+    padding: 0;
+    background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
+    border-bottom-color: lighten($pharma-success, 30%);
+
+    .header-title {
+      color: darken($pharma-success, 10%);
+
+      i {
+        color: $pharma-success;
+      }
+    }
+  }
+
+  &:hover {
+    border-color: $pharma-success;
+  }
+}
+
+// ============================================
+// TIERS PAYANT CARD
+// ============================================
+
+.tiers-payant-card {
+  .tp-header {
+    padding: 0.375rem 0.625rem;
+    background: linear-gradient(135deg, $pharma-info-light 0%, lighten($pharma-info-light, 3%) 100%);
+    border-bottom: 1px solid lighten($pharma-info, 30%);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.375rem;
+
+    .tp-title {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex: 1;
+      min-width: 0;
+
+      .tp-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.15rem 0.3rem;
+        border-radius: $pharma-radius-sm;
+        font-weight: 700;
+        font-size: 0.7rem;
+        min-width: 30px;
+        text-align: center;
+        flex-shrink: 0;
+
+        &.ro-badge {
+          background: linear-gradient(135deg, $pharma-info 0%, darken($pharma-info, 10%) 100%);
+          color: $pharma-white;
+        }
+
+        &.rc-badge {
+          background: linear-gradient(135deg, $pharma-warning 0%, darken($pharma-warning, 10%) 100%);
+          color: $gray-900;
+        }
+      }
+
+      .tp-name {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: $gray-800;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+      }
+    }
+
+    .tp-rate {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+
+      .rate-label {
+        font-size: 0.7rem;
+        color: $gray-600;
+        font-weight: 500;
+      }
+
+      .rate-value {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: $pharma-danger;
+        background: lighten($pharma-danger, 40%);
+        padding: 0.15rem 0.3rem;
+        border-radius: $pharma-radius-sm;
+      }
+    }
+  }
+
+  .tp-input-section {
+    padding: 0.175rem 0.625rem;
+
+    ::ng-deep .p-inputgroup {
+      display: flex;
+      align-items: stretch;
+
+      .p-inputgroup-addon {
+        background: $gray-100;
+        border-color: $gray-300;
+        color: $gray-700;
+        font-weight: 500;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+        height: 28px;
+        min-height: 28px;
+        max-height: 28px;
+        box-sizing: border-box;
+
+        i {
+          color: $pharma-info;
+          font-size: 0.7rem;
+        }
+      }
+
+      .bon-input {
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-color: $gray-300;
+        transition: all 0.2s ease;
+        padding: 0.1rem 0.5rem;
+
+        &:focus {
+          border-color: $pharma-primary;
+          box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+        }
+
+        &::placeholder {
+          color: $gray-400;
+          font-style: italic;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// CUSTOMER SECTION (for CARNET type)
+// ============================================
+
+.customer-section {
+  .customer-card {
+    .card-header {
+      background: linear-gradient(135deg, $pharma-warning-light 0%, lighten($pharma-warning-light, 3%) 100%);
+      border-bottom-color: lighten($pharma-warning, 30%);
+
+      .header-title {
+        color: darken($pharma-warning, 25%);
+
+        i {
+          color: darken($pharma-warning, 15%);
+        }
+      }
+    }
+
+    &:hover {
+      border-color: $pharma-warning;
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+@media (max-width: 1400px) {
+  .customer-data-grid {
+    .data-card {
+      min-width: 240px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .search-section {
+    ::ng-deep .p-inputtext {
+      padding: 0.5rem 2rem;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .customer-data-grid {
+    gap: 0.625rem;
+
+    .data-card {
+      min-width: 220px;
+
+      .card-header {
+        padding: 0.625rem 0.875rem;
+
+        .header-title {
+          font-size: 0.8125rem;
+
+          i {
+            font-size: 1rem;
+          }
+        }
+      }
+
+      .card-body {
+        padding: 0.875rem;
+        gap: 0.5rem;
+
+        .info-row {
+          padding: 0.375rem 0;
+
+          .info-label {
+            font-size: 0.75rem;
+          }
+
+          .info-value {
+            font-size: 0.8125rem;
+          }
+        }
+      }
+
+      .card-footer {
+        padding: 0.625rem 0.875rem;
+
+        .change-customer-btn {
+          ::ng-deep .p-button {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .customer-data-grid {
+    gap: 0.5rem;
+
+    .data-card {
+      min-width: 200px;
+    }
+  }
+}

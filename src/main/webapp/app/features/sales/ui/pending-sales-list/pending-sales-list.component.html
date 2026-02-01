@@ -1,0 +1,239 @@
+<div class="pending-sales-container">
+  <!-- Toolbar -->
+  <p-toolbar>
+    <div class="toolbar-content">
+      <!-- Sale Type Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Type</label>
+        <p-select
+          [(ngModel)]="saleTypeFilter"
+          (onChange)="onSaleTypeChange()"
+          [options]="saleTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ width: '150px' }"
+        />
+      </div>
+
+      <!-- Search -->
+      <div class="search-group flex-grow-1">
+        <p-iconfield iconPosition="left">
+          <p-inputicon class="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            (keyup)="onSearch($event)"
+            placeholder="Rechercher par référence, client ou vendeur..."
+            class="w-full"
+          />
+        </p-iconfield>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-group">
+        <p-button
+          icon="pi pi-refresh"
+          (onClick)="onRefresh()"
+          [outlined]="true"
+          severity="secondary"
+          size="small"
+          pTooltip="Actualiser"
+        />
+      </div>
+    </div>
+  </p-toolbar>
+
+  <p-divider />
+
+  <!-- Summary Bar -->
+  <div class="summary-bar">
+    <div class="summary-item">
+      <i class="pi pi-shopping-cart"></i>
+      <span class="summary-label">Nombre de ventes :</span>
+      <span class="summary-value">{{ totalCount() }}</span>
+    </div>
+    <div class="summary-item">
+      <i class="pi pi-money-bill"></i>
+      <span class="summary-label">Montant total :</span>
+      <span class="summary-value total-amount">{{ totalAmount() | number : '1.0-0' }} F</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <p-table
+      [value]="filteredSales()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [loading]="loading()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+      dataKey="id"
+      selectionMode="single"
+      [(selection)]="selectedSale"
+      [metaKeySelection]="false"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 3%"></th>
+          <th style="width: 12%">Référence</th>
+          <th style="width: 10%">Type</th>
+          <th style="width: 10%" class="text-center">Articles</th>
+          <th style="width: 12%" class="text-right">Montant</th>
+          <th style="width: 20%">Client</th>
+          <th style="width: 15%">Vendeur</th>
+          <th style="width: 13%">Date</th>
+          <th style="width: 5%" class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-sale let-expanded="expanded">
+        <tr
+          [ngClass]="getRowClass(sale)"
+          (click)="onSelectSale(sale)"
+          (dblclick)="onResumeSale(sale)"
+          class="hoverable-row"
+        >
+          <td>
+            <p-button
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [pRowToggler]="sale"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+            />
+          </td>
+          <td>
+            <span class="sale-reference">{{ sale.numberTransaction }}</span>
+          </td>
+          <td>
+            <p-tag
+              [value]="getSaleTypeLabel(sale.natureVente || 'COMPTANT')"
+              [severity]="getSaleTypeSeverity(sale.natureVente || 'COMPTANT')"
+            />
+          </td>
+          <td class="text-center">
+            <span class="item-count">{{ sale.salesLines?.length || 0 }}</span>
+          </td>
+          <td class="text-right">
+            <span class="sale-amount">{{ sale.salesAmount | number : '1.0-0' }} F</span>
+          </td>
+          <td>
+            <div class="customer-name">
+              {{ sale.customer?.fullName || '-' }}
+            </div>
+          </td>
+          <td>
+            <span class="seller-name">{{ sale.seller?.abbrName || '-' }}</span>
+          </td>
+          <td>
+            <span class="sale-date">{{ sale.createdAt | date : 'dd/MM/yyyy HH:mm' }}</span>
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-play"
+                (onClick)="onResumeSale(sale)"
+                [rounded]="true"
+                [text]="true"
+                severity="success"
+                size="small"
+                pTooltip="Reprendre la vente"
+              />
+              <p-button
+                icon="pi pi-trash"
+                (onClick)="onDeleteSale(sale, $event)"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                size="small"
+                pTooltip="Supprimer"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Expanded Row: Product Details -->
+      <ng-template #rowexpansion let-sale>
+        <tr class="expanded-row">
+          <td colspan="9">
+            <div class="products-detail-card">
+              <div class="card-header">
+                <i class="pi pi-list me-2"></i>
+                <span>Produits de la vente</span>
+              </div>
+              <div class="card-body">
+                <p-table
+                  [value]="sale.salesLines"
+                  [paginator]="true"
+                  [rows]="5"
+                  [rowsPerPageOptions]="[5, 10, 15]"
+                  styleClass="p-datatable-sm"
+                >
+                  <ng-template #header>
+                    <tr>
+                      <th style="width: 5%">#</th>
+                      <th style="width: 12%">Code</th>
+                      <th style="width: 40%">Libellé</th>
+                      <th style="width: 8%" class="text-right">Qté D.</th>
+                      <th style="width: 8%" class="text-right">Qté S.</th>
+                      <th style="width: 12%" class="text-right">Prix Unit.</th>
+                      <th style="width: 15%" class="text-right">Total</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-line let-rowIndex="rowIndex">
+                    <tr [ngClass]="{ 'partial-qty': line.quantitySold < line.quantityRequested }">
+                      <td class="text-center">{{ rowIndex + 1 }}</td>
+                      <td>
+                        <span class="product-code">{{ line.code }}</span>
+                      </td>
+                      <td>
+                        <div class="product-name">{{ line.produitLibelle }}</div>
+                      </td>
+                      <td class="text-right">
+                        <span class="qty-value">{{ line.quantityRequested | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="qty-value" [ngClass]="{ 'text-warning': line.quantitySold < line.quantityRequested }">
+                          {{ line.quantitySold | number }}
+                        </span>
+                      </td>
+                      <td class="text-right">
+                        <span class="price-value">{{ line.regularUnitPrice | number : '1.0-0' }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="total-value">{{ line.salesAmount | number : '1.0-0' }} F</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty Message -->
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="9" class="text-center empty-message">
+            <div class="empty-state">
+              <i class="pi pi-inbox empty-icon"></i>
+              <p class="empty-text">Aucune vente en attente</p>
+              <p class="empty-subtext">Les ventes mises en attente apparaîtront ici</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Help Text -->
+  <div class="help-text">
+    <i class="pi pi-info-circle"></i>
+    <span>Double-cliquez sur une ligne pour reprendre la vente</span>
+  </div>
+</div>

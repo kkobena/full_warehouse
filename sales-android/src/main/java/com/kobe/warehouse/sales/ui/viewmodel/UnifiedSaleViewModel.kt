@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Customer
+import com.kobe.warehouse.sales.data.model.PrioriteTiersPayant
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
@@ -13,8 +15,8 @@ import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
-import com.kobe.warehouse.sales.domain.model.SaleType
-import com.kobe.warehouse.sales.domain.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.SaleType
+import com.kobe.warehouse.sales.data.model.TiersPayant
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.launch
 
@@ -55,8 +57,20 @@ class UnifiedSaleViewModel(
 
         _currentSaleType.value = newType
 
+        // Update customer required flag
+        updateCustomerRequired()
+
         // Update sale object with new type information
         updateSaleWithType(newType)
+    }
+
+    /**
+     * Update customer required flag based on sale type
+     * - Always true for Assurance and Carnet
+     * - For Comptant: true if deferred payment or credit (checked during finalization)
+     */
+    private fun updateCustomerRequired() {
+        _customerRequired.value = _currentSaleType.value?.requiresCustomer() == true
     }
 
     // ===== Current Sale State =====
@@ -75,9 +89,50 @@ class UnifiedSaleViewModel(
     private val _customerRequired = MutableLiveData(false)
     val customerRequired: LiveData<Boolean> = _customerRequired
 
+    // Customer search results
+    private val _customerSearchResults = MutableLiveData<List<Customer>>()
+    val customerSearchResults: LiveData<List<Customer>> = _customerSearchResults
+
+    private val _isSearchingCustomer = MutableLiveData(false)
+    val isSearchingCustomer: LiveData<Boolean> = _isSearchingCustomer
+
+    /**
+     * Search customers by query
+     * Returns results via customerSearchResults LiveData
+     */
+    fun searchCustomers(query: String) {
+        if (query.length < 2) {
+            _customerSearchResults.value = emptyList()
+            return
+        }
+
+        _isSearchingCustomer.value = true
+        viewModelScope.launch {
+            customerRepository.searchAssuredCustomers(query).fold(
+                onSuccess = { customers ->
+                    _customerSearchResults.value = customers
+                    _isSearchingCustomer.value = false
+                },
+                onFailure = { error ->
+                    _errorMessage.value = "Erreur de recherche client: ${error.message}"
+                    _customerSearchResults.value = emptyList()
+                    _isSearchingCustomer.value = false
+                }
+            )
+        }
+    }
+
+    /**
+     * Clear customer search results
+     */
+    fun clearCustomerSearchResults() {
+        _customerSearchResults.value = emptyList()
+    }
+
     fun selectCustomer(customer: Customer) {
         _selectedCustomer.value = customer
         _customerValidationError.value = null
+        _customerSearchResults.value = emptyList() // Clear search results after selection
 
         // Update sale with customer
         val updatedSale = _currentSale.value?.copy(customer = customer)
@@ -98,6 +153,19 @@ class UnifiedSaleViewModel(
         }
     }
 
+    /**
+     * Replace current customer with a new one
+     * Resets all customer-related data (tiers payants, ayant droits)
+     */
+    fun replaceCustomer(newCustomer: Customer) {
+        // Reset customer-related data
+        _clientTiersPayants.value = emptyList()
+        // TODO: Reset ayant droits when implemented
+
+        // Select new customer
+        selectCustomer(newCustomer)
+    }
+
     fun clearCustomer() {
         if (_currentSaleType.value?.requiresCustomer() == true) {
             _customerValidationError.value = "Client obligatoire pour ce type de vente"
@@ -113,74 +181,82 @@ class UnifiedSaleViewModel(
 
     // ===== Insurance (Assurance) State =====
 
-    private val _tiersPayants = MutableLiveData<List<TiersPayant>>(emptyList())
-    val tiersPayants: LiveData<List<TiersPayant>> = _tiersPayants
+    private val _clientTiersPayants = MutableLiveData<List<ClientTiersPayant>>(emptyList())
+    val clientTiersPayants: LiveData<List<ClientTiersPayant>> = _clientTiersPayants
 
-    fun addTiersPayant(tiersPayant: TiersPayant) {
-        val current = _tiersPayants.value ?: emptyList()
-        _tiersPayants.value = current + tiersPayant
-
-        // Update sale type
+    /**
+     * Add tiers payant with customer insurance details
+     * @param tiersPayantId Insurance provider ID
+     * @param tiersPayantName Insurance provider name
+     * @param num Customer's insurance number (matricule)
+     * @param taux Coverage rate
+     * @param numBon Prescription number
+     * @param priorite Priority (0 = principal, 1+ = complementary)
+     */
+    fun addClientTiersPayant(
+        tiersPayantId: Long,
+        tiersPayantName: String,
+        num: String,
+        taux: Int,
+        numBon: String? = null,
+        priorite: Int = 0
+    ) {
         val customer = _selectedCustomer.value
-        if (customer != null) {
-            _currentSaleType.value = SaleType.Assurance(
-                saleCustomer = customer,
-                tiersPayants = _tiersPayants.value ?: emptyList()
-            )
+        if (customer == null) {
+            _errorMessage.value = "Veuillez sélectionner un client d'abord"
+            return
         }
+
+        val clientTiersPayant = ClientTiersPayant(
+            customerId = customer.id,
+            tiersPayantId = tiersPayantId,
+            tiersPayantName = tiersPayantName,
+            num = num,
+            taux = taux,
+            numBon = numBon,
+            priorite = PrioriteTiersPayant.fromValue(priorite),
+            typeTiersPayant = if (priorite == 0) "PRINCIPAL" else "COMPLEMENTAIRE"
+        )
+
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current + clientTiersPayant
     }
 
-    fun removeTiersPayant(tiersPayant: TiersPayant) {
-        val current = _tiersPayants.value ?: emptyList()
-        _tiersPayants.value = current.filter { it.id != tiersPayant.id }
-
-        // Update sale type
-        val customer = _selectedCustomer.value
-        if (customer != null && _tiersPayants.value?.isNotEmpty() == true) {
-            _currentSaleType.value = SaleType.Assurance(
-                saleCustomer = customer,
-                tiersPayants = _tiersPayants.value ?: emptyList()
-            )
-        }
+    fun removeClientTiersPayant(clientTiersPayant: ClientTiersPayant) {
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.filter { it.tiersPayantId != clientTiersPayant.tiersPayantId }
     }
 
-    fun updateTiersPayantTaux(tiersPayant: TiersPayant, newTaux: Int) {
-        val current = _tiersPayants.value ?: emptyList()
-        _tiersPayants.value = current.map { tp ->
-            if (tp.id == tiersPayant.id) {
-                tp.copy(tauxCouverture = newTaux)
+    fun updateClientTiersPayantTaux(clientTiersPayant: ClientTiersPayant, newTaux: Int) {
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.map { ctp ->
+            if (ctp.tiersPayantId == clientTiersPayant.tiersPayantId) {
+                ctp.copy(taux = newTaux)
             } else {
-                tp
+                ctp
             }
         }
+    }
 
-        // Update sale type
-        val customer = _selectedCustomer.value
-        if (customer != null) {
-            _currentSaleType.value = SaleType.Assurance(
-                saleCustomer = customer,
-                tiersPayants = _tiersPayants.value ?: emptyList()
-            )
+    fun updateClientTiersPayantNumeroBon(clientTiersPayant: ClientTiersPayant, numeroBon: String) {
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.map { ctp ->
+            if (ctp.tiersPayantId == clientTiersPayant.tiersPayantId) {
+                ctp.copy(numBon = numeroBon.ifEmpty { null })
+            } else {
+                ctp
+            }
         }
     }
 
-    fun updateTiersPayantNumeroBon(tiersPayant: TiersPayant, numeroBon: String) {
-        val current = _tiersPayants.value ?: emptyList()
-        _tiersPayants.value = current.map { tp ->
-            if (tp.id == tiersPayant.id) {
-                tp.copy(numeroBon = numeroBon.ifEmpty { null })
+    fun updateClientTiersPayantNum(clientTiersPayant: ClientTiersPayant, num: String) {
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.map { ctp ->
+            if (ctp.tiersPayantId == clientTiersPayant.tiersPayantId) {
+                ctp.copy(num = num)
             } else {
-                tp
+                ctp
             }
-        }
-
-        // Update sale type
-        val customer = _selectedCustomer.value
-        if (customer != null) {
-            _currentSaleType.value = SaleType.Assurance(
-                saleCustomer = customer,
-                tiersPayants = _tiersPayants.value ?: emptyList()
-            )
         }
     }
 
@@ -215,55 +291,143 @@ class UnifiedSaleViewModel(
 
     // ===== Cart Management =====
 
+    /**
+     * Add product to cart with API call (Unified Sale Workflow)
+     * - For COMPTANT: calls comptant/create or comptant/add-item
+     * - For ASSURANCE/CARNET: calls vo/create or vo/add-item
+     * - First line creates new sale, subsequent lines add to existing sale
+     *
+     * NOTE: Stock validation should be done BEFORE calling this method.
+     * This method assumes stock validation has passed or forceStock is true.
+     */
     fun addProductToCart(product: Product, quantity: Int, forceStock: Boolean = false) {
-        // Validate customer if required
+        // Validate customer if required for ASSURANCE/CARNET
         if (_currentSaleType.value?.requiresCustomer() == true && _selectedCustomer.value == null) {
             _customerValidationError.value = "Veuillez sélectionner un client d'abord"
             return
         }
 
-        // Validate stock
-        if (!forceStock && product.totalQuantity < quantity) {
-            _stockValidationError.value = "Stock insuffisant (disponible: ${product.totalQuantity})"
-            return
-        }
-
         val currentSale = _currentSale.value ?: Sale()
-        val existingLines = currentSale.salesLines.toMutableList()
+        val saleType = _currentSaleType.value ?: SaleType.Comptant
 
-        // Check if product already in cart
-        val existingLineIndex = existingLines.indexOfFirst { it.produitId == product.id }
-
-        if (existingLineIndex >= 0) {
-            // Update existing line
-            val existingLine = existingLines[existingLineIndex]
-            existingLines[existingLineIndex] = existingLine.copy(
-                quantitySold = existingLine.quantitySold + quantity,
-                salesAmount = (existingLine.quantitySold + quantity) * product.regularUnitPrice
-            )
-        } else {
-            // Add new line
-            val newLine = SaleLine(
-                produitId = product.id,
-                produitLibelle = product.libelle ?: "",
-                quantitySold = quantity,
-                regularUnitPrice = product.regularUnitPrice,
-                salesAmount = quantity * product.regularUnitPrice,
-                netUnitPrice = product.netUnitPrice
-            )
-            existingLines.add(newLine)
-        }
-
-        // Recalculate total
-        val newTotal = existingLines.sumOf { it.salesAmount }
-
-        _currentSale.value = currentSale.copy(
-            salesLines = existingLines,
-            salesAmount = newTotal
+        // Create SaleLine for the product
+        val newLine = SaleLine(
+            produitId = product.id,
+            produitLibelle = product.libelle ?: "",
+            code = product.code ?: "",
+            quantitySold = quantity,
+            regularUnitPrice = product.regularUnitPrice,
+            salesAmount = quantity * product.regularUnitPrice,
+            netUnitPrice = product.netUnitPrice,
+            qtyStock = product.totalQuantity,
+            saleCompositeId = currentSale.saleId,  // Set from current sale (null for new sale)
+            forceStock = forceStock  // Mark if stock was forced
         )
 
-        // Clear products search
-        _products.value = emptyList()
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = if (currentSale.id == null) {
+                    // First line - create new sale
+                    createNewSaleWithFirstLine(currentSale, newLine, saleType)
+                } else {
+                    // Subsequent lines - add to existing sale
+                    addLineToExistingSale(currentSale, newLine, saleType)
+                }
+
+                result.fold(
+                    onSuccess = { updatedSale ->
+                        _currentSale.value = updatedSale
+                        _products.value = emptyList() // Clear search
+                        _errorMessage.value = "Produit ajouté"
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur : ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Create new sale with first product line
+     */
+    private suspend fun createNewSaleWithFirstLine(
+        currentSale: Sale,
+        firstLine: SaleLine,
+        saleType: SaleType
+    ): Result<Sale> {
+        val saleToCreate = currentSale.copy(
+            salesLines = mutableListOf(firstLine),
+            salesAmount = firstLine.salesAmount,
+            customerId = _selectedCustomer.value?.id,
+            customer = _selectedCustomer.value,
+            natureVente = saleType.toString(),  // "COMPTANT", "ASSURANCE", or "CARNET"
+            tiersPayants = _clientTiersPayants.value?.toMutableList() ?: mutableListOf(),
+            type = if (saleType is SaleType.Comptant) "VNO" else "VO",
+            categorie = if (saleType is SaleType.Comptant) "VNO" else "VO"
+        )
+
+        return when (saleType) {
+            is SaleType.Comptant -> salesRepository.createComptantSale(saleToCreate)
+            is SaleType.Assurance, is SaleType.Carnet -> {
+                // For VO sales, customer and tiers payants must be set
+                if (saleToCreate.customerId == null) {
+                    return Result.failure(Exception("Client requis pour ${saleType.getDisplayName()}"))
+                }
+                // Validate tiers payants are present
+                if (saleToCreate.tiersPayants.isEmpty()) {
+                    return Result.failure(Exception("Au moins un tiers payant est requis pour ${saleType.getDisplayName()}"))
+                }
+                salesRepository.createVOSale(saleToCreate)
+            }
+        }
+    }
+
+    /**
+     * Add line to existing sale
+     * IMPORTANT: saleCompositeId must be set for existing sales
+     */
+    private suspend fun addLineToExistingSale(
+        currentSale: Sale,
+        newLine: SaleLine,
+        saleType: SaleType
+    ): Result<Sale> {
+        // Ensure saleCompositeId is set (required for backend)
+        if (newLine.saleCompositeId == null) {
+            return Result.failure(Exception("saleCompositeId requis pour ajouter une ligne à une vente existante"))
+        }
+
+        // Set saleId (Long) on the new line - extract from currentSale.id
+        val lineWithSaleId = newLine.copy(
+            saleId = currentSale.id  // Sale.id is Long?
+        )
+
+        val result = when (saleType) {
+            is SaleType.Comptant -> salesRepository.addItemToComptantSale(lineWithSaleId)
+            is SaleType.Assurance, is SaleType.Carnet -> salesRepository.addItemToVOSale(lineWithSaleId)
+        }
+
+        return result.fold(
+            onSuccess = { addedLine ->
+                // Add the line to current sale and recalculate total
+                val updatedLines = currentSale.salesLines.toMutableList()
+                updatedLines.add(addedLine)
+                val newTotal = updatedLines.sumOf { it.salesAmount }
+
+                Result.success(currentSale.copy(
+                    salesLines = updatedLines,
+                    salesAmount = newTotal
+                ))
+            },
+            onFailure = { error ->
+                Result.failure(error)
+            }
+        )
     }
 
     fun updateLineQuantity(line: SaleLine, newQuantity: Int) {
@@ -370,6 +534,13 @@ class UnifiedSaleViewModel(
 
         val currentSaleValue = _currentSale.value ?: return
 
+        // For Comptant sales, validate customer requirement based on payment conditions
+        if (_currentSaleType.value is SaleType.Comptant) {
+            if (!validateCustomerForComptant(payments, currentSaleValue.salesAmount)) {
+                return
+            }
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -387,6 +558,13 @@ class UnifiedSaleViewModel(
             // Calculate payrollAmount = salesAmount - discountAmount
             val calculatedPayrollAmount = currentSaleValue.salesAmount - (currentSaleValue.discountAmount ?: 0)
 
+            // Determine natureVente, type, and categorie based on sale type
+            val (natureVente, type, categorie) = when (_currentSaleType.value) {
+                is SaleType.Assurance -> Triple("ASSURANCE", "VO", "VO")  // Vente Ordinaire
+                is SaleType.Carnet -> Triple("CARNET", "VO", "VO")     // Vente Ordinaire
+                else -> Triple("COMPTANT", "VNO", "VNO")                 // Vente Non Ordinaire (Comptant)
+            }
+
             // Build complete sale object with all data
             val completeSale = currentSaleValue.copy(
                 customerId = _selectedCustomer.value?.id,
@@ -394,22 +572,27 @@ class UnifiedSaleViewModel(
                 cassierId = cassierId,
                 payrollAmount = calculatedPayrollAmount,
                 payments = payments.toMutableList(),
-                montantVerse = montantVerse
+                montantVerse = montantVerse,
+                // Insurance/Carnet specific fields
+                tiersPayants = _clientTiersPayants.value?.toMutableList() ?: mutableListOf(),
+                natureVente = natureVente,
+                type = type,
+                categorie = categorie,
+                typePrescription = "PRESCRIPTION",  // TODO: Make this configurable
+                sansBon = false  // TODO: Make this configurable
             )
 
-            // Call appropriate endpoint based on sale type
+            // Call appropriate finalization endpoint based on sale type
+            // Use unified sale finalization endpoints (POST /api/sales/comptant/finalize or /api/sales/vo/finalize)
             val result = when (_currentSaleType.value) {
                 is SaleType.Comptant -> {
-                    salesRepository.createCashSale(completeSale)
+                    salesRepository.finalizeComptantSale(completeSale)
                 }
-                is SaleType.Assurance -> {
-                    salesRepository.finalizeAssuranceSale(completeSale)
-                }
-                is SaleType.Carnet -> {
-                    salesRepository.finalizeCarnetSale(completeSale)
+                is SaleType.Assurance, is SaleType.Carnet -> {
+                    salesRepository.finalizeVOSale(completeSale)
                 }
                 else -> {
-                    salesRepository.createCashSale(completeSale)
+                    salesRepository.finalizeComptantSale(completeSale)
                 }
             }
 
@@ -430,7 +613,7 @@ class UnifiedSaleViewModel(
     private fun resetCart() {
         _currentSale.value = Sale()
         _selectedCustomer.value = null
-        _tiersPayants.value = emptyList()
+        _clientTiersPayants.value = emptyList()
         _currentSaleType.value = SaleType.Comptant
         _isEditMode.value = false
     }
@@ -482,8 +665,55 @@ class UnifiedSaleViewModel(
                 // TODO: Validate credit limit
             }
             else -> {
-                // Comptant - no additional validation
+                // Comptant - no additional validation here
+                // Customer validation for Comptant is done in validateCustomerForComptant()
             }
+        }
+
+        return true
+    }
+
+    /**
+     * Validate customer requirement for Comptant sales
+     * Customer is mandatory for Comptant sales in these cases:
+     * 1. Sale with "avoir" (unserved products due to stock shortage)
+     *    - When quantity sold < quantity requested for any product
+     * 2. Deferred payment (client doesn't pay the full amount)
+     *    - When total paid < sale amount
+     *
+     * @param payments List of payments
+     * @param saleAmount Total sale amount
+     * @return true if validation passes, false otherwise
+     */
+    private fun validateCustomerForComptant(
+        payments: List<com.kobe.warehouse.sales.data.model.Payment>,
+        saleAmount: Int
+    ): Boolean {
+        val totalPaid = payments.sumOf { it.paidAmount ?: 0 }
+
+        // Check for deferred payment (client doesn't pay the full amount)
+        val hasDeferredPayment = totalPaid < saleAmount
+
+        // Check for "avoir" (unserved products due to stock shortage)
+        // This happens when quantity sold < quantity initially requested
+        val sale = _currentSale.value
+        val hasAvoir = sale?.salesLines?.any { line ->
+            // If quantitySold < quantityRequested, there's an "avoir"
+            line.quantitySold < line.quantityRequested
+        } ?: false
+
+        // Customer is required if there's deferred payment or avoir
+        if ((hasDeferredPayment || hasAvoir) && _selectedCustomer.value == null) {
+            _customerValidationError.value = when {
+                hasDeferredPayment && hasAvoir ->
+                    "Client obligatoire pour une vente avec paiement différé et avoir (produits non servis)"
+                hasDeferredPayment ->
+                    "Client obligatoire pour une vente avec paiement différé"
+                hasAvoir ->
+                    "Client obligatoire pour une vente avec avoir (produits non servis)"
+                else -> "Client obligatoire"
+            }
+            return false
         }
 
         return true
@@ -504,7 +734,8 @@ class UnifiedSaleViewModel(
             }
             is SaleType.Assurance -> {
                 _selectedCustomer.value = saleType.saleCustomer
-                _tiersPayants.value = saleType.tiersPayants
+                // TODO: Convert TiersPayant to ClientTiersPayant when restoring
+                // For now, tiers payants need to be added manually after changing type
             }
             is SaleType.Carnet -> {
                 _selectedCustomer.value = saleType.saleCustomer
@@ -514,5 +745,395 @@ class UnifiedSaleViewModel(
         _currentSale.value = sale.copy(
             customer = saleType.getCustomer()
         )
+    }
+
+    // ========================================
+    // Ayant Droit Management (Assurance only)
+    // ========================================
+
+    private val _selectedAyantDroit = MutableLiveData<Customer?>()
+    val selectedAyantDroit: LiveData<Customer?> = _selectedAyantDroit
+
+    fun selectAyantDroit(ayantDroit: Customer) {
+        _selectedAyantDroit.value = ayantDroit
+    }
+
+    fun removeAyantDroit() {
+        _selectedAyantDroit.value = null
+    }
+
+    // ========================================
+    // Tiers Payant Management
+    // ========================================
+
+    fun updateTiersPayantNumBon(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant, numBon: String) {
+        when (_currentSaleType.value) {
+            is SaleType.Assurance -> {
+                // For Assurance: Update clientTiersPayants (user-selected for this sale)
+                val current = _clientTiersPayants.value ?: emptyList()
+                _clientTiersPayants.value = current.map {
+                    if (it.tiersPayantId == tiersPayant.tiersPayantId) {
+                        it.copy(numBon = numBon)
+                    } else {
+                        it
+                    }
+                }
+            }
+            is SaleType.Carnet -> {
+                // For Carnet: Update customer.tiersPayants (pre-configured)
+                val customer = _selectedCustomer.value ?: return
+                val updatedTiersPayants = customer.tiersPayants.map {
+                    if (it.tiersPayantId == tiersPayant.tiersPayantId) {
+                        it.copy(numBon = numBon)
+                    } else {
+                        it
+                    }
+                }
+                // Update customer with new tiersPayants list
+                _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+            }
+            else -> {
+                // COMPTANT - no tiers payants
+            }
+        }
+    }
+
+    fun updateTiersPayantTaux(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant, newTaux: Int) {
+        val customer = _selectedCustomer.value ?: return
+        val updatedTiersPayants = customer.tiersPayants.map {
+            if (it.tiersPayantId == tiersPayant.tiersPayantId) {
+                it.copy(taux = newTaux)
+            } else {
+                it
+            }
+        }
+        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+    }
+
+    fun removeTiersPayant(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant) {
+        val customer = _selectedCustomer.value ?: return
+        val updatedTiersPayants = customer.tiersPayants.filter {
+            it.tiersPayantId != tiersPayant.tiersPayantId
+        }
+        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+    }
+
+    fun addTiersPayant(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant) {
+        val customer = _selectedCustomer.value ?: return
+        val updatedTiersPayants = (customer.tiersPayants ?: emptyList()) + tiersPayant
+        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+    }
+
+    // ========================================
+    // Available Tiers Payants (for adding new)
+    // ========================================
+
+    private val _availableTiersPayants = MutableLiveData<List<TiersPayant>>()
+    val availableTiersPayants: LiveData<List<TiersPayant>> = _availableTiersPayants
+
+    /**
+     * Load available tiers payants for selection
+     * Fetches from backend and filters by type (ASSURANCE only)
+     */
+    fun loadAvailableTiersPayants() {
+        viewModelScope.launch {
+            try {
+                // Create TiersPayantRepository instance
+                val retrofit = com.kobe.warehouse.sales.utils.ApiClient.create(tokenManager = tokenManager)
+                val tiersPayantApi = retrofit.create(com.kobe.warehouse.sales.data.api.TiersPayantApiService::class.java)
+                val tiersPayantRepository = com.kobe.warehouse.sales.data.repository.TiersPayantRepository(tiersPayantApi)
+
+                // Fetch tiers payants of type ASSURANCE
+                val result = tiersPayantRepository.searchTiersPayants(search = "", type = "ASSURANCE")
+                result.fold(
+                    onSuccess = { tiersPayants ->
+                        // Filter enabled only
+                        _availableTiersPayants.value = tiersPayants.filter { it.isEnabled() }
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur chargement tiers payants : ${error.message}"
+                        _availableTiersPayants.value = emptyList()
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+                _availableTiersPayants.value = emptyList()
+            }
+        }
+    }
+
+    // ========================================
+    // Ayants Droits List (for selection)
+    // ========================================
+
+    private val _ayantDroitsList = MutableLiveData<List<Customer>>()
+    val ayantDroitsList: LiveData<List<Customer>> = _ayantDroitsList
+
+    /**
+     * Load ayants droits for a customer
+     * Fetches from backend
+     */
+    fun loadAyantDroits(customerId: Int) {
+        viewModelScope.launch {
+            try {
+                val result = customerRepository.getAyantDroits(customerId)
+                result.fold(
+                    onSuccess = { ayantDroits ->
+                        _ayantDroitsList.value = ayantDroits
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur chargement ayants droits : ${error.message}"
+                        _ayantDroitsList.value = emptyList()
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+                _ayantDroitsList.value = emptyList()
+            }
+        }
+    }
+
+    // ========================================
+    // Stock Validation
+    // ========================================
+
+    /**
+     * Validate stock availability for a product
+     * Checks stock quantity, maximum allowed, and deconditioning requirements
+     *
+     * @param product Product to validate
+     * @param requestedQuantity Quantity user wants to add
+     * @param userHasForceStockPermission Whether current user can force stock
+     * @return StockValidationResult with validation status and messages
+     */
+    fun validateStock(
+        product: Product,
+        requestedQuantity: Int,
+        userHasForceStockPermission: Boolean
+    ): com.kobe.warehouse.sales.domain.validation.StockValidationResult {
+        val currentSale = _currentSale.value ?: Sale()
+
+        // Get quantity already in cart for this product
+        val quantityInCart = currentSale.salesLines
+            .filter { it.produitId == product.id }
+            .sumOf { it.quantitySold }
+
+        val totalQuantity = quantityInCart + requestedQuantity
+        val availableStock = product.totalQuantity
+
+        // Check 1: Stock insuffisant
+        if (availableStock < requestedQuantity) {
+            return if (userHasForceStockPermission) {
+                com.kobe.warehouse.sales.domain.validation.StockValidationResult(
+                    status = com.kobe.warehouse.sales.domain.validation.StockValidationStatus.INSUFFICIENT_STOCK_CAN_FORCE,
+                    product = product,
+                    requestedQuantity = requestedQuantity,
+                    availableStock = availableStock,
+                    quantityInCart = quantityInCart
+                )
+            } else {
+                com.kobe.warehouse.sales.domain.validation.StockValidationResult(
+                    status = com.kobe.warehouse.sales.domain.validation.StockValidationStatus.INSUFFICIENT_STOCK_BLOCKED,
+                    product = product,
+                    requestedQuantity = requestedQuantity,
+                    availableStock = availableStock,
+                    quantityInCart = quantityInCart
+                )
+            }
+        }
+
+        // Check 2: Déconditionnement (if product has packaging and quantity is not a multiple)
+        product.itemQty?.let { packagingSize ->
+            if (packagingSize > 1 && requestedQuantity % packagingSize != 0) {
+                return com.kobe.warehouse.sales.domain.validation.StockValidationResult(
+                    status = com.kobe.warehouse.sales.domain.validation.StockValidationStatus.REQUIRES_DECONDITIONING,
+                    product = product,
+                    requestedQuantity = requestedQuantity,
+                    availableStock = availableStock,
+                    quantityInCart = quantityInCart,
+                    packagingSize = packagingSize
+                )
+            }
+        }
+
+        // All checks passed
+        return com.kobe.warehouse.sales.domain.validation.StockValidationResult(
+            status = com.kobe.warehouse.sales.domain.validation.StockValidationStatus.VALID,
+            product = product,
+            requestedQuantity = requestedQuantity,
+            availableStock = availableStock,
+            quantityInCart = quantityInCart
+        )
+    }
+
+    // ========================================
+    // Cart Actions with API (for saved sales)
+    // ========================================
+
+    /**
+     * Check if current user has specific permission
+     */
+    fun checkUserPermission(permission: String): Boolean {
+        return tokenManager.hasAuthority(permission)
+    }
+
+    /**
+     * Update product quantity via API (for saved sales)
+     * For new sales, use updateLineQuantity() instead
+     */
+    fun updateProductQuantityWithApi(saleLine: SaleLine, newQuantity: Int) {
+        val sale = _currentSale.value ?: return
+
+        // Check if sale is saved (has ID)
+        if (sale.id == null || sale.saleId?.saleDate == null) {
+            // Not saved yet, update locally
+            updateLineQuantity(saleLine, newQuantity)
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Create updated SaleLine with new quantity
+                val updatedSaleLine = saleLine.copy(quantitySold = newQuantity)
+
+                val result = salesRepository.updateItemQuantity(updatedSaleLine)
+
+                result.fold(
+                    onSuccess = { updatedLine ->
+                        // Update local state with API response
+                        val updatedLines = sale.salesLines.map { existingLine ->
+                            if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                        }
+                        val newTotal = updatedLines.sumOf { it.salesAmount }
+
+                        _currentSale.value = sale.copy(
+                            salesLines = updatedLines.toMutableList(),
+                            salesAmount = newTotal
+                        )
+                        _errorMessage.value = "Quantité mise à jour"
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur : ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Update product price via API (requires authorization if user doesn't have permission)
+     * For new sales, update locally
+     * NOTE: authUserId is tracked in audit but not sent to backend endpoint
+     */
+    fun updateProductPriceWithApi(saleLine: SaleLine, newPrice: Int, authUserId: Long? = null) {
+        val sale = _currentSale.value ?: return
+
+        // Check if sale is saved (has ID)
+        if (sale.id == null || sale.saleId?.saleDate == null) {
+            // Not saved yet, update locally
+            val updatedLines = sale.salesLines.map { existingLine ->
+                if (existingLine.produitId == saleLine.produitId) {
+                    existingLine.copy(
+                        regularUnitPrice = newPrice,
+                        salesAmount = saleLine.quantitySold * newPrice
+                    )
+                } else {
+                    existingLine
+                }
+            }
+            val newTotal = updatedLines.sumOf { it.salesAmount }
+
+            _currentSale.value = sale.copy(
+                salesLines = updatedLines.toMutableList(),
+                salesAmount = newTotal
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Create updated SaleLine with new price
+                val updatedSaleLine = saleLine.copy(regularUnitPrice = newPrice)
+
+                val result = salesRepository.updateItemPrice(updatedSaleLine)
+
+                result.fold(
+                    onSuccess = { updatedLine ->
+                        // Update local state with API response
+                        val updatedLines = sale.salesLines.map { existingLine ->
+                            if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                        }
+                        val newTotal = updatedLines.sumOf { it.salesAmount }
+
+                        _currentSale.value = sale.copy(
+                            salesLines = updatedLines.toMutableList(),
+                            salesAmount = newTotal
+                        )
+                        _errorMessage.value = "Prix mis à jour"
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur : ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Delete product line via API (requires authorization if user doesn't have permission)
+     * For new sales, use removeLineFromCart()
+     * NOTE: authUserId is tracked in audit but not sent to backend endpoint
+     */
+    fun deleteProductLineWithApi(saleLine: SaleLine, authUserId: Long? = null) {
+        val sale = _currentSale.value ?: return
+
+        // Check if sale is saved (has ID)
+        if (sale.id == null || sale.saleId?.saleDate == null) {
+            // Not saved yet, remove locally
+            removeLineFromCart(saleLine)
+            return
+        }
+
+        // SaleLine has composite key SaleLineId(id, saleDate)
+        val saleLineId = saleLine.id ?: 0L
+        val saleDate = sale.saleId.saleDate
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = salesRepository.deleteItem(saleLineId, saleDate)
+
+                result.fold(
+                    onSuccess = {
+                        // Remove from local state
+                        val updatedLines = sale.salesLines.filter { it.id != saleLine.id }
+                        val newTotal = updatedLines.sumOf { it.salesAmount }
+
+                        _currentSale.value = sale.copy(
+                            salesLines = updatedLines.toMutableList(),
+                            salesAmount = newTotal
+                        )
+                        _errorMessage.value = "Ligne supprimée"
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur : ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }

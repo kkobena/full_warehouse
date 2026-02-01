@@ -1,8 +1,7 @@
 package com.kobe.warehouse.sales.domain.validator
 
-import com.kobe.warehouse.sales.domain.model.InsuranceData
-import com.kobe.warehouse.sales.domain.model.PrescriptionType
-import com.kobe.warehouse.sales.domain.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.InsuranceData
+import com.kobe.warehouse.sales.data.model.TiersPayant
 
 /**
  * Validator for Assurance (Insurance) Sales
@@ -34,16 +33,9 @@ class AssuranceValidator {
         val errors = mutableListOf<String>()
 
         // Validate tiers payant principal
-        if (!insuranceData.tiersPayantPrincipal.enabled) {
+        if (!insuranceData.tiersPayantPrincipal.isEnabled()) {
             errors.add("Le tiers payant principal n'est pas actif")
         }
-
-        // Validate prescription type
-        val prescriptionErrors = validatePrescription(
-            insuranceData.prescriptionType,
-            insuranceData.numeroBon
-        )
-        errors.addAll(prescriptionErrors)
 
         // Validate coverage rates
         val coverageErrors = validateCoverageRates(
@@ -54,8 +46,8 @@ class AssuranceValidator {
 
         // Validate complementary tiers payants
         insuranceData.tiersPayantsComplementaires.forEach { tp ->
-            if (!tp.enabled) {
-                errors.add("Le tiers payant complémentaire '${tp.name}' n'est pas actif")
+            if (!tp.isEnabled()) {
+                errors.add("Le tiers payant complémentaire '${tp.getDisplayName()}' n'est pas actif")
             }
         }
 
@@ -66,29 +58,6 @@ class AssuranceValidator {
         }
 
         return ValidationResult(errors.isEmpty(), errors)
-    }
-
-    /**
-     * Validate prescription type and numero bon
-     */
-    private fun validatePrescription(
-        prescriptionType: PrescriptionType,
-        numeroBon: String?
-    ): List<String> {
-        val errors = mutableListOf<String>()
-
-        // Check if numero bon is required but missing
-        if (prescriptionType.requiresNumeroBon()) {
-            if (numeroBon.isNullOrBlank()) {
-                errors.add(
-                    "Le numéro de bon est obligatoire pour le type de prescription: ${prescriptionType.displayName}"
-                )
-            } else if (numeroBon.length < 3) {
-                errors.add("Le numéro de bon doit contenir au moins 3 caractères")
-            }
-        }
-
-        return errors
     }
 
     /**
@@ -137,16 +106,12 @@ class AssuranceValidator {
 
         val errors = mutableListOf<String>()
 
-        if (tiersPayant.name.isBlank()) {
+        if (tiersPayant.name.isNullOrBlank()) {
             errors.add("Le nom du tiers payant ne peut pas être vide")
         }
 
-        if (!tiersPayant.enabled) {
-            errors.add("Le tiers payant '${tiersPayant.name}' n'est pas actif")
-        }
-
-        if (tiersPayant.tauxCouverture !in 0..100) {
-            errors.add("Le taux de couverture doit être entre 0 et 100%")
+        if (!tiersPayant.isEnabled()) {
+            errors.add("Le tiers payant '${tiersPayant.getDisplayName()}' n'est pas actif")
         }
 
         return ValidationResult(errors.isEmpty(), errors)

@@ -76,9 +76,20 @@ class PaymentDialogFragment : DialogFragment() {
             ViewModelProvider(requireActivity())[UnifiedSaleViewModel::class.java]
         }
 
-        // Calculate payrollAmount = salesAmount - discount
+        // Get amount to pay
+        // For simplified sale (not created yet): calculate locally
+        // For unified sale (already created): use backend-calculated values
         val currentSale = saleViewModel.currentSale.value
-        payrollAmount = (currentSale?.salesAmount ?: 0) - (currentSale?.discountAmount ?: 0)
+        payrollAmount = if (currentSale?.id == null) {
+            // Simplified sale - calculate locally (sale not created yet on backend)
+            (currentSale?.salesAmount ?: 0) - (currentSale?.discountAmount ?: 0)
+        } else {
+            // Unified sale - use backend-calculated values
+            when (currentSale.natureVente) {
+                "ASSURANCE", "CARNET" -> currentSale.partAssure ?: 0  // Client's part
+                else -> currentSale.payrollAmount ?: 0  // COMPTANT
+            }
+        }
 
         // Setup repository
         val tokenManager = TokenManager(requireContext())

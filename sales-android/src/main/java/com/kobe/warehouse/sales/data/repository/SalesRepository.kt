@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Sale
-import com.kobe.warehouse.sales.domain.model.UpdateSaleInfo
+import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -314,6 +314,216 @@ class SalesRepository(
                 val response = salesApiService.removeDiscountFromCashSale(id, saleDate)
                 if (response.isSuccessful) {
                     Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Update sale line quantity sold
+     * @param saleLine SaleLine with updated quantitySold
+     */
+    suspend fun updateItemQuantity(
+        saleLine: com.kobe.warehouse.sales.data.model.SaleLine
+    ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.updateItemQuantity(saleLine)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Update sale line price
+     * @param saleLine SaleLine with updated regularUnitPrice
+     */
+    suspend fun updateItemPrice(
+        saleLine: com.kobe.warehouse.sales.data.model.SaleLine
+    ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.updateItemPrice(saleLine)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Delete sale line by ID and date
+     * @param saleLineId Sale line ID (Long from SaleLineId.id)
+     * @param saleDate Sale date (String format: yyyy-MM-dd)
+     */
+    suspend fun deleteItem(
+        saleLineId: Long,
+        saleDate: String
+    ): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.deleteItem(saleLineId, saleDate)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Create new COMPTANT sale with first product line
+     * @param sale Sale object with salesLines containing first product
+     */
+    suspend fun createComptantSale(
+        sale: com.kobe.warehouse.sales.data.model.Sale
+    ): Result<com.kobe.warehouse.sales.data.model.Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.createComptantSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Add product line to existing COMPTANT sale
+     * @param saleLine SaleLine with saleId, produitId, quantity, price
+     */
+    suspend fun addItemToComptantSale(
+        saleLine: com.kobe.warehouse.sales.data.model.SaleLine
+    ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.addItemToComptantSale(saleLine)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Create new ASSURANCE/CARNET sale (VO) with first product line
+     * @param sale Sale object with customer, tiers payants, and first product line
+     */
+    suspend fun createVOSale(
+        sale: com.kobe.warehouse.sales.data.model.Sale
+    ): Result<com.kobe.warehouse.sales.data.model.Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.createVOSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Add product line to existing ASSURANCE/CARNET sale (VO)
+     * @param saleLine SaleLine with saleId, produitId, quantity, price
+     */
+    suspend fun addItemToVOSale(
+        saleLine: com.kobe.warehouse.sales.data.model.SaleLine
+    ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.addItemToVOSale(saleLine)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize COMPTANT sale with payments
+     * Completes cash sale and records payments
+     * Backend verifies cash register is open and updates stock
+     *
+     * @param sale Sale object with payments list populated
+     * @return Finalized sale with updated amounts and status
+     */
+    suspend fun finalizeComptantSale(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeComptantSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize ASSURANCE/CARNET sale (VO) with payments
+     * Completes insurance/credit sale with tiers payants and payments
+     * Backend calculates partAssure, partTiersPayant and verifies plafonds
+     *
+     * Validations performed by backend:
+     * - Customer selected
+     * - Tiers payants configured (1-3)
+     * - Numéros de bon entered (unless sansBon = true)
+     * - Plafond client not exceeded
+     *
+     * @param sale Sale object with payments, tiersPayants, and numéros de bon
+     * @return Finalized sale with partAssure and partTiersPayant calculated
+     */
+    suspend fun finalizeVOSale(sale: Sale): Result<Sale> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeVOSale(sale)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
                 } else {
                     val errorMessage = parseErrorResponse(response.errorBody()?.string())
                     Result.failure(Exception(errorMessage))

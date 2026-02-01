@@ -112,6 +112,11 @@ const routes: Routes = [
     loadChildren: () => import('./sales/sales.route'),
   },
   {
+    path: 'sales-home',
+    data: { pageTitle: 'Point de vente' },
+    loadChildren: () => import('../features/sales/sales.routes').then(m => m.SALES_ROUTES),
+  },
+  {
     path: 'remises',
     data: { pageTitle: 'warehouseApp.remise.home.title' },
     loadChildren: () => import('./remise/remise.route'),

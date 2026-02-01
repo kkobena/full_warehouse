@@ -1,6 +1,6 @@
 package com.kobe.warehouse.sales.domain.validator
 
-import com.kobe.warehouse.sales.domain.model.CarnetData
+import com.kobe.warehouse.sales.data.model.CarnetData
 
 /**
  * Validator for Carnet (Credit) Sales

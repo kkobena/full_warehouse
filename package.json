@@ -63,6 +63,7 @@
     "@fortawesome/free-solid-svg-icons": "7.1.0",
     "@ng-bootstrap/ng-bootstrap": "20.0.0",
     "@ng-select/ng-select": "21.2.0",
+    "@ngrx/signals": "^21.0.1",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
     "@popperjs/core": "2.11.8",

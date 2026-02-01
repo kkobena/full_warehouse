@@ -1,0 +1,143 @@
+<!-- Contenu spécifique COMPTANT: Liste produits + Actions -->
+<div class="sale-comptant-content">
+  <!-- Liste des produits dans la vente -->
+  <div class="products-list-section">
+    @if (currentSale() && currentSale()!.salesLines && currentSale()!.salesLines!.length > 0) {
+      <div class="products-table-wrapper">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th class="text-center">Prix U.</th>
+              <th class="text-center">Qté</th>
+              <th class="text-center">Remise</th>
+              <th class="text-end">Total</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of currentSale()!.salesLines; track line.id) {
+              <tr>
+                <td>
+                  <div class="product-name">{{ line.produitLibelle }}</div>
+                  @if (line.produitCip) {
+                    <small class="product-code">CIP: {{ line.produitCip }}</small>
+                  }
+                </td>
+                <td class="text-center">{{ line.regularUnitPrice | number }} F</td>
+                <td class="text-center">
+                  <span class="quantity-badge">{{ line.quantitySold }}</span>
+                </td>
+                <td class="text-center">
+                  @if (line.discountAmount && line.discountAmount > 0) {
+                    <span class="discount-badge">{{ line.discountAmount | number }} F</span>
+                  } @else {
+                    <span class="no-discount">-</span>
+                  }
+                </td>
+                <td class="text-end">
+                  <strong>{{ line.salesAmount | number }} F</strong>
+                </td>
+                <td class="text-center">
+                  <div class="action-buttons">
+                    <p-button
+                      (click)="onEditLineQuantity(line)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-pencil"
+                      severity="info"
+                      size="small"
+                      pTooltip="Modifier quantité"
+                    />
+                    <p-button
+                      (click)="onRemoveLine(line)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      size="small"
+                      pTooltip="Supprimer"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <i class="pi pi-shopping-cart empty-icon"></i>
+        <p>Aucun produit dans la vente</p>
+        <small>Scannez ou recherchez un produit pour commencer</small>
+      </div>
+    }
+  </div>
+
+  <!-- Résumé et Actions -->
+  <div class="summary-and-actions">
+    <!-- Résumé de la vente -->
+    <div class="sale-summary-card">
+      <h3 class="summary-title">
+        <i class="pi pi-calculator"></i>
+        Résumé
+      </h3>
+      
+      @if (currentSale()) {
+        <div class="summary-items">
+          <div class="summary-row">
+            <span class="label">Sous-total HT:</span>
+            <span class="value">{{ currentSale()!.salesAmount || 0 | number }} F</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Montant TVA:</span>
+            <span class="value">{{ currentSale()!.taxAmount || 0 | number }} F</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Remise globale:</span>
+            <span class="value discount">-{{ currentSale()!.discountAmount || 0 | number }} F</span>
+          </div>
+          <div class="summary-row total">
+            <span class="label">Montant Net TTC:</span>
+            <span class="value">{{ currentSale()!.netAmount || 0 | number }} F</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Actions de vente -->
+    <div class="sale-actions-card">
+      <p-button
+        (click)="onValidateSale()"
+        [disabled]="!canValidateSale()"
+        class="w-full mb-2"
+        icon="pi pi-check-circle"
+        label="Valider la vente"
+        severity="success"
+      />
+      
+      <p-button
+        (click)="onPutOnHold()"
+        [disabled]="!canPutOnHold()"
+        [outlined]="true"
+        class="w-full mb-2"
+        icon="pi pi-clock"
+        label="Mettre en attente"
+        severity="info"
+      />
+      
+      <p-button
+        (click)="onCancel()"
+        [disabled]="!canCancel()"
+        [outlined]="true"
+        class="w-full"
+        icon="pi pi-times"
+        label="Annuler"
+        severity="danger"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<jhi-confirm-dialog #confirmDialog />

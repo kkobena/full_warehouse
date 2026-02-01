@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header with expand/collapse -->
         <LinearLayout
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/client"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="?attr/colorOnSurface" />
 
             <TextView
@@ -43,8 +43,8 @@
 
             <ImageView
                 android:id="@+id/ivExpandCustomer"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:contentDescription="@string/expand_collapse"
                 android:src="@drawable/ic_expand_more"
                 app:tint="?attr/colorOnSurfaceVariant" />
@@ -56,7 +56,7 @@
             android:id="@+id/layoutCustomerContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
@@ -64,13 +64,14 @@
             <!-- Search Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCustomerSearch"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/rechercher_client"
                 app:endIconDrawable="@drawable/ic_search"
                 app:endIconMode="custom"
-                app:startIconDrawable="@drawable/ic_person">
+                app:startIconDrawable="@drawable/ic_person"
+                app:boxStrokeWidth="1dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etCustomerSearch"
@@ -78,98 +79,62 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionSearch"
                     android:inputType="text"
-                    android:maxLines="1" />
+                    android:maxLines="1"
+                    android:textSize="14sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Selected Customer Info (hidden until customer selected) -->
+            <!-- Loading Indicator for Customer Search -->
             <LinearLayout
-                android:id="@+id/layoutSelectedCustomer"
+                android:id="@+id/layoutCustomerSearchLoading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="?attr/colorSurfaceVariant"
-                android:orientation="vertical"
-                android:padding="12dp"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="8dp"
                 android:visibility="gone"
                 tools:visibility="visible">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvCustomerName"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:textStyle="bold"
-                        tools:text="Jean Dupont" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnChangeCustomer"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/changer"
-                        app:icon="@drawable/ic_edit" />
-
-                </LinearLayout>
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:indeterminate="true"
+                    app:indicatorSize="20dp"
+                    app:trackThickness="2dp" />
 
                 <TextView
-                    android:id="@+id/tvCustomerPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Tel: +225 07 XX XX XX XX" />
-
-                <!-- Insurance Info (visible for Assurance sales) -->
-                <LinearLayout
-                    android:id="@+id/layoutCustomerInsuranceInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
-                        android:background="?attr/colorOutlineVariant" />
-
-                    <TextView
-                        android:id="@+id/tvPlafondInfo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        tools:text="Plafond: 100,000 FCFA" />
-
-                    <TextView
-                        android:id="@+id/tvEncoursInfo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        tools:text="Encours: 25,000 FCFA" />
-
-                </LinearLayout>
+                    android:layout_marginStart="8dp"
+                    android:text="Recherche en cours..."
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
+
+            <!-- Empty State for Customer Search -->
+            <TextView
+                android:id="@+id/tvCustomerSearchEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone"
+                tools:text="Aucun client trouvé"
+                tools:visibility="visible" />
 
             <!-- Customer Search Results (RecyclerView) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCustomerSearchResults"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:maxHeight="200dp"
+                android:layout_marginTop="6dp"
+                android:maxHeight="180dp"
+                android:nestedScrollingEnabled="false"
                 android:visibility="gone"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_customer_search"

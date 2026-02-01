@@ -337,6 +337,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
       });
   }
 
+  protected openNewSalesHome(): void {
+    this.router.navigate(['/sales-home']);
+  }
+
   private updateParam(): void {
     this.saleToolBarService.updateToolBarParam({
       typeVente: this.typeVenteSelected,

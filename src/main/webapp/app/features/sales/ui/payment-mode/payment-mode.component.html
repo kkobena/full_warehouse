@@ -1,0 +1,256 @@
+<div class="payment-mode-container">
+  <!-- Header -->
+  <div class="payment-header">
+    <h3>Mode de Règlement</h3>
+    <div class="amount-info">
+      <div class="amount-label">Montant à payer:</div>
+      <div class="amount-value">{{ amountToBePaid() | number: '1.0-0' }} FCFA</div>
+    </div>
+  </div>
+
+  <!-- Payment Modes List -->
+  <div class="payment-modes-list">
+    @for (entry of selectedModes(); track entry.mode.code; let i = $index) {
+      <div class="payment-mode-entry">
+        <!-- Mode Icon & Label -->
+        <div class="mode-header">
+          <i [class]="getPaymentModeIcon(entry.mode.code)"></i>
+          <span class="mode-label">{{ getPaymentModeLabel(entry.mode.code) }}</span>
+          
+          <!-- Change/Remove Buttons -->
+          <div class="mode-actions">
+            @if (selectedModes().length > 1) {
+              <p-button
+                icon="pi pi-times"
+                [text]="true"
+                severity="danger"
+                size="small"
+                (onClick)="onRemovePaymentMode(entry)"
+                pTooltip="Retirer ce mode"
+              />
+            }
+            @if (availableModes().length > 0) {
+              <p-button
+                icon="pi pi-sync"
+                [text]="true"
+                severity="secondary"
+                size="small"
+                (onClick)="changeModePanel.toggle($event)"
+                pTooltip="Changer de mode"
+              />
+              <p-popover #changeModePanel>
+                <div class="mode-selector">
+                  @for (mode of availableModes(); track mode.code) {
+                    <button
+                      class="mode-option"
+                      (click)="onChangePaymentMode(entry, mode); changeModePanel.hide()"
+                    >
+                      <i [class]="getPaymentModeIcon(mode.code)"></i>
+                      <span>{{ getPaymentModeLabel(mode.code) }}</span>
+                    </button>
+                  }
+                </div>
+              </p-popover>
+            }
+          </div>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="amount-inputs">
+          @if (entry.mode.code === PaymentModeCode.CASH) {
+            <!-- Cash: montant versé + montant payé -->
+            <div class="cash-inputs">
+              <div class="input-group">
+                <label>Montant versé</label>
+                <p-inputNumber
+                  #paymentInput
+                  [(ngModel)]="entry.amountEntered"
+                  (ngModelChange)="onCashEnteredChange(entry, $event)"
+                  (keydown.enter)="submit()"
+                  [min]="0"
+                  [max]="999999999"
+                  [useGrouping]="false"
+                  placeholder="0"
+                  class="w-full"
+                  inputClass="text-right"
+                />
+              </div>
+              <div class="input-group">
+                <label>Montant payé</label>
+                <p-inputNumber
+                  [(ngModel)]="entry.amount"
+                  (ngModelChange)="onAmountChange(entry, $event)"
+                  (keydown.enter)="submit()"
+                  [min]="0"
+                  [max]="amountToBePaid()"
+                  [useGrouping]="false"
+                  placeholder="0"
+                  class="w-full"
+                  inputClass="text-right"
+                  [disabled]="true"
+                />
+              </div>
+            </div>
+          } @else {
+            <!-- Other modes: simple amount -->
+            <div class="input-group">
+              <label>Montant</label>
+              <p-inputNumber
+                #paymentInput
+                [(ngModel)]="entry.amount"
+                (ngModelChange)="onAmountChange(entry, $event)"
+                (keydown.enter)="submit()"
+                [min]="0"
+                [max]="amountToBePaid()"
+                [useGrouping]="false"
+                placeholder="0"
+                class="w-full"
+                inputClass="text-right"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Add Payment Mode Button -->
+  @if (canAddMore()) {
+    <div class="add-mode-section">
+      <p-button
+        label="Ajouter un mode de paiement"
+        icon="pi pi-plus"
+        [outlined]="true"
+        size="small"
+        (onClick)="addModePanel.toggle($event)"
+      />
+      <p-popover #addModePanel>
+        <div class="mode-selector">
+          @for (mode of availableModes(); track mode.code) {
+            <button
+              class="mode-option"
+              (click)="onAddPaymentMode(mode)"
+            >
+              <i [class]="getPaymentModeIcon(mode.code)"></i>
+              <span>{{ getPaymentModeLabel(mode.code) }}</span>
+            </button>
+          }
+        </div>
+      </p-popover>
+    </div>
+  }
+
+  <!-- Bank Fields (if needed) -->
+  @if (needsBankFields() && showBankFields()) {
+    <div class="bank-fields">
+      <h4>Informations Bancaires</h4>
+      <div class="field-grid">
+        <div class="field">
+          <label for="bankReference">Référence *</label>
+          <input
+            pInputText
+            id="bankReference"
+            [(ngModel)]="bankReference"
+            (keydown.enter)="submit()"
+            placeholder="Numéro de transaction"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label for="bank">Banque</label>
+          <input
+            pInputText
+            id="bank"
+            [(ngModel)]="bank"
+            (keydown.enter)="submit()"
+            placeholder="Nom de la banque"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label for="location">Lieu</label>
+          <input
+            pInputText
+            id="location"
+            [(ngModel)]="location"
+            (keydown.enter)="submit()"
+            placeholder="Lieu de transaction"
+            class="w-full"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Comment -->
+  <div class="comment-field">
+    <label for="comment">
+      Commentaire
+      @if (isDiffere()) {
+        <span class="text-danger">*</span>
+      }
+    </label>
+    <input
+      #commentInput
+      pInputText
+      id="comment"
+      [(ngModel)]="comment"
+      (keydown.enter)="submit()"
+      [placeholder]="isDiffere() ? 'Commentaire obligatoire pour vente différée' : 'Commentaire optionnel'"
+      class="w-full"
+    />
+  </div>
+
+  <!-- Print Options -->
+  <div class="print-options">
+    <p-checkbox
+      [(ngModel)]="printReceipt"
+      [binary]="true"
+      inputId="printReceipt"
+      label="Imprimer le reçu"
+    />
+    <p-checkbox
+      [(ngModel)]="printInvoice"
+      [binary]="true"
+      inputId="printInvoice"
+      label="Imprimer la facture"
+    />
+  </div>
+
+  <!-- Summary -->
+  <div class="payment-summary">
+    <div class="summary-row">
+      <span class="label">Total à payer:</span>
+      <span class="value">{{ amountToBePaid() | number: '1.0-0' }} FCFA</span>
+    </div>
+    <div class="summary-row">
+      <span class="label">Total versé:</span>
+      <span class="value highlight">{{ totalPaid() | number: '1.0-0' }} FCFA</span>
+    </div>
+    @if (remainingAmount() > 0) {
+      <div class="summary-row warning">
+        <span class="label">Reste à payer:</span>
+        <span class="value">{{ remainingAmount() | number: '1.0-0' }} FCFA</span>
+      </div>
+    }
+    @if (changeAmount() > 0) {
+      <div class="summary-row success">
+        <span class="label">Monnaie à rendre:</span>
+        <span class="value">{{ changeAmount() | number: '1.0-0' }} FCFA</span>
+      </div>
+    }
+  </div>
+
+  <!-- Submit Button -->
+  <div class="submit-section">
+    <p-button
+      label="Valider le paiement"
+      icon="pi pi-check"
+      [disabled]="!isComplete()"
+      (onClick)="submit()"
+      severity="success"
+      size="large"
+      styleClass="w-full"
+    />
+  </div>
+</div>

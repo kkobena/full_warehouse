@@ -78,6 +78,14 @@
             <div class="pharma-button-group pharma-hide-mobile">
               <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
+              <p-button
+                (click)="openNewSalesHome()"
+                [raised]="true"
+                icon="pi pi-shopping-bag"
+                label="Point de Vente"
+                severity="secondary"
+              />
+
               <div>
                 @if (useSimpleSale) {
                   <p-button
@@ -107,6 +115,16 @@
                 icon="pi pi-search"
                 pTooltip="Rechercher"
                 severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (click)="openNewSalesHome()"
+                [rounded]="true"
+                [raised]="true"
+                icon="pi pi-shopping-bag"
+                pTooltip="Point de Vente"
+                severity="secondary"
                 tooltipPosition="top"
               />
 

@@ -1,0 +1,13 @@
+<div class="sale-type-selector">
+  @for (saleType of saleTypes; track saleType.type) {
+    <button
+      type="button"
+      class="sale-type-btn"
+      [class.active]="isSelected(saleType.type)"
+      (click)="onTypeSelect(saleType.type)">
+      <i class="pi" [class]="saleType.icon"></i>
+      <span class="sale-type-label">{{ saleType.label }}</span>
+      <span class="link-arrow">›</span>
+    </button>
+  }
+</div>

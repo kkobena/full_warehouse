@@ -1,5 +1,6 @@
 package com.kobe.warehouse.sales.data.api
 
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Customer
 import retrofit2.Response
 import retrofit2.http.*
@@ -11,24 +12,36 @@ import retrofit2.http.*
 interface CustomerApiService {
 
     /**
-     * Search customers
+     * Search uninsured customers only
+     * Backend: GET /customers/uninsured?search=...
      */
-    @GET("api/customers/lite")
-    suspend fun searchCustomers(
+    @GET("api/customers/uninsured")
+    suspend fun searchUninsuredCustomers(
+        @Query("search") search: String
+    ): Response<List<Customer>>
+
+    /**
+     * Search assured customers only
+     * Backend: GET /customers/assured?search=...
+     */
+    @GET("api/customers/assured")
+    suspend fun searchAssuredCustomers(
         @Query("search") search: String,
         @Query("size") size: Int = 20
     ): Response<List<Customer>>
 
     /**
      * Get customer by ID
+     * Backend: GET /customers/{id}
      */
     @GET("api/customers/{id}")
     suspend fun getCustomerById(
-        @Path("id") id: Long
+        @Path("id") id: Int
     ): Response<Customer>
 
     /**
      * Create uninsured customer (client comptant)
+     * Backend: POST /customers/uninsured
      */
     @POST("api/customers/uninsured")
     suspend fun createUninsuredCustomer(
@@ -36,36 +49,30 @@ interface CustomerApiService {
     ): Response<Customer>
 
     /**
-     * Get default customer (client comptant)
+     * Create insured/assured customer (client assuré)
+     * Backend: POST /customers/assured
      */
-    @GET("api/customers/default")
-    suspend fun getDefaultCustomer(): Response<Customer>
+    @POST("api/customers/assured")
+    suspend fun createAssureCustomer(
+        @Body customer: Customer
+    ): Response<Customer>
 
     /**
-     * Get customer insurance data (for Assurance sales)
-     * Returns tiers payants, plafond, encours
+     * Get customer tiers payants
+     * Backend: GET /customers/tiers-payants/{id}
      */
-    @GET("api/customers/{id}/insurance-data")
-    suspend fun getCustomerInsuranceData(
-        @Path("id") customerId: Long
-    ): Response<com.kobe.warehouse.sales.domain.model.InsuranceData>
-
-    /**
-     * Get customer carnet data (for Carnet sales)
-     * Returns limite credit, encours, credit disponible
-     */
-    @GET("api/customers/{id}/carnet-data")
-    suspend fun getCustomerCarnetData(
-        @Path("id") customerId: Long
-    ): Response<com.kobe.warehouse.sales.domain.model.CarnetData>
+    @GET("api/customers/tiers-payants/{id}")
+    suspend fun getCustomerTiersPayants(
+        @Path("id") customerId: Int
+    ): Response<List<ClientTiersPayant>>
 
     /**
      * Get ayants-droit (beneficiaries) for a customer
-     * Used in Assurance sales to select who the sale is for
+     * Backend: GET /customers/ayant-droits/{id}
      */
-    @GET("api/customers/{id}/ayant-droits")
+    @GET("api/customers/ayant-droits/{id}")
     suspend fun getAyantDroits(
-        @Path("id") customerId: Long
+        @Path("id") customerId: Int
     ): Response<List<Customer>>
 }
 

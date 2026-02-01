@@ -165,4 +165,72 @@ class AuthRepository(
             Pair(username, password)
         } else null
     }
+
+    /**
+     * Validate user credentials and check if they have specific permission
+     * Used for authorization dialogs for sensitive operations
+     *
+     * NOTE: This method doesn't require Context because it validates credentials
+     * by calling the backend API directly with a temporary authenticated session.
+     *
+     * @param username Username to validate
+     * @param password Password to validate
+     * @param requiredPermission Permission code to check
+     * @return Result with userId if valid and authorized, or error
+     */
+    suspend fun validateUserPermission(
+        username: String,
+        password: String,
+        requiredPermission: String
+    ): Result<Long> = withContext(Dispatchers.IO) {
+        try {
+            // Step 1: Login with provided credentials
+            val loginRequest = LoginRequest(username, password)
+            val loginResponse = apiService.login(loginRequest)
+
+            if (!loginResponse.isSuccessful || loginResponse.body() == null) {
+                return@withContext Result.failure(
+                    Exception("Identifiants incorrects")
+                )
+            }
+
+            val tokenResponse = loginResponse.body()!!
+
+            // Step 2: Create temporary API client with the authorization token
+            // to fetch user account and check permissions
+            val baseUrl = tokenManager.getBaseUrl()
+            val tempApiService = com.kobe.warehouse.sales.utils.ApiClient.createWithToken(
+                token = "${tokenResponse.tokenType} ${tokenResponse.accessToken}",
+                baseUrl = baseUrl
+            ).create(AuthApiService::class.java)
+
+            val accountResponse = tempApiService.getAccount()
+
+            if (!accountResponse.isSuccessful || accountResponse.body() == null) {
+                return@withContext Result.failure(
+                    Exception("Erreur lors de la récupération du compte")
+                )
+            }
+
+            val account = accountResponse.body()!!
+
+            // Step 3: Check if user has required permission
+            val hasPermission = account.authorities?.contains(requiredPermission) ?: false
+
+            if (!hasPermission) {
+                return@withContext Result.failure(
+                    Exception("L'utilisateur $username n'a pas la permission requise")
+                )
+            }
+
+            // Step 4: Return user ID for audit trail
+            // Account ID should not be null for authenticated user
+            val userId = account.id ?: return@withContext Result.failure(
+                Exception("ID utilisateur invalide")
+            )
+            Result.success(userId)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

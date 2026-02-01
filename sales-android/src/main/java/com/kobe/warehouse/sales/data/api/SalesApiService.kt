@@ -3,7 +3,7 @@ package com.kobe.warehouse.sales.data.api
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.SaleLine
-import com.kobe.warehouse.sales.domain.model.UpdateSaleInfo
+import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -155,5 +155,99 @@ interface SalesApiService {
     suspend fun addDiscountToCarnetSale(
         @Body updateSaleInfo: UpdateSaleInfo
     ): Response<Void>
+
+    /**
+     * Update sale line quantity sold
+     * Backend endpoint: PUT /api/sales/update-item/quantity-sold
+     * @param saleLine SaleLine object with updated quantity
+     */
+    @PUT("api/sales/update-item/quantity-sold")
+    suspend fun updateItemQuantity(
+        @Body saleLine: SaleLine
+    ): Response<SaleLine>
+
+    /**
+     * Update sale line price (requires authorization)
+     * Backend endpoint: PUT /api/sales/update-item/price
+     * @param saleLine SaleLine object with updated price
+     */
+    @PUT("api/sales/update-item/price")
+    suspend fun updateItemPrice(
+        @Body saleLine: SaleLine
+    ): Response<SaleLine>
+
+    /**
+     * Delete sale line by ID and date (requires authorization)
+     * Backend endpoint: DELETE /api/sales/delete-item/{id}/{saleDate}
+     * @param id Sale line ID
+     * @param saleDate Sale date (yyyy-MM-dd)
+     */
+    @DELETE("api/sales/delete-item/{id}/{saleDate}")
+    suspend fun deleteItem(
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String
+    ): Response<Void>
+
+    /**
+     * Create new COMPTANT sale with first product line
+     * Backend endpoint: POST /api/sales/comptant/create
+     * @param sale Sale object with first sale line
+     */
+    @POST("api/sales/comptant/create")
+    suspend fun createComptantSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Add product line to existing COMPTANT sale
+     * Backend endpoint: POST /api/sales/comptant/add-item
+     * @param saleLine Sale line to add
+     */
+    @POST("api/sales/comptant/add-item")
+    suspend fun addItemToComptantSale(
+        @Body saleLine: SaleLine
+    ): Response<SaleLine>
+
+    /**
+     * Create new ASSURANCE/CARNET sale (VO) with first product line
+     * Backend endpoint: POST /api/sales/vo/create
+     * @param sale Sale object with first sale line, customer and tiers payants
+     */
+    @POST("api/sales/vo/create")
+    suspend fun createVOSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Add product line to existing ASSURANCE/CARNET sale (VO)
+     * Backend endpoint: POST /api/sales/vo/add-item
+     * @param saleLine Sale line to add
+     */
+    @POST("api/sales/vo/add-item")
+    suspend fun addItemToVOSale(
+        @Body saleLine: SaleLine
+    ): Response<SaleLine>
+
+    /**
+     * Finalize COMPTANT sale with payments
+     * Backend endpoint: POST /api/sales/comptant/finalize
+     * @param sale Sale object with payments list
+     * @return Finalized sale with updated amounts
+     */
+    @POST("api/sales/comptant/finalize")
+    suspend fun finalizeComptantSale(
+        @Body sale: Sale
+    ): Response<Sale>
+
+    /**
+     * Finalize ASSURANCE/CARNET sale (VO) with payments
+     * Backend endpoint: POST /api/sales/vo/finalize
+     * @param sale Sale object with payments, tiers payants, numéros de bon
+     * @return Finalized sale with partAssure and partTiersPayant calculated
+     */
+    @POST("api/sales/vo/finalize")
+    suspend fun finalizeVOSale(
+        @Body sale: Sale
+    ): Response<Sale>
 }
 

@@ -34,7 +34,7 @@ class CustomerSelectionViewModel(
 
         _isSearching.value = true
         viewModelScope.launch {
-            customerRepository.searchCustomers(query).fold(
+            customerRepository.searchAssuredCustomers(query).fold(
                 onSuccess = { customerList ->
                     _customers.value = customerList
                     _isSearching.value = false

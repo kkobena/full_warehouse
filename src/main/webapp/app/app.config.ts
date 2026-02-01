@@ -13,6 +13,7 @@ import {
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
 import { providePrimeNG } from 'primeng/config';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import Aura from '@primeuix/themes/aura';
 
 import { environment } from '../environments/environment';
@@ -82,6 +83,8 @@ export const appConfig: ApplicationConfig = {
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
     providePrimeNG({ theme: { preset: Aura } }),
+    MessageService,
+    ConfirmationService,
 
     // --- Interceptors ---
     httpInterceptorProviders,

@@ -60,7 +60,6 @@ La Phase 2 (Ventes Avancées: Assurance & Carnet) a été entièrement implémen
   - Recherche clients
   - Sélection client
   - Chargement ayants-droit
-  - Validation éligibilité (assurance/carnet)
   - Calcul crédit disponible
 
 - ✅ `ui/viewmodel/CustomerSelectionViewModelFactory.kt` - **CRÉÉ** (23 lignes)
@@ -165,7 +164,6 @@ La Phase 2 (Ventes Avancées: Assurance & Carnet) a été entièrement implémen
 ### Workflow Carnet:
 1. Sélectionner "Carnet" dans spinner
 2. Sélectionner client OBLIGATOIRE (avec carnet)
-3. Vérifier crédit disponible via CarnetSaleViewModel
 4. Rechercher et ajouter produits
 5. Validation limite crédit
 6. Finaliser (paiement différé)
@@ -177,7 +175,7 @@ La Phase 2 (Ventes Avancées: Assurance & Carnet) a été entièrement implémen
 ### Backend API à implémenter:
 1. **Tiers Payant:**
    - GET /api/tiers-payants
-   - GET /api/tiers-payants/search?q={query}
+   - GET /api/tiers-payants/?search={query}
    - GET /api/tiers-payants/customer/{customerId}
    - GET /api/tiers-payants/validate?customerId=&tiersPayantId=
 

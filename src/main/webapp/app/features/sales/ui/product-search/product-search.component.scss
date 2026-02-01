@@ -1,0 +1,45 @@
+@import '../../../../shared/scss/pharma-nav';
+
+// Styles pour les items du dropdown autocomplete
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+
+  .code {
+    min-width: 100px;
+    color: var(--text-color-secondary);
+    font-family: monospace;
+  }
+
+  .name {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .price {
+    min-width: 100px;
+    text-align: right;
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .stock-badge {
+    padding: 0.25rem 0.5rem;
+    background-color: var(--red-100);
+    color: var(--red-700);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &.stockless {
+    opacity: 0.6;
+
+    .name {
+      text-decoration: line-through;
+    }
+  }
+}

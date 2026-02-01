@@ -1,0 +1,92 @@
+<div class="sale-actions-container">
+  <!-- Version Mobile : Icon-only avec tooltips -->
+  @if (isSmallScreen()) {
+    <p-buttonGroup class="action-buttons-mobile">
+      <p-button
+        [icon]="getSaveButtonIcon()"
+        [severity]="getSaveButtonSeverity()"
+        [disabled]="!canSave() || isSaving()"
+        [loading]="isSaving()"
+        [pTooltip]="getSaveButtonLabel()"
+        [raised]="true"
+        (onClick)="onSave()"
+        size="small"></p-button>
+
+      @if (showPresaleButton()) {
+        <p-button
+          icon="pi pi-pause"
+          severity="info"
+          [disabled]="!canSaveAsPresale() || isSaving()"
+          [raised]="true"
+          pTooltip="Mettre en attente"
+          (onClick)="onSaveAsPresale()"
+          size="small"></p-button>
+      }
+
+      <p-button
+        icon="pi pi-times"
+        severity="danger"
+        [disabled]="!canCancel() || isSaving()"
+        [raised]="true"
+        pTooltip="Annuler"
+        (onClick)="onCancel()"
+        size="large"></p-button>
+    </p-buttonGroup>
+  } @else {
+    <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
+    <div class="action-buttons">
+      <p-buttonGroup>
+        <p-button
+          [label]="getSaveButtonLabel()"
+          [icon]="getSaveButtonIcon()"
+          [severity]="getSaveButtonSeverity()"
+          [disabled]="!canSave() || isSaving()"
+          [loading]="isSaving()"
+          [raised]="true"
+          (onClick)="onSave()"
+          size="small"></p-button>
+
+        @if (showPresaleButton()) {
+          <p-button
+            label="Mettre en attente"
+            icon="pi pi-pause"
+            severity="secondary"
+            [disabled]="!canSaveAsPresale() || isSaving()"
+            [raised]="true"
+            (onClick)="onSaveAsPresale()"
+            size="small"></p-button>
+        }
+
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          severity="danger"
+          [disabled]="!canCancel() || isSaving()"
+          [raised]="true"
+          (onClick)="onCancel()"
+          size="small"></p-button>
+      </p-buttonGroup>
+
+      @if (showPrintButton() && saleType() === 'COMPTANT') {
+        <p-button
+          label="Finaliser et Imprimer"
+          icon="pi pi-print"
+          severity="success"
+          [outlined]="true"
+          [disabled]="!canSave() || isSaving()"
+          (onClick)="onSaveAndPrint()"
+          size="small"></p-button>
+      }
+
+      @if (showPrintButton() && canPrint()) {
+        <p-button
+          label="Imprimer"
+          icon="pi pi-print"
+          severity="secondary"
+          [disabled]="!canPrint()"
+          (onClick)="onPrint()"
+          size="small"></p-button>
+      }
+    </div>
+  }
+</div>

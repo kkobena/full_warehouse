@@ -1,0 +1,97 @@
+<div class="product-list-container">
+  <p-table
+    [value]="salesLines()"
+    [scrollable]="true"
+    scrollHeight="400px"
+    [styleClass]="'p-datatable-sm'"
+    [class]="'product-list-table'">
+    <ng-template #header>
+      <tr>
+        <th style="width: 30%">Produit</th>
+        <th style="width: 12%">Prix Unit.</th>
+        <th style="width: 12%">Qté Demandée</th>
+        <th style="width: 12%">Qté Servie</th>
+        <th style="width: 12%">Remise</th>
+        <th style="width: 12%">Total</th>
+        @if (isEditable()) {
+          <th style="width: 5%">Actions</th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #body let-line let-rowIndex="rowIndex">
+      <tr
+        [class.selected-row]="isLineSelected(line)"
+        [class.warning-row]="line.quantitySold < line.quantityRequested"
+        (click)="onSelectLine(line)"
+        [attr.data-line-id]="line.id">
+        <td>
+          <div class="product-info">
+            <div class="product-name">{{ line.produitLibelle }}</div>
+            @if (line.produitCode) {
+              <div class="product-code text-muted small">{{ line.produitCode }}</div>
+            }
+          </div>
+        </td>
+        <td class="text-end">
+          {{ line.regularUnitPrice | number : '1.0-0' }} F
+        </td>
+        <!-- Quantité Demandée -->
+        <td>
+          @if (isEditable()) {
+            <input
+              type="number"
+              pInputText
+              [value]="line.quantityRequested"
+              (change)="onQuantityRequestedChange(line, $any($event.target).value)"
+              min="1"
+              class="quantity-input" />
+          } @else {
+            <span class="text-end d-block">{{ line.quantityRequested }}</span>
+          }
+        </td>
+        <!-- Quantité Servie -->
+        <td>
+          @if (isEditable()) {
+            <input
+              type="number"
+              pInputText
+              [value]="line.quantitySold"
+              (change)="onQuantitySoldChange(line, $any($event.target).value)"
+              min="0"
+              class="quantity-input" />
+          } @else {
+            <span class="text-end d-block">{{ line.quantitySold }}</span>
+          }
+        </td>
+        <td class="text-end">
+          @if (line.discountAmount && line.discountAmount > 0) {
+            <span class="discount-amount">-{{ line.discountAmount | number : '1.0-0' }} F</span>
+          } @else {
+            <span class="text-muted">—</span>
+          }
+        </td>
+        <td class="text-end fw-bold">
+          {{ getLineTotal(line) | number : '1.0-0' }} F
+        </td>
+        @if (isEditable()) {
+          <td class="text-center">
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-text p-button-danger p-button-sm"
+              (click)="onRemoveLine(line); $event.stopPropagation()"
+              [pTooltip]="'Supprimer'"></button>
+          </td>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="isEditable() ? 6 : 5" class="text-center text-muted p-4">
+          <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
+          <p class="mt-2">Aucun produit dans la vente</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

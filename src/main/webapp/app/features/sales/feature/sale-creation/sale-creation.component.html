@@ -1,0 +1,140 @@
+﻿<!-- Notifications Toast -->
+<p-toast position="top-right" />
+
+<!-- Content spécifique COMPTANT -->
+<div class="sales-workspace">
+  <div class="content-grid">
+    <!-- Colonne gauche : Recherche produit + Liste produits -->
+    <div class="products-section">
+      
+      <!-- 1. Recherche produit - EN PREMIER pour le comptant -->
+      <div class="product-search-section">
+        <div class="search-section-header">
+          <i class="pi pi-search"></i>
+          <span>Recherche de produit</span>
+        </div>
+
+        <div class="search-controls">
+          <!-- Product Search Autocomplete -->
+          <div class="product-search-input">
+            <app-product-search
+              [autofocus]="true"
+              (productSelected)="onProductSelected($event)">
+            </app-product-search>
+          </div>
+
+          <!-- Quantity Input -->
+          <div class="quantity-input-wrapper">
+            <jhi-quantite-produt-saisie
+              (addQuantite)="onAddQuantity($event)"
+              [isValid]="!!selectedProduct()"
+              class="pharma-quantity-input">
+            </jhi-quantite-produt-saisie>
+          </div>
+
+          <!-- Product Meta Information -->
+          @if (selectedProduct()) {
+            <div class="product-meta">
+              <div class="meta-item">
+                <i class="pi pi-tag"></i>
+                <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | number }} F</strong></span>
+              </div>
+              @if (selectedProduct()?.totalQuantity !== undefined) {
+                <div [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10" class="meta-item">
+                  <i class="pi pi-database"></i>
+                  <span>Stock: <strong>{{ selectedProduct()?.totalQuantity | number }}</strong></span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 2. Card: Liste des produits -->
+      <div class="product-list-card">
+        @if (currentSale()) {
+          <app-product-list
+            [salesLines]="salesLines()"
+            [isEditable]="!isSaving()"
+            [selectedLineId]="selectedLineId()"
+            [saleId]="currentSale()?.id"
+            [saleType]="'COMPTANT'"
+            (quantityChanged)="onLineQuantityChanged($event)"
+            (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+            (lineRemoved)="onLineRemoved($event)"
+            (lineSelected)="onLineSelected($event)"
+            (discountChanged)="onLineDiscountChanged($event)"
+            (authorizationRequired)="onAuthorizationRequired($event)" />
+        } @else {
+          <div class="empty-cart-state">
+            <div class="empty-cart-icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <h3>Panier vide</h3>
+            <p>Ajoutez des produits pour commencer une vente</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Colonne droite : Résumé + Actions -->
+    <div class="summary-section">
+      <!-- Card: Résumé de la vente -->
+      <div class="summary-card">
+        @if (currentSale()) {
+          <app-sale-summary
+            [totalAmount]="currentSale()?.salesAmount || 0"
+            [discountAmount]="currentSale()?.discountAmount || 0"
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [netAmount]="currentSale()?.netAmount || 0"
+            [itemCount]="salesLines().length"
+            [showPaymentDetails]="showPaymentDetails()"
+            [currentRemise]="currentSale()?.remise"
+            [isAvoir]="facade.isAvoir()"
+            (addRemise)="onAddRemise()"
+            (removeRemise)="onRemoveRemise()" />
+        } @else {
+          <div class="empty-summary-state">
+            <i class="pi pi-calculator"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Card: Actions -->
+      <!-- Card: Actions -->
+      <div class="actions-card">
+        <app-sale-actions
+          [canSave]="canSave()"
+          [canPrint]="false"
+          [canCancel]="!isSaving()"
+          [isSaving]="isSaving()"
+          [saleType]="'COMPTANT'"
+          [showPrintButton]="false"
+          [showPresaleButton]="true"
+          [canSaveAsPresale]="canSave()"
+          [isSmallScreen]="isSmallScreen()"
+          (save)="onSave()"
+          (saveAndPrint)="onSaveAndPrint()"
+          (saveAsPresale)="onSaveAsPresale()"
+          (print)="onPrint()"
+          (cancel)="onCancel()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Payment Mode -->
+  @if (currentSale() && showPaymentModal()) {
+    <div class="payment-mode-card">
+      <app-payment-mode
+        [amountToBePaid]="currentSale()!.amountToBePaid || currentSale()!.netAmount || 0"
+        [maxPaymentModes]="2"
+        [isDiffere]="currentSale()!.differe || false"
+        (paymentComplete)="onPaymentComplete($event)"
+        (validationError)="onPaymentError($event)"
+      />
+    </div>
+  }
+</div>
+
+<!-- Confirm Dialog -->
+<jhi-confirm-dialog #confirmDialog />

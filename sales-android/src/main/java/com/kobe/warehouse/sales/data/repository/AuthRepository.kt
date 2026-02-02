@@ -60,7 +60,12 @@ class AuthRepository(
 
             if (accountResult.isSuccess) {
                 val account = accountResult.getOrThrow()
-                // Step 5: Store user authorities for permission checks
+
+                // Step 5: Store user ID for cassierId/sellerId in sales
+                tokenManager.storeUserId(account.id)
+                // Step 6: Store user full name for display
+                tokenManager.storeUserFullName(account.getDisplayName())
+                // Step 7: Store user authorities for permission checks
                 tokenManager.storeAuthorities(account.authorities)
                 Result.success(account)
             } else {
@@ -111,6 +116,10 @@ class AuthRepository(
         try {
             // Clear JWT tokens from storage
             tokenManager.clearTokens()
+            // Clear user ID and authorities
+            tokenManager.storeUserId(null)
+            tokenManager.storeUserFullName(null)
+            tokenManager.storeAuthorities(null)
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -182,7 +191,7 @@ class AuthRepository(
         username: String,
         password: String,
         requiredPermission: String
-    ): Result<Long> = withContext(Dispatchers.IO) {
+    ): Result<Int> = withContext(Dispatchers.IO) {
         try {
             // Step 1: Login with provided credentials
             val loginRequest = LoginRequest(username, password)

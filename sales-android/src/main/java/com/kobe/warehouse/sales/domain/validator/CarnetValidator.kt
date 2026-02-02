@@ -50,7 +50,7 @@ class CarnetValidator {
         }
 
         // Validate customer
-        if (carnetData.customer.id == 0L) {
+        if (carnetData.customer.id == 0) {
             errors.add("Un client avec compte carnet est obligatoire")
         }
 
@@ -58,47 +58,6 @@ class CarnetValidator {
     }
 
 
-
-    /**
-     * Validate customer has carnet account
-     */
-    fun validateCustomerHasCarnet(customerId: Long?): ValidationResult {
-        if (customerId == null) {
-            return ValidationResult(
-                false,
-                listOf("Un client avec compte carnet est obligatoire pour une vente carnet")
-            )
-        }
-        return ValidationResult(true)
-    }
-
-    /**
-     * Validate credit usage
-     */
-    fun validateCreditUsage(carnetData: CarnetData): ValidationResult {
-        val errors = mutableListOf<String>()
-
-        val usagePercentage = carnetData.getCreditUsagePercentage()
-
-        // Warn if credit usage is above 90%
-        if (usagePercentage >= 90) {
-            errors.add(
-                "Attention: le client utilise $usagePercentage% de sa limite de crédit " +
-                        "(${carnetData.encours}/${carnetData.limiteCredit} FCFA)"
-            )
-        }
-
-        // Hard limit at 100%
-        if (usagePercentage >= 100) {
-            return ValidationResult(
-                false,
-                listOf("Limite de crédit atteinte (${carnetData.encours}/${carnetData.limiteCredit} FCFA)")
-            )
-        }
-
-        // Return true even with warnings (errors list contains warnings)
-        return ValidationResult(true, errors)
-    }
 
     /**
      * Validate that no payments are required (credit sale = deferred payment)

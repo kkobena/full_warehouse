@@ -112,15 +112,33 @@ class SalesRepository(
     suspend fun createCashSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
+                android.util.Log.d("SalesRepository", "=== CREATE CASH SALE ===")
+                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
+                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
+                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
+                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
+                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
+                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
+
+                // Log the full JSON being sent
+                val saleJson = gson.toJson(sale)
+                android.util.Log.d("SalesRepository", "Full Sale JSON: $saleJson")
+
                 val response = salesApiService.createCashSale(sale)
+                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
+                    android.util.Log.d("SalesRepository", "SUCCESS: Sale created")
                     Result.success(response.body()!!)
                 } else {
                     // Parse error body to get meaningful error message
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("SalesRepository", "ERROR Response: $errorBody")
+                    val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
                 Result.failure(e)
             }
         }
@@ -325,22 +343,39 @@ class SalesRepository(
     }
 
     /**
-     * Update sale line quantity sold
-     * @param saleLine SaleLine with updated quantitySold
+     * Update sale line quantity requested
+     * @param saleLine SaleLine with updated quantity
+     * @param natureVente Nature of sale: "COMPTANT", "ASSURANCE", or "CARNET"
      */
     suspend fun updateItemQuantity(
-        saleLine: com.kobe.warehouse.sales.data.model.SaleLine
+        saleLine: com.kobe.warehouse.sales.data.model.SaleLine,
+        natureVente: String = "COMPTANT"
     ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = salesApiService.updateItemQuantity(saleLine)
+                android.util.Log.d("SalesRepository", "=== UPDATE ITEM QUANTITY ===")
+                android.util.Log.d("SalesRepository", "natureVente = $natureVente")
+                android.util.Log.d("SalesRepository", "saleLine = ${gson.toJson(saleLine)}")
+
+                // Use different endpoint based on sale type
+                val response = when (natureVente) {
+                    "ASSURANCE", "CARNET" -> salesApiService.updateItemQuantityAssurance(saleLine)
+                    else -> salesApiService.updateItemQuantityComptant(saleLine)
+                }
+
+                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
+                    android.util.Log.d("SalesRepository", "SUCCESS: Quantity updated")
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("SalesRepository", "ERROR: $errorBody")
+                    val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
                 Result.failure(e)
             }
         }
@@ -401,14 +436,26 @@ class SalesRepository(
     ): Result<com.kobe.warehouse.sales.data.model.Sale> {
         return withContext(Dispatchers.IO) {
             try {
+                android.util.Log.d("SalesRepository", "=== CREATE COMPTANT SALE (POST) ===")
+                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
+                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
+                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
+                android.util.Log.d("SalesRepository", "Full Sale JSON: ${gson.toJson(sale)}")
+
                 val response = salesApiService.createComptantSale(sale)
+                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
+                    android.util.Log.d("SalesRepository", "SUCCESS: Comptant sale created")
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("SalesRepository", "ERROR: $errorBody")
+                    val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
                 Result.failure(e)
             }
         }
@@ -491,14 +538,32 @@ class SalesRepository(
     suspend fun finalizeComptantSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
+                android.util.Log.d("SalesRepository", "=== FINALIZE COMPTANT SALE ===")
+                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
+                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
+                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
+                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
+                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
+                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
+
+                // Log the full JSON being sent
+                val saleJson = gson.toJson(sale)
+                android.util.Log.d("SalesRepository", "Full Sale JSON: $saleJson")
+
                 val response = salesApiService.finalizeComptantSale(sale)
+                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
+                    android.util.Log.d("SalesRepository", "SUCCESS: Comptant sale finalized")
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("SalesRepository", "ERROR Response: $errorBody")
+                    val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
                 Result.failure(e)
             }
         }
@@ -521,14 +586,33 @@ class SalesRepository(
     suspend fun finalizeVOSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
+                android.util.Log.d("SalesRepository", "=== FINALIZE VO SALE ===")
+                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
+                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
+                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
+                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
+                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
+                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
+                android.util.Log.d("SalesRepository", "Sale.natureVente = ${sale.natureVente}")
+
+                // Log the full JSON being sent
+                val saleJson = gson.toJson(sale)
+                android.util.Log.d("SalesRepository", "Full Sale JSON: $saleJson")
+
                 val response = salesApiService.finalizeVOSale(sale)
+                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
+                    android.util.Log.d("SalesRepository", "SUCCESS: VO sale finalized")
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("SalesRepository", "ERROR Response: $errorBody")
+                    val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
+                android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
                 Result.failure(e)
             }
         }

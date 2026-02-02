@@ -157,7 +157,7 @@ class SalesManagerImplTest {
         doNothing().when(saleService).upddateCashSaleAmounts(any());
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testCashSale);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testCashSale,true);
 
         // Then
         assertNotNull(result);
@@ -183,7 +183,7 @@ class SalesManagerImplTest {
         when(thirdPartySaleService.computeThirdPartySaleAmounts(any())).thenReturn(null);
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testThirdPartySale);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testThirdPartySale,true);
 
         // Then
         assertNotNull(result);
@@ -210,7 +210,7 @@ class SalesManagerImplTest {
         doNothing().when(saleCommonService).arrondirMontantCaisse(any());
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testVenteDepot);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testVenteDepot,true);
 
         // Then
         assertNotNull(result);
@@ -408,7 +408,7 @@ class SalesManagerImplTest {
 
         // When & Then
         assertThrows(PlafondVenteException.class, () ->
-            salesManager.updateItemQuantityRequested(dto, testThirdPartySale)
+            salesManager.updateItemQuantityRequested(dto, testThirdPartySale,true)
         );
     }
 

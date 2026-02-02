@@ -10,7 +10,7 @@ public interface SalesManager {
     /**
      * Updates the quantity requested for a sales line and updates the sale's totals and customer display.
      */
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment) throws StockException, DeconditionnementStockOut;
 
     /**
      * Updates the quantity sold for a sales line and updates the sale's totals and customer display.
@@ -31,4 +31,6 @@ public interface SalesManager {
      * Deletes a sales line by its ID and updates the sale's totals and customer display.
      */
     void deleteSaleLineById(SalesLine salesLine);
+    SaleLineDTO incrementItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
+        throws StockException, DeconditionnementStockOut;
 }

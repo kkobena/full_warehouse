@@ -210,7 +210,7 @@ export class SalesApiService {
    * Print sale receipt
    */
   printReceipt(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/ticket/${id.id}/${id.saleDate}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
   // ============================================
@@ -245,12 +245,41 @@ export class SalesApiService {
   }
 
   /**
-   * Update item quantity requested
+   * Update item quantity requested (legacy - kept for compatibility)
    * Backend recalculates all amounts
+   * @deprecated Use incrementItemQtyRequested or setItemQtyRequested instead
    */
   updateItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http
       .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' })
+      .pipe(
+        map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
+        map(res => res.body!)
+      );
+  }
+
+  /**
+   * INCREMENT item quantity requested
+   * Used when adding product from search with force stock
+   * Backend ADDS the quantity to existing quantity
+   */
+  incrementItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/increment-item/quantity-requested`, salesLine, { observe: 'response' })
+      .pipe(
+        map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
+        map(res => res.body!)
+      );
+  }
+
+  /**
+   * SET (REPLACE) item quantity requested
+   * Used when editing quantity from table cell
+   * Backend REPLACES the quantity (does not increment)
+   */
+  setItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/set-item/quantity-requested`, salesLine, { observe: 'response' })
       .pipe(
         map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
         map(res => res.body!)

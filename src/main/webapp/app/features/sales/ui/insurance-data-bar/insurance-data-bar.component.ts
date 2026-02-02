@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { CustomerService } from '../../../../entities/customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
-import { ICustomer } from '../../../../shared/model/customer.model';
+import { ICustomer } from '../../../../shared/model';
 import { FormsModule } from '@angular/forms';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { PanelModule } from 'primeng/panel';
@@ -32,7 +32,6 @@ import { ButtonGroupModule } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-insurance-data-bar',
-  standalone: true,
   imports: [
     FormsModule,
     KeyFilterModule,
@@ -259,4 +258,3 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     this.tiersPayantsChanged.emit(this.selectedTiersPayants());
   }
 }
-

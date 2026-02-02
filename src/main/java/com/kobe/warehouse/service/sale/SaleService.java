@@ -25,9 +25,9 @@ import java.util.List;
 public interface SaleService {
     SaleLineDTO updateSaleLine(SaleLineDTO saleLine);
 
-    CashSaleDTO createCashSale(CashSaleDTO dto);
+    CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut;
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 

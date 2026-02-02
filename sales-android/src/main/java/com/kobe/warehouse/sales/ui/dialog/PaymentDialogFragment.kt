@@ -76,20 +76,34 @@ class PaymentDialogFragment : DialogFragment() {
             ViewModelProvider(requireActivity())[UnifiedSaleViewModel::class.java]
         }
 
-        // Get amount to pay
-        // For simplified sale (not created yet): calculate locally
-        // For unified sale (already created): use backend-calculated values
+        // Get amount to pay from currentSale
         val currentSale = saleViewModel.currentSale.value
-        payrollAmount = if (currentSale?.id == null) {
-            // Simplified sale - calculate locally (sale not created yet on backend)
-            (currentSale?.salesAmount ?: 0) - (currentSale?.discountAmount ?: 0)
-        } else {
-            // Unified sale - use backend-calculated values
-            when (currentSale.natureVente) {
-                "ASSURANCE", "CARNET" -> currentSale.partAssure ?: 0  // Client's part
-                else -> currentSale.payrollAmount ?: 0  // COMPTANT
+        android.util.Log.d("PaymentDialog", "=== PAYMENT DIALOG INIT ===")
+        android.util.Log.d("PaymentDialog", "currentSale = $currentSale")
+        android.util.Log.d("PaymentDialog", "currentSale.id = ${currentSale?.id}")
+        android.util.Log.d("PaymentDialog", "currentSale.salesAmount = ${currentSale?.salesAmount}")
+        android.util.Log.d("PaymentDialog", "currentSale.payrollAmount = ${currentSale?.payrollAmount}")
+        android.util.Log.d("PaymentDialog", "currentSale.discountAmount = ${currentSale?.discountAmount}")
+        android.util.Log.d("PaymentDialog", "currentSale.partAssure = ${currentSale?.partAssure}")
+        android.util.Log.d("PaymentDialog", "currentSale.natureVente = ${currentSale?.natureVente}")
+
+        // Calculate payrollAmount with fallback
+        payrollAmount = when {
+            // For ASSURANCE/CARNET: use partAssure (client's part to pay)
+            currentSale?.natureVente == "ASSURANCE" || currentSale?.natureVente == "CARNET" -> {
+                currentSale.partAssure ?: (currentSale.salesAmount - (currentSale.discountAmount ?: 0))
+            }
+            // For COMPTANT: use payrollAmount if available, else calculate from salesAmount
+            currentSale?.payrollAmount != null && currentSale.payrollAmount > 0 -> {
+                currentSale.payrollAmount
+            }
+            // Fallback: calculate from salesAmount - discountAmount
+            else -> {
+                (currentSale?.salesAmount ?: 0) - (currentSale?.discountAmount ?: 0)
             }
         }
+
+        android.util.Log.d("PaymentDialog", "Final payrollAmount = $payrollAmount")
 
         // Setup repository
         val tokenManager = TokenManager(requireContext())
@@ -212,8 +226,26 @@ class PaymentDialogFragment : DialogFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
                 calculateChange()
+                // Update payment modes grid visibility based on cash amount
+                updatePaymentModesGridVisibility()
             }
         })
+    }
+
+    /**
+     * Update payment modes grid visibility based on cash amount
+     * Hide if cash amount covers the total, show otherwise
+     */
+    private fun updatePaymentModesGridVisibility() {
+        // Only apply when single cash mode is selected
+        if (selectedMode1?.isCash() == true && selectedMode2 == null) {
+            val cashAmount = getCashAmountEntered()
+            if (cashAmount >= payrollAmount) {
+                binding.rvPaymentModes.visibility = View.GONE
+            } else {
+                binding.rvPaymentModes.visibility = View.VISIBLE
+            }
+        }
     }
 
     /**
@@ -232,10 +264,27 @@ class PaymentDialogFragment : DialogFragment() {
             return
         }
 
+        // Check if cash mode is already selected and covers the total
+        if (selectedMode1?.isCash() == true) {
+            val cashAmount = getCashAmountEntered()
+            if (cashAmount >= payrollAmount) {
+                Toast.makeText(requireContext(), "Le montant espèce couvre déjà le total", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
         // Add to first available slot
         if (selectedMode1 == null) {
             selectedMode1 = paymentMode
         } else {
+            // Adding second mode - preserve cash amount if cash is mode 1
+            if (selectedMode1?.isCash() == true) {
+                // Transfer cash amount from legacy field to mode1 field
+                val cashAmount = binding.etAmountGiven.text.toString()
+                if (cashAmount.isNotEmpty()) {
+                    binding.etMode1Amount.setText(cashAmount)
+                }
+            }
             selectedMode2 = paymentMode
         }
 
@@ -243,11 +292,55 @@ class PaymentDialogFragment : DialogFragment() {
     }
 
     /**
+     * Get the cash amount entered by user
+     */
+    private fun getCashAmountEntered(): Int {
+        // Check which field has the cash amount
+        return when {
+            selectedMode1?.isCash() == true && selectedMode2 == null -> {
+                // Single cash mode - use legacy field
+                binding.etAmountGiven.text.toString().toIntOrNull() ?: 0
+            }
+            selectedMode1?.isCash() == true -> {
+                // Cash is mode 1
+                binding.etMode1Amount.text.toString().toIntOrNull() ?: 0
+            }
+            selectedMode2?.isCash() == true -> {
+                // Cash is mode 2
+                binding.etMode2Amount.text.toString().toIntOrNull() ?: 0
+            }
+            else -> 0
+        }
+    }
+
+    /**
      * Remove mode 1
+     * If mode 2 exists, shift it to mode 1 position
      */
     private fun removeMode1() {
-        selectedMode1 = null
-        binding.etMode1Amount.setText("")
+        if (selectedMode2 != null) {
+            // If mode 2 is cash and will become mode 1 (single cash mode)
+            // Transfer amount to legacy field
+            if (selectedMode2?.isCash() == true) {
+                val cashAmount = binding.etMode2Amount.text.toString()
+                if (cashAmount.isNotEmpty()) {
+                    binding.etAmountGiven.setText(cashAmount)
+                }
+            }
+            // Shift mode 2 to mode 1
+            selectedMode1 = selectedMode2
+            selectedMode2 = null
+            binding.etMode1Amount.setText(binding.etMode2Amount.text)
+            binding.etMode2Amount.setText("")
+        } else {
+            // Single mode being removed
+            if (selectedMode1?.isCash() == true) {
+                // Keep the cash amount in legacy field (don't clear it)
+                // Amount is already in etAmountGiven for single cash mode
+            }
+            selectedMode1 = null
+            binding.etMode1Amount.setText("")
+        }
         updateUIState()
     }
 
@@ -255,6 +348,13 @@ class PaymentDialogFragment : DialogFragment() {
      * Remove mode 2
      */
     private fun removeMode2() {
+        // If mode 1 is cash, transfer amount back to legacy field
+        if (selectedMode1?.isCash() == true) {
+            val cashAmount = binding.etMode1Amount.text.toString()
+            if (cashAmount.isNotEmpty()) {
+                binding.etAmountGiven.setText(cashAmount)
+            }
+        }
         selectedMode2 = null
         binding.etMode2Amount.setText("")
         updateUIState()
@@ -291,47 +391,40 @@ class PaymentDialogFragment : DialogFragment() {
         binding.tvChange.visibility = View.GONE
         binding.qrCodeCard.visibility = View.GONE
 
-        // Case 1: CASH + other mode
-        if (hasCash && (hasNonCash1 || hasNonCash2)) {
-            // Show amount input for CASH
-            if (selectedMode1?.isCash() == true) {
-                binding.mode1AmountLayout.visibility = View.VISIBLE
-                binding.mode1AmountLayout.hint = "Montant ${selectedMode1!!.libelle}"
-                binding.etMode1Amount.isEnabled = true
-
-                // Mode 2 takes remaining amount automatically
-                binding.mode2AmountLayout.visibility = View.VISIBLE
-                binding.mode2AmountLayout.hint = "${selectedMode2!!.libelle} (automatique)"
-                binding.etMode2Amount.isEnabled = false
-            } else {
-                binding.mode2AmountLayout.visibility = View.VISIBLE
-                binding.mode2AmountLayout.hint = "Montant ${selectedMode2!!.libelle}"
-                binding.etMode2Amount.isEnabled = true
-
-                // Mode 1 takes remaining amount automatically
-                binding.mode1AmountLayout.visibility = View.VISIBLE
-                binding.mode1AmountLayout.hint = "${selectedMode1!!.libelle} (automatique)"
-                binding.etMode1Amount.isEnabled = false
-            }
-
-            // Show change for cash
-            binding.tvChange.visibility = View.VISIBLE
-        }
-        // Case 2: Two non-cash modes
-        else if (selectedMode1 != null && selectedMode2 != null && !hasCash) {
-            // Show amount input for both
+        // Case 1: Two payment modes selected (CASH + other OR two non-cash)
+        if (selectedMode1 != null && selectedMode2 != null) {
+            // Show amount input for mode 1
             binding.mode1AmountLayout.visibility = View.VISIBLE
             binding.mode1AmountLayout.hint = "Montant ${selectedMode1!!.libelle}"
             binding.etMode1Amount.isEnabled = true
 
+            // Show amount input for mode 2
             binding.mode2AmountLayout.visibility = View.VISIBLE
             binding.mode2AmountLayout.hint = "Montant ${selectedMode2!!.libelle}"
             binding.etMode2Amount.isEnabled = true
+
+            // Focus on the first editable field
+            binding.etMode1Amount.requestFocus()
+
+            // Show change display if cash is involved
+            if (hasCash) {
+                binding.tvChange.visibility = View.VISIBLE
+            }
+
+            // Initialize amounts if empty: mode1 = total, mode2 = 0
+            if (binding.etMode1Amount.text.isNullOrEmpty() && binding.etMode2Amount.text.isNullOrEmpty()) {
+                isUpdatingAmounts = true
+                binding.etMode1Amount.setText(payrollAmount.toString())
+                binding.etMode2Amount.setText("0")
+                isUpdatingAmounts = false
+            }
         }
         // Case 3: Single cash mode (legacy behavior)
         else if (selectedMode1?.isCash() == true && selectedMode2 == null) {
             binding.amountInputLayout.visibility = View.VISIBLE
             binding.tvChange.visibility = View.VISIBLE
+            // Focus on cash amount field
+            binding.etAmountGiven.requestFocus()
         }
         // Case 4: Single non-cash mode
         else if (selectedMode1 != null && !selectedMode1!!.isCash() && selectedMode2 == null) {
@@ -343,8 +436,16 @@ class PaymentDialogFragment : DialogFragment() {
             }
         }
 
-        // Hide payment modes grid if 2 selected
+        // Hide payment modes grid if:
+        // 1. Two modes are already selected, OR
+        // 2. Cash mode is selected and amount covers the total
+        val cashCoversTotal = selectedMode1?.isCash() == true &&
+                              selectedMode2 == null &&
+                              getCashAmountEntered() >= payrollAmount
+
         if (selectedMode1 != null && selectedMode2 != null) {
+            binding.rvPaymentModes.visibility = View.GONE
+        } else if (cashCoversTotal) {
             binding.rvPaymentModes.visibility = View.GONE
         } else {
             binding.rvPaymentModes.visibility = View.VISIBLE
@@ -356,40 +457,49 @@ class PaymentDialogFragment : DialogFragment() {
         }
     }
 
+    // Flag to prevent recursive updates between amount fields
+    private var isUpdatingAmounts = false
+
     /**
      * Handle mode 1 amount change
+     * Automatically adjusts mode 2 amount when two modes are selected
      */
     private fun onMode1AmountChanged() {
-        val amount1Text = binding.etMode1Amount.text.toString()
-        if (amount1Text.isEmpty()) return
+        if (isUpdatingAmounts) return
 
+        val amount1Text = binding.etMode1Amount.text.toString()
         val amount1 = amount1Text.toIntOrNull() ?: 0
 
-        // If CASH + other, calculate remaining for other mode
-        if (selectedMode1?.isCash() == true && selectedMode2 != null) {
+        // If two modes are selected, calculate remaining for mode 2
+        if (selectedMode1 != null && selectedMode2 != null) {
+            isUpdatingAmounts = true
             val remaining = payrollAmount - amount1
-            binding.etMode2Amount.setText(if (remaining > 0) remaining.toString() else "0")
+            binding.etMode2Amount.setText(if (remaining >= 0) remaining.toString() else "0")
+            isUpdatingAmounts = false
 
-            // Calculate change
+            // Calculate change if cash is involved
             calculateChange()
         }
     }
 
     /**
      * Handle mode 2 amount change
+     * Automatically adjusts mode 1 amount when two modes are selected
      */
     private fun onMode2AmountChanged() {
-        val amount2Text = binding.etMode2Amount.text.toString()
-        if (amount2Text.isEmpty()) return
+        if (isUpdatingAmounts) return
 
+        val amount2Text = binding.etMode2Amount.text.toString()
         val amount2 = amount2Text.toIntOrNull() ?: 0
 
-        // If CASH + other, calculate remaining for cash mode
-        if (selectedMode2?.isCash() == true && selectedMode1 != null) {
+        // If two modes are selected, calculate remaining for mode 1
+        if (selectedMode1 != null && selectedMode2 != null) {
+            isUpdatingAmounts = true
             val remaining = payrollAmount - amount2
-            binding.etMode1Amount.setText(if (remaining > 0) remaining.toString() else "0")
+            binding.etMode1Amount.setText(if (remaining >= 0) remaining.toString() else "0")
+            isUpdatingAmounts = false
 
-            // Calculate change
+            // Calculate change if cash is involved
             calculateChange()
         }
     }

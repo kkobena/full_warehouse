@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, catchError, of, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { pipe, switchMap, tap, catchError, of, debounceTime, distinctUntilChanged, finalize, map } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -8,8 +8,10 @@ import { ISales, Sales, SaleId } from '../../../../shared/model/sales.model';
 import { createSalesLineFromProduct } from '../utils/sales-line.utils';
 import { ISalesLine, SalesLine } from '../../../../shared/model/sales-line.model';
 import { ICustomer } from '../../../../shared/model/customer.model';
+import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 import { ProduitSearch } from '../../../../shared/model/produit.model';
 import { IRemise } from '../../../../shared/model/remise.model';
+import { SalesStatut } from '../../../../shared/model/enumerations/sales-statut.model';
 
 /**
  * Sales Facade
@@ -67,6 +69,9 @@ export class SalesFacade {
 
   /** Error message */
   readonly error = this.store.error;
+
+  /** Error details for advanced handling */
+  readonly errorDetails = this.store.errorDetails;
 
   /** Last error for compatibility */
   readonly lastError = this.store.error;
@@ -142,30 +147,75 @@ export class SalesFacade {
         }
 
         const sale: ISales = {
-          type: 'COMPTANT',
+          statut: SalesStatut.ACTIVE,
+          salesLines: [initialLine],
+          customerId: this.store.selectedCustomer()?.id,
+          natureVente: 'COMPTANT',
+          typePrescription: 'PRESCRIPTION',
           cassierId: this.store.cashier()?.id,
           sellerId: this.store.seller()?.id,
-          customerId: this.store.selectedCustomer()?.id,
-          salesLines: [initialLine],
+          type: 'VNO',
+          categorie: 'VNO',
+          differe: false,
+          sansBon: false,
+          avoir: false,
         };
 
         this.store.setLoading(true);
-        return this.apiService.createComptantSale(sale);
+        // Retourner un tuple [sale response, initialLine] pour garder accès à initialLine dans tap
+        return this.apiService.createComptantSale(sale).pipe(
+          map(createdSale => ({ createdSale, initialLine })),
+          catchError(error => {
+            // Gérer l'erreur ici où on a accès à initialLine
+            console.error('Error creating comptant sale:', error);
+            
+            // Extraire le message d'erreur et errorKey
+            let errorMessage = 'Erreur lors de la création de la vente';
+            let errorKey = null;
+            
+            if (error?.error) {
+              errorKey = error.error.errorKey;
+              
+              if (error.error.errorKey === 'stock') {
+                errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+              } else if (error.error.errorKey === 'stockChInsufisant') {
+                errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+              } else if (error.error.message) {
+                errorMessage = error.error.message;
+              } else if (error.error.detail) {
+                errorMessage = error.error.detail;
+              }
+            }
+            
+            // Pour erreur de stock lors de création: stocker l'erreur avec la ligne tentée
+            if (errorKey === 'stock') {
+              this.store.setError(errorMessage);
+              this.store.setLastErrorDetails({ 
+                errorKey, 
+                originalError: error, 
+                attemptedLine: initialLine,
+                isFromTableCellEdit: false
+              });
+              // NE PAS afficher le toast - le dialog sera affiché par l'effect
+            } else {
+              this.store.setError(errorMessage);
+              this.notificationService.error('Erreur', errorMessage);
+            }
+            
+            this.store.setLoading(false);
+            return of(null);
+          })
+        );
       }),
       tap({
-        next: (sale) => {
-          this.store.setCurrentSale(sale);
-          this.store.setIsEdit(true);
+        next: (result) => {
+          if (result?.createdSale) {
+            this.store.setCurrentSale(result.createdSale);
+            this.store.setIsEdit(true);
+            this.store.clearError(); // Clear error et errorDetails pour déclencher l'effect de succès
+          }
           this.store.setLoading(false);
         },
-        error: (error) => {
-          this.store.setError(error.message || 'Erreur lors de la création de la vente');
-          this.store.setLoading(false);
-        },
-      }),
-      catchError((error) => {
-        console.error('Error creating comptant sale:', error);
-        return of(null);
       })
     )
   );
@@ -279,6 +329,8 @@ export class SalesFacade {
 
   /**
    * Calculate sale amounts before saving
+   * NOTE: montantRendu et montantRenduArrondi sont déjà calculés par le frontend
+   * avec les règles métier (seuil de 5 FCFA, arrondi au multiple de 5)
    */
   private calculateSaleAmounts(sale: ISales): void {
     const montantVerse = Number(sale.montantVerse) || 0;
@@ -291,8 +343,11 @@ export class SalesFacade {
     // Reste à payer = maximum entre 0 et le reste
     sale.restToPay = Math.max(restToPay, 0);
     
-    // Monnaie rendue = si montant versé > montant dû
-    sale.montantRendu = restToPay < 0 ? Math.abs(restToPay) : 0;
+    // Monnaie: ne recalculer que si pas déjà définie par le frontend
+    // Le frontend gère les règles métier (seuil 5 FCFA, arrondi)
+    if (sale.montantRendu === undefined || sale.montantRendu === null) {
+      sale.montantRendu = restToPay < 0 ? Math.abs(restToPay) : 0;
+    }
   }
 
   /**
@@ -390,6 +445,20 @@ export class SalesFacade {
   }
 
   /**
+   * Update tiers payants of current sale
+   * Called when customer is selected to set insurance tiers payants
+   */
+  updateSaleTiersPayants(tiersPayants: IClientTiersPayant[]): void {
+    const currentSale = this.store.currentSale();
+    if (currentSale) {
+      this.store.setCurrentSale({
+        ...currentSale,
+        tiersPayants: tiersPayants,
+      });
+    }
+  }
+
+  /**
    * Save assurance sale with payment modes and tiers payants
    * @param paymentModes - Payment modes used
    */
@@ -437,7 +506,84 @@ export class SalesFacade {
         switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product:', error);
-          this.store.setError('Erreur lors de l\'ajout du produit');
+          
+          // Extraire le message d'erreur spécifique et l'errorKey
+          let errorMessage = 'Erreur lors de l\'ajout du produit';
+          let errorKey = null;
+          
+          if (error?.error) {
+            errorKey = error.error.errorKey;
+            
+            // Si errorKey spécifique
+            if (error.error.errorKey === 'stock') {
+              errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+            } else if (error.error.errorKey === 'stockChInsufisant') {
+              errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+            } else if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+          }
+          
+          // Si erreur de stock, recharger la vente pour récupérer l'état actuel
+          // La ligne peut déjà exister si le produit a été ajouté précédemment
+          if (errorKey === 'stock') {
+            return this.apiService.findSaleForEdit(currentSale.saleId!).pipe(
+              tap(reloadedSale => {
+                if (reloadedSale) {
+                  this.store.setCurrentSale(reloadedSale);
+                  
+                  // Trouver la ligne qui correspond au produit ajouté
+                  const existingLine = reloadedSale.salesLines?.find(
+                    line => line.produitId === salesLine.produitId
+                  );
+                  
+                  let lineToAttempt: ISalesLine;
+                  
+                  if (existingLine) {
+                    // Produit existe déjà → Utiliser la ligne existante du backend
+                    // avec la quantité SAISIE (le backend fera le cumul)
+                    lineToAttempt = {
+                      ...existingLine, // Garder TOUTE la structure du backend (saleLineId, etc.)
+                      quantityRequested: salesLine.quantityRequested || 1, // Quantité saisie par l'utilisateur
+                      saleCompositeId: existingLine.saleCompositeId || {
+                        id: currentSale.saleId!.id,
+                        saleDate: currentSale.saleId!.saleDate
+                      }
+                    };
+                  } else {
+                    // Nouveau produit → utiliser salesLine tel quel
+                    lineToAttempt = salesLine;
+                  }
+                  
+                  // Stocker l'erreur avec la ligne qui contient la quantité SAISIE
+                  this.store.setError(errorMessage);
+                  this.store.setLastErrorDetails({ 
+                    errorKey, 
+                    originalError: error, 
+                    attemptedLine: lineToAttempt,
+                    isFromTableCellEdit: false // Explicite: vient de la recherche, pas du tableau
+                  });
+                }
+              }),
+              tap(() => {
+                // NE PAS afficher le toast ici - le dialog sera affiché par l'effect
+                this.store.setLoading(false);
+              }),
+              map((): null => null)
+            );
+          }
+          
+          // Pour les autres erreurs, traitement normal
+          this.store.setError(errorMessage);
+          this.store.setLastErrorDetails({ 
+            errorKey, 
+            originalError: error, 
+            attemptedLine: salesLine,
+            isFromTableCellEdit: false // Ajout depuis recherche
+          });
+          this.notificationService.error('Erreur', errorMessage);
           this.store.setLoading(false);
           return of(null);
         })
@@ -445,6 +591,104 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.store.clearError(); // Clear error et errorDetails en cas de succès
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Update item quantity with force stock (matches original processQtyRequested)
+   * Used when forcing stock after confirmation dialog
+   * Uses INCREMENT endpoint to add to existing quantity
+   * @param salesLine - Product line to update with forceStock = true
+   */
+  updateItemQtyRequested(salesLine: ISalesLine): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale || !currentSale.saleId) {
+      console.error('No current sale to update product');
+      return;
+    }
+
+    this.store.setLoading(true);
+
+    // Use INCREMENT endpoint (adds to existing quantity)
+    this.apiService.incrementItemQtyRequested(salesLine)
+      .pipe(
+        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        catchError(error => {
+          console.error('Error updating product quantity:', error);
+          
+          // Extraire le message d'erreur
+          let errorMessage = 'Erreur lors de la mise à jour du produit';
+          
+          if (error?.error) {
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+          }
+          
+          this.store.setError(errorMessage);
+          this.notificationService.error('Erreur', errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        })
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          // Clear l'erreur en cas de succès (important pour le force stock)
+          this.store.clearError();
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Update item quantity requested with SET (for force stock from table cell edit)
+   * Uses SET endpoint to REPLACE quantity (not increment)
+   * @param salesLine - Product line to update with forceStock = true
+   */
+  updateItemQtyRequestedWithSet(salesLine: ISalesLine): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale || !currentSale.saleId) {
+      console.error('No current sale to update product');
+      return;
+    }
+
+    this.store.setLoading(true);
+
+    // Use SET endpoint (replaces quantity, does not increment)
+    this.apiService.setItemQtyRequested(salesLine)
+      .pipe(
+        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        catchError(error => {
+          console.error('Error updating product quantity:', error);
+          
+          // Extraire le message d'erreur
+          let errorMessage = 'Erreur lors de la mise à jour du produit';
+          
+          if (error?.error) {
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+          }
+          
+          this.store.setError(errorMessage);
+          this.notificationService.error('Erreur', errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        })
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          // Clear l'erreur en cas de succès (important pour le force stock)
+          this.store.clearError();
         }
         this.store.setLoading(false);
       });
@@ -511,8 +755,29 @@ export class SalesFacade {
         }),
         catchError(error => {
           console.error('Error adding product:', error);
-          this.notificationService.error('Erreur lors de l\'ajout du produit');
-          this.store.setError('Erreur lors de l\'ajout du produit');
+          
+          // Extraire le message d'erreur spécifique et l'errorKey
+          let errorMessage = 'Erreur lors de l\'ajout du produit';
+          let errorKey = null;
+          
+          if (error?.error) {
+            errorKey = error.error.errorKey;
+            
+            if (error.error.errorKey === 'stock') {
+              errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+            } else if (error.error.errorKey === 'stockChInsufisant') {
+              errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+            } else if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+          }
+          
+          // Stocker l'erreur avec les détails pour traitement par le composant
+          this.store.setError(errorMessage);
+          this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine });
+          this.notificationService.error('Erreur', errorMessage);
           this.store.setLoading(false);
           return of(null);
         })
@@ -570,6 +835,8 @@ export class SalesFacade {
 
   /**
    * Update line quantity requested
+   * Used when editing quantity from table cell
+   * Uses SET endpoint to REPLACE quantity (not increment)
    * Envoie au backend pour recalcul des montants, puis recharge la vente
    */
   updateLineQuantityRequested(lineId: number, newQuantity: number): void {
@@ -587,8 +854,8 @@ export class SalesFacade {
 
     this.store.setLoading(true);
 
-    // Backend recalcule tous les montants
-    this.apiService.updateItemQtyRequested(updatedLine)
+    // Use SET endpoint (replaces quantity, does not increment)
+    this.apiService.setItemQtyRequested(updatedLine)
       .pipe(
         switchMap(() => {
           // Recharger la vente complète
@@ -596,8 +863,99 @@ export class SalesFacade {
         }),
         catchError(error => {
           console.error('Error updating quantity requested:', error);
-          this.notificationService.error('Erreur lors de la mise à jour de la quantité demandée');
-          this.store.setError('Erreur lors de la mise à jour de la quantité demandée');
+          
+          // Extraire le message d'erreur et errorKey
+          let errorMessage = 'Erreur lors de la mise à jour de la quantité demandée';
+          let errorKey: string | undefined;
+          
+          if (error?.error) {
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+            errorKey = error.error.errorKey;
+          }
+          
+          // Si erreur de stock pour modification cellule:
+          // NE PAS recharger la vente car cela écraserait la valeur saisie par l'utilisateur
+          // On a déjà toutes les infos nécessaires dans updatedLine
+          if (errorKey === 'stock') {
+            // S'assurer que saleCompositeId est correctement formé
+            if (!updatedLine.saleCompositeId && currentSale.saleId) {
+              updatedLine.saleCompositeId = {
+                id: currentSale.saleId.id,
+                saleDate: currentSale.saleId.saleDate
+              };
+            }
+            
+            // Stocker l'erreur avec la ligne qui contient la NOUVELLE quantité voulue
+            this.store.setError(errorMessage);
+            this.store.setLastErrorDetails({ 
+              errorKey, 
+              originalError: error,
+              attemptedLine: updatedLine, // Contient newQuantity
+              isFromTableCellEdit: true
+            });
+            // NE PAS afficher le toast - le dialog sera affiché par l'effect
+            this.store.setLoading(false);
+            return of(null);
+          } else {
+            // Autres erreurs : toast simple
+            this.notificationService.error('Erreur', errorMessage);
+            this.store.setError(errorMessage);
+            this.store.setLastErrorDetails({ 
+              errorKey: errorKey || null, 
+              originalError: error,
+              attemptedLine: updatedLine,
+              isFromTableCellEdit: true
+            });
+            this.store.setLoading(false);
+            return of(null);
+          }
+        })
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          // Clear l'erreur en cas de succès (important pour le force stock)
+          this.store.setError(null);
+          this.store.setLastErrorDetails(null);
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Update line unit price
+   * Envoie au backend pour recalcul des montants, puis recharge la vente
+   */
+  updateLinePrice(lineId: number, newPrice: number): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale?.salesLines || !currentSale.saleId) return;
+
+    const line = currentSale.salesLines.find(l => l.id === lineId);
+    if (!line) return;
+
+    const updatedLine: ISalesLine = {
+      ...line,
+      regularUnitPrice: newPrice,
+      saleCompositeId: currentSale.saleId,
+    };
+
+    this.store.setLoading(true);
+
+    // Backend recalcule tous les montants
+    this.apiService.updateItemPrice(updatedLine)
+      .pipe(
+        switchMap(() => {
+          // Recharger la vente complète
+          return this.apiService.findSaleForEdit(currentSale.saleId!);
+        }),
+        catchError(error => {
+          console.error('Error updating price:', error);
+          this.notificationService.error('Erreur lors de la mise à jour du prix');
+          this.store.setError('Erreur lors de la mise à jour du prix');
           this.store.setLoading(false);
           return of(null);
         })
@@ -713,8 +1071,10 @@ export class SalesFacade {
     };
 
     // Determine which endpoint to use based on sale type
+    // VNO = vente comptant -> updateComptantSale
+    // VO = vente assurance/carnet -> updateAssuranceSale
     const updateObservable$ =
-      currentSale.natureVente === 'VO'
+      currentSale.type === 'VNO'
         ? this.apiService.updateComptantSale(updatedSale)
         : this.apiService.updateAssuranceSale(updatedSale);
 
@@ -836,7 +1196,7 @@ export class SalesFacade {
         finalize(() => this.store.setLoading(false))
       )
       .subscribe(sales => {
-        sales.forEach(sale => this.store.addPendingSale(sale));
+        this.store.setPendingSales(sales);
       });
   }
 
@@ -1023,6 +1383,7 @@ export class SalesFacade {
   removePendingSale = this.store.removePendingSale.bind(this.store);
   toggleInsuranceDataBar = this.store.toggleInsuranceDataBar.bind(this.store);
   toggleSidebar = this.store.toggleSidebar.bind(this.store);
+  clearError = this.store.clearError.bind(this.store);
   reset = this.store.reset.bind(this.store);
   resetCurrentSale = this.store.resetCurrentSale.bind(this.store);
 }

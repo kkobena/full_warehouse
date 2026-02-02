@@ -49,7 +49,7 @@ public interface ThirdPartySaleService {
 
     ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, PlafondVenteException;
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment)
         throws StockException, DeconditionnementStockOut, PlafondVenteException;
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;

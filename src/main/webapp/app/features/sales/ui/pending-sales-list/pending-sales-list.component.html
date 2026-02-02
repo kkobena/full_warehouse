@@ -2,17 +2,20 @@
   <!-- Toolbar -->
   <p-toolbar>
     <div class="toolbar-content">
-      <!-- Sale Type Filter -->
+      <!-- Seller Filter -->
       <div class="filter-group">
-        <label class="filter-label">Type</label>
-        <p-select
-          [(ngModel)]="saleTypeFilter"
-          (onChange)="onSaleTypeChange()"
-          [options]="saleTypeOptions"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{ width: '150px' }"
-        />
+        <p-inputgroup>
+          <p-inputgroup-addon>Vendeurs</p-inputgroup-addon>
+          <p-select
+            [(ngModel)]="sellerFilter"
+            (onChange)="onSellerChange()"
+            [options]="sellers()"
+            optionLabel="abbrName"
+            optionValue="id"
+            [style]="{ width: '200px' }"
+            placeholder="Tous les vendeurs"
+          />
+        </p-inputgroup>
       </div>
 
       <!-- Search -->
@@ -73,10 +76,10 @@
       selectionMode="single"
       [(selection)]="selectedSale"
       [metaKeySelection]="false"
-      styleClass="p-datatable-sm"
+      class="p-datatable-sm pharma-table"
     >
-      <ng-template #header>
-        <tr>
+      <ng-template #header >
+        <tr class="pharma-table-head">
           <th style="width: 3%"></th>
           <th style="width: 12%">Référence</th>
           <th style="width: 10%">Type</th>
@@ -88,8 +91,8 @@
           <th style="width: 5%" class="text-center">Actions</th>
         </tr>
       </ng-template>
-
-      <ng-template #body let-sale let-expanded="expanded">
+    <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
+      
         <tr
           [ngClass]="getRowClass(sale)"
           (click)="onSelectSale(sale)"
@@ -142,23 +145,15 @@
                 size="small"
                 pTooltip="Reprendre la vente"
               />
-              <p-button
-                icon="pi pi-trash"
-                (onClick)="onDeleteSale(sale, $event)"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                size="small"
-                pTooltip="Supprimer"
-              />
+             
             </div>
           </td>
         </tr>
       </ng-template>
 
       <!-- Expanded Row: Product Details -->
-      <ng-template #rowexpansion let-sale>
-        <tr class="expanded-row">
+      <ng-template #expandedrow let-sale>
+        <tr class="expanded-row pharma-expanded-row">
           <td colspan="9">
             <div class="products-detail-card">
               <div class="card-header">
@@ -174,7 +169,7 @@
                   styleClass="p-datatable-sm"
                 >
                   <ng-template #header>
-                    <tr>
+                    <tr class="pharma-table-head">
                       <th style="width: 5%">#</th>
                       <th style="width: 12%">Code</th>
                       <th style="width: 40%">Libellé</th>

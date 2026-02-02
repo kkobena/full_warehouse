@@ -1,156 +1,64 @@
 <div class="sale-summary-container">
-  <p-card header="Résumé de la vente" [class]="'summary-card'">
-    <div class="summary-content">
-      <!-- Nombre d'articles -->
-      <div class="summary-row">
-        <span class="summary-label">
-          <i class="pi pi-shopping-cart me-2"></i>
-          Nombre d'articles
-        </span>
-        <span class="summary-value">{{ itemCount() }}</span>
-      </div>
+  <!-- Montant principal -->
+  <div class="amount-row amount-total">
+    <span class="amount-label">Total</span>
+    <span class="amount-value">{{ totalAmount() | number }}</span>
+  </div>
 
-      <p-divider />
-
-      <!-- Total HT -->
-      @if (hasTax()) {
-        <div class="summary-row">
-          <span class="summary-label">Total HT</span>
-          <span class="summary-value">{{ getTotalHT() | number : '1.0-0' }} F</span>
-        </div>
-      }
-
-      <!-- TVA -->
-      @if (hasTax()) {
-        <div class="summary-row">
-          <span class="summary-label">TVA</span>
-          <span class="summary-value text-muted">{{ taxAmount() | number : '1.0-0' }} F</span>
-        </div>
-      }
-
-      <!-- Total TTC -->
-      <div class="summary-row">
-        <span class="summary-label fw-bold">
-          @if (hasTax()) {
-            Total TTC
-          } @else {
-            Total
-          }
-        </span>
-        <span class="summary-value fw-bold text-primary fs-5">{{ totalAmount() | number : '1.0-0' }} F</span>
-      </div>
-
-      <!-- Remise -->
-      @if (hasDiscount()) {
-        <div class="summary-row discount-row">
-          <span class="summary-label text-success">
-            <i class="pi pi-tag me-2"></i>
-            Remise
-            @if (currentRemise()) {
-              <span class="text-muted small ms-1">({{ currentRemise()!.typeLibelle }})</span>
-            }
-          </span>
-          <span class="summary-value text-success d-flex align-items-center gap-2">
-            -{{ discountAmount() | number : '1.0-0' }} F
-            <p-button 
-              icon="pi pi-times" 
-              [text]="true" 
-              severity="danger" 
-              size="small"
-              (onClick)="onRemoveRemiseClick()"
-              pTooltip="Supprimer la remise"
-            />
-          </span>
-        </div>
-
-        <p-divider />
-      } @else {
-        <!-- Bouton ajouter remise si pas de remise -->
-        <div class="summary-row">
-          <p-button 
-            icon="pi pi-tag" 
-            label="Ajouter une remise"
-            [text]="true"
-            severity="success"
-            size="small"
-            styleClass="w-100"
-            (onClick)="onAddRemiseClick()"
-          />
-        </div>
-      }
-
-      <!-- Part Assurance / Tiers Payants -->
-      @if (hasThirdParty()) {
-        <!-- Détails par tiers payant si plusieurs -->
-        @if (hasMultipleThirdParties()) {
-          @for (tp of thirdPartyDetails(); track tp.id) {
-            <div class="summary-row">
-              <span class="summary-label">{{ tp.name }}</span>
-              <span class="summary-value">{{ tp.amount | number : '1.0-0' }} F</span>
-            </div>
-          }
-        }
-
-        <!-- Total assurance -->
-        <div class="summary-row">
-          <span class="summary-label">
-            <i class="pi pi-shield me-2"></i>
-            Total assurance
-          </span>
-          <span class="summary-value text-info">{{ thirdPartyTotal() | number : '1.0-0' }} F</span>
-        </div>
-
-        <p-divider />
-      }
-
-      <!-- Net à payer -->
-      <div class="summary-row total-row">
-        <span class="summary-label fw-bold fs-5">Net à payer</span>
-        <span class="summary-value fw-bold text-success fs-4">{{ getNetToPay() | number : '1.0-0' }} F</span>
-      </div>
-
-      <!-- Badge Avoir (Livraison partielle) -->
-      @if (isAvoir()) {
-        <div class="alert alert-warning mt-2 mb-0 py-2 px-3">
-          <i class="pi pi-exclamation-triangle me-2"></i>
-          <strong>Livraison partielle</strong> - Un avoir sera généré
-        </div>
-      }
-
-      <!-- Détails paiement -->
-      @if (showPaymentDetails()) {
-        <p-divider />
-
-        <!-- Montant donné -->
-        @if (amountGiven() !== null) {
-          <div class="summary-row">
-            <span class="summary-label">Montant donné</span>
-            <span class="summary-value">{{ amountGiven() | number : '1.0-0' }} F</span>
-          </div>
-        }
-
-        <!-- Monnaie -->
-        @if (showChange()) {
-          <div class="summary-row change-row">
-            <span class="summary-label fw-bold">
-              <i class="pi pi-money-bill me-2"></i>
-              Monnaie à rendre
-            </span>
-            <span class="summary-value fw-bold text-info">{{ changeAmount() | number : '1.0-0' }} F</span>
-          </div>
-        }
-
-        <!-- Dernière monnaie donnée -->
-        @if (showLastChange()) {
-          <div class="summary-row">
-            <span class="summary-label text-muted">
-              <i class="pi pi-history me-2"></i>
-              Dernière monnaie
-            </span>
-            <span class="summary-value text-muted">{{ lastChangeGiven() | number : '1.0-0' }} F</span>
-          </div>
-        }
-      }
+  <!-- TVA si applicable -->
+  @if (hasTax()) {
+    <div class="amount-row">
+      <span class="amount-label">TVA</span>
+      <span class="amount-value">{{ taxAmount() | number }}</span>
     </div>
-  </p-card>
+  }
+
+  <!-- Remise si applicable -->
+  @if (hasDiscount()) {
+    <div class="amount-row amount-discount">
+      <span class="amount-label">Remise</span>
+      <span class="amount-value">-{{ discountAmount() | number }}</span>
+    </div>
+  }
+
+  <!-- Part assurance -->
+  @if (hasThirdParty()) {
+    @if (hasMultipleThirdParties()) {
+      @for (tp of thirdPartyDetails(); track tp.id) {
+        <div class="amount-row">
+          <span class="amount-label">{{ tp.name }}</span>
+          <span class="amount-value">{{ tp.amount | number }}</span>
+        </div>
+      }
+    }
+    <div class="amount-row">
+      <span class="amount-label">Total assurance</span>
+      <span class="amount-value">{{ thirdPartyTotal() | number }}</span>
+    </div>
+  }
+
+  <!-- Séparateur -->
+  <div class="amount-divider"></div>
+
+  <!-- Montant à payer (mis en évidence) -->
+  <div class="amount-row amount-to-pay">
+    <span class="amount-label">à payer</span>
+    <span class="amount-value">{{ getNetToPay() | number }}</span>
+  </div>
+
+  <!-- Monnaie si applicable -->
+  @if (showChange()) {
+    <div class="amount-row amount-change">
+      <span class="amount-label">Monnaie</span>
+      <span class="amount-value">{{ changeAmount() | number }}</span>
+    </div>
+  }
+
+  <!-- Dernière monnaie -->
+  @if (showLastChange()) {
+    <div class="amount-row amount-last">
+      <span class="amount-label">Dernière monnaie</span>
+      <span class="amount-value">{{ lastChangeGiven() | number }}</span>
+    </div>
+  }
 </div>

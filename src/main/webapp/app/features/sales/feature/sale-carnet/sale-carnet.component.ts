@@ -70,9 +70,21 @@ import { ICustomer } from '../../../../shared/model/customer.model';
   providers: [MessageService], // Instance locale pour ce composant
 })
 export class SaleCarnetComponent implements OnInit {
-  // ViewChild
+  // ✅ AJOUT Phase 2.1: ViewChild pour gestion du focus
+  productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
+  quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  
+  /**
+   * Méthode publique pour mettre le focus sur la recherche produit
+   * Appelée par le composant parent lors du changement de tab
+   */
+  public focusProductSearch(): void {
+    setTimeout(() => {
+      // Le focus sera géré par le ProductSearchComponent enfant
+    }, 100);
+  }
   
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
@@ -175,6 +187,10 @@ export class SaleCarnetComponent implements OnInit {
 
   // ===== Product Management =====
 
+  /**
+   * ✅ MODIFIÉ Phase 2.2: Gère la sélection manuelle d'un produit
+   * Focus automatique sur quantité après sélection
+   */
   onProductSelected(product: ProduitSearch | null): void {
     if (!product) {
       return;
@@ -189,8 +205,18 @@ export class SaleCarnetComponent implements OnInit {
     }
 
     this.facade.setSelectedProduct(product);
+    
+    // ✅ AJOUT: Focus sur quantité après sélection
+    setTimeout(() => {
+      this.quantityComponent()?.focusProduitControl();
+      this.quantityComponent()?.reset(1);
+    }, 100);
   }
 
+  /**
+   * ✅ MODIFIÉ Phase 2.3: Gère l'ajout de quantité
+   * Reset et focus après ajout réussi
+   */
   onAddQuantity(quantity: number): void {
     const product = this.selectedProduct();
     if (!product || !quantity || quantity <= 0) {
@@ -214,8 +240,42 @@ export class SaleCarnetComponent implements OnInit {
       product.regularUnitPrice || 0
     );
     
+    // ✅ AJOUT: Reset après succès
+    this.resetProductSelection();
+    
     // Notifier le container que l'ajout est réussi (pour reset du formulaire)
     this.productAddedSuccess.emit();
+  }
+
+  /**
+   * ✅ AJOUT Phase 2.3: Réinitialiser la sélection produit et focus
+   */
+  private resetProductSelection(): void {
+    this.facade.setSelectedProduct(null);
+    this.productSearchComponent()?.reset();
+    this.quantityComponent()?.reset(1);
+    
+    setTimeout(() => {
+      this.productSearchComponent()?.getFocus();
+    }, 100);
+  }
+
+  /**
+   * ✅ AJOUT Phase 3: Scanner → ajout automatique avec quantité 1
+   */
+  onProductScanned(product: ProduitSearch): void {
+    if (!product || !this.hasCustomer()) return;
+    
+    this.facade.setSelectedProduct(product);
+    this.facade.onAddProduit(product);
+    
+    this.customerDisplay.updateDisplayForProduct(
+      product.libelle || '',
+      1,
+      product.regularUnitPrice || 0
+    );
+    
+    this.resetProductSelection();
   }
 
   onUpdateQuantity(update: { line: ISalesLine; quantity: number }): void {

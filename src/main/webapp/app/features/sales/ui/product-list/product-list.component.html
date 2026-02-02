@@ -1,97 +1,230 @@
 <div class="product-list-container">
+  <!-- Caption avec recherche et remise -->
+  <div class="pharma-table-header-compact">
+    <!-- Recherche produit -->
+    <div class="pharma-filter-search">
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input
+          #filterInput
+          (input)="onFilterChange($event)"
+          class="pharma-search-input"
+          pInputText
+          placeholder="Rechercher un produit..."
+          type="text"
+        />
+      </p-iconfield>
+    </div>
+
+    <!-- Séparateur vertical -->
+    <div class="pharma-divider"></div>
+
+    <!-- Section Remise -->
+    @if (showRemiseSection()) {
+      <div class="pharma-remise-section">
+        <!-- Badge Remise Info -->
+        @if (currentRemise()) {
+          <div class="pharma-remise-info">
+            <i class="pi pi-percentage"></i>
+            <span class="remise-label">Remise:</span>
+            <strong class="remise-value">{{ getRemiseTaux() }}</strong>
+          </div>
+        }
+
+        <!-- Sélecteur de remise -->
+        @if (remises()?.length > 0) {
+          <p-select
+            (onChange)="onSelectRemise()"
+            [(ngModel)]="selectedRemise"
+            [group]="true"
+            [options]="remises()"
+            [showClear]="true"
+            class="pharma-remise-select-compact"
+            optionLabel="valeur"
+            placeholder="Choisir une remise"
+          >
+            <ng-template #group let-group>
+              <div class="pharma-remise-group">
+                <i class="pi pi-tag"></i>
+                <span>{{ group.typeLibelle }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Tableau principal -->
   <p-table
+    #produitTable
     [value]="salesLines()"
-    [scrollable]="true"
-    scrollHeight="400px"
-    [styleClass]="'p-datatable-sm'"
-    [class]="'product-list-table'">
+    [globalFilterFields]="['produitCode', 'produitLibelle']"
+    [paginator]="true"
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+    dataKey="id"
+    selectionMode="single"
+    [class]="'pharma-table'">
     <ng-template #header>
-      <tr>
-        <th style="width: 30%">Produit</th>
-        <th style="width: 12%">Prix Unit.</th>
-        <th style="width: 12%">Qté Demandée</th>
-        <th style="width: 12%">Qté Servie</th>
-        <th style="width: 12%">Remise</th>
-        <th style="width: 12%">Total</th>
+      <tr class="pharma-table-head">
+        <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
+        <th>CODE</th>
+        <th>LIBELLÉ</th>
+        <th style="width: 110px; text-align: center">QTÉ.D</th>
+        <th style="width: 110px; text-align: center">QTÉ.S</th>
+        <th style="width: 110px; text-align: right">PU</th>
+        <th style="width: 130px; text-align: right">TOTAL</th>
         @if (isEditable()) {
-          <th style="width: 5%">Actions</th>
+          <th style="width: 50px; text-align: center"></th>
         }
       </tr>
     </ng-template>
     <ng-template #body let-line let-rowIndex="rowIndex">
       <tr
-        [class.selected-row]="isLineSelected(line)"
-        [class.warning-row]="line.quantitySold < line.quantityRequested"
+        [ngClass]="{
+          'pharma-row-warning': line.quantitySold < line.quantityRequested,
+          'selected-row': isLineSelected(line)
+        }"
         (click)="onSelectLine(line)"
         [attr.data-line-id]="line.id">
+        <!-- # -->
+        <td style="text-align: center; padding: 6px 5px">
+          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+        </td>
+        
+        <!-- CODE -->
         <td>
-          <div class="product-info">
-            <div class="product-name">{{ line.produitLibelle }}</div>
-            @if (line.produitCode) {
-              <div class="product-code text-muted small">{{ line.produitCode }}</div>
-            }
-          </div>
+          <span class="pharma-code">{{ line.code }}</span>
         </td>
-        <td class="text-end">
-          {{ line.regularUnitPrice | number : '1.0-0' }} F
-        </td>
-        <!-- Quantité Demandée -->
+        
+        <!-- LIBELLÉ -->
         <td>
-          @if (isEditable()) {
-            <input
-              type="number"
-              pInputText
-              [value]="line.quantityRequested"
-              (change)="onQuantityRequestedChange(line, $any($event.target).value)"
-              min="1"
-              class="quantity-input" />
-          } @else {
-            <span class="text-end d-block">{{ line.quantityRequested }}</span>
-          }
+          <div class="pharma-product-name">{{ line.produitLibelle }}</div>
         </td>
-        <!-- Quantité Servie -->
-        <td>
-          @if (isEditable()) {
-            <input
-              type="number"
-              pInputText
-              [value]="line.quantitySold"
-              (change)="onQuantitySoldChange(line, $any($event.target).value)"
-              min="0"
-              class="quantity-input" />
-          } @else {
-            <span class="text-end d-block">{{ line.quantitySold }}</span>
-          }
+        
+        <!-- QTÉ.D - Éditable au click -->
+        <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center">
+          <p-cellEditor>
+            <ng-template #input>
+              <input
+                type="number"
+                pInputText
+                [value]="line.quantityRequested"
+        
+                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value); $event.target.blur()"
+                (focus)="$event.target.select()"
+                min="1"
+                class="pharma-input-qty" />
+            </ng-template>
+            <ng-template #output>
+              <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
+            </ng-template>
+          </p-cellEditor>
         </td>
-        <td class="text-end">
-          @if (line.discountAmount && line.discountAmount > 0) {
-            <span class="discount-amount">-{{ line.discountAmount | number : '1.0-0' }} F</span>
-          } @else {
-            <span class="text-muted">—</span>
-          }
+        
+        <!-- QTÉ.S - Éditable au click -->
+        <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center">
+          <p-cellEditor>
+            <ng-template #input>
+              <input
+                type="number"
+                pInputText
+                [value]="line.quantitySold"
+              
+                (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value); $event.target.blur()"
+                (focus)="$event.target.select()"
+                min="0"
+                class="pharma-input-qty" />
+            </ng-template>
+            <ng-template #output>
+              <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+            </ng-template>
+          </p-cellEditor>
         </td>
-        <td class="text-end fw-bold">
-          {{ getLineTotal(line) | number : '1.0-0' }} F
+        
+        <!-- PU - Éditable si autorisé -->
+        @if (canEditPrice()) {
+          <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right">
+            <p-cellEditor>
+              <ng-template #input>
+                <input
+                  type="number"
+                  pInputText
+                  [value]="line.regularUnitPrice"
+                
+                  (keydown.enter)="onPriceChange(line, $any($event.target).value); $event.target.blur()"
+                  (focus)="$event.target.select()"
+                  min="0"
+                  class="pharma-input-price" />
+              </ng-template>
+              <ng-template #output>
+                <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+        } @else {
+          <td style="text-align: right">
+            <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
+          </td>
+        }
+        
+        <!-- TOTAL -->
+        <td style="text-align: right">
+          <span class="pharma-total">{{ getLineTotal(line) | number }}</span>
         </td>
+        
+        <!-- ACTIONS -->
         @if (isEditable()) {
-          <td class="text-center">
-            <button
-              pButton
-              icon="pi pi-trash"
-              class="p-button-rounded p-button-text p-button-danger p-button-sm"
+          <td style="text-align: center">
+            <p-button
               (click)="onRemoveLine(line); $event.stopPropagation()"
-              [pTooltip]="'Supprimer'"></button>
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-trash"
+              pTooltip="Supprimer"
+              severity="danger"
+              size="small"
+            />
           </td>
         }
       </tr>
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td [attr.colspan]="isEditable() ? 6 : 5" class="text-center text-muted p-4">
+        <td [attr.colspan]="isEditable() ? 8 : 7" class="text-center text-muted p-4">
           <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
           <p class="mt-2">Aucun produit dans la vente</p>
         </td>
       </tr>
     </ng-template>
+    <ng-template #footer>
+      @if (salesLines().length > 0) {
+        <tr class="pharma-table-footer">
+          <td class="pharma-footer-label" colspan="3" style="text-align: left">
+            <i class="pi pi-calculator"></i>
+            <span>TOTAUX</span>
+          </td>
+          <td class="text-center">
+            <span class="pharma-footer-value">{{ getTotalQuantityRequested() | number }}</span>
+          </td>
+          <td class="text-center">
+            <span class="pharma-footer-value">{{ getTotalQuantitySold() | number }}</span>
+          </td>
+          <td></td>
+          <td class="text-right">
+            <span class="pharma-footer-total">{{ getTotalAmount() | number }}</span>
+          </td>
+          @if (isEditable()) {
+            <td></td>
+          }
+        </tr>
+      }
+    </ng-template>
   </p-table>
 </div>
+
+<!-- Confirm Dialog -->
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

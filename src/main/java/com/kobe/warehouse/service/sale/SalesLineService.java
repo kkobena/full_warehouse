@@ -33,7 +33,7 @@ public interface SalesLineService {
 
     SalesLine getOneById(SaleLineId id);
 
-    SalesLine createSaleLineFromDTO(SaleLineDTO saleLine, Integer stockageId);
+    SalesLine createSaleLineFromDTO(SaleLineDTO saleLine, Integer stockageId) throws StockException, DeconditionnementStockOut;
 
     void processUg(SalesLine salesLine, SaleLineDTO dto, Integer stockageId);
 
@@ -60,4 +60,6 @@ public interface SalesLineService {
     long getNextId();
 
     List<SalesLine> createSaleLinesFromDTO(CashSale cashSale, List<SaleLineDTO> saleLines, Integer stockageId);
+    void incrementItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
+        throws StockException, DeconditionnementStockOut;
 }

@@ -82,15 +82,18 @@ import { NgxSpinnerModule } from 'ngx-spinner';
   providers: [MessageService, ConfirmationService], // Instance locale pour ce composant
 })
 export class SaleAssuranceComponent implements OnInit {
-  // ViewChild pour accéder aux composants
+  // ✅ AJOUT Phase 2.1: ViewChild pour gestion du focus
+  productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
+  quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
-  
+  paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
+
   // Service de confirmation
   private confirmationService = inject(ConfirmationService);
-  
+
   // Output pour notifier le container du succès
   productAddedSuccess = output<void>();
-  
+
   // Modal and responsive state
   readonly isCashRegisterOpen = model(false);
   readonly isSmallScreen = input(false);
@@ -126,7 +129,7 @@ export class SaleAssuranceComponent implements OnInit {
   lastError = this.facade.lastError;
   cashier = this.facade.cashier;
   seller = this.facade.seller;
-  
+
   // Local state signals
   selectedLineId = signal<number | null>(null);
   customers = signal<ICustomer[]>([]);
@@ -175,7 +178,7 @@ export class SaleAssuranceComponent implements OnInit {
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
     this.facade.initializeAssuranceSale();
-    
+
     // Charger les ventes en attente
     this.facade.loadPendingSales();
   }
@@ -199,8 +202,59 @@ export class SaleAssuranceComponent implements OnInit {
     }
 
     this.facade.setSelectedProduct(product);
+    
+    // ✅ AJOUT Phase 2.2: Focus sur quantité après sélection
+    setTimeout(() => {
+      this.quantityComponent()?.focusProduitControl();
+      this.quantityComponent()?.reset(1);
+    }, 100);
   }
 
+  /**
+   * ✅ AJOUT Phase 3: Scanner → ajout automatique avec quantité 1
+   */
+  onProductScanned(product: ProduitSearch): void {
+    if (!product || !this.hasCustomer()) {
+      if (!this.hasCustomer()) {
+        this.notificationService.warning(
+          'Client requis',
+          'Veuillez sélectionner un client assuré avant d\'ajouter des produits'
+        );
+      }
+      return;
+    }
+    
+    this.facade.setSelectedProduct(product);
+    
+    // ✅ Ajout automatique avec quantité 1
+    const currentSale = this.currentSale();
+    if (!currentSale) return;
+    
+    const line = createSalesLineFromProduct(product, 1, currentSale);
+    this.facade.addSalesLine(line);
+    
+    // ✅ Reset et focus sur recherche
+    this.resetProductSelection();
+  }
+  /**
+   * ✅ AJOUT Phase 4: Enter dans champ produit vide → paiement
+   */
+  onProductSearchEnter(shouldSave: boolean): void {
+    if (!shouldSave) return;
+    
+    const currentSale = this.currentSale();
+    
+    // ✅ Si vente en cours avec des lignes
+    if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
+      // ✅ Afficher modal paiement (pas sauvegarder)
+      this.showPaymentModal.set(true);
+      
+      // ✅ Focus sur premier mode règlement
+      setTimeout(() => {
+        this.paymentModeComponent()?.focusFirstMode();
+      }, 300);
+    }
+  }
   onAddQuantity(quantity: number): void {
     const product = this.selectedProduct();
     if (!product || !quantity || quantity <= 0) {
@@ -217,9 +271,31 @@ export class SaleAssuranceComponent implements OnInit {
 
     const currentSale = this.currentSale();
     if (!currentSale) return;
+    
     const line = createSalesLineFromProduct(product, quantity, currentSale);
     this.facade.addSalesLine(line);
-    this.productAddedSuccess.emit();
+    
+    // ✅ AJOUT Phase 2.3: Reset après succès
+    this.resetProductSelection();
+  }
+
+  /**
+   * ✅ AJOUT Phase 2.3: Réinitialiser et focus après ajout produit
+   */
+  private resetProductSelection(): void {
+    // Réinitialiser le produit sélectionné
+    this.facade.setSelectedProduct(null);
+    
+    // Réinitialiser le composant de recherche
+    this.productSearchComponent()?.reset();
+    
+    // Réinitialiser la quantité
+    this.quantityComponent()?.reset(1);
+    
+    // Focus sur recherche produit
+    setTimeout(() => {
+      this.productSearchComponent()?.getFocus();
+    }, 100);
   }
 
   onLineQuantityChanged(event: { lineId: number; quantity: number }): void {
@@ -328,7 +404,7 @@ export class SaleAssuranceComponent implements OnInit {
   onInsuranceDataUpdate(data: { customer: ICustomer; tiersPayants: IClientTiersPayant[] }): void {
     // Mettre à jour le client
     this.facade.setCustomer(data.customer);
-    
+
     // Mettre à jour les tiers payants dans la vente courante
     const currentSale = this.currentSale();
     if (currentSale) {
@@ -340,9 +416,16 @@ export class SaleAssuranceComponent implements OnInit {
     // Cloner l'objet pour forcer la réactivité
     const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
     this.facade.setCustomer(newCustomer);
+    
+    // ✅ AJOUT: Créer la vente si elle n'existe pas
     const currentSale = this.currentSale();
-    if (currentSale && newCustomer.tiersPayants) {
-      currentSale.tiersPayants = newCustomer.tiersPayants;
+    if (!currentSale) {
+      this.facade.initializeAssuranceSale();
+    }
+    
+    // ✅ AJOUT: Mettre à jour les tiers payants de la vente
+    if (newCustomer.tiersPayants) {
+      this.facade.updateSaleTiersPayants(newCustomer.tiersPayants);
     }
   }
 
@@ -421,7 +504,7 @@ export class SaleAssuranceComponent implements OnInit {
   onAddComplementaire(): void {
     const customer = this.selectedCustomer();
     const currentSale = this.currentSale();
-    
+
     if (!customer) {
       this.notificationService.warning('Client requis', 'Sélectionnez d\'abord un client assuré');
       return;
@@ -438,7 +521,7 @@ export class SaleAssuranceComponent implements OnInit {
         if (newTiersPayant && currentSale) {
           const updatedTiersPayants = [...(currentSale.tiersPayants || []), newTiersPayant];
           currentSale.tiersPayants = updatedTiersPayants;
-          
+
           // Mettre à jour via la facade si besoin
           // TODO: Ajouter méthode facade.addThirdParty si nécessaire
         }
@@ -458,7 +541,7 @@ export class SaleAssuranceComponent implements OnInit {
       accept: () => {
         const updatedTiersPayants = currentSale.tiersPayants!.filter(tp => tp.id !== tiersPayant.id);
         currentSale.tiersPayants = updatedTiersPayants;
-        
+
         // TODO: Appeler service backend pour supprimer
         // this.facade.removeThirdParty(tiersPayant.id);
       }
@@ -475,7 +558,7 @@ export class SaleAssuranceComponent implements OnInit {
   private openAssuredCustomerForm(customer: ICustomer | null): void {
     const isEdit = !!customer;
     const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : 'FORMULAIRE D\'AJOUT DE NOUVEAU CLIENT';
-    
+
     showCommonModal(
       this.modalService,
       AssureFormStepComponent,
@@ -553,7 +636,7 @@ export class SaleAssuranceComponent implements OnInit {
       this.notificationService.warning('Tiers payants requis', 'Ajoutez au moins un tiers payant');
       return;
     }
-    
+
     // Vérifier que tous les numéros de bon sont renseignés
     const missingBonNumbers = currentSaleData.tiersPayants.filter(tp => !tp.numBon);
     if (missingBonNumbers.length > 0) {
@@ -581,15 +664,15 @@ export class SaleAssuranceComponent implements OnInit {
 
   onPaymentComplete(event: PaymentCompleteEvent): void {
     this.showPaymentModal.set(false);
-    
+
     // Enregistrer la vente via la facade
     this.facade.saveAssuranceSale(event.payments);
-    
+
     // Attendre la fin de la sauvegarde
     setTimeout(() => {
       if (!this.isSaving() && !this.lastError()) {
-       
-        
+
+
         // Si impression demandée
         if (event.printReceipt) {
           const sale = this.currentSale();
@@ -597,7 +680,7 @@ export class SaleAssuranceComponent implements OnInit {
             this.facade.printReceipt(sale.saleId);
           }
         }
-        
+
         this.resetForNewSale();
       }
     }, 500);
@@ -684,8 +767,15 @@ export class SaleAssuranceComponent implements OnInit {
   // Helpers
   // ============================================
 
-  private focusProductSearch(): void {
-    // TODO: Implémenter le focus sur la recherche produit
+  /**
+   * Méthode publique pour mettre le focus sur la recherche produit
+   * Appelée par le composant parent lors du changement de tab
+   */
+  public focusProductSearch(): void {
+    // TODO: Implémenter le focus sur la recherche produit une fois le composant créé
+    setTimeout(() => {
+      // Le focus sera géré par le ProductSearchComponent enfant
+    }, 100);
   }
 
   private focusCustomerSearch(): void {

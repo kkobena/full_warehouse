@@ -19,8 +19,10 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,10 +62,26 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment)
         throws StockException, DeconditionnementStockOut {
+        if (increment) {
+            return incrementItemQuantityRequested(saleLineDTO, sales);
+        }
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.updateItemQuantityRequested(
+            saleLineDTO,
+            salesLine,
+            storageService.getDefaultConnectedUserMainStorage().getId()
+        );
+        finalizeSaleUpdate(sales);
+        return new SaleLineDTO(salesLine);
+    }
+
+    @Override
+    public SaleLineDTO incrementItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
+        throws StockException, DeconditionnementStockOut {
+        SalesLine salesLine = getOneSalesLine(saleLineDTO);
+        salesLineService.incrementItemQuantityRequested(
             saleLineDTO,
             salesLine,
             storageService.getDefaultConnectedUserMainStorage().getId()

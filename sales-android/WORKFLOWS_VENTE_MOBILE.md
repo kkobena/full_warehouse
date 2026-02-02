@@ -1099,8 +1099,7 @@ Ce document fournit une **vue complète des workflows fonctionnels** du module d
 
 ### Ressources Supplémentaires
 
-- **API Documentation** : `/api/docs`
-- **Postman Collection** : Disponible pour tests
+
 - **Environnements** : Dev, Staging, Prod
 
 **Bonne implémentation ! 📱✨**

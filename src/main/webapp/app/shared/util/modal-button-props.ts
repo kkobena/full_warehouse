@@ -13,8 +13,6 @@ export const acceptButtonProps = (): any => {
     icon: 'pi pi-check',
     outlined: true,
     size: 'small',
-    id: 'accept',
-    autofocus: true,
     /*  severity: 'success', */
   };
 };

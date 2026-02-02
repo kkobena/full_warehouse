@@ -2,106 +2,94 @@
 <p-toast position="top-right" />
 
 <!-- Content spécifique ASSURANCE -->
-<div class="sales-workspace">
-  <div class="content-grid">
-    <!-- Colonne gauche : Données assurance + Recherche produit + Liste produits -->
-    <div class="products-section">
-      
-      <!-- 1. Barre données ASSURANCE (client + tiers payants) - EN PREMIER -->
-      <div class="insurance-data-section">
-        <app-insurance-data-bar
-          #insuranceDataBar
-          [customer]="selectedCustomer()"
-          [tiersPayants]="selectedCustomer()?.tiersPayants || []"
-          [saleType]="'ASSURANCE'"
-          [ayantDroit]="currentSale()?.ayantDroit || null"
-          (customerSelected)="onCustomerSelectedFromBar($event)"
-          (openCustomerList)="onOpenCustomerList()"
-          (editCustomer)="onEditCustomer()"
-          (addCustomer)="onAddCustomer()"
-          (editAyantDroit)="onEditAyantDroit()"
-          (loadAyantDroits)="onLoadAyantDroits()"
-          (addComplementaire)="onAddComplementaire()"
-          (removeTiersPayant)="onRemoveTiersPayant($event)"
-          (tiersPayantsChanged)="onTiersPayantsChanged($event)">
-        </app-insurance-data-bar>
-      </div>
+<!-- 1ère ligne: Barre données ASSURANCE (ligne entière) -->
+<div class="insurance-data-section">
+  <!-- ✅ Toujours afficher pour ASSURANCE (comme ancien) -->
+  <app-insurance-data-bar
+    #insuranceDataBar
+    [customer]="selectedCustomer()"
+    [tiersPayants]="currentSale()?.tiersPayants || []"
+    [saleType]="'ASSURANCE'"
+    [ayantDroit]="currentSale()?.ayantDroit || null"
+    (customerSelected)="onCustomerSelectedFromBar($event)"
+    (openCustomerList)="onOpenCustomerList()"
+    (editCustomer)="onEditCustomer()"
+    (addCustomer)="onAddCustomer()"
+    (editAyantDroit)="onEditAyantDroit()"
+    (loadAyantDroits)="onLoadAyantDroits()"
+    (addComplementaire)="onAddComplementaire()"
+    (removeTiersPayant)="onRemoveTiersPayant($event)"
+    (tiersPayantsChanged)="onTiersPayantsChanged($event)">
+  </app-insurance-data-bar>
+</div>
 
-      <!-- 2. Recherche produit - APRÈS la sélection client -->
-      <div class="product-search-section">
-        <div class="search-section-header">
-          <i class="pi pi-search"></i>
-          <span>Recherche de produit</span>
-        </div>
-
-        <div class="search-controls">
-          <!-- Product Search Autocomplete -->
-          <div class="product-search-input">
-            <app-product-search
-              [autofocus]="hasCustomer()"
-              (productSelected)="onProductSelected($event)">
-            </app-product-search>
-          </div>
-
-          <!-- Quantity Input -->
-          <div class="quantity-input-wrapper">
-            <jhi-quantite-produt-saisie
-              (addQuantite)="onAddQuantity($event)"
-              [isValid]="!!selectedProduct() && hasCustomer()"
-              [disabledButton]="!selectedProduct() || !hasCustomer()">
-            </jhi-quantite-produt-saisie>
-          </div>
-
-          <!-- Product Meta -->
-          @if(selectedProduct()) {
-            <div class="product-meta">
-              <div class="meta-item">
-                <label>Prix:</label>
-                <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
-              </div>
-              <div class="meta-item">
-                <label>Stock:</label>
-                <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
-                  {{ selectedProduct()?.totalQuantity || 0 }}
-                </span>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- 3. Card: Liste des produits -->
-      <div class="product-list-card">
-        @if (currentSale()) {
-          <app-product-list
-            [salesLines]="salesLines()"
-            [isEditable]="!isSaving()"
-            [selectedLineId]="selectedLineId()"
-            [saleId]="currentSale()?.id"
-            [saleType]="'ASSURANCE'"
-            (quantityChanged)="onLineQuantityChanged($event)"
-            (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
-            (lineRemoved)="onLineRemoved($event)"
-            (lineSelected)="onLineSelected($event)"
-            (discountChanged)="onLineDiscountChanged($event)"
-            (authorizationRequired)="onAuthorizationRequired($event)" />
-        } @else {
-          <div class="empty-cart-state">
-            <div class="empty-cart-icon">
-              <i class="pi pi-shopping-cart"></i>
-            </div>
-            <h3>Panier vide</h3>
-            <p>Ajoutez des produits pour commencer une vente</p>
-          </div>
-        }
-      </div>
+<!-- 2ème ligne: Recherche produit (ligne entière) -->
+<div class="product-search-section">
+    <div class="search-section-header">
+      <i class="pi pi-search"></i>
+      <span>Recherche de produit</span>
     </div>
 
-    <!-- Colonne droite : Résumé + Actions -->
-    <div class="summary-section">
-      <!-- Card: Résumé de la vente -->
-      <div class="summary-card">
-        @if (currentSale()) {
+    <div class="search-controls">
+      <!-- Product Search Autocomplete -->
+      <div class="product-search-input">
+        <app-product-search
+          #produitbox
+          [autofocus]="hasCustomer()"
+          (productSelected)="onProductSelected($event)"
+          (productScanned)="onProductScanned($event)"
+          (onKeyEnter)="onProductSearchEnter($event)">
+        </app-product-search>
+      </div>
+
+      <!-- Quantity Input -->
+      <div class="quantity-input-wrapper">
+        <jhi-quantite-produt-saisie
+          (addQuantite)="onAddQuantity($event)"
+          [isValid]="!!selectedProduct() && hasCustomer()"
+          [disabledButton]="!selectedProduct() || !hasCustomer()">
+        </jhi-quantite-produt-saisie>
+      </div>
+
+      <!-- Product Meta -->
+      @if(selectedProduct()) {
+        <div class="product-meta">
+          <div class="meta-item">
+            <label>Prix:</label>
+            <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
+          </div>
+          <div class="meta-item">
+            <label>Stock:</label>
+            <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
+              {{ selectedProduct()?.totalQuantity || 0 }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+<!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
+@if (currentSale()) {
+  <div class="row">
+    <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
+      <app-product-list
+        [salesLines]="salesLines()"
+        [isEditable]="!isSaving()"
+        [selectedLineId]="selectedLineId()"
+        [saleId]="currentSale()?.id"
+        [saleType]="'ASSURANCE'"
+        (quantityChanged)="onLineQuantityChanged($event)"
+        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (lineRemoved)="onLineRemoved($event)"
+        (lineSelected)="onLineSelected($event)"
+        (discountChanged)="onLineDiscountChanged($event)"
+        (authorizationRequired)="onAuthorizationRequired($event)" />
+    </div>
+
+    <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
+      <div class="grid">
+        <div class="col-12">
           <app-sale-summary
             [totalAmount]="currentSale()?.salesAmount || 0"
             [discountAmount]="currentSale()?.discountAmount || 0"
@@ -112,30 +100,41 @@
             [partClient]="currentSale()?.montantClient || 0"
             [showAvoirBadge]="isAvoir()"
             [saleType]="'ASSURANCE'" />
-        } @else {
-          <div class="empty-summary-state">
-            <i class="pi pi-calculator"></i>
-          </div>
-        }
-      </div>
-
-      <!-- Card: Actions -->
-      <div class="actions-card">
-        <app-sale-actions
-          [canSave]="canSaveSale() && hasCustomer()"
-          [canPrint]="!!currentSale()?.saleId"
-          [isSaving]="isSaving()"
-          [saleType]="'ASSURANCE'"
-          (save)="onSave()"
-          (saveAndPrint)="onSaveAndPrint()"
-          (print)="onPrint()"
-          (saveAsPresale)="onSaveAsPresale()"
-          (cancel)="onCancel()"
-          (showPendingSales)="onShowPendingSales()" />
+        </div>
+        <div class="col-12 d-flex justify-content-center">
+          <app-sale-actions
+            [canSave]="canSaveSale() && hasCustomer()"
+            [canPrint]="!!currentSale()?.saleId"
+            [isSaving]="isSaving()"
+            [saleType]="'ASSURANCE'"
+            (save)="onSave()"
+            (saveAndPrint)="onSaveAndPrint()"
+            (print)="onPrint()"
+            (saveAsPresale)="onSaveAsPresale()"
+            (cancel)="onCancel()"
+            (showPendingSales)="onShowPendingSales()" />
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- 4ème ligne: Mode règlement (ligne entière) -->
+  @if (showPaymentModal()) {
+    <app-payment-mode
+      [amountToBePaid]="amountToBePaid() || 0"
+      [saleType]="'ASSURANCE'"
+      (paymentComplete)="onPaymentComplete($event)"
+      (cancel)="showPaymentModal.set(false)" />
+  }
+} @else {
+  <div class="empty-cart-state">
+    <div class="empty-cart-icon">
+      <i class="pi pi-shopping-cart"></i>
+    </div>
+    <h3>Panier vide</h3>
+    <p>Sélectionnez un client assuré et ajoutez des produits</p>
+  </div>
+}
 
 <!-- Modal Paiement -->
 @if (showPaymentModal()) {

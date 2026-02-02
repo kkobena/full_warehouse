@@ -86,8 +86,19 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         return salesLine;
     }
 
-    protected SalesLine setCommonSaleLine(SaleLineDTO dto, Integer stockageId) {
+    protected SalesLine setCommonSaleLine(SaleLineDTO dto, Integer stockageId) throws StockException, DeconditionnementStockOut {
         Produit produit = produitRepository.getReferenceById(dto.getProduitId());
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), stockageId);
+        int quantity = stockProduit.getTotalStockQuantity();
+
+        if (dto.getQuantityRequested() > quantity && !dto.isForceStock()) {
+            Produit parentProduit = produit.getParent();
+            if (parentProduit == null) {
+                throw new StockException();
+            } else {
+                throw new DeconditionnementStockOut(parentProduit.getId().toString());
+            }
+        }
         Tva tva = produit.getTva();
         SalesLine salesLine = getNew();
         salesLine.setTaxValue(tva.getTaux());
@@ -337,7 +348,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService.updateLots(salesLine.getLots());
     }
 
-    private void save(SalesLine salesLine,StockProduit stockProduit ) {
+    private void save(SalesLine salesLine, StockProduit stockProduit) {
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, stockProduit);
         salesLine.setInitStock(result.quantityBefore());
         salesLine.setAfterStock(result.quantityAfter());
@@ -390,7 +401,24 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     public void updateItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
         throws StockException, DeconditionnementStockOut {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
-        int quantity = stockProduit.getQtyStock();
+        int quantity = stockProduit.getTotalStockQuantity();
+        processItemQuantityRequested( saleLineDTO, salesLine,quantity);
+        salesLine.setQuantityRequested(saleLineDTO.getQuantityRequested());
+        updateStock(quantity,saleLineDTO, salesLine, storageId);
+    }
+
+    @Override
+    public void incrementItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
+        throws StockException, DeconditionnementStockOut {
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
+        int quantity = stockProduit.getTotalStockQuantity();
+        processItemQuantityRequested( saleLineDTO, salesLine, quantity);
+        salesLine.setQuantityRequested(salesLine.getQuantityRequested() + saleLineDTO.getQuantityRequested());
+        updateStock(quantity,saleLineDTO, salesLine, storageId);
+    }
+
+    private void processItemQuantityRequested( SaleLineDTO saleLineDTO, SalesLine salesLine,int quantity) throws StockException, DeconditionnementStockOut {
+
         if (saleLineDTO.getQuantityRequested() > quantity && !saleLineDTO.isForceStock()) {
             if (salesLine.getProduit().getParent() == null) {
                 throw new StockException();
@@ -398,8 +426,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 throw new DeconditionnementStockOut(salesLine.getProduit().getParent().getId().toString());
             }
         }
-        salesLine.setQuantityRequested(saleLineDTO.getQuantityRequested());
-        salesLine.setQuantitySold(salesLine.getQuantityRequested());
+    }
+
+    private void updateStock(int quantity ,SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
+        salesLine.setQuantitySold(quantity<salesLine.getQuantityRequested()? quantity:salesLine.getQuantityRequested());
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());

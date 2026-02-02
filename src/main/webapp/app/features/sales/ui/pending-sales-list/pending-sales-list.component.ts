@@ -17,6 +17,7 @@ import { TagModule } from 'primeng/tag';
 import { ISales, SaleId } from '../../../../shared/model/sales.model';
 import { IUser } from '../../../../core/user/user.model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 
 /**
  * PendingSalesListComponent
@@ -60,6 +61,7 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
 export class PendingSalesListComponent implements OnInit {
   // ===== Services =====
   readonly facade = inject(SalesFacade);
+  readonly userVendeurService = inject(UserVendeurService);
 
   // ===== Outputs =====
   readonly saleResumed = output<ISales>();
@@ -73,13 +75,14 @@ export class PendingSalesListComponent implements OnInit {
   // ===== Local State Signals =====
   readonly selectedSale = signal<ISales | null>(null);
   readonly searchTerm = signal<string>('');
-  readonly saleTypeFilter = signal<string>('TOUT');
+  readonly sellerFilter = signal<number | null>(null);
+  readonly sellers = this.userVendeurService.vendeurs;
 
   // ===== Computed =====
   readonly filteredSales = computed(() => {
     let sales = this.pendingSales();
     const search = this.searchTerm().toLowerCase();
-    const typeFilter = this.saleTypeFilter();
+    const sellerId = this.sellerFilter();
     
     if (search) {
       sales = sales.filter(sale => 
@@ -89,8 +92,8 @@ export class PendingSalesListComponent implements OnInit {
       );
     }
 
-    if (typeFilter !== 'TOUT') {
-      sales = sales.filter(sale => sale.natureVente === typeFilter);
+    if (sellerId) {
+      sales = sales.filter(sale => sale.seller?.id === sellerId);
     }
     
     return sales;
@@ -102,16 +105,15 @@ export class PendingSalesListComponent implements OnInit {
 
   readonly totalCount = computed(() => this.filteredSales().length);
 
-  // ===== Data =====
-  readonly saleTypeOptions = [
-    { label: 'Tous', value: 'TOUT' },
-    { label: 'Comptant', value: 'VO' },
-    { label: 'Assurance', value: 'VA' },
-  ];
-
   // ===== Lifecycle =====
 
   ngOnInit(): void {
+    // Sélectionner l'utilisateur connecté par défaut
+    const currentSeller = this.seller();
+    if (currentSeller) {
+      this.sellerFilter.set(currentSeller.id);
+    }
+    
     this.facade.loadPendingSales();
   }
 
@@ -122,7 +124,7 @@ export class PendingSalesListComponent implements OnInit {
     this.searchTerm.set(target.value);
   }
 
-  onSaleTypeChange(): void {
+  onSellerChange(): void {
     // Filter is applied via computed signal
   }
 

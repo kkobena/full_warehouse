@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 class AuthorizationDialogFragment(
     private val requiredPermission: String,
     private val operationName: String,
-    private val onAuthorized: (userId: Long) -> Unit
+    private val onAuthorized: (userId: Int) -> Unit
 ) : DialogFragment() {
 
     private var _binding: DialogAuthorizationBinding? = null

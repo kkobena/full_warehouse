@@ -15,7 +15,7 @@ data class ClientTiersPayant(
     val id: Long? = null,
 
     @SerializedName("customerId")
-    val customerId: Long? = null,
+    val customerId: Int? = null,
 
     @SerializedName("tiersPayantId")
     val tiersPayantId: Long,

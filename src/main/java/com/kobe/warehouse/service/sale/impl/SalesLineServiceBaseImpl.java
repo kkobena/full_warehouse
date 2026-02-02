@@ -8,6 +8,8 @@ import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
+import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -51,7 +53,7 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
     }
 
     @Override
-    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId) {
+    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId)throws StockException, DeconditionnementStockOut {
         return super.setCommonSaleLine(dto, stockageId);
     }
 

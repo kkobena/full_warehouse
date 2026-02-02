@@ -31,6 +31,8 @@ class TokenManager(context: Context) {
         private const val KEY_SERVER_PORT = "server_port"
         private const val KEY_RECEIPT_ROLL_SIZE = "receipt_roll_size"
         private const val KEY_USER_AUTHORITIES = "user_authorities"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_FULL_NAME = "user_full_name"
         private const val AUTHORITY_DELIMITER = ","
     }
 
@@ -251,5 +253,62 @@ class TokenManager(context: Context) {
      */
     fun hasAuthority(authority: String): Boolean {
         return getAuthorities().contains(authority)
+    }
+
+    /**
+     * Store user ID (cassierId/sellerId for sales)
+     * Note: Backend uses Integer for user IDs
+     */
+    fun storeUserId(userId: Int?) {
+        android.util.Log.d("TokenManager", "=== STORE USER ID ===")
+        android.util.Log.d("TokenManager", "storeUserId called with: $userId")
+        sharedPreferences.edit().apply {
+            if (userId != null) {
+                putInt(KEY_USER_ID, userId)
+                android.util.Log.d("TokenManager", "User ID stored successfully: $userId")
+            } else {
+                remove(KEY_USER_ID)
+                android.util.Log.d("TokenManager", "User ID removed (null)")
+            }
+            apply()
+        }
+    }
+
+    /**
+     * Get stored user ID
+     * Returns null if not stored
+     */
+    fun getUserId(): Int? {
+        val containsKey = sharedPreferences.contains(KEY_USER_ID)
+        val userId = if (containsKey) {
+            sharedPreferences.getInt(KEY_USER_ID, 0)
+        } else {
+            null
+        }
+        android.util.Log.d("TokenManager", "=== GET USER ID ===")
+        android.util.Log.d("TokenManager", "getUserId: contains KEY_USER_ID = $containsKey")
+        android.util.Log.d("TokenManager", "getUserId: returning = $userId")
+        return userId
+    }
+
+    /**
+     * Store user full name
+     */
+    fun storeUserFullName(fullName: String?) {
+        sharedPreferences.edit().apply {
+            if (fullName != null) {
+                putString(KEY_USER_FULL_NAME, fullName)
+            } else {
+                remove(KEY_USER_FULL_NAME)
+            }
+            apply()
+        }
+    }
+
+    /**
+     * Get stored user full name
+     */
+    fun getUserFullName(): String? {
+        return sharedPreferences.getString(KEY_USER_FULL_NAME, null)
     }
 }

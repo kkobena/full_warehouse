@@ -38,7 +38,7 @@ export function createSalesLineFromProduct(
     quantitySold,
     quantityRequested: quantity,
     saleId: currentSale?.id,
-    sales: currentSale || undefined,
+    sales: null,  // Toujours null pour correspondre au payload attendu par le backend
     saleCompositeId: currentSale?.saleId,
   };
 }

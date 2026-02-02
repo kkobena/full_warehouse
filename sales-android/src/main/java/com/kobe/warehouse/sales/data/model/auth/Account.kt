@@ -7,11 +7,12 @@ import kotlinx.parcelize.Parcelize
 /**
  * User Account model
  * Received from GET /api/account
+ * Note: Backend AdminUserDTO uses Integer for id
  */
 @Parcelize
 data class Account(
     @SerializedName("id")
-    val id: Long? = null,
+    val id: Int? = null,
 
     @SerializedName("login")
     val login: String? = null,

@@ -75,7 +75,17 @@ public class VenteDepotResource {
 
     @PutMapping("/update-item/quantity-requested")
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO);
+        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,true);
+        return ResponseEntity.accepted().body(result);
+    }
+    @PutMapping("/increment-item/quantity-requested")
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,true);
+        return ResponseEntity.accepted().body(result);
+    }
+    @PutMapping("/set-item/quantity-requested")
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,false);
         return ResponseEntity.accepted().body(result);
     }
 

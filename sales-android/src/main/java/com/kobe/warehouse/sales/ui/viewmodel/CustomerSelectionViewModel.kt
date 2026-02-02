@@ -72,7 +72,7 @@ class CustomerSelectionViewModel(
     private val _isLoadingAyantsDroit = MutableLiveData(false)
     val isLoadingAyantsDroit: LiveData<Boolean> = _isLoadingAyantsDroit
 
-    fun loadAyantsDroit(customerId: Long) {
+    fun loadAyantsDroit(customerId: Int) {
         _isLoadingAyantsDroit.value = true
         viewModelScope.launch {
             // TODO: Implement API call to get ayants-droit

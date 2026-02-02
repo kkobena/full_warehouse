@@ -14,9 +14,11 @@ import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,10 +93,26 @@ public class SalesResource {
 
     @PutMapping("/sales/update-item/quantity-requested")
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO);
+        SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO, true);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+
+    @PutMapping("/sales/increment-item/quantity-requested")
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO, true);
+        return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @PutMapping("/sales/set-item/quantity-requested")
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+        SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO, false);
+        return ResponseEntity.accepted().body(result);
+
     }
 
     @PutMapping("/sales/update-item/price")

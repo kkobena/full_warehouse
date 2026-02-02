@@ -127,8 +127,8 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()),increment);
     }
 
     @Override

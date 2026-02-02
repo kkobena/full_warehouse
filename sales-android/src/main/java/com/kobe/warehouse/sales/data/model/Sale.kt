@@ -59,7 +59,7 @@ data class Sale(
   val customer: Customer? = null,
 
   @SerializedName("customerId")
-  val customerId: Long? = null,
+  val customerId: Int? = null,
 
   @SerializedName("seller")
   val seller: User? = null,
@@ -67,7 +67,7 @@ data class Sale(
   @SerializedName("cassier")
   val cassier: User? = null,
   @SerializedName("cassierId")
-  val cassierId: Long? = null,
+  val cassierId: Int? = null,
 
   @SerializedName("salesLines")
   var salesLines: MutableList<SaleLine> = mutableListOf(),
@@ -93,7 +93,7 @@ data class Sale(
   val ayantDroit: Customer? = null,
 
   @SerializedName("ayantDroitId")
-  val ayantDroitId: Long? = null,
+  val ayantDroitId: Int? = null,
 
   @SerializedName("thirdPartySaleLines")
   val thirdPartySaleLines: MutableList<ThirdPartySaleLine> = mutableListOf(),
@@ -111,10 +111,13 @@ data class Sale(
   val categorie: String = "VO",
 
   @SerializedName("sellerId")
-  val sellerId: Long? = null,
+  val sellerId: Int? = null,
 
   @SerializedName("differe")
-  val differe: Boolean = false
+  val differe: Boolean = false,
+
+  @SerializedName("amountToBePaid")
+  var amountToBePaid: Int = 0
 
   ) : Parcelable {
 

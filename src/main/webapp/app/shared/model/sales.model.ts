@@ -39,7 +39,8 @@ export interface ISales {
   amountToBePaid?: number;
   categorie?: string;
   montantVerse?: number;
-  montantRendu?: number;
+  montantRendu?: number; // Montant exact de monnaie
+  montantRenduArrondi?: number; // Montant arrondi rendu au client
   restToPay?: number;
   payrollAmount?: number;
   marge?: number;

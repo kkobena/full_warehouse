@@ -5,7 +5,8 @@
 
 // Sales & Customer
 export type { ISales } from './sales.model';
-export type { ISalesLine, IClientTiersPayant } from './sales-line.model';
+export type { ISalesLine } from './sales-line.model';
+export type { IClientTiersPayant } from './client-tiers-payant.model';
 export type { ICustomer } from './customer.model';
 
 // Payment & Financial
@@ -16,7 +17,8 @@ export type { ITiersPayant } from './tierspayant.model';
 
 // Products
 export { ProduitSearch } from './produit.model';
-export type { IProduit, IFournisseurProduit } from './produit.model';
+export type { IProduit } from './produit.model';
+export type { IFournisseurProduit } from './fournisseur-produit.model';
 
 // Inventory & Stock
 export type { IStoreInventory } from './store-inventory.model';

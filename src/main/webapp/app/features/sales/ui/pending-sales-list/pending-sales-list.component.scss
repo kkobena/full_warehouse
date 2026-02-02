@@ -1,3 +1,4 @@
+@import 'app/shared/scss/table-common';
 .pending-sales-container {
   height: 100%;
   display: flex;
@@ -86,13 +87,7 @@
 
     ::ng-deep {
       .p-datatable {
-        .p-datatable-thead > tr > th {
-          background-color: var(--primary-color);
-          color: white;
-          font-weight: 600;
-          padding: 0.75rem;
-          font-size: 0.875rem;
-        }
+      
 
         .p-datatable-tbody > tr {
           transition: background-color 0.2s, box-shadow 0.2s;

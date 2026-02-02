@@ -16,7 +16,7 @@ import java.util.List;
 public interface SaleDepotExtensionService {
     DepotExtensionSaleDTO create(DepotExtensionSaleDTO dto);
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 

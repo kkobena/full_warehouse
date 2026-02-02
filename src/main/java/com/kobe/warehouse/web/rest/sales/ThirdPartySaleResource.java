@@ -110,7 +110,21 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/update-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO));
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO,true));
+    }
+
+
+
+    @PutMapping("/sales/increment-item/quantity-requested/assurance")
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO,true));
+    }
+
+    @PutMapping("/sales/set-item/quantity-requested/assurance")
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO,false));
     }
 
     @PutMapping("/sales/update-item/price/assurance")

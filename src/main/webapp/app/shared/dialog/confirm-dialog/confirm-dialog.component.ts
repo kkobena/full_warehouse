@@ -24,8 +24,8 @@ export class ConfirmDialogComponent {
       message: message || this.message(),
       header: header || this.header(),
       icon: icon || this.icon(),
-      rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
+      rejectButtonProps: rejectButtonProps(),
       defaultFocus: 'accept',
       accept: () => acceptHandler(),
       reject() {
@@ -34,9 +34,16 @@ export class ConfirmDialogComponent {
         }
       },
     });
+    
+    // Forcer le focus après le rendu
     setTimeout(() => {
-      this.accept?.focus();
-    }, 200);
+      const buttons = document.querySelectorAll('.ws-dialog .p-button');
+      // Le premier bouton devrait être Accept (car acceptButtonProps est en premier)
+      const acceptButton = buttons[0] as HTMLButtonElement;
+      if (acceptButton) {
+        acceptButton.focus();
+      }
+    }, 100);
   }
 
   onWarn(rejectHandler: () => void, message?: string, header?: string, icon?: string): void {
@@ -49,8 +56,14 @@ export class ConfirmDialogComponent {
       defaultFocus: 'accept',
       reject: () => rejectHandler(),
     });
+    
+    // Forcer le focus sur le bouton après l'ouverture complète du dialog
     setTimeout(() => {
-      this.accept?.focus();
-    }, 200);
+      const button = document.querySelector('.ws-dialog .p-confirmdialog-reject-button') as HTMLButtonElement;
+      if (button) {
+        button.focus();
+        setTimeout(() => button.focus(), 50);
+      }
+    }, 300);
   }
 }

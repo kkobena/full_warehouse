@@ -1006,14 +1006,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,true);
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
     }
 
     @Test
@@ -1026,14 +1026,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,any());
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
     }
 
     // ============================================
@@ -1649,14 +1649,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto);
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,true);
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
     }
 
     @Test

@@ -12,6 +12,7 @@ import {
   signal,
   viewChild,
   ElementRef,
+  HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -172,8 +173,34 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && this.produitSelected === null) {
-      this.onKeyEnter.emit(true);
+    if (event.key === 'Enter') {
+      // Vérifier si le champ est vide en utilisant selectProduit (signal lié au modèle)
+      const selected = this.selectProduit();
+      const isEmpty = selected === null || selected === undefined;
+      
+      if (isEmpty) {
+        this.onKeyEnter.emit(true);
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+  }
+
+  /**
+   * HostListener natif pour intercepter toutes les touches Enter
+   * Complément au onKeyDown de PrimeNG
+   */
+  @HostListener('keydown', ['$event'])
+  onHostKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      const selected = this.selectProduit();
+      const isEmpty = selected === null || selected === undefined;
+      
+      if (isEmpty) {
+        this.onKeyEnter.emit(true);
+        event.preventDefault();
+        event.stopPropagation();
+      }
     }
   }
 

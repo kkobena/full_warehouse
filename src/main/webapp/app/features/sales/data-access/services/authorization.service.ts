@@ -101,4 +101,11 @@ export class AuthorizationService {
   canModifyPrice(): boolean {
     return this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
   }
+
+  /**
+   * Check if current user can force stock (add product even if stock insufficient)
+   */
+  canForceStock(): boolean {
+    return this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
+  }
 }

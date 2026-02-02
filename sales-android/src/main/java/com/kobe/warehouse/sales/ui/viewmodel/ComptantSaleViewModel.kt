@@ -339,35 +339,53 @@ class ComptantSaleViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            // Use cached account to retrieve cassierId (optimized - no API call)
-            var cassierId = cachedAccount?.id
+            // Get cassierId from TokenManager (stored during login)
+            var cassierId = tokenManager.getUserId()
+            android.util.Log.d("ComptantSaleViewModel", "=== FINALIZE SALE DEBUG ===")
+            android.util.Log.d("ComptantSaleViewModel", "Step 1: cassierId from TokenManager.getUserId() = $cassierId")
 
             if (cassierId == null) {
-                // Fallback: try to load account if cache failed
+                android.util.Log.w("ComptantSaleViewModel", "Step 2: cassierId is null, trying fallback via API...")
+                // Fallback: try to load account from API
                 val accountResult = authRepository.getAccount()
-                cassierId = accountResult.getOrNull()?.id
+                val account = accountResult.getOrNull()
+                android.util.Log.d("ComptantSaleViewModel", "Step 3: Account from API = $account")
+                android.util.Log.d("ComptantSaleViewModel", "Step 3: Account.id = ${account?.id}")
+                cassierId = account?.id
                 if (cassierId == null) {
-                    _errorMessage.value = "Impossible de récupérer l'ID du caissier"
+                    android.util.Log.e("ComptantSaleViewModel", "Step 4: FAILED - cassierId still null after API call")
+                    _errorMessage.value = "Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."
                     _isLoading.value = false
                     return@launch
                 }
-                // Update cache for next time
-                cachedAccount = accountResult.getOrNull()
+                // Store for next time
+                android.util.Log.d("ComptantSaleViewModel", "Step 5: Storing cassierId in TokenManager: $cassierId")
+                tokenManager.storeUserId(cassierId)
+                cachedAccount = account
                 _currentAccount.value = cachedAccount
             }
+
+            android.util.Log.d("ComptantSaleViewModel", "Step 6: Final cassierId = $cassierId")
 
             // Calculate payrollAmount = salesAmount - discountAmount (for all payment modes)
             val calculatedPayrollAmount = currentSaleValue.salesAmount - currentSaleValue.discountAmount
 
-            // Build complete sale object with all data including cassierId and payrollAmount
+            // Build complete sale object with all data including cassierId, sellerId and payrollAmount
+            // Both cassierId and sellerId are required by backend
             val completeSale = currentSaleValue.copy(
                 customerId = _selectedCustomer.value?.id,
                 customer = _selectedCustomer.value,
                 cassierId = cassierId,
+                sellerId = cassierId, // seller = cassier for mobile sales
                 payrollAmount = calculatedPayrollAmount,
                 payments = payments.toMutableList(),
                 montantVerse = montantVerse
             )
+
+            android.util.Log.d("ComptantSaleViewModel", "Step 7: completeSale.cassierId = ${completeSale.cassierId}")
+            android.util.Log.d("ComptantSaleViewModel", "Step 7: completeSale.sellerId = ${completeSale.sellerId}")
+            android.util.Log.d("ComptantSaleViewModel", "Step 7: completeSale.customerId = ${completeSale.customerId}")
+            android.util.Log.d("ComptantSaleViewModel", "=== END FINALIZE SALE DEBUG ===")
 
             // Send complete sale to backend (single call)
             salesRepository.createCashSale(completeSale).fold(
@@ -410,28 +428,31 @@ class ComptantSaleViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            // Use cached account to retrieve cassierId
-            var cassierId = cachedAccount?.id
+            // Get cassierId from TokenManager (stored during login)
+            var cassierId = tokenManager.getUserId()
 
             if (cassierId == null) {
-                // Fallback: try to load account if cache failed
+                // Fallback: try to load account from API
                 val accountResult = authRepository.getAccount()
-                cassierId = accountResult.getOrNull()?.id
+                val account = accountResult.getOrNull()
+                cassierId = account?.id
                 if (cassierId == null) {
-                    _errorMessage.value = "Impossible de récupérer l'ID du caissier"
+                    _errorMessage.value = "Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."
                     _isLoading.value = false
                     return@launch
                 }
-                // Update cache for next time
-                cachedAccount = accountResult.getOrNull()
+                // Store for next time
+                tokenManager.storeUserId(cassierId)
+                cachedAccount = account
                 _currentAccount.value = cachedAccount
             }
 
-            // Build sale object to save
+            // Build sale object to save (cassierId and sellerId required by backend)
             val saleToSave = currentSaleValue.copy(
                 customerId = _selectedCustomer.value?.id,
                 customer = _selectedCustomer.value,
-                cassierId = cassierId
+                cassierId = cassierId,
+                sellerId = cassierId // seller = cassier for mobile sales
             )
 
             // Save sale as prevente

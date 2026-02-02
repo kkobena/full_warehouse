@@ -51,6 +51,12 @@ interface SalesState {
 
   // Error Handling
   error: string | null;
+  errorDetails: { 
+    errorKey: string | null; 
+    originalError: any; 
+    attemptedLine?: any;
+    isFromTableCellEdit?: boolean;
+  } | null;
   loading: boolean;
 }
 
@@ -97,6 +103,7 @@ const initialState: SalesState = {
 
   // Error Handling
   error: null,
+  errorDetails: null,
   loading: false,
 };
 
@@ -313,6 +320,18 @@ export const SalesStore = signalStore(
     },
 
     /**
+     * Set error details for advanced error handling (e.g., force stock)
+     */
+    setLastErrorDetails(errorDetails: { 
+      errorKey: string | null; 
+      originalError: any; 
+      attemptedLine?: any;
+      isFromTableCellEdit?: boolean; 
+    } | null): void {
+      patchState(store, { errorDetails });
+    },
+
+    /**
      * Set saving state
      */
     setIsSaving(isSaving: boolean): void {
@@ -453,6 +472,13 @@ export const SalesStore = signalStore(
     },
 
     /**
+     * Set all pending sales (replaces entire list)
+     */
+    setPendingSales(sales: ISales[]): void {
+      patchState(store, { pendingSales: sales });
+    },
+
+    /**
      * Remove pending sale from list
      */
     removePendingSale(saleId: SaleId): void {
@@ -466,7 +492,7 @@ export const SalesStore = signalStore(
      * Clear error message
      */
     clearError(): void {
-      patchState(store, { error: null });
+      patchState(store, { error: null, errorDetails: null });
     },
 
     /**

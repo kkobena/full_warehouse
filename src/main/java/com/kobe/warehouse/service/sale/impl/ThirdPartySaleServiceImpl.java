@@ -266,9 +266,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
-        return salesManager.updateItemQuantityRequested(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override

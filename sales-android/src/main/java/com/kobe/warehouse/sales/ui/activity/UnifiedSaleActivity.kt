@@ -482,11 +482,17 @@ class UnifiedSaleActivity : AppCompatActivity() {
             binding.btnFinalizeSale.isEnabled = sale.salesLines.isNotEmpty()
         }
 
-        // Errors
+        // Errors and success messages
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 viewModel.clearError()
+
+                // If product was added successfully, clear search field and refocus
+                if (it == "Produit ajouté") {
+                    binding.includeProductCart.etProductSearch.setText("")
+                    binding.includeProductCart.etProductSearch.requestFocus()
+                }
             }
         }
 
@@ -1575,7 +1581,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     /**
      * Show price modification dialog
      */
-    private fun showPriceModificationDialog(line: SaleLine, authUserId: Long?) {
+    private fun showPriceModificationDialog(line: SaleLine, authUserId: Int?) {
         val dialogBinding = com.kobe.warehouse.sales.databinding.DialogProductPriceBinding.inflate(layoutInflater)
 
         dialogBinding.tvProductName.text = line.produitLibelle ?: "Produit"

@@ -10,6 +10,7 @@ import com.kobe.warehouse.sales.data.model.PrioriteTiersPayant
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
+import com.kobe.warehouse.sales.data.model.SaleLineId
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
@@ -361,16 +362,43 @@ class UnifiedSaleViewModel(
         firstLine: SaleLine,
         saleType: SaleType
     ): Result<Sale> {
+        // Get cassierId from TokenManager (required by backend)
+        var cassierId = tokenManager.getUserId()
+        android.util.Log.d("UnifiedSaleViewModel", "=== CREATE NEW SALE WITH FIRST LINE ===")
+        android.util.Log.d("UnifiedSaleViewModel", "cassierId from TokenManager = $cassierId")
+
+        if (cassierId == null) {
+            // Fallback: try to load account from API
+            android.util.Log.w("UnifiedSaleViewModel", "cassierId is null, trying fallback via API...")
+            val accountResult = authRepository.getAccount()
+            val account = accountResult.getOrNull()
+            cassierId = account?.id
+            android.util.Log.d("UnifiedSaleViewModel", "cassierId from API = $cassierId")
+            if (cassierId != null) {
+                tokenManager.storeUserId(cassierId)
+            }
+        }
+
+        if (cassierId == null) {
+            android.util.Log.e("UnifiedSaleViewModel", "FAILED: cassierId is null - cannot create sale")
+            return Result.failure(Exception("Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."))
+        }
+
         val saleToCreate = currentSale.copy(
             salesLines = mutableListOf(firstLine),
             salesAmount = firstLine.salesAmount,
             customerId = _selectedCustomer.value?.id,
             customer = _selectedCustomer.value,
+            cassierId = cassierId,
+            sellerId = cassierId, // seller = cassier for mobile sales
             natureVente = saleType.toString(),  // "COMPTANT", "ASSURANCE", or "CARNET"
             tiersPayants = _clientTiersPayants.value?.toMutableList() ?: mutableListOf(),
             type = if (saleType is SaleType.Comptant) "VNO" else "VO",
             categorie = if (saleType is SaleType.Comptant) "VNO" else "VO"
         )
+
+        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.cassierId = ${saleToCreate.cassierId}")
+        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.sellerId = ${saleToCreate.sellerId}")
 
         return when (saleType) {
             is SaleType.Comptant -> salesRepository.createComptantSale(saleToCreate)
@@ -545,18 +573,46 @@ class UnifiedSaleViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            // Get cassier ID from current account
-            val accountResult = authRepository.getAccount()
-            val cassierId = accountResult.getOrNull()?.id
+            // Get cassierId from TokenManager (stored during login)
+            var cassierId = tokenManager.getUserId()
+            android.util.Log.d("UnifiedSaleViewModel", "=== FINALIZE SALE DEBUG ===")
+            android.util.Log.d("UnifiedSaleViewModel", "Step 1: cassierId from TokenManager.getUserId() = $cassierId")
 
             if (cassierId == null) {
-                _errorMessage.value = "Impossible de récupérer l'ID du caissier"
-                _isLoading.value = false
-                return@launch
+                android.util.Log.w("UnifiedSaleViewModel", "Step 2: cassierId is null, trying fallback via API...")
+                // Fallback: try to load account from API
+                val accountResult = authRepository.getAccount()
+                val account = accountResult.getOrNull()
+                android.util.Log.d("UnifiedSaleViewModel", "Step 3: Account from API = $account")
+                android.util.Log.d("UnifiedSaleViewModel", "Step 3: Account.id = ${account?.id}")
+                cassierId = account?.id
+                if (cassierId == null) {
+                    android.util.Log.e("UnifiedSaleViewModel", "Step 4: FAILED - cassierId still null after API call")
+                    _errorMessage.value = "Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."
+                    _isLoading.value = false
+                    return@launch
+                }
+                // Store for next time
+                android.util.Log.d("UnifiedSaleViewModel", "Step 5: Storing cassierId in TokenManager: $cassierId")
+                tokenManager.storeUserId(cassierId)
             }
+
+            android.util.Log.d("UnifiedSaleViewModel", "Step 6: Final cassierId = $cassierId")
 
             // Calculate payrollAmount = salesAmount - discountAmount
             val calculatedPayrollAmount = currentSaleValue.salesAmount - (currentSaleValue.discountAmount ?: 0)
+
+            // Calculate amountToBePaid based on sale type
+            val amountToBePaid = when (_currentSaleType.value) {
+                is SaleType.Assurance, is SaleType.Carnet -> {
+                    // For insurance/carnet: use partAssure (insured's part) if set, otherwise payroll amount
+                    currentSaleValue.partAssure ?: calculatedPayrollAmount
+                }
+                else -> {
+                    // For comptant: full payroll amount
+                    calculatedPayrollAmount
+                }
+            }
 
             // Determine natureVente, type, and categorie based on sale type
             val (natureVente, type, categorie) = when (_currentSaleType.value) {
@@ -565,12 +621,14 @@ class UnifiedSaleViewModel(
                 else -> Triple("COMPTANT", "VNO", "VNO")                 // Vente Non Ordinaire (Comptant)
             }
 
-            // Build complete sale object with all data
+            // Build complete sale object with all data (cassierId and sellerId required by backend)
             val completeSale = currentSaleValue.copy(
                 customerId = _selectedCustomer.value?.id,
                 customer = _selectedCustomer.value,
                 cassierId = cassierId,
+                sellerId = cassierId, // seller = cassier for mobile sales
                 payrollAmount = calculatedPayrollAmount,
+                amountToBePaid = amountToBePaid,  // Required by backend
                 payments = payments.toMutableList(),
                 montantVerse = montantVerse,
                 // Insurance/Carnet specific fields
@@ -581,6 +639,11 @@ class UnifiedSaleViewModel(
                 typePrescription = "PRESCRIPTION",  // TODO: Make this configurable
                 sansBon = false  // TODO: Make this configurable
             )
+
+            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.cassierId = ${completeSale.cassierId}")
+            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.sellerId = ${completeSale.sellerId}")
+            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.customerId = ${completeSale.customerId}")
+            android.util.Log.d("UnifiedSaleViewModel", "=== END FINALIZE SALE DEBUG ===")
 
             // Call appropriate finalization endpoint based on sale type
             // Use unified sale finalization endpoints (POST /api/sales/comptant/finalize or /api/sales/vo/finalize)
@@ -994,10 +1057,30 @@ class UnifiedSaleViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Create updated SaleLine with new quantity
-                val updatedSaleLine = saleLine.copy(quantitySold = newQuantity)
+                // Build saleLineId from saleLine.id and sale date
+                val saleLineId = SaleLineId(
+                    id = saleLine.id ?: 0L,
+                    saleDate = sale.saleId!!.saleDate
+                )
 
-                val result = salesRepository.updateItemQuantity(updatedSaleLine)
+                // Build saleCompositeId from sale
+                val saleCompositeId = sale.saleId
+
+                // Create updated SaleLine with required fields for API
+                val updatedSaleLine = saleLine.copy(
+                    quantityRequested = newQuantity,
+                    quantitySold = newQuantity,
+                    saleLineId = saleLineId,
+                    saleCompositeId = saleCompositeId
+                )
+
+                android.util.Log.d("UnifiedSaleViewModel", "=== UPDATE QUANTITY ===")
+                android.util.Log.d("UnifiedSaleViewModel", "saleLineId = $saleLineId")
+                android.util.Log.d("UnifiedSaleViewModel", "saleCompositeId = $saleCompositeId")
+                android.util.Log.d("UnifiedSaleViewModel", "quantityRequested = $newQuantity")
+
+                // Pass natureVente to use correct endpoint (comptant vs assurance)
+                val result = salesRepository.updateItemQuantity(updatedSaleLine, sale.natureVente)
 
                 result.fold(
                     onSuccess = { updatedLine ->
@@ -1030,7 +1113,7 @@ class UnifiedSaleViewModel(
      * For new sales, update locally
      * NOTE: authUserId is tracked in audit but not sent to backend endpoint
      */
-    fun updateProductPriceWithApi(saleLine: SaleLine, newPrice: Int, authUserId: Long? = null) {
+    fun updateProductPriceWithApi(saleLine: SaleLine, newPrice: Int, authUserId: Int? = null) {
         val sale = _currentSale.value ?: return
 
         // Check if sale is saved (has ID)
@@ -1094,7 +1177,7 @@ class UnifiedSaleViewModel(
      * For new sales, use removeLineFromCart()
      * NOTE: authUserId is tracked in audit but not sent to backend endpoint
      */
-    fun deleteProductLineWithApi(saleLine: SaleLine, authUserId: Long? = null) {
+    fun deleteProductLineWithApi(saleLine: SaleLine, authUserId: Int? = null) {
         val sale = _currentSale.value ?: return
 
         // Check if sale is saved (has ID)

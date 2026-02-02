@@ -37,13 +37,19 @@ class ProductRepository(
 
     /**
      * Get product by code (for barcode scanning)
+     * Backend returns a list, we take the first product if available
      */
     suspend fun getProductByCode(code: String): Result<Product> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = productApiService.getProductByCode(code)
                 if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
+                    val products = response.body()!!
+                    if (products.isNotEmpty()) {
+                        Result.success(products.first())
+                    } else {
+                        Result.failure(Exception("Product not found: $code"))
+                    }
                 } else {
                     Result.failure(Exception("Product not found: $code"))
                 }

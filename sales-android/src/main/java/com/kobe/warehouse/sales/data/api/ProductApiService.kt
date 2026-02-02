@@ -21,10 +21,13 @@ interface ProductApiService {
     @Query("magasinId") magasinId: Int = 1,
   ): Response<List<Product>>
 
-  @GET("api/produits/{magasinId}/code/{code}")
+  /**
+   * Get product by code (barcode)
+   * Backend endpoint: GET /api/produits/code/{code}
+   */
+  @GET("api/produits/code/{code}")
   suspend fun getProductByCode(
-    @Path("code") code: String,
-    @Path("magasinId") magasinId: Int = 1
-  ): Response<Product>
+    @Path("code") code: String
+  ): Response<List<Product>>
 
 }

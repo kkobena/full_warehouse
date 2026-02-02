@@ -102,7 +102,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService,objectMapper
+            idGeneratorService, objectMapper
         );
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;
@@ -215,19 +215,12 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.cashSaleRepository.save(cashSale);
     }
 
-    @Override
-    public void computeCashSaleAmountToPaid(CashSale c) {
-        c.setAmountToBePaid(c.getNetAmount());
-        c.setRestToPay(c.getAmountToBePaid());
-        c.setAmountToBeTakenIntoAccount(0);
-    }
-
     private UninsuredCustomer getUninsuredCustomerById(Integer id) {
         return id != null ? uninsuredCustomerRepository.getReferenceById(id) : null;
     }
 
     @Override
-    public CashSaleDTO createCashSale(CashSaleDTO dto) {
+    public CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut {
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         CashSale cashSale = new CashSale();
         this.intSale(dto, cashSale);
@@ -257,8 +250,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override

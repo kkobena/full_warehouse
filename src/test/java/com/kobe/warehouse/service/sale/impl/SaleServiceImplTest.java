@@ -261,12 +261,12 @@ class SaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(cashSaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
 
-        SaleLineDTO result = saleService.updateItemQuantityRequested(dto);
+        SaleLineDTO result = saleService.updateItemQuantityRequested(dto,true);
 
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
     }
 
     @Test

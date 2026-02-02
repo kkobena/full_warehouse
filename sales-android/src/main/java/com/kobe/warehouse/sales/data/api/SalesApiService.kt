@@ -52,12 +52,13 @@ interface SalesApiService {
     ): Response<Sale>
 
     /**
-     * Delete ongoing sale
+     * Delete ongoing sale (prevente)
+     * Backend endpoint: DELETE /api/sales/prevente/{id}/{saleDate}
      */
-    @DELETE("api/sales/ongoing/{id}/{date}")
+    @DELETE("api/sales/prevente/{id}/{saleDate}")
     suspend fun deleteSale(
         @Path("id") id: Long,
-        @Path("date") date: String
+        @Path("saleDate") saleDate: String
     ): Response<Unit>
 
     /**
@@ -72,8 +73,9 @@ interface SalesApiService {
     /**
      * Finalize carnet sale (credit sale)
      * Sale is added to customer's carnet account
+     * Backend uses same endpoint as assurance: PUT /api/sales/assurance/save
      */
-    @POST("api/sales/carnet/save")
+    @PUT("api/sales/assurance/save")
     suspend fun finalizeCarnetSale(
         @Body sale: Sale
     ): Response<Sale>
@@ -117,7 +119,7 @@ interface SalesApiService {
     suspend fun transformSale(
         @Query("natureVente") natureVente: String,
         @Query("saleId") saleId: Long,
-        @Query("saleDate") saleDate: String
+        @Query("sale_date") saleDate: String
     ): Response<SaleId>
 
     /**
@@ -150,19 +152,30 @@ interface SalesApiService {
     /**
      * Add discount to carnet sale
      * Applies discount to the entire sale
+     * Backend uses same endpoint as assurance: PUT /api/sales/assurance/add-remise
      */
-    @PUT("api/sales/carnet/add-remise")
+    @PUT("api/sales/assurance/add-remise")
     suspend fun addDiscountToCarnetSale(
         @Body updateSaleInfo: UpdateSaleInfo
     ): Response<Void>
 
     /**
-     * Update sale line quantity sold
-     * Backend endpoint: PUT /api/sales/update-item/quantity-sold
+     * Set sale line quantity requested (for comptant sales)
+     * Backend endpoint: PUT /api/sales/set-item/quantity-requested
      * @param saleLine SaleLine object with updated quantity
      */
-    @PUT("api/sales/update-item/quantity-sold")
-    suspend fun updateItemQuantity(
+    @PUT("api/sales/set-item/quantity-requested")
+    suspend fun updateItemQuantityComptant(
+        @Body saleLine: SaleLine
+    ): Response<SaleLine>
+
+    /**
+     * Set sale line quantity requested (for assurance/carnet sales)
+     * Backend endpoint: PUT /api/sales/set-item/quantity-requested/assurance
+     * @param saleLine SaleLine object with updated quantity
+     */
+    @PUT("api/sales/set-item/quantity-requested/assurance")
+    suspend fun updateItemQuantityAssurance(
         @Body saleLine: SaleLine
     ): Response<SaleLine>
 
@@ -190,62 +203,62 @@ interface SalesApiService {
 
     /**
      * Create new COMPTANT sale with first product line
-     * Backend endpoint: POST /api/sales/comptant/create
+     * Backend endpoint: POST /api/sales/comptant
      * @param sale Sale object with first sale line
      */
-    @POST("api/sales/comptant/create")
+    @POST("api/sales/comptant")
     suspend fun createComptantSale(
         @Body sale: Sale
     ): Response<Sale>
 
     /**
      * Add product line to existing COMPTANT sale
-     * Backend endpoint: POST /api/sales/comptant/add-item
+     * Backend endpoint: POST /api/sales/add-item/comptant
      * @param saleLine Sale line to add
      */
-    @POST("api/sales/comptant/add-item")
+    @POST("api/sales/add-item/comptant")
     suspend fun addItemToComptantSale(
         @Body saleLine: SaleLine
     ): Response<SaleLine>
 
     /**
      * Create new ASSURANCE/CARNET sale (VO) with first product line
-     * Backend endpoint: POST /api/sales/vo/create
+     * Backend endpoint: POST /api/sales/assurance
      * @param sale Sale object with first sale line, customer and tiers payants
      */
-    @POST("api/sales/vo/create")
+    @POST("api/sales/assurance")
     suspend fun createVOSale(
         @Body sale: Sale
     ): Response<Sale>
 
     /**
      * Add product line to existing ASSURANCE/CARNET sale (VO)
-     * Backend endpoint: POST /api/sales/vo/add-item
+     * Backend endpoint: POST /api/sales/add-item/assurance
      * @param saleLine Sale line to add
      */
-    @POST("api/sales/vo/add-item")
+    @POST("api/sales/add-item/assurance")
     suspend fun addItemToVOSale(
         @Body saleLine: SaleLine
     ): Response<SaleLine>
 
     /**
      * Finalize COMPTANT sale with payments
-     * Backend endpoint: POST /api/sales/comptant/finalize
+     * Backend endpoint: PUT /api/sales/comptant/save
      * @param sale Sale object with payments list
      * @return Finalized sale with updated amounts
      */
-    @POST("api/sales/comptant/finalize")
+    @PUT("api/sales/comptant/save")
     suspend fun finalizeComptantSale(
         @Body sale: Sale
     ): Response<Sale>
 
     /**
      * Finalize ASSURANCE/CARNET sale (VO) with payments
-     * Backend endpoint: POST /api/sales/vo/finalize
+     * Backend endpoint: PUT /api/sales/assurance/save
      * @param sale Sale object with payments, tiers payants, numéros de bon
      * @return Finalized sale with partAssure and partTiersPayant calculated
      */
-    @POST("api/sales/vo/finalize")
+    @PUT("api/sales/assurance/save")
     suspend fun finalizeVOSale(
         @Body sale: Sale
     ): Response<Sale>

@@ -29,7 +29,7 @@ data class ThirdPartySaleLine(
      * Customer ID
      */
     @SerializedName("customerId")
-    val customerId: Long? = null,
+    val customerId: Int? = null,
 
     /**
      * Insurance provider ID

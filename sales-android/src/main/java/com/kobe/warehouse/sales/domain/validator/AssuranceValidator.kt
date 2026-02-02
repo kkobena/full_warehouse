@@ -120,7 +120,7 @@ class AssuranceValidator {
     /**
      * Validate that customer is insured
      */
-    fun validateCustomerIsInsured(customerId: Long?): ValidationResult {
+    fun validateCustomerIsInsured(customerId: Int?): ValidationResult {
         if (customerId == null) {
             return ValidationResult(
                 false,

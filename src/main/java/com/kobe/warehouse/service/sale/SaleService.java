@@ -71,4 +71,6 @@ public interface SaleService {
     void upddateCashSaleAmounts(CashSale c);
 
     void upddateCashSaleAmountsOnRemovingItem(CashSale c, com.kobe.warehouse.domain.SalesLine saleLine);
+
+    void savePrevente(CashSaleDTO dto) ;
 }

@@ -22,15 +22,13 @@ export class CustomerSearchService {
       return of([]);
     }
 
-    return this.customerService
-      .query({ search: query.trim(), size })
-      .pipe(
-        map(response => response.body || []),
-        catchError(error => {
-          console.error('Error searching customers:', error);
-          return of([]);
-        })
-      );
+    return this.customerService.queryUninsuredCustomers({ search: query.trim(), size }).pipe(
+      map(response => response.body || []),
+      catchError(error => {
+        console.error('Error searching customers:', error);
+        return of([]);
+      }),
+    );
   }
 
   /**
@@ -43,7 +41,7 @@ export class CustomerSearchService {
       catchError(error => {
         console.error('Error finding customer:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -56,7 +54,7 @@ export class CustomerSearchService {
       source.pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap(query => this.search(query, size))
+        switchMap(query => this.search(query, size)),
       );
   }
 }

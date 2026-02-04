@@ -45,7 +45,7 @@ class SalesHomeViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            salesRepository.getSales(search).fold(
+            salesRepository.getListVenteSimplifiees(search).fold(
                 onSuccess = { salesList ->
                     _sales.value = salesList
                     _isLoading.value = false

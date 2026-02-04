@@ -25,9 +25,15 @@ data class Sale(
 
   @SerializedName("natureVente")
   val natureVente: String = "COMPTANT", // COMPTANT, ASSURANCE, CARNET
-
+/*
+Pour vente en cours le statut est ACTIVE
+Pour une prévente finalisé le statut est PENDING
+Le statut CLOSED est pour les ventes terminées
+Le statut CANCELED est pour les ventes annulées
+Le statut PROCESSING est pour les preventes en cours de traitement
+ */
   @SerializedName("statut")
-  val statut: String = "PENDING", // PENDING, CLOSED, CANCELED
+  val statut: SalesStatut = SalesStatut.ACTIVE,
 
   @SerializedName("salesAmount")
   var salesAmount: Int = 0,
@@ -106,9 +112,12 @@ data class Sale(
 
   @SerializedName("sansBon")
   val sansBon: Boolean = false,
-
+/*
+VNO- Vente Non Ordonnée -COMPTANT
+VO- Vente Ordonnée - ASSURANCE/CARNET
+ */
   @SerializedName("categorie")
-  val categorie: String = "VO",
+  val categorie: String = "VNO",
 
   @SerializedName("sellerId")
   val sellerId: Int? = null,
@@ -201,7 +210,7 @@ data class Sale(
    * Check if sale is pending
    */
   fun isPending(): Boolean {
-    return statut == "PENDING"
+    return statut == SalesStatut.PENDING
   }
 
 
@@ -420,4 +429,8 @@ data class User(
 
   @SerializedName("fullName")
   val fullName: String = ""
-) : Parcelable
+) : Parcelable {
+  fun getDisplayName(): String = abbrName.ifEmpty { fullName.ifEmpty { "$firstName $lastName" } }
+
+  override fun toString(): String = getDisplayName()
+}

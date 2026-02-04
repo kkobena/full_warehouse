@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -90,4 +91,5 @@ public interface ThirdPartySaleService {
     String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales);
 
     void upddateSaleAmountsOnRemovingItem(ThirdPartySales c);
+    void savePrevente(ThirdPartySaleDTO dto) ;
 }

@@ -72,11 +72,11 @@ public class StockDepotResource {
 
     @GetMapping("/sales")
     public ResponseEntity<List<DepotExtensionSaleDTO>> getAllSales(
-        @RequestParam(name = "magasinId", required = false) Long magasinId,
+        @RequestParam(name = "magasinId", required = false) Integer magasinId,
         @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "userId", required = false) Long userId,
+        @RequestParam(name = "userId", required = false) Integer userId,
         @RequestParam(name = "paymentStatus", required = false) PaymentStatus paymentStatus,
         Pageable pageable
     ) {

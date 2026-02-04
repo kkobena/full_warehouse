@@ -338,8 +338,9 @@ export class SalesApiService {
    * Get all pending sales (status = STANDBY)
    * Returns list of sales waiting to be completed
    */
-  getPendingSales(): Observable<ISales[]> {
-    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, { observe: 'response' }).pipe(
+  getPendingSales(req: any): Observable<ISales[]> {
+    const params = createRequestOptions(req);
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, { params, observe: 'response' }).pipe(
       map((res: EntityArrayResponseType) => {
         if (res.body) {
           res.body.forEach(sale => {

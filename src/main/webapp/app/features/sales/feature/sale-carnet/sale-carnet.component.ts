@@ -45,7 +45,6 @@ import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.u
  */
 @Component({
   selector: 'app-sale-carnet',
-  standalone: true,
   templateUrl: './sale-carnet.component.html',
   styleUrls: ['./sale-carnet.component.scss'],
   imports: [
@@ -115,7 +114,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   readonly lastError = this.facade.lastError;
-  
+
   // Focus management
   private focusInitialized = false;
 
@@ -234,7 +233,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     // Set sale type to CARNET
     this.facade.setSaleType('CARNET');
-    
+
     // Initialize typePrescription with default value
     this.facade.setTypePrescription('PRESCRIPTION');
 
@@ -253,13 +252,13 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
 
   onProductSearchEnter(shouldSave: boolean): void {
     if (!shouldSave) return;
-    
+
     const currentSale = this.currentSale();
-    
+
     //  Si vente en cours avec des lignes
     if (currentSale && this.salesLines().length > 0) {
       const amountToBePaid = currentSale.amountToBePaid || 0;
-      
+
       //  Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
         this.finalizeSaleWithoutPayment();
@@ -268,7 +267,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
         // Afficher le total sur l'écran client
         const total = currentSale.salesAmount || 0;
         this.customerDisplay.updateDisplayForTotal(total);
-        
+
         // Focus sur le champ cash
         setTimeout(() => {
           this.paymentModeComponent()?.focusFirstMode();
@@ -555,7 +554,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     this.isProcessingSale.set(true);
 
     this.facade.saveSale().subscribe({
-      next: (result) => {
+      next: result => {
         if (result) {
           // Succès : réinitialiser et basculer vers COMPTANT
           this.resetForNewSale();
@@ -566,11 +565,11 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
           this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
         }
       },
-      error: (err) => {
+      error: err => {
         // Échec : afficher l'erreur et garder la vente
         this.isProcessingSale.set(false);
         this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-      }
+      },
     });
   }
 

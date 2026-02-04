@@ -15,6 +15,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Card } from 'primeng/card';
 import { ConfigurationService } from '../../../shared/configuration.service';
+import { SalesStatut } from '../../../shared/model';
 
 @Component({
   selector: 'jhi-vente-en-cours',
@@ -47,7 +48,7 @@ export class VenteEnCoursComponent implements OnInit {
 
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
-    this.loadPreventes();
+    this.loadVentesEnCours();
 
     // Load simple sale configuration
     this.configService.getSimpleSaleConfig().subscribe(enabled => {
@@ -56,14 +57,15 @@ export class VenteEnCoursComponent implements OnInit {
   }
 
   onTypeVenteChange(): void {
-    this.loadPreventes();
+    this.loadVentesEnCours();
   }
 
-  loadPreventes(): void {
+  loadVentesEnCours(): void {
     this.salesService
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
+        statut: SalesStatut.ACTIVE,
       })
       .subscribe(res => {
         this.sales = res.body ?? [];
@@ -71,12 +73,12 @@ export class VenteEnCoursComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.loadPreventes();
+    this.loadVentesEnCours();
   }
 
   deletePrevente(sale: ISales): void {
     if (sale.id) {
-      this.salesService.deletePrevente(sale.saleId).subscribe(() => this.loadPreventes());
+      this.salesService.deletePrevente(sale.saleId).subscribe(() => this.loadVentesEnCours());
     }
   }
 

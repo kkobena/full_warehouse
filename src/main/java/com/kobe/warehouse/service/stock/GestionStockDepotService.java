@@ -13,11 +13,11 @@ public interface GestionStockDepotService {
 
     Page<DepotExtensionSaleDTO> getVenteDepot(
         PaymentStatus paymentStatus,
-        Long depotId,
+        Integer depotId,
         String search,
         LocalDate fromDate,
         LocalDate toDate,
-        Long userId,
+        Integer userId,
         Pageable pageabl
     );
 }

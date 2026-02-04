@@ -60,6 +60,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -251,7 +252,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut {
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment) throws StockException, DeconditionnementStockOut {
         return salesManager.updateItemQuantityRequested(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
@@ -362,7 +363,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         cashSaleRepository
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
-                if (sales.isCanceled()){
+                if (sales.isCanceled()) {
                     throw new GenericError("La vente est déjà annulée");
                 }
                 CashSale copy = (CashSale) sales.clone();
@@ -393,6 +394,15 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
         computeTvaAmountOnRemovingItem(c, saleLine);
+    }
+
+    @Override
+    public void savePrevente(CashSaleDTO dto) {
+        cashSaleRepository
+            .findById(dto.getSaleId()).ifPresent(s -> {
+                preValidatePrevente(s);
+                cashSaleRepository.save(s);
+            });
     }
 
     // java -jar your-application.jar

@@ -1,10 +1,8 @@
-import { computed, inject } from '@angular/core';
+import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, catchError, of } from 'rxjs';
 import { ISales, SaleId } from '../../../../shared/model/sales.model';
-import { ICustomer } from '../../../../shared/model/customer.model';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
+import { ICustomer } from '../../../../shared/model';
+import { ISalesLine } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 
 /**
@@ -51,9 +49,9 @@ interface SalesState {
 
   // Error Handling
   error: string | null;
-  errorDetails: { 
-    errorKey: string | null; 
-    originalError: any; 
+  errorDetails: {
+    errorKey: string | null;
+    originalError: any;
     attemptedLine?: any;
     isFromTableCellEdit?: boolean;
   } | null;
@@ -111,15 +109,15 @@ const initialState: SalesState = {
  * Sales Store
  * Centralized state management for all sales-related data and operations
  * Replaces 14+ singleton services with a single, predictable store
- * 
+ *
  * @example
  * // In component:
  * store = inject(SalesStore);
- * 
+ *
  * // Read state
  * currentSale = this.store.currentSale;
  * salesLines = this.store.salesLines;
- * 
+ *
  * // Update state
  * this.store.setCurrentSale(sale);
  * this.store.addSalesLine(salesLine);
@@ -131,7 +129,7 @@ export const SalesStore = signalStore(
   withState(initialState),
 
   // Computed selectors
-  withComputed((store) => ({
+  withComputed(store => ({
     /**
      * Calculate total items quantity in current sale
      */
@@ -146,11 +144,7 @@ export const SalesStore = signalStore(
      */
     canSave: computed(() => {
       const sale = store.currentSale();
-      return sale && 
-             sale.salesLines && 
-             sale.salesLines.length > 0 && 
-             !store.isSaving() &&
-             !store.loading();
+      return sale && sale.salesLines && sale.salesLines.length > 0 && !store.isSaving() && !store.loading();
     }),
 
     /**
@@ -232,16 +226,16 @@ export const SalesStore = signalStore(
     isAvoir: computed(() => {
       const sale = store.currentSale();
       if (!sale?.salesLines || sale.salesLines.length === 0) return false;
-      
+
       const totalRequested = sale.salesLines.reduce((sum, line) => sum + (line.quantityRequested || 0), 0);
       const totalSold = sale.salesLines.reduce((sum, line) => sum + (line.quantitySold || 0), 0);
-      
+
       return totalRequested !== totalSold;
     }),
   })),
 
   // Methods for state updates
-  withMethods((store) => ({
+  withMethods(store => ({
     /**
      * Set current sale
      */
@@ -322,12 +316,14 @@ export const SalesStore = signalStore(
     /**
      * Set error details for advanced error handling (e.g., force stock)
      */
-    setLastErrorDetails(errorDetails: { 
-      errorKey: string | null; 
-      originalError: any; 
-      attemptedLine?: any;
-      isFromTableCellEdit?: boolean; 
-    } | null): void {
+    setLastErrorDetails(
+      errorDetails: {
+        errorKey: string | null;
+        originalError: any;
+        attemptedLine?: any;
+        isFromTableCellEdit?: boolean;
+      } | null,
+    ): void {
       patchState(store, { errorDetails });
     },
 
@@ -391,8 +387,8 @@ export const SalesStore = signalStore(
      * Toggle insurance data bar visibility
      */
     toggleInsuranceDataBar(): void {
-      patchState(store, { 
-        showInsuranceDataBar: !store.showInsuranceDataBar() 
+      patchState(store, {
+        showInsuranceDataBar: !store.showInsuranceDataBar(),
       });
     },
 
@@ -400,8 +396,8 @@ export const SalesStore = signalStore(
      * Toggle sidebar collapsed state
      */
     toggleSidebar(): void {
-      patchState(store, { 
-        sidebarCollapsed: !store.sidebarCollapsed() 
+      patchState(store, {
+        sidebarCollapsed: !store.sidebarCollapsed(),
       });
     },
 
@@ -434,9 +430,7 @@ export const SalesStore = signalStore(
       const currentSale = store.currentSale();
       if (!currentSale?.salesLines) return;
 
-      const updatedLines = currentSale.salesLines.map(line =>
-        line.id === lineId ? { ...line, ...updates } : line
-      );
+      const updatedLines = currentSale.salesLines.map(line => (line.id === lineId ? { ...line, ...updates } : line));
 
       const updatedSale: ISales = {
         ...currentSale,
@@ -482,9 +476,7 @@ export const SalesStore = signalStore(
      * Remove pending sale from list
      */
     removePendingSale(saleId: SaleId): void {
-      const pendingSales = store.pendingSales().filter(s => 
-        s.saleId?.id !== saleId.id || s.saleId?.saleDate !== saleId.saleDate
-      );
+      const pendingSales = store.pendingSales().filter(s => s.saleId?.id !== saleId.id || s.saleId?.saleDate !== saleId.saleDate);
       patchState(store, { pendingSales });
     },
 

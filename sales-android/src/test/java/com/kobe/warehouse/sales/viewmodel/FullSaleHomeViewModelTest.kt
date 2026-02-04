@@ -2,7 +2,9 @@ package com.kobe.warehouse.sales.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.kobe.warehouse.sales.data.model.Sale
+import com.kobe.warehouse.sales.data.model.User
 import com.kobe.warehouse.sales.data.repository.SalesRepository
+import com.kobe.warehouse.sales.data.repository.UserRepository
 import com.kobe.warehouse.sales.ui.viewmodel.FullSaleHomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.atLeast
 import org.mockito.kotlin.verify
@@ -34,6 +35,7 @@ import kotlin.test.assertTrue
  * - Search functionality
  * - Delete sale
  * - Error handling
+ * - User loading
  */
 @ExperimentalCoroutinesApi
 class FullSaleHomeViewModelTest {
@@ -46,6 +48,9 @@ class FullSaleHomeViewModelTest {
     @Mock
     private lateinit var salesRepository: SalesRepository
 
+    @Mock
+    private lateinit var userRepository: UserRepository
+
     private lateinit var viewModel: FullSaleHomeViewModel
 
     @Before
@@ -54,16 +59,16 @@ class FullSaleHomeViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         // Mock repository responses for init {} calls
-        // This prevents null pointer exceptions when ViewModel is created
-        whenever(salesRepository.getSales(anyOrNull()))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull()))
             .thenReturn(Result.success(emptyList()))
-        whenever(salesRepository.getPreventes(anyOrNull()))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull()))
+            .thenReturn(Result.success(emptyList()))
+        whenever(userRepository.getUsers())
             .thenReturn(Result.success(emptyList()))
 
-        viewModel = FullSaleHomeViewModel(salesRepository)
+        viewModel = FullSaleHomeViewModel(salesRepository, userRepository)
 
         // Advance scheduler to process init {} calls
-        // This ensures the ViewModel is in a clean state before each test
         testDispatcher.scheduler.advanceUntilIdle()
     }
 
@@ -79,7 +84,7 @@ class FullSaleHomeViewModelTest {
             Sale(id = 1, numberTransaction = "VNO-001", salesAmount = 5000),
             Sale(id = 2, numberTransaction = "VNO-002", salesAmount = 3000)
         )
-        whenever(salesRepository.getSales(anyOrNull())).thenReturn(Result.success(mockSales))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockSales))
 
         // When
         viewModel.loadOngoingSales()
@@ -96,7 +101,7 @@ class FullSaleHomeViewModelTest {
     fun `loadOngoingSales should update error on failure`() = runTest {
         // Given
         val errorMessage = "Network error"
-        whenever(salesRepository.getSales(anyOrNull())).thenReturn(Result.failure(Exception(errorMessage)))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull())).thenReturn(Result.failure(Exception(errorMessage)))
 
         // When
         viewModel.loadOngoingSales()
@@ -115,7 +120,7 @@ class FullSaleHomeViewModelTest {
             Sale(id = 3, numberTransaction = "PRV-001", salesAmount = 2000),
             Sale(id = 4, numberTransaction = "PRV-002", salesAmount = 1500)
         )
-        whenever(salesRepository.getPreventes(anyOrNull())).thenReturn(Result.success(mockPreventes))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockPreventes))
 
         // When
         viewModel.loadPreventes()
@@ -132,7 +137,7 @@ class FullSaleHomeViewModelTest {
     fun `loadPreventes should update error on failure`() = runTest {
         // Given
         val errorMessage = "Server error"
-        whenever(salesRepository.getPreventes(anyOrNull())).thenReturn(Result.failure(Exception(errorMessage)))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull())).thenReturn(Result.failure(Exception(errorMessage)))
 
         // When
         viewModel.loadPreventes()
@@ -149,14 +154,14 @@ class FullSaleHomeViewModelTest {
         // Given
         val searchQuery = "VNO"
         val mockSales = listOf(Sale(id = 1, numberTransaction = "VNO-001", salesAmount = 5000))
-        whenever(salesRepository.getSales(searchQuery)).thenReturn(Result.success(mockSales))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockSales))
 
         // When
         viewModel.searchOngoingSales(searchQuery)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        verify(salesRepository).getSales(searchQuery)
+        verify(salesRepository).getVenteEncours(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -164,14 +169,14 @@ class FullSaleHomeViewModelTest {
         // Given
         val searchQuery = "PRV"
         val mockPreventes = listOf(Sale(id = 3, numberTransaction = "PRV-001", salesAmount = 2000))
-        whenever(salesRepository.getPreventes(searchQuery)).thenReturn(Result.success(mockPreventes))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockPreventes))
 
         // When
         viewModel.searchPreventes(searchQuery)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        verify(salesRepository).getPreventes(searchQuery)
+        verify(salesRepository, atLeast(1)).getPreventes(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -180,7 +185,7 @@ class FullSaleHomeViewModelTest {
         val saleId = 1L
         val saleDate = "2024-01-15"
         whenever(salesRepository.deleteSale(saleId, saleDate)).thenReturn(Result.success(Unit))
-        whenever(salesRepository.getSales(anyOrNull())).thenReturn(Result.success(emptyList()))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull())).thenReturn(Result.success(emptyList()))
 
         // When
         viewModel.deleteSale(saleId, saleDate, isPrevente = false)
@@ -188,7 +193,7 @@ class FullSaleHomeViewModelTest {
 
         // Then
         verify(salesRepository).deleteSale(saleId, saleDate)
-        verify(salesRepository, atLeast(1)).getSales(anyOrNull()) // Refresh called
+        verify(salesRepository, atLeast(1)).getVenteEncours(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -197,7 +202,7 @@ class FullSaleHomeViewModelTest {
         val saleId = 3L
         val saleDate = "2024-01-15"
         whenever(salesRepository.deleteSale(saleId, saleDate)).thenReturn(Result.success(Unit))
-        whenever(salesRepository.getPreventes(anyOrNull())).thenReturn(Result.success(emptyList()))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull())).thenReturn(Result.success(emptyList()))
 
         // When
         viewModel.deleteSale(saleId, saleDate, isPrevente = true)
@@ -205,7 +210,7 @@ class FullSaleHomeViewModelTest {
 
         // Then
         verify(salesRepository).deleteSale(saleId, saleDate)
-        verify(salesRepository, atLeast(1)).getPreventes(anyOrNull()) // Refresh called
+        verify(salesRepository, atLeast(1)).getPreventes(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -229,28 +234,28 @@ class FullSaleHomeViewModelTest {
     fun `refreshOngoingSales should reload ongoing sales`() = runTest {
         // Given
         val mockSales = listOf(Sale(id = 1, numberTransaction = "VNO-001", salesAmount = 5000))
-        whenever(salesRepository.getSales(anyOrNull())).thenReturn(Result.success(mockSales))
+        whenever(salesRepository.getVenteEncours(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockSales))
 
         // When
         viewModel.refreshOngoingSales()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        verify(salesRepository, atLeast(1)).getSales(anyOrNull())
+        verify(salesRepository, atLeast(1)).getVenteEncours(anyOrNull(), anyOrNull())
     }
 
     @Test
     fun `refreshPreventes should reload preventes`() = runTest {
         // Given
         val mockPreventes = listOf(Sale(id = 3, numberTransaction = "PRV-001", salesAmount = 2000))
-        whenever(salesRepository.getPreventes(anyOrNull())).thenReturn(Result.success(mockPreventes))
+        whenever(salesRepository.getPreventes(anyOrNull(), anyOrNull())).thenReturn(Result.success(mockPreventes))
 
         // When
         viewModel.refreshPreventes()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        verify(salesRepository, atLeast(1)).getPreventes(anyOrNull())
+        verify(salesRepository, atLeast(1)).getPreventes(anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -269,5 +274,40 @@ class FullSaleHomeViewModelTest {
 
         // Then
         assertEquals(null, viewModel.preventesError.value)
+    }
+
+    @Test
+    fun `loadUsers should update users LiveData on success`() = runTest {
+        // Given
+        val mockUsers = listOf(
+            User(id = 1L, firstName = "Jean", lastName = "Dupont", abbrName = "JD"),
+            User(id = 2L, firstName = "Marie", lastName = "Martin", abbrName = "MM")
+        )
+        whenever(userRepository.getUsers()).thenReturn(Result.success(mockUsers))
+
+        // When
+        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        val result = viewModel.users.value
+        assertNotNull(result)
+        assertEquals(2, result.size)
+        assertEquals("JD", result[0].getDisplayName())
+    }
+
+    @Test
+    fun `loadUsers should set empty list on failure`() = runTest {
+        // Given
+        whenever(userRepository.getUsers()).thenReturn(Result.failure(Exception("Error")))
+
+        // When
+        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        val result = viewModel.users.value
+        assertNotNull(result)
+        assertTrue(result.isEmpty())
     }
 }

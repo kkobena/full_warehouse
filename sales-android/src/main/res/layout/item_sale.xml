@@ -36,6 +36,20 @@
                 android:textStyle="bold"
                 tools:text="#VT20250119001" />
 
+            <!-- Status Badge -->
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="En cours" />
+
             <!-- Total Amount -->
             <TextView
                 android:id="@+id/tvTotalAmount"

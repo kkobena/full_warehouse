@@ -8,4 +8,5 @@ export enum SalesStatut {
   CLOSED = 'CLOSED',
   CANCELED = 'CANCELED',
   VALIDATED = 'VALIDATED',
+  PROCESSING = 'PROCESSING',
 }

@@ -5,6 +5,7 @@ import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
+import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository

@@ -42,6 +42,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -114,7 +115,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final UtilisationCleSecuriteService utilisationCleSecuriteService;
     private final RemiseRepository remiseRepository;
     private final LogsService logService;
-    private final SaleIdGeneratorService idGeneratorService;
+
     private final ObjectMapper objectMapper;
     private final SalesManager salesManager;
     private final SalesLineService salesLineService;
@@ -170,7 +171,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.utilisationCleSecuriteService = utilisationCleSecuriteService;
         this.remiseRepository = remiseRepository;
         this.logService = logService;
-        this.idGeneratorService = idGeneratorService;
         this.objectMapper = objectMapper;
         this.salesManager = salesManager;
 
@@ -283,7 +283,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
-                if (sales.isCanceled()){
+                if (sales.isCanceled()) {
                     throw new GenericError("La vente est déjà annulée");
                 }
                 ThirdPartySales copy = (ThirdPartySales) sales.clone();
@@ -519,6 +519,40 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) {
         applRemiseToSale(c);
         thirdPartyCalculationManager.upddateSaleAmountsOnRemovingItem(c);
+    }
+
+    @Override
+    public void savePrevente(ThirdPartySaleDTO dto) {
+        thirdPartySaleRepository
+            .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate()).ifPresent(p -> {
+                preValidatePrevente(p);
+
+
+                List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
+                ;
+                if (!CollectionUtils.isEmpty(thirdPartySaleLines)) {
+                    thirdPartySaleLines.forEach(thirdPartySaleLine -> {
+                        for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
+                            ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+                            if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
+                                if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId(), p.getId().getId())) {
+                                    throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
+                                }
+                                thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
+                                thirdPartySaleLineService.save(thirdPartySaleLine);
+                            }
+                        }
+                        updateClientTiersPayantAccount(thirdPartySaleLine);
+                        updateTiersPayantAccount(thirdPartySaleLine);
+                    });
+                    new ArrayList<>(p.getThirdPartySaleLines())
+                        .stream()
+                        .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
+                        .ifPresent(o -> p.setNumBon(o.getNumBon()));
+                }
+
+                thirdPartySaleRepository.save(p);
+            });
     }
 
     private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {

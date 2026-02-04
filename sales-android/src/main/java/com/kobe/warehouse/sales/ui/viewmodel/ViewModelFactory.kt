@@ -6,6 +6,7 @@ import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
+import com.kobe.warehouse.sales.data.repository.UserRepository
 import com.kobe.warehouse.sales.utils.TokenManager
 
 /**
@@ -27,12 +28,14 @@ class SalesHomeViewModelFactory(
  * ViewModelFactory for FullSaleHomeViewModel
  */
 class FullSaleHomeViewModelFactory(
-    private val salesRepository: SalesRepository
+    private val salesRepository: SalesRepository,
+    private val userRepository: UserRepository,
+    private val defaultUserId: Int? = null
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FullSaleHomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return FullSaleHomeViewModel(salesRepository) as T
+            return FullSaleHomeViewModel(salesRepository, userRepository, defaultUserId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

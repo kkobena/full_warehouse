@@ -161,7 +161,7 @@ export class SalesService {
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http
       .get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));

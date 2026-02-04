@@ -461,6 +461,8 @@ export class SalesFacade {
 
   /**
    * Load sale for editing
+   * Uniquement pour modification  d'une vente cloturée
+   * Ne pas utiliser pour recharger la vente courante en édition
    */
   loadSaleForEdit = rxMethod<SaleId>(
     pipe(
@@ -468,7 +470,7 @@ export class SalesFacade {
         this.store.setLoading(true);
         this.store.setError(null);
       }),
-      switchMap(saleId => this.apiService.findSaleForEdit(saleId)),
+      switchMap(saleId => this.apiService.findSaleForEdit(saleId)), //Ne pas utilise findSale ici
       tap({
         next: sale => {
           this.store.setCurrentSale(sale);
@@ -626,7 +628,7 @@ export class SalesFacade {
     this.apiService
       .addItemComptant(salesLine)
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product:', error);
 
@@ -652,7 +654,7 @@ export class SalesFacade {
           // Si erreur de stock, recharger la vente pour récupérer l'état actuel
           // La ligne peut déjà exister si le produit a été ajouté précédemment
           if (errorKey === 'stock') {
-            return this.apiService.findSaleForEdit(currentSale.saleId!).pipe(
+            return this.apiService.findSale(currentSale.saleId!).pipe(
               tap(reloadedSale => {
                 if (reloadedSale) {
                   this.store.setCurrentSale(reloadedSale);
@@ -735,7 +737,7 @@ export class SalesFacade {
     this.apiService
       .addItemAssurance(salesLine)
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product to carnet:', error);
 
@@ -757,7 +759,7 @@ export class SalesFacade {
           }
 
           if (errorKey === 'stock') {
-            return this.apiService.findSaleForEdit(currentSale.saleId!).pipe(
+            return this.apiService.findSale(currentSale.saleId!).pipe(
               tap(reloadedSale => {
                 if (reloadedSale) {
                   this.store.setCurrentSale(reloadedSale);
@@ -831,13 +833,14 @@ export class SalesFacade {
 
     // Route vers le bon endpoint selon le type de vente
     const saleType = this.store.saleType();
-    const apiCall = (saleType === 'ASSURANCE' || saleType === 'CARNET')
-      ? this.apiService.incrementItemQtyRequestedAssurance(salesLine)
-      : this.apiService.incrementItemQtyRequested(salesLine);
+    const apiCall =
+      saleType === 'ASSURANCE' || saleType === 'CARNET'
+        ? this.apiService.incrementItemQtyRequestedAssurance(salesLine)
+        : this.apiService.incrementItemQtyRequested(salesLine);
 
     apiCall
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error updating product quantity:', error);
 
@@ -884,13 +887,14 @@ export class SalesFacade {
 
     // Route vers le bon endpoint selon le type de vente
     const saleType = this.store.saleType();
-    const apiCall = (saleType === 'ASSURANCE' || saleType === 'CARNET')
-      ? this.apiService.setItemQtyRequestedAssurance(salesLine)
-      : this.apiService.setItemQtyRequested(salesLine);
+    const apiCall =
+      saleType === 'ASSURANCE' || saleType === 'CARNET'
+        ? this.apiService.setItemQtyRequestedAssurance(salesLine)
+        : this.apiService.setItemQtyRequested(salesLine);
 
     apiCall
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error updating product quantity:', error);
 
@@ -934,7 +938,7 @@ export class SalesFacade {
     this.apiService
       .deleteItem(saleLineId)
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error removing line:', error);
           this.store.setError('Erreur lors de la suppression de la ligne');
@@ -980,7 +984,7 @@ export class SalesFacade {
       .pipe(
         switchMap(() => {
           // Recharger la vente complète avec tous les montants recalculés
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error adding product:', error);
@@ -1045,7 +1049,7 @@ export class SalesFacade {
       .pipe(
         switchMap(() => {
           // Recharger la vente complète
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error updating quantity:', error);
@@ -1086,15 +1090,16 @@ export class SalesFacade {
 
     // Route vers le bon endpoint selon le type de vente
     const saleType = this.store.saleType();
-    const apiCall = (saleType === 'ASSURANCE' || saleType === 'CARNET')
-      ? this.apiService.setItemQtyRequestedAssurance(updatedLine)
-      : this.apiService.setItemQtyRequested(updatedLine);
+    const apiCall =
+      saleType === 'ASSURANCE' || saleType === 'CARNET'
+        ? this.apiService.setItemQtyRequestedAssurance(updatedLine)
+        : this.apiService.setItemQtyRequested(updatedLine);
 
     apiCall
       .pipe(
         switchMap(() => {
           // Recharger la vente complète
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error updating quantity requested:', error);
@@ -1186,7 +1191,7 @@ export class SalesFacade {
       .pipe(
         switchMap(() => {
           // Recharger la vente complète
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error updating price:', error);
@@ -1229,7 +1234,7 @@ export class SalesFacade {
       .pipe(
         switchMap(() => {
           // Recharger la vente complète
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error applying discount:', error);
@@ -1268,7 +1273,7 @@ export class SalesFacade {
       .pipe(
         switchMap(() => {
           // Recharger la vente complète avec les montants recalculés
-          return this.apiService.findSaleForEdit(currentSale.saleId!);
+          return this.apiService.findSale(currentSale.saleId!);
         }),
         catchError(error => {
           console.error('Error updating remise:', error);
@@ -1321,7 +1326,7 @@ export class SalesFacade {
 
     updateObservable$
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error setting customer:', error);
           this.store.setLoading(false);
@@ -1361,7 +1366,7 @@ export class SalesFacade {
 
     updateObservable$
       .pipe(
-        switchMap(() => this.apiService.findSaleForEdit(currentSale.saleId!)),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error removing customer:', error);
           this.store.setLoading(false);
@@ -1426,11 +1431,11 @@ export class SalesFacade {
   /**
    * Load pending sales from backend
    */
-  loadPendingSales(): void {
+  loadPendingSales(params: any): void {
     this.store.setLoading(true);
 
     this.apiService
-      .getPendingSales()
+      .getPendingSales(params)
       .pipe(
         catchError(error => {
           console.error('Error loading pending sales:', error);
@@ -1453,7 +1458,7 @@ export class SalesFacade {
     this.store.setLoading(true);
 
     this.apiService
-      .findSaleForEdit(saleId)
+      .findSale(saleId)
       .pipe(
         catchError(error => {
           console.error('Error loading pending sale:', error);

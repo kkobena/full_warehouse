@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,7 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.databinding.FragmentVenteEnCoursBinding
-import com.kobe.warehouse.sales.ui.activity.ComptantSaleActivity
+import com.kobe.warehouse.sales.ui.activity.UnifiedSaleActivity
 import com.kobe.warehouse.sales.ui.adapter.SalesAdapter
 import com.kobe.warehouse.sales.ui.viewmodel.FullSaleHomeViewModel
 
@@ -27,6 +29,7 @@ import com.kobe.warehouse.sales.ui.viewmodel.FullSaleHomeViewModel
  * - Click to open sale
  * - Empty state display
  * - Error handling with retry
+ * - User filter Spinner
  */
 class VenteEnCoursFragment : Fragment() {
 
@@ -35,6 +38,10 @@ class VenteEnCoursFragment : Fragment() {
 
     private lateinit var viewModel: FullSaleHomeViewModel
     private lateinit var salesAdapter: SalesAdapter
+
+    private var userList: List<com.kobe.warehouse.sales.data.model.User> = emptyList()
+    private var selectedUserId: Int? = null
+    private var isSpinnerInitialized = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,9 +57,11 @@ class VenteEnCoursFragment : Fragment() {
 
         // Get ViewModel from parent activity
         viewModel = ViewModelProvider(requireActivity())[FullSaleHomeViewModel::class.java]
+        selectedUserId = viewModel.defaultUserId
 
         setupRecyclerView()
         setupSwipeRefresh()
+        setupSpinner()
         setupListeners()
         observeViewModel()
     }
@@ -77,7 +86,7 @@ class VenteEnCoursFragment : Fragment() {
      */
     private fun setupSwipeRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshOngoingSales()
+            viewModel.loadOngoingSales(userId = selectedUserId)
         }
 
         // Set color scheme
@@ -89,12 +98,33 @@ class VenteEnCoursFragment : Fragment() {
     }
 
     /**
+     * Setup user filter Spinner
+     */
+    private fun setupSpinner() {
+        binding.spinnerUser.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (!isSpinnerInitialized) {
+                    isSpinnerInitialized = true
+                    return
+                }
+                if (position < userList.size) {
+                    val user = userList[position]
+                    selectedUserId = user.id.toInt()
+                    viewModel.loadOngoingSales(userId = selectedUserId)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    /**
      * Setup listeners
      */
     private fun setupListeners() {
         // Retry button
         binding.btnRetry.setOnClickListener {
-            viewModel.refreshOngoingSales()
+            viewModel.loadOngoingSales(userId = selectedUserId)
         }
     }
 
@@ -119,6 +149,37 @@ class VenteEnCoursFragment : Fragment() {
                 showError(error)
             } else {
                 hideError()
+            }
+        }
+
+        // Observe users list for Spinner
+        viewModel.users.observe(viewLifecycleOwner) { users ->
+            populateUserSpinner(users)
+        }
+    }
+
+    /**
+     * Populate user Spinner with users list
+     */
+    private fun populateUserSpinner(users: List<com.kobe.warehouse.sales.data.model.User>) {
+        userList = users
+        val displayNames = users.map { it.getDisplayName() }
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            displayNames
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        isSpinnerInitialized = false
+        binding.spinnerUser.adapter = adapter
+
+        // Select the default user (connected user)
+        val defaultUserId = viewModel.defaultUserId
+        if (defaultUserId != null) {
+            val defaultIndex = users.indexOfFirst { it.id.toInt() == defaultUserId }
+            if (defaultIndex >= 0) {
+                binding.spinnerUser.setSelection(defaultIndex)
             }
         }
     }
@@ -159,9 +220,10 @@ class VenteEnCoursFragment : Fragment() {
      * Open sale for editing
      */
     private fun openSale(sale: Sale) {
-        val intent = Intent(requireContext(), ComptantSaleActivity::class.java).apply {
-            putExtra("saleId", sale.id)
-            putExtra("saleDate", sale.updatedAt ?: sale.createdAt)
+        val intent = Intent(requireContext(), UnifiedSaleActivity::class.java).apply {
+            putExtra(UnifiedSaleActivity.EXTRA_SALE_ID, sale.id ?: 0L)
+            putExtra(UnifiedSaleActivity.EXTRA_SALE_DATE, sale.saleId?.saleDate)
+            putExtra(UnifiedSaleActivity.EXTRA_SALE_TYPE, sale.natureVente)
         }
         startActivity(intent)
     }
@@ -184,9 +246,9 @@ class VenteEnCoursFragment : Fragment() {
      * Delete sale
      */
     private fun deleteSale(sale: Sale) {
-        val saleDate = sale.updatedAt ?: sale.createdAt
+        val saleDate = sale.saleId?.saleDate
         val saleId = sale.id
-        if (saleDate != null && saleId != null) {
+        if (!saleDate.isNullOrEmpty() && saleId != null) {
             viewModel.deleteSale(saleId, saleDate, isPrevente = false)
 
             // Show success message

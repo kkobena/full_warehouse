@@ -14,6 +14,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ConfigurationService } from '../../../shared/configuration.service';
+import { SalesStatut } from '../../../shared/model';
 
 @Component({
   selector: 'jhi-presale',
@@ -63,6 +64,7 @@ export class PresaleComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
+        statut: SalesStatut.PENDING,
       })
       .subscribe(res => {
         this.sales = res.body ?? [];

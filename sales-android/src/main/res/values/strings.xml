@@ -152,7 +152,26 @@
     <string name="transformation_assurance_info">La transformation vers Comptant supprimera les données d\'assurance. Le panier sera conservé.</string>
     <string name="transformation_carnet_info">La transformation vers Comptant supprimera les données carnet. Le panier sera conservé.</string>
     <string name="mettre_en_attente">Mettre en attente</string>
+    <string name="nouvelle_prevente">Nouvelle prévente</string>
+    <string name="finaliser_prevente">Finaliser la prévente</string>
     <string name="quantite">Quantité</string>
+
+    <!-- Sale Status -->
+    <string name="statut_pending">Validée</string>
+    <string name="statut_processing">En cours</string>
+    <string name="statut_active">Active</string>
+    <string name="transform_prevente_title">Transformer en vente</string>
+    <string name="transform_prevente_message">Voulez-vous transformer cette prévente en vente en cours ?</string>
+
+    <!-- Sale Type Change Confirmation -->
+    <string name="change_sale_type_title">Vente en cours</string>
+    <string name="change_sale_type_message">Une vente est en cours. Si vous changez de type, vous perdrez la vente actuelle. Voulez-vous continuer ?</string>
+    <string name="continue_action">Continuer</string>
+
+    <!-- Exit Confirmation -->
+    <string name="exit_sale_title">Quitter la vente</string>
+    <string name="exit_sale_message">Une vente est en cours. Si vous quittez, vous perdrez la vente actuelle. Voulez-vous quitter ?</string>
+    <string name="quit_action">Quitter</string>
 
     <!-- Phase 4.1: Discount Dialog -->
     <string name="discount_dialog_title">Appliquer une remise</string>

@@ -19,26 +19,15 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
  */
 @Component({
   selector: 'app-customer-selection-modal',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextModule,
-    TableModule,
-    TooltipModule,
-    IconField,
-    InputIcon,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule, IconField, InputIcon],
   template: `
     <div class="modal-header">
       <h5 class="modal-title">{{ modalTitle }}</h5>
       <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
     </div>
-    
+
     <div class="modal-body">
       <p-table
-      class="pharma-table"
         [value]="customers()"
         [paginator]="true"
         [rows]="10"
@@ -61,23 +50,17 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
                   pInputText
                   [(ngModel)]="searchTerm"
                   (input)="onSearchChange(searchTerm)"
-                  placeholder="Rechercher un client (nom, téléphone)..."
+                  placeholder="Rechercher un client (nom, prénom)..."
                   style="width: 350px"
                 />
               </p-iconfield>
             </div>
             <div class="col-md-4">
-              <p-button
-                (click)="addNewCustomer()"
-                icon="pi pi-user"
-                label="Nouveau client"
-                severity="help"
-                size="small"
-              ></p-button>
+              <p-button (click)="addNewCustomer()" icon="pi pi-user" label="Nouveau client" severity="help" size="small"></p-button>
             </div>
           </div>
         </ng-template>
-        
+
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 5%">#</th>
@@ -88,7 +71,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
             <th style="width: 100px"></th>
           </tr>
         </ng-template>
-        
+
         <ng-template #body let-customer let-rowIndex="rowIndex">
           <tr (click)="selectCustomer(customer)" style="cursor: pointer">
             <td style="text-align: left">
@@ -111,7 +94,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
             </td>
           </tr>
         </ng-template>
-        
+
         <ng-template #emptymessage>
           <tr>
             <td colspan="6" class="text-center">
@@ -123,29 +106,29 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">
-        <i class="pi pi-times"></i> Annuler
-      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()"><i class="pi pi-times"></i> Annuler</button>
     </div>
   `,
-  styles: [`
-    @import 'app/shared/scss/table-common';
-    
-    .modal-body {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-  `]
+  styles: [
+    `
+      @import 'app/shared/scss/table-common';
+
+      .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+    `,
+  ],
 })
 export class CustomerSelectionModalComponent implements OnInit, AfterViewInit {
   modalTitle: string = 'Sélection client';
   searchTerm = '';
-  
+
   customers = signal<ICustomer[]>([]);
   loading = signal(false);
-  
+
   protected searchInput = viewChild<ElementRef>('searchInput');
-  
+
   private activeModal = inject(NgbActiveModal);
   private modalService = inject(NgbModal);
   private customerSearchService = inject(CustomerSearchService);
@@ -165,13 +148,13 @@ export class CustomerSelectionModalComponent implements OnInit, AfterViewInit {
     if (term && term.length >= 2) {
       this.loading.set(true);
       this.customerSearchService.search(term, 20).subscribe({
-        next: (customers) => {
+        next: customers => {
           this.customers.set(customers);
           this.loading.set(false);
         },
         error: () => {
           this.loading.set(false);
-        }
+        },
       });
     } else {
       this.customers.set([]);

@@ -1,6 +1,6 @@
-import { Component, inject, input, OnInit, output, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { IUser } from '../../../../core/user/user.model';
-import { ISales } from '../../../../shared/model/sales.model';
+import { ISales } from '../../../../shared/model';
 import { SalesService } from '../../sales.service';
 import { APPEND_TO } from '../../../../shared/constants/pagination.constants';
 import { HttpResponse } from '@angular/common/http';
@@ -17,13 +17,14 @@ import { DividerModule } from 'primeng/divider';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { CustomerService } from '../../../customer/customer.service';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
-import { ICustomer } from '../../../../shared/model/customer.model';
+import { ICustomer } from '../../../../shared/model';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { Select } from 'primeng/select';
 import { UserVendeurService } from '../../service/user-vendeur.service';
+import { SalesStatut } from '../../../../features/sales/models/enumerations/sales-statut.enum';
 
 @Component({
   selector: 'jhi-prevente-modal',
@@ -87,6 +88,7 @@ export class PreventeModalComponent implements OnInit {
         search: this.search,
         type: this.typeVenteSelected,
         userId: this.userSignal().id,
+        statut: SalesStatut.ACTIVE,
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];

@@ -1,4 +1,17 @@
-import { Component, OnInit, AfterViewInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, model } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  inject,
+  signal,
+  DestroyRef,
+  effect,
+  HostListener,
+  viewChild,
+  output,
+  input,
+  model,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -47,17 +60,16 @@ import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.u
 import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
-
 /**
  * Composant Container : Création de vente ASSURANCE
- * 
+ *
  * Responsabilités :
  * - Orchestrer les composants UI pour les ventes ASSURANCE
  * - Gérer la logique métier via SalesFacade
  * - Gérer les tiers payants (part assurée/part client)
  * - CLIENT OBLIGATOIRE dès le départ
  * - Gérer la navigation et les erreurs
- * 
+ *
  * Architecture : Container/Presentation pattern
  */
 @Component({
@@ -82,7 +94,6 @@ import { NgxSpinnerModule } from 'ngx-spinner';
   providers: [MessageService, ConfirmationService], // Instance locale pour ce composant
 })
 export class SaleAssuranceComponent implements OnInit, AfterViewInit {
-
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
@@ -100,7 +111,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   switchToComptant = output<void>();
 
   // Modal and responsive state
-  
+
   // Services
   private facade = inject(SalesFacade);
   private customerSearchService = inject(CustomerSearchService);
@@ -170,10 +181,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     effect(() => {
       const sale = this.currentSale();
       if (sale && !sale.customerId) {
-        this.notificationService.warning(
-          'Client requis',
-          'Un client assuré est obligatoire pour une vente ASSURANCE'
-        );
+        this.notificationService.warning('Client requis', 'Un client assuré est obligatoire pour une vente ASSURANCE');
       }
     });
   }
@@ -181,12 +189,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
     this.facade.initializeAssuranceSale();
-    
+
     // Initialize typePrescription with default value
     this.facade.setTypePrescription('PRESCRIPTION');
-
-    // Charger les ventes en attente
-    this.facade.loadPendingSales();
   }
 
   ngAfterViewInit(): void {
@@ -195,7 +200,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       this.insuranceDataBar()?.searchInput()?.nativeElement.focus();
     }, 200);
   }
-
 
   // ============================================
   // Gestion Produits
@@ -207,15 +211,12 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.hasCustomer()) {
-      this.notificationService.warning(
-        'Client requis',
-        'Veuillez sélectionner un client assuré avant d\'ajouter des produits'
-      );
+      this.notificationService.warning('Client requis', "Veuillez sélectionner un client assuré avant d'ajouter des produits");
       return;
     }
 
     this.facade.setSelectedProduct(product);
-    
+
     // ✅ AJOUT Phase 2.2: Focus sur quantité après sélection
     setTimeout(() => {
       this.quantityComponent()?.focusProduitControl();
@@ -229,23 +230,20 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   onProductScanned(product: ProduitSearch): void {
     if (!product || !this.hasCustomer()) {
       if (!this.hasCustomer()) {
-        this.notificationService.warning(
-          'Client requis',
-          'Veuillez sélectionner un client assuré avant d\'ajouter des produits'
-        );
+        this.notificationService.warning('Client requis', "Veuillez sélectionner un client assuré avant d'ajouter des produits");
       }
       return;
     }
-    
+
     this.facade.setSelectedProduct(product);
-    
+
     // ✅ Ajout automatique avec quantité 1
     const currentSale = this.currentSale();
     if (!currentSale) return;
-    
+
     const line = createSalesLineFromProduct(product, 1, currentSale);
     this.facade.addSalesLine(line);
-    
+
     // ✅ Reset et focus sur recherche
     this.resetProductSelection();
   }
@@ -254,13 +252,13 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
    */
   onProductSearchEnter(shouldSave: boolean): void {
     if (!shouldSave) return;
-    
+
     const currentSale = this.currentSale();
-    
+
     // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
       const amountToBePaid = currentSale.amountToBePaid || 0;
-      
+
       // Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
         this.finalizeSaleWithoutPayment();
@@ -279,19 +277,16 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.hasCustomer()) {
-      this.notificationService.warning(
-        'Client requis',
-        'Veuillez sélectionner un client assuré avant d\'ajouter des produits'
-      );
+      this.notificationService.warning('Client requis', "Veuillez sélectionner un client assuré avant d'ajouter des produits");
       return;
     }
 
     const currentSale = this.currentSale();
     if (!currentSale) return;
-    
+
     const line = createSalesLineFromProduct(product, quantity, currentSale);
     this.facade.addSalesLine(line);
-    
+
     // ✅ AJOUT Phase 2.3: Reset après succès
     this.resetProductSelection();
   }
@@ -302,13 +297,13 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   private resetProductSelection(): void {
     // Réinitialiser le produit sélectionné
     this.facade.setSelectedProduct(null);
-    
+
     // Réinitialiser le composant de recherche
     this.productSearchComponent()?.reset();
-    
+
     // Réinitialiser la quantité
     this.quantityComponent()?.reset(1);
-    
+
     // Focus sur recherche produit
     setTimeout(() => {
       this.productSearchComponent()?.getFocus();
@@ -347,7 +342,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     const line = this.salesLines().find(l => l.id === event.lineId);
     if (line && line.id) {
       this.facade.updateSalesLine(line.id, {
-        regularUnitPrice: line.regularUnitPrice! * (1 - event.discount / 100)
+        regularUnitPrice: line.regularUnitPrice! * (1 - event.discount / 100),
       });
     }
   }
@@ -357,20 +352,20 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       .requestDiscountAuthorization(event.discount)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (authorized) => {
+        next: authorized => {
           if (authorized) {
             const line = this.salesLines().find(l => l.id === event.lineId);
             if (line && line.id) {
               this.facade.updateSalesLine(line.id, {
-                regularUnitPrice: line.regularUnitPrice! * (1 - event.discount / 100)
+                regularUnitPrice: line.regularUnitPrice! * (1 - event.discount / 100),
               });
             }
           } else {
             this.notificationService.warning('Non autorisé', 'Remise refusée');
           }
         },
-        error: (err) => {
-          this.notificationService.error('Erreur', 'Erreur lors de l\'autorisation');
+        error: err => {
+          this.notificationService.error('Erreur', "Erreur lors de l'autorisation");
         },
       });
   }
@@ -391,7 +386,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.facade.removeCustomer();
-      }
+      },
     });
   }
 
@@ -402,7 +397,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
 
   onCustomerSearchChange(searchTerm: string): void {
     if (searchTerm.length >= 2) {
-      this.customerSearchService.search(searchTerm)
+      this.customerSearchService
+        .search(searchTerm)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (customers: ICustomer[]) => {
@@ -436,18 +432,18 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     // Cloner l'objet pour forcer la réactivité
     const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
     this.facade.setCustomer(newCustomer);
-    
+
     // ✅ AJOUT: Créer la vente si elle n'existe pas
     const currentSale = this.currentSale();
     if (!currentSale) {
       this.facade.initializeAssuranceSale();
     }
-    
+
     // ✅ AJOUT: Mettre à jour les tiers payants de la vente
     if (newCustomer.tiersPayants) {
       this.facade.updateSaleTiersPayants(newCustomer.tiersPayants);
     }
-    
+
     // Focus sur le premier champ de numéro de bon
     setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
   }
@@ -470,7 +466,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
         }
       },
       '70%',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -496,7 +492,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   onLoadAyantDroits(): void {
     const customer = this.selectedCustomer();
     if (!customer) {
-      this.notificationService.warning('Client requis', 'Sélectionnez d\'abord un client assuré');
+      this.notificationService.warning('Client requis', "Sélectionnez d'abord un client assuré");
       return;
     }
 
@@ -520,7 +516,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
           }
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -529,7 +525,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     const currentSale = this.currentSale();
 
     if (!customer) {
-      this.notificationService.warning('Client requis', 'Sélectionnez d\'abord un client assuré');
+      this.notificationService.warning('Client requis', "Sélectionnez d'abord un client assuré");
       return;
     }
 
@@ -549,7 +545,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
           // TODO: Ajouter méthode facade.addThirdParty si nécessaire
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -567,7 +563,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
 
         // TODO: Appeler service backend pour supprimer
         // this.facade.removeThirdParty(tiersPayant.id);
-      }
+      },
     });
   }
 
@@ -580,7 +576,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
 
   private openAssuredCustomerForm(customer: ICustomer | null): void {
     const isEdit = !!customer;
-    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : 'FORMULAIRE D\'AJOUT DE NOUVEAU CLIENT';
+    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT";
 
     showCommonModal(
       this.modalService,
@@ -600,7 +596,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
         }
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -624,7 +620,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
           }
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -673,7 +669,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
         message: 'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
         header: 'Avoir détecté',
         icon: 'pi pi-exclamation-triangle',
-        accept: () => this.proceedWithSave()
+        accept: () => this.proceedWithSave(),
       });
     } else {
       this.proceedWithSave();
@@ -716,7 +712,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       change: 0,
       changeExact: 0,
       printReceipt: false,
-      printInvoice: false
+      printInvoice: false,
     };
 
     this.onPaymentComplete(emptyPaymentEvent);
@@ -725,7 +721,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   onPaymentComplete(event: PaymentCompleteEvent): void {
     // Enregistrer la vente via la facade
     this.facade.saveAssuranceSale(event.payments).subscribe({
-      next: (result) => {
+      next: result => {
         if (result) {
           // Succès : impression si demandée
           if (event.printReceipt && result.saleId) {
@@ -733,7 +729,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
           }
 
           this.resetForNewSale();
-          
+
           // Basculer vers COMPTANT après finalisation
           this.switchToComptant.emit();
         } else {
@@ -744,7 +740,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       error: () => {
         // Échec : afficher l'erreur et garder la vente
         this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-      }
+      },
     });
   }
 
@@ -758,7 +754,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
     if (sale?.saleId) {
       this.facade.printCurrentSale();
     } else {
-      this.notificationService.warning('Impression impossible', 'La vente doit être enregistrée d\'abord');
+      this.notificationService.warning('Impression impossible', "La vente doit être enregistrée d'abord");
     }
   }
 
@@ -790,7 +786,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
       accept: () => {
         this.resetForNewSale();
         this.router.navigate(['/sales']);
-      }
+      },
     });
   }
 

@@ -22,6 +22,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
@@ -31,6 +32,7 @@ import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,8 +40,11 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class SaleCommonService {
@@ -218,7 +223,7 @@ public class SaleCommonService {
         if (user.getId().compareTo(dto.getCassierId()) != 0) {
             caissier = userRepository.getReferenceById(dto.getCassierId());
         }
-        if (Objects.nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
+        if (nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
             c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
         } else {
             c.setSeller(caissier);
@@ -234,11 +239,16 @@ public class SaleCommonService {
         c.setToIgnore(dto.isToIgnore());
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
-        c.setStatut(SalesStatut.ACTIVE);
+        if (nonNull(dto.getCustomerId())) {
+            c.setStatut(dto.getStatut());
+        } else {
+            c.setStatut(SalesStatut.ACTIVE);
+        }
+
         this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum()).ifPresent(poste -> {
-                c.setCaisse(poste);
-                c.setLastCaisse(poste);
-            });
+            c.setCaisse(poste);
+            c.setLastCaisse(poste);
+        });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
         c.setOrigineVente(OrigineVente.DIRECT);
@@ -439,7 +449,7 @@ public class SaleCommonService {
         return idGeneratorService.nextId();
     }
 
-    protected void finalizeSale(CashSale c, CashSaleDTO dto ) {
+    protected void finalizeSale(CashSale c, CashSaleDTO dto) {
 
         c.setDiffere(dto.isDiffere());
         c.setCommentaire(dto.getCommentaire());
@@ -459,5 +469,13 @@ public class SaleCommonService {
         }
         c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
         this.buildReference(c);
+    }
+
+    protected void preValidatePrevente(Sales c) throws GenericError {
+        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING);
+        if (!statuts.contains(c.getStatut())) {
+            throw new GenericError("La vente ne peut pas être finalisée dans son état actuel");
+        }
+        c.setStatut(SalesStatut.PENDING);
     }
 }

@@ -10,7 +10,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.SalesApiService
+import com.kobe.warehouse.sales.data.api.UserApiService
 import com.kobe.warehouse.sales.data.repository.SalesRepository
+import com.kobe.warehouse.sales.data.repository.UserRepository
 import com.kobe.warehouse.sales.databinding.ActivityFullsaleHomeBinding
 import com.kobe.warehouse.sales.ui.fragment.PreventeFragment
 import com.kobe.warehouse.sales.ui.fragment.VenteEnCoursFragment
@@ -36,7 +38,7 @@ import kotlinx.coroutines.launch
  * - FAB button for new sale
  * - Pull-to-refresh in fragments
  */
-class FullSaleHomeActivity : BaseActivity() {
+class FullSaleHomeActivity : BaseActivity(), PreventeFragment.OnTabSwitchListener {
 
     private lateinit var binding: ActivityFullsaleHomeBinding
     private lateinit var viewModel: FullSaleHomeViewModel
@@ -67,8 +69,11 @@ class FullSaleHomeActivity : BaseActivity() {
         val retrofit = ApiClient.create(tokenManager = tokenManager)
         val salesApiService = retrofit.create(SalesApiService::class.java)
         val salesRepository = SalesRepository(salesApiService)
+        val userApiService = retrofit.create(UserApiService::class.java)
+        val userRepository = UserRepository(userApiService)
+        val defaultUserId = tokenManager.getUserId()
 
-        val factory = FullSaleHomeViewModelFactory(salesRepository)
+        val factory = FullSaleHomeViewModelFactory(salesRepository, userRepository, defaultUserId)
         viewModel = ViewModelProvider(this, factory)[FullSaleHomeViewModel::class.java]
     }
 
@@ -168,11 +173,17 @@ class FullSaleHomeActivity : BaseActivity() {
     }
 
     /**
-     * Create new sale
+     * Create new sale or prevente based on current tab
      * Opens UnifiedSaleActivity to allow all sale types (Comptant, Assurance, Carnet)
      */
     private fun createNewSale() {
-        val intent = Intent(this, UnifiedSaleActivity::class.java)
+        val currentTab = binding.viewPager.currentItem
+        val intent = Intent(this, UnifiedSaleActivity::class.java).apply {
+            // If on preventes tab, create a new prevente
+            if (currentTab == 1) {
+                putExtra(UnifiedSaleActivity.EXTRA_IS_NEW_PREVENTE, true)
+            }
+        }
         startActivity(intent)
     }
 
@@ -209,5 +220,12 @@ class FullSaleHomeActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         searchJob?.cancel()
+    }
+
+    /**
+     * Switch to specific tab (implements PreventeFragment.OnTabSwitchListener)
+     */
+    override fun switchToTab(index: Int) {
+        binding.viewPager.currentItem = index
     }
 }

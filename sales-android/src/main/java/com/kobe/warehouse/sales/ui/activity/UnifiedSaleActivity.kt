@@ -66,6 +66,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         const val EXTRA_SALE_TYPE = "extra_sale_type"
         const val EXTRA_SALE_ID = "extra_sale_id"
         const val EXTRA_SALE_DATE = "extra_sale_date"
+        const val EXTRA_IS_NEW_PREVENTE = "extra_is_new_prevente"
 
         // Sale type constants
         const val SALE_TYPE_COMPTANT = "COMPTANT"
@@ -210,36 +211,29 @@ class UnifiedSaleActivity : AppCompatActivity() {
         }
     }
 
+    // Track current chip to revert if user cancels
+    private var currentCheckedChipId: Int = R.id.chipComptant
+    private var isChangingChipProgrammatically = false
+
     private fun setupListeners() {
         // Sale type ChipGroup selection
         binding.includeSaleTypeSelector.chipGroupSaleType.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
+            if (isChangingChipProgrammatically) return@setOnCheckedStateChangeListener
 
-            val newType = when (checkedIds[0]) {
-                R.id.chipComptant -> SaleType.Comptant
-                R.id.chipAssurance -> {
-                    // Allow selection, customer will be validated before adding products
-                    val customer = viewModel.selectedCustomer.value
-                    if (customer != null) {
-                        SaleType.Assurance(customer, emptyList())
-                    } else {
-                        // Show customer selection zone but don't block type change
-                        SaleType.Assurance(null, emptyList())
-                    }
-                }
-                R.id.chipCarnet -> {
-                    // Allow selection, customer will be validated before adding products
-                    val customer = viewModel.selectedCustomer.value
-                    if (customer != null) {
-                        SaleType.Carnet(customer)
-                    } else {
-                        // Show customer selection zone but don't block type change
-                        SaleType.Carnet(null)
-                    }
-                }
-                else -> SaleType.Comptant
+            val newChipId = checkedIds[0]
+
+            // If same chip, do nothing
+            if (newChipId == currentCheckedChipId) return@setOnCheckedStateChangeListener
+
+            // Check if sale is in progress
+            if (viewModel.isSaleInProgress()) {
+                // Show confirmation dialog
+                showSaleTypeChangeConfirmationDialog(newChipId)
+            } else {
+                // No sale in progress, proceed with change
+                proceedWithSaleTypeChange(newChipId)
             }
-            viewModel.changeSaleType(newType)
         }
 
         // Customer search - Inline search with debounce (300ms)
@@ -528,11 +522,41 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
+        // Prevente finalized
+        viewModel.preventeFinalized.observe(this) { finalized ->
+            if (finalized) {
+                viewModel.clearPreventeFinalized()
+                Toast.makeText(this, "Prévente finalisée avec succès", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+
+        // Prevente mode - update buttons
+        viewModel.isPrevente.observe(this) { isPrevente ->
+            updateButtonsForPreventeMode(isPrevente)
+        }
+
         // Loading state
         viewModel.isLoading.observe(this) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnFinalizeSale.isEnabled = !isLoading
-            binding.btnPutOnHold.isEnabled = !isLoading
+            binding.btnPutOnHold.isEnabled = !isLoading && (viewModel.isPrevente.value == true)
+        }
+    }
+
+    /**
+     * Update button texts and behavior for prevente mode
+     */
+    private fun updateButtonsForPreventeMode(isPrevente: Boolean) {
+        if (isPrevente) {
+            // Prevente mode: change button texts
+            binding.btnPutOnHold.text = getString(R.string.nouvelle_prevente)
+            binding.btnFinalizeSale.text = getString(R.string.finaliser_prevente)
+            binding.btnPutOnHold.isEnabled = true
+        } else {
+            // Normal sale mode
+            binding.btnPutOnHold.text = getString(R.string.mettre_en_attente)
+            binding.btnFinalizeSale.text = getString(R.string.finaliser_vente)
         }
     }
 
@@ -693,6 +717,12 @@ class UnifiedSaleActivity : AppCompatActivity() {
             viewModel.loadSale(saleId, saleDate)
         }
 
+        // Check if creating new prevente
+        val isNewPrevente = intent.getBooleanExtra(EXTRA_IS_NEW_PREVENTE, false)
+        if (isNewPrevente) {
+            viewModel.setPreventeMode(true)
+        }
+
         // Set initial sale type via ChipGroup
         val saleType = intent.getStringExtra(EXTRA_SALE_TYPE)
         val initialChipId = when (saleType) {
@@ -700,7 +730,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
             SALE_TYPE_CARNET -> R.id.chipCarnet
             else -> R.id.chipComptant
         }
+        currentCheckedChipId = initialChipId
+        isChangingChipProgrammatically = true
         binding.includeSaleTypeSelector.chipGroupSaleType.check(initialChipId)
+        isChangingChipProgrammatically = false
     }
 
     private fun finalizeSale() {
@@ -711,7 +744,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
             return
         }
 
-        // Open payment dialog
+        // If in prevente mode, finalize prevente directly (no payment dialog)
+        if (viewModel.isPrevente.value == true) {
+            viewModel.finalizePrevente()
+            return
+        }
+
+        // Open payment dialog for normal sale
         val payrollAmount = sale.salesAmount - (sale.discountAmount ?: 0)
         val dialog = com.kobe.warehouse.sales.ui.dialog.PaymentDialogFragment.newInstance(payrollAmount)
         dialog.show(supportFragmentManager, "PaymentDialog")
@@ -784,6 +823,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
     }
 
     private fun putOnHold() {
+        // If in prevente mode, create new prevente instead
+        if (viewModel.isPrevente.value == true) {
+            viewModel.createNewPrevente()
+
+            return
+        }
+
         val sale = viewModel.currentSale.value ?: return
 
         if (sale.salesLines.isEmpty()) {
@@ -803,7 +849,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                handleBackNavigation()
                 true
             }
             R.id.action_transform -> {
@@ -816,6 +862,37 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        handleBackNavigation()
+    }
+
+    /**
+     * Handle back navigation with confirmation if sale is in progress
+     */
+    private fun handleBackNavigation() {
+        if (viewModel.isSaleInProgress()) {
+            showExitConfirmationDialog()
+        } else {
+            finish()
+        }
+    }
+
+    /**
+     * Show confirmation dialog when trying to exit with sale in progress
+     */
+    private fun showExitConfirmationDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.exit_sale_title)
+            .setMessage(R.string.exit_sale_message)
+            .setPositiveButton(R.string.quit_action) { _, _ ->
+                viewModel.cancelCurrentSale()
+                finish()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun showTransformDialog() {
@@ -1034,6 +1111,61 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
             .setNegativeButton("Annuler", null)
             .show()
+    }
+
+    /**
+     * Show confirmation dialog when trying to change sale type with sale in progress
+     */
+    private fun showSaleTypeChangeConfirmationDialog(newChipId: Int) {
+        // Revert to previous chip while dialog is shown
+        isChangingChipProgrammatically = true
+        binding.includeSaleTypeSelector.chipGroupSaleType.check(currentCheckedChipId)
+        isChangingChipProgrammatically = false
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.change_sale_type_title)
+            .setMessage(R.string.change_sale_type_message)
+            .setPositiveButton(R.string.continue_action) { _, _ ->
+                // User confirmed, cancel current sale and proceed
+                viewModel.cancelCurrentSale()
+                proceedWithSaleTypeChange(newChipId)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Proceed with sale type change (after confirmation or when no sale in progress)
+     */
+    private fun proceedWithSaleTypeChange(chipId: Int) {
+        currentCheckedChipId = chipId
+
+        // Update chip programmatically if not already checked
+        isChangingChipProgrammatically = true
+        binding.includeSaleTypeSelector.chipGroupSaleType.check(chipId)
+        isChangingChipProgrammatically = false
+
+        val newType = when (chipId) {
+            R.id.chipComptant -> SaleType.Comptant
+            R.id.chipAssurance -> {
+                val customer = viewModel.selectedCustomer.value
+                if (customer != null) {
+                    SaleType.Assurance(customer, emptyList())
+                } else {
+                    SaleType.Assurance(null, emptyList())
+                }
+            }
+            R.id.chipCarnet -> {
+                val customer = viewModel.selectedCustomer.value
+                if (customer != null) {
+                    SaleType.Carnet(customer)
+                } else {
+                    SaleType.Carnet(null)
+                }
+            }
+            else -> SaleType.Comptant
+        }
+        viewModel.changeSaleType(newType)
     }
 
     /**

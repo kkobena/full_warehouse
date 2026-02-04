@@ -31,11 +31,11 @@ public class GestionStockDepotImpl implements GestionStockDepotService {
     @Override
     public Page<DepotExtensionSaleDTO> getVenteDepot(
         PaymentStatus paymentStatus,
-        Long depotId,
+        Integer depotId,
         String search,
         LocalDate fromDate,
         LocalDate toDate,
-        Long userId,
+        Integer userId,
         Pageable pageable
     ) {
         return saleDataService.fetchVenteDepot(search, fromDate, toDate, userId, paymentStatus, depotId, pageable);

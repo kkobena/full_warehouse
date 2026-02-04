@@ -77,7 +77,6 @@ const PAYMENT_TOLERANCE_THRESHOLD = 5;
   providers: [MessageService], // Instance locale pour ce composant
 })
 export class SaleCreationComponent implements OnInit {
-  // ✅ AJOUT Phase 2.1: ViewChild pour gestion du focus
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -107,8 +106,6 @@ export class SaleCreationComponent implements OnInit {
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
-  private router = inject(Router);
-  private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
@@ -387,7 +384,6 @@ export class SaleCreationComponent implements OnInit {
 
       // Si pas d'erreur OU l'erreur n'a pas changé → Succès
       if (!currentError || currentError === initialError) {
-        // ✅ MODIFIÉ Phase 2.3: Clear selection et reset focus
         this.resetProductSelection();
 
         // Notifier le container que l'ajout est réussi
@@ -401,7 +397,7 @@ export class SaleCreationComponent implements OnInit {
   }
 
   /**
-   * ✅ AJOUT Phase 2.3: Réinitialiser la sélection produit et focus
+   *
    * Appelée après ajout réussi d'un produit
    */
   private resetProductSelection(): void {
@@ -600,53 +596,6 @@ export class SaleCreationComponent implements OnInit {
     } else {
       this.customers.set([]);
     }
-  }
-
-  onCustomerSelected(customer: ICustomer): void {
-    this.facade.setCustomer(customer);
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
-  }
-
-  onCustomerRemoved(): void {
-    this.facade.removeCustomer();
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
-  }
-
-  onCustomerAdd(): void {
-    // Ouvrir formulaire de création client standard (non assuré)
-    this.openUninsuredCustomerForm();
-  }
-
-  /**
-   * Ouvre le formulaire de création d'un nouveau client standard
-   */
-  private openUninsuredCustomerForm(): void {
-    const modalRef = this.modalService.open(UninsuredCustomerFormComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-
-    modalRef.componentInstance.entity = null;
-    modalRef.componentInstance.title = 'CRÉATION CLIENT STANDARD';
-
-    modalRef.result.then(
-      (customer: ICustomer) => {
-        if (customer && customer.id) {
-          this.facade.setCustomer(customer);
-
-          // Retour du focus sur le champ produit
-          this.focusProductSearch();
-        }
-      },
-      () => {
-        // Modal fermée sans création - pas de problème
-      },
-    );
   }
 
   // ===== Handlers pour SaleActionsComponent =====
@@ -1006,67 +955,6 @@ export class SaleCreationComponent implements OnInit {
     });
   }
 
-  // ===== Getters pour le template =====
-
-  get itemCount(): number {
-    return this.salesLines().length;
-  }
-
-  get canPrint(): boolean {
-    return !!this.facade.currentSale()?.id;
-  }
-
-  // ===== Handler pour le changement de type de vente =====
-
-  onSaleTypeChange(saleType: SaleType): void {
-    const currentSale = this.currentSale();
-    const hasLines = this.salesLines().length > 0;
-
-    // Si le type de vente change et qu'il y a déjà des lignes, demander confirmation
-    if (hasLines && saleType !== this.selectedSaleType()) {
-      this.confirmDialog().onConfirm(
-        () => this.proceedWithSaleTypeChange(saleType, currentSale),
-        'Changement de type de vente',
-        `Voulez-vous vraiment changer le type de vente vers ${saleType}?\n\nAttention: Les données actuelles seront perdues.`,
-      );
-      return;
-    }
-
-    this.proceedWithSaleTypeChange(saleType, currentSale);
-  }
-
-  private proceedWithSaleTypeChange(saleType: SaleType, currentSale: any): void {
-    // Changer le type sélectionné
-    this.selectedSaleType.set(saleType);
-
-    // Annuler la vente actuelle
-    if (currentSale) {
-      this.facade.cancelSale();
-    }
-
-    // Note: La vente sera créée au premier produit ajouté (pas de vente vide)
-    // Créer une nouvelle vente selon le type
-    switch (saleType) {
-      case 'COMPTANT':
-        // Vente créée au premier produit ajouté
-        break;
-
-      case 'ASSURANCE':
-      case 'CARNET':
-        // Ces types seront implémentés en Phase 8
-        this.notificationService.info(`Type de vente: ${saleType}`, 'Fonctionnalité disponible en Phase 8');
-        // Revenir au type COMPTANT
-        this.selectedSaleType.set('COMPTANT');
-        break;
-    }
-  }
-
-  // ===== Gestion de la sidebar =====
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed.update(collapsed => !collapsed);
-  }
-
   // ===== Gestion des ventes en attente =====
 
   openPendingSales(): void {
@@ -1133,8 +1021,7 @@ export class SaleCreationComponent implements OnInit {
     // Charger le nombre de ventes en attente depuis le backend
     // Note: Le service SalesApiService.countPendingSales() sera ajouté en Phase 8
     // Pour l'instant, on initialise à 0 (pas de ventes en attente)
-    this.pendingSalesCount.set(0);
-
+    // this.pendingSalesCount.set(0);
     // Future implementation:
     // this.salesApiService.countPendingSales()
     //   .pipe(takeUntilDestroyed(this.destroyRef))

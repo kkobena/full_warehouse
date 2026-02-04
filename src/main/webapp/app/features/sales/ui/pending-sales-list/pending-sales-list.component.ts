@@ -18,19 +18,20 @@ import { ISales, SaleId } from '../../../../shared/model/sales.model';
 import { IUser } from '../../../../core/user/user.model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
+import { SalesStatut } from '../../../../shared/model';
 
 /**
  * PendingSalesListComponent
- * 
+ *
  * Composant pour afficher et gérer les ventes en attente (préventes)
- * 
+ *
  * Fonctionnalités :
  * - Liste des ventes en attente avec recherche
  * - Filtrage par vendeur et type de vente
  * - Reprise d'une vente (double-clic)
  * - Suppression de vente
  * - Expansion pour voir les détails produits
- * 
+ *
  * @example
  * <app-pending-sales-list
  *   (saleResumed)="onSaleResumed($event)"
@@ -83,19 +84,20 @@ export class PendingSalesListComponent implements OnInit {
     let sales = this.pendingSales();
     const search = this.searchTerm().toLowerCase();
     const sellerId = this.sellerFilter();
-    
+
     if (search) {
-      sales = sales.filter(sale => 
-        sale.numberTransaction?.toLowerCase().includes(search) ||
-        sale.customer?.fullName?.toLowerCase().includes(search) ||
-        sale.seller?.abbrName?.toLowerCase().includes(search)
+      sales = sales.filter(
+        sale =>
+          sale.numberTransaction?.toLowerCase().includes(search) ||
+          sale.customer?.fullName?.toLowerCase().includes(search) ||
+          sale.seller?.abbrName?.toLowerCase().includes(search),
       );
     }
 
     if (sellerId) {
       sales = sales.filter(sale => sale.seller?.id === sellerId);
     }
-    
+
     return sales;
   });
 
@@ -113,8 +115,8 @@ export class PendingSalesListComponent implements OnInit {
     if (currentSeller) {
       this.sellerFilter.set(currentSeller.id);
     }
-    
-    this.facade.loadPendingSales();
+
+    this.facade.loadPendingSales(this.buildParameters());
   }
 
   // ===== Actions =====
@@ -145,15 +147,14 @@ export class PendingSalesListComponent implements OnInit {
 
   onDeleteSale(sale: ISales, event: Event): void {
     event.stopPropagation();
-    
+
     if (!sale.saleId) {
       console.error('Sale has no saleId');
       return;
     }
 
     const confirmDelete = confirm(
-      `Voulez-vous vraiment supprimer la vente ${sale.numberTransaction} ?\n\n` +
-      `Cette action est irréversible.`
+      `Voulez-vous vraiment supprimer la vente ${sale.numberTransaction} ?\n\n` + `Cette action est irréversible.`,
     );
 
     if (!confirmDelete) {
@@ -164,7 +165,7 @@ export class PendingSalesListComponent implements OnInit {
   }
 
   onRefresh(): void {
-    this.facade.loadPendingSales();
+    this.facade.loadPendingSales(this.buildParameters());
   }
 
   onClose(): void {
@@ -201,5 +202,20 @@ export class PendingSalesListComponent implements OnInit {
 
   getRowClass(sale: ISales): string {
     return this.selectedSale()?.id === sale.id ? 'selected-row' : '';
+  }
+
+  private buildParameters(): any {
+    const params: any = { statut: SalesStatut.ACTIVE };
+
+    const sellerId = this.sellerFilter();
+    if (sellerId) {
+      params.sellerId = sellerId;
+    }
+
+    const search = this.searchTerm();
+    if (search) {
+      params.search = search;
+    }
+    return params;
   }
 }

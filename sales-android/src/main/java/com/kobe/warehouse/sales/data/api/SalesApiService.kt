@@ -3,6 +3,7 @@ package com.kobe.warehouse.sales.data.api
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.SaleLine
+import com.kobe.warehouse.sales.data.model.SalesStatut
 import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
 import retrofit2.Response
 import retrofit2.http.*
@@ -16,20 +17,39 @@ import retrofit2.http.*
  */
 interface SalesApiService {
 
-    /**
-     * Get list of ongoing sales (ventes en cours)
-     */
+  /**
+   * get liste des vente simplifiées
+   * A utiliser pour les ventes simplifiées
+   */
     @GET("api/sales/simplified")
-    suspend fun getSales(
+    suspend fun getListVenteSimplifiees(
         @Query("search") search: String? = null
     ): Response<List<Sale>>
 
     /**
-     * Get list of preventes (ventes mises en attente)
+     * Get list of preventes  dont le statut est "PENDING"
+     * A utiliser pour récupérer les ventes en attente (préventes)
      */
     @GET("api/sales/prevente")
     suspend fun getPreventes(
-        @Query("search") search: String? = null
+        @Query("search") search: String? = null,
+        @Query("statut") statut: SalesStatut? = SalesStatut.PENDING,
+        @Query("userId") userId: Int? = null,
+
+    ): Response<List<Sale>>
+
+
+
+  /**
+   * Get list of preventes  dont le statut est "ACTIVE"
+   * A utiliser pour récupérer les ventes en cours
+   */
+  @GET("api/sales/prevente")
+  suspend fun getVenteEncours(
+    @Query("search") search: String? = null,
+    @Query("statut") statut: SalesStatut? = SalesStatut.ACTIVE,
+    @Query("userId") userId: Int? = null,
+
     ): Response<List<Sale>>
 
     /**
@@ -262,5 +282,37 @@ interface SalesApiService {
     suspend fun finalizeVOSale(
         @Body sale: Sale
     ): Response<Sale>
+
+    /**
+     * Activate/Resume a prevente (change status from PENDING to PROCESSING)
+     * Backend endpoint: PUT /api/sales/prevente/activate/{id}/{saleDate}
+     * @param id Sale ID
+     * @param saleDate Sale date (yyyy-MM-dd)
+     */
+    @PUT("api/sales/prevente/activate/{id}/{saleDate}")
+    suspend fun activatePrevente(
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String
+    ): Response<Void>
+
+    /**
+     * Finalize COMPTANT prevente
+     * Backend endpoint: PUT /api/sales/comptant/finalize-prevente
+     * @param sale Sale object (prevente with statut PROCESSING)
+     */
+    @PUT("api/sales/comptant/finalize-prevente")
+    suspend fun finalizeComptantPrevente(
+        @Body sale: Sale
+    ): Response<Void>
+
+    /**
+     * Finalize ASSURANCE/CARNET prevente
+     * Backend endpoint: PUT /api/sales/assurance/finalize-prevente
+     * @param sale Sale object (prevente with statut PROCESSING)
+     */
+    @PUT("api/sales/assurance/finalize-prevente")
+    suspend fun finalizeAssurancePrevente(
+        @Body sale: Sale
+    ): Response<Void>
 }
 

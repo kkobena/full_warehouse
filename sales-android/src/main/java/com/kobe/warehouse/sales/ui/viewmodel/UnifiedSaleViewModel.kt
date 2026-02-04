@@ -17,6 +17,7 @@ import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.data.model.SaleType
+import com.kobe.warehouse.sales.data.model.SalesStatut
 import com.kobe.warehouse.sales.data.model.TiersPayant
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.launch
@@ -81,6 +82,40 @@ class UnifiedSaleViewModel(
 
     private val _isEditMode = MutableLiveData(false)
     val isEditMode: LiveData<Boolean> = _isEditMode
+
+    // ===== Prevente State =====
+    private val _isPrevente = MutableLiveData(false)
+    val isPrevente: LiveData<Boolean> = _isPrevente
+
+    /**
+     * Set prevente mode (for creating new prevente)
+     * When creating a new prevente, sets the sale status to PROCESSING
+     */
+    fun setPreventeMode(isPrevente: Boolean) {
+        _isPrevente.value = isPrevente
+        if (isPrevente) {
+            // Set the sale status to PROCESSING for new prevente
+            val currentSale = _currentSale.value ?: Sale()
+            _currentSale.value = currentSale.copy(statut = SalesStatut.PROCESSING)
+        }
+    }
+
+    /**
+     * Check if a sale is in progress (has items in cart or has been saved to backend)
+     */
+    fun isSaleInProgress(): Boolean {
+        val sale = _currentSale.value ?: return false
+        // Sale is in progress if it has items or has been saved (has an ID)
+        return sale.salesLines.isNotEmpty() || (sale.id != null && sale.id != 0L)
+    }
+
+    /**
+     * Cancel and reset the current sale
+     */
+    fun cancelCurrentSale() {
+        resetCart()
+        _isPrevente.value = false
+    }
 
     // ===== Customer State =====
 
@@ -384,6 +419,9 @@ class UnifiedSaleViewModel(
             return Result.failure(Exception("Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."))
         }
 
+        // Set statut based on prevente mode: PROCESSING for prevente, ACTIVE for normal sale
+        val saleStatut = if (_isPrevente.value == true) SalesStatut.PROCESSING else SalesStatut.ACTIVE
+
         val saleToCreate = currentSale.copy(
             salesLines = mutableListOf(firstLine),
             salesAmount = firstLine.salesAmount,
@@ -394,11 +432,13 @@ class UnifiedSaleViewModel(
             natureVente = saleType.toString(),  // "COMPTANT", "ASSURANCE", or "CARNET"
             tiersPayants = _clientTiersPayants.value?.toMutableList() ?: mutableListOf(),
             type = if (saleType is SaleType.Comptant) "VNO" else "VO",
-            categorie = if (saleType is SaleType.Comptant) "VNO" else "VO"
+            categorie = if (saleType is SaleType.Comptant) "VNO" else "VO",
+            statut = saleStatut
         )
 
         android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.cassierId = ${saleToCreate.cassierId}")
         android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.sellerId = ${saleToCreate.sellerId}")
+        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.statut = ${saleToCreate.statut} (isPrevente=${_isPrevente.value})")
 
         return when (saleType) {
             is SaleType.Comptant -> salesRepository.createComptantSale(saleToCreate)
@@ -522,6 +562,76 @@ class UnifiedSaleViewModel(
         }
     }
 
+    /**
+     * Create a new prevente from current prevente (reset cart, keep as prevente mode)
+     * Only available when editing an existing prevente
+     */
+    fun createNewPrevente() {
+        if (_isPrevente.value != true) {
+            _errorMessage.value = "Cette action n'est disponible que pour les préventes"
+            return
+        }
+
+        // Reset cart and sale but stay in prevente mode
+        resetCart()
+        _isPrevente.value = true
+        _isEditMode.value = false
+    }
+
+    /**
+     * Finalize the prevente
+     * Calls different endpoint based on natureVente (COMPTANT vs ASSURANCE/CARNET)
+     */
+    fun finalizePrevente() {
+        val sale = _currentSale.value
+
+        if (sale == null || sale.salesLines.isEmpty()) {
+            _errorMessage.value = "Le panier est vide"
+            return
+        }
+
+        if (_isPrevente.value != true) {
+            _errorMessage.value = "Cette vente n'est pas une prévente"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            // Update sale statut to PROCESSING before finalizing
+            val saleToFinalize = sale.copy(statut = SalesStatut.PROCESSING)
+
+            val result = when (_currentSaleType.value) {
+                is SaleType.Assurance, is SaleType.Carnet -> {
+                    salesRepository.finalizeAssurancePrevente(saleToFinalize)
+                }
+                else -> {
+                    salesRepository.finalizeComptantPrevente(saleToFinalize)
+                }
+            }
+
+            result.fold(
+                onSuccess = {
+                    _isLoading.value = false
+                    _preventeFinalized.value = true
+                },
+                onFailure = { error ->
+                    _isLoading.value = false
+                    _errorMessage.value = "Erreur de finalisation: ${error.message}"
+                }
+            )
+        }
+    }
+
+    // Event for prevente finalized
+    private val _preventeFinalized = MutableLiveData<Boolean>()
+    val preventeFinalized: LiveData<Boolean> = _preventeFinalized
+
+    fun clearPreventeFinalized() {
+        _preventeFinalized.value = false
+    }
+
     fun loadSale(saleId: Long, saleDate: String) {
         _isEditMode.value = true
         viewModelScope.launch {
@@ -530,9 +640,19 @@ class UnifiedSaleViewModel(
                     _currentSale.value = sale
                     _selectedCustomer.value = sale.customer
 
-                    // Restore sale type based on sale data
-                    // TODO: Backend should provide sale type info
-                    // For now, assume comptant if no specific data
+                    // Detect if it's a prevente (statut PENDING or PROCESSING)
+                    _isPrevente.value = sale.statut == SalesStatut.PENDING || sale.statut == SalesStatut.PROCESSING
+
+                    // Restore sale type based on natureVente
+                    // Note: For Assurance, we pass empty tiersPayants list as the actual data
+                    // is already in the Sale object. This just identifies the sale type for UI purposes.
+                    val saleType = when (sale.natureVente) {
+                        "ASSURANCE" -> SaleType.Assurance(sale.customer, emptyList())
+                        "CARNET" -> SaleType.Carnet(sale.customer)
+                        else -> SaleType.Comptant
+                    }
+                    _currentSaleType.value = saleType
+                    updateCustomerRequired()
                 },
                 onFailure = { error ->
                     _errorMessage.value = "Erreur de chargement: ${error.message}"
@@ -683,7 +803,9 @@ class UnifiedSaleViewModel(
     }
 
     private fun resetCart() {
-        _currentSale.value = Sale()
+        // If in prevente mode, keep status as PROCESSING
+        val statut = if (_isPrevente.value == true) SalesStatut.PROCESSING else SalesStatut.ACTIVE
+        _currentSale.value = Sale(statut = statut)
         _selectedCustomer.value = null
         _clientTiersPayants.value = emptyList()
         _currentSaleType.value = SaleType.Comptant

@@ -45,12 +45,13 @@ class SalesRepository(
     private val gson = Gson()
 
     /**
-     * Get list of ongoing sales (ventes en cours)
+     * get liste des vente simplifiées
+     * A utiliser pour les ventes simplifiées
      */
-    suspend fun getSales(search: String? = null): Result<List<Sale>> {
+    suspend fun getListVenteSimplifiees(search: String? = null): Result<List<Sale>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = salesApiService.getSales(search)
+                val response = salesApiService.getListVenteSimplifiees(search)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
@@ -64,12 +65,12 @@ class SalesRepository(
     }
 
     /**
-     * Get list of preventes (ventes mises en attente / on hold)
+     * Get list of preventes (ventes mises en attente / depuis le menu prevente)
      */
-    suspend fun getPreventes(search: String? = null): Result<List<Sale>> {
+    suspend fun getPreventes(search: String? = null, userId: Int? = null): Result<List<Sale>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = salesApiService.getPreventes(search)
+                val response = salesApiService.getPreventes(search, userId = userId)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
@@ -81,6 +82,25 @@ class SalesRepository(
             }
         }
     }
+
+  /**
+   * Get list  des ventes en cours (menu vente en cours)
+   */
+  suspend fun getVenteEncours(search: String? = null, userId: Int? = null): Result<List<Sale>> {
+    return withContext(Dispatchers.IO) {
+      try {
+        val response = salesApiService.getVenteEncours(search, userId = userId)
+        if (response.isSuccessful && response.body() != null) {
+          Result.success(response.body()!!)
+        } else {
+          val errorMessage = parseErrorResponse(response.errorBody()?.string())
+          Result.failure(Exception(errorMessage))
+        }
+      } catch (e: Exception) {
+        Result.failure(e)
+      }
+    }
+  }
 
     /**
      * Get sale by ID
@@ -112,13 +132,7 @@ class SalesRepository(
     suspend fun createCashSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
-                android.util.Log.d("SalesRepository", "=== CREATE CASH SALE ===")
-                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
-                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
-                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
-                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
-                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
-                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
+
 
                 // Log the full JSON being sent
                 val saleJson = gson.toJson(sale)
@@ -128,7 +142,7 @@ class SalesRepository(
                 android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
 
                 if (response.isSuccessful && response.body() != null) {
-                    android.util.Log.d("SalesRepository", "SUCCESS: Sale created")
+
                     Result.success(response.body()!!)
                 } else {
                     // Parse error body to get meaningful error message
@@ -353,9 +367,6 @@ class SalesRepository(
     ): Result<com.kobe.warehouse.sales.data.model.SaleLine> {
         return withContext(Dispatchers.IO) {
             try {
-                android.util.Log.d("SalesRepository", "=== UPDATE ITEM QUANTITY ===")
-                android.util.Log.d("SalesRepository", "natureVente = $natureVente")
-                android.util.Log.d("SalesRepository", "saleLine = ${gson.toJson(saleLine)}")
 
                 // Use different endpoint based on sale type
                 val response = when (natureVente) {
@@ -363,14 +374,10 @@ class SalesRepository(
                     else -> salesApiService.updateItemQuantityComptant(saleLine)
                 }
 
-                android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
-
                 if (response.isSuccessful && response.body() != null) {
-                    android.util.Log.d("SalesRepository", "SUCCESS: Quantity updated")
                     Result.success(response.body()!!)
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    android.util.Log.e("SalesRepository", "ERROR: $errorBody")
                     val errorMessage = parseErrorResponse(errorBody)
                     Result.failure(Exception(errorMessage))
                 }
@@ -432,15 +439,11 @@ class SalesRepository(
      * @param sale Sale object with salesLines containing first product
      */
     suspend fun createComptantSale(
-        sale: com.kobe.warehouse.sales.data.model.Sale
-    ): Result<com.kobe.warehouse.sales.data.model.Sale> {
+        sale: Sale
+    ): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
-                android.util.Log.d("SalesRepository", "=== CREATE COMPTANT SALE (POST) ===")
-                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
-                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
-                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
-                android.util.Log.d("SalesRepository", "Full Sale JSON: ${gson.toJson(sale)}")
+
 
                 val response = salesApiService.createComptantSale(sale)
                 android.util.Log.d("SalesRepository", "Response code: ${response.code()}")
@@ -488,8 +491,8 @@ class SalesRepository(
      * @param sale Sale object with customer, tiers payants, and first product line
      */
     suspend fun createVOSale(
-        sale: com.kobe.warehouse.sales.data.model.Sale
-    ): Result<com.kobe.warehouse.sales.data.model.Sale> {
+        sale: Sale
+    ): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = salesApiService.createVOSale(sale)
@@ -538,13 +541,7 @@ class SalesRepository(
     suspend fun finalizeComptantSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
-                android.util.Log.d("SalesRepository", "=== FINALIZE COMPTANT SALE ===")
-                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
-                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
-                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
-                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
-                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
-                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
+
 
                 // Log the full JSON being sent
                 val saleJson = gson.toJson(sale)
@@ -586,14 +583,7 @@ class SalesRepository(
     suspend fun finalizeVOSale(sale: Sale): Result<Sale> {
         return withContext(Dispatchers.IO) {
             try {
-                android.util.Log.d("SalesRepository", "=== FINALIZE VO SALE ===")
-                android.util.Log.d("SalesRepository", "Sale.cassierId = ${sale.cassierId}")
-                android.util.Log.d("SalesRepository", "Sale.sellerId = ${sale.sellerId}")
-                android.util.Log.d("SalesRepository", "Sale.customerId = ${sale.customerId}")
-                android.util.Log.d("SalesRepository", "Sale.salesAmount = ${sale.salesAmount}")
-                android.util.Log.d("SalesRepository", "Sale.salesLines.size = ${sale.salesLines.size}")
-                android.util.Log.d("SalesRepository", "Sale.payments.size = ${sale.payments.size}")
-                android.util.Log.d("SalesRepository", "Sale.natureVente = ${sale.natureVente}")
+
 
                 // Log the full JSON being sent
                 val saleJson = gson.toJson(sale)
@@ -613,6 +603,67 @@ class SalesRepository(
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Activate/Resume a prevente (change status from PENDING to PROCESSING)
+     * @param saleId Sale ID
+     * @param saleDate Sale date (yyyy-MM-dd)
+     */
+    suspend fun activatePrevente(saleId: Long, saleDate: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.activatePrevente(saleId, saleDate)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize COMPTANT prevente
+     * @param sale Sale object (prevente with statut PROCESSING)
+     */
+    suspend fun finalizeComptantPrevente(sale: Sale): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeComptantPrevente(sale)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Finalize ASSURANCE/CARNET prevente
+     * @param sale Sale object (prevente with statut PROCESSING)
+     */
+    suspend fun finalizeAssurancePrevente(sale: Sale): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.finalizeAssurancePrevente(sale)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
                 Result.failure(e)
             }
         }

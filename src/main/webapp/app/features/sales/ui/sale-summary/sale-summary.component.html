@@ -12,15 +12,12 @@
       <span class="amount-value">{{ taxAmount() | number }}</span>
     </div>
   }
-
-  <!-- Remise si applicable -->
   @if (hasDiscount()) {
     <div class="amount-row amount-discount">
       <span class="amount-label">Remise</span>
       <span class="amount-value">-{{ discountAmount() | number }}</span>
     </div>
   }
-
   <!-- Part assurance -->
   @if (hasThirdParty()) {
     @if (hasMultipleThirdParties()) {
@@ -33,7 +30,7 @@
     }
     <div class="amount-row">
       <span class="amount-label">Total assurance</span>
-      <span class="amount-value">{{ thirdPartyTotal() | number }}</span>
+      <span class="amount-value">{{ partAssurance() || thirdPartyTotal() | number }}</span>
     </div>
   }
 

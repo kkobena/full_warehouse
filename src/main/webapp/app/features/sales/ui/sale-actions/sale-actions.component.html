@@ -1,7 +1,7 @@
 <div class="sale-actions-container">
   <!-- Version Mobile : Icon-only avec tooltips -->
   @if (isSmallScreen()) {
-    <p-buttonGroup class="action-buttons-mobile">
+    <p-buttonGroup >
       <p-button
         [icon]="getSaveButtonIcon()"
         [severity]="getSaveButtonSeverity()"
@@ -9,32 +9,34 @@
         [loading]="isSaving()"
         [pTooltip]="getSaveButtonLabel()"
         [raised]="true"
+        size="large"
         (onClick)="onSave()"
-        size="small"></p-button>
+       ></p-button>
 
-      @if (showPresaleButton()) {
         <p-button
+          size="large"
           icon="pi pi-pause"
-          severity="info"
+          severity="secondary"
           [disabled]="!canSaveAsPresale() || isSaving()"
           [raised]="true"
           pTooltip="Mettre en attente"
           (onClick)="onSaveAsPresale()"
-          size="small"></p-button>
-      }
+          ></p-button>
+
 
       <p-button
         icon="pi pi-times"
         severity="danger"
         [disabled]="!canCancel() || isSaving()"
         [raised]="true"
+        size="large"
         pTooltip="Annuler"
         (onClick)="onCancel()"
-        size="large"></p-button>
+        ></p-button>
     </p-buttonGroup>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
-    <div class="action-buttons">
+    <div>
       <p-buttonGroup>
         <p-button
           [label]="getSaveButtonLabel()"
@@ -44,9 +46,9 @@
           [loading]="isSaving()"
           [raised]="true"
           (onClick)="onSave()"
-          size="small"></p-button>
+          ></p-button>
 
-        @if (showPresaleButton()) {
+
           <p-button
             label="Mettre en attente"
             icon="pi pi-pause"
@@ -54,8 +56,8 @@
             [disabled]="!canSaveAsPresale() || isSaving()"
             [raised]="true"
             (onClick)="onSaveAsPresale()"
-            size="small"></p-button>
-        }
+            ></p-button>
+
 
         <p-button
           label="Annuler"
@@ -64,7 +66,7 @@
           [disabled]="!canCancel() || isSaving()"
           [raised]="true"
           (onClick)="onCancel()"
-          size="small"></p-button>
+         ></p-button>
       </p-buttonGroup>
 
       @if (showPrintButton() && saleType() === 'COMPTANT') {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, model, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,26 +7,21 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
-import { Button } from 'primeng/button';
-import { Select } from 'primeng/select';
-import { Drawer } from 'primeng/drawer';
+
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   ProductListComponent,
   SaleSummaryComponent,
-  CustomerSelectorComponent,
   SaleActionsComponent,
-  PendingSalesListComponent,
   ProductSearchComponent,
   CustomerSelectionModalComponent,
+  SaleType,
 } from '../../ui';
 import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
-import { SaleTypeSelectorComponent, SaleType } from '../../ui/sale-type-selector/sale-type-selector.component';
-import { CustomerOverlayPanelComponent } from '../../../../entities/sales/customer-overlay-panel/customer-overlay-panel.component';
+
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import { UninsuredCustomerListComponent } from '../../../../entities/sales/uninsured-customer-list/uninsured-customer-list.component';
 import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
@@ -35,10 +30,10 @@ import { CustomerSearchService } from '../../data-access/services/customer-searc
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISalesLine, SalesLine } from '../../../../shared/model/sales-line.model';
-import { ICustomer } from '../../../../shared/model/customer.model';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
-import { ISales } from '../../../../shared/model/sales.model';
+import { ISalesLine } from '../../../../shared/model';
+import { ICustomer } from '../../../../shared/model';
+import { ProduitSearch } from '../../../../shared/model';
+import { ISales } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
@@ -100,9 +95,10 @@ export class SaleCreationComponent implements OnInit {
 
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
+  cashRegisterOpened = output<void>();
 
   // Modal and responsive state
-  readonly isCashRegisterOpen = model(false);
+  readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
 
   // Services
@@ -117,8 +113,7 @@ export class SaleCreationComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
   protected userVendeurService = inject(UserVendeurService);
-  private cashRegisterService = inject(CashRegisterService);
-  private messageService = inject(MessageService); // Instance locale pour le toast du composant
+  private messageService = inject(MessageService);
 
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
@@ -136,7 +131,7 @@ export class SaleCreationComponent implements OnInit {
   selectedLineId = signal<number | null>(null);
   selectedSaleType = signal<SaleType>('COMPTANT');
   isDiffere = signal<boolean>(false); // Signal local pour forcer la détection de changement
-  
+
   // Monnaie calculée en temps réel depuis le composant payment-mode
   currentChange = computed(() => {
     const change = this.paymentMode()?.changeAmount() || 0;
@@ -161,12 +156,12 @@ export class SaleCreationComponent implements OnInit {
       const errorMsg = this.lastError();
       const errorDetails = this.facade.errorDetails();
       const waiting = this.waitingForForceStockSuccess();
-      
+
       // Si on est en train d'attendre le succès du force stock, ne pas réafficher le dialog
       if (waiting) {
         return;
       }
-      
+
       if (errorMsg) {
         // Si erreur de stock ET l'utilisateur peut forcer le stock
         if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
@@ -175,20 +170,20 @@ export class SaleCreationComponent implements OnInit {
           // - isFromTableCellEdit = false → ajout depuis recherche
           const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
           const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
-          
+
           // Stocker le contexte pour l'utiliser après succès
           this.forceStockContext.set(detectedContext);
-          
+
           // Afficher dialog de confirmation pour forcer le stock
           this.confirmDialog().onConfirm(
             () => {
               // L'utilisateur a confirmé, réessayer avec forceStock = true
               if (errorDetails.attemptedLine) {
                 errorDetails.attemptedLine.forceStock = true;
-                
+
                 // Marquer qu'on attend le succès du force stock (AVANT l'appel API)
                 this.waitingForForceStockSuccess.set(true);
-                
+
                 // Appeler la bonne méthode selon le contexte
                 if (detectedContext === 'editCell') {
                   // Modification cellule → SET endpoint
@@ -215,17 +210,17 @@ export class SaleCreationComponent implements OnInit {
             () => {
               // Annulation
               this.facade.clearError();
-              
+
               const context = this.forceStockContext();
               this.forceStockContext.set(null); // Clear le contexte
-              
+
               if (context === 'editCell') {
                 // Contexte: modification cellule → Recharger la vente pour restaurer l'ancienne valeur
                 const currentSale = this.facade.currentSale();
                 if (currentSale?.saleId) {
                   this.facade.loadSaleForEdit(currentSale.saleId);
                 }
-                
+
                 // Remettre le focus sur le champ de recherche
                 setTimeout(() => {
                   this.resetProductSelection();
@@ -234,7 +229,7 @@ export class SaleCreationComponent implements OnInit {
                 // Contexte: ajout produit → Vider le champ de recherche et refocus
                 this.resetProductSelection();
               }
-            }
+            },
           );
         } else {
           // Afficher le message d'erreur normal
@@ -247,14 +242,14 @@ export class SaleCreationComponent implements OnInit {
         }
       }
     });
-    
+
     // Effect pour détecter le succès après force stock
     effect(() => {
       const loading = this.loading();
       const previousLoading = this.previousLoadingState();
       const waiting = this.waitingForForceStockSuccess();
       const errorDetails = this.facade.errorDetails();
-      
+
       // Ne rien faire si on n'attend pas de succès
       if (!waiting) {
         // Mettre à jour l'état précédent seulement si différent pour éviter re-déclenchements
@@ -263,22 +258,22 @@ export class SaleCreationComponent implements OnInit {
         }
         return;
       }
-      
+
       // Mettre à jour l'état précédent
       this.previousLoadingState.set(loading);
-      
+
       // Si on attendait le succès ET loading vient de passer de true à false ET pas d'erreur
       if (previousLoading && !loading && !errorDetails) {
         this.waitingForForceStockSuccess.set(false);
-        
+
         // Clear l'erreur maintenant que c'est réussi
         this.facade.clearError();
-        
+
         // Comportement après succès: TOUJOURS reset complet + focus
         // (Que ce soit ajout produit OU modification cellule)
         const context = this.forceStockContext();
         this.forceStockContext.set(null); // Clear le contexte
-        
+
         setTimeout(() => {
           this.resetProductSelection();
         }, 200);
@@ -296,11 +291,13 @@ export class SaleCreationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Vérifier si une caisse est ouverte pour l'utilisateur connecté
-    this.hasCashRegisterOpen();
-
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
+
+    // S'abonner à l'événement de succès de mise en attente
+    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.resetForNewSale();
+    });
 
     // Charger le nombre de ventes en attente
     this.loadPendingSalesCount();
@@ -318,7 +315,7 @@ export class SaleCreationComponent implements OnInit {
   // ===== Handlers pour ProductSearchComponent =====
 
   /**
-   * ✅ MODIFIÉ Phase 2.2: Gère la sélection manuelle d'un produit depuis l'autocomplete
+   *
    * Focus automatique sur quantité après sélection
    */
   onProductSelected(product: ProduitSearch | null): void {
@@ -327,8 +324,8 @@ export class SaleCreationComponent implements OnInit {
     }
 
     this.facade.setSelectedProduct(product);
-    
-    // ✅ AJOUT: Focus sur quantité après sélection
+
+    //  AJOUT: Focus sur quantité après sélection
     setTimeout(() => {
       this.quantityComponent()?.focusProduitControl();
       this.quantityComponent()?.reset(1);
@@ -410,17 +407,15 @@ export class SaleCreationComponent implements OnInit {
   private resetProductSelection(): void {
     // Réinitialiser le produit sélectionné
     this.facade.setSelectedProduct(null);
-    
+
     // Réinitialiser le composant de recherche
     this.productSearchComponent()?.reset();
-    
+
     // Réinitialiser la quantité
     this.quantityComponent()?.reset(1);
-    
+
     // Focus sur recherche produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   /**
@@ -430,9 +425,9 @@ export class SaleCreationComponent implements OnInit {
    */
   onProductSearchEnter(shouldSave: boolean): void {
     if (!shouldSave) return;
-    
+
     const currentSale = this.currentSale();
-    
+
     // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
       // Le composant payment est INLINE (pas de modal), juste focus dessus
@@ -450,18 +445,16 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   onLineQuantityRequestedChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
-    
-    // NOTE: Le focus sera géré après succès ou dans le dialog de force stock
-    // Ne pas ramener le focus ici pour permettre au dialog de gérer correctement le contexte
+
+    // Retour du focus sur le champ produit (conforme ancien système)
+    this.focusProductSearch();
   }
 
   onLineRemoved(line: ISalesLine): void {
@@ -470,9 +463,7 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
@@ -511,9 +502,7 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
@@ -617,18 +606,14 @@ export class SaleCreationComponent implements OnInit {
     this.facade.setCustomer(customer);
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   onCustomerRemoved(): void {
     this.facade.removeCustomer();
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   onCustomerAdd(): void {
@@ -655,9 +640,7 @@ export class SaleCreationComponent implements OnInit {
           this.facade.setCustomer(customer);
 
           // Retour du focus sur le champ produit
-          setTimeout(() => {
-            this.productSearchComponent()?.getFocus();
-          }, 100);
+          this.focusProductSearch();
         }
       },
       () => {
@@ -687,7 +670,7 @@ export class SaleCreationComponent implements OnInit {
       payments: paymentModeComp.selectedModes().map(entry => ({
         mode: entry.mode,
         amount: entry.amount || 0,
-        amountEntered: entry.amountEntered
+        amountEntered: entry.amountEntered,
       })),
       totalPaid: paymentModeComp.totalPaid(),
       change: paymentModeComp.changeAmount(),
@@ -700,8 +683,6 @@ export class SaleCreationComponent implements OnInit {
     // Utiliser la méthode commune de validation paiement
     this.processPaymentValidation(paymentEvent);
   }
-
-
 
   finalizeSale(): void {
     const sale = this.facade.currentSale();
@@ -718,22 +699,26 @@ export class SaleCreationComponent implements OnInit {
     const hasCustomer = this.facade.hasCustomer();
 
     if (isAvoir && !hasCustomer) {
-      this.notificationService.warning('Client requis', 'Un client est obligatoire pour un avoir');
+      // Ouvrir le modal de sélection client pour l'avoir
+      // Si c'est aussi un différé, c'est déjà marqué dans currentSale.differe
+      this.openCustomerModal(false); // false = pour avoir (pas initialement différé)
       return;
     }
 
     // Sauvegarder la vente (utiliser saveSale, pas createComptantSale)
-    this.facade.saveSale();
-
-    // Clear customer display after sale
-    this.customerDisplay.clear();
-
-    // Réinitialiser pour nouvelle vente après sauvegarde
-    setTimeout(() => {
-      if (!this.facade.isSaving() && !this.facade.lastError()) {
-        this.resetForNewSale();
-      }
-    }, 500);
+    this.facade.saveSale().subscribe({
+      next: result => {
+        if (result) {
+          // Clear customer display after sale
+          this.customerDisplay.clear();
+          // Réinitialiser pour nouvelle vente après sauvegarde
+          this.resetForNewSale();
+        }
+      },
+      error: () => {
+        // L'erreur est déjà gérée par le facade
+      },
+    });
   }
 
   /**
@@ -756,14 +741,10 @@ export class SaleCreationComponent implements OnInit {
       return;
     }
 
-    console.log('🔍 processPaymentValidation - currentSale.differe:', currentSale.differe);
-    console.log('🔍 processPaymentValidation - currentSale.customerId:', currentSale.customerId);
-    console.log('🔍 processPaymentValidation - isDiffere():', this.isDiffere());
-
     // Appliquer les paiements et montants de l'événement à la vente
     currentSale.montantVerse = event.totalPaid || 0;
     currentSale.payments = this.convertPayments(event.payments);
-    
+
     // Stocker les deux montants de monnaie (exact pour comptabilité, arrondi pour affichage)
     currentSale.montantRendu = event.changeExact || 0; // Montant exact
     currentSale.montantRenduArrondi = event.change || 0; // Montant arrondi
@@ -773,9 +754,8 @@ export class SaleCreationComponent implements OnInit {
     const restToPay = amountToBePaid - currentSale.montantVerse;
 
     // Seuil de tolérance: on considère qu'il y a un reste seulement si > 5 FCFA
-    console.log('🔍 Vérification vente différée - restToPay:', restToPay, 'differe:', currentSale.differe);
+
     if (restToPay > PAYMENT_TOLERANCE_THRESHOLD && !currentSale.differe) {
-      console.log('✅ Entre dans le dialog de vente différée');
       // Montant insuffisant → Proposer vente différée
       const message = `
         <div>Le montant versé est inférieur au montant dû.</div><br>
@@ -790,23 +770,19 @@ export class SaleCreationComponent implements OnInit {
         </div><br>
         <div>Voulez-vous régler le reste en différé ?</div>
       `;
-      
+
       this.confirmDialog().onConfirm(
         () => {
-          console.log('✅ User clique OUI sur dialog différé');
           // OUI → Finaliser en différé avec sélection client
           // Vérifier si un client est déjà associé
           if (!currentSale.customerId) {
-            console.log('🔍 Pas de client, ouverture modal');
             // Pas de client → Ouvrir modal sélection client
-            // On ne fait RIEN après la sélection, on laisse l'utilisateur saisir le commentaire et valider
-            this.openCustomerModalForDiffere();
+            this.openCustomerModal(true); // true = pour différé
           } else {
-            console.log('✅ Client déjà présent:', currentSale.customerId);
-            // Client déjà présent, marquer directement en différé et finaliser
+            // Client déjà présent, marquer directement en différé
             currentSale.differe = true;
             this.isDiffere.set(true); // Mettre à jour le signal pour afficher le champ commentaire
-            console.log('✅ Marqué comme différé - isDiffere():', this.isDiffere());
+
             // On ne finalise PAS automatiquement, on laisse l'utilisateur saisir le commentaire et valider
           }
         },
@@ -818,10 +794,9 @@ export class SaleCreationComponent implements OnInit {
           setTimeout(() => {
             this.paymentMode()?.focusFirstMode();
           }, 100);
-        }
+        },
       );
     } else {
-      console.log('✅ Passe directement à finalizeSale (montant OK ou déjà différé)');
       // Montant suffisant (ou différence <= 5 FCFA) ou déjà différé → Finaliser
       this.finalizeSale();
     }
@@ -850,14 +825,17 @@ export class SaleCreationComponent implements OnInit {
     this.facade.setPrintReceipt(true);
 
     // Sauvegarder (l'impression sera déclenchée après succès)
-    this.facade.saveSale();
-
-    setTimeout(() => {
-      if (!this.facade.isSaving() && !this.facade.lastError() && sale.saleId) {
-        this.facade.printReceipt(sale.saleId);
-        this.resetForNewSale();
-      }
-    }, 500);
+    this.facade.saveSale().subscribe({
+      next: result => {
+        if (result?.saleId) {
+          this.facade.printReceipt(result.saleId);
+          this.resetForNewSale();
+        }
+      },
+      error: () => {
+        // L'erreur est déjà gérée par le facade
+      },
+    });
   }
 
   onPrint(): void {
@@ -906,56 +884,73 @@ export class SaleCreationComponent implements OnInit {
   }
 
   /**
-   * Ouvre le modal de sélection client pour les ventes différées
+   * Méthode unifiée pour les avoirs ET les ventes différées
+   * @param isForDiffere - true si c'est pour une vente différée, false si c'est pour un avoir
    */
-  private openCustomerModalForDiffere(): void {
+  private openCustomerModal(isForDiffere: boolean): void {
+    const currentSale = this.facade.currentSale();
+    const isAvoir = this.facade.isAvoir();
+
+    // Déterminer le titre du modal selon le contexte
+    let modalTitle = 'SÉLECTION CLIENT';
+    if (isAvoir && currentSale?.differe) {
+      modalTitle += ' - Avoir avec règlement différé';
+    } else if (isAvoir) {
+      modalTitle += ' - Avoir (livraison partielle)';
+    } else if (isForDiffere) {
+      modalTitle += ' - Vente différée';
+    }
+
     const modalRef = this.modalService.open(CustomerSelectionModalComponent, {
       size: 'lg',
       backdrop: 'static',
       centered: true,
     });
-    modalRef.componentInstance.modalTitle = 'SÉLECTION CLIENT - Vente différée';
+    modalRef.componentInstance.modalTitle = modalTitle;
 
     modalRef.result.then(
       (customer: ICustomer) => {
-        console.log('🔍 Modal fermé - customer reçu du modal:', customer?.id);
-        
         if (customer && customer.id) {
-          console.log('✅ Client sélectionné depuis modal:', customer.id);
-          
           // Synchroniser avec la facade
           this.facade.setCustomer(customer);
-          
+
           // Assigner le customerId à la vente
-          const currentSale = this.facade.currentSale();
           if (currentSale) {
             currentSale.customerId = customer.id;
-            currentSale.differe = true; // S'assurer que differe est bien à true
-            this.isDiffere.set(true); // Mettre à jour le signal pour forcer la détection de changement
-            console.log('✅ Mise à jour: customerId =', currentSale.customerId, 'differe =', currentSale.differe, 'isDiffere() =', this.isDiffere());
-            
-            // Mettre focus sur le champ commentaire après sélection client
+
+            // Si c'est pour un différé, marquer comme différé
+            if (isForDiffere) {
+              currentSale.differe = true;
+              this.isDiffere.set(true);
+            }
+          }
+
+          // Comportement après sélection client:
+          // - Si AVOIR sans différé → Finaliser immédiatement
+          // - Si DIFFERE (avec ou sans avoir) → Laisser l'utilisateur saisir le commentaire
+          if (isAvoir && !currentSale?.differe) {
+            // Avoir pur sans différé → Finaliser directement
+            this.finalizeSale();
+          } else if (currentSale?.differe) {
+            // Différé (avec ou sans avoir) → Focus sur commentaire
             setTimeout(() => {
-              console.log('✅ Appel focusCommentInput()');
               this.paymentMode()?.focusCommentInput();
             }, 100);
           }
-          
-          // Ne PAS appeler finalizeSale() ici, laisser l'utilisateur saisir le commentaire et valider
         } else {
-          this.notificationService.warning(
-            'Client requis',
-            'Un client est obligatoire pour une vente différée'
-          );
+          const message = isAvoir
+            ? 'Un client est obligatoire pour un avoir (livraison partielle)'
+            : 'Un client est obligatoire pour une vente différée';
+          this.notificationService.warning('Client requis', message);
         }
       },
       () => {
         // Modal fermé sans sélection
-        this.notificationService.warning(
-          'Vente annulée',
-          'Un client est obligatoire pour une vente différée'
-        );
-      }
+        const message = isAvoir
+          ? 'Un client est obligatoire pour un avoir (livraison partielle)'
+          : 'Un client est obligatoire pour une vente différée';
+        this.notificationService.warning('Vente annulée', message);
+      },
     );
   }
 
@@ -971,17 +966,8 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Mettre la vente en attente via le facade
+    // Le composant s'abonne déjà à standbySuccess$ dans ngOnInit
     this.facade.putOnStandby();
-  }
-
-  // ===== Navigation et utilitaires =====
-
-  /**
-   * Retour à l'écran précédent (quitter le point de vente)
-   * Utilisé uniquement par le bouton Retour dans le header
-   */
-  onNavigateBack(): void {
-    this.router.navigate(['/']);
   }
 
   /**
@@ -1006,32 +992,16 @@ export class SaleCreationComponent implements OnInit {
   }
 
   /**
-   * Vérifie si l'utilisateur a une caisse ouverte
-   */
-  private hasCashRegisterOpen(): void {
-    this.cashRegisterService
-      .getConnectedUserHasOpenCashRegister()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: res => {
-          this.isCashRegisterOpen.set(res.body ?? false);
-        },
-        error: () => {
-          this.isCashRegisterOpen.set(false);
-        },
-      });
-  }
-
-  /**
    * Ouvre le modal de formulaire de caisse
    * Utilisé pour enregistrer le montant en caisse avant de finaliser la vente
    */
   private openCashRegister(): void {
     showCommonModal(this.modalService, CashRegisterFormComponent, {}, (resp: boolean) => {
       if (resp) {
-        this.isCashRegisterOpen.set(resp);
+        // Notifier le parent que la caisse est maintenant ouverte
+        this.cashRegisterOpened.emit();
         // Réessayer la finalisation après ouverture de la caisse
-        this.finalizeSale();
+        setTimeout(() => this.finalizeSale(), 100);
       }
     });
   }
@@ -1115,9 +1085,7 @@ export class SaleCreationComponent implements OnInit {
     this.onLoadPrevente(sale);
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   /**
@@ -1158,9 +1126,7 @@ export class SaleCreationComponent implements OnInit {
     // Le vendeur sera associé à la vente lors de la sauvegarde
 
     // Retour du focus sur le champ produit
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
+    this.focusProductSearch();
   }
 
   loadPendingSalesCount(): void {

@@ -1,5 +1,6 @@
-import { Component, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { IRemise } from '../../../../shared/model';
 
 export interface ThirdPartyAmount {
   id?: number;
@@ -9,16 +10,18 @@ export interface ThirdPartyAmount {
 
 /**
  * Composant de présentation : Résumé des montants de la vente
- * 
+ *
  * Responsabilités :
  * - Afficher le total
- * - Afficher les remises
+ * - Afficher les remises (avec boutons ajout/suppression)
  * - Afficher la TVA
  * - Afficher le net à payer
  * - Afficher la monnaie
+ * - Afficher le nombre d'articles
  * - Afficher la part assurance/tiers payants (ASSURANCE/CARNET)
  * - Afficher la dernière monnaie donnée
- * 
+ * - Indicateur si vente est un avoir
+ *
  * Composant pur - Affichage uniquement (OnPush)
  */
 @Component({
@@ -29,24 +32,37 @@ export interface ThirdPartyAmount {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SaleSummaryComponent {
-  // Inputs
+  // Inputs - Montants
   totalAmount = input(0);
   discountAmount = input(0);
   taxAmount = input(0);
   netAmount = input(0);
   changeAmount = input<number | null>(null);
-  
+  amountToBePaid = input<number>(0);
+
+  // Inputs - Info vente
+  itemCount = input<number>(0);
+  currentRemise = input<IRemise | null>(null);
+  isAvoir = input<boolean>(false);
+
   // Assurance/Carnet
   saleType = input<string>('COMPTANT');
   thirdPartyTotal = input<number>(0);
   thirdPartyDetails = input<ThirdPartyAmount[]>([]);
-  
+  partAssurance = input<number>(0);
+  partClient = input<number>(0);
+  showAvoirBadge = input<boolean>(false);
+
   // Dernière monnaie
   lastChangeGiven = input<number>(0);
 
+  // Outputs - Actions remise
+  addRemise = output<void>();
+  removeRemise = output<void>();
+
   // Computed values
   getNetToPay(): number {
-    return this.totalAmount() - this.discountAmount();
+    return this.amountToBePaid();
   }
 
   hasDiscount(): boolean {
@@ -62,7 +78,7 @@ export class SaleSummaryComponent {
   }
 
   hasThirdParty(): boolean {
-    return this.saleType() !== 'COMPTANT' && this.thirdPartyTotal() > 0;
+    return this.saleType() !== 'COMPTANT' && (this.partAssurance() > 0 || this.thirdPartyTotal() > 0);
   }
 
   hasMultipleThirdParties(): boolean {

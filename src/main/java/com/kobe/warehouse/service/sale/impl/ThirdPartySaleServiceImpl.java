@@ -283,6 +283,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
+                if (sales.isCanceled()){
+                    throw new GenericError("La vente est déjà annulée");
+                }
                 ThirdPartySales copy = (ThirdPartySales) sales.clone();
                 copySale(sales, copy);
                 copy.setSaleDate(LocalDate.now());

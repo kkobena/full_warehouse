@@ -673,6 +673,15 @@ class UnifiedSaleViewModel(
         }
     }
 
+    /**
+     * Reset after sale completion (after printing receipt or user declines)
+     * Clears finalized sale, cart, customer, and resets to default state
+     */
+    fun resetAfterSale() {
+        _saleFinalized.value = null
+        resetCart()
+    }
+
     private fun resetCart() {
         _currentSale.value = Sale()
         _selectedCustomer.value = null

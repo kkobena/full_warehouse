@@ -413,3 +413,118 @@ $border-radius-sm: 6px;
     transform: translateY(0);
   }
 }
+
+// ============================================
+// NOUVEAUX ÉLÉMENTS - REMISE & ITEM COUNT
+// ============================================
+
+// Badge Avoir
+.avoir-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: $pharma-danger-light;
+  border: 2px solid $pharma-danger;
+  border-radius: $border-radius;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: $pharma-danger;
+  font-size: 0.875rem;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// Ligne nombre d'articles
+.item-count {
+  background: $pharma-info-light;
+  border-color: $pharma-info;
+
+  .amount-label {
+    color: $pharma-info;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .amount-value {
+    color: $pharma-info;
+    font-weight: 600;
+  }
+}
+
+// Ligne remise avec bouton suppression
+.amount-discount {
+  position: relative;
+  padding-right: 2.5rem;
+
+  .btn-remove-remise {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: $pharma-danger;
+    color: $white;
+    border: none;
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: darken($pharma-danger, 10%);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    i {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// Ligne ajout remise
+.add-remise-row {
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px dashed $pharma-primary;
+
+  &:hover {
+    background: $pharma-primary-light;
+    border-color: $pharma-primary-dark;
+  }
+
+  .btn-add-remise {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: $pharma-primary;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $pharma-primary-dark;
+      transform: scale(1.05);
+    }
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+}

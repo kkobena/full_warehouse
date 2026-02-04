@@ -1,24 +1,22 @@
 <!-- Modern Assurance Data Component -->
 <div class="assurance-data-wrapper">
-  <!-- Search Section -->
-  @if (!customer()) {
-    <div class="search-section">
-      <p-iconfield class="search-input-wrapper">
-        <p-inputicon class="pi pi-search" />
-        <input
-          #searchInput
-          (keydown.enter)="load()"
-          [(ngModel)]="search"
-          autocomplete="off"
-          class="search-input"
-          pInputText
-          [fluid]="true"
-          placeholder="Rechercher un client assuré..."
-          type="text"
-        />
-      </p-iconfield>
-    </div>
-  }
+  <!-- Search Section - Toujours visible pour permettre changement de client -->
+  <div class="search-section">
+    <p-iconfield class="search-input-wrapper">
+      <p-inputicon class="pi pi-search" />
+      <input
+        #searchInput
+        (keydown.enter)="load()"
+        [(ngModel)]="search"
+        autocomplete="off"
+        class="search-input"
+        pInputText
+        [fluid]="true"
+        placeholder="Rechercher un client assuré..."
+        type="text"
+      />
+    </p-iconfield>
+  </div>
 
   <!-- Customer Information Cards -->
   @if (customer()) {

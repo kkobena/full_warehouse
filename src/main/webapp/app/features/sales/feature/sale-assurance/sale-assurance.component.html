@@ -19,7 +19,8 @@
     (loadAyantDroits)="onLoadAyantDroits()"
     (addComplementaire)="onAddComplementaire()"
     (removeTiersPayant)="onRemoveTiersPayant($event)"
-    (tiersPayantsChanged)="onTiersPayantsChanged($event)">
+    (tiersPayantsChanged)="onTiersPayantsChanged($event)"
+    (focusProductSearch)="focusProductSearch()">
   </app-insurance-data-bar>
 </div>
 
@@ -35,7 +36,7 @@
       <div class="product-search-input">
         <app-product-search
           #produitbox
-          [autofocus]="hasCustomer()"
+          [autofocus]="false"
           (productSelected)="onProductSelected($event)"
           (productScanned)="onProductScanned($event)"
           (onKeyEnter)="onProductSearchEnter($event)">
@@ -118,13 +119,15 @@
     </div>
   </div>
 
-  <!-- 4ème ligne: Mode règlement (ligne entière) -->
-  @if (showPaymentModal()) {
+  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0 -->
+  @if ((currentSale()?.amountToBePaid || 0) > 0) {
     <app-payment-mode
-      [amountToBePaid]="amountToBePaid() || 0"
-      [saleType]="'ASSURANCE'"
+      #paymentMode
+      [amountToBePaid]="currentSale()!.amountToBePaid || 0"
+      [maxPaymentModes]="2"
+      [isDiffere]="isDiffere()"
       (paymentComplete)="onPaymentComplete($event)"
-      (cancel)="showPaymentModal.set(false)" />
+    />
   }
 } @else {
   <div class="empty-cart-state">
@@ -134,22 +137,6 @@
     <h3>Panier vide</h3>
     <p>Sélectionnez un client assuré et ajoutez des produits</p>
   </div>
-}
-
-<!-- Modal Paiement -->
-@if (showPaymentModal()) {
-  <p-dialog 
-    [(visible)]="showPaymentModal" 
-    [modal]="true" 
-    [closable]="true"
-    [style]="{ width: '50vw' }"
-    header="Paiement">
-    <app-payment-mode
-      [amountToBePaid]="amountToBePaid() || 0"
-      [saleType]="'ASSURANCE'"
-      (paymentComplete)="onPaymentComplete($event)"
-      (cancel)="showPaymentModal.set(false)" />
-  </p-dialog>
 }
 
 <!-- Drawer Ventes en attente -->

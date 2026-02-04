@@ -229,6 +229,9 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
             .getSalesLines()
             .stream()
             .map(sl -> {
+                System.err.println("quantity requested: " + sl.getQuantityRequested());
+                System.err.println("quantity sold: " + sl.getQuantitySold());
+
                 SaleItemInput si = new SaleItemInput();
                 Produit produit = sl.getProduit();
                 si.setSalesLineId(sl.getId().getId());

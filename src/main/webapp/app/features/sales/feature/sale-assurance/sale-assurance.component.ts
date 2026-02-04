@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, model } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, model } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -81,8 +81,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
   ],
   providers: [MessageService, ConfirmationService], // Instance locale pour ce composant
 })
-export class SaleAssuranceComponent implements OnInit {
-  // ✅ AJOUT Phase 2.1: ViewChild pour gestion du focus
+export class SaleAssuranceComponent implements OnInit, AfterViewInit {
+
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
@@ -91,13 +91,16 @@ export class SaleAssuranceComponent implements OnInit {
   // Service de confirmation
   private confirmationService = inject(ConfirmationService);
 
-  // Output pour notifier le container du succès
+  // Inputs
+  readonly isSmallScreen = input(false);
+  readonly isCashRegisterOpen = input(false);
+
+  // Outputs
   productAddedSuccess = output<void>();
+  switchToComptant = output<void>();
 
   // Modal and responsive state
-  readonly isCashRegisterOpen = model(false);
-  readonly isSmallScreen = input(false);
-
+  
   // Services
   private facade = inject(SalesFacade);
   private customerSearchService = inject(CustomerSearchService);
@@ -131,10 +134,10 @@ export class SaleAssuranceComponent implements OnInit {
   seller = this.facade.seller;
 
   // Local state signals
+  private focusInitialized = false;
   selectedLineId = signal<number | null>(null);
   customers = signal<ICustomer[]>([]);
   showPendingSales = signal(false);
-  showPaymentModal = signal(false);
 
   // Keyboard shortcuts state
   private readonly keyboardShortcuts = [
@@ -178,9 +181,19 @@ export class SaleAssuranceComponent implements OnInit {
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
     this.facade.initializeAssuranceSale();
+    
+    // Initialize typePrescription with default value
+    this.facade.setTypePrescription('PRESCRIPTION');
 
     // Charger les ventes en attente
     this.facade.loadPendingSales();
+  }
+
+  ngAfterViewInit(): void {
+    // Force le focus sur la recherche client au chargement initial
+    setTimeout(() => {
+      this.insuranceDataBar()?.searchInput()?.nativeElement.focus();
+    }, 200);
   }
 
 
@@ -237,22 +250,26 @@ export class SaleAssuranceComponent implements OnInit {
     this.resetProductSelection();
   }
   /**
-   * ✅ AJOUT Phase 4: Enter dans champ produit vide → paiement
+   * Enter dans champ produit vide → validation si amountToBePaid <= 0
    */
   onProductSearchEnter(shouldSave: boolean): void {
     if (!shouldSave) return;
     
     const currentSale = this.currentSale();
     
-    // ✅ Si vente en cours avec des lignes
+    // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
-      // ✅ Afficher modal paiement (pas sauvegarder)
-      this.showPaymentModal.set(true);
+      const amountToBePaid = currentSale.amountToBePaid || 0;
       
-      // ✅ Focus sur premier mode règlement
-      setTimeout(() => {
-        this.paymentModeComponent()?.focusFirstMode();
-      }, 300);
+      // Si montant à payer <= 0, finaliser directement sans paiement
+      if (amountToBePaid <= 0) {
+        this.finalizeSaleWithoutPayment();
+      } else {
+        // Focus sur le champ cash du payment-mode déjà affiché
+        setTimeout(() => {
+          this.paymentModeComponent()?.focusFirstMode();
+        }, 100);
+      }
     }
   }
   onAddQuantity(quantity: number): void {
@@ -310,6 +327,9 @@ export class SaleAssuranceComponent implements OnInit {
     if (line && line.id) {
       this.facade.updateLineQuantityRequested(line.id, event.quantityRequested);
     }
+
+    // Retour du focus sur le champ produit (conforme ancien système)
+    this.focusProductSearch();
   }
 
   onLineRemoved(lineId: number): void {
@@ -427,6 +447,9 @@ export class SaleAssuranceComponent implements OnInit {
     if (newCustomer.tiersPayants) {
       this.facade.updateSaleTiersPayants(newCustomer.tiersPayants);
     }
+    
+    // Focus sur le premier champ de numéro de bon
+    setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
   }
 
   onOpenCustomerList(): void {
@@ -658,32 +681,71 @@ export class SaleAssuranceComponent implements OnInit {
   }
 
   private proceedWithSave(): void {
-    // Afficher modal de paiement
-    this.showPaymentModal.set(true);
+    // La validation est déclenchée, le payment-mode est déjà affiché
+    // Pas besoin de modal, l'utilisateur finalise via le payment-mode en bas de l'écran
+  }
+
+  /**
+   * Finalise la vente sans paiement (amountToBePaid <= 0)
+   */
+  private finalizeSaleWithoutPayment(): void {
+    const currentSale = this.currentSale();
+    if (!currentSale) return;
+
+    // Valider toutes les contraintes avant finalisation
+    if (!this.hasCustomer()) {
+      this.notificationService.warning('Client requis', 'Un client assuré est obligatoire');
+      return;
+    }
+
+    if (!currentSale.tiersPayants || currentSale.tiersPayants.length === 0) {
+      this.notificationService.warning('Tiers payants requis', 'Ajoutez au moins un tiers payant');
+      return;
+    }
+
+    const missingBonNumbers = currentSale.tiersPayants.filter(tp => !tp.numBon);
+    if (missingBonNumbers.length > 0) {
+      this.notificationService.warning('Numéros de bon requis', 'Veuillez renseigner tous les numéros de bon');
+      return;
+    }
+
+    // Montant entièrement couvert par assurance
+    const emptyPaymentEvent: PaymentCompleteEvent = {
+      totalPaid: 0,
+      payments: [],
+      change: 0,
+      changeExact: 0,
+      printReceipt: false,
+      printInvoice: false
+    };
+
+    this.onPaymentComplete(emptyPaymentEvent);
   }
 
   onPaymentComplete(event: PaymentCompleteEvent): void {
-    this.showPaymentModal.set(false);
-
     // Enregistrer la vente via la facade
-    this.facade.saveAssuranceSale(event.payments);
-
-    // Attendre la fin de la sauvegarde
-    setTimeout(() => {
-      if (!this.isSaving() && !this.lastError()) {
-
-
-        // Si impression demandée
-        if (event.printReceipt) {
-          const sale = this.currentSale();
-          if (sale?.saleId) {
-            this.facade.printReceipt(sale.saleId);
+    this.facade.saveAssuranceSale(event.payments).subscribe({
+      next: (result) => {
+        if (result) {
+          // Succès : impression si demandée
+          if (event.printReceipt && result.saleId) {
+            this.facade.printReceipt(result.saleId);
           }
-        }
 
-        this.resetForNewSale();
+          this.resetForNewSale();
+          
+          // Basculer vers COMPTANT après finalisation
+          this.switchToComptant.emit();
+        } else {
+          // Échec : afficher l'erreur et garder la vente
+          this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
+        }
+      },
+      error: () => {
+        // Échec : afficher l'erreur et garder la vente
+        this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
       }
-    }, 500);
+    });
   }
 
   onSaveAndPrint(): void {
@@ -772,14 +834,17 @@ export class SaleAssuranceComponent implements OnInit {
    * Appelée par le composant parent lors du changement de tab
    */
   public focusProductSearch(): void {
-    // TODO: Implémenter le focus sur la recherche produit une fois le composant créé
+    // Appeler la méthode getFocus() du ProductSearchComponent enfant
     setTimeout(() => {
-      // Le focus sera géré par le ProductSearchComponent enfant
+      this.productSearchComponent()?.getFocus();
     }, 100);
   }
 
   private focusCustomerSearch(): void {
-    // TODO: Implémenter le focus sur la barre assurance
+    // Focus sur le champ de recherche client dans la barre assurance
+    setTimeout(() => {
+      this.insuranceDataBar()?.searchInput()?.nativeElement.focus();
+    }, 100);
   }
 
   private resetForNewSale(): void {

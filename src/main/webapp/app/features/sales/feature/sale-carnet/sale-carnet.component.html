@@ -14,11 +14,8 @@
     (openCustomerList)="onOpenCustomerList()"
     (editCustomer)="onEditCustomer()"
     (addCustomer)="onAddCustomer()"
-    (editAyantDroit)="onEditAyantDroit()"
-    (loadAyantDroits)="onLoadAyantDroits()"
-    (addComplementaire)="onAddComplementaire()"
-    (removeTiersPayant)="onRemoveTiersPayant($event)"
-    (tiersPayantsChanged)="onTiersPayantsChanged($event)">
+    (tiersPayantsChanged)="onTiersPayantsChanged($event)"
+    (focusProductSearch)="focusProductSearch()">
   </app-insurance-data-bar>
 </div>
 
@@ -34,9 +31,10 @@
       <div class="product-search-input">
         <app-product-search
           #produitbox
-          [autofocus]="hasCustomer()"
+          [autofocus]="false"
           (productSelected)="onProductSelected($event)"
-          (productScanned)="onProductScanned($event)">
+          (productScanned)="onProductScanned($event)"
+          (onKeyEnter)="onProductSearchEnter($event)">
         </app-product-search>
       </div>
 
@@ -94,31 +92,42 @@
             [discountAmount]="currentSale()?.discountAmount || 0"
             [taxAmount]="currentSale()?.taxAmount || 0"
             [netAmount]="currentSale()?.netAmount || 0"
+            [amountToBePaid]="currentSale()?.amountToBePaid || 0"
+            [partAssurance]="currentSale()?.partTiersPayant || 0"
             [itemCount]="salesLines().length"
-            [showCreditDetails]="true"
             [currentRemise]="currentSale()?.remise"
+            [saleType]="'CARNET'"
             (addRemise)="onAddRemise()"
             (removeRemise)="onRemoveRemise()" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
             [saleType]="'CARNET'"
-            (validate)="onValidate()"
-            (putOnHold)="onPutOnHold()"
+            [canSave]="canSave()"
+            [canSaveAsPresale]="canSave()"
+            [canCancel]="true"
+            [isSaving]="isSaving()"
+            [showPresaleButton]="true"
+            (save)="onSave()"
+            [isSmallScreen]="isSmallScreen()"
+            (saveAsPresale)="onPutOnHold()"
             (cancel)="onCancel()" />
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4ème ligne: Mode règlement (ligne entière) -->
-  <app-payment-mode
-    [amountToBePaid]="currentSale()!.salesAmount || 0"
-    [maxPaymentModes]="2"
-    [isDiffere]="currentSale()!.differe || false"
-    (paymentComplete)="onPaymentComplete($event)"
-    (validationError)="onPaymentError($event)"
-  />
+  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0 -->
+  @if ((currentSale()?.amountToBePaid || 0) > 0) {
+    <app-payment-mode
+      #paymentMode
+      [amountToBePaid]="currentSale()!.amountToBePaid || 0"
+      [maxPaymentModes]="2"
+      [isDiffere]="currentSale()!.differe || false"
+      (paymentComplete)="onPaymentComplete($event)"
+      (validationError)="onPaymentError($event)"
+    />
+  }
 } @else {
   <div class="empty-cart-state">
     <div class="empty-cart-icon">

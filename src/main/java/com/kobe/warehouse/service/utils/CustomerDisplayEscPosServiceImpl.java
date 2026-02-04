@@ -363,7 +363,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      */
     private void sendToSerialPort(byte[] data) throws IOException {
         if (!ensurePortOpen()) {
-            throw new IOException("Serial port not available");
+            return;
         }
 
         outputStream.write(data);

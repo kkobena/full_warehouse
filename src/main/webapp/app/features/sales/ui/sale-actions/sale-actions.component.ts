@@ -2,22 +2,23 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 /**
  * Composant de présentation : Boutons d'action vente
- * 
+ *
  * Responsabilités :
  * - Afficher boutons d'action (Sauver, Imprimer, Annuler, etc.)
  * - Gérer états désactivés selon contexte
  * - Afficher indicateur de sauvegarde en cours
- * 
+ *
  * Composant pur - Pas de logique métier (OnPush)
  */
 @Component({
   selector: 'app-sale-actions',
   templateUrl: './sale-actions.component.html',
   styleUrl: './sale-actions.component.scss',
-  imports: [CommonModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, ButtonModule, TooltipModule, ButtonGroup],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SaleActionsComponent {

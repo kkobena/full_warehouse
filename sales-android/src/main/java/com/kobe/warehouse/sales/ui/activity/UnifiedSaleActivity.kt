@@ -9,9 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,20 +24,26 @@ import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.SaleLine
+import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.databinding.ActivityUnifiedSaleBinding
-import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.ui.adapter.CartAdapter
 import com.kobe.warehouse.sales.ui.adapter.ProductAdapter
+import com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModelFactory
+import com.kobe.warehouse.sales.printer.ReceiptPrinter
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
 import com.kobe.warehouse.sales.utils.onTextChangedDebounced
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Unified Sale Activity
@@ -520,9 +524,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Sale finalized
         viewModel.saleFinalized.observe(this) { sale ->
             sale?.let {
-                // TODO: Print receipt (integrate with SunmiPrinterService)
-                Toast.makeText(this, "Vente finalisée avec succès", Toast.LENGTH_SHORT).show()
-                finish()
+                showSaleCompletedDialog(it.numberTransaction ?: "")
             }
         }
 
@@ -713,6 +715,72 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val payrollAmount = sale.salesAmount - (sale.discountAmount ?: 0)
         val dialog = com.kobe.warehouse.sales.ui.dialog.PaymentDialogFragment.newInstance(payrollAmount)
         dialog.show(supportFragmentManager, "PaymentDialog")
+    }
+
+    /**
+     * Show sale completed dialog with receipt printing option
+     */
+    private fun showSaleCompletedDialog(transactionNumber: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Vente réussie")
+            .setMessage("Vente $transactionNumber enregistrée avec succès.\n\nVoulez-vous imprimer le reçu ?")
+            .setPositiveButton("Imprimer") { _, _ ->
+                printReceipt()
+            }
+            .setNegativeButton("Non") { _, _ ->
+                viewModel.resetAfterSale()
+                Toast.makeText(this, "Prêt pour une nouvelle vente", Toast.LENGTH_SHORT).show()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Print receipt for the completed sale
+     */
+    private fun printReceipt() {
+        val sale = viewModel.saleFinalized.value
+        if (sale == null) {
+            Toast.makeText(this, "Erreur: Vente introuvable", Toast.LENGTH_SHORT).show()
+            viewModel.resetAfterSale()
+            return
+        }
+
+        Toast.makeText(this, "Impression du reçu en cours...", Toast.LENGTH_SHORT).show()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val success = withContext(Dispatchers.IO) {
+                try {
+                    val receiptPrinter = ReceiptPrinter(this@UnifiedSaleActivity)
+                    receiptPrinter.printReceipt(sale = sale)
+                } catch (e: Exception) {
+                    android.util.Log.e("UnifiedSaleActivity", "Failed to print receipt", e)
+                    false
+                }
+            }
+
+            if (success) {
+                viewModel.resetAfterSale()
+                Toast.makeText(
+                    this@UnifiedSaleActivity,
+                    "Reçu imprimé avec succès. Prêt pour une nouvelle vente",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                MaterialAlertDialogBuilder(this@UnifiedSaleActivity)
+                    .setTitle("Erreur d'impression")
+                    .setMessage("Impossible d'imprimer le reçu. Vérifiez que l'imprimante est connectée.")
+                    .setPositiveButton("OK") { _, _ ->
+                        viewModel.resetAfterSale()
+                        Toast.makeText(
+                            this@UnifiedSaleActivity,
+                            "Prêt pour une nouvelle vente",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun putOnHold() {
@@ -1460,7 +1528,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     private fun validateAndAddProduct(product: Product, quantity: Int, forceStock: Boolean = false) {
         // Check if user has force stock permission
         val hasForceStockPermission = viewModel.checkUserPermission(
-            com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment.PERMISSION_FORCE_STOCK
+            AuthorizationDialogFragment.PERMISSION_FORCE_STOCK
         )
 
         // Validate stock
@@ -1622,8 +1690,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Show authorization dialog for price modification
      */
     private fun showAuthorizationDialogForPrice(line: SaleLine) {
-        val dialog = com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment(
-            requiredPermission = com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment.PERMISSION_MODIFY_PRICE,
+        val dialog = AuthorizationDialogFragment(
+            requiredPermission = AuthorizationDialogFragment.PERMISSION_MODIFY_PRICE,
             operationName = "Modification de prix",
             onAuthorized = { userId ->
                 showPriceModificationDialog(line, userId)
@@ -1636,8 +1704,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Show authorization dialog for line deletion
      */
     private fun showAuthorizationDialogForDelete(line: SaleLine) {
-        val dialog = com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment(
-            requiredPermission = com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment.PERMISSION_DELETE_PRODUCT,
+        val dialog = AuthorizationDialogFragment(
+            requiredPermission =AuthorizationDialogFragment.PERMISSION_DELETE_PRODUCT,
             operationName = "Suppression de produit",
             onAuthorized = { userId ->
                 viewModel.deleteProductLineWithApi(line, userId)

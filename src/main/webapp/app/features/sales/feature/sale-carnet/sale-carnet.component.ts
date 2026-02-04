@@ -1,24 +1,17 @@
-import { Component, inject, OnInit, signal, computed, viewChild, output, effect, input, model } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, model } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
-import { Button } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { Drawer } from 'primeng/drawer';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import {
-  ProductSearchComponent,
-  ProductListComponent,
-  SaleSummaryComponent,
-  SaleActionsComponent,
-} from '../../ui';
-import { InsuranceDataBarComponent } from '../../ui/insurance-data-bar/insurance-data-bar.component';
+import { ProductSearchComponent, ProductListComponent, SaleSummaryComponent, SaleActionsComponent } from '../../ui';
+import { InsuranceDataBarComponent } from '../../ui';
 import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
+import { RemiseSelectionModalComponent } from '../../ui/remise-selection-modal/remise-selection-modal.component';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
 import { UninsuredCustomerListComponent } from '../../../../entities/sales/uninsured-customer-list/uninsured-customer-list.component';
@@ -28,23 +21,25 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
+import { ISalesLine } from '../../../../shared/model';
+import { ProduitSearch } from '../../../../shared/model';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
-import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
-import { ICustomer } from '../../../../shared/model/customer.model';
+import { IClientTiersPayant } from '../../../../shared/model';
+import { ICustomer } from '../../../../shared/model';
+import { IRemise } from '../../../../shared/model';
+import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
 
 /**
  * SaleCarnetComponent
- * 
+ *
  * Composant pour les ventes à crédit (CARNET)
- * 
+ *
  * Fonctionnalités spécifiques:
  * - Sélection client avec compte crédit
  * - Vérification solde/plafond disponible
  * - Validation limite crédit
  * - Enregistrement vente à crédit
- * 
+ *
  * @example
  * <app-sale-carnet />
  */
@@ -67,31 +62,35 @@ import { ICustomer } from '../../../../shared/model/customer.model';
     ConfirmDialogComponent,
     QuantiteProdutSaisieComponent,
   ],
-  providers: [MessageService], // Instance locale pour ce composant
+  providers: [MessageService],
 })
-export class SaleCarnetComponent implements OnInit {
-  // ✅ AJOUT Phase 2.1: ViewChild pour gestion du focus
+export class SaleCarnetComponent implements OnInit, AfterViewInit {
+  // Services
+  private messageService = inject(MessageService);
+
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
+  paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  
+
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
    * Appelée par le composant parent lors du changement de tab
    */
   public focusProductSearch(): void {
     setTimeout(() => {
-      // Le focus sera géré par le ProductSearchComponent enfant
+      this.productSearchComponent()?.getFocus();
     }, 100);
   }
-  
-  // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
-  productAddedSuccess = output<void>();
-  
+
   // Modal and responsive state
-  readonly isCashRegisterOpen = model(false);
+  readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
+
+  // Outputs
+  switchToComptant = output<void>();
+  cashRegisterOpened = output<void>();
 
   // Services
   private facade = inject(SalesFacade);
@@ -110,13 +109,118 @@ export class SaleCarnetComponent implements OnInit {
   readonly selectedProduct = this.facade.selectedProduct;
   readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
-  readonly paymentDrawerVisible = signal(false);
   readonly isProcessingSale = signal(false);
+  readonly selectedLineId = signal<number | null>(null);
+  readonly waitingForForceStockSuccess = signal<boolean>(false);
+  readonly previousLoadingState = signal<boolean>(false);
+  readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
+  readonly lastError = this.facade.lastError;
   
+  // Focus management
+  private focusInitialized = false;
+
+  // Computed signals
+  readonly canSave = computed(() => {
+    const sale = this.currentSale();
+    const lines = this.salesLines();
+    const customer = this.selectedCustomer();
+    return !!sale && lines.length > 0 && !!customer && !this.isSaving();
+  });
+
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
-  
+
   constructor() {
+    // Observer les erreurs du store pour force stock
+    effect(() => {
+      const errorMsg = this.lastError();
+      const errorDetails = this.facade.errorDetails();
+      const waiting = this.waitingForForceStockSuccess();
+
+      if (waiting) return;
+
+      if (errorMsg) {
+        if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
+          const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
+          const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
+          this.forceStockContext.set(detectedContext);
+
+          this.confirmDialog().onConfirm(
+            () => {
+              if (errorDetails.attemptedLine) {
+                errorDetails.attemptedLine.forceStock = true;
+                this.waitingForForceStockSuccess.set(true);
+
+                if (detectedContext === 'editCell') {
+                  this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
+                } else if (errorDetails.attemptedLine.id) {
+                  this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
+                } else {
+                  const currentSale = this.currentSale();
+                  if (!currentSale?.saleId) {
+                    this.facade.createCarnetSale(errorDetails.attemptedLine);
+                  } else {
+                    this.facade.onAddProduitCarnet(errorDetails.attemptedLine);
+                  }
+                }
+              }
+            },
+            'Forcer le stock',
+            'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
+            undefined,
+            () => {
+              this.facade.clearError();
+              const context = this.forceStockContext();
+              this.forceStockContext.set(null);
+
+              if (context === 'editCell') {
+                const currentSale = this.currentSale();
+                if (currentSale?.saleId) {
+                  this.facade.loadSaleForEdit(currentSale.saleId);
+                }
+                setTimeout(() => this.resetProductSelection(), 200);
+              } else {
+                this.resetProductSelection();
+              }
+            },
+          );
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: errorMsg,
+            life: 5000,
+          });
+        }
+      }
+    });
+
+    // Effect pour détecter succès après force stock
+    effect(() => {
+      const loading = this.loading();
+      const previousLoading = this.previousLoadingState();
+      const waiting = this.waitingForForceStockSuccess();
+
+      if (!waiting) {
+        if (previousLoading !== loading) {
+          this.previousLoadingState.set(loading);
+        }
+        return;
+      }
+
+      this.previousLoadingState.set(loading);
+
+      if (previousLoading && !loading && !this.facade.errorDetails()) {
+        this.waitingForForceStockSuccess.set(false);
+        this.facade.clearError();
+
+        const context = this.forceStockContext();
+        this.forceStockContext.set(null);
+
+        setTimeout(() => this.resetProductSelection(), 200);
+      }
+    });
+
     // Contrôler le spinner global selon l'état loading
     effect(() => {
       if (this.loading()) {
@@ -131,14 +235,52 @@ export class SaleCarnetComponent implements OnInit {
     // Set sale type to CARNET
     this.facade.setSaleType('CARNET');
     
+    // Initialize typePrescription with default value
+    this.facade.setTypePrescription('PRESCRIPTION');
+
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
   }
 
+  ngAfterViewInit(): void {
+    // Force le focus sur la recherche client au chargement initial
+    setTimeout(() => {
+      this.insuranceDataBar()?.searchInput()?.nativeElement.focus();
+    }, 200);
+  }
+
   // ===== Handlers pour InsuranceDataBarComponent =====
+
+  onProductSearchEnter(shouldSave: boolean): void {
+    if (!shouldSave) return;
+    
+    const currentSale = this.currentSale();
+    
+    //  Si vente en cours avec des lignes
+    if (currentSale && this.salesLines().length > 0) {
+      const amountToBePaid = currentSale.amountToBePaid || 0;
+      
+      //  Si montant à payer <= 0, finaliser directement sans paiement
+      if (amountToBePaid <= 0) {
+        this.finalizeSaleWithoutPayment();
+      } else {
+        // Montant à payer > 0, le payment-mode est déjà affiché en inline
+        // Afficher le total sur l'écran client
+        const total = currentSale.salesAmount || 0;
+        this.customerDisplay.updateDisplayForTotal(total);
+        
+        // Focus sur le champ cash
+        setTimeout(() => {
+          this.paymentModeComponent()?.focusFirstMode();
+        }, 100);
+      }
+    }
+  }
 
   onCustomerSelected(customer: ICustomer): void {
     this.facade.setCustomer(customer);
+    // Focus sur le premier champ de numéro de bon
+    setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
   }
 
   onOpenCustomerList(): void {
@@ -154,28 +296,6 @@ export class SaleCarnetComponent implements OnInit {
 
   onAddCustomer(): void {
     this.openCarnetCustomerForm(null);
-  }
-
-  onEditAyantDroit(): void {
-    // Pas d'ayant droit pour CARNET
-  }
-
-  onLoadAyantDroits(): void {
-    // Pas d'ayant droit pour CARNET
-  }
-
-  onAddComplementaire(): void {
-    this.notificationService.warning(
-      'Non disponible',
-      'Les complémentaires ne sont pas disponibles pour les ventes CARNET'
-    );
-  }
-
-  onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.notificationService.warning(
-      'Non disponible',
-      'Impossible de supprimer le tiers payant principal pour une vente CARNET'
-    );
   }
 
   onTiersPayantsChanged(tiersPayants: IClientTiersPayant[]): void {
@@ -197,15 +317,12 @@ export class SaleCarnetComponent implements OnInit {
     }
 
     if (!this.hasCustomer()) {
-      this.notificationService.warning(
-        'Client requis',
-        'Veuillez sélectionner un client avant d\'ajouter des produits'
-      );
+      this.notificationService.warning('Client requis', "Veuillez sélectionner un client avant d'ajouter des produits");
       return;
     }
 
     this.facade.setSelectedProduct(product);
-    
+
     // ✅ AJOUT: Focus sur quantité après sélection
     setTimeout(() => {
       this.quantityComponent()?.focusProduitControl();
@@ -214,8 +331,7 @@ export class SaleCarnetComponent implements OnInit {
   }
 
   /**
-   * ✅ MODIFIÉ Phase 2.3: Gère l'ajout de quantité
-   * Reset et focus après ajout réussi
+   * Gère l'ajout de quantité depuis le composant QuantiteProdutSaisieComponent
    */
   onAddQuantity(quantity: number): void {
     const product = this.selectedProduct();
@@ -223,75 +339,64 @@ export class SaleCarnetComponent implements OnInit {
       return;
     }
 
+    this.addProductToSale(product, quantity);
+  }
+
+  /**
+   * Gère le scan d'un code-barres
+   */
+  onProductScanned(product: ProduitSearch): void {
     if (!this.hasCustomer()) {
-      this.notificationService.warning(
-        'Client requis',
-        'Veuillez sélectionner un client avant d\'ajouter des produits'
-      );
+      this.notificationService.warning('Client requis', "Veuillez sélectionner un client avant d'ajouter des produits");
       return;
     }
 
-    this.facade.onAddProduit(product);
-    
+    this.facade.setSelectedProduct(product);
+    this.addProductToSale(product, 1);
+  }
+
+  /**
+   * Ajoute un produit à la vente CARNET
+   * Ne clear la sélection et n'émet l'event qu'en cas de succès
+   */
+  private addProductToSale(product: ProduitSearch, quantity: number): void {
+    const currentSale = this.currentSale();
+    const salesLine = createSalesLineFromProduct(product, quantity, currentSale);
+
     // Update customer display
-    this.customerDisplay.updateDisplayForProduct(
-      product.libelle || '',
-      quantity,
-      product.regularUnitPrice || 0
-    );
-    
-    // ✅ AJOUT: Reset après succès
-    this.resetProductSelection();
-    
-    // Notifier le container que l'ajout est réussi (pour reset du formulaire)
-    this.productAddedSuccess.emit();
+    this.customerDisplay.updateDisplayForProduct(product.libelle || '', quantity, product.regularUnitPrice || 0);
+
+    // Observer l'état d'erreur pour détecter les échecs
+    const initialError = this.lastError();
+
+    // Si pas de vente en cours, créer avec ce premier produit
+    if (!currentSale || !currentSale.saleId) {
+      this.facade.createCarnetSale(salesLine);
+    } else {
+      // Sinon ajouter à la vente existante
+      this.facade.onAddProduitCarnet(salesLine);
+    }
+
+    // Attendre le résultat de l'opération avant de clear
+    setTimeout(() => {
+      const currentError = this.lastError();
+
+      // Si pas d'erreur OU l'erreur n'a pas changé → Succès
+      if (!currentError || currentError === initialError) {
+        this.resetProductSelection();
+      }
+    }, 200);
   }
 
   /**
    * ✅ AJOUT Phase 2.3: Réinitialiser la sélection produit et focus
+   * Appelée après ajout réussi d'un produit
    */
   private resetProductSelection(): void {
     this.facade.setSelectedProduct(null);
     this.productSearchComponent()?.reset();
     this.quantityComponent()?.reset(1);
-    
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
-  }
-
-  /**
-   * ✅ AJOUT Phase 3: Scanner → ajout automatique avec quantité 1
-   */
-  onProductScanned(product: ProduitSearch): void {
-    if (!product || !this.hasCustomer()) return;
-    
-    this.facade.setSelectedProduct(product);
-    this.facade.onAddProduit(product);
-    
-    this.customerDisplay.updateDisplayForProduct(
-      product.libelle || '',
-      1,
-      product.regularUnitPrice || 0
-    );
-    
-    this.resetProductSelection();
-  }
-
-  onUpdateQuantity(update: { line: ISalesLine; quantity: number }): void {
-    if (update.line.id) {
-      this.facade.updateLineQuantity(update.line.id, update.quantity);
-    }
-  }
-
-  onRemoveLine(line: ISalesLine): void {
-    if (line.id) {
-      this.facade.removeSalesLine(line.id);
-    }
-  }
-
-  onApplyDiscount(): void {
-    this.notificationService.info('Remise', 'Fonctionnalité à implémenter');
+    this.focusProductSearch();
   }
 
   // ===== Handlers pour ProductListComponent =====
@@ -300,22 +405,29 @@ export class SaleCarnetComponent implements OnInit {
     if (data.line.id) {
       this.facade.updateLineQuantity(data.line.id, data.newQty);
     }
+
+    this.focusProductSearch();
   }
 
   onLineQuantityRequestedChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
+
+    // Retour du focus sur le champ produit (conforme ancien système)
+    this.focusProductSearch();
   }
 
   onLineRemoved(line: ISalesLine): void {
     if (line.saleLineId) {
       this.facade.removeLine(line.saleLineId);
     }
+
+    this.focusProductSearch();
   }
 
   onLineSelected(line: ISalesLine): void {
-    // Handle line selection if needed
+    this.selectedLineId.set(line.id || null);
   }
 
   onLineDiscountChanged(data: { line: ISalesLine; newDiscount: number }): void {
@@ -328,16 +440,74 @@ export class SaleCarnetComponent implements OnInit {
 
   // ===== Sale Actions =====
 
-  onValidate(): void {
-    // Show total on customer display
-    const total = this.currentSale()?.salesAmount || 0;
-    this.customerDisplay.updateDisplayForTotal(total);
-    
-    this.paymentDrawerVisible.set(true);
+  /**
+   * Finalise la vente sans paiement (amountToBePaid <= 0)
+   */
+  private finalizeSaleWithoutPayment(): void {
+    const currentSale = this.currentSale();
+    if (!currentSale) return;
+
+    // Montant entièrement couvert par assurance/crédit
+    currentSale.montantVerse = 0;
+    currentSale.payments = [];
+
+    // Vérifier si la caisse est ouverte avant de finaliser
+    if (!this.isCashRegisterOpen()) {
+      this.openCashRegister();
+    } else {
+      this.completeSaleAfterCashRegister();
+    }
+  }
+
+  onSave(): void {
+    const currentSale = this.currentSale();
+    if (!currentSale || !this.canSave()) {
+      this.notificationService.warning('Vente invalide', "Veuillez ajouter au moins un produit avant d'enregistrer la vente");
+      return;
+    }
+
+    const amountToBePaid = currentSale.amountToBePaid || 0;
+
+    // Si montant à payer <= 0, finaliser sans paiement
+    if (amountToBePaid <= 0) {
+      this.finalizeSaleWithoutPayment();
+      return;
+    }
+
+    // Si montant à payer > 0, récupérer les paiements du composant payment-mode
+    const paymentModeComp = this.paymentModeComponent();
+    if (!paymentModeComp) {
+      this.notificationService.error('Erreur', 'Composant de paiement non disponible');
+      return;
+    }
+
+    // Vérifier qu'il y a au moins un paiement
+    const selectedModes = paymentModeComp.selectedModes();
+    if (!selectedModes || selectedModes.length === 0) {
+      this.notificationService.warning('Paiement requis', 'Veuillez saisir au moins un mode de paiement');
+      return;
+    }
+
+    // Construire l'événement de paiement
+    const paymentEvent: PaymentCompleteEvent = {
+      payments: selectedModes.map(entry => ({
+        mode: entry.mode,
+        amount: entry.amount || 0,
+        amountEntered: entry.amountEntered,
+      })),
+      totalPaid: paymentModeComp.totalPaid(),
+      change: paymentModeComp.changeAmount(),
+      changeExact: paymentModeComp.changeExact(),
+      printReceipt: false,
+      printInvoice: false,
+    };
+
+    // Traiter le paiement
+    this.onPaymentComplete(paymentEvent);
   }
 
   onPutOnHold(): void {
-    this.facade.saveSale();
+    this.facade.saveSale().subscribe();
   }
 
   onCancel(): void {
@@ -346,20 +516,11 @@ export class SaleCarnetComponent implements OnInit {
       this.confirmDialog().onConfirm(
         () => this.resetForNewSale(),
         'Annulation de la vente',
-        'Êtes-vous sûr de vouloir annuler cette vente ?'
+        'Êtes-vous sûr de vouloir annuler cette vente ?',
       );
     } else {
       this.resetForNewSale();
     }
-  }
-
-  /**
-   * Retour à l'écran précédent (quitter le point de vente)
-   * Utilisé uniquement par le bouton Retour dans le header
-   */
-  onNavigateBack(): void {
-    this.customerDisplay.clear();
-    this.router.navigate(['/']);
   }
 
   /**
@@ -369,7 +530,6 @@ export class SaleCarnetComponent implements OnInit {
   private resetForNewSale(): void {
     this.facade.cancelSale();
     this.customerDisplay.clear();
-    this.paymentDrawerVisible.set(false);
     this.isProcessingSale.set(false);
   }
 
@@ -380,9 +540,10 @@ export class SaleCarnetComponent implements OnInit {
   private openCashRegister(): void {
     showCommonModal(this.modalService, CashRegisterFormComponent, {}, (resp: boolean) => {
       if (resp) {
-        this.isCashRegisterOpen.set(resp);
+        // Notifier le parent que la caisse est maintenant ouverte
+        this.cashRegisterOpened.emit();
         // Finaliser la vente après ouverture de la caisse
-        this.completeSaleAfterCashRegister();
+        setTimeout(() => this.completeSaleAfterCashRegister(), 100);
       }
     });
   }
@@ -393,10 +554,24 @@ export class SaleCarnetComponent implements OnInit {
   private completeSaleAfterCashRegister(): void {
     this.isProcessingSale.set(true);
 
-    this.facade.saveSale();
-
-    // Réinitialiser pour nouvelle vente
-    this.resetForNewSale();
+    this.facade.saveSale().subscribe({
+      next: (result) => {
+        if (result) {
+          // Succès : réinitialiser et basculer vers COMPTANT
+          this.resetForNewSale();
+          this.switchToComptant.emit();
+        } else {
+          // Échec : afficher l'erreur et garder la vente
+          this.isProcessingSale.set(false);
+          this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
+        }
+      },
+      error: (err) => {
+        // Échec : afficher l'erreur et garder la vente
+        this.isProcessingSale.set(false);
+        this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
+      }
+    });
   }
 
   // ===== Payment =====
@@ -422,7 +597,7 @@ export class SaleCarnetComponent implements OnInit {
       this.confirmDialog().onConfirm(
         () => this.confirmDiffereSale(event),
         'Vente différée',
-        `Le montant versé (${entryAmount} FCFA) est inférieur au montant dû (${amountToBePaid} FCFA).\n\nVoulez-vous régler le reste (${restToPay} FCFA) en différé ?`
+        `Le montant versé (${entryAmount} FCFA) est inférieur au montant dû (${amountToBePaid} FCFA).\n\nVoulez-vous régler le reste (${restToPay} FCFA) en différé ?`,
       );
     } else {
       // Montant suffisant ou déjà différé → Finaliser normalement
@@ -468,7 +643,7 @@ export class SaleCarnetComponent implements OnInit {
     modalRef.componentInstance.header = 'SÉLECTION CLIENT - Vente différée';
 
     modalRef.result.then(
-      (customer) => {
+      customer => {
         if (customer && customer.id) {
           this.facade.setCustomer(customer);
           const currentSale = this.facade.currentSale();
@@ -477,20 +652,12 @@ export class SaleCarnetComponent implements OnInit {
           }
           onSuccess();
         } else {
-          this.notificationService.warning(
-            'Client requis',
-            'Un client est obligatoire pour une vente différée'
-          );
-          this.paymentDrawerVisible.set(false);
+          this.notificationService.warning('Client requis', 'Un client est obligatoire pour une vente différée');
         }
       },
       () => {
-        this.notificationService.warning(
-          'Vente annulée',
-          'Un client est obligatoire pour une vente différée'
-        );
-        this.paymentDrawerVisible.set(false);
-      }
+        this.notificationService.warning('Vente annulée', 'Un client est obligatoire pour une vente différée');
+      },
     );
   }
 
@@ -501,10 +668,6 @@ export class SaleCarnetComponent implements OnInit {
     } else {
       this.completeSaleAfterCashRegister();
     }
-  }
-
-  onPaymentCancel(): void {
-    this.paymentDrawerVisible.set(false);
   }
 
   onPaymentError(error: string): void {
@@ -541,7 +704,7 @@ export class SaleCarnetComponent implements OnInit {
       this.confirmDialog().onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
-        'Voulez-vous vraiment supprimer la remise appliquée?'
+        'Voulez-vous vraiment supprimer la remise appliquée?',
       );
     } else {
       // Demander autorisation pour supprimer
@@ -553,30 +716,42 @@ export class SaleCarnetComponent implements OnInit {
     const saleId = this.currentSale()?.id;
     const saleType = 'CARNET';
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType)
-      .subscribe(authorized => {
-        if (authorized) {
-          this.openRemiseSelectionModal();
-        }
-      });
+    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
+      if (authorized) {
+        this.openRemiseSelectionModal();
+      }
+    });
   }
 
   private requestRemiseRemovalAuthorization(): void {
     const saleId = this.currentSale()?.id;
     const saleType = 'CARNET';
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType)
-      .subscribe(authorized => {
-        if (authorized) {
-          this.facade.updateRemise(undefined);
-        }
-      });
+    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
+      if (authorized) {
+        this.facade.updateRemise(undefined);
+      }
+    });
   }
 
   private openRemiseSelectionModal(): void {
-    // TODO: Implémenter modal de sélection de remise
-    // Pour l'instant, utilisons une remise par défaut pour tester
-    this.notificationService.info('Sélection de remise', 'Fonctionnalité de sélection de remise à venir');
+    const modalRef = this.modalService.open(RemiseSelectionModalComponent, {
+      backdrop: 'static',
+      centered: true,
+      size: 'md',
+    });
+
+    modalRef.result.then(
+      (remise: IRemise) => {
+        if (remise) {
+          this.facade.updateRemise(remise);
+          this.notificationService.success('Remise appliquée', `Remise ${remise.valeur} appliquée avec succès`);
+        }
+      },
+      () => {
+        // Modal fermé sans sélection
+      },
+    );
   }
 
   /**
@@ -594,14 +769,14 @@ export class SaleCarnetComponent implements OnInit {
     modalRef.componentInstance.categorie = 'CARNET';
 
     modalRef.result.then(
-      (updatedCustomer) => {
+      updatedCustomer => {
         if (updatedCustomer && updatedCustomer.id) {
           this.facade.setCustomer(updatedCustomer);
         }
       },
       () => {
         // Modal fermée sans enregistrement
-      }
+      },
     );
   }
 
@@ -617,27 +792,17 @@ export class SaleCarnetComponent implements OnInit {
     });
 
     modalRef.result.then(
-      (customer) => {
+      customer => {
         if (customer && customer.id) {
           this.facade.setCustomer(customer);
-          
-          // TODO: Vérifier solde crédit et plafond
         } else {
-          this.notificationService.warning(
-            'Client requis',
-            'Un client avec compte crédit est obligatoire pour une vente CARNET'
-          );
-          this.router.navigate(['/']);
+          this.notificationService.warning('Client requis', 'Un client avec compte crédit est obligatoire pour une vente CARNET');
         }
       },
       () => {
-        // Modal fermée sans sélection - retour à l'accueil
-        this.notificationService.warning(
-          'Vente annulée',
-          'Un client avec compte crédit est obligatoire pour une vente CARNET'
-        );
-        this.router.navigate(['/']);
-      }
+        // Modal fermée sans sélection
+        this.notificationService.info('Information', 'Veuillez sélectionner un client pour continuer la vente');
+      },
     );
   }
 }

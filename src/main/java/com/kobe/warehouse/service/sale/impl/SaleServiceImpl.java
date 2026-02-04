@@ -39,6 +39,7 @@ import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
@@ -361,6 +362,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         cashSaleRepository
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
+                if (sales.isCanceled()){
+                    throw new GenericError("La vente est déjà annulée");
+                }
                 CashSale copy = (CashSale) sales.clone();
                 copySale(sales, copy);
                 setId(copy);

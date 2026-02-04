@@ -140,9 +140,9 @@
               </a>
               <ng-template ngbNavContent>
                 <app-sale-creation 
-                  [isSmallScreen]="isSmallScreen()" 
-                  (productAddedSuccess)="onProductAddedSuccess()">
-                </app-sale-creation>
+                  [isSmallScreen]="isSmallScreen()"
+                  [isCashRegisterOpen]="isCashRegisterOpen()"
+                  (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
               </ng-template>
             </ng-container>
 
@@ -155,9 +155,9 @@
               </a>
               <ng-template ngbNavContent>
                 <app-sale-assurance 
-                  [isSmallScreen]="isSmallScreen()" 
-                  (productAddedSuccess)="onProductAddedSuccess()">
-                </app-sale-assurance>
+                  [isSmallScreen]="isSmallScreen()"
+                  [isCashRegisterOpen]="isCashRegisterOpen()"
+                  (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
               </ng-template>
             </ng-container>
 
@@ -170,9 +170,10 @@
               </a>
               <ng-template ngbNavContent>
                 <app-sale-carnet 
-                  [isSmallScreen]="isSmallScreen()" 
-                  (productAddedSuccess)="onProductAddedSuccess()">
-                </app-sale-carnet>
+                  [isSmallScreen]="isSmallScreen()"
+                  [isCashRegisterOpen]="isCashRegisterOpen()"
+                  (switchToComptant)="onSwitchToComptant()"
+                  (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-carnet>
               </ng-template>
             </ng-container>
           </div>

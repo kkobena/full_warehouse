@@ -67,6 +67,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly loadAyantDroits = output<void>();
   readonly addComplementaire = output<void>();
   readonly removeTiersPayant = output<IClientTiersPayant>();
+  readonly focusProductSearch = output<void>();
 
   protected search: string = '';
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
@@ -92,7 +93,11 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.searchInput()?.nativeElement.focus();
+    // Délai pour s'assurer que le focus reste sur la recherche client
+    // après le rendu complet de tous les composants enfants
+    setTimeout(() => {
+      this.searchInput()?.nativeElement.focus();
+    }, 250);
   }
 
   buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
@@ -144,7 +149,11 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     const tiersPayants = this.selectedTiersPayants();
     const currentIndex = tiersPayants.findIndex(item => item.id === tp.id);
     if (currentIndex < tiersPayants.length - 1) {
+      // Focus sur le prochain champ de numéro de bon
       this.focusAndSelectBonInput(currentIndex + 1);
+    } else {
+      // C'est le dernier bon, focus sur la recherche produit
+      this.focusProductSearch.emit();
     }
   }
 
@@ -211,6 +220,10 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
 
   private clearSearch(): void {
     this.search = '';
+  }
+
+  public focusFirstBon(): void {
+    this.focusAndSelectBonInput(0);
   }
 
   private firstRefBonFocus(): void {

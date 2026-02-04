@@ -273,9 +273,8 @@
 5. 📊 **Phase 1.2**: Affichage insurance-data-bar
 
 ### Basse Priorité
-6. 📝 Documentation API composants
-7. 🧪 Tests unitaires nouveaux composants
-8. ♿ Accessibilité (ARIA labels)
+6. 🧪 Tests unitaires nouveaux composants
+7. ♿ Accessibilité (ARIA labels)
 
 ---
 
@@ -355,4 +354,5 @@ Pour questions ou problèmes:
 
 **Dernière mise à jour**: 2 février 2026
 **Session**: Refactoring Ventes COMPTANT + Différé
-**Statut global**: ✅ 95% complété (1 bug en stand by)
+**Statut global**: ✅ 33% complété (1/3 types de ventes - 1 bug en stand by)
+**En cours**: Phase 1.1-1.2 - Vente ASSURANCE automatique

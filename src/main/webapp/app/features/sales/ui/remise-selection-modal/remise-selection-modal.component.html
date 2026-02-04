@@ -1,0 +1,91 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="pi pi-tag me-2"></i>
+    Sélectionner une remise
+  </h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="remise-selection-container">
+    <p class="text-muted mb-3">
+      Choisissez une remise à appliquer à cette vente
+    </p>
+
+    @let groupedRemises = remises();
+    @if (groupedRemises?.length > 0) {
+      <div class="remise-select-wrapper">
+        <p-select
+          [(ngModel)]="selectedRemise"
+          [options]="groupedRemises"
+          [group]="true"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="valeur"
+          optionLabel="valeur"
+          placeholder="Choisir une remise"
+          styleClass="w-100"
+          (onChange)="onSelectRemise($event.value)">
+          
+          <!-- Template pour les groupes -->
+          <ng-template #group let-group>
+            <div class="pharma-remise-group">
+              <i class="pi pi-tag"></i>
+              <span>{{ group.typeLibelle }}</span>
+            </div>
+          </ng-template>
+
+          <!-- Template pour les options -->
+          <ng-template #item let-remise>
+            <div class="pharma-remise-option">
+              <div class="remise-value">
+                <strong>{{ remise.valeur }}</strong>
+              </div>
+              @if (remise.typeLibelle) {
+                <div class="remise-type">
+                  <small class="text-muted">{{ remise.typeLibelle }}</small>
+                </div>
+              }
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Aperçu de la remise sélectionnée -->
+      @if (selectedRemise()) {
+        <div class="selected-remise-preview mt-3">
+          <div class="alert alert-info mb-0">
+            <div class="d-flex align-items-center">
+              <i class="pi pi-info-circle me-2"></i>
+              <div>
+                <strong>Remise sélectionnée :</strong>
+                <span class="ms-2">{{ selectedRemise()!.valeur }}</span>
+                @if (selectedRemise()!.typeLibelle) {
+                  <span class="badge bg-primary ms-2">{{ selectedRemise()!.typeLibelle }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="alert alert-warning">
+        <i class="pi pi-exclamation-triangle me-2"></i>
+        Aucune remise disponible
+      </div>
+    }
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="cancel()">
+    <i class="pi pi-times me-1"></i>
+    Annuler
+  </button>
+  <p-button
+    [disabled]="!selectedRemise()"
+    (onClick)="confirm()"
+    icon="pi pi-check"
+    label="Confirmer"
+    severity="success" />
+</div>

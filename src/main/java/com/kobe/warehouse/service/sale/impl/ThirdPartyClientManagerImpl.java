@@ -21,6 +21,7 @@ import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -77,8 +78,12 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
     @Override
     public String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales)
         throws NumBonAlreadyUseException, GenericError {
+        List<ClientTiersPayantDTO> tiersPayants= dto.getTiersPayants();
+        if (CollectionUtils.isEmpty(tiersPayants)) {
+            throw new  GenericError("Aucun tiers payant n'a été fourni");
+        }
         List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(
-            dto.getTiersPayants().stream().map(ClientTiersPayantDTO::getId).collect(java.util.stream.Collectors.toSet())
+            tiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(java.util.stream.Collectors.toSet())
         );
         for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
             dto

@@ -81,8 +81,7 @@ public class ThirdPartySaleResource {
         thirdPartySaleDTO.setCaisseEndNum(request.getRemoteHost());
 
         ThirdPartySaleDTO result = saleService.createSale(thirdPartySaleDTO);
-        return ResponseEntity.created(new URI("/api/sales/assurance/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 
@@ -102,8 +101,7 @@ public class ThirdPartySaleResource {
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> addItem(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.createOrUpdateSaleLine(saleLineDTO);
-        return ResponseEntity.created(new URI("/api/sales/add-item/assurance/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 
@@ -131,8 +129,7 @@ public class ThirdPartySaleResource {
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemRegularPrice(saleLineDTO);
-        return ResponseEntity.created(new URI("/api/sales/update-item/price/assurance" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 
@@ -140,8 +137,7 @@ public class ThirdPartySaleResource {
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemQuantitySold(saleLineDTO);
-        return ResponseEntity.created(new URI("/api/sales/update-item/quantity-sold/assurance" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 

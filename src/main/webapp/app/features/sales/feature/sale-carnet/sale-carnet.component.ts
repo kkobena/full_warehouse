@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, model } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, model, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
+import { IPayment } from '../../../../shared/model/payment.model';
 import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
 
 /**
@@ -99,6 +101,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   private customerDisplay = inject(CustomerDisplayService);
   private spinner = inject(NgxSpinnerService);
   private modalService = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
 
   // State signals
   readonly saleType = signal<'CARNET'>('CARNET');
@@ -130,7 +133,21 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   hasCustomer = computed(() => !!this.selectedCustomer());
 
   constructor() {
-    // Observer les erreurs du store pour force stock
+    this.initializeEffects();
+  }
+
+  // ===== Effects Initialization =====
+
+  private initializeEffects(): void {
+    this.setupErrorHandlingEffect();
+    this.setupForceStockSuccessEffect();
+    this.setupSpinnerEffect();
+  }
+
+  /**
+   * Effect pour observer les erreurs du store et gérer le forçage de stock
+   */
+  private setupErrorHandlingEffect(): void {
     effect(() => {
       const errorMsg = this.lastError();
       const errorDetails = this.facade.errorDetails();
@@ -140,49 +157,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
 
       if (errorMsg) {
         if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
-          const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
-          const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
-          this.forceStockContext.set(detectedContext);
-
-          this.confirmDialog().onConfirm(
-            () => {
-              if (errorDetails.attemptedLine) {
-                errorDetails.attemptedLine.forceStock = true;
-                this.waitingForForceStockSuccess.set(true);
-
-                if (detectedContext === 'editCell') {
-                  this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
-                } else if (errorDetails.attemptedLine.id) {
-                  this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
-                } else {
-                  const currentSale = this.currentSale();
-                  if (!currentSale?.saleId) {
-                    this.facade.createCarnetSale(errorDetails.attemptedLine);
-                  } else {
-                    this.facade.onAddProduitCarnet(errorDetails.attemptedLine);
-                  }
-                }
-              }
-            },
-            'Forcer le stock',
-            'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
-            undefined,
-            () => {
-              this.facade.clearError();
-              const context = this.forceStockContext();
-              this.forceStockContext.set(null);
-
-              if (context === 'editCell') {
-                const currentSale = this.currentSale();
-                if (currentSale?.saleId) {
-                  this.facade.loadSaleForEdit(currentSale.saleId);
-                }
-                setTimeout(() => this.resetProductSelection(), 200);
-              } else {
-                this.resetProductSelection();
-              }
-            },
-          );
+          this.handleStockError(errorDetails);
         } else {
           this.messageService.add({
             severity: 'error',
@@ -193,8 +168,74 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
         }
       }
     });
+  }
 
-    // Effect pour détecter succès après force stock
+  /**
+   * Gère l'erreur de stock insuffisant avec option de forçage
+   */
+  private handleStockError(errorDetails: { errorKey: string | null; attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean }): void {
+    const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
+    const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
+    this.forceStockContext.set(detectedContext);
+
+    this.confirmDialog().onConfirm(
+      () => this.onForceStockConfirmed(errorDetails, detectedContext),
+      'Forcer le stock',
+      'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
+      undefined,
+      () => this.onForceStockCancelled(),
+    );
+  }
+
+  /**
+   * Callback appelé quand l'utilisateur confirme le forçage de stock
+   */
+  private onForceStockConfirmed(
+    errorDetails: { attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean },
+    detectedContext: 'addProduct' | 'editCell',
+  ): void {
+    if (!errorDetails.attemptedLine) return;
+
+    errorDetails.attemptedLine.forceStock = true;
+    this.waitingForForceStockSuccess.set(true);
+
+    if (detectedContext === 'editCell') {
+      this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
+    } else if (errorDetails.attemptedLine.id) {
+      this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
+    } else {
+      const currentSale = this.currentSale();
+      if (!currentSale?.saleId) {
+        this.facade.createCarnetSale(errorDetails.attemptedLine);
+      } else {
+        this.facade.onAddProduitCarnet(errorDetails.attemptedLine);
+      }
+    }
+  }
+
+  /**
+   * Callback appelé quand l'utilisateur annule le forçage de stock
+   */
+  private onForceStockCancelled(): void {
+    this.facade.clearError();
+    const context = this.forceStockContext();
+    this.forceStockContext.set(null);
+
+    if (context === 'editCell') {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        this.facade.loadSaleForEdit(currentSale.saleId);
+      }
+      setTimeout(() => this.resetProductSelection(), 200);
+    } else {
+      this.resetProductSelection();
+    }
+  }
+
+  /**
+   * Effect pour détecter le succès après force stock
+   */
+  private setupForceStockSuccessEffect(): void {
     effect(() => {
       const loading = this.loading();
       const previousLoading = this.previousLoadingState();
@@ -212,21 +253,18 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
       if (previousLoading && !loading && !this.facade.errorDetails()) {
         this.waitingForForceStockSuccess.set(false);
         this.facade.clearError();
-
-        const context = this.forceStockContext();
         this.forceStockContext.set(null);
-
         setTimeout(() => this.resetProductSelection(), 200);
       }
     });
+  }
 
-    // Contrôler le spinner global selon l'état loading
+  /**
+   * Effect pour contrôler le spinner global selon l'état loading
+   */
+  private setupSpinnerEffect(): void {
     effect(() => {
-      if (this.loading()) {
-        this.spinner.show();
-      } else {
-        this.spinner.hide();
-      }
+      this.loading() ? this.spinner.show() : this.spinner.hide();
     });
   }
 
@@ -307,7 +345,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   // ===== Product Management =====
 
   /**
-   * ✅ MODIFIÉ Phase 2.2: Gère la sélection manuelle d'un produit
+   *
    * Focus automatique sur quantité après sélection
    */
   onProductSelected(product: ProduitSearch | null): void {
@@ -363,6 +401,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     const salesLine = createSalesLineFromProduct(product, quantity, currentSale);
 
     // Update customer display
+    //TODO: afficage se fait aptès l'ajout effectif du produit après l'appel API pour éviter les problèmes de synchro en cas d'erreur (ex: stock insuffisant)
     this.customerDisplay.updateDisplayForProduct(product.libelle || '', quantity, product.regularUnitPrice || 0);
 
     // Observer l'état d'erreur pour détecter les échecs
@@ -377,6 +416,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     }
 
     // Attendre le résultat de l'opération avant de clear
+    //TODO: améliorer cette logique avec un retour d'event de succès/échec depuis le store au lieu de se baser sur l'observation des erreurs
     setTimeout(() => {
       const currentError = this.lastError();
 
@@ -388,7 +428,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * ✅ AJOUT Phase 2.3: Réinitialiser la sélection produit et focus
+   *
    * Appelée après ajout réussi d'un produit
    */
   private resetProductSelection(): void {
@@ -404,7 +444,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     if (data.line.id) {
       this.facade.updateLineQuantity(data.line.id, data.newQty);
     }
-
+ //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     this.focusProductSearch();
   }
 
@@ -414,6 +454,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     }
 
     // Retour du focus sur le champ produit (conforme ancien système)
+    //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     this.focusProductSearch();
   }
 
@@ -421,7 +462,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     if (line.saleLineId) {
       this.facade.removeLine(line.saleLineId);
     }
-
+ //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     this.focusProductSearch();
   }
 
@@ -506,7 +547,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   }
 
   onPutOnHold(): void {
-    this.facade.saveSale().subscribe();
+    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   onCancel(): void {
@@ -553,7 +594,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   private completeSaleAfterCashRegister(): void {
     this.isProcessingSale.set(true);
 
-    this.facade.saveSale().subscribe({
+    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: result => {
         if (result) {
           // Succès : réinitialiser et basculer vers COMPTANT
@@ -565,7 +606,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
           this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
         }
       },
-      error: err => {
+      error: () => {
         // Échec : afficher l'erreur et garder la vente
         this.isProcessingSale.set(false);
         this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
@@ -607,7 +648,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   /**
    * Convertit les paiements de PaymentCompleteEvent au format Payment[]
    */
-  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): any[] {
+  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): IPayment[] {
     return eventPayments.map(p => ({
       paymentMode: p.mode,
       paidAmount: p.amount,
@@ -715,22 +756,28 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     const saleId = this.currentSale()?.id;
     const saleType = 'CARNET';
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
-      if (authorized) {
-        this.openRemiseSelectionModal();
-      }
-    });
+    this.authorizationService
+      .requestDiscountAuthorization(saleId, saleType)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(authorized => {
+        if (authorized) {
+          this.openRemiseSelectionModal();
+        }
+      });
   }
 
   private requestRemiseRemovalAuthorization(): void {
     const saleId = this.currentSale()?.id;
     const saleType = 'CARNET';
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
-      if (authorized) {
-        this.facade.updateRemise(undefined);
-      }
-    });
+    this.authorizationService
+      .requestDiscountAuthorization(saleId, saleType)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(authorized => {
+        if (authorized) {
+          this.facade.updateRemise(undefined);
+        }
+      });
   }
 
   private openRemiseSelectionModal(): void {
@@ -744,7 +791,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
       (remise: IRemise) => {
         if (remise) {
           this.facade.updateRemise(remise);
-          this.notificationService.success('Remise appliquée', `Remise ${remise.valeur} appliquée avec succès`);
+         
         }
       },
       () => {

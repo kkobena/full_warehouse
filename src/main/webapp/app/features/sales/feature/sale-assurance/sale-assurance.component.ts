@@ -6,7 +6,6 @@ import {
   signal,
   DestroyRef,
   effect,
-  HostListener,
   viewChild,
   output,
   input,
@@ -74,9 +73,11 @@ import { NgxSpinnerModule } from 'ngx-spinner';
  */
 @Component({
   selector: 'app-sale-assurance',
-  standalone: true,
   templateUrl: './sale-assurance.component.html',
   styleUrls: ['./sale-assurance.component.scss'],
+  host: {
+    '(window:keydown)': 'handleKeyboardEvent($event)',
+  },
   imports: [
     CommonModule,
     FormsModule,
@@ -160,24 +161,42 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   ];
 
   constructor() {
-    // Effect pour surveiller les erreurs
+    this.initializeEffects();
+  }
+
+  // ===== Effects Initialization =====
+
+  private initializeEffects(): void {
+    this.setupErrorHandlingEffect();
+    this.setupSavingStateEffect();
+    this.setupCustomerRequiredEffect();
+  }
+
+  /**
+   * Effect pour surveiller les erreurs et les afficher
+   */
+  private setupErrorHandlingEffect(): void {
     effect(() => {
       const error = this.lastError();
       if (error) {
         this.notificationService.error('Erreur', error);
       }
     });
+  }
 
-    // Effect pour surveiller l'état de sauvegarde
+  /**
+   * Effect pour contrôler le spinner selon l'état de sauvegarde
+   */
+  private setupSavingStateEffect(): void {
     effect(() => {
-      if (this.isSaving()) {
-        this.spinner.show('sale-spinner');
-      } else {
-        this.spinner.hide('sale-spinner');
-      }
+      this.isSaving() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
     });
+  }
 
-    // Effect: CLIENT OBLIGATOIRE pour ASSURANCE
+  /**
+   * Effect pour vérifier que le client est obligatoire pour ASSURANCE
+   */
+  private setupCustomerRequiredEffect(): void {
     effect(() => {
       const sale = this.currentSale();
       if (sale && !sale.customerId) {
@@ -404,7 +423,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
           next: (customers: ICustomer[]) => {
             this.customers.set(customers);
           },
-          error: (err: any) => {
+          error: () => {
             this.notificationService.error('Erreur', 'Erreur lors de la recherche');
           },
         });
@@ -720,28 +739,31 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
 
   onPaymentComplete(event: PaymentCompleteEvent): void {
     // Enregistrer la vente via la facade
-    this.facade.saveAssuranceSale(event.payments).subscribe({
-      next: result => {
-        if (result) {
-          // Succès : impression si demandée
-          if (event.printReceipt && result.saleId) {
-            this.facade.printReceipt(result.saleId);
+    this.facade
+      .saveAssuranceSale(event.payments)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            // Succès : impression si demandée
+            if (event.printReceipt && result.saleId) {
+              this.facade.printReceipt(result.saleId);
+            }
+
+            this.resetForNewSale();
+
+            // Basculer vers COMPTANT après finalisation
+            this.switchToComptant.emit();
+          } else {
+            // Échec : afficher l'erreur et garder la vente
+            this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
           }
-
-          this.resetForNewSale();
-
-          // Basculer vers COMPTANT après finalisation
-          this.switchToComptant.emit();
-        } else {
+        },
+        error: () => {
           // Échec : afficher l'erreur et garder la vente
           this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-        }
-      },
-      error: () => {
-        // Échec : afficher l'erreur et garder la vente
-        this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-      },
-    });
+        },
+      });
   }
 
   onSaveAndPrint(): void {
@@ -806,7 +828,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit {
   // Raccourcis clavier
   // ============================================
 
-  @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
     // Ignorer si focus dans un input/textarea
     const target = event.target as HTMLElement;

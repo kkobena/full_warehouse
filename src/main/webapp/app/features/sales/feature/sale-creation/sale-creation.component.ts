@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, DestroyRef, effect, HostListener, viewChild, output, input, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef, effect, viewChild, output, input, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -34,8 +34,10 @@ import { ISalesLine } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { ProduitSearch } from '../../../../shared/model';
 import { ISales } from '../../../../shared/model';
+import { IRemise } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
+import { IPayment } from '../../../../shared/model/payment.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
 import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
@@ -61,6 +63,9 @@ const PAYMENT_TOLERANCE_THRESHOLD = 5;
   selector: 'app-sale-creation',
   templateUrl: './sale-creation.component.html',
   styleUrls: ['./sale-creation.component.scss'],
+  host: {
+    '(window:keydown)': 'handleKeyboardEvent($event)',
+  },
   imports: [
     CommonModule,
     FormsModule,
@@ -77,6 +82,7 @@ const PAYMENT_TOLERANCE_THRESHOLD = 5;
   providers: [MessageService], // Instance locale pour ce composant
 })
 export class SaleCreationComponent implements OnInit {
+
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -106,6 +112,8 @@ export class SaleCreationComponent implements OnInit {
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
@@ -121,7 +129,7 @@ export class SaleCreationComponent implements OnInit {
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
   lastError = this.facade.lastError;
-  remises = signal<any[]>([]); // TODO: charger les remises depuis le service
+  remises = signal<IRemise[]>([]); // TODO: charger les remises depuis le service
 
   // Local UI state
   customers = signal<ICustomer[]>([]);
@@ -148,88 +156,32 @@ export class SaleCreationComponent implements OnInit {
   selectedSeller = signal<IUser | null>(null);
 
   constructor() {
-    // Observer les erreurs du store
+    this.initializeEffects();
+  }
+
+  // ===== Effects Initialization =====
+
+  private initializeEffects(): void {
+    this.setupErrorHandlingEffect();
+    this.setupForceStockSuccessEffect();
+    this.setupSpinnerEffect();
+  }
+
+  /**
+   * Effect pour observer les erreurs du store et gérer le forçage de stock
+   */
+  private setupErrorHandlingEffect(): void {
     effect(() => {
       const errorMsg = this.lastError();
       const errorDetails = this.facade.errorDetails();
       const waiting = this.waitingForForceStockSuccess();
 
-      // Si on est en train d'attendre le succès du force stock, ne pas réafficher le dialog
-      if (waiting) {
-        return;
-      }
+      if (waiting) return;
 
       if (errorMsg) {
-        // Si erreur de stock ET l'utilisateur peut forcer le stock
         if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
-          // Détecter le contexte via le flag explicite:
-          // - isFromTableCellEdit = true → modification cellule tableau
-          // - isFromTableCellEdit = false → ajout depuis recherche
-          const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
-          const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
-
-          // Stocker le contexte pour l'utiliser après succès
-          this.forceStockContext.set(detectedContext);
-
-          // Afficher dialog de confirmation pour forcer le stock
-          this.confirmDialog().onConfirm(
-            () => {
-              // L'utilisateur a confirmé, réessayer avec forceStock = true
-              if (errorDetails.attemptedLine) {
-                errorDetails.attemptedLine.forceStock = true;
-
-                // Marquer qu'on attend le succès du force stock (AVANT l'appel API)
-                this.waitingForForceStockSuccess.set(true);
-
-                // Appeler la bonne méthode selon le contexte
-                if (detectedContext === 'editCell') {
-                  // Modification cellule → SET endpoint
-                  this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
-                } else if (errorDetails.attemptedLine.id) {
-                  // Ajout produit existant → INCREMENT endpoint
-                  this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
-                } else {
-                  // Ajout nouveau produit
-                  const currentSale = this.facade.currentSale();
-                  if (!currentSale || !currentSale.saleId) {
-                    // Pas de vente → Création de vente avec force stock
-                    this.facade.createComptantSale(errorDetails.attemptedLine);
-                  } else {
-                    // Vente existe → ADD endpoint
-                    this.facade.onAddProduit(errorDetails.attemptedLine);
-                  }
-                }
-              }
-            },
-            'Forcer le stock',
-            'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
-            undefined,
-            () => {
-              // Annulation
-              this.facade.clearError();
-
-              const context = this.forceStockContext();
-              this.forceStockContext.set(null); // Clear le contexte
-
-              if (context === 'editCell') {
-                // Contexte: modification cellule → Recharger la vente pour restaurer l'ancienne valeur
-                const currentSale = this.facade.currentSale();
-                if (currentSale?.saleId) {
-                  this.facade.loadSaleForEdit(currentSale.saleId);
-                }
-
-                // Remettre le focus sur le champ de recherche
-                setTimeout(() => {
-                  this.resetProductSelection();
-                }, 200);
-              } else {
-                // Contexte: ajout produit → Vider le champ de recherche et refocus
-                this.resetProductSelection();
-              }
-            },
-          );
+          this.handleStockError(errorDetails);
         } else {
-          // Afficher le message d'erreur normal
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
@@ -239,51 +191,104 @@ export class SaleCreationComponent implements OnInit {
         }
       }
     });
+  }
 
-    // Effect pour détecter le succès après force stock
+  /**
+   * Gère l'erreur de stock insuffisant avec option de forçage
+   */
+  private handleStockError(errorDetails: { errorKey: string | null; attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean }): void {
+    const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
+    const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
+    this.forceStockContext.set(detectedContext);
+
+    this.confirmDialog().onConfirm(
+      () => this.onForceStockConfirmed(errorDetails, detectedContext),
+      'Forcer le stock',
+      'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
+      undefined,
+      () => this.onForceStockCancelled(),
+    );
+  }
+
+  /**
+   * Callback appelé quand l'utilisateur confirme le forçage de stock
+   */
+  private onForceStockConfirmed(
+    errorDetails: { attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean },
+    detectedContext: 'addProduct' | 'editCell',
+  ): void {
+    if (!errorDetails.attemptedLine) return;
+
+    errorDetails.attemptedLine.forceStock = true;
+    this.waitingForForceStockSuccess.set(true);
+
+    if (detectedContext === 'editCell') {
+      this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
+    } else if (errorDetails.attemptedLine.id) {
+      this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
+    } else {
+      const currentSale = this.facade.currentSale();
+      if (!currentSale?.saleId) {
+        this.facade.createComptantSale(errorDetails.attemptedLine);
+      } else {
+        this.facade.onAddProduit(errorDetails.attemptedLine);
+      }
+    }
+  }
+
+  /**
+   * Callback appelé quand l'utilisateur annule le forçage de stock
+   */
+  private onForceStockCancelled(): void {
+    this.facade.clearError();
+    const context = this.forceStockContext();
+    this.forceStockContext.set(null);
+
+    if (context === 'editCell') {
+      const currentSale = this.facade.currentSale();
+      if (currentSale?.saleId) {
+        this.facade.loadSaleForEdit(currentSale.saleId);
+      }
+      setTimeout(() => this.resetProductSelection(), 200);
+    } else {
+      this.resetProductSelection();
+    }
+  }
+
+  /**
+   * Effect pour détecter le succès après force stock
+   */
+  private setupForceStockSuccessEffect(): void {
     effect(() => {
       const loading = this.loading();
       const previousLoading = this.previousLoadingState();
       const waiting = this.waitingForForceStockSuccess();
       const errorDetails = this.facade.errorDetails();
 
-      // Ne rien faire si on n'attend pas de succès
       if (!waiting) {
-        // Mettre à jour l'état précédent seulement si différent pour éviter re-déclenchements
         if (previousLoading !== loading) {
           this.previousLoadingState.set(loading);
         }
         return;
       }
 
-      // Mettre à jour l'état précédent
       this.previousLoadingState.set(loading);
 
-      // Si on attendait le succès ET loading vient de passer de true à false ET pas d'erreur
       if (previousLoading && !loading && !errorDetails) {
         this.waitingForForceStockSuccess.set(false);
-
-        // Clear l'erreur maintenant que c'est réussi
         this.facade.clearError();
-
-        // Comportement après succès: TOUJOURS reset complet + focus
-        // (Que ce soit ajout produit OU modification cellule)
-        const context = this.forceStockContext();
-        this.forceStockContext.set(null); // Clear le contexte
-
-        setTimeout(() => {
-          this.resetProductSelection();
-        }, 200);
+        this.forceStockContext.set(null);
+        setTimeout(() => this.resetProductSelection(), 200);
       }
     });
+  }
 
-    // Contrôler le spinner global selon l'état loading
+  /**
+   * Effect pour contrôler le spinner global selon l'état loading
+   */
+  private setupSpinnerEffect(): void {
     effect(() => {
-      if (this.loading()) {
-        this.spinner.show();
-      } else {
-        this.spinner.hide();
-      }
+      this.loading() ? this.spinner.show() : this.spinner.hide();
     });
   }
 
@@ -364,6 +369,7 @@ export class SaleCreationComponent implements OnInit {
     const salesLine = createSalesLineFromProduct(product, quantity, currentSale);
 
     // Update customer display
+    //TODO: afficage se fait aptès l'ajout effectif du produit apres l'appel API pour éviter les problèmes de synchro en cas d'erreur (ex: stock insuffisant)
     this.customerDisplay.updateDisplayForProduct(product.libelle || '', quantity, product.regularUnitPrice || 0);
 
     // Observer l'état d'erreur pour détecter les échecs
@@ -379,11 +385,13 @@ export class SaleCreationComponent implements OnInit {
 
     // Attendre le résultat de l'opération avant de clear
     // Vérifier si une erreur s'est produite
+    //TODO: améliorer cette logique avec un retour d'event de succès/échec depuis le store au lieu de se baser sur l'observation des erreurs
     setTimeout(() => {
       const currentError = this.lastError();
 
       // Si pas d'erreur OU l'erreur n'a pas changé → Succès
       if (!currentError || currentError === initialError) {
+        // ✅ MODIFIÉ Phase 2.3: Clear selection et reset focus
         this.resetProductSelection();
 
         // Notifier le container que l'ajout est réussi
@@ -397,7 +405,7 @@ export class SaleCreationComponent implements OnInit {
   }
 
   /**
-   *
+   *  Réinitialiser la sélection produit et focus
    * Appelée après ajout réussi d'un produit
    */
   private resetProductSelection(): void {
@@ -415,7 +423,7 @@ export class SaleCreationComponent implements OnInit {
   }
 
   /**
-   * ✅ AJOUT Phase 4: Gestion Enter dans champ produit vide
+   *  Gestion Enter dans champ produit vide
    * Si vente en cours → ouvre modal paiement avec focus sur CASH
    * Si montant = 0 → sauvegarde directe
    */
@@ -441,6 +449,7 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Retour du focus sur le champ produit
+    //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     this.focusProductSearch();
   }
 
@@ -449,6 +458,7 @@ export class SaleCreationComponent implements OnInit {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
 
+     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     // Retour du focus sur le champ produit (conforme ancien système)
     this.focusProductSearch();
   }
@@ -457,7 +467,7 @@ export class SaleCreationComponent implements OnInit {
     if (line.saleLineId) {
       this.facade.removeLine(line.saleLineId);
     }
-
+     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     // Retour du focus sur le champ produit
     this.focusProductSearch();
   }
@@ -467,18 +477,23 @@ export class SaleCreationComponent implements OnInit {
     const saleType = this.selectedSaleType();
 
     if (event.action === 'delete') {
-      this.authorizationService.requestDeleteProductAuthorization(saleId, saleType).subscribe(authorized => {
-        if (authorized && event.line.saleLineId) {
-          this.facade.removeLine(event.line.saleLineId);
-        }
-      });
+      this.authorizationService
+        .requestDeleteProductAuthorization(saleId, saleType)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized && event.line.saleLineId) {
+            this.facade.removeLine(event.line.saleLineId);
+          }
+        });
     } else if (event.action === 'discount') {
-      this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
-        if (authorized) {
-          // TODO: Ouvrir modal de saisie remise
-          console.log('Authorization granted for discount');
-        }
-      });
+      this.authorizationService
+        .requestDiscountAuthorization(saleId, saleType)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            // TODO: Ouvrir modal de saisie remise
+          }
+        });
     }
   }
 
@@ -498,12 +513,13 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Retour du focus sur le champ produit
+     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
     this.focusProductSearch();
   }
 
   // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
 
-  onRemiseSelected(remise: any): void {
+  onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
     if (!currentSale) {
       this.notificationService.error('Aucune vente en cours');
@@ -555,22 +571,28 @@ export class SaleCreationComponent implements OnInit {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
-      if (authorized) {
-        this.openRemiseSelectionModal();
-      }
-    });
+    this.authorizationService
+      .requestDiscountAuthorization(saleId, saleType)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(authorized => {
+        if (authorized) {
+          this.openRemiseSelectionModal();
+        }
+      });
   }
 
   private requestRemiseRemovalAuthorization(): void {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
 
-    this.authorizationService.requestDiscountAuthorization(saleId, saleType).subscribe(authorized => {
-      if (authorized) {
-        this.facade.updateRemise(undefined);
-      }
-    });
+    this.authorizationService
+      .requestDiscountAuthorization(saleId, saleType)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(authorized => {
+        if (authorized) {
+          this.facade.updateRemise(undefined);
+        }
+      });
   }
 
   private openRemiseSelectionModal(): void {
@@ -596,6 +618,53 @@ export class SaleCreationComponent implements OnInit {
     } else {
       this.customers.set([]);
     }
+  }
+
+  onCustomerSelected(customer: ICustomer): void {
+    this.facade.setCustomer(customer);
+
+    // Retour du focus sur le champ produit
+    this.focusProductSearch();
+  }
+
+  onCustomerRemoved(): void {
+    this.facade.removeCustomer();
+
+    // Retour du focus sur le champ produit
+    this.focusProductSearch();
+  }
+
+  onCustomerAdd(): void {
+    // Ouvrir formulaire de création client standard (non assuré)
+    this.openUninsuredCustomerForm();
+  }
+
+  /**
+   * Ouvre le formulaire de création d'un nouveau client standard
+   */
+  private openUninsuredCustomerForm(): void {
+    const modalRef = this.modalService.open(UninsuredCustomerFormComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+    });
+
+    modalRef.componentInstance.entity = null;
+    modalRef.componentInstance.title = 'CRÉATION CLIENT STANDARD';
+
+    modalRef.result.then(
+      (customer: ICustomer) => {
+        if (customer && customer.id) {
+          this.facade.setCustomer(customer);
+
+          // Retour du focus sur le champ produit
+          this.focusProductSearch();
+        }
+      },
+      () => {
+        // Modal fermée sans création - pas de problème
+      },
+    );
   }
 
   // ===== Handlers pour SaleActionsComponent =====
@@ -655,7 +724,7 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Sauvegarder la vente (utiliser saveSale, pas createComptantSale)
-    this.facade.saveSale().subscribe({
+    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: result => {
         if (result) {
           // Clear customer display after sale
@@ -754,7 +823,7 @@ export class SaleCreationComponent implements OnInit {
   /**
    * Convertit les paiements de PaymentCompleteEvent au format attendu par le backend
    */
-  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): any[] {
+  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): IPayment[] {
     return eventPayments.map(p => ({
       paymentMode: p.mode,
       paidAmount: p.amount,
@@ -774,7 +843,7 @@ export class SaleCreationComponent implements OnInit {
     this.facade.setPrintReceipt(true);
 
     // Sauvegarder (l'impression sera déclenchée après succès)
-    this.facade.saveSale().subscribe({
+    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: result => {
         if (result?.saleId) {
           this.facade.printReceipt(result.saleId);
@@ -955,6 +1024,67 @@ export class SaleCreationComponent implements OnInit {
     });
   }
 
+  // ===== Getters pour le template =====
+
+  get itemCount(): number {
+    return this.salesLines().length;
+  }
+
+  get canPrint(): boolean {
+    return !!this.facade.currentSale()?.id;
+  }
+
+  // ===== Handler pour le changement de type de vente =====
+
+  onSaleTypeChange(saleType: SaleType): void {
+    const currentSale = this.currentSale();
+    const hasLines = this.salesLines().length > 0;
+
+    // Si le type de vente change et qu'il y a déjà des lignes, demander confirmation
+    if (hasLines && saleType !== this.selectedSaleType()) {
+      this.confirmDialog().onConfirm(
+        () => this.proceedWithSaleTypeChange(saleType, currentSale),
+        'Changement de type de vente',
+        `Voulez-vous vraiment changer le type de vente vers ${saleType}?\n\nAttention: Les données actuelles seront perdues.`,
+      );
+      return;
+    }
+
+    this.proceedWithSaleTypeChange(saleType, currentSale);
+  }
+
+  private proceedWithSaleTypeChange(saleType: SaleType, currentSale: any): void {
+    // Changer le type sélectionné
+    this.selectedSaleType.set(saleType);
+
+    // Annuler la vente actuelle
+    if (currentSale) {
+      this.facade.cancelSale();
+    }
+
+    // Note: La vente sera créée au premier produit ajouté (pas de vente vide)
+    // Créer une nouvelle vente selon le type
+    switch (saleType) {
+      case 'COMPTANT':
+        // Vente créée au premier produit ajouté
+        break;
+
+      case 'ASSURANCE':
+      case 'CARNET':
+        // Ces types seront implémentés en Phase 8
+        this.notificationService.info(`Type de vente: ${saleType}`, 'Fonctionnalité disponible en Phase 8');
+        // Revenir au type COMPTANT
+        this.selectedSaleType.set('COMPTANT');
+        break;
+    }
+  }
+
+  // ===== Gestion de la sidebar =====
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.update(collapsed => !collapsed);
+  }
+
   // ===== Gestion des ventes en attente =====
 
   openPendingSales(): void {
@@ -1021,7 +1151,8 @@ export class SaleCreationComponent implements OnInit {
     // Charger le nombre de ventes en attente depuis le backend
     // Note: Le service SalesApiService.countPendingSales() sera ajouté en Phase 8
     // Pour l'instant, on initialise à 0 (pas de ventes en attente)
-    // this.pendingSalesCount.set(0);
+    this.pendingSalesCount.set(0);
+
     // Future implementation:
     // this.salesApiService.countPendingSales()
     //   .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1030,7 +1161,6 @@ export class SaleCreationComponent implements OnInit {
 
   // ===== Raccourcis clavier =====
 
-  @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
     // F2: Focus recherche produit
     if (event.key === 'F2') {

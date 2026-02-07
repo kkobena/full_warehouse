@@ -1097,7 +1097,7 @@ export class SalesFacade {
    * Update line quantity
    * Envoie au backend pour recalcul des montants, puis recharge la vente
    */
-  updateLineQuantity(lineId: number, newQuantity: number): void {
+  updateLineQuantitySold(lineId: number, newQuantity: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) return;
 

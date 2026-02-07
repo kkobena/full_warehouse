@@ -158,6 +158,12 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
   });
 
+  // Monnaie calculée en temps réel depuis le composant payment-mode
+  currentChange = computed(() => {
+    const change = this.paymentModeComponent()?.changeAmount() || 0;
+    return change > 0 ? change : null;
+  });
+
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -327,7 +333,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     effect(() => {
       const sale = this.currentSale();
       if (sale && !sale.customerId) {
-        this.messageService.add({ severity: 'warn', summary: 'Client requis', detail: 'Un client assuré est obligatoire pour une vente ASSURANCE' });
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Client requis',
+          detail: 'Un client assuré est obligatoire pour une vente ASSURANCE',
+        });
       }
     });
   }
@@ -357,6 +367,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // S'abonner au rechargement de vente (après annulation forçage stock)
     this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.resetProductSelection();
+    });
+     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.resetForNewSale();
     });
   }
 
@@ -419,7 +432,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   onLineQuantityChanged(event: { line: ISalesLine; newQty: number }): void {
     if (event.line && event.line.id) {
-      this.facade.updateLineQuantity(event.line.id, event.newQty);
+      this.facade.updateLineQuantitySold(event.line.id, event.newQty);
     }
   }
 
@@ -752,7 +765,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // Vérifier les numBon avec les données synchronisées depuis les inputs
     const missingBonNumbers = tiersPayantsFromInputs.filter(tp => !tp.numBon);
     if (missingBonNumbers.length > 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Numéros de bon requis', detail: 'Veuillez renseigner tous les numéros de bon' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Numéros de bon requis',
+        detail: 'Veuillez renseigner tous les numéros de bon',
+      });
       return false;
     }
 
@@ -819,7 +836,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     // Confirmer avant d'annuler (comportement identique à sale-carnet)
     this.confirmDialog().onConfirm(
-      () => this.resetForNewSale(),
+      () => this.facade.cancelSale(),
       'Annulation de la vente',
       'Êtes-vous sûr de vouloir annuler cette vente ?',
     );
@@ -875,8 +892,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   private resetForNewSale(): void {
-    // Annuler la vente backend (comportement identique à sale-carnet)
-    this.facade.cancelSale();
+
     this.customerDisplay.clear();
     this.selectedLineId.set(null);
     this.customers.set([]);

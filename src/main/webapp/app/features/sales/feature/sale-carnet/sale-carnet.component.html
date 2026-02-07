@@ -93,10 +93,13 @@
             [taxAmount]="currentSale()?.taxAmount || 0"
             [netAmount]="currentSale()?.netAmount || 0"
             [amountToBePaid]="currentSale()?.amountToBePaid || 0"
-            [partAssurance]="currentSale()?.partTiersPayant || 0"
             [itemCount]="salesLines().length"
             [currentRemise]="currentSale()?.remise"
+            [isAvoir]="isAvoir()"
             [saleType]="'CARNET'"
+            [partAssurance]="currentSale()?.partTiersPayant || 0"
+            [partClient]="currentSale()?.amountToBePaid || 0"
+            [changeAmount]="currentChange()"
             (addRemise)="onAddRemise()"
             (removeRemise)="onRemoveRemise()" />
         </div>

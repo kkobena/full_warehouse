@@ -359,7 +359,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   onLineQuantityChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
-      this.facade.updateLineQuantity(data.line.id, data.newQty);
+      this.facade.updateLineQuantitySold(data.line.id, data.newQty);
     }
     // Focus géré via souscription à lineUpdatedSuccess$
   }

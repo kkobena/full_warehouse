@@ -96,12 +96,14 @@
             [totalAmount]="currentSale()?.salesAmount || 0"
             [discountAmount]="currentSale()?.discountAmount || 0"
             [taxAmount]="currentSale()?.taxAmount || 0"
-            [netAmount]="netAmount() || 0"
-            [amountToBePaid]="amountToBePaid() || 0"
-            [partAssurance]="currentSale()?.montantAssurance || 0"
-            [partClient]="currentSale()?.montantClient || 0"
-            [showAvoirBadge]="isAvoir()"
-            [saleType]="'ASSURANCE'" />
+            [netAmount]="currentSale()?.netAmount || 0"
+            [amountToBePaid]="currentSale()?.amountToBePaid || 0"
+            [itemCount]="salesLines().length"
+            [isAvoir]="isAvoir()"
+            [saleType]="'ASSURANCE'"
+         [partAssurance]="currentSale()?.partTiersPayant || 0"
+            [partClient]="currentSale()?.amountToBePaid || 0"
+            [changeAmount]="currentChange()" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions

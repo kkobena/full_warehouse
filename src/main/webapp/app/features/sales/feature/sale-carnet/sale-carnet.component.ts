@@ -131,6 +131,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   readonly lastError = this.facade.lastError;
+  readonly isAvoir = this.facade.isAvoir;
 
   // Focus management
   private focusInitialized = false;
@@ -145,6 +146,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
+
+  // Monnaie calculée en temps réel depuis le composant payment-mode
+  currentChange = computed(() => {
+    const change = this.paymentModeComponent()?.changeAmount() || 0;
+    return change > 0 ? change : null;
+  });
 
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
@@ -329,6 +336,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.resetProductSelection();
     });
+    
+     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.resetForNewSale();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -424,7 +435,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onLineQuantityChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
-      this.facade.updateLineQuantity(data.line.id, data.newQty);
+      this.facade.updateLineQuantitySold(data.line.id, data.newQty);
     }
     // Focus géré via souscription à lineUpdatedSuccess$
   }
@@ -531,7 +542,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     // Confirm before canceling
     if (this.salesLines().length > 0) {
       this.confirmDialog().onConfirm(
-        () => this.resetForNewSale(),
+        () =>  this.facade.cancelSale(),
         'Annulation de la vente',
         'Êtes-vous sûr de vouloir annuler cette vente ?',
       );
@@ -545,7 +556,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    * Appelé après sauvegarde ou annulation pour rester sur l'écran de vente
    */
   private resetForNewSale(): void {
-    this.facade.cancelSale();
+   
     this.customerDisplay.clear();
     this.isProcessingSale.set(false);
   }

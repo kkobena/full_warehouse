@@ -29,7 +29,7 @@ export class SaleActionsComponent {
   canSaveAsPresale = input(true);
   isSaving = input(false);
   saleType = input<'COMPTANT' | 'ASSURANCE' | 'CARNET'>('COMPTANT');
-  showPrintButton = input(true);
+  showPrintButton = input(false);
   showPresaleButton = input(false);
   isSmallScreen = input(false); // Pour afficher icon-only sur mobile
 

@@ -99,7 +99,9 @@ export class ProductListComponent {
       'Supprimer Produit',
       `Voulez-vous supprimer ${line.produitLibelle || 'ce produit'} ?`,
       undefined,
-      () => {}
+      () => {
+        //TODO: Action on reject , le champ produitSearch reçoit le focus
+      }
     );
   }
 
@@ -120,7 +122,7 @@ export class ProductListComponent {
   }
 
   getLineTotal(line: ISalesLine): number {
-    return (line.regularUnitPrice || 0) * (line.quantitySold || 0) - (line.discountAmount || 0);
+    return (line.regularUnitPrice || 0) * (line.quantityRequested || 0) - (line.discountAmount || 0);
   }
 
   // Méthodes pour le footer

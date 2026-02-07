@@ -86,6 +86,26 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
         this.selectedTiersPayants.set([]);
       }
     });
+
+    // Synchroniser quand les tiersPayants de la vente changent (pour ASSURANCE)
+    // Cela permet de mettre à jour l'affichage quand on ajoute/supprime un complémentaire
+    effect(() => {
+      const tiersPayantsFromSale = this.tiersPayants();
+      const saleType = this.saleType();
+      const customer = this.customer();
+
+      // Uniquement pour ASSURANCE et si on a un customer
+      // On utilise les tiersPayants de la vente s'ils sont différents
+      if (saleType === 'ASSURANCE' && customer && tiersPayantsFromSale.length > 0) {
+        const currentIds = this.selectedTiersPayants().map(tp => tp.id).sort();
+        const newIds = tiersPayantsFromSale.map(tp => tp.id).sort();
+
+        // Mettre à jour seulement si la liste a changé (ajout/suppression de complémentaire)
+        if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
+          this.selectedTiersPayants.set([...tiersPayantsFromSale]);
+        }
+      }
+    });
   }
 
   ngOnInit(): void {

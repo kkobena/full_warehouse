@@ -366,6 +366,12 @@ export class PaymentModeComponent implements OnInit {
   }
 
   submit(): void {
+    // Ne pas soumettre si un dialogue de confirmation est ouvert
+    // Évite de finaliser la vente quand on confirme un dialogue (ex: annulation)
+    if (document.querySelector('.p-confirmdialog')) {
+      return;
+    }
+
     if (!this.validate()) {
       return;
     }

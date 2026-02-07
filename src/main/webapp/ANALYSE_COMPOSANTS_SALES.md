@@ -541,3 +541,133 @@ Les composants analysés sont **fonctionnels** mais présentent des **violations
 - Bugs intermittents liés à la réactivité des signals
 - Dette technique croissante
 - Difficultés de maintenance et d'évolution
+
+---
+
+## 11. Suivi d'Implémentation
+
+### 11.1 Corrections P0 - TERMINÉES ✅
+
+| # | Action | Status | Date |
+|---|--------|--------|------|
+| 1 | Supprimer `standalone: true` | ✅ FAIT | 05/02/2026 |
+| 2 | Migrer `@HostListener` vers `host` | ✅ FAIT | 05/02/2026 |
+| 3 | Remplacer `any` par types stricts | ✅ FAIT | 05/02/2026 |
+
+### 11.2 Corrections P1 - EN COURS 🔄
+
+| # | Action | Status | Notes |
+|---|--------|--------|-------|
+| 5 | Créer mixins pour code dupliqué | ✅ FAIT | 4 mixins créés |
+| 6 | Ajouter `takeUntilDestroyed` | ✅ FAIT | 3 composants |
+| 7 | Extraire effects du constructeur | ✅ FAIT | Pattern initializeEffects() |
+| 8 | Mutations directes de currentSale | ⬜ À FAIRE | Via facade.updateSale() |
+
+### 11.3 Corrections P2 - TODOs dans le Code
+
+| # | TODO | Fichier | Ligne | Status |
+|---|------|---------|-------|--------|
+| 1 | Focus après API success | creation | 452, 461, 470, 516 | ⬜ |
+| 2 | Focus après API success | carnet | 447, 457, 465 | ⬜ |
+| 3 | Event succès/échec depuis store | creation | 388 | ⬜ |
+| 4 | Event succès/échec depuis store | carnet | 419 | ⬜ |
+| 5 | Affichage client après API | creation | 372 | ⬜ |
+| 6 | Affichage client après API | carnet | 404 | ⬜ |
+| 7 | Charger remises depuis service | creation | 132 | ⬜ |
+| 8 | Modal remise globale | creation | 529, 599 | ⬜ |
+| 9 | Modal saisie remise ligne | creation | 494 | ⬜ |
+| 10 | Modal création client assuré | assurance | 413 | ⬜ |
+| 11 | Méthode facade.addThirdParty | assurance | 564 | ⬜ |
+| 12 | Service backend supprimer TP | assurance | 583 | ⬜ |
+
+---
+
+## 12. Mixins Créés
+
+**Localisation** : `app/features/sales/shared/mixins/`
+
+| Mixin | Description | Lignes économisées |
+|-------|-------------|-------------------|
+| `product-handling.mixin.ts` | Sélection, scan, ajout produits | ~100 |
+| `payment-handling.mixin.ts` | Conversion paiements, différé | ~80 |
+| `force-stock.mixin.ts` | Gestion forçage stock, effects | ~120 |
+| `customer-handling.mixin.ts` | Recherche, sélection client | ~80 |
+| **Total** | | **~380 lignes** |
+
+### 12.1 Utilisation des Mixins
+
+```typescript
+// Import
+import {
+  createProductHandling,
+  createPaymentHandling,
+  createForceStockHandling,
+  createCustomerHandling
+} from '../../shared/mixins';
+
+// Dans le composant
+private productHandling = createProductHandling({
+  facade: this.facade,
+  customerDisplay: this.customerDisplay,
+  notificationService: this.notificationService,
+  host: this,
+  config: { requiresCustomer: false, saleType: 'COMPTANT' },
+  selectedProduct: this.facade.selectedProduct,
+  currentSale: this.facade.currentSale,
+  lastError: this.facade.lastError,
+  createSale: (line) => this.facade.createComptantSale(line),
+  addProduct: (line) => this.facade.onAddProduit(line),
+});
+```
+
+### 12.2 Stratégie d'Adoption (Sans Régression)
+
+1. **Phase 1** : Les mixins sont des utilitaires OPTIONNELS
+2. **Phase 2** : Tester sur un composant (sale-carnet recommandé)
+3. **Phase 3** : Étendre progressivement aux autres composants
+
+---
+
+## 13. Plan d'Action Restant
+
+### Phase 1 : Architecture Store (Priorité HAUTE)
+**Objectif** : Résoudre les TODOs 1-6 (focus après API)
+
+```typescript
+// À ajouter dans SalesFacade
+readonly productAddedSuccess$ = new Subject<void>();
+readonly lineUpdatedSuccess$ = new Subject<void>();
+readonly lineRemovedSuccess$ = new Subject<void>();
+```
+
+**Effort** : 1-2 jours
+
+### Phase 2 : Modal Remise COMPTANT
+**Objectif** : Résoudre TODOs 7, 8, 9
+
+- Réutiliser `RemiseSelectionModalComponent` de CARNET
+- Créer service pour charger les remises
+
+**Effort** : 0.5-1 jour
+
+### Phase 3 : Tiers Payants ASSURANCE
+**Objectif** : Résoudre TODOs 10, 11, 12
+
+- Modal création client assuré
+- Méthodes facade pour tiers payants
+
+**Effort** : 1-2 jours
+
+---
+
+## 14. Métriques de Progression
+
+| Métrique | Avant | Après | Objectif |
+|----------|-------|-------|----------|
+| Violations `any` | 20+ | 3 | 0 |
+| `@HostListener` | 3 | 0 | 0 |
+| `standalone: true` | 2 | 0 | 0 |
+| Code dupliqué | ~500 lignes | ~500 lignes | ~120 lignes |
+| TODOs dans code | 12 | 12 | 0 |
+| Mixins disponibles | 0 | 4 | 4 |
+| Subscriptions sans cleanup | 10+ | 0 | 0 |

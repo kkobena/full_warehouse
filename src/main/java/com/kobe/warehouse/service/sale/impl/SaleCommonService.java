@@ -239,7 +239,7 @@ public class SaleCommonService {
         c.setToIgnore(dto.isToIgnore());
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
-        if (nonNull(dto.getCustomerId())) {
+        if (nonNull(dto.getStatut())) {
             c.setStatut(dto.getStatut());
         } else {
             c.setStatut(SalesStatut.ACTIVE);

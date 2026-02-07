@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, signal, DestroyRef, effect, viewChild, output, input, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef, viewChild, output, input, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,17 +37,14 @@ import { ProduitSearch } from '../../../../shared/model';
 import { ISales } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
-import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
-import { IPayment } from '../../../../shared/model/payment.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
-import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
-
-/**
- * Seuil de tolérance pour considérer qu'il y a un reste à payer
- * Si le reste est <= 5 FCFA, on considère que le paiement est complet
- */
-const PAYMENT_TOLERANCE_THRESHOLD = 5;
+import {
+  createProductHandling,
+  ProductSearchHost,
+  createForceStockHandling,
+  createPaymentHandling,
+  createCustomerHandling,
+} from '../../shared/mixins';
 
 /**
  * Composant Container : Création de vente (Comptant)
@@ -81,8 +79,7 @@ const PAYMENT_TOLERANCE_THRESHOLD = 5;
   ],
   providers: [MessageService], // Instance locale pour ce composant
 })
-export class SaleCreationComponent implements OnInit {
-
+export class SaleCreationComponent implements OnInit, ProductSearchHost {
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -118,7 +115,6 @@ export class SaleCreationComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
   protected userVendeurService = inject(UserVendeurService);
-  private messageService = inject(MessageService);
 
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
@@ -137,15 +133,62 @@ export class SaleCreationComponent implements OnInit {
   selectedSaleType = signal<SaleType>('COMPTANT');
   isDiffere = signal<boolean>(false); // Signal local pour forcer la détection de changement
 
+  // Événement de paiement en attente (pour flux avoir avec sélection client)
+  private pendingPaymentEvent = signal<PaymentCompleteEvent | null>(null);
+
+  // Flag pour éviter de réafficher le dialogue avoir après confirmation
+  private avoirConfirmed = signal<boolean>(false);
+
+  // ===== Product Handling Mixin =====
+  private productHandling = createProductHandling({
+    facade: this.facade,
+    customerDisplay: this.customerDisplay,
+    notificationService: this.notificationService,
+    host: this,
+    config: {
+      requiresCustomer: false, // Client optionnel pour vente comptant
+      saleType: 'COMPTANT',
+    },
+    selectedProduct: this.facade.selectedProduct,
+    currentSale: this.facade.currentSale,
+    createSale: (line: ISalesLine) => this.facade.createComptant(line),
+    addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
+  });
+
   // Monnaie calculée en temps réel depuis le composant payment-mode
   currentChange = computed(() => {
     const change = this.paymentMode()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
   canEditPrice = signal<boolean>(false);
-  waitingForForceStockSuccess = signal<boolean>(false); // Flag pour détecter le succès après force stock
-  previousLoadingState = signal<boolean>(false); // Track l'état précédent de loading
-  forceStockContext = signal<'addProduct' | 'editCell' | null>(null); // Contexte du force stock: ajout vs modification
+
+  // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
+  private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
+
+  // Force Stock state signals
+  waitingForForceStockSuccess = signal<boolean>(false);
+  previousLoadingState = signal<boolean>(false);
+  forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
+
+  // ===== Force Stock Handling Mixin =====
+  private forceStockHandling = createForceStockHandling({
+    facade: this.facade,
+    authorizationService: this.authorizationService,
+    spinner: this.spinner,
+    config: { saleType: 'COMPTANT' },
+    currentSale: this.facade.currentSale,
+    loading: this.facade.loading,
+    lastError: this.facade.lastError,
+    waitingForForceStockSuccess: this.waitingForForceStockSuccess,
+    previousLoadingState: this.previousLoadingState,
+    forceStockContext: this.forceStockContext,
+    getConfirmDialog: () => this.confirmDialog(),
+    resetProductSelection: () => this.productHandling.resetProductSelection(),
+    operations: {
+      createSale: (line: ISalesLine) => this.facade.createComptantSale(line),
+      addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
+    },
+  });
 
   // UI state for sidebar and pending sales
   sidebarCollapsed = signal(false);
@@ -155,141 +198,63 @@ export class SaleCreationComponent implements OnInit {
   // Vendeur sélectionné
   selectedSeller = signal<IUser | null>(null);
 
+  // ===== Payment Handling Mixin =====
+  private paymentHandling = createPaymentHandling({
+    facade: this.facade,
+    notificationService: this.notificationService,
+    customerDisplay: this.customerDisplay,
+    config: {
+      saleType: 'COMPTANT',
+      toleranceThreshold: 5, // Seuil de tolérance pour le reste à payer
+      allowDiffere: true,
+    },
+    currentSale: this.facade.currentSale,
+    salesLines: this.facade.salesLines,
+    canSave: this.canSave,
+    isCashRegisterOpen: this.isCashRegisterOpenSignal,
+    getPaymentModeComponent: () => {
+      const comp = this.paymentMode();
+      if (!comp) return undefined;
+      // Adapter le type pour le mixin
+      return {
+        selectedModes: () =>
+          comp.selectedModes().map(m => ({
+            mode: m.mode,
+            amount: m.amount ?? 0,
+            amountEntered: m.amountEntered,
+          })),
+        totalPaid: () => comp.totalPaid(),
+        changeAmount: () => comp.changeAmount(),
+        changeExact: () => comp.changeExact(),
+        focusFirstMode: () => comp.focusFirstMode(),
+      };
+    },
+    openCashRegister: () => this.openCashRegister(),
+    resetForNewSale: () => this.resetForNewSale(),
+    showConfirmDialog: (onConfirm, title, message, onCancel) =>
+      this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+    onDiffereConfirmed: () => this.handleDiffereConfirmed(),
+  });
+
+  // ===== Customer Handling Mixin =====
+  private customerHandling = createCustomerHandling({
+    facade: this.facade,
+    customerSearchService: this.customerSearchService,
+    notificationService: this.notificationService,
+    modalService: this.modalService,
+    config: {
+      saleType: 'COMPTANT',
+      customerRequired: false, // Client optionnel pour vente comptant
+    },
+    selectedCustomer: this.facade.selectedCustomer,
+    customers: this.customers,
+    customerFormComponent: UninsuredCustomerFormComponent,
+    onCustomerSelectedCallback: () => this.focusProductSearch(),
+  });
+
   constructor() {
-    this.initializeEffects();
-  }
-
-  // ===== Effects Initialization =====
-
-  private initializeEffects(): void {
-    this.setupErrorHandlingEffect();
-    this.setupForceStockSuccessEffect();
-    this.setupSpinnerEffect();
-  }
-
-  /**
-   * Effect pour observer les erreurs du store et gérer le forçage de stock
-   */
-  private setupErrorHandlingEffect(): void {
-    effect(() => {
-      const errorMsg = this.lastError();
-      const errorDetails = this.facade.errorDetails();
-      const waiting = this.waitingForForceStockSuccess();
-
-      if (waiting) return;
-
-      if (errorMsg) {
-        if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
-          this.handleStockError(errorDetails);
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: errorMsg,
-            life: 5000,
-          });
-        }
-      }
-    });
-  }
-
-  /**
-   * Gère l'erreur de stock insuffisant avec option de forçage
-   */
-  private handleStockError(errorDetails: { errorKey: string | null; attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean }): void {
-    const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
-    const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
-    this.forceStockContext.set(detectedContext);
-
-    this.confirmDialog().onConfirm(
-      () => this.onForceStockConfirmed(errorDetails, detectedContext),
-      'Forcer le stock',
-      'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
-      undefined,
-      () => this.onForceStockCancelled(),
-    );
-  }
-
-  /**
-   * Callback appelé quand l'utilisateur confirme le forçage de stock
-   */
-  private onForceStockConfirmed(
-    errorDetails: { attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean },
-    detectedContext: 'addProduct' | 'editCell',
-  ): void {
-    if (!errorDetails.attemptedLine) return;
-
-    errorDetails.attemptedLine.forceStock = true;
-    this.waitingForForceStockSuccess.set(true);
-
-    if (detectedContext === 'editCell') {
-      this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
-    } else if (errorDetails.attemptedLine.id) {
-      this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
-    } else {
-      const currentSale = this.facade.currentSale();
-      if (!currentSale?.saleId) {
-        this.facade.createComptantSale(errorDetails.attemptedLine);
-      } else {
-        this.facade.onAddProduit(errorDetails.attemptedLine);
-      }
-    }
-  }
-
-  /**
-   * Callback appelé quand l'utilisateur annule le forçage de stock
-   */
-  private onForceStockCancelled(): void {
-    this.facade.clearError();
-    const context = this.forceStockContext();
-    this.forceStockContext.set(null);
-
-    if (context === 'editCell') {
-      const currentSale = this.facade.currentSale();
-      if (currentSale?.saleId) {
-        this.facade.loadSaleForEdit(currentSale.saleId);
-      }
-      setTimeout(() => this.resetProductSelection(), 200);
-    } else {
-      this.resetProductSelection();
-    }
-  }
-
-  /**
-   * Effect pour détecter le succès après force stock
-   */
-  private setupForceStockSuccessEffect(): void {
-    effect(() => {
-      const loading = this.loading();
-      const previousLoading = this.previousLoadingState();
-      const waiting = this.waitingForForceStockSuccess();
-      const errorDetails = this.facade.errorDetails();
-
-      if (!waiting) {
-        if (previousLoading !== loading) {
-          this.previousLoadingState.set(loading);
-        }
-        return;
-      }
-
-      this.previousLoadingState.set(loading);
-
-      if (previousLoading && !loading && !errorDetails) {
-        this.waitingForForceStockSuccess.set(false);
-        this.facade.clearError();
-        this.forceStockContext.set(null);
-        setTimeout(() => this.resetProductSelection(), 200);
-      }
-    });
-  }
-
-  /**
-   * Effect pour contrôler le spinner global selon l'état loading
-   */
-  private setupSpinnerEffect(): void {
-    effect(() => {
-      this.loading() ? this.spinner.show() : this.spinner.hide();
-    });
+    // Initialiser les effects de gestion du forçage de stock via le mixin
+    this.forceStockHandling.initializeEffects();
   }
 
   ngOnInit(): void {
@@ -298,6 +263,37 @@ export class SaleCreationComponent implements OnInit {
 
     // S'abonner à l'événement de succès de mise en attente
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.resetForNewSale();
+    });
+
+    // S'abonner aux événements de succès pour gérer le focus et reset
+    this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      // Utiliser le mixin pour l'affichage client et le reset
+      this.productHandling.updatePendingDisplay();
+      this.productHandling.resetProductSelection();
+      this.productAddedSuccess.emit();
+    });
+
+    this.facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    // S'abonner au rechargement de vente (après annulation forçage stock)
+    this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.resetProductSelection();
+    });
+
+    // S'abonner à la suppression du client (après succès API)
+    this.facade.customerRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    // S'abonner à l'annulation de la vente (après succès API)
+    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
 
@@ -317,109 +313,27 @@ export class SaleCreationComponent implements OnInit {
   // ===== Handlers pour ProductSearchComponent =====
 
   /**
-   *
+   * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
    */
   onProductSelected(product: ProduitSearch | null): void {
-    if (!product) {
-      return;
-    }
-
-    this.facade.setSelectedProduct(product);
-
-    //  AJOUT: Focus sur quantité après sélection
-    setTimeout(() => {
-      this.quantityComponent()?.focusProduitControl();
-      this.quantityComponent()?.reset(1);
-    }, 100);
+    this.productHandling.onProductSelected(product);
   }
 
   /**
+   * Délègue au mixin productHandling
    * Gère l'ajout de quantité depuis le composant QuantiteProdutSaisieComponent
    */
   onAddQuantity(quantity: number): void {
-    const product = this.selectedProduct();
-    if (!product || !quantity || quantity <= 0) {
-      return;
-    }
-
-    this.addProductToSale(product, quantity);
-
-    // Le reset sera fait via productAddedSuccess depuis le parent
-    // (Seulement si l'ajout réussit)
+    this.productHandling.onAddQuantity(quantity);
   }
 
   /**
+   * Délègue au mixin productHandling
    * Gère le scan d'un code-barres
    */
   onProductScanned(product: ProduitSearch): void {
-    this.facade.setSelectedProduct(product);
-    this.addProductToSale(product, 1);
-
-    // Le reset sera fait via productAddedSuccess depuis le parent
-    // (Seulement si l'ajout réussit)
-  }
-
-  /**
-   * Ajoute un produit à la vente
-   * Ne clear la sélection et n'émet l'event qu'en cas de succès
-   */
-  private addProductToSale(product: ProduitSearch, quantity: number): void {
-    const currentSale = this.facade.currentSale();
-    const salesLine = createSalesLineFromProduct(product, quantity, currentSale);
-
-    // Update customer display
-    //TODO: afficage se fait aptès l'ajout effectif du produit apres l'appel API pour éviter les problèmes de synchro en cas d'erreur (ex: stock insuffisant)
-    this.customerDisplay.updateDisplayForProduct(product.libelle || '', quantity, product.regularUnitPrice || 0);
-
-    // Observer l'état d'erreur pour détecter les échecs
-    const initialError = this.lastError();
-
-    // Si pas de vente en cours, créer avec ce premier produit
-    if (!currentSale || !currentSale.saleId) {
-      this.facade.createComptant(salesLine);
-    } else {
-      // Sinon ajouter à la vente existante
-      this.facade.onAddProduit(salesLine);
-    }
-
-    // Attendre le résultat de l'opération avant de clear
-    // Vérifier si une erreur s'est produite
-    //TODO: améliorer cette logique avec un retour d'event de succès/échec depuis le store au lieu de se baser sur l'observation des erreurs
-    setTimeout(() => {
-      const currentError = this.lastError();
-
-      // Si pas d'erreur OU l'erreur n'a pas changé → Succès
-      if (!currentError || currentError === initialError) {
-        // ✅ MODIFIÉ Phase 2.3: Clear selection et reset focus
-        this.resetProductSelection();
-
-        // Notifier le container que l'ajout est réussi
-        this.productAddedSuccess.emit();
-      } else {
-        // En cas d'erreur, le produit reste sélectionné
-        // L'utilisateur peut réessayer ou corriger
-        console.error('Échec ajout produit:', currentError);
-      }
-    }, 200);
-  }
-
-  /**
-   *  Réinitialiser la sélection produit et focus
-   * Appelée après ajout réussi d'un produit
-   */
-  private resetProductSelection(): void {
-    // Réinitialiser le produit sélectionné
-    this.facade.setSelectedProduct(null);
-
-    // Réinitialiser le composant de recherche
-    this.productSearchComponent()?.reset();
-
-    // Réinitialiser la quantité
-    this.quantityComponent()?.reset(1);
-
-    // Focus sur recherche produit
-    this.focusProductSearch();
+    this.productHandling.onProductScanned(product);
   }
 
   /**
@@ -447,29 +361,21 @@ export class SaleCreationComponent implements OnInit {
     if (data.line.id) {
       this.facade.updateLineQuantity(data.line.id, data.newQty);
     }
-
-    // Retour du focus sur le champ produit
-    //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    this.focusProductSearch();
+    // Focus géré via souscription à lineUpdatedSuccess$
   }
 
   onLineQuantityRequestedChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
-
-     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    // Retour du focus sur le champ produit (conforme ancien système)
-    this.focusProductSearch();
+    // Focus géré via souscription à lineUpdatedSuccess$
   }
 
   onLineRemoved(line: ISalesLine): void {
     if (line.saleLineId) {
       this.facade.removeLine(line.saleLineId);
     }
-     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
+    // Focus géré via souscription à lineRemovedSuccess$
   }
 
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
@@ -511,10 +417,7 @@ export class SaleCreationComponent implements OnInit {
     if (data.line.id) {
       this.facade.updateLinePrice(data.line.id, data.newPrice);
     }
-
-    // Retour du focus sur le champ produit
-     //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    this.focusProductSearch();
+    // Focus géré via souscription à lineUpdatedSuccess$
   }
 
   // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
@@ -528,7 +431,6 @@ export class SaleCreationComponent implements OnInit {
 
     // TODO: Implémenter l'application de remise globale
     // this.facade.applyGlobalDiscount(remise);
-    console.log('Remise sélectionnée:', remise);
   }
 
   onAddRemise(): void {
@@ -607,99 +509,100 @@ export class SaleCreationComponent implements OnInit {
 
   // ===== Handlers pour CustomerSelectorComponent =====
 
+  /**
+   * Délègue au mixin customerHandling
+   */
   onCustomerSearchChange(searchTerm: string): void {
-    if (searchTerm && searchTerm.length >= 2) {
-      this.customerSearchService
-        .search(searchTerm, 10)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(customers => {
-          this.customers.set(customers);
-        });
-    } else {
-      this.customers.set([]);
-    }
-  }
-
-  onCustomerSelected(customer: ICustomer): void {
-    this.facade.setCustomer(customer);
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
-  }
-
-  onCustomerRemoved(): void {
-    this.facade.removeCustomer();
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
-  }
-
-  onCustomerAdd(): void {
-    // Ouvrir formulaire de création client standard (non assuré)
-    this.openUninsuredCustomerForm();
+    this.customerHandling.searchCustomers(searchTerm);
   }
 
   /**
-   * Ouvre le formulaire de création d'un nouveau client standard
+   * Délègue au mixin customerHandling
    */
-  private openUninsuredCustomerForm(): void {
-    const modalRef = this.modalService.open(UninsuredCustomerFormComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
+  onCustomerSelected(customer: ICustomer): void {
+    this.customerHandling.selectCustomer(customer);
+  }
+
+  onCustomerRemoved(): void {
+    const hasSale = !!this.facade.currentSale()?.saleId;
+    this.customerHandling.removeCustomer();
+
+    // Si pas de vente en cours, focus immédiat (pas d'appel API)
+    // Sinon, le focus est géré via souscription à customerRemovedSuccess$
+    if (!hasSale) {
+      this.focusProductSearch();
+    }
+  }
+
+  /**
+   * Délègue au mixin customerHandling
+   */
+  onCustomerAdd(): void {
+    this.customerHandling.openCustomerFormModal(null, {
+      title: 'CRÉATION CLIENT STANDARD',
     });
-
-    modalRef.componentInstance.entity = null;
-    modalRef.componentInstance.title = 'CRÉATION CLIENT STANDARD';
-
-    modalRef.result.then(
-      (customer: ICustomer) => {
-        if (customer && customer.id) {
-          this.facade.setCustomer(customer);
-
-          // Retour du focus sur le champ produit
-          this.focusProductSearch();
-        }
-      },
-      () => {
-        // Modal fermée sans création - pas de problème
-      },
-    );
   }
 
   // ===== Handlers pour SaleActionsComponent =====
 
+  /**
+   * Appelé par le bouton Save
+   * Construit l'événement de paiement et délègue à la validation commune
+   */
   onSave(): void {
-    const sale = this.facade.currentSale();
-    if (!sale || !this.canSave()) {
-      this.notificationService.warning('Vente invalide', "Veuillez ajouter au moins un produit avant d'enregistrer la vente");
+    // Construire l'événement de paiement depuis le composant payment-mode
+    const event = this.paymentHandling.buildPaymentEvent();
+    if (event) {
+      this.validateAndProcessPayment(event);
+    }
+  }
+
+  /**
+   * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode (Enter dans input)
+   * Délègue à la validation commune
+   */
+  onPaymentComplete(event: PaymentCompleteEvent): void {
+    this.validateAndProcessPayment(event);
+  }
+
+  /**
+   * Méthode unifiée pour la validation et le traitement du paiement
+   * Gère le flux avoir avec vérification client, puis délègue au mixin paymentHandling
+   * Utilisée par onSave() et onPaymentComplete() pour avoir le même comportement
+   */
+  private validateAndProcessPayment(event: PaymentCompleteEvent): void {
+    // Vérifier si la vente peut être sauvegardée
+    if (!this.paymentHandling.validateSaleForSave()) {
       return;
     }
 
-    // Récupérer les paiements depuis le composant payment-mode
-    const paymentModeComp = this.paymentMode();
-    if (!paymentModeComp) {
-      this.notificationService.error('Erreur', 'Composant de paiement non disponible');
-      return;
+    const isAvoir = this.facade.isAvoir();
+    const hasCustomer = this.facade.hasCustomer();
+
+    // Si c'est un avoir ET pas encore confirmé, afficher un dialogue de confirmation
+    if (isAvoir && !this.avoirConfirmed()) {
+      this.confirmDialog().onConfirm(
+        () => {
+          // Marquer l'avoir comme confirmé pour ne plus afficher le dialogue
+          this.avoirConfirmed.set(true);
+
+          // Après confirmation avoir, vérifier si client associé
+          if (!hasCustomer) {
+            // Stocker l'événement de paiement pour le récupérer après sélection client
+            this.pendingPaymentEvent.set(event);
+            // Ouvrir modal sélection client pour avoir
+            this.openCustomerModal(false);
+          } else {
+            this.paymentHandling.processPayment(event);
+          }
+        },
+        'Avoir détecté',
+        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
+      );
+    } else {
+      // Avoir déjà confirmé ou pas un avoir → traiter directement
+      this.paymentHandling.processPayment(event);
     }
-
-    // Construire l'événement de paiement
-    const paymentEvent: PaymentCompleteEvent = {
-      payments: paymentModeComp.selectedModes().map(entry => ({
-        mode: entry.mode,
-        amount: entry.amount || 0,
-        amountEntered: entry.amountEntered,
-      })),
-      totalPaid: paymentModeComp.totalPaid(),
-      change: paymentModeComp.changeAmount(),
-      changeExact: paymentModeComp.changeExact(),
-      comment: undefined,
-      printReceipt: false,
-      printInvoice: false,
-    };
-
-    // Utiliser la méthode commune de validation paiement
-    this.processPaymentValidation(paymentEvent);
   }
 
   finalizeSale(): void {
@@ -724,112 +627,41 @@ export class SaleCreationComponent implements OnInit {
     }
 
     // Sauvegarder la vente (utiliser saveSale, pas createComptantSale)
-    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: result => {
-        if (result) {
-          // Clear customer display after sale
-          this.customerDisplay.clear();
-          // Réinitialiser pour nouvelle vente après sauvegarde
-          this.resetForNewSale();
-        }
-      },
-      error: () => {
-        // L'erreur est déjà gérée par le facade
-      },
-    });
-  }
-
-  /**
-   * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode (Enter dans input)
-   * Utilise la méthode commune de validation paiement
-   */
-  onPaymentComplete(event: PaymentCompleteEvent): void {
-    this.processPaymentValidation(event);
-  }
-
-  /**
-   * Méthode commune pour valider et traiter le paiement
-   * Appelée par onSave() (bouton Enregistrer) ET onPaymentComplete() (Enter dans input)
-   * Gère la vente différée si montant insuffisant
-   */
-  private processPaymentValidation(event: PaymentCompleteEvent): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) {
-      this.notificationService.warning('Erreur', 'Aucune vente en cours');
-      return;
-    }
-
-    // Appliquer les paiements et montants de l'événement à la vente
-    currentSale.montantVerse = event.totalPaid || 0;
-    currentSale.payments = this.convertPayments(event.payments);
-
-    // Stocker les deux montants de monnaie (exact pour comptabilité, arrondi pour affichage)
-    currentSale.montantRendu = event.changeExact || 0; // Montant exact
-    currentSale.montantRenduArrondi = event.change || 0; // Montant arrondi
-
-    // Gérer vente différée si montant insuffisant
-    const amountToBePaid = currentSale.amountToBePaid || 0;
-    const restToPay = amountToBePaid - currentSale.montantVerse;
-
-    // Seuil de tolérance: on considère qu'il y a un reste seulement si > 5 FCFA
-
-    if (restToPay > PAYMENT_TOLERANCE_THRESHOLD && !currentSale.differe) {
-      // Montant insuffisant → Proposer vente différée
-      const message = `
-        <div>Le montant versé est inférieur au montant dû.</div><br>
-        <div class="text-end mb-2">
-          Montant dû : <span class="fs-5 badge rounded-pill bg-danger-subtle text-danger-emphasis"><b>${amountToBePaid.toLocaleString()} FCFA</b></span>
-        </div>
-        <div class="text-end mb-2">
-          Montant versé : <span class="fs-5 badge rounded-pill bg-primary-subtle text-primary-emphasis"><b>${currentSale.montantVerse.toLocaleString()} FCFA</b></span>
-        </div>
-        <div class="text-end mb-2">
-          Reste à payer : <span class="fs-5 badge rounded-pill bg-warning-subtle text-warning-emphasis"><b>${restToPay.toLocaleString()} FCFA</b></span>
-        </div><br>
-        <div>Voulez-vous régler le reste en différé ?</div>
-      `;
-
-      this.confirmDialog().onConfirm(
-        () => {
-          // OUI → Finaliser en différé avec sélection client
-          // Vérifier si un client est déjà associé
-          if (!currentSale.customerId) {
-            // Pas de client → Ouvrir modal sélection client
-            this.openCustomerModal(true); // true = pour différé
-          } else {
-            // Client déjà présent, marquer directement en différé
-            currentSale.differe = true;
-            this.isDiffere.set(true); // Mettre à jour le signal pour afficher le champ commentaire
-
-            // On ne finalise PAS automatiquement, on laisse l'utilisateur saisir le commentaire et valider
+    this.facade
+      .saveSale()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            // Clear customer display after sale
+            this.customerDisplay.clear();
+            // Réinitialiser pour nouvelle vente après sauvegarde
+            this.resetForNewSale();
           }
         },
-        'Vente différée',
-        message,
-        undefined,
-        () => {
-          // NON → Remettre focus sur input règlement pour ajuster
-          setTimeout(() => {
-            this.paymentMode()?.focusFirstMode();
-          }, 100);
+        error: () => {
+          // L'erreur est déjà gérée par le facade
         },
-      );
-    } else {
-      // Montant suffisant (ou différence <= 5 FCFA) ou déjà différé → Finaliser
-      this.finalizeSale();
-    }
+      });
   }
 
   /**
-   * Convertit les paiements de PaymentCompleteEvent au format attendu par le backend
+   * Callback appelé par le mixin quand une vente différée est confirmée
+   * Gère la sélection client si nécessaire
    */
-  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): IPayment[] {
-    return eventPayments.map(p => ({
-      paymentMode: p.mode,
-      paidAmount: p.amount,
-      montantVerse: p.amountEntered || p.amount,
-      netAmount: p.amount,
-    }));
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) return;
+
+    // Vérifier si un client est déjà associé
+    if (!currentSale.customerId) {
+      // Pas de client → Ouvrir modal sélection client
+      this.openCustomerModal(true); // true = pour différé
+    } else {
+      // Client déjà présent, marquer directement en différé
+      currentSale.differe = true;
+      this.isDiffere.set(true); // Mettre à jour le signal pour afficher le champ commentaire
+    }
   }
 
   onSaveAndPrint(): void {
@@ -843,17 +675,20 @@ export class SaleCreationComponent implements OnInit {
     this.facade.setPrintReceipt(true);
 
     // Sauvegarder (l'impression sera déclenchée après succès)
-    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: result => {
-        if (result?.saleId) {
-          this.facade.printReceipt(result.saleId);
-          this.resetForNewSale();
-        }
-      },
-      error: () => {
-        // L'erreur est déjà gérée par le facade
-      },
-    });
+    this.facade
+      .saveSale()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result?.saleId) {
+            this.facade.printReceipt(result.saleId);
+            this.resetForNewSale();
+          }
+        },
+        error: () => {
+          // L'erreur est déjà gérée par le facade
+        },
+      });
   }
 
   onPrint(): void {
@@ -889,8 +724,7 @@ export class SaleCreationComponent implements OnInit {
       // Si la vente a des lignes, demander confirmation
       this.confirmDialog().onConfirm(
         () => {
-          this.facade.cancelSale(); // Annuler la vente AVANT de reset l'UI
-          setTimeout(() => this.resetForNewSale(), 100);
+          this.facade.cancelSale(); // Reset géré via souscription à cancelSaleSuccess$
         },
         'Annulation de la vente',
         'Voulez-vous vraiment annuler cette vente ? Toutes les données seront perdues.',
@@ -929,10 +763,7 @@ export class SaleCreationComponent implements OnInit {
     modalRef.result.then(
       (customer: ICustomer) => {
         if (customer && customer.id) {
-          // Synchroniser avec la facade
-          this.facade.setCustomer(customer);
-
-          // Assigner le customerId à la vente
+          // Assigner le customerId immédiatement sur la vente (évite race condition avec API async)
           if (currentSale) {
             currentSale.customerId = customer.id;
 
@@ -943,14 +774,29 @@ export class SaleCreationComponent implements OnInit {
             }
           }
 
-          // Comportement après sélection client:
-          // - Si AVOIR sans différé → Finaliser immédiatement
-          // - Si DIFFERE (avec ou sans avoir) → Laisser l'utilisateur saisir le commentaire
+          // Pour avoir sans différé → Attendre que le client soit vraiment associé avant de finaliser
+          // Sinon l'appel API de setCustomer n'est pas terminé quand finalizeSale() est appelé
           if (isAvoir && !currentSale?.differe) {
-            // Avoir pur sans différé → Finaliser directement
-            this.finalizeSale();
-          } else if (currentSale?.differe) {
-            // Différé (avec ou sans avoir) → Focus sur commentaire
+            // S'abonner au succès de l'association client AVANT d'appeler setCustomer
+            this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
+              // Après association client réussie, continuer avec le paiement
+              // Utiliser l'événement de paiement en attente si disponible (évite de reconstruire et re-montrer des dialogs)
+              const pendingEvent = this.pendingPaymentEvent();
+              if (pendingEvent) {
+                this.pendingPaymentEvent.set(null);
+                this.paymentHandling.processPayment(pendingEvent);
+              } else {
+                // Sinon construire un nouvel événement (cas du bouton Save)
+                this.paymentHandling.onSave();
+              }
+            });
+          }
+
+          // Synchroniser avec la facade (appel API asynchrone)
+          this.facade.setCustomer(customer);
+
+          // Si différé → Focus sur commentaire après un délai (pas besoin d'attendre customerSetSuccess)
+          if (currentSale?.differe) {
             setTimeout(() => {
               this.paymentMode()?.focusCommentInput();
             }, 100);
@@ -1001,6 +847,9 @@ export class SaleCreationComponent implements OnInit {
     this.customers.set([]);
     this.selectedLineId.set(null);
     this.isDiffere.set(false); // Reset signal vente différée
+    this.avoirConfirmed.set(false); // Reset flag confirmation avoir
+    this.pendingPaymentEvent.set(null); // Reset événement de paiement en attente
+    // Reset le state du facade (sans appeler cancelSale)
 
     // Reset product search component
     setTimeout(() => {
@@ -1101,9 +950,6 @@ export class SaleCreationComponent implements OnInit {
 
     // Charger les données de la vente en attente
     this.onLoadPrevente(sale);
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
   }
 
   /**
@@ -1128,6 +974,9 @@ export class SaleCreationComponent implements OnInit {
     // Restaurer le type de vente si différent
     if (sale.type && sale.type !== 'VNO') {
       console.log('Type de vente chargé:', sale.type);
+    } else {
+      // Retour du focus sur le champ produit
+      this.focusProductSearch();
     }
   }
 

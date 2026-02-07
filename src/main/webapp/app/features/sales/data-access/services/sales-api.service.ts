@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import moment from 'moment';
 
 import { SERVER_API_URL } from '../../../../app.constants';
-import { createRequestOption, createRequestOptions } from '../../../../shared/util/request-util';
+import {  createRequestOptions } from '../../../../shared/util/request-util';
 import { ISales, SaleId, FinalyseSale, UpdateSaleInfo } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
 
@@ -100,6 +100,7 @@ export class SalesApiService {
 
   /**
    * Find a sale by ID
+   * Find current sale
    */
   findSale(id: SaleId): Observable<ISales> {
     return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' }).pipe(
@@ -294,6 +295,16 @@ export class SalesApiService {
       .pipe(map((): void => undefined));
   }
 
+
+/**
+   * Delete item from sale
+   */
+  deleteItemFromAssurance(id: SaleLineId): Observable<void> {
+    return this.http
+      .delete<void>(`${this.resourceUrl}/delete-item/assurance/${id.id}/${id.saleDate}`, { observe: 'response' })
+      .pipe(map((): void => undefined));
+  }
+
   /**
    * Add global remise (discount) to cash sale
    */
@@ -330,12 +341,12 @@ export class SalesApiService {
   putAssuranceOnStandby(sales: ISales): Observable<FinalyseSale> {
     const copy = this.convertDateFromClient(sales);
     return this.http
-      .put<FinalyseSale>(`${this.resourceUrl}/vo/assurance/put-on-hold`, copy, { observe: 'response' })
+      .put<FinalyseSale>(`${this.resourceUrl}/assurance/put-on-hold`, copy, { observe: 'response' })
       .pipe(map(res => res.body!));
   }
 
   /**
-   * Get all pending sales (status = STANDBY)
+   * Get all pending sales 
    * Returns list of sales waiting to be completed
    */
   getPendingSales(req: any): Observable<ISales[]> {
@@ -352,6 +363,25 @@ export class SalesApiService {
       }),
     );
   }
+
+/**
+   * Delete pending sale (prévente) for vno (comptant)
+   */
+  deletePreventeComptant(saleId: SaleId): Observable<void> {
+    return this.http
+      .delete<void>(`${this.resourceUrl}/prevente/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
+      .pipe(map((): void => undefined));
+  }
+/**
+   * Delete pending sale (prévente) for assurance/carnet
+   */
+  deletePreventeAssurance(saleId: SaleId): Observable<void> {
+    return this.http
+      .delete<void>(`${this.resourceUrl}/prevente/assurance/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
+      .pipe(map((): void => undefined));
+  }
+
+
 
   /**
    * Convert item dates from client format (Moment) to server format (string)

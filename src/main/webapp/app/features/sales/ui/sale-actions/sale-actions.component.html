@@ -50,7 +50,7 @@
 
 
           <p-button
-            label="Mettre en attente"
+            label="En attente"
             icon="pi pi-pause"
             severity="secondary"
             [disabled]="!canSaveAsPresale() || isSaving()"
@@ -69,26 +69,22 @@
          ></p-button>
       </p-buttonGroup>
 
-      @if (showPrintButton() && saleType() === 'COMPTANT') {
-        <p-button
-          label="Finaliser et Imprimer"
-          icon="pi pi-print"
-          severity="success"
-          [outlined]="true"
-          [disabled]="!canSave() || isSaving()"
-          (onClick)="onSaveAndPrint()"
-          size="small"></p-button>
-      }
-
-      @if (showPrintButton() && canPrint()) {
-        <p-button
+   
+  
+    </div>
+   
+        @if (showPrintButton() && canPrint()) {
+         <p-buttonGroup>   <p-button
           label="Imprimer"
           icon="pi pi-print"
           severity="secondary"
           [disabled]="!canPrint()"
           (onClick)="onPrint()"
-          size="small"></p-button>
+          size="small"></p-button>  </p-buttonGroup>
+       
       }
-    </div>
+    
+      
+    
   }
 </div>

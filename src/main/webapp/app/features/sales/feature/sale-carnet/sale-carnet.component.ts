@@ -1,5 +1,19 @@
-import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, model, DestroyRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  AfterViewInit,
+  signal,
+  computed,
+  viewChild,
+  output,
+  effect,
+  input,
+  model,
+  DestroyRef,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +43,7 @@ import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
 import { IPayment } from '../../../../shared/model/payment.model';
-import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
+import { createProductHandling, ProductSearchHost } from '../../shared/mixins';
 
 /**
  * SaleCarnetComponent
@@ -65,7 +79,7 @@ import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.u
   ],
   providers: [MessageService],
 })
-export class SaleCarnetComponent implements OnInit, AfterViewInit {
+export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearchHost {
   // Services
   private messageService = inject(MessageService);
 
@@ -131,6 +145,24 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
 
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
+
+  // ===== Product Handling Mixin =====
+  private productHandling = createProductHandling({
+    facade: this.facade,
+    customerDisplay: this.customerDisplay,
+    notificationService: this.notificationService,
+    host: this,
+    config: {
+      requiresCustomer: true,
+      customerRequiredMessage: "Veuillez sélectionner un client avant d'ajouter des produits",
+      saleType: 'CARNET',
+    },
+    selectedProduct: this.facade.selectedProduct,
+    currentSale: this.facade.currentSale,
+    hasCustomer: this.hasCustomer,
+    createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
+    addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
+  });
 
   constructor() {
     this.initializeEffects();
@@ -226,9 +258,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
       if (currentSale?.saleId) {
         this.facade.loadSaleForEdit(currentSale.saleId);
       }
-      setTimeout(() => this.resetProductSelection(), 200);
+      // Reset géré via souscription à saleReloadedSuccess$
     } else {
-      this.resetProductSelection();
+      this.productHandling.resetProductSelection();
     }
   }
 
@@ -254,7 +286,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
         this.waitingForForceStockSuccess.set(false);
         this.facade.clearError();
         this.forceStockContext.set(null);
-        setTimeout(() => this.resetProductSelection(), 200);
+        // Reset géré via souscription à productAddedSuccess$ ou lineUpdatedSuccess$
       }
     });
   }
@@ -277,6 +309,26 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
 
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
+
+    // S'abonner aux événements de succès pour gérer le focus et reset
+    this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      // Utiliser le mixin pour l'affichage client et le reset
+      this.productHandling.updatePendingDisplay();
+      this.productHandling.resetProductSelection();
+    });
+
+    this.facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    // S'abonner au rechargement de vente (après annulation forçage stock)
+    this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.resetProductSelection();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -345,97 +397,27 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   // ===== Product Management =====
 
   /**
-   *
+   * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
    */
   onProductSelected(product: ProduitSearch | null): void {
-    if (!product) {
-      return;
-    }
-
-    if (!this.hasCustomer()) {
-      this.notificationService.warning('Client requis', "Veuillez sélectionner un client avant d'ajouter des produits");
-      return;
-    }
-
-    this.facade.setSelectedProduct(product);
-
-    // ✅ AJOUT: Focus sur quantité après sélection
-    setTimeout(() => {
-      this.quantityComponent()?.focusProduitControl();
-      this.quantityComponent()?.reset(1);
-    }, 100);
+    this.productHandling.onProductSelected(product);
   }
 
   /**
+   * Délègue au mixin productHandling
    * Gère l'ajout de quantité depuis le composant QuantiteProdutSaisieComponent
    */
   onAddQuantity(quantity: number): void {
-    const product = this.selectedProduct();
-    if (!product || !quantity || quantity <= 0) {
-      return;
-    }
-
-    this.addProductToSale(product, quantity);
+    this.productHandling.onAddQuantity(quantity);
   }
 
   /**
+   * Délègue au mixin productHandling
    * Gère le scan d'un code-barres
    */
   onProductScanned(product: ProduitSearch): void {
-    if (!this.hasCustomer()) {
-      this.notificationService.warning('Client requis', "Veuillez sélectionner un client avant d'ajouter des produits");
-      return;
-    }
-
-    this.facade.setSelectedProduct(product);
-    this.addProductToSale(product, 1);
-  }
-
-  /**
-   * Ajoute un produit à la vente CARNET
-   * Ne clear la sélection et n'émet l'event qu'en cas de succès
-   */
-  private addProductToSale(product: ProduitSearch, quantity: number): void {
-    const currentSale = this.currentSale();
-    const salesLine = createSalesLineFromProduct(product, quantity, currentSale);
-
-    // Update customer display
-    //TODO: afficage se fait aptès l'ajout effectif du produit après l'appel API pour éviter les problèmes de synchro en cas d'erreur (ex: stock insuffisant)
-    this.customerDisplay.updateDisplayForProduct(product.libelle || '', quantity, product.regularUnitPrice || 0);
-
-    // Observer l'état d'erreur pour détecter les échecs
-    const initialError = this.lastError();
-
-    // Si pas de vente en cours, créer avec ce premier produit
-    if (!currentSale || !currentSale.saleId) {
-      this.facade.createCarnetSale(salesLine);
-    } else {
-      // Sinon ajouter à la vente existante
-      this.facade.onAddProduitCarnet(salesLine);
-    }
-
-    // Attendre le résultat de l'opération avant de clear
-    //TODO: améliorer cette logique avec un retour d'event de succès/échec depuis le store au lieu de se baser sur l'observation des erreurs
-    setTimeout(() => {
-      const currentError = this.lastError();
-
-      // Si pas d'erreur OU l'erreur n'a pas changé → Succès
-      if (!currentError || currentError === initialError) {
-        this.resetProductSelection();
-      }
-    }, 200);
-  }
-
-  /**
-   *
-   * Appelée après ajout réussi d'un produit
-   */
-  private resetProductSelection(): void {
-    this.facade.setSelectedProduct(null);
-    this.productSearchComponent()?.reset();
-    this.quantityComponent()?.reset(1);
-    this.focusProductSearch();
+    this.productHandling.onProductScanned(product);
   }
 
   // ===== Handlers pour ProductListComponent =====
@@ -444,26 +426,21 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     if (data.line.id) {
       this.facade.updateLineQuantity(data.line.id, data.newQty);
     }
- //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    this.focusProductSearch();
+    // Focus géré via souscription à lineUpdatedSuccess$
   }
 
   onLineQuantityRequestedChanged(data: { line: ISalesLine; newQty: number }): void {
     if (data.line.id) {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
-
-    // Retour du focus sur le champ produit (conforme ancien système)
-    //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    this.focusProductSearch();
+    // Focus géré via souscription à lineUpdatedSuccess$
   }
 
   onLineRemoved(line: ISalesLine): void {
     if (line.saleLineId) {
       this.facade.removeLine(line.saleLineId);
     }
- //TODO: gerer le focus dans le retour success de l'appel api au lieu de se baser sur un timeout
-    this.focusProductSearch();
+    // Focus géré via souscription à lineRemovedSuccess$
   }
 
   onLineSelected(line: ISalesLine): void {
@@ -594,24 +571,27 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
   private completeSaleAfterCashRegister(): void {
     this.isProcessingSale.set(true);
 
-    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: result => {
-        if (result) {
-          // Succès : réinitialiser et basculer vers COMPTANT
-          this.resetForNewSale();
-          this.switchToComptant.emit();
-        } else {
+    this.facade
+      .saveSale()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            // Succès : réinitialiser et basculer vers COMPTANT
+            this.resetForNewSale();
+            this.switchToComptant.emit();
+          } else {
+            // Échec : afficher l'erreur et garder la vente
+            this.isProcessingSale.set(false);
+            this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
+          }
+        },
+        error: () => {
           // Échec : afficher l'erreur et garder la vente
           this.isProcessingSale.set(false);
           this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-        }
-      },
-      error: () => {
-        // Échec : afficher l'erreur et garder la vente
-        this.isProcessingSale.set(false);
-        this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-      },
-    });
+        },
+      });
   }
 
   // ===== Payment =====
@@ -685,12 +665,14 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
     modalRef.result.then(
       customer => {
         if (customer && customer.id) {
+          // S'abonner au succès de l'association client AVANT d'appeler setCustomer
+          // Car setCustomer est async et onSuccess doit attendre la fin de l'appel API
+          this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
+            onSuccess();
+          });
+
+          // Synchroniser avec la facade (appel API asynchrone)
           this.facade.setCustomer(customer);
-          const currentSale = this.facade.currentSale();
-          if (currentSale) {
-            currentSale.customerId = customer.id;
-          }
-          onSuccess();
         } else {
           this.notificationService.warning('Client requis', 'Un client est obligatoire pour une vente différée');
         }
@@ -791,7 +773,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit {
       (remise: IRemise) => {
         if (remise) {
           this.facade.updateRemise(remise);
-         
         }
       },
       () => {

@@ -11,7 +11,6 @@ export interface SaleTypeOption {
 
 @Component({
   selector: 'app-sale-type-selector',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './sale-type-selector.component.html',
   styleUrl: './sale-type-selector.component.scss',

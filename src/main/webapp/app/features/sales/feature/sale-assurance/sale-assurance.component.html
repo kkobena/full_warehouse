@@ -4,7 +4,7 @@
 <!-- Content spécifique ASSURANCE -->
 <!-- 1ère ligne: Barre données ASSURANCE (ligne entière) -->
 <div class="insurance-data-section">
-  <!-- ✅ Toujours afficher pour ASSURANCE (comme ancien) -->
+  <!-- Toujours afficher pour ASSURANCE (comme ancien) -->
   <app-insurance-data-bar
     #insuranceDataBar
     [customer]="selectedCustomer()"
@@ -46,6 +46,7 @@
       <!-- Quantity Input -->
       <div class="quantity-input-wrapper">
         <jhi-quantite-produt-saisie
+          #quantityBox
           (addQuantite)="onAddQuantity($event)"
           [isValid]="!!selectedProduct() && hasCustomer()"
           [disabledButton]="!selectedProduct() || !hasCustomer()">
@@ -108,12 +109,13 @@
             [canPrint]="!!currentSale()?.saleId"
             [isSaving]="isSaving()"
             [saleType]="'ASSURANCE'"
+             [isSmallScreen]="isSmallScreen()"
             (save)="onSave()"
             (saveAndPrint)="onSaveAndPrint()"
             (print)="onPrint()"
             (saveAsPresale)="onSaveAsPresale()"
             (cancel)="onCancel()"
-            (showPendingSales)="onShowPendingSales()" />
+            />
         </div>
       </div>
     </div>
@@ -141,25 +143,31 @@
 
 <!-- Drawer Ventes en attente -->
 @if (showPendingSales()) {
-  <p-drawer 
-    [(visible)]="showPendingSales" 
+  <p-drawer
+    [(visible)]="showPendingSales"
     position="right"
     [style]="{ width: '50vw' }">
     <ng-template #header>
       <h5>Ventes en attente</h5>
     </ng-template>
     <app-pending-sales-list
-      [saleType]="'ASSURANCE'"
       (saleResumed)="onPendingSaleResumed($event)"
       (closed)="onPendingSalesClose()" />
   </p-drawer>
 }
 
-<!-- Dialog de confirmation (rendu par ConfirmationService de PrimeNG) -->
-<!-- Pas besoin de composant ici, géré par ConfirmationService -->
+<!--
+  Dialogs de confirmation :
+  - jhi-confirm-dialog : API programmatique (fournit la méthode onConfirm)
+  - p-confirmDialog : Composant visuel PrimeNG qui affiche le dialog
+  Les deux sont nécessaires : jhi-confirm-dialog appelle ConfirmationService.confirm()
+  et p-confirmDialog écoute ce service pour afficher le dialog
+-->
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+
 
 <!-- Spinner global -->
-<ngx-spinner 
+<ngx-spinner
   name="sale-spinner"
   [fullScreen]="true"
   type="ball-scale-multiple"

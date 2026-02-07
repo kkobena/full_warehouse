@@ -5,9 +5,9 @@ import { ICustomer } from '../../../shared/model/customer.model';
   providedIn: 'root',
 })
 export class SelectedCustomerService {
-  selectedCustomerSignal: WritableSignal<ICustomer> = signal<ICustomer>(null);
+  selectedCustomerSignal: WritableSignal<ICustomer | null> = signal<ICustomer | null>(null);
 
-  setCustomer(customer: ICustomer): void {
+  setCustomer(customer: ICustomer | null): void {
     this.selectedCustomerSignal.set(customer);
   }
 }

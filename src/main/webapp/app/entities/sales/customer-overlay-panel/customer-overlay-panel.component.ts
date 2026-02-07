@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 import { TagModule } from 'primeng/tag';
 import { PopoverModule } from 'primeng/popover';

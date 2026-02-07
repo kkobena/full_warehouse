@@ -402,9 +402,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         throws StockException, DeconditionnementStockOut {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
         int quantity = stockProduit.getTotalStockQuantity();
-        processItemQuantityRequested( saleLineDTO, salesLine,quantity);
+        processItemQuantityRequested(saleLineDTO, salesLine, quantity);
         salesLine.setQuantityRequested(saleLineDTO.getQuantityRequested());
-        updateStock(quantity,saleLineDTO, salesLine, storageId);
+        updateStock(quantity, saleLineDTO, salesLine, storageId);
     }
 
     @Override
@@ -412,12 +412,12 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         throws StockException, DeconditionnementStockOut {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
         int quantity = stockProduit.getTotalStockQuantity();
-        processItemQuantityRequested( saleLineDTO, salesLine, quantity);
+        processItemQuantityRequested(saleLineDTO, salesLine, quantity);
         salesLine.setQuantityRequested(salesLine.getQuantityRequested() + saleLineDTO.getQuantityRequested());
-        updateStock(quantity,saleLineDTO, salesLine, storageId);
+        updateStock(quantity, saleLineDTO, salesLine, storageId);
     }
 
-    private void processItemQuantityRequested( SaleLineDTO saleLineDTO, SalesLine salesLine,int quantity) throws StockException, DeconditionnementStockOut {
+    private void processItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, int quantity) throws StockException, DeconditionnementStockOut {
 
         if (saleLineDTO.getQuantityRequested() > quantity && !saleLineDTO.isForceStock()) {
             if (salesLine.getProduit().getParent() == null) {
@@ -428,8 +428,15 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         }
     }
 
-    private void updateStock(int quantity ,SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
-        salesLine.setQuantitySold(quantity<salesLine.getQuantityRequested()? quantity:salesLine.getQuantityRequested());
+    private void updateStock(int quantity, SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
+        int quantitySold = salesLine.getQuantityRequested();
+        if (quantity > 0 && quantity < salesLine.getQuantityRequested()) {
+            quantitySold = quantity;
+        }
+        if (quantity < 0) {
+            quantitySold = 0;
+        }
+        salesLine.setQuantitySold(quantitySold);
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());

@@ -12,6 +12,7 @@ import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant
 import { ProduitSearch } from '../../../../shared/model/produit.model';
 import { IRemise } from '../../../../shared/model/remise.model';
 import { SalesStatut } from '../../../../shared/model/enumerations/sales-statut.model';
+import { SelectedCustomerService } from '../../../../entities/sales/service/selected-customer.service';
 
 /**
  * Sales Facade
@@ -38,10 +39,32 @@ export class SalesFacade {
   private readonly store = inject(SalesStore);
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
+  private readonly selectedCustomerService = inject(SelectedCustomerService);
 
-  // Events
+  // Events - Success subjects for component subscriptions
   private readonly standbySuccessSubject = new Subject<void>();
   readonly standbySuccess$ = this.standbySuccessSubject.asObservable();
+
+  private readonly productAddedSuccessSubject = new Subject<void>();
+  readonly productAddedSuccess$ = this.productAddedSuccessSubject.asObservable();
+
+  private readonly lineUpdatedSuccessSubject = new Subject<void>();
+  readonly lineUpdatedSuccess$ = this.lineUpdatedSuccessSubject.asObservable();
+
+  private readonly lineRemovedSuccessSubject = new Subject<void>();
+  readonly lineRemovedSuccess$ = this.lineRemovedSuccessSubject.asObservable();
+
+  private readonly saleReloadedSuccessSubject = new Subject<void>();
+  readonly saleReloadedSuccess$ = this.saleReloadedSuccessSubject.asObservable();
+
+  private readonly customerRemovedSuccessSubject = new Subject<void>();
+  readonly customerRemovedSuccess$ = this.customerRemovedSuccessSubject.asObservable();
+
+  private readonly cancelSaleSuccessSubject = new Subject<void>();
+  readonly cancelSaleSuccess$ = this.cancelSaleSuccessSubject.asObservable();
+
+  private readonly customerSetSuccessSubject = new Subject<void>();
+  readonly customerSetSuccess$ = this.customerSetSuccessSubject.asObservable();
 
   // ============================================
   // EXPOSE STORE STATE (Read-only)
@@ -220,6 +243,7 @@ export class SalesFacade {
             this.store.setCurrentSale(result.createdSale);
             this.store.setIsEdit(true);
             this.store.clearError(); // Clear error et errorDetails pour déclencher l'effect de succès
+            this.productAddedSuccessSubject.next();
           }
           this.store.setLoading(false);
         },
@@ -243,36 +267,72 @@ export class SalesFacade {
         }
 
         // Construire le payload conforme à l'ancien système (base-sale.service.ts createSale)
+        // Récupérer tiersPayants depuis currentSale si existe, sinon depuis selectedCustomer (fallback)
         const currentSale = this.store.currentSale();
+        const customer = this.store.selectedCustomer();
         const sale: ISales = {
           salesLines: [initialLine],
-          customerId: this.store.selectedCustomer()?.id,
+          customerId: customer?.id,
           natureVente: 'ASSURANCE',
           typePrescription: this.store.typePrescription() || undefined,
           cassierId: this.store.cashier()?.id,
           sellerId: this.store.seller()?.id,
           type: 'VO',
           categorie: 'VO',
-          tiersPayants: currentSale?.tiersPayants || [],
+          tiersPayants: currentSale?.tiersPayants || customer?.tiersPayants || [],
         };
 
         this.store.setLoading(true);
-        return this.apiService.createAssuranceSale(sale);
+        return this.apiService.createAssuranceSale(sale).pipe(
+          map(createdSale => ({ createdSale, initialLine })),
+          catchError(error => {
+            console.error('Error creating assurance sale:', error);
+
+            let errorMessage = 'Erreur lors de la création de la vente assurance';
+            let errorKey = null;
+
+            if (error?.error) {
+              errorKey = error.error.errorKey;
+
+              if (error.error.errorKey === 'stock') {
+                errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+              } else if (error.error.errorKey === 'stockChInsufisant') {
+                errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+              } else if (error.error.message) {
+                errorMessage = error.error.message;
+              } else if (error.error.detail) {
+                errorMessage = error.error.detail;
+              }
+            }
+
+            if (errorKey === 'stock') {
+              this.store.setError(errorMessage);
+              this.store.setLastErrorDetails({
+                errorKey,
+                originalError: error,
+                attemptedLine: initialLine,
+                isFromTableCellEdit: false,
+              });
+            } else {
+              this.store.setError(errorMessage);
+              this.notificationService.error('Erreur', errorMessage);
+            }
+
+            this.store.setLoading(false);
+            return of(null);
+          }),
+        );
       }),
       tap({
-        next: sale => {
-          this.store.setCurrentSale(sale);
-          this.store.setIsEdit(true);
+        next: result => {
+          if (result?.createdSale) {
+            this.store.setCurrentSale(result.createdSale);
+            this.store.setIsEdit(true);
+            this.store.clearError();
+            this.productAddedSuccessSubject.next();
+          }
           this.store.setLoading(false);
         },
-        error: error => {
-          this.store.setError(error.message || 'Erreur lors de la création de la vente assurance');
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error creating assurance sale:', error);
-        return of(null);
       }),
     ),
   );
@@ -354,6 +414,7 @@ export class SalesFacade {
             this.store.setCurrentSale(result.createdSale);
             this.store.setIsEdit(true);
             this.store.clearError();
+            this.productAddedSuccessSubject.next();
           }
           this.store.setLoading(false);
         },
@@ -489,6 +550,7 @@ export class SalesFacade {
           }
 
           this.store.setLoading(false);
+          this.saleReloadedSuccessSubject.next();
         },
         error: error => {
           this.store.setError(error.message || 'Erreur lors du chargement de la vente');
@@ -519,15 +581,16 @@ export class SalesFacade {
         const saleId: SaleId = currentSale.saleId;
         const isVno = this.store.saleType() === 'COMPTANT';
         if (isVno) {
-          return this.apiService.cancelComptant(saleId);
+          return this.apiService.deletePreventeComptant(saleId); // Ne pas utiliser cancelComptant(saleId):pour les ventes cloturées, le endpoint de suppression est différent (deletePreventeComptant) pour respecter les règles métier de suppression des ventes comptant
         } else {
-          return this.apiService.cancelAssurance(saleId);
+          return this.apiService.deletePreventeAssurance(saleId); // Ne pas utiliser cancelAssurance(saleId):pour les ventes cloturées, le endpoint de suppression est différent (deletePreventeAssurance) pour respecter les règles métier de suppression des ventes assurance/carnet
         }
       }),
       tap({
         next: () => {
           this.store.resetCurrentSale();
           this.store.setLoading(false);
+          this.cancelSaleSuccessSubject.next();
         },
         error: error => {
           this.store.setError(error.message || "Erreur lors de l'annulation de la vente");
@@ -715,6 +778,7 @@ export class SalesFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError(); // Clear error et errorDetails en cas de succès
+          this.productAddedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -811,6 +875,7 @@ export class SalesFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError();
+          this.productAddedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -866,6 +931,7 @@ export class SalesFacade {
           this.store.setCurrentSale(sale);
           // Clear l'erreur en cas de succès (important pour le force stock)
           this.store.clearError();
+          this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -920,6 +986,7 @@ export class SalesFacade {
           this.store.setCurrentSale(sale);
           // Clear l'erreur en cas de succès (important pour le force stock)
           this.store.clearError();
+          this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -949,6 +1016,7 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.lineRemovedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -1018,6 +1086,7 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.productAddedSuccessSubject.next();
         }
         this.store.setLoading(false);
         this.setSelectedProduct(null); // Clear selection
@@ -1062,6 +1131,7 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -1161,6 +1231,7 @@ export class SalesFacade {
           // Clear l'erreur en cas de succès (important pour le force stock)
           this.store.setError(null);
           this.store.setLastErrorDetails(null);
+          this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -1302,6 +1373,9 @@ export class SalesFacade {
   setCustomer(customer: ICustomer): void {
     const currentSale = this.store.currentSale();
 
+    // Mettre à jour le service legacy pour compatibilité avec CustomerOverlayPanelComponent
+    this.selectedCustomerService.setCustomer(customer);
+
     // Si pas encore de vente créée (pas de saleId), on stocke juste le client
     // La vente sera créée avec ce client lors de l'ajout du premier produit
     if (!currentSale?.saleId) {
@@ -1337,6 +1411,7 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.customerSetSuccessSubject.next();
         }
       });
   }
@@ -1350,6 +1425,9 @@ export class SalesFacade {
     if (!currentSale?.saleId) {
       return;
     }
+
+    // Mettre à jour le service legacy pour compatibilité avec CustomerOverlayPanelComponent
+    this.selectedCustomerService.setCustomer(null);
 
     this.store.setLoading(true);
     this.store.setSelectedCustomer(null);
@@ -1377,6 +1455,7 @@ export class SalesFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
+          this.customerRemovedSuccessSubject.next();
         }
       });
   }

@@ -23,6 +23,7 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { CustomerSearchService } from '../../data-access/services/customer-search.service';
 import { ISalesLine } from '../../../../shared/model';
 import { ProduitSearch } from '../../../../shared/model';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
@@ -30,7 +31,8 @@ import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
 import { IPayment } from '../../../../shared/model';
-import { createProductHandling, ProductSearchHost } from '../../shared/mixins';
+import { createProductHandling, createCustomerHandling, ProductSearchHost } from '../../shared/mixins';
+import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
 
 /**
  * SaleCarnetComponent
@@ -100,6 +102,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
+  private customerSearchService = inject(CustomerSearchService);
   private spinner = inject(NgxSpinnerService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
@@ -119,6 +122,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   readonly lastError = this.facade.lastError;
   readonly isAvoir = this.facade.isAvoir;
+  customers = signal<ICustomer[]>([]);
 
   // Focus management
   private focusInitialized = false;
@@ -156,6 +160,35 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     hasCustomer: this.hasCustomer,
     createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
     addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
+  });
+
+  // ===== Customer Handling Mixin =====
+  private customerHandling = createCustomerHandling({
+    facade: this.facade,
+    customerSearchService: this.customerSearchService,
+    notificationService: this.notificationService,
+    modalService: this.modalService,
+    config: {
+      saleType: 'CARNET',
+      customerRequired: true,
+      customerRequiredMessage: 'Un client avec compte crédit est obligatoire pour une vente CARNET',
+    },
+    selectedCustomer: this.facade.selectedCustomer,
+    customers: this.customers,
+    customerListComponent: CustomerCarnetComponent,
+    customerFormComponent: CustomerCarnetComponent,
+    onCustomerSelectedCallback: customer => {
+      // Mettre à jour les tiers payants via la facade
+      if (customer.tiersPayants && customer.tiersPayants.length > 0) {
+        this.facade.updateSaleTiersPayants(customer.tiersPayants);
+      }
+
+      // Initialiser les tiers payants dans le composant UI
+      this.insuranceDataBar()?.initializeFromCustomer(customer);
+
+      // Focus sur le premier champ de numéro de bon
+      setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
+    },
   });
 
   constructor() {
@@ -327,6 +360,22 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
+
+    // S'abonner au succès d'ajout de tiers payant complémentaire
+    this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
+        const updatedTiersPayants = currentSale.tiersPayants || [];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+      } else {
+        // Pas de vente backend: ajouter le nouveau tiers payant à la liste locale
+        const currentTiersPayants = this.insuranceDataBar()?.getSelectedTiersPayants() || [];
+        const updatedTiersPayants = [...currentTiersPayants, newTiersPayant];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+      }
+      setTimeout(() => this.insuranceDataBar()?.focusLastBon(), 100);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -364,14 +413,35 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     }
   }
 
+  /**
+   * Délègue au mixin customerHandling
+   */
   onCustomerSelected(customer: ICustomer): void {
-    this.facade.setCustomer(customer);
-    // Focus sur le premier champ de numéro de bon
-    setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
+    this.customerHandling.selectCustomer(customer);
+  }
+
+  onCustomerSelectedFromBar(customer: ICustomer): void {
+    // Cloner l'objet pour forcer la réactivité
+    const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
+    this.customerHandling.selectCustomer(newCustomer);
   }
 
   onOpenCustomerList(): void {
-    this.openCarnetCustomerModal();
+    showCommonModal(
+      this.modalService,
+      AssuredCustomerListComponent,
+      {
+        searchString: '',
+        headerLibelle: 'CLIENTS CARNET',
+      },
+      (customer: ICustomer) => {
+        if (customer) {
+          this.customerHandling.selectCustomer(customer);
+        }
+      },
+      '70%',
+      'modal-dialog-70',
+    );
   }
 
   onEditCustomer(): void {
@@ -386,10 +456,29 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   onTiersPayantsChanged(tiersPayants: IClientTiersPayant[]): void {
-    const currentSale = this.currentSale();
-    if (currentSale) {
-      currentSale.tiersPayants = tiersPayants;
-    }
+    this.facade.updateSaleTiersPayants(tiersPayants);
+  }
+
+  onAddComplementaire(): void {
+    // Pour CARNET, généralement pas d'ajout de complémentaire, mais on peut déléguer si nécessaire
+    this.notificationService.info('Information', 'Ajout de complémentaire non disponible pour CARNET');
+  }
+
+  onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
+    this.confirmDialog().onConfirm(
+      () => {
+        const currentSale = this.currentSale();
+        if (currentSale?.saleId) {
+          this.facade.removeTiersPayantFromSale(tiersPayant, () => {
+            this.insuranceDataBar()?.removeTiersPayantLocally(tiersPayant);
+          });
+        } else {
+          this.insuranceDataBar()?.removeTiersPayantLocally(tiersPayant);
+        }
+      },
+      'Supprimer tiers payant',
+      `Êtes-vous sûr de vouloir supprimer le tiers payant ${tiersPayant.tiersPayantName} ?`,
+    );
   }
 
   // ===== Product Management =====
@@ -799,51 +888,21 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    * Ouvre le formulaire de création/édition client carnet
    */
   private openCarnetCustomerForm(customer: ICustomer | null): void {
-    const modalRef = this.modalService.open(CustomerCarnetComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      centered: true,
-    });
-
-    modalRef.componentInstance.entity = customer;
-    modalRef.componentInstance.title = customer ? 'MODIFICATION CLIENT CARNET' : 'NOUVEAU CLIENT CARNET';
-    modalRef.componentInstance.categorie = 'CARNET';
-
-    modalRef.result.then(
-      updatedCustomer => {
-        if (updatedCustomer && updatedCustomer.id) {
-          this.facade.setCustomer(updatedCustomer);
+    showCommonModal(
+      this.modalService,
+      CustomerCarnetComponent,
+      {
+        entity: customer,
+        title: customer ? 'MODIFICATION CLIENT CARNET' : 'NOUVEAU CLIENT CARNET',
+        categorie: 'CARNET',
+      },
+      (updatedCustomer: ICustomer) => {
+        if (updatedCustomer) {
+          this.customerHandling.selectCustomer(updatedCustomer);
         }
       },
-      () => {
-        // Modal fermée sans enregistrement
-      },
-    );
-  }
-
-  /**
-   * Ouvre la modal de sélection client carnet
-   * Client obligatoire pour vente CARNET
-   */
-  private openCarnetCustomerModal(): void {
-    const modalRef = this.modalService.open(CustomerCarnetComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      centered: true,
-    });
-
-    modalRef.result.then(
-      customer => {
-        if (customer && customer.id) {
-          this.facade.setCustomer(customer);
-        } else {
-          this.notificationService.warning('Client requis', 'Un client avec compte crédit est obligatoire pour une vente CARNET');
-        }
-      },
-      () => {
-        // Modal fermée sans sélection
-        this.notificationService.info('Information', 'Veuillez sélectionner un client pour continuer la vente');
-      },
+      'xl',
+      'modal-dialog-80',
     );
   }
 }

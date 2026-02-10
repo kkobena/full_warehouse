@@ -7,13 +7,15 @@
   <app-insurance-data-bar
     #insuranceDataBar
     [customer]="selectedCustomer()"
-    [tiersPayants]="selectedCustomer()?.tiersPayants || []"
+    [tiersPayants]="currentSale()?.tiersPayants || []"
     [saleType]="'CARNET'"
     [ayantDroit]="null"
-    (customerSelected)="onCustomerSelected($event)"
+    (customerSelected)="onCustomerSelectedFromBar($event)"
     (openCustomerList)="onOpenCustomerList()"
     (editCustomer)="onEditCustomer()"
     (addCustomer)="onAddCustomer()"
+    (addComplementaire)="onAddComplementaire()"
+    (removeTiersPayant)="onRemoveTiersPayant($event)"
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
     (focusProductSearch)="focusProductSearch()">
   </app-insurance-data-bar>

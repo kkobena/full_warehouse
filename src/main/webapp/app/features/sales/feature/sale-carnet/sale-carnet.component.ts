@@ -1,7 +1,5 @@
 import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { take } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -16,7 +14,6 @@ import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mod
 import { RemiseSelectionModalComponent } from '../../ui/remise-selection-modal/remise-selection-modal.component';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
-import { UninsuredCustomerListComponent } from '../../../../entities/sales/uninsured-customer-list/uninsured-customer-list.component';
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
@@ -26,12 +23,10 @@ import { CustomerDisplayService } from '../../data-access/services/customer-disp
 import { CustomerSearchService } from '../../data-access/services/customer-search.service';
 import { ISalesLine } from '../../../../shared/model';
 import { ProduitSearch } from '../../../../shared/model';
-import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
-import { IPayment } from '../../../../shared/model';
-import { createProductHandling, createCustomerHandling, ProductSearchHost } from '../../shared/mixins';
+import { createProductHandling, createCustomerHandling, createPaymentHandling, ProductSearchHost } from '../../shared/mixins';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
 
 /**
@@ -99,7 +94,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   // Services
   private facade = inject(SalesFacade);
   private authorizationService = inject(AuthorizationService);
-  private router = inject(Router);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
   private customerSearchService = inject(CustomerSearchService);
@@ -115,7 +109,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly selectedProduct = this.facade.selectedProduct;
   readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
-  readonly isProcessingSale = signal(false);
   readonly selectedLineId = signal<number | null>(null);
   readonly waitingForForceStockSuccess = signal<boolean>(false);
   readonly previousLoadingState = signal<boolean>(false);
@@ -143,6 +136,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
+
+  // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
+  private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
 
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
@@ -188,6 +184,51 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
       // Focus sur le premier champ de numéro de bon
       setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
+    },
+  });
+
+  // ===== Payment Handling Mixin =====
+  private paymentHandling = createPaymentHandling({
+    facade: this.facade,
+    notificationService: this.notificationService,
+    customerDisplay: this.customerDisplay,
+    config: {
+      saleType: 'CARNET',
+      toleranceThreshold: 5, // Seuil de 5 FCFA pour CARNET
+      allowDiffere: true, // Vente différée autorisée pour CARNET
+    },
+    currentSale: this.facade.currentSale,
+    salesLines: this.facade.salesLines,
+    canSave: this.canSave,
+    isCashRegisterOpen: this.isCashRegisterOpenSignal,
+    getPaymentModeComponent: () => {
+      const comp = this.paymentModeComponent();
+      if (!comp) return undefined;
+      return {
+        selectedModes: () =>
+          comp.selectedModes().map(m => ({
+            mode: m.mode,
+            amount: m.amount ?? 0,
+            amountEntered: m.amountEntered,
+          })),
+        totalPaid: () => comp.totalPaid(),
+        changeAmount: () => comp.changeAmount(),
+        changeExact: () => comp.changeExact(),
+        focusFirstMode: () => comp.focusFirstMode(),
+      };
+    },
+    openCashRegister: () => this.openCashRegister(),
+    resetForNewSale: () => this.resetForNewSale(),
+    showConfirmDialog: (onConfirm, title, message, onCancel) =>
+      this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+    onPaymentSuccess: () => this.switchToComptant.emit(),
+    onDiffereConfirmed: () => {
+      // Pour CARNET, le client est normalement obligatoire
+      // mais vérifier au cas où
+      const currentSale = this.currentSale();
+      if (currentSale && !currentSale.customerId) {
+        this.notificationService.warning('Client requis', 'Un client est obligatoire pour une vente différée');
+      }
     },
   });
 
@@ -360,22 +401,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
-
-    // S'abonner au succès d'ajout de tiers payant complémentaire
-    this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
-      const currentSale = this.currentSale();
-      if (currentSale?.saleId) {
-        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
-        const updatedTiersPayants = currentSale.tiersPayants || [];
-        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
-      } else {
-        // Pas de vente backend: ajouter le nouveau tiers payant à la liste locale
-        const currentTiersPayants = this.insuranceDataBar()?.getSelectedTiersPayants() || [];
-        const updatedTiersPayants = [...currentTiersPayants, newTiersPayant];
-        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
-      }
-      setTimeout(() => this.insuranceDataBar()?.focusLastBon(), 100);
-    });
   }
 
   ngAfterViewInit(): void {
@@ -422,6 +447,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
+    //TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
     const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
     this.customerHandling.selectCustomer(newCustomer);
   }
@@ -457,28 +483,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onTiersPayantsChanged(tiersPayants: IClientTiersPayant[]): void {
     this.facade.updateSaleTiersPayants(tiersPayants);
-  }
-
-  onAddComplementaire(): void {
-    // Pour CARNET, généralement pas d'ajout de complémentaire, mais on peut déléguer si nécessaire
-    this.notificationService.info('Information', 'Ajout de complémentaire non disponible pour CARNET');
-  }
-
-  onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.confirmDialog().onConfirm(
-      () => {
-        const currentSale = this.currentSale();
-        if (currentSale?.saleId) {
-          this.facade.removeTiersPayantFromSale(tiersPayant, () => {
-            this.insuranceDataBar()?.removeTiersPayantLocally(tiersPayant);
-          });
-        } else {
-          this.insuranceDataBar()?.removeTiersPayantLocally(tiersPayant);
-        }
-      },
-      'Supprimer tiers payant',
-      `Êtes-vous sûr de vouloir supprimer le tiers payant ${tiersPayant.tiersPayantName} ?`,
-    );
   }
 
   // ===== Product Management =====
@@ -557,71 +561,31 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   /**
    * Finalise la vente sans paiement (amountToBePaid <= 0)
+   * Délègue au mixin paymentHandling après pré-validation
    */
   private finalizeSaleWithoutPayment(): void {
-    const currentSale = this.currentSale();
-    if (!currentSale) return;
-
     // Rebuilder les tiers payants avec les numBon des inputs
     this.rebuildTiersPayantsFromInputs();
 
-    // Montant entièrement couvert par assurance/crédit
-    currentSale.montantVerse = 0;
-    currentSale.payments = [];
-
-    // Vérifier si la caisse est ouverte avant de finaliser
-    if (!this.isCashRegisterOpen()) {
-      this.openCashRegister();
-    } else {
-      this.completeSaleAfterCashRegister();
-    }
+    // Déléguer au mixin
+    this.paymentHandling.finalizeSaleWithoutPayment();
   }
 
   onSave(): void {
-    const currentSale = this.currentSale();
-    if (!currentSale || !this.canSave()) {
-      this.notificationService.warning('Vente invalide', "Veuillez ajouter au moins un produit avant d'enregistrer la vente");
-      return;
+    // Pré-validation: rebuilder les tiers payants avant de sauvegarder
+    this.rebuildTiersPayantsFromInputs();
+
+    // Si c'est un avoir, confirmer
+    if (this.isAvoir()) {
+      this.confirmDialog().onConfirm(
+        () => this.paymentHandling.onSave(),
+        'Avoir détecté',
+        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
+      );
+    } else {
+      // Déléguer au mixin paymentHandling
+      this.paymentHandling.onSave();
     }
-
-    const amountToBePaid = currentSale.amountToBePaid || 0;
-
-    // Si montant à payer <= 0, finaliser sans paiement
-    if (amountToBePaid <= 0) {
-      this.finalizeSaleWithoutPayment();
-      return;
-    }
-
-    // Si montant à payer > 0, récupérer les paiements du composant payment-mode
-    const paymentModeComp = this.paymentModeComponent();
-    if (!paymentModeComp) {
-      this.notificationService.error('Erreur', 'Composant de paiement non disponible');
-      return;
-    }
-
-    // Vérifier qu'il y a au moins un paiement
-    const selectedModes = paymentModeComp.selectedModes();
-    if (!selectedModes || selectedModes.length === 0) {
-      this.notificationService.warning('Paiement requis', 'Veuillez saisir au moins un mode de paiement');
-      return;
-    }
-
-    // Construire l'événement de paiement
-    const paymentEvent: PaymentCompleteEvent = {
-      payments: selectedModes.map(entry => ({
-        mode: entry.mode,
-        amount: entry.amount || 0,
-        amountEntered: entry.amountEntered,
-      })),
-      totalPaid: paymentModeComp.totalPaid(),
-      change: paymentModeComp.changeAmount(),
-      changeExact: paymentModeComp.changeExact(),
-      printReceipt: false,
-      printInvoice: false,
-    };
-
-    // Traiter le paiement
-    this.onPaymentComplete(paymentEvent);
   }
 
   onPutOnHold(): void {
@@ -647,7 +611,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    */
   private resetForNewSale(): void {
     this.customerDisplay.clear();
-    this.isProcessingSale.set(false);
+    this.selectedLineId.set(null);
+    this.customers.set([]);
   }
 
   /**
@@ -659,140 +624,24 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       if (resp) {
         // Notifier le parent que la caisse est maintenant ouverte
         this.cashRegisterOpened.emit();
-        // Finaliser la vente après ouverture de la caisse
-        setTimeout(() => this.completeSaleAfterCashRegister(), 100);
+        // Finaliser la vente via le mixin après ouverture de la caisse
+        setTimeout(() => this.paymentHandling.completeSale(), 100);
       }
     });
   }
 
-  /**
-   * Finalise la vente après l'ouverture de la caisse
-   */
-  private completeSaleAfterCashRegister(): void {
-    this.isProcessingSale.set(true);
-
-    this.facade
-      .saveSale()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: result => {
-          if (result) {
-            // Succès : réinitialiser et basculer vers COMPTANT
-            this.resetForNewSale();
-            this.switchToComptant.emit();
-          } else {
-            // Échec : afficher l'erreur et garder la vente
-            this.isProcessingSale.set(false);
-            this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-          }
-        },
-        error: () => {
-          // Échec : afficher l'erreur et garder la vente
-          this.isProcessingSale.set(false);
-          this.notificationService.error('Erreur', 'La sauvegarde de la vente a échoué');
-        },
-      });
-  }
-
   // ===== Payment =====
 
+  /**
+   * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode
+   * Délègue au mixin paymentHandling
+   */
   onPaymentComplete(event: PaymentCompleteEvent): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) {
-      this.notificationService.error('Erreur', 'Aucune vente en cours');
-      return;
-    }
-
-    // Rebuilder les tiers payants avec les numBon des inputs
+    // Pré-validation: rebuilder les tiers payants avec les numBon des inputs
     this.rebuildTiersPayantsFromInputs();
 
-    // Calculer le montant restant à payer
-    const amountToBePaid = currentSale.amountToBePaid || 0;
-    const entryAmount = event.totalPaid || 0;
-    const restToPay = amountToBePaid - entryAmount;
-
-    // Enregistrer le montant versé et les paiements
-    currentSale.montantVerse = entryAmount;
-    currentSale.payments = this.convertPayments(event.payments);
-
-    // Si montant insuffisant ET pas encore marqué comme différé
-    if (restToPay > 0 && !currentSale.differe) {
-      this.confirmDialog().onConfirm(
-        () => this.confirmDiffereSale(event),
-        'Vente différée',
-        `Le montant versé (${entryAmount} FCFA) est inférieur au montant dû (${amountToBePaid} FCFA).\n\nVoulez-vous régler le reste (${restToPay} FCFA) en différé ?`,
-      );
-    } else {
-      // Montant suffisant ou déjà différé → Finaliser normalement
-      this.finalizeSale(event);
-    }
-  }
-
-  /**
-   * Convertit les paiements de PaymentCompleteEvent au format Payment[]
-   */
-  private convertPayments(eventPayments: Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>): IPayment[] {
-    return eventPayments.map(p => ({
-      paymentMode: p.mode,
-      paidAmount: p.amount,
-      montantVerse: p.amountEntered || p.amount,
-      netAmount: p.amount,
-    }));
-  }
-
-  private confirmDiffereSale(event: PaymentCompleteEvent): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) return;
-
-    currentSale.differe = true;
-
-    // Vérifier si un client est associé (normalement oui pour CARNET)
-    // Mais si pas de client, ouvrir modal
-    if (!currentSale.customerId) {
-      this.openCustomerModalForDiffere(() => {
-        this.finalizeSale(event);
-      });
-    } else {
-      this.finalizeSale(event);
-    }
-  }
-
-  private openCustomerModalForDiffere(onSuccess: () => void): void {
-    const modalRef = this.modalService.open(UninsuredCustomerListComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.header = 'SÉLECTION CLIENT - Vente différée';
-
-    modalRef.result.then(
-      customer => {
-        if (customer && customer.id) {
-          // S'abonner au succès de l'association client AVANT d'appeler setCustomer
-          // Car setCustomer est async et onSuccess doit attendre la fin de l'appel API
-          this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
-            onSuccess();
-          });
-
-          // Synchroniser avec la facade (appel API asynchrone)
-          this.facade.setCustomer(customer);
-        } else {
-          this.notificationService.warning('Client requis', 'Un client est obligatoire pour une vente différée');
-        }
-      },
-      () => {
-        this.notificationService.warning('Vente annulée', 'Un client est obligatoire pour une vente différée');
-      },
-    );
-  }
-
-  private finalizeSale(event: PaymentCompleteEvent): void {
-    // Vérifier si la caisse est ouverte avant de finaliser
-    if (!this.isCashRegisterOpen()) {
-      this.openCashRegister();
-    } else {
-      this.completeSaleAfterCashRegister();
-    }
+    // Déléguer au mixin paymentHandling
+    this.paymentHandling.processPayment(event);
   }
 
   onPaymentError(error: string): void {

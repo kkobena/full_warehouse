@@ -256,10 +256,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     onCustomerSelectedCallback: customer => {
       // Créer la vente si elle n'existe pas
       let currentSale = this.currentSale();
-      if (!currentSale) {
+      if (!currentSale || !currentSale.saleId) {
         this.facade.initializeAssuranceSale();
-        // IMPORTANT: initializeAssuranceSale appelle resetCurrentSale qui efface le client
-        // On doit re-définir le client après l'initialisation
+        // Définir le client après l'initialisation
         this.facade.setCustomer(customer);
         currentSale = this.currentSale();
       }
@@ -773,6 +772,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   /**
    * Validations spécifiques pour une vente ASSURANCE
+   * Rebuilde les tiers payants avec les numBon des inputs et met à jour la vente
    */
   private validateAssuranceSale(): boolean {
     const sale = this.currentSale();
@@ -792,7 +792,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       return false;
     }
 
-    // Synchroniser les numBon depuis les inputs avant validation
+    // Rebuilder les tiers payants avec les numBon des inputs
     const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
 
     if (tiersPayantsFromInputs.length === 0) {
@@ -814,6 +814,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       });
       return false;
     }
+
+    // Mettre à jour les tiers payants dans la vente AVANT de sauvegarder
+    // Ceci garantit que les numBon sont synchronisés même si l'événement est asynchrone
+
+    this.facade.updateSaleTiersPayants(tiersPayantsFromInputs);
 
     return true;
   }

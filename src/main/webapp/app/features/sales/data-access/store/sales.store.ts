@@ -1,7 +1,7 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { ISales, SaleId } from '../../../../shared/model/sales.model';
-import { ICustomer } from '../../../../shared/model';
+import { ICustomer, IClientTiersPayant } from '../../../../shared/model';
 import { ISalesLine } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 
@@ -46,6 +46,9 @@ interface SalesState {
 
   // Lists
   pendingSales: ISales[];
+
+  // Tiers payants en attente (avant création de la vente backend)
+  pendingTiersPayants: IClientTiersPayant[];
 
   // Error Handling
   error: string | null;
@@ -98,6 +101,9 @@ const initialState: SalesState = {
 
   // Lists
   pendingSales: [],
+
+  // Tiers payants en attente (avant création de la vente backend)
+  pendingTiersPayants: [],
 
   // Error Handling
   error: null,
@@ -478,6 +484,13 @@ export const SalesStore = signalStore(
     removePendingSale(saleId: SaleId): void {
       const pendingSales = store.pendingSales().filter(s => s.saleId?.id !== saleId.id || s.saleId?.saleDate !== saleId.saleDate);
       patchState(store, { pendingSales });
+    },
+
+    /**
+     * Set pending tiers payants (avant création de la vente backend)
+     */
+    setPendingTiersPayants(tiersPayants: IClientTiersPayant[]): void {
+      patchState(store, { pendingTiersPayants: tiersPayants });
     },
 
     /**

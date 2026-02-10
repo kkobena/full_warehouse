@@ -419,12 +419,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
+    public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
-        ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(saleId);
+        ThirdPartySales thirdPartySales = findById(saleId);
         applRemiseToSale(thirdPartySales);
 
-        String message = thirdPartyClientManager.addThirdPartySaleLineToSales(dto, new SaleId(saleId, thirdPartySales.getSaleDate()));
+        String message = thirdPartyClientManager.addThirdPartySaleLineToSales(dto, saleId);
         this.displayNet(thirdPartySales.getPartAssure());
 
         if (StringUtils.hasLength(message)) {
@@ -436,7 +436,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
-        String message = thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
+         thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(saleId);
         this.displayNet(thirdPartySales.getPartAssure());
     }

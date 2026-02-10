@@ -516,7 +516,7 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
 
         // When
-        thirdPartySaleService.addThirdPartySaleLineToSales(dto, 1L);
+        thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate));
 
         // Then
         // Verify the manager method was called instead of direct repository
@@ -1741,7 +1741,7 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt())).thenReturn(thirdPartySaleLine);
 
         // When & Then
-        assertThrows(GenericError.class, () -> thirdPartySaleService.addThirdPartySaleLineToSales(dto, 1L));
+        assertThrows(GenericError.class, () -> thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate)));
     }
 
     @Test
@@ -1764,7 +1764,7 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any())).thenReturn(null);
 
         // When
-        thirdPartySaleService.addThirdPartySaleLineToSales(dto, 1L);
+        thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate));
 
         // Then
         // Verify the manager was called instead of direct service
@@ -1795,7 +1795,7 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any())).thenReturn(null);
 
         // When
-        thirdPartySaleService.addThirdPartySaleLineToSales(dto, 1L);
+        thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate));
 
         // Then
         // Verify that the manager was called

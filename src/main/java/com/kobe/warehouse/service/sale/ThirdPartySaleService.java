@@ -68,7 +68,7 @@ public interface ThirdPartySaleService {
 
     void deleteSalePrevente(SaleId id);
 
-    void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
+    void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException;
 
     void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException;

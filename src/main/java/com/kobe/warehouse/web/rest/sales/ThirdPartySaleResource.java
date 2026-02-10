@@ -5,7 +5,6 @@ import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
-import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -20,11 +19,6 @@ import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URISyntaxException;
+import java.time.LocalDate;
 
 /**
  * REST controller for managing {@link Sales}.
@@ -181,10 +178,11 @@ public class ThirdPartySaleResource {
             .build();
     }
 
-    @PutMapping("/sales/add-assurance/assurance/{id}")
+    @PutMapping("/sales/add-assurance/assurance/{id}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> addThirdPartySaleLineToSales(@PathVariable Long id, @Valid @RequestBody ClientTiersPayantDTO dto) {
-        saleService.addThirdPartySaleLineToSales(dto, id);
+    public ResponseEntity<Void> addThirdPartySaleLineToSales(@PathVariable("id") Long id,
+                                                             @PathVariable("saleDate") LocalDate saleDate, @Valid @RequestBody ClientTiersPayantDTO dto) {
+        saleService.addThirdPartySaleLineToSales(dto, new SaleId(id, saleDate));
         return ResponseEntity.accepted().build();
     }
 

@@ -1,6 +1,6 @@
 import { Signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IPayment } from '../../../../shared/model/payment.model';
+import { IPayment } from '../../../../shared/model';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { ISales } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';

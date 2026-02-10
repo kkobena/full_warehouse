@@ -88,6 +88,9 @@ export class SalesFacade {
   /** Sale type */
   readonly saleType = this.store.saleType;
 
+  /** Pending tiers payants (avant création vente backend) */
+  readonly pendingTiersPayants = this.store.pendingTiersPayants;
+
   /** Is edit mode */
   readonly isEdit = this.store.isEdit;
 
@@ -270,9 +273,9 @@ export class SalesFacade {
         }
 
         // Construire le payload conforme à l'ancien système (base-sale.service.ts createSale)
-        // Récupérer tiersPayants depuis currentSale si existe, sinon depuis selectedCustomer (fallback)
-        const currentSale = this.store.currentSale();
+        // Les tiers payants viennent de pendingTiersPayants (mis à jour depuis le composant UI via updateSaleTiersPayants)
         const customer = this.store.selectedCustomer();
+        const tiersPayants = this.store.pendingTiersPayants();
         const sale: ISales = {
           salesLines: [initialLine],
           customerId: customer?.id,
@@ -282,7 +285,7 @@ export class SalesFacade {
           sellerId: this.store.seller()?.id,
           type: 'VO',
           categorie: 'VO',
-          tiersPayants: currentSale?.tiersPayants || customer?.tiersPayants || [],
+          tiersPayants: tiersPayants,
         };
 
         this.store.setLoading(true);
@@ -356,7 +359,9 @@ export class SalesFacade {
         }
 
         // Construire le payload conforme à l'ancien système (base-sale.service.ts createSale)
+        // Les tiers payants viennent de pendingTiersPayants (mis à jour depuis le composant UI via updateSaleTiersPayants)
         const customer = this.store.selectedCustomer();
+        const tiersPayants = this.store.pendingTiersPayants();
         const sale: ISales = {
           salesLines: [initialLine],
           customerId: customer?.id,
@@ -366,7 +371,7 @@ export class SalesFacade {
           sellerId: this.store.seller()?.id,
           type: 'VO',
           categorie: 'VO',
-          tiersPayants: customer?.tiersPayants || [],
+          tiersPayants: tiersPayants,
         };
 
         this.store.setLoading(true);
@@ -630,26 +635,36 @@ export class SalesFacade {
   initializeAssuranceSale(): void {
     this.store.setSaleType('ASSURANCE');
     this.store.resetCurrentSale();
-    // Ne pas créer la vente backend tant qu'il n'y a pas de client + produit
+    this.store.setPendingTiersPayants([]);
   }
 
   /**
-   * Update tiers payants of current sale (local only)
-   * Called when customer is selected to set insurance tiers payants
-   * Note: Pour supprimer un tiers payant, utiliser removeTiersPayantFromSale
+   * Initialize a new carnet sale (without initial product - customer required first)
+   */
+  initializeCarnetSale(): void {
+    this.store.setSaleType('CARNET');
+    this.store.resetCurrentSale();
+    this.store.setPendingTiersPayants([]);
+  }
+
+  /**
+   * Update tiers payants - stocke dans pendingTiersPayants si pas de vente, sinon dans currentSale
+   * Called when customer is selected or when tiers payants are modified in UI
    */
   updateSaleTiersPayants(tiersPayants: IClientTiersPayant[]): void {
     const currentSale = this.store.currentSale();
-    if (!currentSale) {
-      return;
+    if (currentSale?.saleId) {
+      // Vente existe sur le backend, mettre à jour currentSale
+      this.store.setCurrentSale({
+        ...currentSale,
+        tiersPayants: tiersPayants,
+      });
+    } else {
+      // Pas encore de vente backend, stocker dans pendingTiersPayants
+      this.store.setPendingTiersPayants(tiersPayants);
     }
-
-    // Mettre à jour le store local pour la réactivité de l'UI
-    this.store.setCurrentSale({
-      ...currentSale,
-      tiersPayants: tiersPayants,
-    });
   }
+
 
   /**
    * Remove a tiers payant from the current sale
@@ -722,7 +737,7 @@ export class SalesFacade {
           switchMap(() => this.apiService.findSale(currentSale.saleId!)),
           catchError(error => {
             console.error('Error adding tiers payant:', error);
-            this.notificationService.error('Erreur lors de l\'ajout du tiers payant complémentaire');
+            this.notificationService.error("Erreur lors de l'ajout du tiers payant complémentaire");
             this.store.setLoading(false);
             return of(null);
           }),

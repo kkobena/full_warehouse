@@ -1,17 +1,4 @@
-import {
-  Component,
-  inject,
-  OnInit,
-  AfterViewInit,
-  signal,
-  computed,
-  viewChild,
-  output,
-  effect,
-  input,
-  model,
-  DestroyRef,
-} from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -42,7 +29,7 @@ import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
 import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
-import { IPayment } from '../../../../shared/model/payment.model';
+import { IPayment } from '../../../../shared/model';
 import { createProductHandling, ProductSearchHost } from '../../shared/mixins';
 
 /**
@@ -308,8 +295,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   ngOnInit(): void {
-    // Set sale type to CARNET
-    this.facade.setSaleType('CARNET');
+    // Initialiser une vente CARNET
+    this.facade.initializeCarnetSale();
 
     // Initialize typePrescription with default value
     this.facade.setTypePrescription('PRESCRIPTION');
@@ -336,8 +323,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.resetProductSelection();
     });
-    
-     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+
+    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
   }
@@ -469,11 +456,25 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   // ===== Sale Actions =====
 
   /**
+   * Rebuilde les tiers payants avec les numBon des inputs et met à jour la vente
+   * Doit être appelé avant toute finalisation de vente CARNET
+   */
+  private rebuildTiersPayantsFromInputs(): void {
+    const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
+    if (tiersPayantsFromInputs.length > 0) {
+      this.facade.updateSaleTiersPayants(tiersPayantsFromInputs);
+    }
+  }
+
+  /**
    * Finalise la vente sans paiement (amountToBePaid <= 0)
    */
   private finalizeSaleWithoutPayment(): void {
     const currentSale = this.currentSale();
     if (!currentSale) return;
+
+    // Rebuilder les tiers payants avec les numBon des inputs
+    this.rebuildTiersPayantsFromInputs();
 
     // Montant entièrement couvert par assurance/crédit
     currentSale.montantVerse = 0;
@@ -542,7 +543,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     // Confirm before canceling
     if (this.salesLines().length > 0) {
       this.confirmDialog().onConfirm(
-        () =>  this.facade.cancelSale(),
+        () => this.facade.cancelSale(),
         'Annulation de la vente',
         'Êtes-vous sûr de vouloir annuler cette vente ?',
       );
@@ -556,7 +557,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    * Appelé après sauvegarde ou annulation pour rester sur l'écran de vente
    */
   private resetForNewSale(): void {
-   
     this.customerDisplay.clear();
     this.isProcessingSale.set(false);
   }
@@ -613,6 +613,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       this.notificationService.error('Erreur', 'Aucune vente en cours');
       return;
     }
+
+    // Rebuilder les tiers payants avec les numBon des inputs
+    this.rebuildTiersPayantsFromInputs();
 
     // Calculer le montant restant à payer
     const amountToBePaid = currentSale.amountToBePaid || 0;

@@ -8,7 +8,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../shared/model/sales-line.model';
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from '../../../shared/model';
 import { UtilisationCleSecurite } from '../../action-autorisation/utilisation-cle-securite.model';
 
 type EntityResponseType = HttpResponse<ISales>;

@@ -3,18 +3,9 @@
   <!-- Search Section - Toujours visible pour permettre changement de client -->
   <div class="search-section">
     <p-iconfield class="search-input-wrapper">
-      <p-inputicon class="pi pi-search" />
-      <input
-        #searchInput
-        (keydown.enter)="load()"
-        [(ngModel)]="search"
-        autocomplete="off"
-        class="search-input"
-        pInputText
-        [fluid]="true"
-        placeholder="Rechercher un client assuré..."
-        type="text"
-      />
+      <p-inputicon class="pi pi-search"/>
+      <input #searchInput (keydown.enter)="load()" [(ngModel)]="search" autocomplete="off" class="search-input"
+             pInputText [fluid]="true" placeholder="Rechercher un client assuré..." type="text"/>
     </p-iconfield>
   </div>
 
@@ -29,22 +20,16 @@
               <i class="pi pi-user-shield"></i>
               <span>Assuré</span>
             </div>
-            <p-button
-              (onClick)="editAssuredCustomer()"
-              pTooltip="Modifier les infos du client"
-              icon="pi pi-user-edit"
-              severity="info"
-              size="small"
-              [rounded]="true"
-            />
+            <p-button (onClick)="editAssuredCustomer()" pTooltip="Modifier les infos du client" icon="pi pi-user-edit"
+                      severity="info" size="small" [rounded]="true"/>
           </div>
           <div class="card-body">
             <div class="info-row">
               <span class="info-label">Nom/Prénom(s)</span>
               <span class="info-value">
-                {{ customer().firstName }}
+              {{ customer().firstName }}
                 {{ customer().lastName }}
-              </span>
+            </span>
             </div>
             <div class="info-row">
               <span class="info-label">Matricule</span>
@@ -65,33 +50,15 @@
               </div>
               @if (ayantDroit()) {
                 <p-buttonGroup>
-                  <p-button
-                    (onClick)="editAyantDroitClick()"
-                    icon="pi pi-user-edit"
-                    [rounded]="true"
-                    size="small"
-                    severity="info"
-                    pTooltip="Modifier les infos de l'ayant droit"
-                  />
+                  <p-button (onClick)="editAyantDroitClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
+                            severity="info" pTooltip="Modifier les infos de l'ayant droit"/>
 
-                  <p-button
-                    (onClick)="loadAyantDoitsClick()"
-                    icon="pi pi-users"
-                    [rounded]="true"
-                    size="small"
-                    severity="danger"
-                    pTooltip="Choisir un autre ayant droit"
-                  />
+                  <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-users" [rounded]="true" size="small"
+                            severity="danger" pTooltip="Choisir un autre ayant droit"/>
                 </p-buttonGroup>
               } @else {
-                <p-button
-                  (onClick)="loadAyantDoitsClick()"
-                  icon="pi pi-user-edit"
-                  [rounded]="true"
-                  size="small"
-                  severity="info"
-                  pTooltip="Ajouter un ayant droit"
-                />
+                <p-button (onClick)="loadAyantDoitsClick()" icon="pi pi-user-edit" [rounded]="true" size="small"
+                          severity="info" pTooltip="Ajouter un ayant droit"/>
               }
             </div>
             @if (ayantDroit()) {
@@ -111,7 +78,9 @@
       }
 
       <!-- Tiers Payants Cards -->
-      @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
+      @let tiersPayants = selectedTiersPayants() || [];
+
+      @for (tp of tiersPayants; track tp.id; let i = $index) {
         <div [class]="divClass()">
           <div class="data-card tiers-payant-card">
             <div class="tp-header">
@@ -135,46 +104,22 @@
                   <i class="pi pi-ticket"></i>
                   <span>Bon</span>
                 </p-inputgroup-addon>
-                <input
-                  #tpInput
-                  (keydown.enter)="onBonEnter(tp)"
-                  [(ngModel)]="tp.numBon"
-                  [fluid]="true"
-                  size="small"
-                  autocomplete="off"
-                  class="bon-input"
-                  id="bon-{{ tp.id }}"
-                  name="bon-{{ i }}"
-                  pInputText
-                  pKeyFilter="alphanum"
-                  type="text"
-                  placeholder="Numéro de bon..."
-                />
-                @if (selectedTiersPayants().length > 1) {
+                <input #tpInput (keydown.enter)="onBonEnter(tp)" [(ngModel)]="tp.numBon" [fluid]="true" size="small"
+                       autocomplete="off" class="bon-input" id="bon-{{ tp.id }}" name="bon-{{ i }}" pInputText
+                       pKeyFilter="alphanum" type="text" placeholder="Numéro de bon..."/>
+                @if (tiersPayants.length > 1) {
                   <p-inputgroup-addon>
-                    <p-button
-                      (click)="onRemoveTiersPayant(tp)"
-                      icon="pi pi-trash"
-                      pTooltip="Supprimer ce tiers payant"
-                      tooltipPosition="top"
-                      severity="danger"
-                      [text]="true"
-                      type="button"
-                    >
+                    <p-button (click)="onRemoveTiersPayant(tp)" icon="pi pi-trash" pTooltip="Supprimer ce tiers payant"
+                              tooltipPosition="top" severity="danger" [text]="true" type="button">
                     </p-button>
                   </p-inputgroup-addon>
                 }
-                @if (customer() && selectedTiersPayants().length < customer().tiersPayants.length && saleType() === 'ASSURANCE') {
+                @if (customer() && tiersPayants.length < customer().tiersPayants.length && saleType() === 'ASSURANCE') {
                   <p-inputgroup-addon>
-                    <p-button
-                      (click)="onAddComplementaire()"
-                      icon="pi pi-plus"
-                      pTooltip="Ajouter un tiers payant complémentaire"
-                      tooltipPosition="top"
-                      severity="success"
-                      [text]="true"
-                      type="button"
-                    >
+                    <p-button (click)="onAddComplementaire()" icon="pi pi-plus"
+                              pTooltip="Ajouter un tiers payant complémentaire" tooltipPosition="top" severity="success"
+                              [text]="true"
+                              type="button">
                     </p-button>
                   </p-inputgroup-addon>
                 }

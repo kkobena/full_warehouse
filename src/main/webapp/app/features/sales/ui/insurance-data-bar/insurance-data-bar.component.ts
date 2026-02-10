@@ -12,7 +12,6 @@ import {
   viewChildren,
   WritableSignal,
   input,
-  effect,
 } from '@angular/core';
 import { CustomerService } from '../../../../entities/customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
@@ -21,7 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { PanelModule } from 'primeng/panel';
 import { InputTextModule } from 'primeng/inputtext';
-import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from '../../../../shared/model';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -77,39 +76,22 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   private bonInputs = viewChildren<ElementRef>('tpInput');
 
   constructor() {
-    // Synchroniser les tiers payants quand le customer change
-    effect(() => {
-      const customer = this.customer();
-      if (customer) {
-        this.handleCustomer(customer);
-      } else {
-        this.selectedTiersPayants.set([]);
-      }
-    });
-
-    // Synchroniser quand les tiersPayants de la vente changent (pour ASSURANCE)
-    // Cela permet de mettre à jour l'affichage quand on ajoute/supprime un complémentaire
-    effect(() => {
-      const tiersPayantsFromSale = this.tiersPayants();
-      const saleType = this.saleType();
-      const customer = this.customer();
-
-      // Uniquement pour ASSURANCE et si on a un customer
-      // On utilise les tiersPayants de la vente s'ils sont différents
-      if (saleType === 'ASSURANCE' && customer && tiersPayantsFromSale.length > 0) {
-        const currentIds = this.selectedTiersPayants().map(tp => tp.id).sort();
-        const newIds = tiersPayantsFromSale.map(tp => tp.id).sort();
-
-        // Mettre à jour seulement si la liste a changé (ajout/suppression de complémentaire)
-        if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
-          this.selectedTiersPayants.set([...tiersPayantsFromSale]);
-        }
-      }
-    });
+    // Pas d'effect - l'initialisation se fait dans ngOnInit comme l'original
   }
 
   ngOnInit(): void {
-    // Initialisation si besoin
+    // Initialisation une seule fois comme l'original (pas d'effect réactif)
+    const tiersPayantsInput = this.tiersPayants();
+    if (tiersPayantsInput && tiersPayantsInput.length > 0) {
+      // Priorité aux tiers payants de la vente (input)
+      this.selectedTiersPayants.set([...tiersPayantsInput]);
+    } else {
+      // Sinon, utiliser ceux du customer
+      const customer = this.customer();
+      if (customer) {
+        this.handleCustomer(customer);
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -147,6 +129,41 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
 
   protected onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
     this.removeTiersPayant.emit(tiersPayant);
+  }
+
+  /**
+   * Retire un tiers payant de l'état local (sans passer par le parent)
+   * Utilisé quand la vente n'existe pas encore (currentSale undefined)
+   */
+  public removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
+    const current = this.selectedTiersPayants();
+    const updated = current.filter(tp => tp.id !== tiersPayant.id);
+    this.selectedTiersPayants.set(updated);
+    this.tiersPayantsChanged.emit(updated);
+  }
+
+  /**
+   * Retourne la liste actuelle des tiers payants sélectionnés
+   */
+  public getSelectedTiersPayants(): IClientTiersPayant[] {
+    return this.selectedTiersPayants();
+  }
+
+  /**
+   * Initialise les tiers payants à partir d'un customer (appelé par le parent)
+   * Remplace l'ancien effect réactif pour éviter les problèmes de performance
+   */
+  public initializeFromCustomer(customer: ICustomer): void {
+    if (customer) {
+      this.handleCustomer(customer);
+    }
+  }
+
+  /**
+   * Met à jour les tiers payants localement (appelé par le parent)
+   */
+  public updateTiersPayants(tiersPayants: IClientTiersPayant[]): void {
+    this.selectedTiersPayants.set([...tiersPayants]);
   }
 
   protected editAssuredCustomer(): void {
@@ -244,6 +261,10 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
 
   public focusFirstBon(): void {
     this.focusAndSelectBonInput(0);
+  }
+
+  public focusLastBon(): void {
+    this.focusAndSelectBonInput(null);
   }
 
   private firstRefBonFocus(): void {

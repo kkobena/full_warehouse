@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, inject, signal, DestroyRef, effect, viewChild, output, input, computed } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
 import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
@@ -17,33 +17,28 @@ import { AddComplementaireComponent } from '../../../../entities/sales/selling-h
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import {
-  ProductListComponent,
-  SaleSummaryComponent,
-  SaleActionsComponent,
-  ProductSearchComponent,
+  InsuranceDataBarComponent,
   PendingSalesListComponent,
+  ProductListComponent,
+  ProductSearchComponent,
+  SaleActionsComponent,
+  SaleSummaryComponent,
 } from '../../ui';
-import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
-import { InsuranceDataBarComponent } from '../../ui';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CustomerSearchService } from '../../data-access/services/customer-search.service';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISalesLine } from '../../../../shared/model';
-import { ICustomer } from '../../../../shared/model';
-import { ProduitSearch } from '../../../../shared/model';
-import { ISales } from '../../../../shared/model';
+import { IClientTiersPayant, ICustomer, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { IClientTiersPayant } from '../../../../shared/model';
-import { NgxSpinnerModule } from 'ngx-spinner';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import {
-  createProductHandling,
-  ProductSearchHost,
-  createPaymentHandling,
   createCustomerHandling,
   createForceStockHandling,
+  createPaymentHandling,
+  createProductHandling,
+  ProductSearchHost,
 } from '../../shared/mixins';
 import { Drawer } from 'primeng/drawer';
 
@@ -274,6 +269,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         this.facade.updateSaleTiersPayants(customer.tiersPayants);
       }
 
+      // Initialiser les tiers payants dans le composant UI (remplace l'ancien effect)
+      this.insuranceDataBar()?.initializeFromCustomer(customer);
+
       // Focus sur le premier champ de numéro de bon
       setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
     },
@@ -368,8 +366,24 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.resetProductSelection();
     });
-     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
+    });
+
+    // S'abonner au succès d'ajout de tiers payant complémentaire
+    this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
+        const updatedTiersPayants = currentSale.tiersPayants || [];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+      } else {
+        // Pas de vente backend: ajouter le nouveau tiers payant à la liste locale
+        const currentTiersPayants = this.insuranceDataBar()?.getSelectedTiersPayants() || [];
+        const updatedTiersPayants = [...currentTiersPayants, newTiersPayant];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+      }
+      setTimeout(() => this.insuranceDataBar()?.focusLastBon(), 100);
     });
   }
 
@@ -399,6 +413,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   onProductScanned(product: ProduitSearch): void {
     this.productHandling.onProductScanned(product);
   }
+
   /**
    * Enter dans champ produit vide → validation si amountToBePaid <= 0
    */
@@ -422,6 +437,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       }
     }
   }
+
   /**
    * Délègue au mixin productHandling
    * Gère l'ajout de quantité depuis le composant QuantiteProdutSaisieComponent
@@ -579,7 +595,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   onLoadAyantDroits(): void {
     const customer = this.selectedCustomer();
     if (!customer) {
-      this.messageService.add({ severity: 'warn', summary: 'Client requis', detail: "Sélectionnez d'abord un client assuré" });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Client requis',
+        detail: "Sélectionnez d'abord un client assuré",
+      });
       return;
     }
 
@@ -612,7 +632,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const currentSale = this.currentSale();
 
     if (!customer) {
-      this.messageService.add({ severity: 'warn', summary: 'Client requis', detail: "Sélectionnez d'abord un client assuré" });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Client requis',
+        detail: "Sélectionnez d'abord un client assuré",
+      });
       return;
     }
 
@@ -625,10 +649,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       },
       (newTiersPayant: IClientTiersPayant) => {
         if (newTiersPayant) {
-          // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
-          const existingTiersPayants = this.currentSale()?.tiersPayants || [];
-          const updatedTiersPayants = [...existingTiersPayants, newTiersPayant];
-          this.facade.updateSaleTiersPayants(updatedTiersPayants);
+          // Utiliser la facade pour ajouter le tiers payant (appel API si vente existe)
+          // L'update UI se fait dans l'abonnement à tiersPayantAddedSuccess$
+          this.facade.addTiersPayantToSale(newTiersPayant);
         }
       },
       'xl',
@@ -636,19 +659,34 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
-    const currentSale = this.currentSale();
-    if (!currentSale?.tiersPayants) return;
-
     this.confirmDialog().onConfirm(
       () => {
-        // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
-        const existingTiersPayants = this.currentSale()?.tiersPayants || [];
-        const updatedTiersPayants = existingTiersPayants.filter(tp => tp.id !== tiersPayant.id);
-        this.facade.updateSaleTiersPayants(updatedTiersPayants);
+        const currentSale = this.currentSale();
+
+        // Si la vente existe (saleId), utiliser la facade pour appeler l'API
+        // Cela permet au backend de recalculer les montants
+        if (currentSale?.saleId) {
+          this.facade.removeTiersPayantFromSale(tiersPayant, () => {
+            // Callback de succès: mettre à jour l'état local de l'insurance-data-bar
+            // Note: La facade a déjà rechargé la vente, donc l'effect de synchronisation
+            // dans InsuranceDataBarComponent mettra automatiquement à jour selectedTiersPayants
+            this.removeTiersPayantLocally(tiersPayant);
+          });
+        } else {
+          // Si pas de vente backend, retirer localement seulement
+          this.removeTiersPayantLocally(tiersPayant);
+        }
       },
       'Supprimer tiers payant',
       `Êtes-vous sûr de vouloir supprimer le tiers payant ${tiersPayant.tiersPayantName} ?`,
     );
+  }
+
+  private removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
+    const dataBar = this.insuranceDataBar();
+    if (dataBar) {
+      dataBar.removeTiersPayantLocally(tiersPayant);
+    }
   }
 
   onTiersPayantsChanged(tiersPayants: IClientTiersPayant[]): void {
@@ -758,7 +796,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
 
     if (tiersPayantsFromInputs.length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Tiers payants requis', detail: 'Ajoutez au moins un tiers payant' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Tiers payants requis',
+        detail: 'Ajoutez au moins un tiers payant',
+      });
       return false;
     }
 
@@ -808,7 +850,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     if (sale?.saleId) {
       this.facade.printCurrentSale();
     } else {
-      this.messageService.add({ severity: 'warn', summary: 'Impression impossible', detail: "La vente doit être enregistrée d'abord" });
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Impression impossible',
+        detail: "La vente doit être enregistrée d'abord",
+      });
     }
   }
 
@@ -892,7 +938,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   private resetForNewSale(): void {
-
     this.customerDisplay.clear();
     this.selectedLineId.set(null);
     this.customers.set([]);

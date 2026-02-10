@@ -14,15 +14,14 @@ import {
 } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
-import { ICustomer } from '../../../../../shared/model/customer.model';
+import { ICustomer } from '../../../../../shared/model';
 import { SelectedCustomerService } from '../../../service/selected-customer.service';
 import { AssuredCustomerListComponent } from '../../../assured-customer-list/assured-customer-list.component';
-import { MenuItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { PanelModule } from 'primeng/panel';
 import { InputTextModule } from 'primeng/inputtext';
-import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from '../../../../../shared/model';
 import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';

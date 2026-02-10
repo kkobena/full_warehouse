@@ -1,17 +1,17 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { Subject, pipe, switchMap, tap, catchError, of, debounceTime, distinctUntilChanged, finalize, map, Observable } from 'rxjs';
+import { Subject, pipe, switchMap, tap, catchError, of, finalize, map, Observable } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISales, Sales, SaleId } from '../../../../shared/model/sales.model';
+import { ISales, SaleId } from '../../../../shared/model/sales.model';
 import { createSalesLineFromProduct } from '../utils/sales-line.utils';
-import { ISalesLine, SalesLine } from '../../../../shared/model/sales-line.model';
-import { ICustomer } from '../../../../shared/model/customer.model';
-import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
-import { IRemise } from '../../../../shared/model/remise.model';
-import { SalesStatut } from '../../../../shared/model/enumerations/sales-statut.model';
+import { ISalesLine } from '../../../../shared/model';
+import { ICustomer } from '../../../../shared/model';
+import { IClientTiersPayant } from '../../../../shared/model';
+import { ProduitSearch } from '../../../../shared/model';
+import { IRemise } from '../../../../shared/model';
+import { SalesStatut } from '../../../../shared/model';
 import { SelectedCustomerService } from '../../../../entities/sales/service/selected-customer.service';
 
 /**
@@ -65,6 +65,9 @@ export class SalesFacade {
 
   private readonly customerSetSuccessSubject = new Subject<void>();
   readonly customerSetSuccess$ = this.customerSetSuccessSubject.asObservable();
+
+  private readonly tiersPayantAddedSuccessSubject = new Subject<IClientTiersPayant>();
+  readonly tiersPayantAddedSuccess$ = this.tiersPayantAddedSuccessSubject.asObservable();
 
   // ============================================
   // EXPOSE STORE STATE (Read-only)
@@ -631,16 +634,119 @@ export class SalesFacade {
   }
 
   /**
-   * Update tiers payants of current sale
+   * Update tiers payants of current sale (local only)
    * Called when customer is selected to set insurance tiers payants
+   * Note: Pour supprimer un tiers payant, utiliser removeTiersPayantFromSale
    */
   updateSaleTiersPayants(tiersPayants: IClientTiersPayant[]): void {
     const currentSale = this.store.currentSale();
-    if (currentSale) {
+    if (!currentSale) {
+      return;
+    }
+
+    // Mettre à jour le store local pour la réactivité de l'UI
+    this.store.setCurrentSale({
+      ...currentSale,
+      tiersPayants: tiersPayants,
+    });
+  }
+
+  /**
+   * Remove a tiers payant from the current sale
+   * If sale exists (has saleId), makes API call to remove and recalculate amounts
+   * If sale doesn't exist, just removes locally
+   * @param tiersPayant - The tiers payant to remove
+   * @param onSuccess - Optional callback called after successful removal
+   */
+  removeTiersPayantFromSale(tiersPayant: IClientTiersPayant, onSuccess?: () => void): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale) {
+      return;
+    }
+
+    // Calculer la nouvelle liste sans le tiers payant
+    const updatedTiersPayants = (currentSale.tiersPayants || []).filter(tp => tp.id !== tiersPayant.id);
+
+    // Si la vente existe sur le backend, faire un appel API
+    if (currentSale.saleId && tiersPayant.id) {
+      this.store.setLoading(true);
+
+      this.apiService
+        .removeThirdPartyFromSales(tiersPayant.id, currentSale.saleId)
+        .pipe(
+          switchMap(() => this.apiService.findSale(currentSale.saleId!)),
+          catchError(error => {
+            console.error('Error removing tiers payant:', error);
+            this.notificationService.error('Erreur lors de la suppression du tiers payant');
+            this.store.setLoading(false);
+            return of(null);
+          }),
+          finalize(() => this.store.setLoading(false)),
+        )
+        .subscribe(saleFromBackend => {
+          if (saleFromBackend) {
+            this.store.setCurrentSale(saleFromBackend);
+            if (onSuccess) {
+              onSuccess();
+            }
+          }
+        });
+    } else {
+      // Si pas de vente backend, juste mettre à jour localement
       this.store.setCurrentSale({
         ...currentSale,
-        tiersPayants: tiersPayants,
+        tiersPayants: updatedTiersPayants,
       });
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  }
+
+  /**
+   * Add a tiers payant complémentaire to the current sale
+   * If sale exists (has saleId), makes API call to add and recalculate amounts
+   * In all cases, emits success event for UI update
+   * @param tiersPayant - The tiers payant to add
+   */
+  addTiersPayantToSale(tiersPayant: IClientTiersPayant): void {
+    const currentSale = this.store.currentSale();
+
+    // Si la vente existe sur le backend (a un saleId), faire un appel API
+    if (currentSale?.saleId) {
+      this.store.setLoading(true);
+
+      this.apiService
+        .addTiersPayantComplementaire(currentSale.saleId, tiersPayant)
+        .pipe(
+          switchMap(() => this.apiService.findSale(currentSale.saleId!)),
+          catchError(error => {
+            console.error('Error adding tiers payant:', error);
+            this.notificationService.error('Erreur lors de l\'ajout du tiers payant complémentaire');
+            this.store.setLoading(false);
+            return of(null);
+          }),
+          finalize(() => this.store.setLoading(false)),
+        )
+        .subscribe(saleFromBackend => {
+          if (saleFromBackend) {
+            this.store.setCurrentSale(saleFromBackend);
+            // Émettre l'événement de succès avec le nouveau tiers payant
+            this.tiersPayantAddedSuccessSubject.next(tiersPayant);
+          }
+        });
+    } else {
+      // Pas de vente backend: mise à jour locale du store si currentSale existe
+      if (currentSale) {
+        const existingTiersPayants = currentSale.tiersPayants || [];
+        const updatedTiersPayants = [...existingTiersPayants, tiersPayant];
+        this.store.setCurrentSale({
+          ...currentSale,
+          tiersPayants: updatedTiersPayants,
+        });
+      }
+      // Toujours émettre l'événement pour que l'UI se mette à jour
+      this.tiersPayantAddedSuccessSubject.next(tiersPayant);
     }
   }
 

@@ -25,7 +25,6 @@ import { ISales } from '../../../../shared/model/sales.model';
  */
 @Component({
   selector: 'app-authorization-modal',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

@@ -19,7 +19,6 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
  */
 @Component({
   selector: 'jhi-customer-overlay-panel',
-  standalone: true,
   imports: [
     WarehouseCommonModule,
     ButtonModule,

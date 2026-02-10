@@ -5,9 +5,10 @@ import { map } from 'rxjs/operators';
 import moment from 'moment';
 
 import { SERVER_API_URL } from '../../../../app.constants';
-import {  createRequestOptions } from '../../../../shared/util/request-util';
+import { createRequestOptions } from '../../../../shared/util/request-util';
 import { ISales, SaleId, FinalyseSale, UpdateSaleInfo } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
+import { IClientTiersPayant } from '../../../../shared/model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -160,6 +161,16 @@ export class SalesApiService {
   }
 
   /**
+   * Add complementary third-party payer (tiers payant complémentaire) to an insurance sale
+   * @param saleId
+   * @param clientTiersPayant
+   */
+  addTiersPayantComplementaire(saleId: SaleId, clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<{}>> {
+    return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${saleId.id}/${saleId.saleDate}`, clientTiersPayant, {
+      observe: 'response',
+    });
+  }
+  /**
    * Print sale invoice
    */
   printInvoice(id: SaleId): Observable<Blob> {
@@ -295,8 +306,7 @@ export class SalesApiService {
       .pipe(map((): void => undefined));
   }
 
-
-/**
+  /**
    * Delete item from sale
    */
   deleteItemFromAssurance(id: SaleLineId): Observable<void> {
@@ -346,7 +356,7 @@ export class SalesApiService {
   }
 
   /**
-   * Get all pending sales 
+   * Get all pending sales
    * Returns list of sales waiting to be completed
    */
   getPendingSales(req: any): Observable<ISales[]> {
@@ -364,7 +374,7 @@ export class SalesApiService {
     );
   }
 
-/**
+  /**
    * Delete pending sale (prévente) for vno (comptant)
    */
   deletePreventeComptant(saleId: SaleId): Observable<void> {
@@ -372,7 +382,7 @@ export class SalesApiService {
       .delete<void>(`${this.resourceUrl}/prevente/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
       .pipe(map((): void => undefined));
   }
-/**
+  /**
    * Delete pending sale (prévente) for assurance/carnet
    */
   deletePreventeAssurance(saleId: SaleId): Observable<void> {
@@ -381,7 +391,11 @@ export class SalesApiService {
       .pipe(map((): void => undefined));
   }
 
-
+  removeThirdPartyFromSales(id: number, saleId: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId.id}/${saleId.saleDate}`, {
+      observe: 'response',
+    });
+  }
 
   /**
    * Convert item dates from client format (Moment) to server format (string)

@@ -4,7 +4,7 @@
   @if (!selectedCustomerService.selectedCustomerSignal() || !currentSaleService.currentSale()) {
     <div class="search-section">
       <p-iconfield class="search-input-wrapper">
-        <p-inputicon class="pi pi-search" />
+        <p-inputicon class="pi pi-search"/>
         <input
           #searchInput
           (keydown.enter)="load()"
@@ -166,11 +166,9 @@
                     </p-button>
                   </p-inputgroup-addon>
                 }
-                @if (
-                  selectedCustomerService.selectedCustomerSignal() &&
-                  selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
-                  currentSaleService.typeVo() === 'ASSURANCE'
-                ) {
+                @if (selectedCustomerService.selectedCustomerSignal() &&
+                selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
+                currentSaleService.typeVo() === 'ASSURANCE') {
                   <p-inputgroup-addon>
                     <p-button
                       (click)="addComplementaire()"

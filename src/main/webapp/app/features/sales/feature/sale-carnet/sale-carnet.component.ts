@@ -26,7 +26,7 @@ import { ProduitSearch } from '../../../../shared/model';
 import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
-import { createProductHandling, createCustomerHandling, createPaymentHandling, ProductSearchHost } from '../../shared/mixins';
+import { createProductHandling, createCustomerHandling, createPaymentHandling, createForceStockHandling, ProductSearchHost } from '../../shared/mixins';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
 
 /**
@@ -158,6 +158,26 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
   });
 
+  // ===== Force Stock Handling Mixin =====
+  private forceStockHandling = createForceStockHandling({
+    facade: this.facade,
+    authorizationService: this.authorizationService,
+    spinner: this.spinner,
+    config: { saleType: 'CARNET' },
+    currentSale: this.facade.currentSale,
+    loading: this.facade.loading,
+    lastError: this.facade.lastError,
+    waitingForForceStockSuccess: this.waitingForForceStockSuccess,
+    previousLoadingState: this.previousLoadingState,
+    forceStockContext: this.forceStockContext,
+    getConfirmDialog: () => this.confirmDialog(),
+    resetProductSelection: () => this.productHandling.resetProductSelection(),
+    operations: {
+      createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
+      addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
+    },
+  });
+
   // ===== Customer Handling Mixin =====
   private customerHandling = createCustomerHandling({
     facade: this.facade,
@@ -233,6 +253,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   });
 
   constructor() {
+    // Initialiser les effects de gestion du forçage de stock via le mixin
+    this.forceStockHandling.initializeEffects();
     this.initializeEffects();
   }
 
@@ -240,131 +262,25 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   private initializeEffects(): void {
     this.setupErrorHandlingEffect();
-    this.setupForceStockSuccessEffect();
-    this.setupSpinnerEffect();
   }
 
   /**
-   * Effect pour observer les erreurs du store et gérer le forçage de stock
+   * Effect pour surveiller les erreurs et les afficher
+   * Note: Les erreurs de stock sont gérées par le mixin forceStockHandling
    */
   private setupErrorHandlingEffect(): void {
     effect(() => {
       const errorMsg = this.lastError();
       const errorDetails = this.facade.errorDetails();
-      const waiting = this.waitingForForceStockSuccess();
-
-      if (waiting) return;
-
-      if (errorMsg) {
-        if (errorDetails?.errorKey === 'stock' && this.authorizationService.canForceStock()) {
-          this.handleStockError(errorDetails);
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: errorMsg,
-            life: 5000,
-          });
-        }
+      // Ignorer les erreurs de stock - elles sont gérées par le mixin forceStockHandling
+      if (errorMsg && errorDetails?.errorKey !== 'stock') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: errorMsg,
+          life: 5000,
+        });
       }
-    });
-  }
-
-  /**
-   * Gère l'erreur de stock insuffisant avec option de forçage
-   */
-  private handleStockError(errorDetails: { errorKey: string | null; attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean }): void {
-    const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
-    const detectedContext = isFromTableEdit ? 'editCell' : 'addProduct';
-    this.forceStockContext.set(detectedContext);
-
-    this.confirmDialog().onConfirm(
-      () => this.onForceStockConfirmed(errorDetails, detectedContext),
-      'Forcer le stock',
-      'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
-      undefined,
-      () => this.onForceStockCancelled(),
-    );
-  }
-
-  /**
-   * Callback appelé quand l'utilisateur confirme le forçage de stock
-   */
-  private onForceStockConfirmed(
-    errorDetails: { attemptedLine?: ISalesLine; isFromTableCellEdit?: boolean },
-    detectedContext: 'addProduct' | 'editCell',
-  ): void {
-    if (!errorDetails.attemptedLine) return;
-
-    errorDetails.attemptedLine.forceStock = true;
-    this.waitingForForceStockSuccess.set(true);
-
-    if (detectedContext === 'editCell') {
-      this.facade.updateItemQtyRequestedWithSet(errorDetails.attemptedLine);
-    } else if (errorDetails.attemptedLine.id) {
-      this.facade.updateItemQtyRequested(errorDetails.attemptedLine);
-    } else {
-      const currentSale = this.currentSale();
-      if (!currentSale?.saleId) {
-        this.facade.createCarnetSale(errorDetails.attemptedLine);
-      } else {
-        this.facade.onAddProduitCarnet(errorDetails.attemptedLine);
-      }
-    }
-  }
-
-  /**
-   * Callback appelé quand l'utilisateur annule le forçage de stock
-   */
-  private onForceStockCancelled(): void {
-    this.facade.clearError();
-    const context = this.forceStockContext();
-    this.forceStockContext.set(null);
-
-    if (context === 'editCell') {
-      const currentSale = this.currentSale();
-      if (currentSale?.saleId) {
-        this.facade.loadSaleForEdit(currentSale.saleId);
-      }
-      // Reset géré via souscription à saleReloadedSuccess$
-    } else {
-      this.productHandling.resetProductSelection();
-    }
-  }
-
-  /**
-   * Effect pour détecter le succès après force stock
-   */
-  private setupForceStockSuccessEffect(): void {
-    effect(() => {
-      const loading = this.loading();
-      const previousLoading = this.previousLoadingState();
-      const waiting = this.waitingForForceStockSuccess();
-
-      if (!waiting) {
-        if (previousLoading !== loading) {
-          this.previousLoadingState.set(loading);
-        }
-        return;
-      }
-
-      this.previousLoadingState.set(loading);
-
-      if (previousLoading && !loading && !this.facade.errorDetails()) {
-        this.waitingForForceStockSuccess.set(false);
-        this.facade.clearError();
-        this.forceStockContext.set(null);
-        // Reset géré via souscription à productAddedSuccess$ ou lineUpdatedSuccess$
-      }
-    });
-  }
-
-  /**
-   * Effect pour contrôler le spinner global selon l'état loading
-   */
-  private setupSpinnerEffect(): void {
-    effect(() => {
-      this.loading() ? this.spinner.show() : this.spinner.hide();
     });
   }
 

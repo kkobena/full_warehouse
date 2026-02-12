@@ -764,7 +764,7 @@ public class MobileReportResource {
         LOG.debug("REST request to get all stock rotation - page: {}, size: {}", page, size);
         return PaginationHelper.createPaginatedResponse(
             () -> stockRotationReportService.getStockRotationPaginated(page, size),
-            () -> stockRotationReportService.getStockRotationCount(),
+            stockRotationReportService::getStockRotationCount,
             page,
             size
         );
@@ -838,7 +838,7 @@ public class MobileReportResource {
         LOG.debug("REST request to get all ABC Pareto analysis - page: {}, size: {}", page, size);
         return PaginationHelper.createPaginatedResponse(
             () -> abcParetoReportService.getABCParetoPaginated(page, size),
-            () -> abcParetoReportService.getABCParetoCount(),
+            abcParetoReportService::getABCParetoCount,
             page,
             size
         );

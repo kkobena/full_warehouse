@@ -44,7 +44,8 @@ public class MaterializedViewRefreshService {
     private static final List<String> TIER2_VIEWS = Arrays.asList(
         "mv_dashboard_ca_product_families",
         "mv_monthly_top_products",
-        "mv_stock_valuation"
+        "mv_stock_valuation",
+        "mv_stock_valuation_by_rayon"
     );
     // =====================================================
     // TIER 3: Low Priority Views (Every 6 hours)

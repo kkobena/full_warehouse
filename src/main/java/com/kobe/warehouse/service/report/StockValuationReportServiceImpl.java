@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.repository.MvStockValuationViewRepository;
 import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import jakarta.persistence.EntityManager;
@@ -17,9 +18,11 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
 
 
     private final EntityManager entityManager;
+    private final MvStockValuationViewRepository mvStockValuationViewRepository;
 
-    public StockValuationReportServiceImpl(EntityManager entityManager) {
+    public StockValuationReportServiceImpl(EntityManager entityManager, MvStockValuationViewRepository mvStockValuationViewRepository) {
         this.entityManager = entityManager;
+        this.mvStockValuationViewRepository = mvStockValuationViewRepository;
     }
 
 

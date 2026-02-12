@@ -171,7 +171,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     },
     selectedCustomer: this.facade.selectedCustomer,
     customers: this.customers,
-    customerListComponent: CustomerCarnetComponent,
+    customerListComponent: AssuredCustomerListComponent,
     customerFormComponent: CustomerCarnetComponent,
     onCustomerSelectedCallback: customer => {
       // Mettre à jour les tiers payants via la facade

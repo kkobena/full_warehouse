@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface SaleService {
-    SaleLineDTO updateSaleLine(SaleLineDTO saleLine);
+
 
     CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut;
 

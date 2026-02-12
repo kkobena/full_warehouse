@@ -46,8 +46,8 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SaleService;
-import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -60,7 +60,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -124,21 +123,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).orElse(null));
     }
 
-    @Override
-    public SaleLineDTO updateSaleLine(SaleLineDTO saleLine) {
-        SalesLine salesLine = salesLineService.getOneById(saleLine.getSaleLineId());
-        int oldAmont = salesLine.getSalesAmount();
-        int oldQty = salesLine.getQuantitySold();
-        salesLineService.updateSaleLine(saleLine, salesLine);
-        Sales sales = salesLine.getSales();
-        sales.setSalesAmount((sales.getSalesAmount() - oldAmont) + salesLine.getSalesAmount());
-        sales.setCostAmount(
-            (sales.getCostAmount() - (oldQty * salesLine.getCostAmount())) + (salesLine.getQuantitySold() * salesLine.getCostAmount())
-        );
-        salesRepository.save(sales);
-        this.displayNet(sales.getNetAmount());
-        return new SaleLineDTO(salesLine);
-    }
+
 
     @Override
     public CashSale fromDTOOldCashSale(CashSaleDTO dto) {
@@ -266,44 +251,17 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return salesManager.updateItemRegularPrice(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
-    private void finalizeSaleLineUpdate(SalesLine salesLine) {
-        CashSale sales = (CashSale) salesLine.getSales();
-        upddateCashSaleAmounts(sales);
-        cashSaleRepository.saveAndFlush(sales);
-        this.displayNet(sales.getNetAmount());
-    }
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
         return salesManager.addOrUpdateSaleLine(dto, findOneById(dto.getSaleCompositeId()));
     }
 
-    private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
-        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
-        if (salesLineOp.isPresent()) {
-            SalesLine salesLine = salesLineOp.get();
-            salesLineService.updateSaleLine(dto, salesLine, storageId);
-            CashSale cashSale = (CashSale) salesLine.getSales();
-            upddateCashSaleAmounts(cashSale);
-            cashSaleRepository.save(cashSale);
-            return salesLine;
-        }
-        SalesLine salesLine = salesLineService.create(dto, storageId, findOne(dto.getSaleCompositeId()));
-        updateSaleWhenAddItem(salesLine);
-        return salesLine;
-    }
 
     private CashSale findOne(SaleId id) {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-    private void updateSaleWhenAddItem(SalesLine salesLine) {
-        CashSale sales = (CashSale) salesLine.getSales();
-        upddateCashSaleAmounts(sales);
-        salesLine.setSales(sales);
-        salesRepository.save(sales);
-    }
 
     @Override
     public FinalyseSaleDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {

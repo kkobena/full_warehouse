@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
+
 import java.util.List;
 
 public interface StockValuationReportService {
@@ -23,10 +24,10 @@ public interface StockValuationReportService {
     /**
      * Get stock valuation filtered by storage location
      *
-     * @param storageLocation The storage location name to filter by
+     * @param rayonId The storage location id to filter by
      * @return List of stock valuation records for the storage location
      */
-    List<StockValuationDTO> getStockValuationByStorage(String storageLocation);
+    List<StockValuationDTO> getStockValuationByRayon(Integer rayonId);
 
     /**
      * Get aggregated stock valuation summary
@@ -43,6 +44,8 @@ public interface StockValuationReportService {
      * @return List of stock valuation records for the page
      */
     List<StockValuationDTO> getStockValuationPaginated(int page, int size);
+
+    List<StockValuationDTO> getStockValuationByRayonPaginated(int page, int size);
 
     /**
      * Get total count of stock valuation records

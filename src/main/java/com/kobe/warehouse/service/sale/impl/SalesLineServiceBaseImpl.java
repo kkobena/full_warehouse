@@ -7,6 +7,7 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
@@ -37,7 +38,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
         LotService lotService,
         InventoryTransactionService inventoryTransactionService,
         SaleLineIdGeneratorService saleLineIdGeneratorService,
-         StockUpdateService stockUpdateService
+        StockUpdateService stockUpdateService,
+        StorageService storageService
     ) {
         super(
             produitRepository,
@@ -48,23 +50,23 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
             lotService,
             inventoryTransactionService,
             saleLineIdGeneratorService,
-            stockUpdateService
+            stockUpdateService, storageService
         );
     }
 
     @Override
-    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId)throws StockException, DeconditionnementStockOut {
+    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId) throws StockException, DeconditionnementStockOut {
         return super.setCommonSaleLine(dto, stockageId);
     }
 
     @Override
     public void saveAllSalesLines(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
-        super. save(salesLines,  user,  storageId);
+        super.save(salesLines, user, storageId);
     }
 
     @Override
     public List<SalesLine> createSaleLinesFromDTO(CashSale cashSale, List<SaleLineDTO> saleLines, Integer stockageId) {
-        return  saleLines.stream().map(saleLineDTO -> {
+        return saleLines.stream().map(saleLineDTO -> {
             SalesLine salesLine = super.setCommonSaleLine(saleLineDTO, stockageId);
             salesLine.setSales(cashSale);
             return salesLine;

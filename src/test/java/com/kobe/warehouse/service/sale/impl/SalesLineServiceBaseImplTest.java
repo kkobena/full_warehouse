@@ -11,6 +11,7 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
@@ -54,6 +55,7 @@ class SalesLineServiceBaseImplTest {
     private  StockUpdateService stockUpdateService;
 
     private SalesLineServiceBaseImpl salesLineService;
+    private StorageService storageService;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +68,8 @@ class SalesLineServiceBaseImplTest {
             lotService,
             inventoryTransactionService,
             saleLineIdGeneratorService,
-            stockUpdateService
+            stockUpdateService,
+            storageService
         );
     }
 

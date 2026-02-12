@@ -235,7 +235,7 @@ export class SalesFacade {
               // NE PAS afficher le toast - le dialog sera affiché par l'effect
             } else {
               this.store.setError(errorMessage);
-              this.notificationService.error('Erreur', errorMessage);
+              this.notificationService.error('Erreur', errorMessage); //TODO: les toasts ne s'affichent pas dans le cas de l'erreur
             }
 
             this.store.setLoading(false);
@@ -625,7 +625,7 @@ export class SalesFacade {
       throw new Error('Impossible de créer une vente sans produit');
     }
     this.store.setSaleType('COMPTANT');
-    this.store.resetCurrentSale();
+    // this.store.resetCurrentSale();
     this.createComptantSale(initialLine);
   }
 
@@ -634,7 +634,7 @@ export class SalesFacade {
    */
   initializeAssuranceSale(): void {
     this.store.setSaleType('ASSURANCE');
-    this.store.resetCurrentSale();
+    //  this.store.resetCurrentSale();
     this.store.setPendingTiersPayants([]);
   }
 
@@ -643,7 +643,7 @@ export class SalesFacade {
    */
   initializeCarnetSale(): void {
     this.store.setSaleType('CARNET');
-    this.store.resetCurrentSale();
+    // this.store.resetCurrentSale();
     this.store.setPendingTiersPayants([]);
   }
 
@@ -664,7 +664,6 @@ export class SalesFacade {
       this.store.setPendingTiersPayants(tiersPayants);
     }
   }
-
 
   /**
    * Remove a tiers payant from the current sale

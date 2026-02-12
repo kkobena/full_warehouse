@@ -255,7 +255,7 @@ public class MobileReportResource {
 
         return PaginationHelper.createPaginatedResponse(
             () -> todoService.getAllTodoItems(page, size),
-            () -> todoService.getTodoItemsCount(),
+            todoService::getTodoItemsCount,
             page,
             size
         );
@@ -663,15 +663,15 @@ public class MobileReportResource {
      * GET /api/mobile/reports/stock-valuation/by-storage
      * Get stock valuation filtered by storage location.
      *
-     * @param storage Storage location name
+     * @param rayonId Rayon id
      * @return List of products in storage with valuation
      */
     @GetMapping("/reports/stock-valuation/by-storage")
     public ResponseEntity<List<StockValuationDTO>> getStockValuationByStorage(
-        @RequestParam String storage
+        @RequestParam Integer rayonId
     ) {
-        LOG.debug("REST request to get stock valuation for storage: {}", storage);
-        return ResponseEntity.ok(stockValuationReportService.getStockValuationByStorage(storage));
+        LOG.debug("REST request to get stock valuation for storage: {}", rayonId);
+        return ResponseEntity.ok(stockValuationReportService.getStockValuationByRayon(rayonId));
     }
 
     // -------------------------------------------------------------------------

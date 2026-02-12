@@ -1,12 +1,13 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.StockProduit;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data  repository for the StockProduit entity.
@@ -25,6 +26,13 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
         value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId "
     )
     Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
+
+
+    @Query(
+        value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.id =:storageId "
+    )
+    Integer findPointVenteStock(@Param("produitId") Integer produitId, @Param("storageId") Integer storageId);
+
 
     /**
      * Search stock produits by storage and product criteria

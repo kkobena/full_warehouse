@@ -18,20 +18,18 @@ export class ProductSearchService {
    * @param size Nombre maximum de résultats
    * @param searchByStorage Si true, recherche uniquement dans le magasin actuel
    */
-  search(query: string, size: number = 10, searchByStorage: boolean = true): Observable<ProduitSearch[]> {
+  search(query: string, size: number = 10, searchByStorage: boolean = false): Observable<ProduitSearch[]> {
     if (!query || query.trim().length === 0) {
       return of([]);
     }
 
-    return this.produitService
-      .search({ search: query.trim(), size }, searchByStorage)
-      .pipe(
-        map(response => response.body || []),
-        catchError(error => {
-          console.error('Error searching products:', error);
-          return of([]);
-        })
-      );
+    return this.produitService.search({ search: query.trim(), size }, searchByStorage).pipe(
+      map(response => response.body || []),
+      catchError(error => {
+        console.error('Error searching products:', error);
+        return of([]);
+      }),
+    );
   }
 
   /**
@@ -39,9 +37,7 @@ export class ProductSearchService {
    * @param barcode Code-barres du produit
    */
   searchByBarcode(barcode: string): Observable<ProduitSearch | null> {
-    return this.search(barcode, 1).pipe(
-      map(products => products.length > 0 ? products[0] : null)
-    );
+    return this.search(barcode, 1).pipe(map(products => (products.length > 0 ? products[0] : null)));
   }
 
   /**
@@ -53,7 +49,7 @@ export class ProductSearchService {
       source.pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap(query => this.search(query, size, searchByStorage))
+        switchMap(query => this.search(query, size, searchByStorage)),
       );
   }
 }

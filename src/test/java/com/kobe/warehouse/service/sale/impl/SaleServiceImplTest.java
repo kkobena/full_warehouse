@@ -137,30 +137,7 @@ class SaleServiceImplTest {
         testSale.getSalesLines().add(testSalesLine);
     }
 
-    @Test
-    void testUpdateSaleLine() {
-        SaleLineDTO dto = new SaleLineDTO();
-        dto.setSaleLineId(new SaleLineId(1L, testDate));
-        dto.setSalesAmount(600);
-        dto.setQuantitySold(2);
 
-        when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
-
-        doAnswer(invocation -> {
-            SalesLine sl = invocation.getArgument(1);
-            sl.setSalesAmount(600);
-            sl.setQuantitySold(2);
-            return null;
-        }).when(salesLineService).updateSaleLine(any(SaleLineDTO.class), any(SalesLine.class));
-
-        SaleLineDTO result = saleService.updateSaleLine(dto);
-
-        assertNotNull(result);
-        assertEquals(1100, testSale.getSalesAmount());
-        assertEquals(750, testSale.getCostAmount());
-        verify(salesRepository).save(testSale);
-        verify(customerDisplayService).displaySaleTotal(anyInt());
-    }
 
     @Test
     void testFromDTOOldCashSale() {
@@ -411,7 +388,7 @@ class SaleServiceImplTest {
         saleService.processDiscount(info);
 
         verify(cashSaleRepository).save(testSale);
-        assertTrue(testSale.getRemise() instanceof RemiseClient);
+        assertInstanceOf(RemiseClient.class, testSale.getRemise());
     }
 
     @Test
@@ -425,16 +402,10 @@ class SaleServiceImplTest {
         saleService.processDiscount(info);
 
         verify(cashSaleRepository).save(testSale);
-        assertTrue(testSale.getRemise() instanceof RemiseProduit);
+        assertInstanceOf(RemiseProduit.class, testSale.getRemise());
     }
 
-    @Test
-    void testUpdateSaleLine_SaleNotFound() {
-        SaleLineDTO dto = new SaleLineDTO();
-        dto.setSaleLineId(new SaleLineId(1L, testDate));
-        when(salesLineService.getOneById(any())).thenThrow(new NoSuchElementException());
-        assertThrows(NoSuchElementException.class, () -> saleService.updateSaleLine(dto));
-    }
+
 
     @Test
     void testAddOrUpdateSaleLine_UpdateExisting() {

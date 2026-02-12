@@ -52,12 +52,12 @@ public class StockValuationReportResource {
     /**
      * GET /stock/valuation/storage : Get stock valuation by storage location
      *
-     * @param storageLocation The storage location name to filter by
+     * @param rayonId The rayon id to filter by
      * @return List of stock valuation records for the storage location
      */
     @GetMapping("/stock/valuation/storage")
-    public ResponseEntity<List<StockValuationDTO>> getStockValuationByStorage(@RequestParam String storageLocation) {
-        List<StockValuationDTO> valuations = stockValuationReportService.getStockValuationByStorage(storageLocation);
+    public ResponseEntity<List<StockValuationDTO>> getStockValuationByStorage(  @RequestParam Integer rayonId) {
+        List<StockValuationDTO> valuations = stockValuationReportService.getStockValuationByRayon(rayonId);
         return ResponseEntity.ok().body(valuations);
     }
 

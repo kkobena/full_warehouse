@@ -3,18 +3,13 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,20 +28,19 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     public List<StockValuationDTO> getAllStockValuation() {
         String sql =
             "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "storage_location, " +
-            "stock_quantity, " +
-            "purchase_price, " +
-            "sales_price, " +
-            "total_purchase_value, " +
-            "total_sales_value, " +
-            "potential_margin, " +
-            "margin_percentage " +
-            "FROM mv_stock_valuation " +
-            "ORDER BY total_sales_value DESC";
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "categorie, " +
+                "stock_quantity, " +
+                "purchase_price, " +
+                "sales_price, " +
+                "total_purchase_value, " +
+                "total_sales_value, " +
+                "potential_margin, " +
+                "margin_percentage " +
+                "FROM mv_stock_valuation " +
+                "ORDER BY total_sales_value DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -61,21 +55,20 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     public List<StockValuationDTO> getStockValuationByCategory(String categorie) {
         String sql =
             "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "storage_location, " +
-            "stock_quantity, " +
-            "purchase_price, " +
-            "sales_price, " +
-            "total_purchase_value, " +
-            "total_sales_value, " +
-            "potential_margin, " +
-            "margin_percentage " +
-            "FROM mv_stock_valuation " +
-            "WHERE categorie = :categorie " +
-            "ORDER BY total_sales_value DESC";
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "categorie, " +
+                "stock_quantity, " +
+                "purchase_price, " +
+                "sales_price, " +
+                "total_purchase_value, " +
+                "total_sales_value, " +
+                "potential_margin, " +
+                "margin_percentage " +
+                "FROM mv_stock_valuation " +
+                "WHERE categorie = :categorie " +
+                "ORDER BY total_sales_value DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("categorie", categorie);
@@ -87,28 +80,28 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     }
 
     @Override
-    @Cacheable(value = "stockValuation", key = "'storage:' + #storageLocation")
-    public List<StockValuationDTO> getStockValuationByStorage(String storageLocation) {
+    @Cacheable(value = "stockValuation", key = "'rayon:' + #rayonId")
+    public List<StockValuationDTO> getStockValuationByRayon(Integer rayonId) {
         String sql =
             "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "storage_location, " +
-            "stock_quantity, " +
-            "purchase_price, " +
-            "sales_price, " +
-            "total_purchase_value, " +
-            "total_sales_value, " +
-            "potential_margin, " +
-            "margin_percentage " +
-            "FROM mv_stock_valuation " +
-            "WHERE storage_location = :storageLocation " +
-            "ORDER BY total_sales_value DESC";
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "categorie, " +
+                "rayon, " +
+                "stock_quantity, " +
+                "purchase_price, " +
+                "sales_price, " +
+                "total_purchase_value, " +
+                "total_sales_value, " +
+                "potential_margin, " +
+                "margin_percentage " +
+                "FROM mv_stock_valuation_by_rayon " +
+                "WHERE rayonId = :rayonId " +
+                "ORDER BY total_sales_value DESC";
 
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("storageLocation", storageLocation);
+        query.setParameter("rayonId", rayonId);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -120,21 +113,51 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     public List<StockValuationDTO> getStockValuationPaginated(int page, int size) {
         String sql =
             "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "storage_location, " +
-            "stock_quantity, " +
-            "purchase_price, " +
-            "sales_price, " +
-            "total_purchase_value, " +
-            "total_sales_value, " +
-            "potential_margin, " +
-            "margin_percentage " +
-            "FROM mv_stock_valuation " +
-            "ORDER BY total_sales_value DESC " +
-            "LIMIT :size OFFSET :offset";
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "categorie, " +
+                "stock_quantity, " +
+                "purchase_price, " +
+                "sales_price, " +
+                "total_purchase_value, " +
+                "total_sales_value, " +
+                "potential_margin, " +
+                "margin_percentage " +
+                "FROM mv_stock_valuation " +
+                "ORDER BY total_sales_value DESC " +
+                "LIMIT :size OFFSET :offset";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+
+    @Override
+    public List<StockValuationDTO> getStockValuationByRayonPaginated(int page, int size) {
+        String sql =
+            "SELECT " +
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "categorie, " +
+                "rayon, " +
+                "stock_quantity, " +
+                "purchase_price, " +
+                "sales_price, " +
+                "total_purchase_value, " +
+                "total_sales_value, " +
+                "potential_margin, " +
+                "margin_percentage " +
+                "FROM mv_stock_valuation_by_rayon " +
+                "ORDER BY total_sales_value DESC " +
+                "LIMIT :size OFFSET :offset";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("size", size);
@@ -149,7 +172,7 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     @Override
     @Cacheable(value = "stockValuation", key = "'count'")
     public long getStockValuationCount() {
-        String sql = "SELECT COUNT(*) FROM mv_stock_valuation";
+        String sql = "SELECT COUNT(distinct produit_id) FROM mv_stock_valuation";
         Query query = entityManager.createNativeQuery(sql);
         return ((Number) query.getSingleResult()).longValue();
     }
@@ -159,13 +182,13 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     public StockValuationSummaryDTO getStockValuationSummary() {
         String sql =
             "SELECT " +
-            "SUM(total_purchase_value) as total_purchase, " +
-            "SUM(total_sales_value) as total_sales, " +
-            "SUM(potential_margin) as total_margin, " +
-            "AVG(margin_percentage) as avg_margin_pct, " +
-            "COUNT(*) as total_products, " +
-            "SUM(stock_quantity) as total_quantity " +
-            "FROM mv_stock_valuation";
+                "SUM(total_purchase_value) as total_purchase, " +
+                "SUM(total_sales_value) as total_sales, " +
+                "SUM(potential_margin) as total_margin, " +
+                "AVG(margin_percentage) as avg_margin_pct, " +
+                "COUNT(*) as total_products, " +
+                "SUM(stock_quantity) as total_quantity " +
+                "FROM mv_stock_valuation";
 
         Query query = entityManager.createNativeQuery(sql);
         Object[] result = (Object[]) query.getSingleResult();
@@ -186,7 +209,6 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
             totalQuantity
         );
     }
-
 
 
     private List<StockValuationDTO> mapResultsToDTO(List<Object[]> results) {

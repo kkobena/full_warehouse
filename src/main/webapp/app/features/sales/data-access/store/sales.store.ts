@@ -88,7 +88,7 @@ const initialState: SalesState = {
 
   // Sale Configuration
   saleType: 'COMPTANT',
-  typePrescription: null,
+  typePrescription: 'PRESCRIPTION',
 
   // Payment
   selectedPaymentMode: null,
@@ -226,7 +226,7 @@ export const SalesStore = signalStore(
     }),
 
     /**
-     * Determine if current sale requires an avoir (credit note)
+     * Determine if current sale requires an avoir
      * Avoir automatique si quantityRequested ≠ quantitySold
      */
     isAvoir: computed(() => {
@@ -523,6 +523,10 @@ export const SalesStore = signalStore(
         plafondIsReached: false,
         selectedCustomer: null,
         error: null,
+        selectedProductData: null,
+        seller: null,
+        pendingTiersPayants: [],
+        typePrescription: 'PRESCRIPTION',
       });
     },
   })),

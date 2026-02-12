@@ -1,3 +1,5 @@
+<p-toast position="center" />
+
 <div class="product-list-container">
   <!-- Caption avec recherche et remise -->
   <div class="pharma-table-header-compact">
@@ -94,17 +96,17 @@
         <td style="text-align: center; padding: 6px 5px">
           <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
         </td>
-        
+
         <!-- CODE -->
         <td>
           <span class="pharma-code">{{ line.code }}</span>
         </td>
-        
+
         <!-- LIBELLÉ -->
         <td>
           <div class="pharma-product-name">{{ line.produitLibelle }}</div>
         </td>
-        
+
         <!-- QTÉ.D - Éditable au click -->
         <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center">
           <p-cellEditor>
@@ -113,7 +115,7 @@
                 type="number"
                 pInputText
                 [value]="line.quantityRequested"
-        
+
                 (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value); $event.target.blur()"
                 (focus)="$event.target.select()"
                 min="1"
@@ -124,7 +126,7 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        
+
         <!-- QTÉ.S - Éditable au click -->
         <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center">
           <p-cellEditor>
@@ -133,7 +135,7 @@
                 type="number"
                 pInputText
                 [value]="line.quantitySold"
-              
+
                 (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value); $event.target.blur()"
                 (focus)="$event.target.select()"
                 min="0"
@@ -144,7 +146,7 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        
+
         <!-- PU - Éditable si autorisé -->
         @if (canEditPrice()) {
           <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right">
@@ -154,7 +156,7 @@
                   type="number"
                   pInputText
                   [value]="line.regularUnitPrice"
-                
+
                   (keydown.enter)="onPriceChange(line, $any($event.target).value); $event.target.blur()"
                   (focus)="$event.target.select()"
                   min="0"
@@ -170,12 +172,12 @@
             <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
           </td>
         }
-        
+
         <!-- TOTAL -->
         <td style="text-align: right">
           <span class="pharma-total">{{ getLineTotal(line) | number }}</span>
         </td>
-        
+
         <!-- ACTIONS -->
         @if (isEditable()) {
           <td style="text-align: center">

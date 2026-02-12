@@ -13,6 +13,7 @@ import { ProduitSearch } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
 import { SalesStatut } from '../../../../shared/model';
 import { SelectedCustomerService } from '../../../../entities/sales/service/selected-customer.service';
+import { PrintService } from '../services/print.service';
 
 /**
  * Configuration pour la création d'une vente
@@ -59,6 +60,7 @@ export class SalesFacade {
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
+  private readonly printService = inject(PrintService);
 
   // Events - Success subjects for component subscriptions
   private readonly standbySuccessSubject = new Subject<void>();
@@ -424,29 +426,6 @@ export class SalesFacade {
       });
   }
 
-  /**
-   * Logique commune pour l'impression (facture ou ticket)
-   */
-  private printDocument(saleId: SaleId, apiCall$: Observable<Blob>, filenamePrefix: string, errorMessage: string): void {
-    this.store.setLoading(true);
-
-    apiCall$
-      .pipe(
-        catchError(error => {
-          console.error('Error printing:', error);
-          this.notificationService.error(errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(blob => {
-        if (blob) {
-          this.downloadOrOpenBlob(blob, `${filenamePrefix}_${saleId.id}.pdf`, 'application/pdf');
-        }
-      });
-  }
-
   // ============================================
   // BUSINESS ACTIONS (High-level)
   // ============================================
@@ -577,11 +556,11 @@ export class SalesFacade {
         const printReceipt = this.store.printReceipt();
 
         if (printInvoice && result.saleId) {
-          this.apiService.printInvoice(result.saleId).subscribe();
+          this.printService.printInvoice(result.saleId);
         }
 
         if (printReceipt && result.saleId) {
-          this.apiService.printReceipt(result.saleId).subscribe();
+          this.printService.printReceipt(result.saleId).subscribe();
         }
 
         // Reset after successful save
@@ -1410,26 +1389,23 @@ export class SalesFacade {
   }
 
   // ============================================
-  // PRINTING (IMPRESSION)
+  // PRINTING (IMPRESSION) - Délègue au PrintService
   // ============================================
 
   /**
    * Print sale invoice (PDF)
-   * Opens invoice in new window or downloads it
    * @param saleId - ID of the sale to print
    */
   printInvoice(saleId: SaleId): void {
-    this.printDocument(saleId, this.apiService.printInvoice(saleId), 'facture', "Erreur lors de l'impression de la facture");
+    this.printService.printInvoice(saleId);
   }
 
   /**
    * Print sale receipt (thermal printer format)
-   * Opens receipt in new window or downloads it
    * @param saleId - ID of the sale to print
    */
   printReceipt(saleId: SaleId): void {
-    //TODO: utiliser le service printSevice
-    this.printDocument(saleId, this.apiService.printReceipt(saleId), 'ticket', "Erreur lors de l'impression du ticket");
+    this.printService.printReceipt(saleId).subscribe();
   }
 
   /**
@@ -1456,34 +1432,6 @@ export class SalesFacade {
     if (!shouldPrintInvoice && !shouldPrintReceipt) {
       // Par défaut, imprimer le ticket
       this.printReceipt(currentSale.saleId);
-    }
-  }
-
-  /**
-   * Helper to download or open blob in new window
-   * @param blob - The blob to handle
-   * @param filename - Default filename for download
-   * @param mimeType - MIME type of the blob
-   */
-  private downloadOrOpenBlob(blob: Blob, filename: string, mimeType: string): void {
-    const url = window.URL.createObjectURL(new Blob([blob], { type: mimeType }));
-
-    // Try to open in new window first
-    const printWindow = window.open(url, '_blank');
-
-    if (printWindow) {
-      // Window opened successfully
-      printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-      };
-    } else {
-      // Popup blocked, fallback to download
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
     }
   }
 

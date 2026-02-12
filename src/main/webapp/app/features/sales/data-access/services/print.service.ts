@@ -71,7 +71,7 @@ export class PrintService {
    */
   private printInvoiceForTauri(saleId: SaleId): Observable<void> {
     return new Observable(observer => {
-      this.salesService.getEscPosReceiptForTauri({ id: saleId }, false).subscribe({
+      this.salesService.getEscPosReceiptForTauri(saleId, false).subscribe({
         next: async (escposData: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(escposData);
@@ -106,7 +106,7 @@ export class PrintService {
 
     // Sinon, utiliser le service existant (PDF)
     return new Observable(observer => {
-      this.salesService.printReceipt({ id: saleId }).subscribe({
+      this.salesService.printReceipt(saleId).subscribe({
         next: () => {
           observer.next();
           observer.complete();
@@ -125,7 +125,7 @@ export class PrintService {
    */
   private printReceiptForTauri(saleId: SaleId): Observable<void> {
     return new Observable(observer => {
-      this.salesService.getEscPosReceiptForTauri({ id: saleId }, false).subscribe({
+      this.salesService.getEscPosReceiptForTauri(saleId, false).subscribe({
         next: async (escposData: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(escposData);

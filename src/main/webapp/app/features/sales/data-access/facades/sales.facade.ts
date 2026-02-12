@@ -15,6 +15,25 @@ import { SalesStatut } from '../../../../shared/model';
 import { SelectedCustomerService } from '../../../../entities/sales/service/selected-customer.service';
 
 /**
+ * Configuration pour la création d'une vente
+ */
+interface CreateSaleConfig {
+  saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET';
+  buildSale: (initialLine: ISalesLine) => ISales;
+  apiCall: (sale: ISales) => Observable<ISales>;
+  defaultErrorMessage: string;
+}
+
+/**
+ * Options pour executeAndReloadSale
+ */
+interface ExecuteAndReloadOptions {
+  errorMessage: string;
+  successSubject?: Subject<void>;
+  clearErrorOnSuccess?: boolean;
+}
+
+/**
  * Sales Facade
  * High-level API for sales operations
  * Encapsulates store and API service interactions
@@ -164,6 +183,271 @@ export class SalesFacade {
   readonly canSaveSale = this.canSave;
 
   // ============================================
+  // PRIVATE HELPERS (Shared logic)
+  // ============================================
+
+  /**
+   * Extrait errorKey et errorMessage depuis une erreur HTTP API
+   */
+  private extractApiError(error: any, defaultMessage: string): { errorMessage: string; errorKey: string | null } {
+    let errorMessage = defaultMessage;
+    let errorKey: string | null = null;
+
+    if (error?.error) {
+      errorKey = error.error.errorKey ?? null;
+
+      if (errorKey === 'stock') {
+        errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+      } else if (errorKey === 'stockChInsufisant') {
+        errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+      } else if (error.error.message) {
+        errorMessage = error.error.message;
+      } else if (error.error.detail) {
+        errorMessage = error.error.detail;
+      }
+    }
+
+    return { errorMessage, errorKey };
+  }
+
+  /**
+   * Gère l'erreur de stock lors de la création d'une vente (pas de reload nécessaire)
+   */
+  private handleCreateSaleError(error: any, initialLine: ISalesLine, defaultMessage: string): Observable<null> {
+    console.error('Error creating sale:', error);
+    const { errorMessage, errorKey } = this.extractApiError(error, defaultMessage);
+
+    if (errorKey === 'stock') {
+      this.store.setError(errorMessage);
+      this.store.setLastErrorDetails({
+        errorKey,
+        originalError: error,
+        attemptedLine: initialLine,
+        isFromTableCellEdit: false,
+      });
+      // NE PAS afficher le toast - le dialog sera affiché par l'effect
+    } else {
+      this.store.setError(errorMessage);
+      this.notificationService.error('Erreur', errorMessage);
+    }
+
+    this.store.setLoading(false);
+    return of(null);
+  }
+
+  /**
+   * Pipeline commun pour la création de vente (COMPTANT, ASSURANCE, CARNET)
+   */
+  private createSalePipeline(config: CreateSaleConfig) {
+    return pipe(
+      tap(() => {
+        this.store.setSaleType(config.saleType);
+        this.store.setError(null);
+      }),
+      switchMap((initialLine: ISalesLine) => {
+        if (!initialLine) {
+          throw new Error('Impossible de créer une vente sans produit');
+        }
+
+        const sale = config.buildSale(initialLine);
+        this.store.setLoading(true);
+
+        return config.apiCall(sale).pipe(
+          map(createdSale => ({ createdSale, initialLine })),
+          catchError(error => this.handleCreateSaleError(error, initialLine, config.defaultErrorMessage)),
+        );
+      }),
+      tap({
+        next: (result: { createdSale: ISales; initialLine: ISalesLine } | null) => {
+          if (result?.createdSale) {
+            this.store.setCurrentSale(result.createdSale);
+            this.store.setIsEdit(true);
+            this.store.clearError();
+            this.productAddedSuccessSubject.next();
+          }
+          this.store.setLoading(false);
+        },
+      }),
+    );
+  }
+
+  /**
+   * Logique commune pour ajouter un produit à une vente existante (COMPTANT ou ASSURANCE/CARNET)
+   * Gère le cas d'erreur de stock avec reload de la vente et reconstruction de la ligne
+   */
+  private addProductWithStockHandling(salesLine: ISalesLine, addApiCall$: Observable<any>): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale || !currentSale.saleId) {
+      console.error('No current sale to add product to');
+      return;
+    }
+
+    this.store.setLoading(true);
+
+    addApiCall$
+      .pipe(
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
+        catchError(error => {
+          console.error('Error adding product:', error);
+          const { errorMessage, errorKey } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
+
+          // Si erreur de stock, recharger la vente pour récupérer l'état actuel
+          // La ligne peut déjà exister si le produit a été ajouté précédemment
+          if (errorKey === 'stock') {
+            return this.apiService.findSale(currentSale.saleId!).pipe(
+              tap(reloadedSale => {
+                if (reloadedSale) {
+                  this.store.setCurrentSale(reloadedSale);
+
+                  // Trouver la ligne qui correspond au produit ajouté
+                  const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
+
+                  const lineToAttempt: ISalesLine = existingLine
+                    ? {
+                        ...existingLine,
+                        quantityRequested: salesLine.quantityRequested || 1,
+                        saleCompositeId: existingLine.saleCompositeId || {
+                          id: currentSale.saleId!.id,
+                          saleDate: currentSale.saleId!.saleDate,
+                        },
+                      }
+                    : salesLine;
+
+                  this.store.setError(errorMessage);
+                  this.store.setLastErrorDetails({
+                    errorKey,
+                    originalError: error,
+                    attemptedLine: lineToAttempt,
+                    isFromTableCellEdit: false,
+                  });
+                }
+              }),
+              tap(() => this.store.setLoading(false)),
+              map((): null => null),
+            );
+          }
+
+          // Pour les autres erreurs, traitement normal
+          this.store.setError(errorMessage);
+          this.store.setLastErrorDetails({
+            errorKey,
+            originalError: error,
+            attemptedLine: salesLine,
+            isFromTableCellEdit: false,
+          });
+          this.notificationService.error('Erreur', errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        }),
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          this.store.clearError();
+          this.productAddedSuccessSubject.next();
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Logique commune pour updateItemQtyRequested et updateItemQtyRequestedWithSet
+   * Exécute un appel API de mise à jour de quantité, recharge la vente, gère les erreurs
+   */
+  private executeQtyUpdate(salesLine: ISalesLine, apiCall$: Observable<any>): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale || !currentSale.saleId) {
+      console.error('No current sale to update product');
+      return;
+    }
+
+    this.store.setLoading(true);
+
+    apiCall$
+      .pipe(
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
+        catchError(error => {
+          console.error('Error updating product quantity:', error);
+
+          let errorMessage = 'Erreur lors de la mise à jour du produit';
+          if (error?.error) {
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            }
+          }
+
+          this.store.setError(errorMessage);
+          this.notificationService.error('Erreur', errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        }),
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          this.store.clearError();
+          this.lineUpdatedSuccessSubject.next();
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Pattern commun : exécuter un appel API, recharger la vente, mettre à jour le store
+   * Utilisé par removeLine, updateLineQuantitySold, updateLinePrice, applyLineDiscount, updateRemise
+   */
+  private executeAndReloadSale(apiCall$: Observable<any>, saleId: SaleId, options: ExecuteAndReloadOptions): void {
+    this.store.setLoading(true);
+
+    apiCall$
+      .pipe(
+        switchMap(() => this.apiService.findSale(saleId)),
+        catchError(error => {
+          console.error('Error:', error);
+          this.notificationService.error(options.errorMessage);
+          this.store.setError(options.errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        }),
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+          if (options.clearErrorOnSuccess) {
+            this.store.clearError();
+          }
+          options.successSubject?.next();
+        }
+        this.store.setLoading(false);
+      });
+  }
+
+  /**
+   * Logique commune pour l'impression (facture ou ticket)
+   */
+  private printDocument(saleId: SaleId, apiCall$: Observable<Blob>, filenamePrefix: string, errorMessage: string): void {
+    this.store.setLoading(true);
+
+    apiCall$
+      .pipe(
+        catchError(error => {
+          console.error('Error printing:', error);
+          this.notificationService.error(errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        }),
+        finalize(() => this.store.setLoading(false)),
+      )
+      .subscribe(blob => {
+        if (blob) {
+          this.downloadOrOpenBlob(blob, `${filenamePrefix}_${saleId.id}.pdf`, 'application/pdf');
+        }
+      });
+  }
+
+  // ============================================
   // BUSINESS ACTIONS (High-level)
   // ============================================
 
@@ -172,89 +456,25 @@ export class SalesFacade {
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
   createComptantSale = rxMethod<ISalesLine>(
-    pipe(
-      tap(() => {
-        this.store.setSaleType('COMPTANT');
-        this.store.setError(null);
+    this.createSalePipeline({
+      saleType: 'COMPTANT',
+      defaultErrorMessage: 'Erreur lors de la création de la vente',
+      apiCall: sale => this.apiService.createComptantSale(sale),
+      buildSale: initialLine => ({
+        statut: SalesStatut.ACTIVE,
+        salesLines: [initialLine],
+        customerId: this.store.selectedCustomer()?.id,
+        natureVente: 'COMPTANT',
+        typePrescription: 'PRESCRIPTION',
+        cassierId: this.store.cashier()?.id,
+        sellerId: this.store.seller()?.id,
+        type: 'VNO',
+        categorie: 'VNO',
+        differe: false,
+        sansBon: false,
+        avoir: false,
       }),
-      switchMap(initialLine => {
-        if (!initialLine) {
-          throw new Error('Impossible de créer une vente sans produit');
-        }
-
-        const sale: ISales = {
-          statut: SalesStatut.ACTIVE,
-          salesLines: [initialLine],
-          customerId: this.store.selectedCustomer()?.id,
-          natureVente: 'COMPTANT',
-          typePrescription: 'PRESCRIPTION',
-          cassierId: this.store.cashier()?.id,
-          sellerId: this.store.seller()?.id,
-          type: 'VNO',
-          categorie: 'VNO',
-          differe: false,
-          sansBon: false,
-          avoir: false,
-        };
-
-        this.store.setLoading(true);
-        // Retourner un tuple [sale response, initialLine] pour garder accès à initialLine dans tap
-        return this.apiService.createComptantSale(sale).pipe(
-          map(createdSale => ({ createdSale, initialLine })),
-          catchError(error => {
-            // Gérer l'erreur ici où on a accès à initialLine
-            console.error('Error creating comptant sale:', error);
-
-            // Extraire le message d'erreur et errorKey
-            let errorMessage = 'Erreur lors de la création de la vente';
-            let errorKey = null;
-
-            if (error?.error) {
-              errorKey = error.error.errorKey;
-
-              if (error.error.errorKey === 'stock') {
-                errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-              } else if (error.error.errorKey === 'stockChInsufisant') {
-                errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-              } else if (error.error.message) {
-                errorMessage = error.error.message;
-              } else if (error.error.detail) {
-                errorMessage = error.error.detail;
-              }
-            }
-
-            // Pour erreur de stock lors de création: stocker l'erreur avec la ligne tentée
-            if (errorKey === 'stock') {
-              this.store.setError(errorMessage);
-              this.store.setLastErrorDetails({
-                errorKey,
-                originalError: error,
-                attemptedLine: initialLine,
-                isFromTableCellEdit: false,
-              });
-              // NE PAS afficher le toast - le dialog sera affiché par l'effect
-            } else {
-              this.store.setError(errorMessage);
-              this.notificationService.error('Erreur', errorMessage); //TODO: les toasts ne s'affichent pas dans le cas de l'erreur
-            }
-
-            this.store.setLoading(false);
-            return of(null);
-          }),
-        );
-      }),
-      tap({
-        next: result => {
-          if (result?.createdSale) {
-            this.store.setCurrentSale(result.createdSale);
-            this.store.setIsEdit(true);
-            this.store.clearError(); // Clear error et errorDetails pour déclencher l'effect de succès
-            this.productAddedSuccessSubject.next();
-          }
-          this.store.setLoading(false);
-        },
-      }),
-    ),
+    }),
   );
 
   /**
@@ -262,85 +482,22 @@ export class SalesFacade {
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
   createAssuranceSale = rxMethod<ISalesLine>(
-    pipe(
-      tap(() => {
-        this.store.setSaleType('ASSURANCE');
-        this.store.setError(null);
+    this.createSalePipeline({
+      saleType: 'ASSURANCE',
+      defaultErrorMessage: 'Erreur lors de la création de la vente assurance',
+      apiCall: sale => this.apiService.createAssuranceSale(sale),
+      buildSale: initialLine => ({
+        salesLines: [initialLine],
+        customerId: this.store.selectedCustomer()?.id,
+        natureVente: 'ASSURANCE',
+        typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
+        cassierId: this.store.cashier()?.id,
+        sellerId: this.store.seller()?.id,
+        type: 'VO',
+        categorie: 'VO',
+        tiersPayants: this.store.pendingTiersPayants(),
       }),
-      switchMap(initialLine => {
-        if (!initialLine) {
-          throw new Error('Impossible de créer une vente sans produit');
-        }
-
-        // Construire le payload conforme à l'ancien système (base-sale.service.ts createSale)
-        // Les tiers payants viennent de pendingTiersPayants (mis à jour depuis le composant UI via updateSaleTiersPayants)
-        const customer = this.store.selectedCustomer();
-        const tiersPayants = this.store.pendingTiersPayants();
-        const sale: ISales = {
-          salesLines: [initialLine],
-          customerId: customer?.id,
-          natureVente: 'ASSURANCE',
-          typePrescription: this.store.typePrescription() || undefined,
-          cassierId: this.store.cashier()?.id,
-          sellerId: this.store.seller()?.id,
-          type: 'VO',
-          categorie: 'VO',
-          tiersPayants: tiersPayants,
-        };
-
-        this.store.setLoading(true);
-        return this.apiService.createAssuranceSale(sale).pipe(
-          map(createdSale => ({ createdSale, initialLine })),
-          catchError(error => {
-            console.error('Error creating assurance sale:', error);
-
-            let errorMessage = 'Erreur lors de la création de la vente assurance';
-            let errorKey = null;
-
-            if (error?.error) {
-              errorKey = error.error.errorKey;
-
-              if (error.error.errorKey === 'stock') {
-                errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-              } else if (error.error.errorKey === 'stockChInsufisant') {
-                errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-              } else if (error.error.message) {
-                errorMessage = error.error.message;
-              } else if (error.error.detail) {
-                errorMessage = error.error.detail;
-              }
-            }
-
-            if (errorKey === 'stock') {
-              this.store.setError(errorMessage);
-              this.store.setLastErrorDetails({
-                errorKey,
-                originalError: error,
-                attemptedLine: initialLine,
-                isFromTableCellEdit: false,
-              });
-            } else {
-              this.store.setError(errorMessage);
-              this.notificationService.error('Erreur', errorMessage);
-            }
-
-            this.store.setLoading(false);
-            return of(null);
-          }),
-        );
-      }),
-      tap({
-        next: result => {
-          if (result?.createdSale) {
-            this.store.setCurrentSale(result.createdSale);
-            this.store.setIsEdit(true);
-            this.store.clearError();
-            this.productAddedSuccessSubject.next();
-          }
-          this.store.setLoading(false);
-        },
-      }),
-    ),
+    }),
   );
 
   /**
@@ -348,86 +505,23 @@ export class SalesFacade {
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
   createCarnetSale = rxMethod<ISalesLine>(
-    pipe(
-      tap(() => {
-        this.store.setSaleType('CARNET');
-        this.store.setError(null);
+    this.createSalePipeline({
+      saleType: 'CARNET',
+      defaultErrorMessage: 'Erreur lors de la création de la vente carnet',
+      // Note: Utilise /assurance endpoint (partagé CARNET/ASSURANCE), différencié par sale.natureVente
+      apiCall: sale => this.apiService.createAssuranceSale(sale),
+      buildSale: initialLine => ({
+        salesLines: [initialLine],
+        customerId: this.store.selectedCustomer()?.id,
+        natureVente: 'CARNET',
+        typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
+        cassierId: this.store.cashier()?.id,
+        sellerId: this.store.seller()?.id,
+        type: 'VO',
+        categorie: 'VO',
+        tiersPayants: this.store.pendingTiersPayants(),
       }),
-      switchMap(initialLine => {
-        if (!initialLine) {
-          throw new Error('Impossible de créer une vente sans produit');
-        }
-
-        // Construire le payload conforme à l'ancien système (base-sale.service.ts createSale)
-        // Les tiers payants viennent de pendingTiersPayants (mis à jour depuis le composant UI via updateSaleTiersPayants)
-        const customer = this.store.selectedCustomer();
-        const tiersPayants = this.store.pendingTiersPayants();
-        const sale: ISales = {
-          salesLines: [initialLine],
-          customerId: customer?.id,
-          natureVente: 'CARNET',
-          typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
-          cassierId: this.store.cashier()?.id,
-          sellerId: this.store.seller()?.id,
-          type: 'VO',
-          categorie: 'VO',
-          tiersPayants: tiersPayants,
-        };
-
-        this.store.setLoading(true);
-        // Note: Utilise /assurance endpoint (partagé CARNET/ASSURANCE), différencié par sale.natureVente
-        return this.apiService.createAssuranceSale(sale).pipe(
-          map(createdSale => ({ createdSale, initialLine })),
-          catchError(error => {
-            console.error('Error creating carnet sale:', error);
-
-            let errorMessage = 'Erreur lors de la création de la vente carnet';
-            let errorKey = null;
-
-            if (error?.error) {
-              errorKey = error.error.errorKey;
-
-              if (error.error.errorKey === 'stock') {
-                errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-              } else if (error.error.errorKey === 'stockChInsufisant') {
-                errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-              } else if (error.error.message) {
-                errorMessage = error.error.message;
-              } else if (error.error.detail) {
-                errorMessage = error.error.detail;
-              }
-            }
-
-            if (errorKey === 'stock') {
-              this.store.setError(errorMessage);
-              this.store.setLastErrorDetails({
-                errorKey,
-                originalError: error,
-                attemptedLine: initialLine,
-                isFromTableCellEdit: false,
-              });
-            } else {
-              this.store.setError(errorMessage);
-              this.notificationService.error('Erreur', errorMessage);
-            }
-
-            this.store.setLoading(false);
-            return of(null);
-          }),
-        );
-      }),
-      tap({
-        next: result => {
-          if (result?.createdSale) {
-            this.store.setCurrentSale(result.createdSale);
-            this.store.setIsEdit(true);
-            this.store.clearError();
-            this.productAddedSuccessSubject.next();
-          }
-          this.store.setLoading(false);
-        },
-      }),
-    ),
+    }),
   );
 
   /**
@@ -800,108 +894,7 @@ export class SalesFacade {
    * @param salesLine - Product line to add
    */
   onAddProduit(salesLine: ISalesLine): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to add product to');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    this.apiService
-      .addItemComptant(salesLine)
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error adding product:', error);
-
-          // Extraire le message d'erreur spécifique et l'errorKey
-          let errorMessage = "Erreur lors de l'ajout du produit";
-          let errorKey = null;
-
-          if (error?.error) {
-            errorKey = error.error.errorKey;
-
-            // Si errorKey spécifique
-            if (error.error.errorKey === 'stock') {
-              errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-            } else if (error.error.errorKey === 'stockChInsufisant') {
-              errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-            } else if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-          }
-
-          // Si erreur de stock, recharger la vente pour récupérer l'état actuel
-          // La ligne peut déjà exister si le produit a été ajouté précédemment
-          if (errorKey === 'stock') {
-            return this.apiService.findSale(currentSale.saleId!).pipe(
-              tap(reloadedSale => {
-                if (reloadedSale) {
-                  this.store.setCurrentSale(reloadedSale);
-
-                  // Trouver la ligne qui correspond au produit ajouté
-                  const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
-
-                  let lineToAttempt: ISalesLine;
-
-                  if (existingLine) {
-                    // Produit existe déjà → Utiliser la ligne existante du backend
-                    // avec la quantité SAISIE (le backend fera le cumul)
-                    lineToAttempt = {
-                      ...existingLine, // Garder TOUTE la structure du backend (saleLineId, etc.)
-                      quantityRequested: salesLine.quantityRequested || 1, // Quantité saisie par l'utilisateur
-                      saleCompositeId: existingLine.saleCompositeId || {
-                        id: currentSale.saleId!.id,
-                        saleDate: currentSale.saleId!.saleDate,
-                      },
-                    };
-                  } else {
-                    // Nouveau produit → utiliser salesLine tel quel
-                    lineToAttempt = salesLine;
-                  }
-
-                  // Stocker l'erreur avec la ligne qui contient la quantité SAISIE
-                  this.store.setError(errorMessage);
-                  this.store.setLastErrorDetails({
-                    errorKey,
-                    originalError: error,
-                    attemptedLine: lineToAttempt,
-                    isFromTableCellEdit: false, // Explicite: vient de la recherche, pas du tableau
-                  });
-                }
-              }),
-              tap(() => {
-                // NE PAS afficher le toast ici - le dialog sera affiché par l'effect
-                this.store.setLoading(false);
-              }),
-              map((): null => null),
-            );
-          }
-
-          // Pour les autres erreurs, traitement normal
-          this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({
-            errorKey,
-            originalError: error,
-            attemptedLine: salesLine,
-            isFromTableCellEdit: false, // Ajout depuis recherche
-          });
-          this.notificationService.error('Erreur', errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError(); // Clear error et errorDetails en cas de succès
-          this.productAddedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
   }
 
   /**
@@ -910,95 +903,7 @@ export class SalesFacade {
    * @param salesLine - Product line to add
    */
   onAddProduitCarnet(salesLine: ISalesLine): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to add product to');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    this.apiService
-      .addItemAssurance(salesLine)
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error adding product to carnet:', error);
-
-          let errorMessage = "Erreur lors de l'ajout du produit";
-          let errorKey = null;
-
-          if (error?.error) {
-            errorKey = error.error.errorKey;
-
-            if (error.error.errorKey === 'stock') {
-              errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-            } else if (error.error.errorKey === 'stockChInsufisant') {
-              errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-            } else if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-          }
-
-          if (errorKey === 'stock') {
-            return this.apiService.findSale(currentSale.saleId!).pipe(
-              tap(reloadedSale => {
-                if (reloadedSale) {
-                  this.store.setCurrentSale(reloadedSale);
-
-                  const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
-
-                  let lineToAttempt: ISalesLine;
-
-                  if (existingLine) {
-                    lineToAttempt = {
-                      ...existingLine,
-                      quantityRequested: salesLine.quantityRequested || 1,
-                      saleCompositeId: existingLine.saleCompositeId || {
-                        id: currentSale.saleId!.id,
-                        saleDate: currentSale.saleId!.saleDate,
-                      },
-                    };
-                  } else {
-                    lineToAttempt = salesLine;
-                  }
-
-                  this.store.setError(errorMessage);
-                  this.store.setLastErrorDetails({
-                    errorKey,
-                    originalError: error,
-                    attemptedLine: lineToAttempt,
-                    isFromTableCellEdit: false,
-                  });
-                }
-              }),
-              tap(() => this.store.setLoading(false)),
-              map((): null => null),
-            );
-          }
-
-          this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({
-            errorKey,
-            originalError: error,
-            attemptedLine: salesLine,
-            isFromTableCellEdit: false,
-          });
-          this.notificationService.error('Erreur', errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          this.productAddedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.addProductWithStockHandling(salesLine, this.apiService.addItemAssurance(salesLine));
   }
 
   /**
@@ -1008,53 +913,13 @@ export class SalesFacade {
    * @param salesLine - Product line to update with forceStock = true
    */
   updateItemQtyRequested(salesLine: ISalesLine): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to update product');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    // Route vers le bon endpoint selon le type de vente
     const saleType = this.store.saleType();
     const apiCall =
       saleType === 'ASSURANCE' || saleType === 'CARNET'
         ? this.apiService.incrementItemQtyRequestedAssurance(salesLine)
         : this.apiService.incrementItemQtyRequested(salesLine);
 
-    apiCall
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error updating product quantity:', error);
-
-          // Extraire le message d'erreur
-          let errorMessage = 'Erreur lors de la mise à jour du produit';
-
-          if (error?.error) {
-            if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-          }
-
-          this.store.setError(errorMessage);
-          this.notificationService.error('Erreur', errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          // Clear l'erreur en cas de succès (important pour le force stock)
-          this.store.clearError();
-          this.lineUpdatedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.executeQtyUpdate(salesLine, apiCall);
   }
 
   /**
@@ -1063,53 +928,13 @@ export class SalesFacade {
    * @param salesLine - Product line to update with forceStock = true
    */
   updateItemQtyRequestedWithSet(salesLine: ISalesLine): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to update product');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    // Route vers le bon endpoint selon le type de vente
     const saleType = this.store.saleType();
     const apiCall =
       saleType === 'ASSURANCE' || saleType === 'CARNET'
         ? this.apiService.setItemQtyRequestedAssurance(salesLine)
         : this.apiService.setItemQtyRequested(salesLine);
 
-    apiCall
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error updating product quantity:', error);
-
-          // Extraire le message d'erreur
-          let errorMessage = 'Erreur lors de la mise à jour du produit';
-
-          if (error?.error) {
-            if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-          }
-
-          this.store.setError(errorMessage);
-          this.notificationService.error('Erreur', errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          // Clear l'erreur en cas de succès (important pour le force stock)
-          this.store.clearError();
-          this.lineUpdatedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.executeQtyUpdate(salesLine, apiCall);
   }
 
   /**
@@ -1120,26 +945,10 @@ export class SalesFacade {
     const currentSale = this.store.currentSale();
     if (!currentSale?.saleId) return;
 
-    this.store.setLoading(true);
-
-    this.apiService
-      .deleteItem(saleLineId)
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error removing line:', error);
-          this.store.setError('Erreur lors de la suppression de la ligne');
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.lineRemovedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.executeAndReloadSale(this.apiService.deleteItem(saleLineId), currentSale.saleId, {
+      errorMessage: 'Erreur lors de la suppression de la ligne',
+      successSubject: this.lineRemovedSuccessSubject,
+    });
   }
 
   /**
@@ -1170,30 +979,10 @@ export class SalesFacade {
     this.apiService
       .addItemComptant(newLine)
       .pipe(
-        switchMap(() => {
-          // Recharger la vente complète avec tous les montants recalculés
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product:', error);
-
-          // Extraire le message d'erreur spécifique et l'errorKey
-          let errorMessage = "Erreur lors de l'ajout du produit";
-          let errorKey = null;
-
-          if (error?.error) {
-            errorKey = error.error.errorKey;
-
-            if (error.error.errorKey === 'stock') {
-              errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-            } else if (error.error.errorKey === 'stockChInsufisant') {
-              errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-            } else if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-          }
+          const { errorMessage, errorKey } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
 
           // Stocker l'erreur avec les détails pour traitement par le composant
           this.store.setError(errorMessage);
@@ -1230,31 +1019,10 @@ export class SalesFacade {
       saleCompositeId: currentSale.saleId,
     };
 
-    this.store.setLoading(true);
-
-    // Backend recalcule tous les montants
-    this.apiService
-      .updateItemQtySold(updatedLine)
-      .pipe(
-        switchMap(() => {
-          // Recharger la vente complète
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
-        catchError(error => {
-          console.error('Error updating quantity:', error);
-          this.notificationService.error('Erreur lors de la mise à jour de la quantité');
-          this.store.setError('Erreur lors de la mise à jour de la quantité');
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.lineUpdatedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
+    this.executeAndReloadSale(this.apiService.updateItemQtySold(updatedLine), currentSale.saleId, {
+      errorMessage: 'Erreur lors de la mise à jour de la quantité',
+      successSubject: this.lineUpdatedSuccessSubject,
+    });
   }
 
   /**
@@ -1287,10 +1055,7 @@ export class SalesFacade {
 
     apiCall
       .pipe(
-        switchMap(() => {
-          // Recharger la vente complète
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error updating quantity requested:', error);
 
@@ -1374,30 +1139,9 @@ export class SalesFacade {
       saleCompositeId: currentSale.saleId,
     };
 
-    this.store.setLoading(true);
-
-    // Backend recalcule tous les montants
-    this.apiService
-      .updateItemPrice(updatedLine)
-      .pipe(
-        switchMap(() => {
-          // Recharger la vente complète
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
-        catchError(error => {
-          console.error('Error updating price:', error);
-          this.notificationService.error('Erreur lors de la mise à jour du prix');
-          this.store.setError('Erreur lors de la mise à jour du prix');
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-        }
-        this.store.setLoading(false);
-      });
+    this.executeAndReloadSale(this.apiService.updateItemPrice(updatedLine), currentSale.saleId, {
+      errorMessage: 'Erreur lors de la mise à jour du prix',
+    });
   }
 
   /**
@@ -1417,30 +1161,9 @@ export class SalesFacade {
       saleCompositeId: currentSale.saleId,
     };
 
-    this.store.setLoading(true);
-
-    // Backend recalcule tous les montants
-    this.apiService
-      .updateItemPrice(updatedLine)
-      .pipe(
-        switchMap(() => {
-          // Recharger la vente complète
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
-        catchError(error => {
-          console.error('Error applying discount:', error);
-          this.notificationService.error("Erreur lors de l'application de la remise");
-          this.store.setError("Erreur lors de l'application de la remise");
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-        }
-        this.store.setLoading(false);
-      });
+    this.executeAndReloadSale(this.apiService.updateItemPrice(updatedLine), currentSale.saleId, {
+      errorMessage: "Erreur lors de l'application de la remise",
+    });
   }
 
   /**
@@ -1454,32 +1177,13 @@ export class SalesFacade {
       return;
     }
 
-    this.store.setLoading(true);
-
     const action$ = remise
       ? this.apiService.addRemise({ id: currentSale.saleId, value: remise.id! })
       : this.apiService.removeRemiseFromCashSale(currentSale.saleId);
 
-    action$
-      .pipe(
-        switchMap(() => {
-          // Recharger la vente complète avec les montants recalculés
-          return this.apiService.findSale(currentSale.saleId!);
-        }),
-        catchError(error => {
-          console.error('Error updating remise:', error);
-          this.notificationService.error('Erreur lors de la mise à jour de la remise');
-          this.store.setError('Erreur lors de la mise à jour de la remise');
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-        }
-        this.store.setLoading(false);
-      });
+    this.executeAndReloadSale(action$, currentSale.saleId, {
+      errorMessage: 'Erreur lors de la mise à jour de la remise',
+    });
   }
 
   // ============================================
@@ -1715,24 +1419,7 @@ export class SalesFacade {
    * @param saleId - ID of the sale to print
    */
   printInvoice(saleId: SaleId): void {
-    this.store.setLoading(true);
-
-    this.apiService
-      .printInvoice(saleId)
-      .pipe(
-        catchError(error => {
-          console.error('Error printing invoice:', error);
-          this.notificationService.error("Erreur lors de l'impression de la facture");
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(blob => {
-        if (blob) {
-          this.downloadOrOpenBlob(blob, `facture_${saleId.id}.pdf`, 'application/pdf');
-        }
-      });
+    this.printDocument(saleId, this.apiService.printInvoice(saleId), 'facture', "Erreur lors de l'impression de la facture");
   }
 
   /**
@@ -1741,24 +1428,8 @@ export class SalesFacade {
    * @param saleId - ID of the sale to print
    */
   printReceipt(saleId: SaleId): void {
-    this.store.setLoading(true);
-
-    this.apiService
-      .printReceipt(saleId)
-      .pipe(
-        catchError(error => {
-          console.error('Error printing receipt:', error);
-          this.notificationService.error("Erreur lors de l'impression du ticket");
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(blob => {
-        if (blob) {
-          this.downloadOrOpenBlob(blob, `ticket_${saleId.id}.pdf`, 'application/pdf');
-        }
-      });
+    //TODO: utiliser le service printSevice
+    this.printDocument(saleId, this.apiService.printReceipt(saleId), 'ticket', "Erreur lors de l'impression du ticket");
   }
 
   /**

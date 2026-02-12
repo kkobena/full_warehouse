@@ -45,17 +45,6 @@ export class SalesApiService {
   }
 
   /**
-   * Close/finalize a cash sale
-   */
-  closeComptantSale(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(`${this.resourceUrl}/comptant/close`, copy, { observe: 'response' }).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
-      map(res => res.body!),
-    );
-  }
-
-  /**
    * Save a cash sale (finalize)
    */
   saveCashSale(sales: ISales): Observable<FinalyseSale> {
@@ -234,18 +223,6 @@ export class SalesApiService {
   }
 
   /**
-   * Update item quantity requested (legacy - kept for compatibility)
-   * Backend recalculates all amounts
-   * @deprecated Use incrementItemQtyRequested or setItemQtyRequested instead
-   */
-  updateItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' }).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
-      map(res => res.body!),
-    );
-  }
-
-  /**
    * INCREMENT item quantity requested
    * Used when adding product from search with force stock
    * Backend ADDS the quantity to existing quantity
@@ -406,6 +383,21 @@ export class SalesApiService {
     });
   }
 
+  /**
+   * Add customer to cash sale (comptant)
+   * @param keyValue
+   */
+  addCustommerToCashSale(keyValue: UpdateSaleInfo): Observable<HttpResponse<void>> {
+    return this.http.put<void>(this.resourceUrl + '/comptant/add-customer', keyValue, { observe: 'response' });
+  }
+
+  /**
+   * Change customer of an insurance/carnet sale
+   * @param keyValue
+   */
+  changeAssuranceCustomer(keyValue: UpdateSaleInfo): Observable<HttpResponse<void>> {
+    return this.http.put<void>(this.resourceUrl + '/assurance/change/customer', keyValue, { observe: 'response' });
+  }
   /**
    * Convert item dates from client format (Moment) to server format (string)
    */

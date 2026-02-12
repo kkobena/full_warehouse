@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, inject, input, signal, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';

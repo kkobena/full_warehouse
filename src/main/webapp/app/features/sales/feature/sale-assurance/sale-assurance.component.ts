@@ -78,7 +78,6 @@ import { Drawer } from 'primeng/drawer';
     Drawer,
     PendingSalesListComponent,
   ],
-  providers: [MessageService],
 })
 export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSearchHost {
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');

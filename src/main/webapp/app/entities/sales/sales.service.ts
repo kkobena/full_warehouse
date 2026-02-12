@@ -36,20 +36,6 @@ export class SalesService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  updateComptant(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .put<ISales>(`${this.resourceUrl}/comptant`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
-  closeComptant(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http
-      .put<ISales>(`${this.resourceUrl}/comptant/close`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
   find(id: SaleId): Observable<EntityResponseType> {
     return this.http
       .get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' })

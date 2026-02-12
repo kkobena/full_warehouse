@@ -1,19 +1,17 @@
-﻿import { Component, OnInit, AfterViewInit, inject, signal, viewChild, effect, HostListener, DestroyRef } from '@angular/core';
+﻿import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { Toast } from 'primeng/toast';
 import { Drawer } from 'primeng/drawer';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavLink, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
 import { Select } from 'primeng/select';
-import { MessageService } from 'primeng/api';
 import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
 import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
 import { SaleCarnetComponent } from '../sale-carnet/sale-carnet.component';
-import { PendingSalesListComponent, CustomerOverlayPanelComponent } from '../../ui';
+import { CustomerOverlayPanelComponent, PendingSalesListComponent } from '../../ui';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import { IUser } from '../../../../core/user/user.model';
@@ -33,7 +31,6 @@ import { CashRegisterService } from '../../../../entities/cash-register/cash-reg
     FormsModule,
     Button,
     TooltipModule,
-    Toast,
     Drawer,
     NgbNav,
     NgbNavItem,
@@ -49,7 +46,6 @@ import { CashRegisterService } from '../../../../entities/cash-register/cash-reg
     ConfirmDialogComponent,
     ToastAlertComponent,
   ],
-  providers: [MessageService], // Nécessaire pour NotificationService utilisé par SalesFacade
 })
 export class SalesHomeComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
@@ -73,8 +69,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected userSeller = signal<IUser | null>(null);
   protected appendTo = 'body'; // Utilisé dans p-select du template
   protected produitSelected: any | null = null;
-  protected isScannedProduct = signal(false);
-  protected showStock = true;
   protected disableButton = true;
   protected PRODUIT_COMBO_RESULT_SIZE = 10;
   protected pendingSalesSidebar = signal(false);
@@ -103,10 +97,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.checkScreenSize();
-    
+
     // Vérifier si une caisse est ouverte
     this.hasCashRegisterOpen();
-    
+
     this.route.params.subscribe(params => {
       this.isPresale.set(params['isPresale'] === 'true');
 
@@ -150,7 +144,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
     // Check initial screen size
   }
+
   ngAfterViewInit(): void {}
+
   protected onNavChange(evt: NgbNavChangeEvent): void {
     const newTab = evt.nextId;
     const currentSale = this.salesFacade.currentSale();
@@ -212,16 +208,14 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Recharge l'état de la caisse (appelé après ouverture de caisse depuis un composant enfant)
    */
   onCashRegisterStatusChanged(): void {
-    this.cashRegisterService
-      .getConnectedUserHasOpenCashRegister()
-      .subscribe({
-        next: res => {
-          this.isCashRegisterOpen.set(res.body ?? false);
-        },
-        error: () => {
-          this.isCashRegisterOpen.set(false);
-        },
-      });
+    this.cashRegisterService.getConnectedUserHasOpenCashRegister().subscribe({
+      next: res => {
+        this.isCashRegisterOpen.set(res.body ?? false);
+      },
+      error: () => {
+        this.isCashRegisterOpen.set(false);
+      },
+    });
   }
 
   /**
@@ -231,21 +225,26 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.active.set('comptant');
     this.focusActiveTab();
   }
+
   protected onSelectUser(): void {
     const seller = this.userSeller();
     if (seller) {
       this.salesFacade.setSeller(seller);
     }
   }
+
   protected toggleSidebar(): void {
     this.sidebarCollapsed.update(collapsed => !collapsed);
   }
+
   protected previousState(): void {
     this.router.navigate(['/']);
   }
+
   protected openPendingSales(): void {
     this.pendingSalesSidebar.set(true);
   }
+
   protected closePendingSales(): void {
     this.pendingSalesSidebar.set(false);
   }

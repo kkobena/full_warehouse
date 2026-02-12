@@ -6,10 +6,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
-
 import { TooltipModule } from 'primeng/tooltip';
+import { Toast } from 'primeng/toast';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
@@ -77,7 +75,6 @@ import {
     ConfirmDialogComponent,
     QuantiteProdutSaisieComponent,
   ],
-  providers: [MessageService], // Instance locale pour ce composant
 })
 export class SaleCreationComponent implements OnInit, ProductSearchHost {
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
@@ -109,8 +106,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
-  private router = inject(Router);
-  private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);

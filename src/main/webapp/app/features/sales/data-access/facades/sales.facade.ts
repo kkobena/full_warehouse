@@ -1,18 +1,12 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { Subject, pipe, switchMap, tap, catchError, of, finalize, map, Observable } from 'rxjs';
+import { catchError, finalize, map, Observable, of, pipe, Subject, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISales, SaleId } from '../../../../shared/model/sales.model';
+import { ISales, SaleId, UpdateSaleInfo } from '../../../../shared/model/sales.model';
 import { createSalesLineFromProduct } from '../utils/sales-line.utils';
-import { ISalesLine } from '../../../../shared/model';
-import { ICustomer } from '../../../../shared/model';
-import { IClientTiersPayant } from '../../../../shared/model';
-import { ProduitSearch } from '../../../../shared/model';
-import { IRemise } from '../../../../shared/model';
-import { SalesStatut } from '../../../../shared/model';
-import { SelectedCustomerService } from '../../../../entities/sales/service/selected-customer.service';
+import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch, SalesStatut } from '../../../../shared/model';
 import { PrintService } from '../services/print.service';
 
 /**
@@ -59,7 +53,6 @@ export class SalesFacade {
   private readonly store = inject(SalesStore);
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
-  private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly printService = inject(PrintService);
 
   // Events - Success subjects for component subscriptions
@@ -230,7 +223,7 @@ export class SalesFacade {
       // NE PAS afficher le toast - le dialog sera affiché par l'effect
     } else {
       this.store.setError(errorMessage);
-      this.notificationService.error('Erreur', errorMessage);
+      this.notificationService.error(errorMessage);
     }
 
     this.store.setLoading(false);
@@ -337,7 +330,7 @@ export class SalesFacade {
             attemptedLine: salesLine,
             isFromTableCellEdit: false,
           });
-          this.notificationService.error('Erreur', errorMessage);
+          this.notificationService.error(errorMessage);
           this.store.setLoading(false);
           return of(null);
         }),
@@ -381,7 +374,7 @@ export class SalesFacade {
           }
 
           this.store.setError(errorMessage);
-          this.notificationService.error('Erreur', errorMessage);
+          this.notificationService.error(errorMessage);
           this.store.setLoading(false);
           return of(null);
         }),
@@ -845,12 +838,12 @@ export class SalesFacade {
   saveAssuranceSale(paymentModes: any[]): Observable<ISales | null> {
     const currentSale = this.store.currentSale();
     if (!currentSale) {
-      this.notificationService.error('Erreur', 'Aucune vente en cours');
+      this.notificationService.error('Aucune vente en cours');
       return of(null);
     }
 
     if (!currentSale.customerId) {
-      this.notificationService.error('Erreur', 'Client obligatoire pour vente ASSURANCE');
+      this.notificationService.error('Client obligatoire pour vente ASSURANCE');
       return of(null);
     }
 
@@ -966,7 +959,7 @@ export class SalesFacade {
           // Stocker l'erreur avec les détails pour traitement par le composant
           this.store.setError(errorMessage);
           this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine });
-          this.notificationService.error('Erreur', errorMessage);
+          this.notificationService.error(errorMessage);
           this.store.setLoading(false);
           return of(null);
         }),
@@ -1076,7 +1069,7 @@ export class SalesFacade {
             return of(null);
           } else {
             // Autres erreurs : toast simple
-            this.notificationService.error('Erreur', errorMessage);
+            this.notificationService.error(errorMessage);
             this.store.setError(errorMessage);
             this.store.setLastErrorDetails({
               errorKey: errorKey || null,
@@ -1176,9 +1169,6 @@ export class SalesFacade {
   setCustomer(customer: ICustomer): void {
     const currentSale = this.store.currentSale();
 
-    // Mettre à jour le service legacy pour compatibilité avec CustomerOverlayPanelComponent
-    this.selectedCustomerService.setCustomer(customer);
-
     // Si pas encore de vente créée (pas de saleId), on stocke juste le client
     // La vente sera créée avec ce client lors de l'ajout du premier produit
     if (!currentSale?.saleId) {
@@ -1189,18 +1179,13 @@ export class SalesFacade {
     this.store.setLoading(true);
     this.store.setSelectedCustomer(customer);
 
-    // Update sale with customer ID
-    const updatedSale: ISales = {
-      ...currentSale,
-      customerId: customer.id,
-    };
-
     // Determine which endpoint to use based on sale type
-    // VNO = vente comptant -> updateComptantSale
-    // VO = vente assurance/carnet -> updateAssuranceSale
+    const updateSaleInfo: UpdateSaleInfo = { id: currentSale.saleId, value: customer.id! };
     const updateObservable$ =
-      currentSale.type === 'VNO' ? this.apiService.updateComptantSale(updatedSale) : this.apiService.updateAssuranceSale(updatedSale);
-
+      currentSale.type === 'VNO'
+        ? this.apiService.addCustommerToCashSale(updateSaleInfo)
+        : this.apiService.changeAssuranceCustomer(updateSaleInfo);
+    //TODO: synchroniser tiersPayants dans la store avec le nouveau client pour les vente ASSURANCE/CARNET au retour de l'appel API
     updateObservable$
       .pipe(
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
@@ -1213,7 +1198,7 @@ export class SalesFacade {
       )
       .subscribe(sale => {
         if (sale) {
-          this.store.setCurrentSale(sale);
+          this.store.setCurrentSale({ ...sale, differe: currentSale.differe, avoir: currentSale.avoir }); // Conserver les flags differe et avoir qui ne sont pas gérés par le backend
           this.customerSetSuccessSubject.next();
         }
       });
@@ -1228,9 +1213,6 @@ export class SalesFacade {
     if (!currentSale?.saleId) {
       return;
     }
-
-    // Mettre à jour le service legacy pour compatibilité avec CustomerOverlayPanelComponent
-    this.selectedCustomerService.setCustomer(null);
 
     this.store.setLoading(true);
     this.store.setSelectedCustomer(null);
@@ -1292,9 +1274,6 @@ export class SalesFacade {
         tap(result => {
           if (result?.success) {
             this.store.resetCurrentSale();
-            this.notificationService.success('Vente mise en attente avec succès');
-            // Émettre l'événement de succès
-            console.log('Emitting standby success event');
             this.standbySuccessSubject.next();
           }
         }),
@@ -1384,7 +1363,6 @@ export class SalesFacade {
       )
       .subscribe(() => {
         this.store.removePendingSale(saleId);
-        this.notificationService.success('Vente supprimée avec succès');
       });
   }
 

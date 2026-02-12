@@ -1,5 +1,5 @@
 <!-- Notifications Toast -->
-<p-toast position="top-right" />
+<!--<p-toast position="top-right" />-->
 
 <!-- Drawer pour ventes en attente -->
 <p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
@@ -139,7 +139,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <app-sale-creation 
+                <app-sale-creation
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
@@ -154,7 +154,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <app-sale-assurance 
+                <app-sale-assurance
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
@@ -169,7 +169,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <app-sale-carnet 
+                <app-sale-carnet
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   (switchToComptant)="onSwitchToComptant()"

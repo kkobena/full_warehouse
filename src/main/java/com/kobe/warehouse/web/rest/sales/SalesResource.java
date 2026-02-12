@@ -172,7 +172,6 @@ public class SalesResource {
 
     @PutMapping("/sales/comptant/finalize-prevente")
     public ResponseEntity<Void> savePrevente(@Valid @RequestBody CashSaleDTO sale) {
-
          saleService.savePrevente(sale);
         return ResponseEntity.accepted().build();
     }

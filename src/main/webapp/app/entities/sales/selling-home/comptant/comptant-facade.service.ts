@@ -4,7 +4,7 @@ import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales, SaleId, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
-import { IRemise } from '../../../../shared/model/remise.model';
+import { IRemise } from '../../../../shared/model';
 import { SalesService } from '../../sales.service';
 import { CurrentSaleService } from '../../service/current-sale.service';
 import { SelectedCustomerService } from '../../service/selected-customer.service';

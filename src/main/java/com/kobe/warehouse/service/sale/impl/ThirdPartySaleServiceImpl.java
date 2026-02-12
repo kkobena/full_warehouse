@@ -230,10 +230,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartyClientManager.updateTiersPayantAccount(thirdPartySaleLine);
     }
 
-    @Override
-    public int buildConsommationId() {
-        return thirdPartyClientManager.buildConsommationId();
-    }
+
 
     @Override
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {

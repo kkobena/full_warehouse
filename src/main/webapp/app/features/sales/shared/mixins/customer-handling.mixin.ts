@@ -211,7 +211,6 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       (savedCustomer: ICustomer) => {
         if (savedCustomer?.id) {
           selectCustomer(savedCustomer);
-          notificationService.success('Succès', customer ? 'Client modifié' : 'Client créé');
         }
       },
       () => {

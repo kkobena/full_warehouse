@@ -11,7 +11,6 @@ import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { IRemise, ISalesLine } from '../../../../shared/model';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 /**
@@ -41,10 +40,8 @@ import { MessageService } from 'primeng/api';
     InputIcon,
     IconField,
     ConfirmDialogComponent,
-    Toast,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [MessageService],
 })
 export class ProductListComponent {
   // ViewChild

@@ -1,5 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 
 @Injectable({
   providedIn: 'root',

@@ -38,11 +38,8 @@ public interface ThirdPartySaleService {
 
     void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 
-    int buildConsommationId();
 
-    default int buildConsommationId(@NotNull String s) {
-        return Integer.parseInt(s);
-    }
+
 
     SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException;
 

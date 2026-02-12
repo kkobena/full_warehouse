@@ -61,7 +61,6 @@ import { AssuredCustomerListComponent } from '../../../../entities/sales/assured
     ConfirmDialogComponent,
     QuantiteProdutSaisieComponent,
   ],
-  providers: [MessageService],
 })
 export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearchHost {
   // Services

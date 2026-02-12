@@ -15,12 +15,14 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -80,7 +82,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        saleDTO.getPayments().forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
+        if (CollectionUtils.isEmpty(sales.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <=0) {
+            sales.setPayments(new HashSet<>());
+            return;
+        }
+        saleDTO.getPayments().stream().filter(paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount()) && paymentDTO.getPaidAmount()>0).forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
     }
 
     private void removeOldPayment(Sales sales) {

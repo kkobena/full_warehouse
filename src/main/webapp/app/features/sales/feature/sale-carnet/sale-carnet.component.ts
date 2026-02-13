@@ -91,6 +91,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
+  readonly remises = input<IRemise[]>([]);
 
   // Outputs
   switchToComptant = output<void>();

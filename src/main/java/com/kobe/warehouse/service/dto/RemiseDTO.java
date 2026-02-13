@@ -26,7 +26,8 @@ public class RemiseDTO implements Serializable {
     protected String typeLibelle;
     protected String displayName;
 
-    protected boolean enable = true;
+    protected boolean enable = true;//pour la creation et la modification
+
 
     public RemiseDTO() {}
 
@@ -36,6 +37,7 @@ public class RemiseDTO implements Serializable {
 
         displayName = remise.getValeur();
         this.enable = remise.isEnable();
+
     }
 
     public boolean isEnable() {

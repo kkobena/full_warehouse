@@ -114,7 +114,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
   lastError = this.facade.lastError;
-  remises = signal<IRemise[]>([]); // TODO: charger les remises depuis le service
+  remises = input<IRemise[]>([]);
 
   // Local UI state
   customers = signal<ICustomer[]>([]);
@@ -422,24 +422,17 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       return;
     }
 
-    // TODO: Implémenter l'application de remise globale
-    // this.facade.applyGlobalDiscount(remise);
-  }
-
-  onAddRemise(): void {
-    const currentSale = this.currentSale();
-    if (!currentSale) {
-      this.notificationService.error('Aucune vente en cours');
-      return;
-    }
-
-    // Vérifier si l'utilisateur a l'autorisation
     if (this.authorizationService.canApplyDiscount()) {
-      // Ouvrir modal de sélection de remise
-      this.openRemiseSelectionModal();
+      this.facade.updateRemise(remise);
     } else {
-      // Demander autorisation
-      this.requestRemiseAuthorization();
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            this.facade.updateRemise(remise);
+          }
+        });
     }
   }
 
@@ -449,55 +442,26 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       return;
     }
 
-    // Vérifier si l'utilisateur a l'autorisation pour supprimer
-    if (this.authorizationService.canApplyDiscount()) {
+    const doRemove = () => {
       this.confirmDialog().onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
-        'Voulez-vous vraiment supprimer la remise appliquée?',
+        'Voulez-vous vraiment supprimer la remise appliquée ?',
       );
+    };
+
+    if (this.authorizationService.canApplyDiscount()) {
+      doRemove();
     } else {
-      // Demander autorisation pour supprimer
-      this.requestRemiseRemovalAuthorization();
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            doRemove();
+          }
+        });
     }
-  }
-
-  private requestRemiseAuthorization(): void {
-    const saleId = this.currentSale()?.id;
-    const saleType = this.selectedSaleType();
-
-    this.authorizationService
-      .requestDiscountAuthorization(saleId, saleType)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(authorized => {
-        if (authorized) {
-          this.openRemiseSelectionModal();
-        }
-      });
-  }
-
-  private requestRemiseRemovalAuthorization(): void {
-    const saleId = this.currentSale()?.id;
-    const saleType = this.selectedSaleType();
-
-    this.authorizationService
-      .requestDiscountAuthorization(saleId, saleType)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(authorized => {
-        if (authorized) {
-          this.facade.updateRemise(undefined);
-        }
-      });
-  }
-
-  private openRemiseSelectionModal(): void {
-    // TODO: Implémenter modal de sélection de remise
-    // Pour l'instant, utilisons une remise par défaut pour tester
-    this.notificationService.info('Sélection de remise', 'Fonctionnalité de sélection de remise à venir');
-
-    // Exemple de remise (à remplacer par une vraie modal)
-    // const remise: IRemise = { id: 1, valeur: 10, remiseValue: 10, type: 'POURCENTAGE', typeLibelle: '10%' };
-    // this.facade.updateRemise(remise);
   }
 
   // ===== Handlers pour CustomerSelectorComponent =====

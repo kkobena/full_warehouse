@@ -6,6 +6,8 @@ export interface IRemise {
   typeLibelle?: string;
   enable?: boolean;
   grilles?: GrilleRemise[];
+  vnoDiscountRate?: number;
+  voDiscountRate?: number;
 }
 
 export class Remise implements IRemise {
@@ -38,6 +40,7 @@ export class GrilleRemise {
     public id?: number,
     public remiseValue?: number,
     public tauxRemise?: number,
+    public discountRate?: number,
     public enable?: boolean,
     public code?: string,
     public codeRemise?: CodeRemise,
@@ -51,4 +54,10 @@ export class GroupRemise {
     public typeLibelle: string,
     public items: IRemise[],
   ) {}
+}
+
+export enum GrilleType {
+  VNO = 'VNO',
+  VO = 'VO',
+  NONE = 'NONE',
 }

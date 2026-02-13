@@ -31,7 +31,7 @@ import { CustomerSearchService } from '../../data-access/services/customer-searc
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { IClientTiersPayant, ICustomer, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import { IClientTiersPayant, ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import {
@@ -90,6 +90,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // Inputs
   readonly isSmallScreen = input(false);
   readonly isCashRegisterOpen = input(false);
+  readonly remises = input<IRemise[]>([]);
 
   // Outputs
   productAddedSuccess = output<void>();

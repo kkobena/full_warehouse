@@ -67,6 +67,7 @@ export class ProductListComponent {
   discountChanged = output<{ line: ISalesLine; newDiscount: number }>();
   authorizationRequired = output<{ line: ISalesLine; action: 'delete' | 'discount' }>();
   remiseSelected = output<IRemise>();
+  removeRemise = output<void>();
   private readonly messageService = inject(MessageService);
 
   // Local state
@@ -96,11 +97,6 @@ export class ProductListComponent {
       }
       this.quantityChanged.emit({ line, newQty: qty });
     }
-  }
-
-  onQuantityChange(line: ISalesLine, newQty: string): void {
-    // Gardé pour compatibilité - redirige vers onQuantitySoldChange
-    this.onQuantitySoldChange(line, newQty);
   }
 
   onPriceChange(line: ISalesLine, newPrice: string): void {
@@ -161,13 +157,20 @@ export class ProductListComponent {
     const remise = this.selectedRemise();
     if (remise) {
       this.remiseSelected.emit(remise);
+    } else {
+      this.removeRemise.emit();
     }
+  }
+
+  onRemoveRemise(): void {
+    this.selectedRemise.set(null);
+    this.removeRemise.emit();
   }
 
   getRemiseTaux(): string {
     const remise = this.currentRemise();
     if (remise) {
-      return remise.remiseValue + ' %';
+      return this.saleType() === 'COMPTANT' ? remise.vnoDiscountRate + ' %' : remise.voDiscountRate + ' %';
     }
     return '';
   }

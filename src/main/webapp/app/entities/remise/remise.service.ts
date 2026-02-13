@@ -3,7 +3,7 @@ import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CodeRemise, GrilleRemise, IRemise } from '../../shared/model/remise.model';
 import { Observable } from 'rxjs';
-import { createRequestOption } from '../../shared/util/request-util';
+import { createRequestOption, createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<IRemise>;
 type EntityArrayResponseType = HttpResponse<IRemise[]>;
@@ -29,7 +29,7 @@ export class RemiseService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<IRemise[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 

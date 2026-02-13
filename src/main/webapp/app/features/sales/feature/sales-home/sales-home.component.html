@@ -142,6 +142,7 @@
                 <app-sale-creation
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
+                  [remises]="remises()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
               </ng-template>
             </ng-container>
@@ -157,6 +158,7 @@
                 <app-sale-assurance
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
+                  [remises]="remises()"
                   (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
               </ng-template>
             </ng-container>
@@ -172,6 +174,7 @@
                 <app-sale-carnet
                   [isSmallScreen]="isSmallScreen()"
                   [isCashRegisterOpen]="isCashRegisterOpen()"
+                  [remises]="remises()"
                   (switchToComptant)="onSwitchToComptant()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-carnet>
               </ng-template>

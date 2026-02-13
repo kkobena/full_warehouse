@@ -1,6 +1,6 @@
 import { Component, computed, inject, output, Signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
+import { ISalesLine } from '../../../../shared/model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -8,7 +8,7 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CurrentSaleService } from '../../service/current-sale.service';
-import { ISales } from '../../../../shared/model/sales.model';
+import { ISales } from '../../../../shared/model';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { BaseSaleService } from '../../service/base-sale.service';
 import { Authority } from '../../../../shared/constants/authority.constants';

@@ -70,7 +70,8 @@
         (lineSelected)="onLineSelected($event)"
         (discountChanged)="onLineDiscountChanged($event)"
         (authorizationRequired)="onAuthorizationRequired($event)"
-        (remiseSelected)="onRemiseSelected($event)" />
+        (remiseSelected)="onRemiseSelected($event)"
+        (removeRemise)="onRemoveRemise()" />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
@@ -86,9 +87,7 @@
             [currentRemise]="currentSale()?.remise"
             [isAvoir]="facade.isAvoir()"
             [saleType]="'COMPTANT'"
-            [changeAmount]="currentChange()"
-            (addRemise)="onAddRemise()"
-            (removeRemise)="onRemoveRemise()" />
+            [changeAmount]="currentChange()" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions

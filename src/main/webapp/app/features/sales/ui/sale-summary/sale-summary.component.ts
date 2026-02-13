@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IRemise } from '../../../../shared/model';
 
@@ -55,10 +55,6 @@ export class SaleSummaryComponent {
 
   // Dernière monnaie
   lastChangeGiven = input<number>(0);
-
-  // Outputs - Actions remise
-  addRemise = output<void>();
-  removeRemise = output<void>();
 
   // Computed values
   getNetToPay(): number {

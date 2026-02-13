@@ -99,9 +99,7 @@
             [saleType]="'CARNET'"
             [partAssurance]="currentSale()?.partTiersPayant || 0"
             [partClient]="currentSale()?.amountToBePaid || 0"
-            [changeAmount]="currentChange()"
-            (addRemise)="onAddRemise()"
-            (removeRemise)="onRemoveRemise()" />
+            [changeAmount]="currentChange()" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions

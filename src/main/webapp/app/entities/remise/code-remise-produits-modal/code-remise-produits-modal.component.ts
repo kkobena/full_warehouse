@@ -5,7 +5,7 @@ import { RemiseService } from '../remise.service';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from '../../../shared/model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { CodeRemise } from '../../../shared/model/remise.model';
 import { RayonService } from '../../rayon/rayon.service';
@@ -68,7 +68,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
           search: this.search,
           page: pageToLoad,
           size: this.itemsPerPage,
-          rayonId: this.selectedRayon,
+          rayonId: this.selectedRayon?.id,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
@@ -109,7 +109,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
           search: this.search,
           page: this.page,
           size: event.rows,
-          rayonId: this.selectedRayon,
+          rayonId: this.selectedRayon?.id,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
@@ -150,7 +150,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
     const params: any = {};
     params.codeRemise = this.codeRemise.value;
     if (this.selectedRayon) {
-      params.rayonId = this.selectedRayon;
+      params.rayonId = this.selectedRayon?.id;
     }
     if (this.search) {
       params.search = this.search;

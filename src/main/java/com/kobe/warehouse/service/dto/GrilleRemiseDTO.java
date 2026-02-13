@@ -13,6 +13,7 @@ public class GrilleRemiseDTO {
     private float tauxRemise;
     private CodeRemiseDTO codeRemise;
     private CodeGrilleType grilleType;
+    private int discountRate;
 
     public GrilleRemiseDTO() {}
 
@@ -24,6 +25,15 @@ public class GrilleRemiseDTO {
         this.remiseValue = grilleRemise.getRemiseValue();
         this.tauxRemise = grilleRemise.getTauxRemise();
         this.codeRemise = CodeRemise.toDTO(CodeRemise.fromGrille(grilleRemise.getCode()));
+        this.discountRate=grilleRemise.getRemiseValue().intValue();
+    }
+
+    public int getDiscountRate() {
+        return discountRate;
+    }
+
+    public void setDiscountRate(int discountRate) {
+        this.discountRate = discountRate;
     }
 
     public String getCode() {

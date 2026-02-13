@@ -21,6 +21,7 @@ import { CustomerDisplayService } from '../../data-access/services/customer-disp
 import { MagasinService } from '../../../../entities/magasin/magasin.service';
 import { AccountService } from '../../../../core/auth/account.service';
 import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
+import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
 
 @Component({
   selector: 'app-sales-home',
@@ -57,6 +58,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private accountService = inject(AccountService);
   private cashRegisterService = inject(CashRegisterService);
   private destroyRef = inject(DestroyRef);
+  private remiseCacheService = inject(RemiseCacheService);
   protected confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   protected alert = viewChild.required<ToastAlertComponent>('alert');
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits
@@ -77,6 +79,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   // Responsive state - passé aux composants enfants
   protected isSmallScreen = signal(false);
   protected isCashRegisterOpen = signal(false);
+  protected remises = this.remiseCacheService.remises;
 
   constructor() {
     // Auto-disable button when no product selected
@@ -142,7 +145,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         });
     }
 
-    // Check initial screen size
   }
 
   ngAfterViewInit(): void {}

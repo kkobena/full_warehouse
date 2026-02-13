@@ -22,12 +22,21 @@
     <!-- Section Remise -->
     @if (showRemiseSection()) {
       <div class="pharma-remise-section">
-        <!-- Badge Remise Info -->
+        <!-- Badge Remise Info + bouton supprimer -->
         @if (currentRemise()) {
           <div class="pharma-remise-info">
             <i class="pi pi-percentage"></i>
             <span class="remise-label">Remise:</span>
             <strong class="remise-value">{{ getRemiseTaux() }}</strong>
+            <p-button
+              (click)="onRemoveRemise()"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-times"
+              pTooltip="Supprimer la remise"
+              severity="danger"
+              size="small"
+            />
           </div>
         }
 
@@ -36,20 +45,12 @@
           <p-select
             (onChange)="onSelectRemise()"
             [(ngModel)]="selectedRemise"
-            [group]="true"
             [options]="remises()"
             [showClear]="true"
             class="pharma-remise-select-compact"
             optionLabel="valeur"
             placeholder="Choisir une remise"
-          >
-            <ng-template #group let-group>
-              <div class="pharma-remise-group">
-                <i class="pi pi-tag"></i>
-                <span>{{ group.typeLibelle }}</span>
-              </div>
-            </ng-template>
-          </p-select>
+          />
         }
       </div>
     }

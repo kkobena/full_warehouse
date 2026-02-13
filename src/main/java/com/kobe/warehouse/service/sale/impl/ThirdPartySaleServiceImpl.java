@@ -639,7 +639,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         remiseRepository.findById(updateSaleInfo.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
         this.displayNet(thirdPartySales.getPartAssure());
     }
-
+    @Override
+    public void removeDiscount(SaleId saleId) {
+        ThirdPartySales thirdPartySales = findById(saleId);
+        removeRemise(thirdPartySales);
+        thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
+        this.displayNet(thirdPartySales.getPartAssure());
+    }
     @Override
     public void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException {
         ThirdPartySales thirdPartySales = findById(updateSale.id());

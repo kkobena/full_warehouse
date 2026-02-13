@@ -34,6 +34,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 /**
  * Implémentation du service de calcul des montants pour les ventes avec tiers-payants.
  * Ce service encapsule toute la logique complexe de répartition des montants.
@@ -92,6 +94,12 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         CalculationResult output = tiersPayantCalculationService.calculate(
             buildCalculationInput(thirdPartySales, clientTiersPayants)
         );
+        if (isNull(output)) {
+            thirdPartySales.setPartTiersPayant(0);
+            thirdPartySales.setPartAssure(0);
+            thirdPartySales.setAmountToBePaid(0);
+            return null;
+        }
 
         int totalPatientShare = output.getTotalPatientShare().intValue();
         thirdPartySales.setPartTiersPayant(output.getTotalTiersPayant().intValue());
@@ -229,9 +237,6 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
             .getSalesLines()
             .stream()
             .map(sl -> {
-                System.err.println("quantity requested: " + sl.getQuantityRequested());
-                System.err.println("quantity sold: " + sl.getQuantitySold());
-
                 SaleItemInput si = new SaleItemInput();
                 Produit produit = sl.getProduit();
                 si.setSalesLineId(sl.getId().getId());

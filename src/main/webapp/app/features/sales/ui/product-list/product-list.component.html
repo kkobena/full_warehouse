@@ -22,12 +22,21 @@
     <!-- Section Remise -->
     @if (showRemiseSection()) {
       <div class="pharma-remise-section">
-        <!-- Badge Remise Info + bouton supprimer -->
+        <!-- Badge Remise Info + boutons modifier/supprimer (quand remise appliquée) -->
         @if (currentRemise()) {
           <div class="pharma-remise-info">
             <i class="pi pi-percentage"></i>
             <span class="remise-label">Remise:</span>
             <strong class="remise-value">{{ getRemiseTaux() }}</strong>
+            <p-button
+              (click)="openEditRemisePopover($event)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-pencil"
+              pTooltip="Modifier la remise"
+              severity="info"
+              size="small"
+            />
             <p-button
               (click)="onRemoveRemise()"
               [rounded]="true"
@@ -40,20 +49,47 @@
           </div>
         }
 
-        <!-- Sélecteur de remise -->
-        @if (remises()?.length > 0) {
-          <p-select
-            (onChange)="onSelectRemise()"
-            [(ngModel)]="selectedRemise"
-            [options]="remises()"
-            [showClear]="true"
-            class="pharma-remise-select-compact"
-            optionLabel="valeur"
-            placeholder="Choisir une remise"
+        <!-- Bouton ajouter remise (visible uniquement quand aucune remise appliquée) -->
+        @if (!currentRemise() && remises()?.length > 0) {
+          <p-button
+            (click)="openAddRemisePopover($event)"
+            [outlined]="true"
+            icon="pi pi-percentage"
+            label="Remise"
+            pTooltip="Ajouter une remise"
+            severity="primary"
+            size="small"
           />
         }
+
+        <!-- Popover de sélection de remise -->
+        <p-popover #remisePopover [style]="{ width: '320px' }">
+          <div class="remise-popover-content">
+            <div class="remise-popover-header">
+              <i class="pi pi-percentage"></i>
+              <span>{{ isEditMode() ? 'Modifier la remise' : 'Choisir une remise' }}</span>
+            </div>
+            <div class="remise-popover-list">
+              @for (remise of availableRemises(); track remise.id) {
+                <div class="remise-popover-item" (click)="onPopoverRemiseSelect(remise)">
+                  <div class="remise-item-icon">
+                    <i class="pi pi-tag"></i>
+                  </div>
+                  <div class="remise-item-content">
+                    <span class="remise-item-name">{{ remise.valeur }}</span>
+                    <span class="remise-item-rate">Taux: {{ getRemiseRate(remise) }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="remise-popover-empty">Aucune remise disponible</div>
+              }
+            </div>
+          </div>
+        </p-popover>
       </div>
     }
+
+
   </div>
 
   <!-- Tableau principal -->

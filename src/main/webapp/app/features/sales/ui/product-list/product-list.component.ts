@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -6,7 +6,7 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { Select } from 'primeng/select';
+import { Popover } from 'primeng/popover';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { IRemise, ISalesLine } from '../../../../shared/model';
@@ -36,7 +36,7 @@ import { MessageService } from 'primeng/api';
     ButtonModule,
     InputTextModule,
     TooltipModule,
-    Select,
+    Popover,
     InputIcon,
     IconField,
     ConfirmDialogComponent,
@@ -46,6 +46,7 @@ import { MessageService } from 'primeng/api';
 export class ProductListComponent {
   // ViewChild
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private remisePopover = viewChild<Popover>('remisePopover');
 
   // Inputs
   salesLines = input.required<ISalesLine[]>();
@@ -68,11 +69,23 @@ export class ProductListComponent {
   authorizationRequired = output<{ line: ISalesLine; action: 'delete' | 'discount' }>();
   remiseSelected = output<IRemise>();
   removeRemise = output<void>();
+  remiseActionCancelled = output<void>();
   private readonly messageService = inject(MessageService);
 
   // Local state
   filterValue = signal('');
   selectedRemise = signal<IRemise | null>(null);
+  isEditMode = signal(false);
+
+  /** Remises disponibles pour le popover (exclut la remise courante en mode édition) */
+  availableRemises = computed(() => {
+    const all = this.remises();
+    if (this.isEditMode()) {
+      const currentId = this.currentRemise()?.id;
+      return all.filter(r => r.id !== currentId);
+    }
+    return all;
+  });
 
   // Méthodes pour les événements UI
   onQuantityRequestedChange(line: ISalesLine, newQty: string): void {
@@ -123,13 +136,6 @@ export class ProductListComponent {
     this.lineSelected.emit(line);
   }
 
-  onDiscountChange(line: ISalesLine, newDiscount: string): void {
-    const discount = Number(newDiscount);
-    if (discount >= 0) {
-      this.discountChanged.emit({ line, newDiscount: discount });
-    }
-  }
-
   // Méthodes helper pour le template
   isLineSelected(line: ISalesLine): boolean {
     return this.selectedLineId() === line.id;
@@ -152,25 +158,49 @@ export class ProductListComponent {
     return this.salesLines().reduce((sum, line) => sum + this.getLineTotal(line), 0);
   }
 
-  // Gestion remise
-  onSelectRemise(): void {
-    const remise = this.selectedRemise();
-    if (remise) {
-      this.remiseSelected.emit(remise);
-    } else {
-      this.removeRemise.emit();
-    }
-  }
-
   onRemoveRemise(): void {
     this.selectedRemise.set(null);
     this.removeRemise.emit();
   }
 
+  /** Ouvre le popover en mode ajout */
+  openAddRemisePopover(event: Event): void {
+    this.isEditMode.set(false);
+    this.remisePopover()?.toggle(event);
+  }
+
+  /** Ouvre le popover en mode édition (exclut la remise courante) */
+  openEditRemisePopover(event: Event): void {
+    this.isEditMode.set(true);
+    this.remisePopover()?.toggle(event);
+  }
+
+  /** Sélection d'une remise depuis le popover */
+  onPopoverRemiseSelect(remise: IRemise): void {
+    this.remisePopover()?.hide();
+    if (this.isEditMode()) {
+      this.confirmDialog().onConfirm(
+        () => this.remiseSelected.emit(remise),
+        'Modifier la remise',
+        `Voulez-vous remplacer la remise actuelle par "${remise.valeur}" ?`,
+        undefined,
+        () => this.remiseActionCancelled.emit(),
+      );
+    } else {
+      this.remiseSelected.emit(remise);
+    }
+  }
+
+  /** Taux affiché selon le type de vente */
+  getRemiseRate(remise: IRemise): string {
+    const rate = this.saleType() === 'COMPTANT' ? remise.vnoDiscountRate : remise.voDiscountRate;
+    return rate != null ? rate + ' %' : '';
+  }
+
   getRemiseTaux(): string {
     const remise = this.currentRemise();
     if (remise) {
-      return this.saleType() === 'COMPTANT' ? remise.vnoDiscountRate + ' %' : remise.voDiscountRate + ' %';
+      return this.getRemiseRate(remise);
     }
     return '';
   }
@@ -179,9 +209,5 @@ export class ProductListComponent {
   onFilterChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.filterValue.set(value);
-  }
-
-  trackByLineId(_index: number, line: ISalesLine): number | undefined {
-    return line.id;
   }
 }

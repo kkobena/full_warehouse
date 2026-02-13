@@ -255,8 +255,14 @@ public class ThirdPartySaleResource {
 
     @PutMapping("/sales/assurance/finalize-prevente")
     public ResponseEntity<Void> savePrevente(@Valid @RequestBody ThirdPartySaleDTO sale) {
-
         saleService.savePrevente(sale);
         return ResponseEntity.accepted().build();
+    }
+
+
+    @DeleteMapping("/sales/assurance/remove-remise/{id}/{saleDate}")
+    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.removeDiscount(new SaleId(id, saleDate));
+        return ResponseEntity.ok().build();
     }
 }

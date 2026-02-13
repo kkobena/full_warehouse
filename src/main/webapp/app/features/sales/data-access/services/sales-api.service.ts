@@ -6,7 +6,7 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from '../../../../app.constants';
 import { createRequestOptions } from '../../../../shared/util/request-util';
-import { ISales, SaleId, FinalyseSale, UpdateSaleInfo } from '../../../../shared/model/sales.model';
+import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
 import { IClientTiersPayant } from '../../../../shared/model';
 
@@ -159,6 +159,7 @@ export class SalesApiService {
       observe: 'response',
     });
   }
+
   /**
    * Print sale invoice
    */
@@ -172,9 +173,11 @@ export class SalesApiService {
   printReceipt__(id: SaleId): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
+
   printReceipt(id: SaleId): Observable<HttpResponse<void>> {
     return this.http.get<void>(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
+
   /*** Get ESC/POS receipt data for Tauri integration * Returns raw ESC/POS byte array to be sent directly to printer */
   getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
@@ -182,6 +185,7 @@ export class SalesApiService {
       responseType: 'arraybuffer',
     });
   }
+
   // ============================================
   // SALES LINE OPERATIONS
   // ============================================
@@ -304,15 +308,30 @@ export class SalesApiService {
   /**
    * Add global remise (discount) to cash sale
    */
-  addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/comptant/add-remise`, key, { observe: 'response' });
+  addRemise(key: UpdateSaleInfo): Observable<HttpResponse<void>> {
+    return this.http.put<void>(`${this.resourceUrl}/comptant/add-remise`, key, { observe: 'response' });
+  }
+
+  /*
+   * Add global remise (discount) to assurance/carnet sale
+   */
+  addAssuranceRemise(key: UpdateSaleInfo): Observable<HttpResponse<void>> {
+    return this.http.put<void>(this.resourceUrl + '/assurance/add-remise', key, { observe: 'response' });
   }
 
   /**
    * Remove remise from cash sale
    */
-  removeRemiseFromCashSale(saleId: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
+  removeRemiseFromCashSale(saleId: SaleId): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrl}/comptant/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
+  }
+
+  /**
+   * Remove remise from assurance/carnet sale
+   * @param saleId
+   */
+  removeRemiseFromAssuranceSale(saleId: SaleId): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrl}/assurance/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
   }
 
   // ============================================
@@ -368,6 +387,7 @@ export class SalesApiService {
       .delete<void>(`${this.resourceUrl}/prevente/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
       .pipe(map((): void => undefined));
   }
+
   /**
    * Delete pending sale (prévente) for assurance/carnet
    */
@@ -398,6 +418,7 @@ export class SalesApiService {
   changeAssuranceCustomer(keyValue: UpdateSaleInfo): Observable<HttpResponse<void>> {
     return this.http.put<void>(this.resourceUrl + '/assurance/change/customer', keyValue, { observe: 'response' });
   }
+
   /**
    * Convert item dates from client format (Moment) to server format (string)
    */

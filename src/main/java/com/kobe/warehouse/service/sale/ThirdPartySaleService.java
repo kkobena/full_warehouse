@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
-import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -24,7 +23,7 @@ import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
-import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public interface ThirdPartySaleService {
@@ -38,16 +37,13 @@ public interface ThirdPartySaleService {
 
     void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 
-
-
-
     SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException;
 
     void deleteSaleLineById(SaleLineId id);
 
     ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, PlafondVenteException;
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment)
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
         throws StockException, DeconditionnementStockOut, PlafondVenteException;
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
@@ -88,5 +84,8 @@ public interface ThirdPartySaleService {
     String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales);
 
     void upddateSaleAmountsOnRemovingItem(ThirdPartySales c);
-    void savePrevente(ThirdPartySaleDTO dto) ;
+
+    void savePrevente(ThirdPartySaleDTO dto);
+
+    void removeDiscount(SaleId saleId);
 }

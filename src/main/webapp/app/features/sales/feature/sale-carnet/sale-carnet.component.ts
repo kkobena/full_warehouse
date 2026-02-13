@@ -1,17 +1,21 @@
-import { Component, inject, OnInit, AfterViewInit, signal, computed, viewChild, output, effect, input, DestroyRef } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ProductSearchComponent, ProductListComponent, SaleSummaryComponent, SaleActionsComponent, SaleType } from '../../ui';
-import { InsuranceDataBarComponent } from '../../ui';
-import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
-import { RemiseSelectionModalComponent } from '../../ui/remise-selection-modal/remise-selection-modal.component';
+import {
+  InsuranceDataBarComponent,
+  ProductListComponent,
+  ProductSearchComponent,
+  SaleActionsComponent,
+  SaleSummaryComponent,
+  SaleType,
+} from '../../ui';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
@@ -21,16 +25,12 @@ import { AuthorizationService } from '../../data-access/services/authorization.s
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { CustomerSearchService } from '../../data-access/services/customer-search.service';
-import { ISalesLine } from '../../../../shared/model';
-import { ProduitSearch } from '../../../../shared/model';
-import { IClientTiersPayant } from '../../../../shared/model';
-import { ICustomer } from '../../../../shared/model';
-import { IRemise } from '../../../../shared/model';
+import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import {
-  createProductHandling,
   createCustomerHandling,
-  createPaymentHandling,
   createForceStockHandling,
+  createPaymentHandling,
+  createProductHandling,
   ProductSearchHost,
 } from '../../shared/mixins';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
@@ -70,7 +70,6 @@ import { AssuredCustomerListComponent } from '../../../../entities/sales/assured
 })
 export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearchHost {
   // Services
-  private messageService = inject(MessageService);
 
   productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
@@ -78,6 +77,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   selectedSaleType = signal<SaleType>('CARNET');
+
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
    * Appelée par le composant parent lors du changement de tab
@@ -261,33 +261,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
-    this.initializeEffects();
-  }
-
-  // ===== Effects Initialization =====
-
-  private initializeEffects(): void {
-    this.setupErrorHandlingEffect();
-  }
-
-  /**
-   * Effect pour surveiller les erreurs et les afficher
-   * Note: Les erreurs de stock sont gérées par le mixin forceStockHandling
-   */
-  private setupErrorHandlingEffect(): void {
-    effect(() => {
-      const errorMsg = this.lastError();
-      const errorDetails = this.facade.errorDetails();
-      // Ignorer les erreurs de stock - elles sont gérées par le mixin forceStockHandling
-      if (errorMsg && errorDetails?.errorKey !== 'stock') {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: errorMsg,
-          life: 5000,
-        });
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -312,6 +285,11 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     });
 
     this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
+    // S'abonner au succès de mise à jour de la remise
+    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.focusProductSearch();
     });
 
@@ -583,22 +561,26 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.notificationService.error('Erreur', error);
   }
 
-  // ===== Handlers pour remise globale (SaleSummaryComponent) =====
+  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
 
-  onAddRemise(): void {
+  onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
     if (!currentSale) {
       this.notificationService.error('Aucune vente en cours');
       return;
     }
 
-    // Vérifier si l'utilisateur a l'autorisation
     if (this.authorizationService.canApplyDiscount()) {
-      // Ouvrir modal de sélection de remise
-      this.openRemiseSelectionModal();
+      this.facade.updateRemise(remise);
     } else {
-      // Demander autorisation
-      this.requestRemiseAuthorization();
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            this.facade.updateRemise(remise);
+          }
+        });
     }
   }
 
@@ -608,64 +590,28 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       return;
     }
 
-    // Vérifier si l'utilisateur a l'autorisation pour supprimer
-    if (this.authorizationService.canApplyDiscount()) {
+    const doRemove = () => {
       this.confirmDialog().onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
-        'Voulez-vous vraiment supprimer la remise appliquée?',
+        'Voulez-vous vraiment supprimer la remise appliquée ?',
+        undefined,
+        () => this.productHandling.focusProductSearch(),
       );
+    };
+
+    if (this.authorizationService.canApplyDiscount()) {
+      doRemove();
     } else {
-      // Demander autorisation pour supprimer
-      this.requestRemiseRemovalAuthorization();
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            doRemove();
+          }
+        });
     }
-  }
-
-  private requestRemiseAuthorization(): void {
-    const saleId = this.currentSale()?.id;
-    const saleType = 'CARNET';
-
-    this.authorizationService
-      .requestDiscountAuthorization(saleId, saleType)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(authorized => {
-        if (authorized) {
-          this.openRemiseSelectionModal();
-        }
-      });
-  }
-
-  private requestRemiseRemovalAuthorization(): void {
-    const saleId = this.currentSale()?.id;
-    const saleType = 'CARNET';
-
-    this.authorizationService
-      .requestDiscountAuthorization(saleId, saleType)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(authorized => {
-        if (authorized) {
-          this.facade.updateRemise(undefined);
-        }
-      });
-  }
-
-  private openRemiseSelectionModal(): void {
-    const modalRef = this.modalService.open(RemiseSelectionModalComponent, {
-      backdrop: 'static',
-      centered: true,
-      size: 'md',
-    });
-
-    modalRef.result.then(
-      (remise: IRemise) => {
-        if (remise) {
-          this.facade.updateRemise(remise);
-        }
-      },
-      () => {
-        // Modal fermé sans sélection
-      },
-    );
   }
 
   /**

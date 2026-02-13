@@ -80,6 +80,9 @@ export class SalesFacade {
   private readonly customerSetSuccessSubject = new Subject<void>();
   readonly customerSetSuccess$ = this.customerSetSuccessSubject.asObservable();
 
+  private readonly remiseUpdatedSuccessSubject = new Subject<void>();
+  readonly remiseUpdatedSuccess$ = this.remiseUpdatedSuccessSubject.asObservable();
+
   private readonly tiersPayantAddedSuccessSubject = new Subject<IClientTiersPayant>();
   readonly tiersPayantAddedSuccess$ = this.tiersPayantAddedSuccessSubject.asObservable();
 
@@ -1148,17 +1151,27 @@ export class SalesFacade {
    */
   updateRemise(remise?: IRemise): void {
     const currentSale = this.store.currentSale();
+    const saleType = this.store.saleType();
     if (!currentSale?.saleId) {
       this.notificationService.error('Aucune vente en cours');
       return;
     }
 
-    const action$ = remise
-      ? this.apiService.addRemise({ id: currentSale.saleId, value: remise.id! })
-      : this.apiService.removeRemiseFromCashSale(currentSale.saleId);
+    const isComptant = saleType === 'COMPTANT';
+    const key = { id: currentSale.saleId, value: remise?.id! };
+
+    let action$;
+    if (remise) {
+      action$ = isComptant ? this.apiService.addRemise(key) : this.apiService.addAssuranceRemise(key);
+    } else {
+      action$ = isComptant
+        ? this.apiService.removeRemiseFromCashSale(currentSale.saleId)
+        : this.apiService.removeRemiseFromAssuranceSale(currentSale.saleId);
+    }
 
     this.executeAndReloadSale(action$, currentSale.saleId, {
       errorMessage: 'Erreur lors de la mise à jour de la remise',
+      successSubject: this.remiseUpdatedSuccessSubject,
     });
   }
 

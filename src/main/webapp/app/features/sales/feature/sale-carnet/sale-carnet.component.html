@@ -76,12 +76,18 @@
         [selectedLineId]="selectedLineId()"
         [saleId]="currentSale()?.id"
         [saleType]="'CARNET'"
+        [remises]="remises()"
+        [currentRemise]="currentSale()?.remise"
+        [showRemiseSection]="true"
         (quantityChanged)="onLineQuantityChanged($event)"
         (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
         (lineRemoved)="onLineRemoved($event)"
         (lineSelected)="onLineSelected($event)"
         (discountChanged)="onLineDiscountChanged($event)"
-        (authorizationRequired)="onAuthorizationRequired($event)" />
+        (authorizationRequired)="onAuthorizationRequired($event)"
+        (remiseSelected)="onRemiseSelected($event)"
+        (removeRemise)="onRemoveRemise()"
+        (remiseActionCancelled)="focusProductSearch()" />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">

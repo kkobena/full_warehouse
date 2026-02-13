@@ -2,11 +2,9 @@ import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
@@ -103,9 +101,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
-  private messageService = inject(MessageService);
   private customerDisplay = inject(CustomerDisplayService);
-  private translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
@@ -130,8 +126,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   cashier = this.facade.cashier;
   seller = this.facade.seller;
 
-  // Local state signals
-  private focusInitialized = false;
   selectedLineId = signal<number | null>(null);
   customers = signal<ICustomer[]>([]);
   showPendingSales = signal(false);
@@ -295,24 +289,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // ===== Effects Initialization =====
 
   private initializeEffects(): void {
-    this.setupErrorHandlingEffect();
     this.setupSavingStateEffect();
-    this.setupCustomerRequiredEffect();
-  }
-
-  /**
-   * Effect pour surveiller les erreurs et les afficher
-   * Note: Les erreurs de stock sont gérées par le mixin forceStockHandling
-   */
-  private setupErrorHandlingEffect(): void {
-    effect(() => {
-      const error = this.lastError();
-      const errorDetails = this.facade.errorDetails();
-      // Ignorer les erreurs de stock - elles sont gérées par le mixin forceStockHandling
-      if (error && errorDetails?.errorKey !== 'stock') {
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error });
-      }
-    });
   }
 
   /**
@@ -321,22 +298,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private setupSavingStateEffect(): void {
     effect(() => {
       this.isSaving() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
-    });
-  }
-
-  /**
-   * Effect pour vérifier que le client est obligatoire pour ASSURANCE
-   */
-  private setupCustomerRequiredEffect(): void {
-    effect(() => {
-      const sale = this.currentSale();
-      if (sale && !sale.customerId) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Client requis',
-          detail: 'Un client assuré est obligatoire pour une vente ASSURANCE',
-        });
-      }
     });
   }
 
@@ -368,6 +329,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     });
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
+    });
+
+    // S'abonner au succès de mise à jour de la remise
+    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
     });
 
     // S'abonner au succès d'ajout de tiers payant complémentaire
@@ -482,39 +448,21 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
-
-    if (event.action === 'delete') {
-      if (this.authorizationService.canDeleteProduct()) {
-        this.facade.removeLine(event.line.saleLineId);
-      } else {
-        this.authorizationService
-          .requestDeleteProductAuthorization(saleId, saleType)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(authorized => {
-            if (authorized && event.line.saleLineId) {
-              this.facade.removeLine(event.line.saleLineId);
-            }
-          });
-      }
-
-      if (event.line && event.line.id) {
-        this.facade.removeSalesLine(event.line.id);
-      }
-    } else if (event.action === 'discount') {
-      // Gérer l'autorisation de remise si nécessaire
+    if (this.authorizationService.canDeleteProduct()) {
+      this.facade.removeLine(event.line.saleLineId);
+    } else {
       this.authorizationService
-        .requestDiscountAuthorization(0) // TODO: récupérer le discount depuis l'event
+        .requestDeleteProductAuthorization(saleId, saleType)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: authorized => {
-            if (!authorized) {
-              this.messageService.add({ severity: 'warn', summary: 'Non autorisé', detail: 'Remise refusée' });
-            }
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "Erreur lors de l'autorisation" });
-          },
+        .subscribe(authorized => {
+          if (authorized && event.line.saleLineId) {
+            this.facade.removeLine(event.line.saleLineId);
+          }
         });
+    }
+
+    if (event.line && event.line.id) {
+      this.facade.removeSalesLine(event.line.id);
     }
   }
 
@@ -610,11 +558,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   onLoadAyantDroits(): void {
     const customer = this.selectedCustomer();
     if (!customer) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Client requis',
-        detail: "Sélectionnez d'abord un client assuré",
-      });
+      this.notificationService.warning("Sélectionnez d'abord un client assuré", 'Client requis');
       return;
     }
 
@@ -647,11 +591,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const currentSale = this.currentSale();
 
     if (!customer) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Client requis',
-        detail: "Sélectionnez d'abord un client assuré",
-      });
+      this.notificationService.warning("Sélectionnez d'abord un client assuré", 'Client requis');
       return;
     }
 
@@ -764,6 +704,61 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   // ============================================
+  // Handlers pour remise globale (depuis ProductListComponent caption)
+  // ============================================
+
+  onRemiseSelected(remise: IRemise): void {
+    const currentSale = this.currentSale();
+    if (!currentSale) {
+      this.notificationService.error('Aucune vente en cours');
+      return;
+    }
+
+    if (this.authorizationService.canApplyDiscount()) {
+      this.facade.updateRemise(remise);
+    } else {
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            this.facade.updateRemise(remise);
+          }
+        });
+    }
+  }
+
+  onRemoveRemise(): void {
+    const currentSale = this.currentSale();
+    if (!currentSale || !currentSale.remise) {
+      return;
+    }
+
+    const doRemove = () => {
+      this.confirmDialog().onConfirm(
+        () => this.facade.updateRemise(undefined),
+        'Supprimer la remise',
+        'Voulez-vous vraiment supprimer la remise appliquée ?',
+        undefined,
+        () => this.productHandling.focusProductSearch(),
+      );
+    };
+
+    if (this.authorizationService.canApplyDiscount()) {
+      doRemove();
+    } else {
+      this.authorizationService
+        .requestDiscountAuthorization(currentSale.id, this.selectedSaleType())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized) {
+            doRemove();
+          }
+        });
+    }
+  }
+
+  // ============================================
   // Actions de vente
   // ============================================
 
@@ -794,17 +789,18 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const sale = this.currentSale();
 
     if (!sale) {
-      this.messageService.add({ severity: 'warn', summary: 'Vente vide', detail: 'Aucune vente à enregistrer' });
+      this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
       return false;
     }
 
     if (this.salesLines().length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Vente vide', detail: 'Ajoutez au moins un produit' });
+      this.notificationService.warning('Ajoutez au moins un produit', 'Vente vide');
+
       return false;
     }
 
     if (!this.hasCustomer()) {
-      this.messageService.add({ severity: 'warn', summary: 'Client requis', detail: 'Un client assuré est obligatoire' });
+      this.notificationService.error('Un client assuré est obligatoire', 'Client requis');
       return false;
     }
 
@@ -812,22 +808,14 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
 
     if (tiersPayantsFromInputs.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Tiers payants requis',
-        detail: 'Ajoutez au moins un tiers payant',
-      });
+      this.notificationService.error('Ajoutez au moins un tiers payant', 'Tiers payants requis');
       return false;
     }
 
     // Vérifier les numBon avec les données synchronisées depuis les inputs
     const missingBonNumbers = tiersPayantsFromInputs.filter(tp => !tp.numBon);
     if (missingBonNumbers.length > 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Numéros de bon requis',
-        detail: 'Veuillez renseigner tous les numéros de bon',
-      });
+      this.notificationService.error('Veuillez renseigner tous les numéros de bon', 'Numéros de bon requis');
       return false;
     }
 
@@ -871,23 +859,19 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     if (sale?.saleId) {
       this.facade.printCurrentSale();
     } else {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Impression impossible',
-        detail: "La vente doit être enregistrée d'abord",
-      });
+      this.notificationService.error("La vente doit être enregistrée d'abord", 'Impression impossible');
     }
   }
 
   onSaveAsPresale(): void {
     const sale = this.currentSale();
     if (!sale || this.salesLines().length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Vente vide', detail: 'Ajoutez au moins un produit' });
+      this.notificationService.error('Ajoutez au moins un produit', 'Vente vide');
       return;
     }
 
     if (!this.hasCustomer()) {
-      this.messageService.add({ severity: 'warn', summary: 'Client requis', detail: 'Un client assuré est obligatoire' });
+      this.notificationService.error('Un client assuré est obligatoire', 'Client requis');
       return;
     }
 

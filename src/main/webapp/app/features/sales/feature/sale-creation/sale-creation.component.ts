@@ -271,6 +271,11 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       this.productHandling.focusProductSearch();
     });
 
+    // S'abonner au succès de mise à jour de la remise
+    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
+
     // S'abonner au rechargement de vente (après annulation forçage stock)
     this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.resetProductSelection();
@@ -447,6 +452,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',
+        undefined,
+        () => this.productHandling.focusProductSearch(),
       );
     };
 
@@ -657,23 +664,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
   }
 
-  onPrintInvoice(): void {
-    const sale = this.currentSale();
-    const hasCustomer = this.selectedCustomer();
-
-    if (!sale?.saleId) {
-      this.notificationService.warning('Impression impossible', 'La vente doit être enregistrée avant impression');
-      return;
-    }
-
-    if (!hasCustomer) {
-      this.notificationService.warning('Client requis', 'Un client doit être associé à la vente pour imprimer la facture');
-      return;
-    }
-
-    this.facade.printInvoice(sale.saleId);
-  }
-
   onCancel(): void {
     const hasLines = this.salesLines().length > 0;
 
@@ -830,18 +820,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     });
   }
 
-  // ===== Getters pour le template =====
-
-  get itemCount(): number {
-    return this.salesLines().length;
-  }
-
-  get canPrint(): boolean {
-    return !!this.facade.currentSale()?.id;
-  }
-
-  // ===== Handler pour le changement de type de vente =====
-
   onSaleTypeChange(saleType: SaleType): void {
     const currentSale = this.currentSale();
     const hasLines = this.salesLines().length > 0;
@@ -885,20 +863,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
   }
 
-  // ===== Gestion de la sidebar =====
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed.update(collapsed => !collapsed);
-  }
-
   // ===== Gestion des ventes en attente =====
 
   openPendingSales(): void {
     this.pendingSalesSidebar.set(true);
-  }
-
-  closePendingSales(): void {
-    this.pendingSalesSidebar.set(false);
   }
 
   onSaleResumed(sale: ISales): void {

@@ -23,6 +23,7 @@ import {
   ProductSearchComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
+  SaleType,
 } from '../../ui';
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
@@ -85,7 +86,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  selectedSaleType = signal<SaleType>('ASSURANCE');
   // Inputs
   readonly isSmallScreen = input(false);
   readonly isCashRegisterOpen = input(false);
@@ -478,8 +479,23 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
+    const saleId = this.currentSale()?.id;
+    const saleType = this.selectedSaleType();
+
     if (event.action === 'delete') {
-      // Supprimer la ligne directement (la confirmation est déjà faite dans product-list)
+      if (this.authorizationService.canDeleteProduct()) {
+        this.facade.removeLine(event.line.saleLineId);
+      } else {
+        this.authorizationService
+          .requestDeleteProductAuthorization(saleId, saleType)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(authorized => {
+            if (authorized && event.line.saleLineId) {
+              this.facade.removeLine(event.line.saleLineId);
+            }
+          });
+      }
+
       if (event.line && event.line.id) {
         this.facade.removeSalesLine(event.line.id);
       }

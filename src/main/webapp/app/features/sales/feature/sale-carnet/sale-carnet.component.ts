@@ -8,7 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ProductSearchComponent, ProductListComponent, SaleSummaryComponent, SaleActionsComponent } from '../../ui';
+import { ProductSearchComponent, ProductListComponent, SaleSummaryComponent, SaleActionsComponent, SaleType } from '../../ui';
 import { InsuranceDataBarComponent } from '../../ui';
 import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
 import { RemiseSelectionModalComponent } from '../../ui/remise-selection-modal/remise-selection-modal.component';
@@ -26,7 +26,13 @@ import { ProduitSearch } from '../../../../shared/model';
 import { IClientTiersPayant } from '../../../../shared/model';
 import { ICustomer } from '../../../../shared/model';
 import { IRemise } from '../../../../shared/model';
-import { createProductHandling, createCustomerHandling, createPaymentHandling, createForceStockHandling, ProductSearchHost } from '../../shared/mixins';
+import {
+  createProductHandling,
+  createCustomerHandling,
+  createPaymentHandling,
+  createForceStockHandling,
+  ProductSearchHost,
+} from '../../shared/mixins';
 import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
 
 /**
@@ -71,7 +77,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  selectedSaleType = signal<SaleType>('CARNET');
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
    * Appelée par le composant parent lors du changement de tab
@@ -458,7 +464,20 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
-    // Handle authorization requirements if needed
+    const saleId = this.currentSale()?.id;
+    const saleType = this.selectedSaleType();
+    if (this.authorizationService.canDeleteProduct()) {
+      this.facade.removeLine(event.line.saleLineId);
+    } else {
+      this.authorizationService
+        .requestDeleteProductAuthorization(saleId, saleType)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(authorized => {
+          if (authorized && event.line.saleLineId) {
+            this.facade.removeLine(event.line.saleLineId);
+          }
+        });
+    }
   }
 
   // ===== Sale Actions =====

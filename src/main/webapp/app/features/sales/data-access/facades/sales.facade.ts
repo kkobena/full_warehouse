@@ -349,7 +349,7 @@ export class SalesFacade {
    * Logique commune pour updateItemQtyRequested et updateItemQtyRequestedWithSet
    * Exécute un appel API de mise à jour de quantité, recharge la vente, gère les erreurs
    */
-  private executeQtyUpdate(salesLine: ISalesLine, apiCall$: Observable<any>): void {
+  private executeQtyUpdate(isAjoutProduit: boolean, apiCall$: Observable<any>): void {
     const currentSale = this.store.currentSale();
     if (!currentSale || !currentSale.saleId) {
       console.error('No current sale to update product');
@@ -383,7 +383,7 @@ export class SalesFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError();
-          this.lineUpdatedSuccessSubject.next();
+          isAjoutProduit ? this.productAddedSuccessSubject.next() : this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
       });
@@ -891,7 +891,7 @@ export class SalesFacade {
         ? this.apiService.incrementItemQtyRequestedAssurance(salesLine)
         : this.apiService.incrementItemQtyRequested(salesLine);
 
-    this.executeQtyUpdate(salesLine, apiCall);
+    this.executeQtyUpdate(true, apiCall);
   }
 
   /**
@@ -906,7 +906,7 @@ export class SalesFacade {
         ? this.apiService.setItemQtyRequestedAssurance(salesLine)
         : this.apiService.setItemQtyRequested(salesLine);
 
-    this.executeQtyUpdate(salesLine, apiCall);
+    this.executeQtyUpdate(false, apiCall);
   }
 
   /**
@@ -916,11 +916,15 @@ export class SalesFacade {
   removeLine(saleLineId: any): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.saleId) return;
-
-    this.executeAndReloadSale(this.apiService.deleteItem(saleLineId), currentSale.saleId, {
-      errorMessage: 'Erreur lors de la suppression de la ligne',
-      successSubject: this.lineRemovedSuccessSubject,
-    });
+    const saleType = this.store.saleType();
+    this.executeAndReloadSale(
+      saleType === 'COMPTANT' ? this.apiService.deleteItem(saleLineId) : this.apiService.deleteItemFromAssurance(saleLineId),
+      currentSale.saleId,
+      {
+        errorMessage: 'Erreur lors de la suppression de la ligne',
+        successSubject: this.lineRemovedSuccessSubject,
+      },
+    );
   }
 
   /**

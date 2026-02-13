@@ -177,7 +177,7 @@
         </td>
 
         <!-- ACTIONS -->
-        @if (isEditable()) {
+
           <td style="text-align: center">
             <p-button
               (click)="onRemoveLine(line); $event.stopPropagation()"
@@ -189,7 +189,7 @@
               size="small"
             />
           </td>
-        }
+
       </tr>
     </ng-template>
     <ng-template #emptymessage>

@@ -1,24 +1,22 @@
-import { Component, OnInit, inject, signal, DestroyRef, viewChild, output, input, computed } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
-  ProductListComponent,
-  SaleSummaryComponent,
-  SaleActionsComponent,
-  ProductSearchComponent,
   CustomerSelectionModalComponent,
+  ProductListComponent,
+  ProductSearchComponent,
+  SaleActionsComponent,
+  SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import { PaymentModeComponent, PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
@@ -29,19 +27,15 @@ import { CustomerSearchService } from '../../data-access/services/customer-searc
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISalesLine } from '../../../../shared/model';
-import { ICustomer } from '../../../../shared/model';
-import { ProduitSearch } from '../../../../shared/model';
-import { ISales } from '../../../../shared/model';
-import { IRemise } from '../../../../shared/model';
+import { ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import {
-  createProductHandling,
-  ProductSearchHost,
+  createCustomerHandling,
   createForceStockHandling,
   createPaymentHandling,
-  createCustomerHandling,
+  createProductHandling,
+  ProductSearchHost,
 } from '../../shared/mixins';
 
 /**
@@ -378,14 +372,18 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     const saleType = this.selectedSaleType();
 
     if (event.action === 'delete') {
-      this.authorizationService
-        .requestDeleteProductAuthorization(saleId, saleType)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(authorized => {
-          if (authorized && event.line.saleLineId) {
-            this.facade.removeLine(event.line.saleLineId);
-          }
-        });
+      if (this.authorizationService.canDeleteProduct()) {
+        this.facade.removeLine(event.line.saleLineId);
+      } else {
+        this.authorizationService
+          .requestDeleteProductAuthorization(saleId, saleType)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(authorized => {
+            if (authorized && event.line.saleLineId) {
+              this.facade.removeLine(event.line.saleLineId);
+            }
+          });
+      }
     } else if (event.action === 'discount') {
       this.authorizationService
         .requestDiscountAuthorization(saleId, saleType)

@@ -8,14 +8,13 @@ import { PasswordModule } from 'primeng/password';
 import { VoSalesService } from '../../../../entities/sales/service/vo-sales.service';
 import { SalesService } from '../../../../entities/sales/sales.service';
 import { UtilisationCleSecurite } from '../../../../entities/action-autorisation/utilisation-cle-securite.model';
-import { ISales } from '../../../../shared/model/sales.model';
 
 /**
  * AuthorizationModalComponent
- * 
+ *
  * Modal for requesting authorization for protected actions (delete product, apply discount)
  * Requires a user with the specific privilege to enter their security key
- * 
+ *
  * @example
  * const modalRef = this.modalService.open(AuthorizationModalComponent);
  * modalRef.componentInstance.saleId = 123;
@@ -25,13 +24,7 @@ import { ISales } from '../../../../shared/model/sales.model';
  */
 @Component({
   selector: 'app-authorization-modal',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextModule,
-    PasswordModule,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, PasswordModule],
   template: `
     <div class="authorization-modal">
       <div class="modal-header">
@@ -63,14 +56,14 @@ import { ISales } from '../../../../shared/model/sales.model';
               [feedback]="false"
               [toggleMask]="true"
               required
-              styleClass="w-full"
-              inputStyleClass="w-full"
+              fluid="true"
             />
           </div>
 
           <div class="form-group">
             <label for="comment">Commentaire (optionnel)</label>
             <input
+              fluid="true"
               pInputText
               id="comment"
               [(ngModel)]="comment"
@@ -90,13 +83,7 @@ import { ISales } from '../../../../shared/model/sales.model';
       </div>
 
       <div class="modal-footer">
-        <p-button
-          label="Annuler"
-          severity="secondary"
-          [outlined]="true"
-          (onClick)="cancel()"
-          [disabled]="isSaving"
-        />
+        <p-button label="Annuler" severity="secondary" [outlined]="true" (onClick)="cancel()" [disabled]="isSaving" />
         <p-button
           label="Autoriser"
           severity="success"
@@ -108,103 +95,105 @@ import { ISales } from '../../../../shared/model/sales.model';
       </div>
     </div>
   `,
-  styles: [`
-    .authorization-modal {
-      min-width: 400px;
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      padding: 1.5rem;
-      border-bottom: 1px solid #dee2e6;
-
-      .modal-title {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-
-        i {
-          color: #f59e0b;
-        }
+  styles: [
+    `
+      .authorization-modal {
+        min-width: 400px;
       }
-    }
 
-    .modal-body {
-      padding: 1.5rem;
-
-      .alert {
+      .modal-header {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1.5rem;
-        border-radius: 6px;
+        padding: 1.5rem;
+        border-bottom: 1px solid #dee2e6;
 
-        &.alert-warning {
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fbbf24;
-        }
-
-        &.alert-danger {
-          background-color: #fee2e2;
-          color: #991b1b;
-          border: 1px solid #ef4444;
-        }
-
-        i {
+        .modal-title {
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
           font-size: 1.25rem;
+          font-weight: 600;
+
+          i {
+            color: #f59e0b;
+          }
         }
       }
 
-      .privilege-info {
+      .modal-body {
+        padding: 1.5rem;
+
+        .alert {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          margin-bottom: 1.5rem;
+          border-radius: 6px;
+
+          &.alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+          }
+
+          &.alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+          }
+
+          i {
+            font-size: 1.25rem;
+          }
+        }
+
+        .privilege-info {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          padding: 0.75rem;
+          background-color: #f3f4f6;
+          border-radius: 6px;
+
+          strong {
+            color: #374151;
+          }
+
+          .privilege-badge {
+            padding: 0.25rem 0.75rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+          }
+        }
+
+        .form-group {
+          margin-bottom: 1.25rem;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+          }
+        }
+      }
+
+      .modal-footer {
         display: flex;
-        align-items: center;
+        justify-content: flex-end;
         gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        padding: 0.75rem;
-        background-color: #f3f4f6;
-        border-radius: 6px;
-
-        strong {
-          color: #374151;
-        }
-
-        .privilege-badge {
-          padding: 0.25rem 0.75rem;
-          background-color: #3b82f6;
-          color: white;
-          border-radius: 9999px;
-          font-size: 0.875rem;
-          font-weight: 500;
-        }
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #dee2e6;
+        background-color: #f9fafb;
       }
-
-      .form-group {
-        margin-bottom: 1.25rem;
-
-        label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
-          color: #374151;
-        }
-      }
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      border-top: 1px solid #dee2e6;
-      background-color: #f9fafb;
-    }
-  `],
+    `,
+  ],
 })
 export class AuthorizationModalComponent {
   // Inputs (set by parent when opening modal)
@@ -244,16 +233,14 @@ export class AuthorizationModalComponent {
     };
 
     // Pour ASSURANCE et CARNET, utiliser voSalesService, sinon salesService
-    const service = (this.saleType === 'ASSURANCE' || this.saleType === 'CARNET') 
-      ? this.voSalesService 
-      : this.salesService;
+    const service = this.saleType === 'ASSURANCE' || this.saleType === 'CARNET' ? this.voSalesService : this.salesService;
 
     service.authorizeAction(authRequest).subscribe({
       next: () => {
         this.isSaving = false;
         this.activeModal.close(true);
       },
-      error: (error) => {
+      error: error => {
         this.isSaving = false;
         this.errorMessage = this.extractErrorMessage(error);
       },
@@ -282,6 +269,6 @@ export class AuthorizationModalComponent {
     if (error?.message) {
       return error.message;
     }
-    return 'Une erreur est survenue lors de l\'autorisation';
+    return "Une erreur est survenue lors de l'autorisation";
   }
 }

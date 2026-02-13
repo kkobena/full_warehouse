@@ -78,7 +78,7 @@
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
       @if (active() === 'comptant' && salesFacade.currentSale()) {
         <div class="header-customer-wrapper">
-          <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+          <app-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></app-customer-overlay-panel>
         </div>
       }
 

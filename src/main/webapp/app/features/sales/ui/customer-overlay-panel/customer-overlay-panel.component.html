@@ -1,17 +1,31 @@
 <!-- Modern Customer Overlay Panel -->
 <div class="customer-panel-wrapper">
-  <!-- Customer Popover -->
+  <!-- Customer Search Popover -->
   <p-popover #op [style]="{ width: '650px' }">
-    <ng-template pTemplate="content">
-      <jhi-customer-data-table (closeModalEvent)="onClose()"></jhi-customer-data-table>
+    <ng-template #content>
+      <app-customer-search-table (customerSelected)="onCustomerSelected($event)" />
     </ng-template>
   </p-popover>
 
   <!-- Customer Display Card -->
   <div class="customer-display-card">
-    <!-- Action Button -->
+    <!-- Action Buttons -->
     <div class="customer-action-btn">
       @if (customer()) {
+        <!-- Edit button - opens popover to replace customer -->
+        <p-button
+          (click)="togglePopover($event)"
+          pTooltip="Changer le client"
+          tooltipPosition="top"
+          icon="pi pi-pencil"
+          severity="info"
+          size="small"
+          [rounded]="true"
+          [text]="true"
+          class="edit-customer-btn"
+        >
+        </p-button>
+        <!-- Remove button -->
         <p-button
           (click)="remove()"
           pTooltip="Supprimer le client"
@@ -20,6 +34,7 @@
           severity="danger"
           size="small"
           [rounded]="true"
+          [text]="true"
           class="remove-customer-btn"
         >
         </p-button>

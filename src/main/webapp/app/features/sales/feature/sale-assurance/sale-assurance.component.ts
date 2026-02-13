@@ -275,7 +275,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private readonly keyboardShortcuts = [
     { key: 'F2', action: () => this.productHandling.focusProductSearch(), description: 'Recherche produit' },
     { key: 'F3', action: () => this.focusCustomerSearch(), description: 'Recherche client' },
-    { key: 'F4', action: () => this.onSaveAsPresale(), description: 'Mise en attente' },
+    { key: 'F4', action: () => this.putOnStandby(), description: 'Mise en attente' },
     { key: 'F9', action: () => this.onSave(), description: 'Finaliser' },
     { key: 'F10', action: () => this.onCancel(), description: 'Annuler' },
   ];
@@ -863,7 +863,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  onSaveAsPresale(): void {
+  putOnStandby(): void {
     const sale = this.currentSale();
     if (!sale || this.salesLines().length === 0) {
       this.notificationService.error('Ajoutez au moins un produit', 'Vente vide');

@@ -114,10 +114,9 @@
             [canSaveAsPresale]="canSave()"
             [canCancel]="true"
             [isSaving]="isSaving()"
-            [showPresaleButton]="true"
             (save)="onSave()"
             [isSmallScreen]="isSmallScreen()"
-            (saveAsPresale)="onPutOnHold()"
+            (putOnHold)="onPutOnHold()"
             (cancel)="onCancel()" />
         </div>
       </div>

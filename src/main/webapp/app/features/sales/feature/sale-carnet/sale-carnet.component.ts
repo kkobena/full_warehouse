@@ -502,9 +502,19 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   onPutOnHold(): void {
-    this.facade.saveSale().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
-  }
+    const sale = this.currentSale();
+    if (!sale || this.salesLines().length === 0) {
+      this.notificationService.error('Ajoutez au moins un produit', 'Vente vide');
+      return;
+    }
 
+    if (!this.hasCustomer()) {
+      this.notificationService.error('Un client assuré est obligatoire', 'Client requis');
+      return;
+    }
+
+    this.facade.putOnStandby();
+  }
   onCancel(): void {
     // Confirm before canceling
     if (this.salesLines().length > 0) {

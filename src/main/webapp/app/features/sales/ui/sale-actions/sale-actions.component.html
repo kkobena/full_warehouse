@@ -1,17 +1,18 @@
 <div class="sale-actions-container">
   <!-- Version Mobile : Icon-only avec tooltips -->
   @if (isSmallScreen()) {
-    <p-buttonGroup >
-      <p-button
-        [icon]="getSaveButtonIcon()"
-        [severity]="getSaveButtonSeverity()"
-        [disabled]="!canSave() || isSaving()"
-        [loading]="isSaving()"
-        [pTooltip]="getSaveButtonLabel()"
-        [raised]="true"
-        size="large"
-        (onClick)="onSave()"
-       ></p-button>
+    <p-buttonGroup>
+      @if (!isPresale()) {
+        <p-button
+          [icon]="getSaveButtonIcon()"
+          [severity]="getSaveButtonSeverity()"
+          [disabled]="!canSave() || isSaving()"
+          [loading]="isSaving()"
+          [pTooltip]="getSaveButtonLabel()"
+          [raised]="true"
+          size="large"
+          (onClick)="onSave()"
+        ></p-button>
 
         <p-button
           size="large"
@@ -20,8 +21,23 @@
           [disabled]="!canSaveAsPresale() || isSaving()"
           [raised]="true"
           pTooltip="Mettre en attente"
+          (onClick)="onPutOnHold()"
+        ></p-button>
+
+      }@else{
+
+        <p-button
+          size="large"
+          [pTooltip]="getSaveButtonLabel()"
+          [icon]="getSaveButtonIcon()"
+          [severity]="getSaveButtonSeverity()"
+          [disabled]=" isSaving()"
+          [loading]="isSaving()"
+          [raised]="true"
           (onClick)="onSaveAsPresale()"
-          ></p-button>
+        ></p-button>
+      }
+
 
 
       <p-button
@@ -32,20 +48,21 @@
         size="large"
         pTooltip="Annuler"
         (onClick)="onCancel()"
-        ></p-button>
+      ></p-button>
     </p-buttonGroup>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
     <div>
       <p-buttonGroup>
-        <p-button
-          [label]="getSaveButtonLabel()"
-          [icon]="getSaveButtonIcon()"
-          [severity]="getSaveButtonSeverity()"
-          [disabled]="!canSave() || isSaving()"
-          [loading]="isSaving()"
-          [raised]="true"
-          (onClick)="onSave()"
+        @if (!isPresale()) {
+          <p-button
+            [label]="getSaveButtonLabel()"
+            [icon]="getSaveButtonIcon()"
+            [severity]="getSaveButtonSeverity()"
+            [disabled]="!canSave() || isSaving()"
+            [loading]="isSaving()"
+            [raised]="true"
+            (onClick)="onSave()"
           ></p-button>
 
 
@@ -53,10 +70,22 @@
             label="En attente"
             icon="pi pi-pause"
             severity="secondary"
-            [disabled]="!canSaveAsPresale() || isSaving()"
+            [disabled]=" isSaving()"
+            [raised]="true"
+            (onClick)="onPutOnHold()"
+          ></p-button>
+
+        } @else {
+          <p-button
+            [label]="getSaveButtonLabel()"
+            [icon]="getSaveButtonIcon()"
+            [severity]="getSaveButtonSeverity()"
+            [disabled]=" isSaving()"
+            [loading]="isSaving()"
             [raised]="true"
             (onClick)="onSaveAsPresale()"
-            ></p-button>
+          ></p-button>
+        }
 
 
         <p-button
@@ -66,25 +95,25 @@
           [disabled]="!canCancel() || isSaving()"
           [raised]="true"
           (onClick)="onCancel()"
-         ></p-button>
+        ></p-button>
       </p-buttonGroup>
 
-   
-  
+
     </div>
-   
-        @if (showPrintButton() && canPrint()) {
-         <p-buttonGroup>   <p-button
+
+    @if (showPrintButton() && canPrint()) {
+      <p-buttonGroup>
+        <p-button
           label="Imprimer"
           icon="pi pi-print"
           severity="secondary"
           [disabled]="!canPrint()"
           (onClick)="onPrint()"
-          size="small"></p-button>  </p-buttonGroup>
-       
-      }
-    
-      
-    
+          size="small"></p-button>
+      </p-buttonGroup>
+
+    }
+
+
   }
 </div>

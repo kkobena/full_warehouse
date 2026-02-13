@@ -769,7 +769,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
    * Sauvegarde la vente après confirmation de vente différée
    * Cette méthode ne repasse pas par processPaymentValidation pour éviter la boucle
    */
-  onSaveAsPresale(): void {
+  onPutOnHold(): void {
     const sale = this.currentSale();
     if (!sale || this.salesLines().length === 0) {
       this.notificationService.warning('Vente vide', 'Ajoutez au moins un produit avant de mettre en attente');
@@ -957,7 +957,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     // F6: Mettre en attente (Put on standby)
     if (event.key === 'F6') {
       event.preventDefault();
-      this.onSaveAsPresale();
+      this.onPutOnHold();
     }
 
     // F7: Annuler la vente

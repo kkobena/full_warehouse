@@ -98,12 +98,11 @@
             [isSaving]="isSaving()"
             [saleType]="'COMPTANT'"
             [showPrintButton]="false"
-            [showPresaleButton]="true"
             [canSaveAsPresale]="canSave()"
             [isSmallScreen]="isSmallScreen()"
             (save)="onSave()"
             (saveAndPrint)="onSaveAndPrint()"
-            (saveAsPresale)="onSaveAsPresale()"
+            (putOnHold)="onPutOnHold()"
             (print)="onPrint()"
             (cancel)="onCancel()" />
         </div>

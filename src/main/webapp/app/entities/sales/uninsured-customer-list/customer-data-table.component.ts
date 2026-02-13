@@ -7,7 +7,7 @@ import { SharedModule } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { CustomerService } from '../../customer/customer.service';
 import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { SelectedCustomerService } from '../service/selected-customer.service';

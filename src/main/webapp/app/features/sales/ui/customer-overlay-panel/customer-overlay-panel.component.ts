@@ -3,7 +3,7 @@ import { WarehouseCommonModule } from '../../../../shared/warehouse-common/wareh
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
-import { CustomerDataTableComponent } from '../../../../entities/sales/uninsured-customer-list/customer-data-table.component';
+import { CustomerSearchTableComponent } from '../customer-search-table/customer-search-table.component';
 import { ICustomer } from '../../../../shared/model';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
@@ -14,19 +14,13 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
  * Composant de présentation pour afficher et sélectionner un client.
  * Utilise un popover pour afficher la liste des clients.
  *
- * Mode Store (par défaut): utilise SalesFacade pour la gestion du client
- * Mode Input/Output: utilise les inputs/outputs pour une utilisation autonome
+ * - Sans client: bouton "+" ouvre le popover pour sélectionner
+ * - Avec client: affiche les infos, bouton "edit" ouvre le popover pour remplacer,
+ *   bouton "x" supprime le client
  */
 @Component({
-  selector: 'jhi-customer-overlay-panel',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    FormsModule,
-    PopoverModule,
-    TooltipModule,
-    CustomerDataTableComponent,
-  ],
+  selector: 'app-customer-overlay-panel',
+  imports: [WarehouseCommonModule, ButtonModule, FormsModule, PopoverModule, TooltipModule, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
   styleUrls: ['./customer-overlay-panel.component.scss'],
 })
@@ -57,7 +51,7 @@ export class CustomerOverlayPanelComponent {
   });
 
   protected getLabel(): string {
-    return 'Choisir client';
+    return 'Choisir un client';
   }
 
   protected onClose(): void {

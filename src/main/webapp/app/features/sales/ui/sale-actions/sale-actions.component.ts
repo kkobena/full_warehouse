@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -27,10 +27,10 @@ export class SaleActionsComponent {
   canPrint = input(false);
   canCancel = input(true);
   canSaveAsPresale = input(true);
+  isPresale = input(false);
   isSaving = input(false);
   saleType = input<'COMPTANT' | 'ASSURANCE' | 'CARNET'>('COMPTANT');
   showPrintButton = input(false);
-  showPresaleButton = input(false);
   isSmallScreen = input(false); // Pour afficher icon-only sur mobile
 
   // Outputs
@@ -39,6 +39,7 @@ export class SaleActionsComponent {
   cancel = output<void>();
   saveAsPresale = output<void>();
   saveAndPrint = output<void>();
+  putOnHold = output<void>();
 
   // Méthodes pour les événements UI
   onSave(): void {
@@ -60,8 +61,14 @@ export class SaleActionsComponent {
   }
 
   onSaveAsPresale(): void {
-    if (this.canSaveAsPresale()) {
+    if (this.isPresale()) {
       this.saveAsPresale.emit();
+    }
+  }
+
+  onPutOnHold(): void {
+    if (!this.isPresale()) {
+      this.putOnHold.emit();
     }
   }
 
@@ -73,14 +80,14 @@ export class SaleActionsComponent {
 
   // Helper methods
   getSaveButtonLabel(): string {
-    return 'Enregistrer';
+    return this.isPresale() ? 'Finaliser la prévente' : 'Enregistrer';
   }
 
   getSaveButtonIcon(): string {
     return this.isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check';
   }
 
-  getSaveButtonSeverity(): 'success' {
-    return 'success';
+  getSaveButtonSeverity(): 'success' | 'info' {
+    return this.isPresale() ? 'info' : 'success';
   }
 }

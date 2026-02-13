@@ -1,0 +1,157 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="pi pi-users"></i>
+    {{ headerLibelle }}
+  </h4>
+  <button (click)="cancel()" class="btn-close" type="button" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body" (keydown)="onKeydown($event)">
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [globalFilterFields]="['firstName', 'lastName', 'fullName', 'numAyantDroit', 'code', 'num']"
+    [lazy]="!preloadedCustomers"
+    [loading]="loading()"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 15, 20]"
+    [rows]="itemsPerPage"
+    [showCurrentPageReport]="true"
+    [totalRecords]="totalItems()"
+    [value]="customers()"
+    dataKey="id"
+    selectionMode="single"
+    [(selection)]="selectedCustomer"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
+    class="pharma-table"
+  >
+    <ng-template #caption>
+      <div class="d-flex justify-content-between align-items-center gap-2">
+        <p-iconfield class="flex-grow-1">
+          <p-inputicon [class.pi-spin]="loading()" [ngClass]="loading() ? 'pi pi-spinner' : 'pi pi-search'" />
+          <input
+            #searchInput
+            (input)="onSearchInput()"
+            [(ngModel)]="searchString"
+            pInputText
+            placeholder="Rechercher par nom, prénom, code ou numéro..."
+            type="text"
+            class="w-100"
+          />
+        </p-iconfield>
+        @if (searchString) {
+          <p-button
+            (onClick)="clearSearch()"
+            icon="pi pi-times"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            size="small"
+            pTooltip="Effacer la recherche"
+          />
+        }
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>CODE</th>
+        <th>NOM</th>
+        <th>PRENOM(S)</th>
+        <th>N° SECURITE</th>
+        <th>TIERS-PAYANT</th>
+        <th style="width: 7%"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-customer>
+      <tr
+        (dblclick)="onDblClick(customer)"
+        (click)="onRowSelect(customer)"
+        [class.selected-row]="selectedCustomer()?.id === customer.id"
+        class="customer-row"
+      >
+        <td>
+          <span class="pharma-code">{{ customer.code }}</span>
+        </td>
+        <td>
+          <strong>{{ customer.firstName }}</strong>
+        </td>
+        <td>{{ customer.lastName }}</td>
+        <td>
+          @if (customer.num) {
+            <span class="pharma-badge pharma-badge-info">{{ customer.num }}</span>
+          }
+        </td>
+        <td>
+          @if (customer.tiersPayants && customer.tiersPayants.length > 0) {
+            <div class="tp-chips">
+              @for (tiersPayant of customer.tiersPayants.slice(0, 3); track tiersPayant.id; let i = $index) {
+                <span class="tp-chip" [class.tp-chip-principal]="i === 0" [class.tp-chip-complementaire]="i > 0">
+                  <span class="tp-chip-label">{{ i === 0 ? 'P' : 'C' + i }}</span>
+                  <span class="tp-chip-name">{{ tiersPayant.tiersPayantFullName }}</span>
+                  <span class="tp-chip-taux">{{ tiersPayant.taux }}%</span>
+                </span>
+              }
+              @if (customer.tiersPayants.length > 3) {
+                <span class="tp-chip tp-chip-more">+{{ customer.tiersPayants.length - 3 }}</span>
+              }
+            </div>
+          } @else {
+            <span class="text-muted fst-italic">Aucun tiers-payant</span>
+          }
+        </td>
+        <td class="text-end">
+          <p-button
+            (onClick)="onSelect(customer); $event.stopPropagation()"
+            [rounded]="true"
+            icon="pi pi-check-circle"
+            pTooltip="Sélectionner ce client (ou double-clic)"
+            severity="success"
+            size="small"
+            tooltipPosition="left"
+            [text]="true"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center py-5">
+          <div class="empty-state">
+            <i class="pi pi-users" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+            <h5 class="mt-3 mb-2">Aucun client trouvé</h5>
+            @if (searchString) {
+              <p class="text-muted">
+                Aucun résultat pour "<strong>{{ searchString }}</strong>"
+                <br />
+                <small>Essayez de modifier votre recherche</small>
+              </p>
+            } @else {
+              <p class="text-muted">Saisissez un terme de recherche pour trouver un client</p>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="hint-bar">
+    <i class="pi pi-info-circle"></i>
+    <small>Double-cliquez sur une ligne ou clicker le bouton  pour sélectionner</small>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button (onClick)="cancel()" [raised]="true" icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
+  @if (selectedCustomer()) {
+    <p-button
+      (onClick)="onSelect(selectedCustomer()!)"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Sélectionner"
+      severity="primary"
+      type="button"
+    />
+  }
+</div>

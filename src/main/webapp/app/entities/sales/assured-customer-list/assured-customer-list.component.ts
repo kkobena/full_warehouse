@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { CustomerService } from '../../customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { CurrentSaleService } from '../service/current-sale.service';
-import { ISales } from '../../../shared/model/sales.model';
+import { ISales } from '../../../shared/model';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';

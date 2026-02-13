@@ -15,3 +15,4 @@ export * from './insurance-data-bar/insurance-data-bar.component';
 export * from './customer-search-table/customer-search-table.component';
 export * from './customer-selection-modal/customer-selection-modal.component';
 export * from './customer-overlay-panel/customer-overlay-panel.component';
+export * from './assured-customer-list-modal/assured-customer-list-modal.component';

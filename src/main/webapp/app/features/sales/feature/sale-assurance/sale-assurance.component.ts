@@ -7,7 +7,7 @@ import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
+import { AssuredCustomerListModalComponent } from '../../ui/assured-customer-list-modal/assured-customer-list-modal.component';
 import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
 import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
@@ -246,7 +246,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     },
     selectedCustomer: this.facade.selectedCustomer,
     customers: this.customers,
-    customerListComponent: AssuredCustomerListComponent,
+    customerListComponent: AssuredCustomerListModalComponent,
     customerFormComponent: AssureFormStepComponent,
     onCustomerSelectedCallback: customer => {
       // Créer la vente si elle n'existe pas
@@ -518,13 +518,15 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.customerHandling.selectCustomer(newCustomer);
   }
 
-  onOpenCustomerList(): void {
+  onOpenCustomerList(event?: { customers: ICustomer[]; searchTerm: string }): void {
     showCommonModal(
       this.modalService,
-      AssuredCustomerListComponent,
+      AssuredCustomerListModalComponent,
       {
-        searchString: '',
+        searchString: event?.searchTerm || '',
         headerLibelle: 'CLIENTS ASSURÉS',
+        typeTiersPayant: 'ASSURANCE',
+        preloadedCustomers: event?.customers?.length ? event.customers : null,
       },
       (customer: ICustomer) => {
         if (customer) {

@@ -33,7 +33,7 @@ import {
   createProductHandling,
   ProductSearchHost,
 } from '../../shared/mixins';
-import { AssuredCustomerListComponent } from '../../../../entities/sales/assured-customer-list/assured-customer-list.component';
+import { AssuredCustomerListModalComponent } from '../../ui/assured-customer-list-modal/assured-customer-list-modal.component';
 
 /**
  * SaleCarnetComponent
@@ -197,7 +197,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     },
     selectedCustomer: this.facade.selectedCustomer,
     customers: this.customers,
-    customerListComponent: AssuredCustomerListComponent,
+    customerListComponent: AssuredCustomerListModalComponent,
     customerFormComponent: CustomerCarnetComponent,
     onCustomerSelectedCallback: customer => {
       // Mettre à jour les tiers payants via la facade
@@ -352,13 +352,15 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.customerHandling.selectCustomer(newCustomer);
   }
 
-  onOpenCustomerList(): void {
+  onOpenCustomerList(event?: { customers: ICustomer[]; searchTerm: string }): void {
     showCommonModal(
       this.modalService,
-      AssuredCustomerListComponent,
+      AssuredCustomerListModalComponent,
       {
-        searchString: '',
+        searchString: event?.searchTerm || '',
         headerLibelle: 'CLIENTS CARNET',
+        typeTiersPayant: 'CARNET',
+        preloadedCustomers: event?.customers?.length ? event.customers : null,
       },
       (customer: ICustomer) => {
         if (customer) {

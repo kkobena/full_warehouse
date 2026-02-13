@@ -12,7 +12,7 @@
     [saleType]="'ASSURANCE'"
     [ayantDroit]="currentSale()?.ayantDroit || null"
     (customerSelected)="onCustomerSelectedFromBar($event)"
-    (openCustomerList)="onOpenCustomerList()"
+    (openCustomerList)="onOpenCustomerList($event)"
     (editCustomer)="onEditCustomer()"
     (addCustomer)="onAddCustomer()"
     (editAyantDroit)="onEditAyantDroit()"

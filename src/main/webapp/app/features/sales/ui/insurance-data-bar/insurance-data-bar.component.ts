@@ -59,7 +59,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   // Outputs
   readonly tiersPayantsChanged = output<IClientTiersPayant[]>();
   readonly customerSelected = output<ICustomer>();
-  readonly openCustomerList = output<void>();
+  readonly openCustomerList = output<{ customers: ICustomer[]; searchTerm: string }>();
   readonly editCustomer = output<void>();
   readonly addCustomer = output<void>();
   readonly editAyantDroit = output<void>();
@@ -116,7 +116,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   }
 
   onChangeCustomerClick(): void {
-    this.openCustomerList.emit();
+    this.openCustomerList.emit({ customers: [], searchTerm: '' });
   }
 
   reset(): void {
@@ -224,7 +224,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     if (assuredCustomers.length === 1) {
       this.handleSingleCustomerFound(assuredCustomers[0]);
     } else {
-      this.handleMultipleCustomersFound();
+      this.handleMultipleCustomersFound(assuredCustomers);
     }
   }
 
@@ -235,8 +235,8 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     this.clearSearch();
   }
 
-  private handleMultipleCustomersFound(): void {
-    this.openCustomerList.emit();
+  private handleMultipleCustomersFound(customers: ICustomer[]): void {
+    this.openCustomerList.emit({ customers, searchTerm: this.search });
     this.clearSearch();
   }
 

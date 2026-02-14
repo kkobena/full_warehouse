@@ -22,6 +22,8 @@ import { MagasinService } from '../../../../entities/magasin/magasin.service';
 import { AccountService } from '../../../../core/auth/account.service';
 import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
 import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
+import { SalesApiService } from '../../data-access/services/sales-api.service';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-sales-home',
@@ -52,6 +54,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected salesFacade = inject(SalesFacade);
+  private readonly apiService = inject(SalesApiService);
   protected userVendeurService = inject(UserVendeurService); // Pour liste vendeurs uniquement
   private customerDisplayService = inject(CustomerDisplayService);
   private magasinService = inject(MagasinService);
@@ -87,11 +90,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       this.disableButton = !this.produitSelected;
     });
 
-    // Update pending sales count from store
-    effect(() => {
-      const pendingSales = this.salesFacade.pendingSales();
-      this.countPendingSales.set(pendingSales.length.toString());
-    });
+    this.iniLoadSaleForEditEffet();
   }
 
   private checkScreenSize(): void {
@@ -105,15 +104,18 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.hasCashRegisterOpen();
 
     this.route.params.subscribe(params => {
-      this.isPresale.set(params['isPresale'] === 'true');
-
-      // Si mode édition (route /sales/:id/:saleDate/:isPresale/edit)
-      const saleId = params['id'];
-      const saleDate = params['saleDate'];
       const isEdit = this.route.snapshot.data['isEdit'];
+      const saleId = params['id'];
 
-      if (isEdit && saleId && saleDate) {
-        this.loadSaleForEdit({ id: +saleId, saleDate });
+      if (isEdit && saleId) {
+        // Route: /sales-home/edit/:id?saleDate=...&presale=true
+        const queryParams = this.route.snapshot.queryParams;
+        const saleDate = queryParams['saleDate'] || params['saleDate'] || '';
+        this.isPresale.set(queryParams['presale'] === 'true' || params['isPresale'] === 'true');
+        this.loadSale({ id: +saleId, saleDate });
+      } else {
+        // Route: /sales-home (nouvelle vente)
+        this.isPresale.set(false);
       }
     });
 
@@ -144,10 +146,29 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
           this.customerDisplayService.initialize('PHARMA SMART', currentSeller);
         });
     }
-
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    this.loadPendingSalesCount();
+    interval(60000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.reloadPendingSalesCount();
+      });
+  }
+  private reloadPendingSalesCount(): void {
+    // if (this.salesFacade.currentSale() == null) {
+    this.loadPendingSalesCount();
+    // }
+  }
+  loadPendingSalesCount(): void {
+    this.apiService
+      .countPendingSales({
+        userId: this.salesFacade.cashier()?.id,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(resp => this.countPendingSales.set(resp?.body?.toString() ?? '0'));
+  }
 
   protected onNavChange(evt: NgbNavChangeEvent): void {
     const newTab = evt.nextId;
@@ -240,7 +261,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   }
 
   protected previousState(): void {
-    this.router.navigate(['/']);
+    window.history.back();
   }
 
   protected openPendingSales(): void {
@@ -273,14 +294,18 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Charge une vente pour édition (vente clôturée ASSURANCE/CARNET)
    * Conforme à l'ancien: selling-home.component.ts onLoadPrevente()
    */
-  private loadSaleForEdit(saleId: { id: number; saleDate: string }): void {
+  private loadSale(saleId: { id: number; saleDate: string }): void {
     // Appel du rxMethod - il met à jour le store automatiquement
-    this.salesFacade.loadSaleForEdit(saleId);
+    this.salesFacade.loadSale(saleId);
 
     // Écouter les changements du store pour basculer l'onglet
     // (après que la vente soit chargée)
+  }
+
+  private iniLoadSaleForEditEffet(): void {
     effect(() => {
       const sale = this.salesFacade.currentSale();
+      console.log('Vente chargée pour édition:', sale);
       const isLoading = this.salesFacade.loading();
       const error = this.salesFacade.error();
 
@@ -299,6 +324,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
           this.active.set('assurance');
         } else if (sale.natureVente === 'CARNET') {
           this.active.set('carnet');
+        } else {
+          this.active.set('comptant');
         }
 
         // Charger le vendeur si présent et pas encore défini
@@ -308,6 +335,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
             this.userSeller.set(seller);
           }
         }
+
+        // Focus sur le tab actif après chargement
+        this.focusActiveTab();
       }
     });
   }

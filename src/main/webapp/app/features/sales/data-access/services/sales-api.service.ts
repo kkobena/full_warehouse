@@ -167,11 +167,9 @@ export class SalesApiService {
     return this.http.get(`${this.resourceUrl}/pdf/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
-  /**
-   * Print sale receipt
-   */
-  printReceipt__(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { responseType: 'blob' });
+  countPendingSales(req?: any): Observable<HttpResponse<number>> {
+    const options = createRequestOptions(req);
+    return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', { params: options, observe: 'response' });
   }
 
   printReceipt(id: SaleId): Observable<HttpResponse<void>> {

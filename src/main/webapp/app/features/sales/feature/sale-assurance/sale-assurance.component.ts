@@ -122,7 +122,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   isAvoir = this.facade.isAvoir;
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
-  lastError = this.facade.lastError;
   cashier = this.facade.cashier;
   seller = this.facade.seller;
 
@@ -893,10 +892,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       'Annulation de la vente',
       'Êtes-vous sûr de vouloir annuler cette vente ?',
     );
-  }
-
-  onShowPendingSales(): void {
-    this.showPendingSales.set(true);
   }
 
   onPendingSaleResumed(sale: ISales): void {

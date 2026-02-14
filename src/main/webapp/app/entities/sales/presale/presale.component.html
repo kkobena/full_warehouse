@@ -108,6 +108,17 @@
               <div class="btn-group">
                 <p-button
                   [rounded]="true"
+                  [routerLink]="['/sales-home/edit', sale.id]"
+                  [queryParams]="{ presale: true }"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  pTooltip="Editer"
+                  severity="success"
+                  size="small"
+                >
+                </p-button>
+                <p-button
+                  [rounded]="true"
                   [routerLink]="['/sales', sale.id, true, 'edit']"
                   [text]="true"
                   icon="pi pi-pencil"

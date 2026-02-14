@@ -3,12 +3,13 @@ import { UserRouteAccessService } from '../../core/auth/user-route-access.servic
 
 /**
  * Sales feature routes
- * Lazy-loaded routes for the sales module
- * 
- * Architecture similaire à l'ancien code:
- * - Route principale avec tabs COMPTANT/ASSURANCE/CARNET
- * - Paramètre :isPresale pour distinguer préventes et ventes normales
- * - Route d'édition de vente clôturée ASSURANCE/CARNET
+ *
+ * Routes:
+ * - /sales-home              → Nouvelle vente (tab COMPTANT par défaut)
+ * - /sales-home/edit/:id     → Editer une vente existante
+ *   Query params optionnels:
+ *     ?saleDate=2024-01-15   → Date de la vente (requis pour l'API)
+ *     ?presale=true          → Mode prévente
  */
 export const SALES_ROUTES: Routes = [
   {
@@ -21,7 +22,7 @@ export const SALES_ROUTES: Routes = [
     },
   },
   {
-    path: ':id/:saleDate/:isPresale/edit',
+    path: 'edit/:id',
     loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
     canActivate: [UserRouteAccessService],
     title: 'Modifier la vente',
@@ -30,7 +31,10 @@ export const SALES_ROUTES: Routes = [
       isEdit: true,
     },
   },
-  // Routes additionnelles (Phase future - Administration des ventes)
-  // - /sales/list : Liste des ventes avec filtres
-  // - /sales/:id : Détail en lecture seule
+  // Rétro-compatibilité avec l'ancienne route
+  {
+    path: ':id/:saleDate/:isPresale/edit',
+    redirectTo: 'edit/:id',
+    pathMatch: 'full',
+  },
 ];

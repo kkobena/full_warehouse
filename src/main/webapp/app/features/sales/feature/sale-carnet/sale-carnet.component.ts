@@ -119,12 +119,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly waitingForForceStockSuccess = signal<boolean>(false);
   readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
-  readonly lastError = this.facade.lastError;
   readonly isAvoir = this.facade.isAvoir;
   customers = signal<ICustomer[]>([]);
-
-  // Focus management
-  private focusInitialized = false;
 
   // Computed signals
   readonly canSave = computed(() => {
@@ -338,13 +334,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     }
   }
 
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerSelected(customer: ICustomer): void {
-    this.customerHandling.selectCustomer(customer);
-  }
-
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
     //TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
@@ -438,10 +427,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onLineSelected(line: ISalesLine): void {
     this.selectedLineId.set(line.id || null);
-  }
-
-  onLineDiscountChanged(data: { line: ISalesLine; newDiscount: number }): void {
-    // Handle line discount if needed
   }
 
   onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {

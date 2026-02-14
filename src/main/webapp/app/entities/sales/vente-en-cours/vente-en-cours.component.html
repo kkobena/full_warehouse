@@ -111,6 +111,17 @@
             <td>
               <div class="btn-group d-flex justify-content-end">
                 <p-button
+                  [routerLink]="['/sales-home/edit', sale.saleId.id]"
+                  [queryParams]="{ saleDate: sale.saleId.saleDate }"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  pTooltip="Editer"
+                  rounded="true"
+                  severity="success"
+                  size="small"
+                >
+                </p-button>
+                <p-button
                   [routerLink]="['/sales', sale.saleId.id, sale.saleId.saleDate, false, 'edit']"
                   [text]="true"
                   icon="pi pi-pencil"
@@ -120,7 +131,6 @@
                   size="small"
                 >
                 </p-button>
-
                 <p-button
                   (click)="confirmRemove(sale)"
                   [text]="true"

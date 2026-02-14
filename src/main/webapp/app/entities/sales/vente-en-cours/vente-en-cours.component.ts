@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ISales } from '../../../shared/model/sales.model';
+import { ISales } from '../../../shared/model';
 import { SalesService } from '../sales.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
@@ -13,7 +13,6 @@ import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Card } from 'primeng/card';
 import { ConfigurationService } from '../../../shared/configuration.service';
 import { SalesStatut } from '../../../shared/model';
 

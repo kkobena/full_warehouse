@@ -113,7 +113,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   canSave = this.facade.canSave;
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
-  lastError = this.facade.lastError;
   remises = input<IRemise[]>([]);
 
   // Local UI state
@@ -182,7 +181,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // UI state for sidebar and pending sales
   sidebarCollapsed = signal(false);
   pendingSalesSidebar = signal(false);
-  pendingSalesCount = signal(0);
 
   // Vendeur sélectionné
   selectedSeller = signal<IUser | null>(null);
@@ -290,9 +288,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
-
-    // Charger le nombre de ventes en attente
-    this.loadPendingSalesCount();
 
     // Initialiser le vendeur avec celui du store
     const currentSeller = this.facade.seller();
@@ -469,42 +464,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
           }
         });
     }
-  }
-
-  // ===== Handlers pour CustomerSelectorComponent =====
-
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerSearchChange(searchTerm: string): void {
-    this.customerHandling.searchCustomers(searchTerm);
-  }
-
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerSelected(customer: ICustomer): void {
-    this.customerHandling.selectCustomer(customer);
-  }
-
-  onCustomerRemoved(): void {
-    const hasSale = !!this.facade.currentSale()?.saleId;
-    this.customerHandling.removeCustomer();
-
-    // Si pas de vente en cours, focus immédiat (pas d'appel API)
-    // Sinon, le focus est géré via souscription à customerRemovedSuccess$
-    if (!hasSale) {
-      this.focusProductSearch();
-    }
-  }
-
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerAdd(): void {
-    this.customerHandling.openCustomerFormModal(null, {
-      title: 'CRÉATION CLIENT STANDARD',
-    });
   }
 
   // ===== Handlers pour SaleActionsComponent =====
@@ -919,18 +878,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // Retour du focus sur le champ produit
     this.focusProductSearch();
-  }
-
-  loadPendingSalesCount(): void {
-    // Charger le nombre de ventes en attente depuis le backend
-    // Note: Le service SalesApiService.countPendingSales() sera ajouté en Phase 8
-    // Pour l'instant, on initialise à 0 (pas de ventes en attente)
-    this.pendingSalesCount.set(0);
-
-    // Future implementation:
-    // this.salesApiService.countPendingSales()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe(count => this.pendingSalesCount.set(count));
   }
 
   // ===== Raccourcis clavier =====

@@ -602,6 +602,58 @@ export class SalesFacade {
    * Uniquement pour modification  d'une vente cloturée
    * Ne pas utiliser pour recharger la vente courante en édition
    */
+  loadSale = rxMethod<SaleId>(
+    pipe(
+      tap(() => {
+        this.store.setLoading(true);
+        this.store.setError(null);
+      }),
+      switchMap(saleId => this.apiService.findSale(saleId)),
+      tap({
+        next: sale => {
+          this.store.setCurrentSale(sale);
+
+          // Mettre à jour le saleType dans le store selon la natureVente
+          if (sale.natureVente === 'ASSURANCE') {
+            this.store.setSaleType('ASSURANCE');
+          } else if (sale.natureVente === 'CARNET') {
+            this.store.setSaleType('CARNET');
+          } else {
+            this.store.setSaleType('COMPTANT');
+          }
+
+          if (sale.customer) {
+            this.store.setSelectedCustomer(sale.customer);
+          }
+
+          if (sale.cassier) {
+            this.store.setCashier(sale.cassier);
+          }
+
+          if (sale.seller) {
+            this.store.setSeller(sale.seller);
+          }
+
+          this.store.setLoading(false);
+          this.saleReloadedSuccessSubject.next();
+        },
+        error: error => {
+          this.store.setError(error.message || 'Erreur lors du chargement de la vente');
+          this.store.setLoading(false);
+        },
+      }),
+      catchError(error => {
+        console.error('Error loading sale:', error);
+        return of(null);
+      }),
+    ),
+  );
+
+  /**
+   * Load sale for editing
+   * Uniquement pour modification  d'une vente cloturée
+   * Ne pas utiliser pour recharger la vente courante en édition
+   */
   loadSaleForEdit = rxMethod<SaleId>(
     pipe(
       tap(() => {
@@ -613,6 +665,15 @@ export class SalesFacade {
         next: sale => {
           this.store.setCurrentSale(sale);
           this.store.setIsEdit(true);
+
+          // Mettre à jour le saleType dans le store selon la natureVente
+          if (sale.natureVente === 'ASSURANCE') {
+            this.store.setSaleType('ASSURANCE');
+          } else if (sale.natureVente === 'CARNET') {
+            this.store.setSaleType('CARNET');
+          } else {
+            this.store.setSaleType('COMPTANT');
+          }
 
           if (sale.customer) {
             this.store.setSelectedCustomer(sale.customer);

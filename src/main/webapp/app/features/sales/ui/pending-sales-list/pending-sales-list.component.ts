@@ -145,25 +145,6 @@ export class PendingSalesListComponent implements OnInit {
     this.closed.emit();
   }
 
-  onDeleteSale(sale: ISales, event: Event): void {
-    event.stopPropagation();
-
-    if (!sale.saleId) {
-      console.error('Sale has no saleId');
-      return;
-    }
-
-    const confirmDelete = confirm(
-      `Voulez-vous vraiment supprimer la vente ${sale.numberTransaction} ?\n\n` + `Cette action est irréversible.`,
-    );
-
-    if (!confirmDelete) {
-      return;
-    }
-
-    this.facade.deletePendingSale(sale.saleId);
-  }
-
   onRefresh(): void {
     this.facade.loadPendingSales(this.buildParameters());
   }

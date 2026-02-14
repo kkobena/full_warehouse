@@ -47,14 +47,22 @@ $border-radius-lg: $pharma-radius-lg;
   flex-shrink: 0;
 }
 
-// Mode prevente - header avec accent info
+// ============================================
+// MODE PREVENTE - Variante visuelle info/cyan
+// ============================================
+
+$presale-color: $pharma-info;
+$presale-color-dark: darken($pharma-info, 12%);
+$presale-color-light: lighten($pharma-info, 38%);
+
+// Header
 .pharma-sales-header.presale-mode {
-  background: linear-gradient(135deg, lighten($pharma-info, 42%) 0%, lighten($pharma-info, 38%) 100%);
-  border-bottom-color: $pharma-info;
+  background: linear-gradient(135deg, lighten($presale-color, 42%) 0%, $presale-color-light 100%);
+  border-bottom-color: $presale-color;
   border-bottom-width: 2px;
 
   .page-title h1 {
-    color: darken($pharma-info, 15%);
+    color: $presale-color-dark;
   }
 
   .presale-icon {
@@ -63,8 +71,47 @@ $border-radius-lg: $pharma-radius-lg;
   }
 
   .subtitle {
-    color: $pharma-info !important;
+    color: $presale-color !important;
     font-weight: 500;
+  }
+}
+
+// Sidebar
+.sales-sidebar.presale-mode {
+  .pharma-nav-sidebar-header {
+    background: linear-gradient(135deg, $presale-color 0%, $presale-color-dark 100%);
+  }
+
+  .pharma-nav-sidebar-content {
+    .pharma-nav-vertical-link {
+      i {
+        color: $presale-color;
+      }
+
+      &:hover {
+        background: $presale-color-light;
+        border-color: $presale-color;
+        color: $presale-color-dark;
+
+        .link-arrow {
+          color: $presale-color;
+        }
+
+        i {
+          color: $presale-color-dark;
+        }
+      }
+
+      &.active {
+        background: linear-gradient(135deg, $presale-color 0%, $presale-color-dark 100%);
+        color: $white;
+
+        i,
+        .link-arrow {
+          color: $white;
+        }
+      }
+    }
   }
 }
 

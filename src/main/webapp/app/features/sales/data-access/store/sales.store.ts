@@ -34,6 +34,7 @@ interface SalesState {
   // Sale Configuration
   saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET';
   typePrescription: string | null;
+  isPresale: boolean;
 
   // Payment
   selectedPaymentMode: string | null;
@@ -89,6 +90,7 @@ const initialState: SalesState = {
   // Sale Configuration
   saleType: 'COMPTANT',
   typePrescription: 'PRESCRIPTION',
+  isPresale: false,
 
   // Payment
   selectedPaymentMode: null,
@@ -289,6 +291,13 @@ export const SalesStore = signalStore(
      */
     setTypePrescription(typePrescription: string | null): void {
       patchState(store, { typePrescription });
+    },
+
+    /**
+     * Set presale mode
+     */
+    setIsPresale(isPresale: boolean): void {
+      patchState(store, { isPresale });
     },
 
     /**
@@ -511,6 +520,7 @@ export const SalesStore = signalStore(
      * Reset only current sale
      */
     resetCurrentSale(): void {
+      const presale = store.isPresale();
       patchState(store, {
         currentSale: null,
         isEdit: false,
@@ -527,6 +537,7 @@ export const SalesStore = signalStore(
         seller: null,
         pendingTiersPayants: [],
         typePrescription: 'PRESCRIPTION',
+        isPresale: presale, // Conserver le mode prevente apres reset
       });
     },
   })),

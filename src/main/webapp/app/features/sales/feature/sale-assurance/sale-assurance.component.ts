@@ -2,12 +2,13 @@ import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { AssuredCustomerListModalComponent } from '../../ui/assured-customer-list-modal/assured-customer-list-modal.component';
+import { AssuredCustomerListModalComponent } from '../../ui';
 import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
 import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
@@ -94,7 +95,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // Outputs
   productAddedSuccess = output<void>();
   switchToComptant = output<void>();
-  saveAsPresale = output<void>();
 
   // Modal and responsive state
 
@@ -107,6 +107,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   protected userVendeurService = inject(UserVendeurService);
 
   // State depuis le store (signals computed)
@@ -304,6 +306,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
+    this.facade.resetCurrentSale();
     this.facade.initializeAssuranceSale();
 
     // Initialize typePrescription with default value
@@ -329,14 +332,20 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.productHandling.resetProductSelection();
     });
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
+      // this.resetForNewSale();
+      this.clearUrlParams();
+      this.switchToComptant.emit();
     });
 
     // S'abonner au succès de mise à jour de la remise
     this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.focusProductSearch();
     });
-
+    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      // this.resetForNewSale();
+      this.clearUrlParams();
+      this.switchToComptant.emit();
+    });
     // S'abonner au succès d'ajout de tiers payant complémentaire
     this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
       const currentSale = this.currentSale();
@@ -880,9 +889,42 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     this.facade.putOnStandby();
   }
+  private clearUrlParams(): void {
+    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
 
+    if (isEdit) {
+      if (this.isPresale()) {
+        this.router.navigate(['/sales-home/prevente']);
+      } else {
+        this.router.navigate(['/sales-home']);
+      }
+    } else {
+      this.resetForNewSale();
+      //this.productHandling.resetProductSelection();
+    }
+  }
   onSaveAsPresale(): void {
-    this.saveAsPresale.emit();
+    if (!this.validateAssuranceSale()) {
+      return;
+    }
+
+    const sale = this.currentSale();
+    if (!sale) return;
+
+    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
+
+    this.facade
+      .finalizePresale(sale)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.facade.resetCurrentSale();
+            this.clearUrlParams();
+            this.switchToComptant.emit();
+          }
+        },
+      });
   }
 
   onCancel(): void {

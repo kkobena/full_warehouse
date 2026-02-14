@@ -1,5 +1,5 @@
 <!-- Notifications Toast -->
-<p-toast position="center" />
+<p-toast position="center"/>
 
 <!-- Content spécifique ASSURANCE -->
 <!-- 1ère ligne: Barre données ASSURANCE (ligne entière) -->
@@ -26,50 +26,50 @@
 
 <!-- 2ème ligne: Recherche produit (ligne entière) -->
 <div class="product-search-section">
-    <div class="search-section-header">
-      <i class="pi pi-search"></i>
-      <span>Recherche de produit</span>
+  <div class="search-section-header">
+    <i class="pi pi-search"></i>
+    <span>Recherche de produit</span>
+  </div>
+
+  <div class="search-controls">
+    <!-- Product Search Autocomplete -->
+    <div class="product-search-input">
+      <app-product-search
+        #produitbox
+        [autofocus]="false"
+        (productSelected)="onProductSelected($event)"
+        (productScanned)="onProductScanned($event)"
+        (onKeyEnter)="onProductSearchEnter($event)">
+      </app-product-search>
     </div>
 
-    <div class="search-controls">
-      <!-- Product Search Autocomplete -->
-      <div class="product-search-input">
-        <app-product-search
-          #produitbox
-          [autofocus]="false"
-          (productSelected)="onProductSelected($event)"
-          (productScanned)="onProductScanned($event)"
-          (onKeyEnter)="onProductSearchEnter($event)">
-        </app-product-search>
-      </div>
+    <!-- Quantity Input -->
+    <div class="quantity-input-wrapper">
+      <jhi-quantite-produt-saisie
+        #quantityBox
+        (addQuantite)="onAddQuantity($event)"
+        [isValid]="!!selectedProduct() && hasCustomer()"
+        [disabledButton]="!selectedProduct() || !hasCustomer()">
+      </jhi-quantite-produt-saisie>
+    </div>
 
-      <!-- Quantity Input -->
-      <div class="quantity-input-wrapper">
-        <jhi-quantite-produt-saisie
-          #quantityBox
-          (addQuantite)="onAddQuantity($event)"
-          [isValid]="!!selectedProduct() && hasCustomer()"
-          [disabledButton]="!selectedProduct() || !hasCustomer()">
-        </jhi-quantite-produt-saisie>
-      </div>
-
-      <!-- Product Meta -->
-      @if(selectedProduct()) {
-        <div class="product-meta">
-          <div class="meta-item">
-            <label>Prix:</label>
-            <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
-          </div>
-          <div class="meta-item">
-            <label>Stock:</label>
-            <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
+    <!-- Product Meta -->
+    @if (selectedProduct()) {
+      <div class="product-meta">
+        <div class="meta-item">
+          <label>Prix:</label>
+          <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
+        </div>
+        <div class="meta-item">
+          <label>Stock:</label>
+          <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
               {{ selectedProduct()?.totalQuantity || 0 }}
             </span>
-          </div>
         </div>
-      }
-    </div>
+      </div>
+    }
   </div>
+</div>
 
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
 @if (currentSale()) {
@@ -92,7 +92,7 @@
         (authorizationRequired)="onAuthorizationRequired($event)"
         (remiseSelected)="onRemiseSelected($event)"
         (removeRemise)="onRemoveRemise()"
-        (remiseActionCancelled)="focusProductSearch()" />
+        (remiseActionCancelled)="focusProductSearch()"/>
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
@@ -107,9 +107,9 @@
             [itemCount]="salesLines().length"
             [isAvoir]="isAvoir()"
             [saleType]="'ASSURANCE'"
-         [partAssurance]="currentSale()?.partTiersPayant || 0"
+            [partAssurance]="currentSale()?.partTiersPayant || 0"
             [partClient]="currentSale()?.amountToBePaid || 0"
-            [changeAmount]="currentChange()" />
+            [changeAmount]="currentChange()"/>
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
@@ -126,7 +126,7 @@
             (putOnHold)="putOnStandby()"
             (saveAsPresale)="onSaveAsPresale()"
             (cancel)="onCancel()"
-            />
+          />
         </div>
       </div>
     </div>
@@ -163,7 +163,7 @@
     </ng-template>
     <app-pending-sales-list
       (saleResumed)="onPendingSaleResumed($event)"
-      (closed)="onPendingSalesClose()" />
+      (closed)="onPendingSalesClose()"/>
   </p-drawer>
 }
 

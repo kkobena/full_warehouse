@@ -86,6 +86,9 @@ export class SalesFacade {
   private readonly tiersPayantAddedSuccessSubject = new Subject<IClientTiersPayant>();
   readonly tiersPayantAddedSuccess$ = this.tiersPayantAddedSuccessSubject.asObservable();
 
+  private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
+  readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
+
   // ============================================
   // EXPOSE STORE STATE (Read-only)
   // ============================================
@@ -104,6 +107,9 @@ export class SalesFacade {
 
   /** Sale type */
   readonly saleType = this.store.saleType;
+
+  /** Presale mode */
+  readonly isPresale = this.store.isPresale;
 
   /** Pending tiers payants (avant création vente backend) */
   readonly pendingTiersPayants = this.store.pendingTiersPayants;
@@ -245,6 +251,7 @@ export class SalesFacade {
         defaultErrorMessage: `Erreur lors de la création de la vente ${natureVente.toLowerCase()}`,
         apiCall: sale => this.apiService.createAssuranceSale(sale),
         buildSale: initialLine => ({
+          statut: this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE,
           salesLines: [initialLine],
           customerId: this.store.selectedCustomer()?.id,
           natureVente,
@@ -462,7 +469,7 @@ export class SalesFacade {
       defaultErrorMessage: 'Erreur lors de la création de la vente',
       apiCall: sale => this.apiService.createComptantSale(sale),
       buildSale: initialLine => ({
-        statut: SalesStatut.ACTIVE,
+        statut: this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE,
         salesLines: [initialLine],
         customerId: this.store.selectedCustomer()?.id,
         natureVente: 'COMPTANT',
@@ -626,7 +633,7 @@ export class SalesFacade {
           }
 
           this.store.setLoading(false);
-          this.saleReloadedSuccessSubject.next();
+          this.saleReloadedToEditSuccessSubject.next();
         },
         error: error => {
           this.store.setError(error.message || 'Erreur lors du chargement de la vente');
@@ -1521,6 +1528,7 @@ export class SalesFacade {
   setCashier = this.store.setCashier.bind(this.store);
   setSeller = this.store.setSeller.bind(this.store);
   setSaleType = this.store.setSaleType.bind(this.store);
+  setIsPresale = this.store.setIsPresale.bind(this.store);
   setIsEdit = this.store.setIsEdit.bind(this.store);
   setTypePrescription = this.store.setTypePrescription.bind(this.store);
   setPaymentMode = this.store.setPaymentMode.bind(this.store);

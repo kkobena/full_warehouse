@@ -222,8 +222,7 @@
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
                     <p-button
                       [rounded]="true"
-                      [routerLink]="['/sales-home/edit', sale.saleId.id]"
-                      [queryParams]="{ saleDate: sale.saleId.saleDate }"
+                      [routerLink]="['/sales', sale.saleId.id, sale.saleId.saleDate, false, 'edit']"
                       [text]="true"
                       icon="pi pi-pencil"
                       pTooltip="Editer"

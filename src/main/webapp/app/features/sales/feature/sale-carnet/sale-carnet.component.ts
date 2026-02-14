@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -97,7 +98,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   // Outputs
   switchToComptant = output<void>();
   cashRegisterOpened = output<void>();
-  saveAsPresale = output<void>();
 
   // Services
   private facade = inject(SalesFacade);
@@ -107,6 +107,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private customerSearchService = inject(CustomerSearchService);
   private spinner = inject(NgxSpinnerService);
   private modalService = inject(NgbModal);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   // State signals
@@ -263,6 +265,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   ngOnInit(): void {
     // Initialiser une vente CARNET
+    this.facade.resetCurrentSale();
     this.facade.initializeCarnetSale();
 
     // Initialize typePrescription with default value
@@ -270,7 +273,11 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
-
+    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      // this.resetForNewSale();
+      this.clearUrlParams();
+      this.switchToComptant.emit();
+    });
     // S'abonner aux événements de succès pour gérer le focus et reset
     this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       // Utiliser le mixin pour l'affichage client et le reset
@@ -297,7 +304,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     });
 
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
+      //  this.resetForNewSale();
+      this.clearUrlParams();
+      this.switchToComptant.emit();
     });
   }
 
@@ -506,7 +515,50 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   onSaveAsPresale(): void {
-    this.saveAsPresale.emit();
+    const sale = this.currentSale();
+    if (!sale) {
+      this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
+      return;
+    }
+    if (this.salesLines().length === 0) {
+      this.notificationService.warning('Ajoutez au moins un produit', 'Vente vide');
+      return;
+    }
+    if (!this.hasCustomer()) {
+      this.notificationService.error('Un client est obligatoire', 'Client requis');
+      return;
+    }
+
+    // Rebuilder les tiers payants avec les numBon des inputs
+    this.rebuildTiersPayantsFromInputs();
+
+    this.facade
+      .finalizePresale(sale)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.facade.resetCurrentSale();
+            this.clearUrlParams();
+            this.switchToComptant.emit();
+          }
+        },
+      });
+  }
+
+  private clearUrlParams(): void {
+    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
+
+    if (isEdit) {
+      if (this.isPresale()) {
+        this.router.navigate(['/sales-home/prevente']);
+      } else {
+        this.router.navigate(['/sales-home']);
+      }
+    } else {
+      this.resetForNewSale();
+      //this.productHandling.resetProductSelection();
+    }
   }
 
   onCancel(): void {
@@ -518,7 +570,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         'Êtes-vous sûr de vouloir annuler cette vente ?',
       );
     } else {
-      this.resetForNewSale();
+      this.facade.resetCurrentSale();
+      this.clearUrlParams();
+      this.switchToComptant.emit();
     }
   }
 

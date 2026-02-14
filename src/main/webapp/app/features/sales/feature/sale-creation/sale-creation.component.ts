@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
@@ -89,7 +90,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
   cashRegisterOpened = output<void>();
-  saveAsPresale = output<void>();
 
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
@@ -105,6 +105,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   protected userVendeurService = inject(UserVendeurService);
 
   // State depuis le store (signals computed)
@@ -219,7 +221,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       };
     },
     openCashRegister: () => this.openCashRegister(),
-    resetForNewSale: () => this.resetForNewSale(),
+    resetForNewSale: () => this.clearUrlParams(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
@@ -252,7 +254,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // S'abonner à l'événement de succès de mise en attente
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
+      // this.resetForNewSale();
+      this.clearUrlParams();
     });
 
     // S'abonner aux événements de succès pour gérer le focus et reset
@@ -288,7 +291,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // S'abonner à l'annulation de la vente (après succès API)
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
+      this.clearUrlParams();
+      // this.resetForNewSale();
     });
 
     // Initialiser le vendeur avec celui du store
@@ -743,7 +747,41 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   }
 
   onSaveAsPresale(): void {
-    this.saveAsPresale.emit();
+    const sale = this.currentSale();
+    if (!sale) {
+      this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
+      return;
+    }
+    if (this.salesLines().length === 0) {
+      this.notificationService.warning('Ajoutez au moins un produit', 'Vente vide');
+      return;
+    }
+
+    this.facade
+      .finalizePresale(sale)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.clearUrlParams();
+          }
+        },
+      });
+  }
+
+  private clearUrlParams(): void {
+    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
+
+    if (isEdit) {
+      if (this.isPresale()) {
+        this.router.navigate(['/sales-home/prevente']);
+      } else {
+        this.router.navigate(['/sales-home']);
+      }
+    } else {
+      this.resetForNewSale();
+      //this.productHandling.resetProductSelection();
+    }
   }
 
   /**

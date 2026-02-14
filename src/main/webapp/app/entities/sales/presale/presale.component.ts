@@ -64,7 +64,7 @@ export class PresaleComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        statut: SalesStatut.PENDING,
+        statut: SalesStatut.PROCESSING,
       })
       .subscribe(res => {
         this.sales = res.body ?? [];

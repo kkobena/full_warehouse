@@ -476,6 +476,6 @@ public class SaleCommonService {
         if (!statuts.contains(c.getStatut())) {
             throw new GenericError("La vente ne peut pas être finalisée dans son état actuel");
         }
-        c.setStatut(SalesStatut.PENDING);
+        c.setStatut(SalesStatut.ACTIVE);
     }
 }

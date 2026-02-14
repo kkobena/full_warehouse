@@ -24,6 +24,7 @@ import { CashRegisterService } from '../../../../entities/cash-register/cash-reg
 import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
 import { SalesApiService } from '../../data-access/services/sales-api.service';
 import { interval } from 'rxjs';
+import { SalesStatut } from '../../../../shared/model';
 
 @Component({
   selector: 'app-sales-home',
@@ -92,8 +93,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     effect(() => {
       this.disableButton = !this.produitSelected;
     });
-
-    this.iniLoadSaleForEditEffet();
   }
 
   private checkScreenSize(): void {
@@ -102,6 +101,17 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.checkScreenSize();
+    // Initialiser le caissier (utilisateur connecté)
+    const currentUser = this.accountService.trackCurrentAccount()();
+    if (currentUser) {
+      this.salesFacade.setCashier(currentUser as IUser);
+    }
+    // Synchroniser le mode prevente dans le store
+    this.salesFacade.setIsPresale(this.isPresale());
+    // S'abonner au rechargement de vente (après annulation forçage stock)
+    this.salesFacade.saleReloadedToEditSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.iniLoadSaleForEdit();
+    });
 
     // Vérifier si une caisse est ouverte
     this.hasCashRegisterOpen();
@@ -109,24 +119,16 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.route.params.subscribe(params => {
       const isEdit = this.route.snapshot.data['isEdit'];
       const saleId = params['id'];
+      console.warn('Route params:', params, 'isEdit:', isEdit);
 
-      if (isEdit && saleId) {
-        // Route: /sales-home/edit/:id?saleDate=...&presale=true
+      if (saleId) {
         const queryParams = this.route.snapshot.queryParams;
         const saleDate = queryParams['saleDate'] || params['saleDate'] || '';
-        this.isPresaleFromRoute.set(queryParams['presale'] === 'true' || params['isPresale'] === 'true');
-        this.loadSale({ id: +saleId, saleDate });
-      } else {
-        // Route: /sales-home (nouvelle vente)
-        this.isPresaleFromRoute.set(false);
+        const isPresaleQuery = queryParams['presale'] === 'true' || params['isPresale'] === 'true';
+        this.isPresaleFromRoute.set(isPresaleQuery);
+        this.loadSale({ id: saleId, saleDate });
       }
     });
-
-    // Initialiser le caissier (utilisateur connecté)
-    const currentUser = this.accountService.trackCurrentAccount()();
-    if (currentUser) {
-      this.salesFacade.setCashier(currentUser as IUser);
-    }
 
     // Initialiser le vendeur depuis le store ou depuis le caissier par défaut
     let currentSeller = this.salesFacade.seller();
@@ -152,18 +154,22 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadPendingSalesCount();
-    interval(60000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.reloadPendingSalesCount();
-      });
+    if (!this.isPresaleMode()) {
+      this.loadPendingSalesCount();
+      interval(60000)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.reloadPendingSalesCount();
+        });
+    }
   }
+
   private reloadPendingSalesCount(): void {
     // if (this.salesFacade.currentSale() == null) {
     this.loadPendingSalesCount();
     // }
   }
+
   loadPendingSalesCount(): void {
     this.apiService
       .countPendingSales({
@@ -263,25 +269,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.sidebarCollapsed.update(collapsed => !collapsed);
   }
 
-  /**
-   * Finalise la prevente courante via le facade
-   */
-  onSaveAsPresale(): void {
-    const sale = this.salesFacade.currentSale();
-    if (!sale) return;
-
-    this.salesFacade
-      .finalizePresale(sale)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: result => {
-          if (result) {
-            this.alert().show('Prevente', 'Prevente finalisee avec succes', 'success');
-          }
-        },
-      });
-  }
-
   protected previousState(): void {
     window.history.back();
   }
@@ -308,10 +295,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected onCustomerOverlay(closed: boolean): void {
-    // Géré par le composant customer-overlay-panel
-  }
-
   /**
    * Charge une vente pour édition (vente clôturée ASSURANCE/CARNET)
    * Conforme à l'ancien: selling-home.component.ts onLoadPrevente()
@@ -324,43 +307,42 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // (après que la vente soit chargée)
   }
 
-  private iniLoadSaleForEditEffet(): void {
-    effect(() => {
-      const sale = this.salesFacade.currentSale();
-      console.log('Vente chargée pour édition:', sale);
-      const isLoading = this.salesFacade.loading();
-      const error = this.salesFacade.error();
+  private iniLoadSaleForEdit(): void {
+    const sale = this.salesFacade.currentSale();
+    const isLoading = this.salesFacade.loading();
+    const error = this.salesFacade.error();
 
-      // Si erreur de chargement
-      if (error && !isLoading) {
-        console.error('Erreur lors du chargement de la vente:', error);
-        this.alert().showError('Impossible de charger la vente pour édition');
+    // Si erreur de chargement
+    if (error && !isLoading) {
+      this.router.navigate(['/sales']);
+      return;
+    }
+
+    // Si vente chargée avec succès
+    if (sale && sale.saleId && !isLoading) {
+      if (this.isPresaleMode() && sale.statut !== SalesStatut.PROCESSING) {
+        //  this.router.navigate(['/sales-home/prevente']);
         this.router.navigate(['/sales']);
-        return;
+      }
+      // Basculer vers l'onglet approprié selon le type de vente
+      if (sale.natureVente === 'ASSURANCE') {
+        this.active.set('assurance');
+      } else if (sale.natureVente === 'CARNET') {
+        this.active.set('carnet');
+      } else {
+        this.active.set('comptant');
       }
 
-      // Si vente chargée avec succès
-      if (sale && sale.saleId && !isLoading) {
-        // Basculer vers l'onglet approprié selon le type de vente
-        if (sale.natureVente === 'ASSURANCE') {
-          this.active.set('assurance');
-        } else if (sale.natureVente === 'CARNET') {
-          this.active.set('carnet');
-        } else {
-          this.active.set('comptant');
+      // Charger le vendeur si présent et pas encore défini
+      if (sale.sellerId && !this.userSeller()) {
+        const seller = this.userVendeurService.vendeurs().find(u => u.id === sale.sellerId);
+        if (seller) {
+          this.userSeller.set(seller);
         }
-
-        // Charger le vendeur si présent et pas encore défini
-        if (sale.sellerId && !this.userSeller()) {
-          const seller = this.userVendeurService.vendeurs().find(u => u.id === sale.sellerId);
-          if (seller) {
-            this.userSeller.set(seller);
-          }
-        }
-
-        // Focus sur le tab actif après chargement
-        this.focusActiveTab();
       }
-    });
+
+      // Focus sur le tab actif après chargement
+      this.focusActiveTab();
+    }
   }
 }

@@ -44,22 +44,14 @@
               } @else {
                 <p-button
                   [raised]="true"
-                  [routerLink]="['/sales', true, 'new']"
+                  [routerLink]="['/sales-home/prevente']"
                   icon="pi pi-shopping-cart"
                   label="Nouvelle pré-vente"
                   severity="primary"
                   type="button"
                 />
               }
-              <p-button
-                [raised]="true"
-                [routerLink]="['/sales-home/prevente']"
-                class="ml-2"
-                icon="pi pi-plus"
-                label="Nouvelle pre-vente (v2)"
-                severity="warn"
-                type="button"
-              />
+
             </div>
           </div>
         </ng-template>
@@ -117,34 +109,12 @@
               <div class="btn-group">
                 <p-button
                   [rounded]="true"
-                  [routerLink]="['/sales-home/edit', sale.id]"
-                  [queryParams]="{ presale: true }"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  pTooltip="Editer"
-                  severity="success"
-                  size="small"
-                >
-                </p-button>
-                <p-button
-                  [rounded]="true"
-                  [routerLink]="['/sales', sale.id, true, 'edit']"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  pTooltip="Editer"
-                  severity="success"
-                  size="small"
-                >
-                </p-button>
-
-                <p-button
-                  [rounded]="true"
-                  [routerLink]="['/sales-home/prevente/edit', sale.id]"
-                  [queryParams]="{ saleDate: sale.updatedAt, presale: true }"
+                  [routerLink]="['/sales-home/prevente/edit', sale.saleId.id]"
+                  [queryParams]="{ saleDate: sale.saleId.saleDate, presale: true }"
                   [text]="true"
                   icon="pi pi-file-edit"
-                  pTooltip="Editer (v2)"
-                  severity="warn"
+                  pTooltip="Editer la pré-vente"
+                  severity="primary"
                   size="small"
                 />
 

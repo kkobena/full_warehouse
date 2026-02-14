@@ -40,6 +40,8 @@
         <h1>
           @if (isPresaleMode()) {
             <i class="pi pi-bookmark presale-icon"></i>
+          }@else{
+            <i class="pi pi-shopping-cart presale-icon"></i>
           }
           {{ isPresaleMode() ? 'Pré-vente' : 'Point de Vente' }}
         </h1>
@@ -83,35 +85,38 @@
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
       @if (active() === 'comptant' && salesFacade.currentSale()) {
         <div class="header-customer-wrapper">
-          <app-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></app-customer-overlay-panel>
+          <app-customer-overlay-panel ></app-customer-overlay-panel>
         </div>
       }
 
       <!-- Pending sales button (tous les tabs) -->
-      <p-button
-        (click)="openPendingSales()"
-        [badge]="countPendingSales().toString()"
-        [disabled]="salesFacade.currentSale() !== null || isPresaleMode()"
-        [outlined]="true"
-        badgeSeverity="danger"
-        class="pending-sales-btn"
-        icon="pi pi-clock"
-        label="En attente"
-        severity="info"
-        size="small"
-      />
+      @if (!isPresaleMode()) {
+        <p-button
+          (click)="openPendingSales()"
+          [badge]="countPendingSales().toString()"
+          [disabled]="salesFacade.currentSale() !== null || isPresaleMode()"
+          [outlined]="true"
+          badgeSeverity="danger"
+          class="pending-sales-btn"
+          icon="pi pi-clock"
+          label="En attente"
+          severity="info"
+          size="small"
+        />
+      }
+
     </div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Navigation par type de vente -->
-    <div [class.collapsed]="sidebarCollapsed()" class="sales-sidebar pharma-nav-sidebar">
+    <div [class.collapsed]="sidebarCollapsed()" [class.presale-mode]="isPresaleMode()" class="sales-sidebar pharma-nav-sidebar">
       <div class="sidebar-card pharma-nav-sidebar-card">
         <div class="sidebar-header pharma-nav-sidebar-header">
           @if (!sidebarCollapsed()) {
-            <i class="pi pi-shopping-cart"></i>
-            <span>Type de vente</span>
+            <i [class]="isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart'"></i>
+            <span>{{ isPresaleMode() ? 'Types de Pré-vente' : 'Types de vente' }}</span>
           }
           <p-button
             (click)="toggleSidebar()"
@@ -149,7 +154,6 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
-                  (saveAsPresale)="onSaveAsPresale()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
               </ng-template>
             </ng-container>
@@ -167,7 +171,6 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
-                  (saveAsPresale)="onSaveAsPresale()"
                   (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
               </ng-template>
             </ng-container>
@@ -185,7 +188,6 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
-                  (saveAsPresale)="onSaveAsPresale()"
                   (switchToComptant)="onSwitchToComptant()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-carnet>
               </ng-template>

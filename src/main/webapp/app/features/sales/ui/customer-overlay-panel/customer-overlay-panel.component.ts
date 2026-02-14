@@ -37,7 +37,6 @@ export class CustomerOverlayPanelComponent {
   // Outputs
   readonly customerSelected = output<ICustomer>();
   readonly customerRemoved = output<void>();
-  readonly closeEvent = output<boolean>({ alias: 'onCloseEvent' });
 
   // ViewChild
   readonly popover = viewChild<Popover>('op');
@@ -59,7 +58,6 @@ export class CustomerOverlayPanelComponent {
     if (pop) {
       pop.hide();
     }
-    this.closeEvent.emit(true);
   }
 
   protected onCustomerSelected(customer: ICustomer): void {

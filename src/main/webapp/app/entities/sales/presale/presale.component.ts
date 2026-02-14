@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ISales } from '../../../shared/model/sales.model';
+import { ISales } from '../../../shared/model';
 import { SalesService } from '../sales.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';

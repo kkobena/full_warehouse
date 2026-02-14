@@ -5,11 +5,13 @@ import { UserRouteAccessService } from '../../core/auth/user-route-access.servic
  * Sales feature routes
  *
  * Routes:
- * - /sales-home              → Nouvelle vente (tab COMPTANT par défaut)
+ * - /sales-home              → Nouvelle vente (tab COMPTANT par defaut)
  * - /sales-home/edit/:id     → Editer une vente existante
  *   Query params optionnels:
  *     ?saleDate=2024-01-15   → Date de la vente (requis pour l'API)
- *     ?presale=true          → Mode prévente
+ *     ?presale=true          → Mode prevente
+ * - /sales-home/prevente     → Mode prevente (pas d'encaissement)
+ * - /sales-home/prevente/edit/:id → Editer une prevente existante
  */
 export const SALES_ROUTES: Routes = [
   {
@@ -31,7 +33,26 @@ export const SALES_ROUTES: Routes = [
       isEdit: true,
     },
   },
-  // Rétro-compatibilité avec l'ancienne route
+  {
+    path: 'prevente',
+    loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
+    canActivate: [UserRouteAccessService],
+    title: 'Prevente',
+    data: {
+      pageTitle: 'Prevente',
+    },
+  },
+  {
+    path: 'prevente/edit/:id',
+    loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
+    canActivate: [UserRouteAccessService],
+    title: 'Modifier la prevente',
+    data: {
+      pageTitle: 'Modifier la prevente',
+      isEdit: true,
+    },
+  },
+  // Retro-compatibilite avec l'ancienne route
   {
     path: ':id/:saleDate/:isPresale/edit',
     redirectTo: 'edit/:id',

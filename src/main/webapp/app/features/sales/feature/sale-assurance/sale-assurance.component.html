@@ -117,11 +117,14 @@
             [canPrint]="!!currentSale()?.saleId"
             [isSaving]="isSaving()"
             [saleType]="'ASSURANCE'"
-             [isSmallScreen]="isSmallScreen()"
+            [isSmallScreen]="isSmallScreen()"
+            [isPresale]="isPresale()"
+            [canSaveAsPresale]="canSaveSale() && hasCustomer()"
             (save)="onSave()"
             (saveAndPrint)="onSaveAndPrint()"
             (print)="onPrint()"
             (putOnHold)="putOnStandby()"
+            (saveAsPresale)="onSaveAsPresale()"
             (cancel)="onCancel()"
             />
         </div>
@@ -129,8 +132,8 @@
     </div>
   </div>
 
-  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0 -->
-  @if ((currentSale()?.amountToBePaid || 0) > 0) {
+  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0, masqué en prévente -->
+  @if (!isPresale() && (currentSale()?.amountToBePaid || 0) > 0) {
     <app-payment-mode
       #paymentMode
       [amountToBePaid]="currentSale()!.amountToBePaid || 0"

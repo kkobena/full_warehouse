@@ -99,10 +99,12 @@
             [saleType]="'COMPTANT'"
             [showPrintButton]="false"
             [canSaveAsPresale]="canSave()"
+            [isPresale]="isPresale()"
             [isSmallScreen]="isSmallScreen()"
             (save)="onSave()"
             (saveAndPrint)="onSaveAndPrint()"
             (putOnHold)="onPutOnHold()"
+            (saveAsPresale)="onSaveAsPresale()"
             (print)="onPrint()"
             (cancel)="onCancel()" />
         </div>
@@ -110,18 +112,20 @@
     </div>
   </div>
 
-  <!-- 3ème ligne: Mode règlement (ligne entière) - toujours visible -->
-  <div class="row payment-section">
-    <div class="col-12">
-      <app-payment-mode
-        #paymentMode
-        [amountToBePaid]="currentSale()!.amountToBePaid || currentSale()!.netAmount || 0"
-        [maxPaymentModes]="2"
-        [isDiffere]="isDiffere()"
-        (paymentComplete)="onPaymentComplete($event)"
-      />
+  <!-- 3ème ligne: Mode règlement (ligne entière) - masqué en mode prévente -->
+  @if (!isPresale()) {
+    <div class="row payment-section">
+      <div class="col-12">
+        <app-payment-mode
+          #paymentMode
+          [amountToBePaid]="currentSale()!.amountToBePaid || currentSale()!.netAmount || 0"
+          [maxPaymentModes]="2"
+          [isDiffere]="isDiffere()"
+          (paymentComplete)="onPaymentComplete($event)"
+        />
+      </div>
     </div>
-  </div>
+  }
 } @else {
   <div class="empty-cart-state">
     <div class="empty-cart-icon">

@@ -89,10 +89,12 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
   cashRegisterOpened = output<void>();
+  saveAsPresale = output<void>();
 
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
+  readonly isPresale = input(false);
 
   // Services
   protected facade = inject(SalesFacade);
@@ -738,6 +740,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     // Mettre la vente en attente via le facade
     // Le composant s'abonne déjà à standbySuccess$ dans ngOnInit
     this.facade.putOnStandby();
+  }
+
+  onSaveAsPresale(): void {
+    this.saveAsPresale.emit();
   }
 
   /**

@@ -1,12 +1,12 @@
 export const enum SalesStatut {
-  PROCESSING = 'PROCESSING',
-  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING', //Status d'une pré-vente en cours de traitement
+  PENDING = 'PENDING', //Status d'une pré-vente validée qui peut être rappeler pour être traité comme vente en cours
   CLOSE = 'CLOSE',
   PAID = 'PAID',
   UNPAID = 'UNPAID',
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
   DELETED = 'DELETED',
-  CLOSED = 'CLOSED',
-  ACTIVE = 'ACTIVE',
+  CLOSED = 'CLOSED', //Status d'une vente cloturée
+  ACTIVE = 'ACTIVE', // Status d'une vente en cours
 }

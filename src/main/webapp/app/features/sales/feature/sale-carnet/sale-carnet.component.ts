@@ -92,10 +92,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
   readonly remises = input<IRemise[]>([]);
+  readonly isPresale = input(false);
 
   // Outputs
   switchToComptant = output<void>();
   cashRegisterOpened = output<void>();
+  saveAsPresale = output<void>();
 
   // Services
   private facade = inject(SalesFacade);
@@ -502,6 +504,11 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     this.facade.putOnStandby();
   }
+
+  onSaveAsPresale(): void {
+    this.saveAsPresale.emit();
+  }
+
   onCancel(): void {
     // Confirm before canceling
     if (this.salesLines().length > 0) {

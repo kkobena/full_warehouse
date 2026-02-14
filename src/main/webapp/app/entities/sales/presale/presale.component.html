@@ -51,6 +51,15 @@
                   type="button"
                 />
               }
+              <p-button
+                [raised]="true"
+                [routerLink]="['/sales-home/prevente']"
+                class="ml-2"
+                icon="pi pi-plus"
+                label="Nouvelle pre-vente (v2)"
+                severity="warn"
+                type="button"
+              />
             </div>
           </div>
         </ng-template>
@@ -129,12 +138,22 @@
                 </p-button>
 
                 <p-button
+                  [rounded]="true"
+                  [routerLink]="['/sales-home/prevente/edit', sale.id]"
+                  [queryParams]="{ saleDate: sale.updatedAt, presale: true }"
+                  [text]="true"
+                  icon="pi pi-file-edit"
+                  pTooltip="Editer (v2)"
+                  severity="warn"
+                  size="small"
+                />
+
+                <p-button
                   (click)="confirmRemove(sale)"
                   [rounded]="true"
                   [text]="true"
                   class="ml-2"
                   icon="pi pi-trash"
-                  pButton
                   pTooltip="Supprimer"
                   severity="danger"
                   size="small"

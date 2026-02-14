@@ -1,4 +1,4 @@
-﻿import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
+﻿import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -70,7 +70,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected saleCarnet = viewChild<SaleCarnetComponent>(SaleCarnetComponent);
   protected active = signal('comptant');
   protected sidebarCollapsed = signal(false);
-  protected isPresale = signal(false);
+  readonly isPresale = input(false);
+  private isPresaleFromRoute = signal(false);
+  protected isPresaleMode = computed(() => this.isPresale() || this.isPresaleFromRoute());
   protected userSeller = signal<IUser | null>(null);
   protected appendTo = 'body'; // Utilisé dans p-select du template
   protected produitSelected: any | null = null;
@@ -85,6 +87,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected remises = this.remiseCacheService.remises;
 
   constructor() {
+    this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
     effect(() => {
       this.disableButton = !this.produitSelected;
@@ -111,11 +114,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         // Route: /sales-home/edit/:id?saleDate=...&presale=true
         const queryParams = this.route.snapshot.queryParams;
         const saleDate = queryParams['saleDate'] || params['saleDate'] || '';
-        this.isPresale.set(queryParams['presale'] === 'true' || params['isPresale'] === 'true');
+        this.isPresaleFromRoute.set(queryParams['presale'] === 'true' || params['isPresale'] === 'true');
         this.loadSale({ id: +saleId, saleDate });
       } else {
         // Route: /sales-home (nouvelle vente)
-        this.isPresale.set(false);
+        this.isPresaleFromRoute.set(false);
       }
     });
 
@@ -258,6 +261,25 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   protected toggleSidebar(): void {
     this.sidebarCollapsed.update(collapsed => !collapsed);
+  }
+
+  /**
+   * Finalise la prevente courante via le facade
+   */
+  onSaveAsPresale(): void {
+    const sale = this.salesFacade.currentSale();
+    if (!sale) return;
+
+    this.salesFacade
+      .finalizePresale(sale)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.alert().show('Prevente', 'Prevente finalisee avec succes', 'success');
+          }
+        },
+      });
   }
 
   protected previousState(): void {

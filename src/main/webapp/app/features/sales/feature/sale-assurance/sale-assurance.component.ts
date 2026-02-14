@@ -89,10 +89,12 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   readonly isSmallScreen = input(false);
   readonly isCashRegisterOpen = input(false);
   readonly remises = input<IRemise[]>([]);
+  readonly isPresale = input(false);
 
   // Outputs
   productAddedSuccess = output<void>();
   switchToComptant = output<void>();
+  saveAsPresale = output<void>();
 
   // Modal and responsive state
 
@@ -877,6 +879,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
 
     this.facade.putOnStandby();
+  }
+
+  onSaveAsPresale(): void {
+    this.saveAsPresale.emit();
   }
 
   onCancel(): void {

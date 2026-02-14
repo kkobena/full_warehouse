@@ -114,17 +114,19 @@
             [canSaveAsPresale]="canSave()"
             [canCancel]="true"
             [isSaving]="isSaving()"
-            (save)="onSave()"
+            [isPresale]="isPresale()"
             [isSmallScreen]="isSmallScreen()"
+            (save)="onSave()"
             (putOnHold)="onPutOnHold()"
+            (saveAsPresale)="onSaveAsPresale()"
             (cancel)="onCancel()" />
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0 -->
-  @if ((currentSale()?.amountToBePaid || 0) > 0) {
+  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0, masqué en prévente -->
+  @if (!isPresale() && (currentSale()?.amountToBePaid || 0) > 0) {
     <app-payment-mode
       #paymentMode
       [amountToBePaid]="currentSale()!.amountToBePaid || 0"

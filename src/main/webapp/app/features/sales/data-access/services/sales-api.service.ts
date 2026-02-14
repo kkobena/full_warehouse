@@ -83,6 +83,28 @@ export class SalesApiService {
   }
 
   /**
+   * Finalize a presale (comptant)
+   */
+  finalizePresaleComptant(sales: ISales): Observable<ISales> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<ISales>(`${this.resourceUrl}/comptant/finalize-prevente`, copy, { observe: 'response' }).pipe(
+      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+      map(res => res.body!),
+    );
+  }
+
+  /**
+   * Finalize a presale (assurance/carnet)
+   */
+  finalizePresaleAssurance(sales: ISales): Observable<ISales> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<ISales>(`${this.resourceUrl}/assurance/finalize-prevente`, copy, { observe: 'response' }).pipe(
+      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+      map(res => res.body!),
+    );
+  }
+
+  /**
    * Note: CARNET utilise les mêmes endpoints que ASSURANCE
    * La différenciation se fait via sale.type = 'CARNET' ou 'ASSURANCE'
    * Utiliser createAssuranceSale() et updateAssuranceSale() pour CARNET également

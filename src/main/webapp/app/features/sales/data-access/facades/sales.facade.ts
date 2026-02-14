@@ -234,6 +234,32 @@ export class SalesFacade {
   }
 
   /**
+   * Crée un rxMethod pour une vente VO (ASSURANCE ou CARNET)
+   * Factorise la logique commune entre createAssuranceSale et createCarnetSale
+   */
+  private createVOSale(natureVente: 'ASSURANCE' | 'CARNET') {
+    const saleType = natureVente;
+    return rxMethod<ISalesLine>(
+      this.createSalePipeline({
+        saleType,
+        defaultErrorMessage: `Erreur lors de la création de la vente ${natureVente.toLowerCase()}`,
+        apiCall: sale => this.apiService.createAssuranceSale(sale),
+        buildSale: initialLine => ({
+          salesLines: [initialLine],
+          customerId: this.store.selectedCustomer()?.id,
+          natureVente,
+          typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
+          cassierId: this.store.cashier()?.id,
+          sellerId: this.store.seller()?.id,
+          type: 'VO',
+          categorie: 'VO',
+          tiersPayants: this.store.pendingTiersPayants(),
+        }),
+      }),
+    );
+  }
+
+  /**
    * Pipeline commun pour la création de vente (COMPTANT, ASSURANCE, CARNET)
    */
   private createSalePipeline(config: CreateSaleConfig) {
@@ -456,48 +482,13 @@ export class SalesFacade {
    * Create a new insurance sale
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
-  createAssuranceSale = rxMethod<ISalesLine>(
-    this.createSalePipeline({
-      saleType: 'ASSURANCE',
-      defaultErrorMessage: 'Erreur lors de la création de la vente assurance',
-      apiCall: sale => this.apiService.createAssuranceSale(sale),
-      buildSale: initialLine => ({
-        salesLines: [initialLine],
-        customerId: this.store.selectedCustomer()?.id,
-        natureVente: 'ASSURANCE',
-        typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
-        cassierId: this.store.cashier()?.id,
-        sellerId: this.store.seller()?.id,
-        type: 'VO',
-        categorie: 'VO',
-        tiersPayants: this.store.pendingTiersPayants(),
-      }),
-    }),
-  );
+  createAssuranceSale = this.createVOSale('ASSURANCE');
 
   /**
    * Create a new carnet sale
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
-  createCarnetSale = rxMethod<ISalesLine>(
-    this.createSalePipeline({
-      saleType: 'CARNET',
-      defaultErrorMessage: 'Erreur lors de la création de la vente carnet',
-      // Note: Utilise /assurance endpoint (partagé CARNET/ASSURANCE), différencié par sale.natureVente
-      apiCall: sale => this.apiService.createAssuranceSale(sale),
-      buildSale: initialLine => ({
-        salesLines: [initialLine],
-        customerId: this.store.selectedCustomer()?.id,
-        natureVente: 'CARNET',
-        typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
-        cassierId: this.store.cashier()?.id,
-        sellerId: this.store.seller()?.id,
-        type: 'VO',
-        categorie: 'VO',
-        tiersPayants: this.store.pendingTiersPayants(),
-      }),
-    }),
-  );
+  createCarnetSale = this.createVOSale('CARNET');
 
   /**
    * Save current sale (finalize)
@@ -755,7 +746,6 @@ export class SalesFacade {
       throw new Error('Impossible de créer une vente sans produit');
     }
     this.store.setSaleType('COMPTANT');
-    // this.store.resetCurrentSale();
     this.createComptantSale(initialLine);
   }
 
@@ -764,7 +754,6 @@ export class SalesFacade {
    */
   initializeAssuranceSale(): void {
     this.store.setSaleType('ASSURANCE');
-    //  this.store.resetCurrentSale();
     this.store.setPendingTiersPayants([]);
   }
 
@@ -773,7 +762,6 @@ export class SalesFacade {
    */
   initializeCarnetSale(): void {
     this.store.setSaleType('CARNET');
-    // this.store.resetCurrentSale();
     this.store.setPendingTiersPayants([]);
   }
 
@@ -1365,6 +1353,39 @@ export class SalesFacade {
         finalize(() => this.store.setIsSaving(false)),
       )
       .subscribe();
+  }
+
+  /**
+   * Finalize a presale
+   * Determines comptant/assurance based on saleType and calls the appropriate endpoint
+   */
+  finalizePresale(sale: ISales): Observable<ISales | null> {
+    this.store.setIsSaving(true);
+    this.store.setError(null);
+
+    const saleType = this.store.saleType();
+    let apiCall$: Observable<ISales>;
+
+    if (saleType === 'COMPTANT') {
+      apiCall$ = this.apiService.finalizePresaleComptant(sale);
+    } else {
+      apiCall$ = this.apiService.finalizePresaleAssurance(sale);
+    }
+
+    return apiCall$.pipe(
+      tap(() => {
+        this.store.resetCurrentSale();
+        this.store.setIsSaving(false);
+      }),
+      catchError(error => {
+        console.error('Error finalizing presale:', error);
+        const errorMessage = error?.error?.message || error.message || 'Erreur lors de la finalisation de la prevente';
+        this.notificationService.error(errorMessage);
+        this.store.setError(errorMessage);
+        this.store.setIsSaving(false);
+        return of(null);
+      }),
+    );
   }
 
   /**

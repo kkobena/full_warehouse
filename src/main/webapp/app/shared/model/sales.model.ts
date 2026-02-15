@@ -167,3 +167,9 @@ export class SaleId {
   id: number;
   saleDate: string;
 }
+
+export class SaleForEditInfo {
+  saleId: SaleId;
+  isPresale?: boolean;
+  isEdit?: boolean;
+}

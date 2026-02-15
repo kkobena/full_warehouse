@@ -205,8 +205,7 @@
                   <p-buttonGroup>
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
                     <p-button
-                      [routerLink]="['/sales-home/edit', sale.saleId.id]"
-                      [queryParams]="{ saleDate: sale.saleId.saleDate }"
+                      (click)="navigateToSale(sale)"
                       [text]="true"
                       icon="pi pi-file-edit"
                       pTooltip="Editer"

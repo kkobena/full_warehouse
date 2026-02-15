@@ -91,6 +91,9 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     @NotNull
     @Column(name = "taux", nullable = false)
     private short taux;
+    @NotNull
+    @Column(name = "taux_vente", nullable = false)
+    private short tauxVente;
 
     @Column(name = "montant_regle")
     private Integer montantRegle = 0;
@@ -143,6 +146,14 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     public ThirdPartySaleLine setSale(ThirdPartySales sale) {
         this.sale = sale;
         return this;
+    }
+
+    public short getTauxVente() {
+        return tauxVente;
+    }
+
+    public void setTauxVente(short tauxVente) {
+        this.tauxVente = tauxVente;
     }
 
     public String getNumBon() {

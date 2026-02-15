@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,7 +34,8 @@ import {
   createProductHandling,
   ProductSearchHost,
 } from '../../shared/mixins';
-import { AssuredCustomerListModalComponent } from '../../ui/assured-customer-list-modal/assured-customer-list-modal.component';
+import { AssuredCustomerListModalComponent } from '../../ui';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * SaleCarnetComponent
@@ -78,7 +79,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   selectedSaleType = signal<SaleType>('CARNET');
-
+  initSaleForEditInfo = model<SaleForEditInfo>(null);
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
    * Appelée par le composant parent lors du changement de tab
@@ -247,7 +248,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
-    onPaymentSuccess: () => this.switchToComptant.emit(),
+    onPaymentSuccess: () => {},
     onDiffereConfirmed: () => {
       // Pour CARNET, le client est normalement obligatoire
       // mais vérifier au cas où
@@ -274,9 +275,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // this.resetForNewSale();
-      this.clearUrlParams();
-      this.switchToComptant.emit();
+      this.resetForNewSale();
     });
     // S'abonner aux événements de succès pour gérer le focus et reset
     this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -304,9 +303,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     });
 
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      //  this.resetForNewSale();
-      this.clearUrlParams();
-      this.switchToComptant.emit();
+      this.resetForNewSale();
     });
   }
 
@@ -538,27 +535,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       .subscribe({
         next: result => {
           if (result) {
-            this.facade.resetCurrentSale();
-            this.clearUrlParams();
-            this.switchToComptant.emit();
+            this.resetForNewSale();
           }
         },
       });
-  }
-
-  private clearUrlParams(): void {
-    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
-
-    if (isEdit) {
-      if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
-      } else {
-        this.router.navigate(['/sales-home'], { replaceUrl: true });
-      }
-    } else {
-      this.resetForNewSale();
-      //this.productHandling.resetProductSelection();
-    }
   }
 
   onCancel(): void {
@@ -570,9 +550,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         'Êtes-vous sûr de vouloir annuler cette vente ?',
       );
     } else {
-      this.facade.resetCurrentSale();
-      this.clearUrlParams();
-      this.switchToComptant.emit();
+      this.resetForNewSale();
     }
   }
 
@@ -582,8 +560,11 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    */
   private resetForNewSale(): void {
     this.customerDisplay.clear();
+    this.initSaleForEditInfo.set(null);
     this.selectedLineId.set(null);
     this.customers.set([]);
+    this.facade.resetCurrentSale();
+    this.switchToComptant.emit();
   }
 
   /**

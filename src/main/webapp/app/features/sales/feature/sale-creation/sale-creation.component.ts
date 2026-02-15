@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -20,24 +20,17 @@ import {
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
 import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { CustomerSearchService } from '../../data-access/services/customer-search.service';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import {
-  createCustomerHandling,
-  createForceStockHandling,
-  createPaymentHandling,
-  createProductHandling,
-  ProductSearchHost,
-} from '../../shared/mixins';
+import { createForceStockHandling, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * Composant Container : Création de vente (Comptant)
@@ -76,6 +69,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
+  initSaleForEditInfo = model<SaleForEditInfo>(null);
 
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
@@ -98,7 +92,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   // Services
   protected facade = inject(SalesFacade);
-  private customerSearchService = inject(CustomerSearchService);
+  // private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
@@ -221,7 +215,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       };
     },
     openCashRegister: () => this.openCashRegister(),
-    resetForNewSale: () => this.clearUrlParams(),
+    resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
@@ -238,8 +232,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // S'abonner à l'événement de succès de mise en attente
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // this.resetForNewSale();
-      this.clearUrlParams();
+      this.resetForNewSale();
     });
 
     // S'abonner aux événements de succès pour gérer le focus et reset
@@ -275,8 +268,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // S'abonner à l'annulation de la vente (après succès API)
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.clearUrlParams();
-      // this.resetForNewSale();
+      this.resetForNewSale();
     });
 
     // Initialiser le vendeur avec celui du store
@@ -806,25 +798,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       .subscribe({
         next: result => {
           if (result) {
-            this.clearUrlParams();
+            this.resetForNewSale();
           }
         },
       });
-  }
-
-  private clearUrlParams(): void {
-    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
-
-    if (isEdit) {
-      if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
-      } else {
-        this.router.navigate(['/sales-home'], { replaceUrl: true });
-      }
-    } else {
-      this.resetForNewSale();
-      //this.productHandling.resetProductSelection();
-    }
   }
 
   /**
@@ -837,6 +814,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private resetForNewSale(): void {
     // Reset UI uniquement
     this.customerDisplay.clear();
+    this.initSaleForEditInfo.set(null);
     this.customers.set([]);
     this.selectedLineId.set(null);
     this.isDiffere.set(false); // Reset signal vente différée
@@ -848,7 +826,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     setTimeout(() => {
       this.productSearchComponent()?.reset();
       this.productSearchComponent()?.getFocus();
-    }, 100);
+    }, 150);
   }
 
   /**

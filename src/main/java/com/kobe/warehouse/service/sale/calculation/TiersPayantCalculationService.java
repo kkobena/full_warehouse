@@ -40,7 +40,7 @@ import java.util.Optional;
  * <p><strong>Important:</strong> All monetary values use BigDecimal with HALF_UP rounding mode.
  * Final amounts are rounded to 0 decimal places (whole currency units).
  *
- * @see TiersPayantCalculationServiceOld the original implementation (kept for backward compatibility)
+ *
  */
 @Service
 public class TiersPayantCalculationService {

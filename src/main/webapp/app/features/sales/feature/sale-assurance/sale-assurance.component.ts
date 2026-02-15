@@ -1,4 +1,17 @@
-import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  model,
+  OnInit,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,14 +21,8 @@ import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { AssuredCustomerListModalComponent } from '../../ui';
-import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
-import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
-import { AddComplementaireComponent } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
-import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import {
+  AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
   PendingSalesListComponent,
   ProductListComponent,
@@ -24,6 +31,12 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
+import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { AddComplementaireComponent } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
+import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CustomerSearchService } from '../../data-access/services/customer-search.service';
@@ -41,6 +54,7 @@ import {
   ProductSearchHost,
 } from '../../shared/mixins';
 import { Drawer } from 'primeng/drawer';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * Composant Container : Création de vente ASSURANCE
@@ -91,7 +105,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   readonly isCashRegisterOpen = input(false);
   readonly remises = input<IRemise[]>([]);
   readonly isPresale = input(false);
-
+  initSaleForEditInfo = model<SaleForEditInfo>(null);
   // Outputs
   productAddedSuccess = output<void>();
   switchToComptant = output<void>();
@@ -231,7 +245,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
-    onPaymentSuccess: () => this.switchToComptant.emit(),
+    onPaymentSuccess: () => {},
     // Fonction de sauvegarde personnalisée pour ASSURANCE
     customSaveSale: payments => this.facade.saveAssuranceSale(payments),
   });
@@ -332,9 +346,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.productHandling.resetProductSelection();
     });
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // this.resetForNewSale();
-      this.clearUrlParams();
-      this.switchToComptant.emit();
+      this.resetForNewSale();
     });
 
     // S'abonner au succès de mise à jour de la remise
@@ -342,9 +354,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.productHandling.focusProductSearch();
     });
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // this.resetForNewSale();
-      this.clearUrlParams();
-      this.switchToComptant.emit();
+      this.resetForNewSale();
     });
     // S'abonner au succès d'ajout de tiers payant complémentaire
     this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
@@ -889,20 +899,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     this.facade.putOnStandby();
   }
-  private clearUrlParams(): void {
-    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
 
-    if (isEdit) {
-      if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
-      } else {
-        this.router.navigate(['/sales-home'], { replaceUrl: true });
-      }
-    } else {
-      this.resetForNewSale();
-      //this.productHandling.resetProductSelection();
-    }
-  }
   onSaveAsPresale(): void {
     if (!this.validateAssuranceSale()) {
       return;
@@ -919,9 +916,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       .subscribe({
         next: result => {
           if (result) {
-            this.facade.resetCurrentSale();
-            this.clearUrlParams();
-            this.switchToComptant.emit();
+            this.resetForNewSale();
           }
         },
       });
@@ -989,9 +984,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   private resetForNewSale(): void {
     this.customerDisplay.clear();
+    this.initSaleForEditInfo.set(null);
     this.selectedLineId.set(null);
     this.customers.set([]);
-    // L'insurance data bar se réinitialisera automatiquement avec la vente
+    this.facade.resetCurrentSale();
+    this.switchToComptant.emit();
   }
 
   /**

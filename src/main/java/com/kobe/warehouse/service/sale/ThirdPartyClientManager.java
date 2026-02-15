@@ -86,12 +86,6 @@ public interface ThirdPartyClientManager {
      */
     void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 
-    /**
-     * Génère un nouvel identifiant de consommation.
-     *
-     * @return le nouvel identifiant
-     */
-    int buildConsommationId();
 
     /**
      * Récupère toutes les lignes de tiers-payant d'une vente.

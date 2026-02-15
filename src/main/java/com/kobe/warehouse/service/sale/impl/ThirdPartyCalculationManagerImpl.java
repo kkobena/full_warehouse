@@ -8,7 +8,6 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
@@ -71,7 +70,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     public String upddateThirdPartySaleAmounts(
         ThirdPartySales thirdPartySales,
         boolean isUpdate,
-        List<ClientTiersPayant> clientTiersPayants
+        List<CompteTiersPayant> clientTiersPayants
     ) {
         saleCommonService.updateAmounts(thirdPartySales);
         return reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, isUpdate);
@@ -80,14 +79,15 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     @Override
     public String reComputeAndApplyAmounts(
         ThirdPartySales thirdPartySales,
-        List<ClientTiersPayant> clientTiersPayants,
+        List<CompteTiersPayant> clientTiersPayants,
         boolean isUpdate
     ) {
         if (CollectionUtils.isEmpty(clientTiersPayants)) {
             clientTiersPayants = thirdPartySales
                 .getThirdPartySaleLines()
                 .stream()
-                .map(ThirdPartySaleLine::getClientTiersPayant)
+                .map(tp -> new CompteTiersPayant(tp.getClientTiersPayant(), tp.getNumBon(),
+                    tp.getTauxVente()))
                 .toList();
         }
 
@@ -167,11 +167,11 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     /**
      * Construit l'input de calcul pour le service de calcul des tiers-payants.
      *
-     * @param sale la vente
+     * @param sale               la vente
      * @param clientTiersPayants la liste des clients tiers-payants
      * @return l'input de calcul
      */
-    private CalculationInput buildCalculationInput(ThirdPartySales sale, List<ClientTiersPayant> clientTiersPayants) {
+    private CalculationInput buildCalculationInput(ThirdPartySales sale, List<CompteTiersPayant> clientTiersPayants) {
         CalculationInput input = new CalculationInput();
         input.setNatureVente(sale.getNatureVente());
         input.setDiscountAmount(BigDecimal.valueOf(sale.getDiscountAmount()));
@@ -190,26 +190,31 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
      * Construit les inputs des tiers-payants.
      *
      * @param clientTiersPayants la liste des clients tiers-payants
-     * @param tiersPayantIds l'ensemble des identifiants de tiers-payants (modifié par effet de bord)
+     * @param tiersPayantIds     l'ensemble des identifiants de tiers-payants (modifié par effet de bord)
      * @return la liste des inputs de tiers-payants
      */
-    private List<TiersPayantInput> buildTiersPayantInputs(List<ClientTiersPayant> clientTiersPayants, Set<Integer> tiersPayantIds) {
+    private List<TiersPayantInput> buildTiersPayantInputs(List<CompteTiersPayant> clientTiersPayants, Set<Integer> tiersPayantIds) {
         if (CollectionUtils.isEmpty(clientTiersPayants)) {
             return Collections.emptyList();
         }
         return clientTiersPayants
             .stream()
             .map(ctp -> {
+                ClientTiersPayant clientTiersPayant = ctp.clientTiersPayant();
                 TiersPayantInput ti = new TiersPayantInput();
-                TiersPayant tiersPayant = ctp.getTiersPayant();
+                TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
                 tiersPayantIds.add(tiersPayant.getId());
-                ti.setClientTiersPayantId(ctp.getId());
+                ti.setClientTiersPayantId(clientTiersPayant.getId());
                 ti.setTiersPayantId(tiersPayant.getId());
                 ti.setTiersPayantFullName(tiersPayant.getFullName());
-                ti.setTaux(ctp.getTaux() / 100.0f);
-                ti.setPriorite(ctp.getPriorite());
+                short cmpTaux = (short) clientTiersPayant.getTaux();
+                if (ctp.tauxVente() > 0 && ctp.tauxVente() != cmpTaux) {
+                    cmpTaux = ctp.tauxVente();
+                }
+                ti.setTaux(cmpTaux / 100.0f);
+                ti.setPriorite(clientTiersPayant.getPriorite());
                 Optional.ofNullable(tiersPayant.getPlafondConso()).ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
-                Optional.ofNullable(ctp.getConsoMensuelle()).ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
+                Optional.ofNullable(clientTiersPayant.getConsoMensuelle()).ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
                 Optional
                     .ofNullable(tiersPayant.getPlafondJournalierClient())
                     .ifPresent(v -> ti.setPlafondJournalierClient(BigDecimal.valueOf(v)));
@@ -221,9 +226,9 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     /**
      * Construit les inputs des articles de vente avec les taux de TVA.
      *
-     * @param sale la vente
-     * @param input l'input de calcul (modifié par effet de bord pour totalSalesAmount)
-     * @param tiersPayantIds l'ensemble des identifiants de tiers-payants
+     * @param sale              la vente
+     * @param input             l'input de calcul (modifié par effet de bord pour totalSalesAmount)
+     * @param tiersPayantIds    l'ensemble des identifiants de tiers-payants
      * @param tiersPayantInputs la liste des inputs de tiers-payants
      * @return la liste des inputs d'articles
      */
@@ -273,7 +278,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     /**
      * Trouve une ligne de tiers-payant par l'identifiant du client tiers-payant.
      *
-     * @param sale la vente
+     * @param sale                la vente
      * @param clientTiersPayantId l'identifiant du client tiers-payant
      * @return Optional contenant la ligne si trouvée
      */

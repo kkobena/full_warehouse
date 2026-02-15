@@ -502,9 +502,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return c;
     }
 
-    private String upddateThirdPartySaleAmounts(ThirdPartySales c, boolean isUpdate, List<ClientTiersPayant> clientTiersPayants) {
-        return thirdPartyCalculationManager.upddateThirdPartySaleAmounts(c, isUpdate, clientTiersPayants);
-    }
+
 
     @Override
     public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) {

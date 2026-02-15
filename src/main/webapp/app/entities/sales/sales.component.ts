@@ -355,4 +355,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
       selectedUserId: this.selectedUserId,
     });
   }
+
+  navigateToSale(sale: ISales): void {
+    this.router.navigate(['/sales-home'], {
+      state: { saleInfo: { saleId: sale.saleId, isEdit: true } },
+    });
+  }
 }

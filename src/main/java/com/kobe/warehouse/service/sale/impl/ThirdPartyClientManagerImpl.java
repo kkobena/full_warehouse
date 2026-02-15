@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Implémentation du service de gestion des clients tiers-payants.
@@ -78,35 +80,39 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
     @Override
     public String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales)
         throws NumBonAlreadyUseException, GenericError {
-        List<ClientTiersPayantDTO> tiersPayants= dto.getTiersPayants();
+        List<ClientTiersPayantDTO> tiersPayants = dto.getTiersPayants();
         if (CollectionUtils.isEmpty(tiersPayants)) {
-            throw new  GenericError("Aucun tiers payant n'a été fourni");
+            throw new GenericError("Aucun tiers payant n'a été fourni");
         }
         List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(
-            tiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(java.util.stream.Collectors.toSet())
+            tiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(toSet())
         );
+        List<CompteTiersPayant> compteTiersPayants = new ArrayList<>(clientTiersPayants.size());
         for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
-            dto
+            ClientTiersPayantDTO clientTiersPayantDTO = dto
                 .getTiersPayants()
                 .stream()
                 .filter(ctpdto -> Objects.equals(ctpdto.getId(), clientTiersPayant.getId()))
                 .findFirst()
                 .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
 
-            if (dto.getNumBon() != null && checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
+            if (clientTiersPayantDTO.getNumBon() != null && checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayant.getId(), null)) {
                 throw new NumBonAlreadyUseException(dto.getNumBon());
             }
 
             ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
-                dto.getNumBon(),
+                clientTiersPayantDTO.getNumBon(),
                 clientTiersPayant,
                 0
             );
 
             thirdPartySaleLine.setSale(thirdPartySales);
+            short tauxVente = Objects.requireNonNullElse(clientTiersPayantDTO.getTaux(), 0).shortValue();
+            thirdPartySaleLine.setTauxVente(tauxVente);
             thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+            compteTiersPayants.add(new CompteTiersPayant(clientTiersPayant, thirdPartySaleLine.getNumBon(), tauxVente));
         }
-        return calculationManager.upddateThirdPartySaleAmounts(thirdPartySales, true, clientTiersPayants);
+        return calculationManager.upddateThirdPartySaleAmounts(thirdPartySales, true, compteTiersPayants);
     }
 
     @Override
@@ -145,6 +151,8 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
             0
         );
         thirdPartySaleLine.setSale(thirdPartySales);
+        short tauxVente = Objects.requireNonNullElse(dto.getTaux(), 0).shortValue();
+        thirdPartySaleLine.setTauxVente(tauxVente);
         thirdPartySaleLineService.save(thirdPartySaleLine);
         thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
 
@@ -192,10 +200,6 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
         );
     }
 
-    @Override
-    public int buildConsommationId() {
-        return consommationService.buildConsommationId();
-    }
 
     @Override
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
@@ -269,9 +273,17 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
                 0
             );
             thirdPartySaleLine.setSale(thirdPartySales);
+            thirdPartySaleLine.setTauxVente((short) clientTiersPayant.getTaux());
             thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
         }
 
-        return calculationManager.reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, true);
+        return calculationManager.reComputeAndApplyAmounts(thirdPartySales, buildCompteTiersPayantFromCompt(clientTiersPayants), true);
+    }
+
+    private List<CompteTiersPayant> buildCompteTiersPayantFromCompt(List<ClientTiersPayant> clientTiersPayants) {
+        return clientTiersPayants
+            .stream()
+            .map(clientTiersPayant -> new CompteTiersPayant(clientTiersPayant, null, (short) clientTiersPayant.getTaux()))
+            .toList();
     }
 }

@@ -1,7 +1,7 @@
-﻿import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, OnInit, signal, viewChild } from '@angular/core';
+﻿import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, model, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -25,6 +25,7 @@ import { RemiseCacheService } from '../../data-access/services/remise-cache.serv
 import { SalesApiService } from '../../data-access/services/sales-api.service';
 import { interval } from 'rxjs';
 import { SalesStatut } from '../../../../shared/model';
+import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
 
 @Component({
   selector: 'app-sales-home',
@@ -52,7 +53,6 @@ import { SalesStatut } from '../../../../shared/model';
   ],
 })
 export class SalesHomeComponent implements OnInit, AfterViewInit {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected salesFacade = inject(SalesFacade);
   private readonly apiService = inject(SalesApiService);
@@ -86,6 +86,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected isSmallScreen = signal(false);
   protected isCashRegisterOpen = signal(false);
   protected remises = this.remiseCacheService.remises;
+  initSaleForEditInfo = model<SaleForEditInfo>(null);
 
   constructor() {
     this.salesFacade.resetCurrentSale();
@@ -111,25 +112,21 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.salesFacade.setIsPresale(this.isPresale());
     // S'abonner au rechargement de vente (après annulation forçage stock)
     this.salesFacade.saleReloadedToEditSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      history.replaceState({}, '');
       this.iniLoadSaleForEdit();
     });
 
     // Vérifier si une caisse est ouverte
     this.hasCashRegisterOpen();
-
-    this.route.params.subscribe(params => {
-      const isEdit = this.route.snapshot.data['isEdit'];
-      const saleId = params['id'];
-      console.warn('Route params:', params, 'isEdit:', isEdit);
-
-      if (saleId) {
-        const queryParams = this.route.snapshot.queryParams;
-        const saleDate = queryParams['saleDate'] || params['saleDate'] || '';
-        const isPresaleQuery = queryParams['presale'] === 'true' || params['isPresale'] === 'true';
-        this.isPresaleFromRoute.set(isPresaleQuery);
-        this.loadSale({ id: saleId, saleDate });
-      }
-    });
+    const saleInfo = this.router.currentNavigation()?.extras?.state?.['saleInfo'] ?? history.state?.saleInfo;
+    if (saleInfo) {
+      const isEdit = saleInfo.isEdit;
+      const saleId: SaleId = saleInfo.saleId;
+      const isPresale = saleInfo.isPresale === true;
+      this.isPresaleFromRoute.set(isPresale);
+      this.initSaleForEditInfo.set({ saleId, isPresale, isEdit });
+      this.loadSale(saleId);
+    }
 
     // Initialiser le vendeur depuis le store ou depuis le caissier par défaut
     let currentSeller = this.salesFacade.seller();
@@ -300,7 +297,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Charge une vente pour édition (vente clôturée ASSURANCE/CARNET)
    * Conforme à l'ancien: selling-home.component.ts onLoadPrevente()
    */
-  private loadSale(saleId: { id: number; saleDate: string }): void {
+  private loadSale(saleId: SaleId): void {
     // Appel du rxMethod - il met à jour le store automatiquement
     this.salesFacade.loadSale(saleId);
 
@@ -322,7 +319,12 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // Si vente chargée avec succès
     if (sale && sale.saleId && !isLoading) {
       if (this.isPresaleMode() && sale.statut !== SalesStatut.PROCESSING) {
-        //  this.router.navigate(['/sales-home/prevente']);
+        this.salesFacade.resetCurrentSale();
+        this.router.navigate(['/sales']);
+      }
+      const editData = this.initSaleForEditInfo();
+      if (sale.statut === SalesStatut.CLOSED && !editData.isEdit) {
+        this.salesFacade.resetCurrentSale();
         this.router.navigate(['/sales']);
       }
       // Basculer vers l'onglet approprié selon le type de vente

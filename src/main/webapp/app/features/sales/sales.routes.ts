@@ -25,7 +25,7 @@ export const SALES_ROUTES: Routes = [
       pageTitle: 'Point de vente',
     },
   },
-  {
+  /* {
     path: 'edit/:id', // Route pour éditer une vente dejà cloturée
     loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
     canActivate: [UserRouteAccessService],
@@ -46,7 +46,7 @@ export const SALES_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER],
       pageTitle: 'Modifier la vente',
     },
-  },
+  },*/
 
   {
     path: 'prevente',
@@ -57,7 +57,7 @@ export const SALES_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Prevente',
     },
-  },
+  } /*,
   {
     path: 'prevente/edit/:id',
     loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
@@ -67,5 +67,5 @@ export const SALES_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Modifier la prevente',
     },
-  },
+  },*/,
 ];

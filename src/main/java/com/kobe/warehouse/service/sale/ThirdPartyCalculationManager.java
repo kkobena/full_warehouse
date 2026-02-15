@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.service.sale.impl.CompteTiersPayant;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface ThirdPartyCalculationManager {
     String upddateThirdPartySaleAmounts(
         ThirdPartySales thirdPartySales,
         boolean isUpdate,
-        List<ClientTiersPayant> clientTiersPayants
+        List<CompteTiersPayant> clientTiersPayants
     );
 
     /**
@@ -38,7 +39,7 @@ public interface ThirdPartyCalculationManager {
      */
     String reComputeAndApplyAmounts(
         ThirdPartySales thirdPartySales,
-        List<ClientTiersPayant> clientTiersPayants,
+        List<CompteTiersPayant> clientTiersPayants,
         boolean isUpdate
     );
 

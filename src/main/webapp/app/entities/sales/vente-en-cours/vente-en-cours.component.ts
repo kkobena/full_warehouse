@@ -89,4 +89,9 @@ export class VenteEnCoursComponent implements OnInit {
   confirmRemove(sale: ISales): void {
     this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
+  navigateToSale(sale: ISales): void {
+    this.router.navigate(['/sales-home'], {
+      state: { saleInfo: { saleId: sale.saleId } },
+    });
+  }
 }

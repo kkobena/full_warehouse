@@ -49,7 +49,7 @@ const salesRoute: Routes = [
       pageTitle: 'warehouseApp.sales.home.title',
     },
     canActivate: [UserRouteAccessService],
-  },
+  } /*,
   {
     path: ':isPresale/new',
     loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
@@ -72,7 +72,7 @@ const salesRoute: Routes = [
       mode: 'edit',
     },
     canActivate: [UserRouteAccessService],
-  },
+  },*/,
   {
     path: 'presale',
     loadComponent: () => import('./presale/presale.component').then(m => m.PresaleComponent),

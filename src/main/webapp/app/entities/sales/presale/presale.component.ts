@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -47,6 +47,7 @@ export class PresaleComponent implements OnInit {
   private readonly salesService = inject(SalesService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly configService = inject(ConfigurationService);
+  private readonly router = inject(Router);
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
@@ -85,5 +86,11 @@ export class PresaleComponent implements OnInit {
 
   confirmRemove(sale: ISales): void {
     this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
+  }
+
+  navigateToSale(sale: ISales): void {
+    this.router.navigate(['/sales-home/prevente'], {
+      state: { saleInfo: { saleId: sale.saleId, isPresale: true } },
+    });
   }
 }

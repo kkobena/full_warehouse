@@ -111,8 +111,7 @@
             <td>
               <p-buttonGroup>
                 <p-button
-                  [routerLink]="['/sales-home', sale.saleId.id]"
-                  [queryParams]="{ saleDate: sale.saleId.saleDate }"
+                  (click)="navigateToSale(sale)"
                   [text]="true"
                   [rounded]="true"
                   icon="pi pi-file-edit"

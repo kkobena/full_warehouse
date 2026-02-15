@@ -154,6 +154,7 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
+                  [(initSaleForEditInfo)]="initSaleForEditInfo"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
               </ng-template>
             </ng-container>
@@ -171,6 +172,7 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
+                  [(initSaleForEditInfo)]="initSaleForEditInfo"
                   (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
               </ng-template>
             </ng-container>
@@ -188,6 +190,7 @@
                   [isCashRegisterOpen]="isCashRegisterOpen()"
                   [remises]="remises()"
                   [isPresale]="isPresaleMode()"
+                  [(initSaleForEditInfo)]="initSaleForEditInfo"
                   (switchToComptant)="onSwitchToComptant()"
                   (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-carnet>
               </ng-template>

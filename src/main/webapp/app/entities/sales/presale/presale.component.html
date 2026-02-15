@@ -110,9 +110,8 @@
 
                 <p-button
                   [rounded]="true"
-                  [routerLink]="['/sales-home/prevente/edit', sale.saleId.id]"
-                  [queryParams]="{ saleDate: sale.saleId.saleDate, presale: true }"
                   [text]="true"
+                  (click)="navigateToSale(sale)"
                   icon="pi pi-file-edit"
                   pTooltip="Editer la pré-vente"
                   severity="primary"

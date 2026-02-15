@@ -3,18 +3,19 @@ package com.kobe.warehouse.service.sale.impl;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
-import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.id_generator.AssuranceItemIdGeneratorService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class ThirdPartySaleLineService {
 
     private final AssuranceItemIdGeneratorService assuranceItemIdGeneratorService;
@@ -32,18 +33,6 @@ public class ThirdPartySaleLineService {
         return thirdPartySaleLineRepository.findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate());
     }
 
-    public ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy) {
-        ThirdPartySaleLine clone = (ThirdPartySaleLine) original.clone();
-        clone.setId(assuranceItemIdGeneratorService.nextId());
-        clone.setSaleDate(LocalDate.now());
-        clone.setStatut(ThirdPartySaleStatut.DELETE);
-        clone.setMontant(clone.getMontant() * (-1));
-        clone.setSale(copy);
-        thirdPartySaleLineRepository.save(clone);
-        original.setStatut(ThirdPartySaleStatut.DELETE);
-        thirdPartySaleLineRepository.save(original);
-        return clone;
-    }
 
     public ThirdPartySaleLine save(ThirdPartySaleLine thirdPartySaleLine) {
         return thirdPartySaleLineRepository.save(thirdPartySaleLine);
@@ -69,6 +58,10 @@ public class ThirdPartySaleLineService {
         thirdPartySaleLineRepository.deleteAll(thirdPartySaleLines);
     }
 
+    public void saveAll(List<ThirdPartySaleLine> thirdPartySaleLines) {
+        thirdPartySaleLineRepository.saveAll(thirdPartySaleLines);
+    }
+
     public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Integer clientTiersPayantId, SaleId saleId) {
         return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(
             clientTiersPayantId,
@@ -77,6 +70,7 @@ public class ThirdPartySaleLineService {
         );
     }
 
+    @Transactional(readOnly = true)
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
         String numBon,
         Long saleId,
@@ -92,6 +86,7 @@ public class ThirdPartySaleLineService {
         );
     }
 
+    @Transactional(readOnly = true)
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantId(String numBon, Integer clientTiersPayantId, SalesStatut salesStatut) {
         return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
             numBon,

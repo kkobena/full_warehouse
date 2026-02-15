@@ -135,53 +135,67 @@
         <ng-template #expandedrow let-elRow>
           <tr class="pharma-expanded-row">
             <td colspan="9">
-              <div class="pharma-sub-table-card card">
-                <div class="card-header bg-info text-white">
-                  <i class="pi pi-list"></i>
-                  LISTES DES PRODUITS
-                </div>
-                <div class="card-body">
-                  <p-table
-                    [paginator]="true"
-                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                    [rows]="10"
-                    [showCurrentPageReport]="true"
-                    [stripedRows]="true"
-                    [value]="elRow.salesLines"
-                    class="pharma-table"
-                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                    dataKey="id"
-                    selectionMode="single"
-                  >
-                    <ng-template #header>
-                      <tr class="pharma-table-head">
-                        <th style="width: 5%">#</th>
-                        <th style="width: 10%">CODE</th>
-                        <th style="width: 44%">LIBELLE</th>
-                        <th style="width: 8%">QTE.D</th>
-                        <th style="width: 8%">QTE.S</th>
-                        <th style="width: 9%">PU</th>
-                        <th style="width: 10%">TOTAL</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                        <td style="text-align: left">
-                          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                        </td>
-                        <td>
-                          <span class="pharma-code">{{ saleLine.code }} </span>
-                        </td>
-                        <td>
-                          <span class="pharma-product-name"> {{ saleLine.produitLibelle }}</span>
-                        </td>
-                        <td class="text-right pharma-qty-valu">{{ saleLine.quantityRequested | number }}</td>
-                        <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                        <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td class="pharma-total" style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
-                      </tr>
-                    </ng-template>
-                  </p-table>
+              <div class="expanded-row-container">
+                <div class="activity-card activity-card-products">
+                  <div class="activity-card-header">
+                    <div class="activity-card-icon activity-card-icon-small">
+                      <i class="pi pi-list"></i>
+                    </div>
+                    <div class="activity-card-header-content">
+                      <h3 class="activity-card-title">Liste des produits</h3>
+                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
+                    </div>
+                  </div>
+                  <div class="activity-card-table-body">
+                    <p-table
+                      [paginator]="true"
+                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                      [rows]="10"
+                      [showCurrentPageReport]="true"
+                      [stripedRows]="true"
+                      [value]="elRow.salesLines"
+                      class="pharma-table rowexpansion-table"
+                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                      dataKey="id"
+                      selectionMode="single"
+                    >
+                      <ng-template #header>
+                        <tr class="pharma-table-head">
+                          <th style="width: 5%">#</th>
+                          <th style="width: 10%">CODE</th>
+                          <th style="width: 44%">LIBELLE</th>
+                          <th class="text-right" style="width: 8%">QTE.D</th>
+                          <th class="text-right" style="width: 8%">QTE.S</th>
+                          <th class="text-right" style="width: 9%">PU</th>
+                          <th class="text-right" style="width: 10%">TOTAL</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                        <tr
+                          [ngClass]="{
+                            'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+                            'pharma-row-hover': true,
+                          }"
+                        >
+                          <td style="text-align: left">
+                            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-code">{{ saleLine.code }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                          </td>
+                          <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                          <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                          <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                          <td class="pharma-total" style="text-align: right; font-weight: bold">
+                            {{ saleLine.salesAmount | number }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
                 </div>
               </div>
             </td>

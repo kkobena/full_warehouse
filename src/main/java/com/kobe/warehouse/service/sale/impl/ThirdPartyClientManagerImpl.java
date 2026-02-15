@@ -16,7 +16,7 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
-import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.id_generator.AssuranceItemIdGeneratorService;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
     private final ThirdPartySaleRepository thirdPartySaleRepository;
     private final ConsommationService consommationService;
     private final StorageService storageService;
-    private final SaleIdGeneratorService idGeneratorService;
+    private final AssuranceItemIdGeneratorService assuranceItemIdGeneratorService;
     private final ThirdPartyCalculationManager calculationManager;
 
     public ThirdPartyClientManagerImpl(
@@ -59,7 +59,7 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
         ThirdPartySaleRepository thirdPartySaleRepository,
         ConsommationService consommationService,
         StorageService storageService,
-        SaleIdGeneratorService idGeneratorService,
+        AssuranceItemIdGeneratorService assuranceItemIdGeneratorService,
         ThirdPartyCalculationManager calculationManager
     ) {
         this.thirdPartySaleLineService = thirdPartySaleLineService;
@@ -68,7 +68,7 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
         this.thirdPartySaleRepository = thirdPartySaleRepository;
         this.consommationService = consommationService;
         this.storageService = storageService;
-        this.idGeneratorService = idGeneratorService;
+        this.assuranceItemIdGeneratorService = assuranceItemIdGeneratorService;
         this.calculationManager = calculationManager;
     }
 
@@ -209,7 +209,7 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
     @Override
     public ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy) {
         ThirdPartySaleLine clone = (ThirdPartySaleLine) original.clone();
-        clone.setId(idGeneratorService.nextId());
+        clone.setId(assuranceItemIdGeneratorService.nextId());
         clone.setSaleDate(LocalDate.now());
         clone.setStatut(ThirdPartySaleStatut.DELETE);
         clone.setMontant(clone.getMontant() * (-1));
@@ -218,6 +218,32 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
         original.setStatut(ThirdPartySaleStatut.DELETE);
         thirdPartySaleLineService.save(original);
         return clone;
+    }
+
+    @Override
+    public List<ThirdPartySaleLine> clone(List<ThirdPartySaleLine> originals, ThirdPartySales copy) {
+        if (CollectionUtils.isEmpty(originals)) {
+            return new ArrayList<>();
+        }
+        List<ThirdPartySaleLine> clones = new ArrayList<>();
+        for (ThirdPartySaleLine original : originals) {
+            ThirdPartySaleLine clone = (ThirdPartySaleLine) original.clone();
+            clone.setId(assuranceItemIdGeneratorService.nextId());
+            clone.setSaleDate(copy.getSaleDate());
+            clone.setSale(copy);
+            clones.add(clone);
+
+        }
+        return clones;
+
+    }
+
+    @Override
+    public void saveAll(List<ThirdPartySaleLine> thirdPartySaleLines) {
+        if (!CollectionUtils.isEmpty(thirdPartySaleLines)) {
+            thirdPartySaleLineService.saveAll(thirdPartySaleLines);
+        }
+
     }
 
     @Override

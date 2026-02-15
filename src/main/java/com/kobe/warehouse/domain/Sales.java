@@ -25,6 +25,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -32,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.springframework.data.domain.Persistable;
 
 /**
  * A Sales.
@@ -124,29 +125,29 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "sales")
-    private Set<SalesLine> salesLines = new HashSet<>();
+    protected Set<SalesLine> salesLines = new HashSet<>();
 
     @ManyToOne
-    private Remise remise;
+    protected Remise remise;
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AppUser user;
+    protected AppUser user;
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AppUser seller;
+    protected AppUser seller;
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AppUser caissier;
+    protected AppUser caissier;
 
     @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
-    private Set<SalePayment> payments = new HashSet<>();
+    protected Set<SalePayment> payments = new HashSet<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    private Magasin magasin;
+    protected Magasin magasin;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
@@ -155,7 +156,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
             @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date"),
         }
     )
-    private Sales canceledSale;
+    protected Sales canceledSale;
 
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
@@ -680,7 +681,9 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Override
     public Object clone() {
         try {
-            return super.clone();
+            Sales sales = (Sales) super.clone();
+            sales.isNew = true;
+            return sales;
         } catch (CloneNotSupportedException e) {
             return null;
         }

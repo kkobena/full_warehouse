@@ -6,7 +6,7 @@ import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { IUser } from '../../core/user/user.model';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -38,11 +38,16 @@ import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-upda
 import { debounceTime, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-modal.component';
-import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { ButtonGroup } from 'primeng/buttongroup';
+import { ErrorService } from '../../shared/error.service';
+import { Toast } from 'primeng/toast';
+import { NotificationService } from '../../shared/services/notification.service';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs/operators';
+import { SalesStatut } from '../../features/sales/models/enumerations/sales-statut.enum';
 
 @Component({
   selector: 'jhi-sales',
@@ -70,8 +75,9 @@ import { ButtonGroup } from 'primeng/buttongroup';
     DatePickerModule,
     FloatLabel,
     ConfirmDialogComponent,
-    Card,
     ButtonGroup,
+    Toast,
+    NgxSpinnerModule,
   ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {
@@ -113,6 +119,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
   private searchSubject = new Subject<void>();
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly errorService = inject(ErrorService);
+  private notificationService = inject(NotificationService);
+  private spinner = inject(NgxSpinnerService);
+
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -356,9 +366,32 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
   }
 
+  //CANCELED
   navigateToSale(sale: ISales): void {
-    this.router.navigate(['/sales-home'], {
-      state: { saleInfo: { saleId: sale.saleId, isEdit: true } },
-    });
+    if (this.canEdit) {
+      this.confimDialog().onConfirm(
+        () => {
+          this.spinner.show();
+          this.salesService
+            .copyToEdit(sale.saleId)
+            .pipe(finalize(() => this.spinner.hide()))
+            .subscribe({
+              next: (res: HttpResponse<SaleId>) => {
+                const saleId = res.body; //Id de la nouvelle vente créée pour modification
+                this.router.navigate(['/sales-home'], {
+                  state: { saleInfo: { saleId, isEdit: true } },
+                });
+              },
+              error: (error: HttpErrorResponse) => {
+                this.notificationService.error(this.errorService.getErrorMessage(error), 'Modification de vente');
+              },
+            });
+        },
+        'Modification de vente',
+        'La vente sera annulée puis recréée. Voulez-vous continuer ?',
+      );
+    }
   }
+
+  protected readonly SalesStatut = SalesStatut;
 }

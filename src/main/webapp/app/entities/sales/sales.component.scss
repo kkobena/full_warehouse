@@ -1,5 +1,19 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/expanded-row';
+
+// ====================================
+// VARIABLES (sales-specific)
+// ====================================
+$primary-blue: #008cba;
+$primary-light: #5bc0de;
+$success-green: #43ac6a;
+$danger-red: #f04124;
+$text-primary: #333;
+$text-secondary: #888;
+$white: #ffffff;
+$gray-light: #f8f9fa;
+$gray-border: #e2e8f0;
 
 .pharma-row-warning {
   background: #fff3cd !important;
@@ -12,6 +26,15 @@
 
 // Negative price styling
 .pharma-price-negative {
+  color: #dc3545 !important;
+  font-weight: 700 !important;
+  text-align: right;
+  background-color: rgba(220, 53, 69, 0.08);
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 4px;
+}
+
+.pharma-negative-canceled-row {
   color: #dc3545 !important;
   font-weight: 700 !important;
   text-align: right;
@@ -47,6 +70,7 @@
 
       .p-floatlabel {
         min-width: 90px !important;
+
         label {
           font-size: 0.7rem !important;
         }
@@ -68,4 +92,191 @@
 .p-floatlabel {
   min-width: 90px !important;
   max-width: 140px !important;
+}
+
+// ====================================
+// SALES-SPECIFIC: Expanded cards grid
+// ====================================
+.expanded-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+// Staggered animation for cards
+@for $i from 1 through 4 {
+  .expanded-cards-container .activity-card:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.08}s;
+  }
+}
+
+// ====================================
+// SALES-SPECIFIC: Additional card variants
+// ====================================
+.activity-card {
+  &.activity-card-primary {
+    --accent-color-start: #{$primary-blue};
+    --accent-color-end: #{$primary-light};
+
+    .activity-card-header {
+      background: linear-gradient(135deg, $gray-light 0%, $white 100%);
+      border-bottom: 2px solid $gray-border;
+    }
+
+    .activity-card-icon {
+      background: linear-gradient(135deg, rgba($primary-blue, 0.1), rgba($primary-light, 0.1));
+      color: $primary-blue;
+    }
+  }
+
+  &.activity-card-info {
+    --accent-color-start: #{$primary-light};
+    --accent-color-end: #69d2e7;
+
+    .activity-card-header {
+      background: rgba($gray-light, 0.5);
+      border-bottom: 1px solid $gray-border;
+    }
+
+    .activity-card-icon {
+      background: linear-gradient(135deg, rgba($primary-light, 0.1), rgba(#69d2e7, 0.1));
+      color: $primary-light;
+    }
+  }
+
+  &.activity-card-success {
+    --accent-color-start: #{$success-green};
+    --accent-color-end: #52c41a;
+
+    .activity-card-header {
+      background: rgba($gray-light, 0.5);
+      border-bottom: 1px solid $gray-border;
+    }
+
+    .activity-card-icon {
+      background: linear-gradient(135deg, rgba($success-green, 0.1), rgba(#52c41a, 0.1));
+      color: $success-green;
+    }
+  }
+}
+
+// ====================================
+// SALES-SPECIFIC: Activity card body & items
+// ====================================
+.activity-card-body {
+  padding: 0.75rem 1.125rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba($gray-light, 0.5);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($primary-blue, 0.05);
+    border-color: rgba($primary-blue, 0.2);
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba($primary-blue, 0.1);
+  }
+
+  &.activity-item-highlight {
+    background: linear-gradient(135deg, rgba($primary-blue, 0.08) 0%, rgba($success-green, 0.08) 100%);
+    border: 1px solid rgba($primary-blue, 0.2);
+    padding: 0.625rem 0.875rem;
+    margin-top: 0.25rem;
+
+    .activity-item-label {
+      font-weight: 700;
+      color: $text-primary;
+    }
+
+    .activity-item-value {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: $success-green;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, rgba($primary-blue, 0.12) 0%, rgba($success-green, 0.12) 100%);
+      border-color: rgba($success-green, 0.3);
+    }
+  }
+
+  &.activity-item-danger {
+    background: rgba($danger-red, 0.05);
+    border: 1px solid rgba($danger-red, 0.2);
+
+    .activity-item-value {
+      color: $danger-red;
+      font-weight: 700;
+    }
+
+    &:hover {
+      background: rgba($danger-red, 0.08);
+      border-color: rgba($danger-red, 0.3);
+    }
+  }
+}
+
+.activity-item-label {
+  font-size: 0.8125rem;
+  color: $text-primary;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-item-value-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.activity-item-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.activity-item-currency {
+  font-size: 0.6875rem;
+  color: $text-secondary;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ====================================
+// RESPONSIVE
+// ====================================
+@media (max-width: 768px) {
+  .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+
+    .activity-item-value-wrapper {
+      align-self: flex-end;
+    }
+  }
 }

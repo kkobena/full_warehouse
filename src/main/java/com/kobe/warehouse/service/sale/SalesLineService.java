@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SalesLineService {
-    void updateSaleLine(SaleLineDTO dto, SalesLine salesLine);
 
     SalesLine buildSaleLineFromDTO(SaleLineDTO dto);
 
@@ -46,12 +45,14 @@ public interface SalesLineService {
     void saveAllSalesLines(Set<SalesLine> salesLines, AppUser user, Integer storageId);
 
     void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, AppUser user, Integer storageId);
+    Set<SalesLine>  cloneSalesLine(Set<SalesLine> salesLines, Sales copy);
 
     void createInventory(SalesLine salesLine, AppUser user, Integer storageId);
 
     void createInventory(Set<SalesLine> salesLines, AppUser user, Integer storageId);
 
     void save(Set<SalesLine> salesLines, AppUser user, Integer storageId);
+    void saveAll(Set<SalesLine> salesLines);
 
     void processProductDiscount(SalesLine salesLine);
 

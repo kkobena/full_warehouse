@@ -22,7 +22,7 @@ public interface CashRegisterService {
 
     Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException;
 
-    CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner);
+    CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner) throws CashRegisterException, NonClosedCashRegisterException;
 
     boolean checkAutomaticFundAllocation();
 

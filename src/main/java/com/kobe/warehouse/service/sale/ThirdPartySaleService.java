@@ -12,6 +12,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
@@ -48,7 +49,7 @@ public interface ThirdPartySaleService {
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
-    void cancelSale(SaleId id);
+    void cancelSale(SaleId id) throws CashRegisterException;
 
     ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
 
@@ -88,4 +89,11 @@ public interface ThirdPartySaleService {
     void savePrevente(ThirdPartySaleDTO dto);
 
     void removeDiscount(SaleId saleId);
+
+    /**
+     * Copie une vente pour l'édition, en s'assurant que les données sont à jour et conformes aux règles métier.
+     * Annuler la vente originale pour éviter les conflits de données.
+     */
+    SaleId copiePourEdition(SaleId saleId)
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException,CashRegisterException;
 }

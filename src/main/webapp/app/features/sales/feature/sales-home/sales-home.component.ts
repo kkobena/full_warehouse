@@ -322,8 +322,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         this.salesFacade.resetCurrentSale();
         this.router.navigate(['/sales']);
       }
-      const editData = this.initSaleForEditInfo();
-      if (sale.statut === SalesStatut.CLOSED && !editData.isEdit) {
+      // const editData = this.initSaleForEditInfo();
+      if (sale.statut === SalesStatut.CLOSED) {
         this.salesFacade.resetCurrentSale();
         this.router.navigate(['/sales']);
       }

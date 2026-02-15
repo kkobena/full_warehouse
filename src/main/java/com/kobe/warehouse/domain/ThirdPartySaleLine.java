@@ -268,7 +268,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     @Override
     public Object clone() {
         try {
-            return super.clone();
+            ThirdPartySaleLine clone = (ThirdPartySaleLine) super.clone();
+            clone.setId(null);
+            clone.isNew = true;
+            return clone;
         } catch (CloneNotSupportedException e) {
             return null;
         }

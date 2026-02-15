@@ -40,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -120,14 +121,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         return salesLine;
     }
 
-    @Override
-    public void updateSaleLine(SaleLineDTO dto, SalesLine salesLine) {
-        salesLine.setQuantitySold(dto.getQuantitySold());
-        salesLine.setUpdatedAt(LocalDateTime.now());
-        salesLine.setSalesAmount(dto.getQuantitySold() * dto.getRegularUnitPrice());
-        salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
-        salesLineRepository.save(salesLine);
-    }
+
 
     @Override
     public void updateItemQuantitySold(SalesLine salesLine, SaleLineDTO saleLineDTO, Integer storageId) {
@@ -278,6 +272,12 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         });
     }
 
+    public void saveAll(Set<SalesLine> salesLines) {
+        if (!CollectionUtils.isEmpty(salesLines)) {
+            salesLineRepository.saveAll(salesLines);
+        }
+    }
+
     @Override
     public void createInventory(SalesLine salesLine, AppUser user, Integer storageId) {
         //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
@@ -333,6 +333,29 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.suggestionProduitService.suggerer(quantitySuggestions);
     }
 
+    public Set<SalesLine> cloneSalesLine(Set<SalesLine> salesLines, Sales copy) {
+        Set<SalesLine> copySalesLines = new HashSet<>();
+        if (CollectionUtils.isEmpty(salesLines)) {
+            return copySalesLines;
+        }
+
+        for (SalesLine salesLine : salesLines) {
+            SalesLine salesLineCopy = (SalesLine) salesLine.clone();
+            salesLineCopy.setId(getNextId());
+            salesLineCopy.setSaleDate(LocalDate.now());
+            salesLineCopy.setCreatedAt(LocalDateTime.now());
+            salesLineCopy.setSales(copy);
+            salesLineCopy.setUpdatedAt(salesLineCopy.getCreatedAt());
+            salesLineCopy.setEffectiveUpdateDate(salesLineCopy.getUpdatedAt());
+            copySalesLines.add(salesLineCopy);
+
+        }
+
+
+        return copySalesLines;
+
+    }
+
     private void updateSaleLineLotSold(SalesLine salesLine) {
         int quantitySold = salesLine.getQuantitySold();
         if (quantitySold <= 0) {
@@ -364,6 +387,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private void cloneSalesLine(SalesLine salesLine, Sales copy, Integer storageId) {
         SalesLine salesLineCopy = (SalesLine) salesLine.clone();
         salesLineCopy.setId(getNextId());
+        salesLineCopy.setSaleDate(LocalDate.now());
         salesLineCopy.setCreatedAt(LocalDateTime.now());
         salesLineCopy.setSales(copy);
         salesLineCopy.setUpdatedAt(salesLineCopy.getCreatedAt());

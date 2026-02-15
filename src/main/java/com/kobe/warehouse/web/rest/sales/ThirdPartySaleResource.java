@@ -92,8 +92,7 @@ public class ThirdPartySaleResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FinalyseSaleDTO result = saleService.save(thirdPartySaleDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, thirdPartySaleDTO.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 
@@ -145,7 +144,6 @@ public class ThirdPartySaleResource {
     public ResponseEntity<Void> deleteSaleItem(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
@@ -153,7 +151,6 @@ public class ThirdPartySaleResource {
     public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSalePrevente(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
@@ -161,7 +158,6 @@ public class ThirdPartySaleResource {
     public ResponseEntity<Void> cancelSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.cancelSale(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
@@ -174,7 +170,6 @@ public class ThirdPartySaleResource {
     ) {
         saleService.removeThirdPartySaleLineToSales(clientTiersPayantId, new SaleId(saleId, saleDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, saleId.toString()))
             .build();
     }
 
@@ -220,8 +215,7 @@ public class ThirdPartySaleResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FinalyseSaleDTO result = saleService.editSale(thirdPartySaleDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, thirdPartySaleDTO.getId().toString()))
+        return ResponseEntity.accepted()
             .body(result);
     }
 
@@ -264,5 +258,17 @@ public class ThirdPartySaleResource {
     public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.removeDiscount(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Permet de modifier une vente cloturer en supprimant la vente et faire une copie en vue de ma modifier.
+     *
+     * @return ThirdPartySaleDTO
+     */
+
+    @PutMapping("/sales/assurance/copier")
+    public ResponseEntity<SaleId> copiePourEdition(@Valid @RequestBody SaleId sale) {
+        return ResponseEntity.accepted()
+            .body(saleService.copiePourEdition(sale));
     }
 }

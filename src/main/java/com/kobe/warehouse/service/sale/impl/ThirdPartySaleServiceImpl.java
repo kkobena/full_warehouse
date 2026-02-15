@@ -2,29 +2,23 @@ package com.kobe.warehouse.service.sale.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.ClientTiersPayant;
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
-import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
-import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
@@ -33,7 +27,6 @@ import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.RemiseRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
-import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.PaymentService;
@@ -42,7 +35,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
-import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -50,6 +42,7 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
@@ -61,21 +54,12 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
-import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
-import com.kobe.warehouse.service.sale.calculation.dto.CalculationInput;
-import com.kobe.warehouse.service.sale.calculation.dto.CalculationResult;
-import com.kobe.warehouse.service.sale.calculation.dto.SaleItemInput;
-import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
-import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
-import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
-import com.kobe.warehouse.service.sale.calculation.dto.TvaRepartitionDto;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -84,21 +68,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -231,7 +212,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
 
-
     @Override
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
         return thirdPartyClientManager.findAllBySaleId(saleId);
@@ -275,37 +255,83 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public void cancelSale(SaleId id) {
+    public void cancelSale(SaleId id) throws CashRegisterException {
         AppUser user = storageService.getUser();
         thirdPartySaleRepository
-            .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
+            .findByIdAndSaleDate(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 if (sales.isCanceled()) {
                     throw new GenericError("La vente est déjà annulée");
                 }
-                ThirdPartySales copy = (ThirdPartySales) sales.clone();
-                copySale(sales, copy);
-                copy.setSaleDate(LocalDate.now());
-                copyThirdPartySales(sales, copy);
-                sales.setUpdatedAt(LocalDateTime.now());
-                sales.setEffectiveUpdateDate(sales.getUpdatedAt());
-                sales.setCanceled(true);
-                copy.setCanceled(true);
-                thirdPartySaleRepository.save(sales);
-                thirdPartySaleRepository.save(copy);
-                paymentService.findAllBySales(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
-                salesLineService.cloneSalesLine(
-                    sales.getSalesLines(),
-                    copy,
-                    user,
-                    storageService.getDefaultConnectedUserMainStorage().getId()
-                );
-                findAllBySaleId(id).forEach(thirdPartySaleLine -> {
-                    ThirdPartySaleLine thirdPartySaleLineClone = clone(thirdPartySaleLine, copy);
-                    updateClientTiersPayantAccount(thirdPartySaleLineClone);
-                    updateTiersPayantAccount(thirdPartySaleLineClone);
-                });
+                if (sales.getStatut() != SalesStatut.CLOSED) {
+                    throw new GenericError("La vente doit être clôturée pour être modifiée");
+                }
+
+                cancelSaleV2(new ArrayList<>(new LinkedHashSet<>(sales.getThirdPartySaleLines())), new HashSet<>(sales.getSalesLines()), new HashSet<>(sales.getPayments()), sales, user);
             });
+    }
+
+
+    private SaleId cloneSale(ThirdPartySales sales) throws CashRegisterException {
+        List<ThirdPartySaleLine> originalThirdPartySaleLines = new ArrayList<>(new LinkedHashSet<>(sales.getThirdPartySaleLines()));// Utiliser LinkedHashSet pour préserver l'ordre des lignes et éviter les doublons
+        Set<SalesLine> originalSalesLines = new HashSet<>(sales.getSalesLines());
+        Set<SalePayment> originalPayments = new HashSet<>(sales.getPayments());
+
+        ThirdPartySales copy = (ThirdPartySales) sales.clone();
+        copy.setThirdPartySaleLines(new ArrayList<>());
+        copy.setSalesLines(new HashSet<>());
+        copy.setPayments(new HashSet<>());
+
+        copySaleCommon(sales, copy);
+        copy.setCashRegister(getCashRegister());
+
+        // Sauvegarder copy SANS collections pour éviter le dirty checking Hibernate
+        copy = thirdPartySaleRepository.saveAndFlush(copy);
+
+        // Créer et sauvegarder les collections indépendamment avec la copie persistée
+        Set<SalePayment> payments = paymentService.clonePayments(originalPayments, copy);
+        paymentService.saveAll(payments);
+
+        Set<SalesLine> copySalesLines = salesLineService.cloneSalesLine(originalSalesLines, copy);
+        salesLineService.saveAll(copySalesLines);
+
+        List<ThirdPartySaleLine> clones = thirdPartyClientManager.clone(originalThirdPartySaleLines, copy);
+        thirdPartyClientManager.saveAll(clones);
+
+        thirdPartySaleRepository.flush();
+
+        cancelSaleV2(originalThirdPartySaleLines, originalSalesLines, originalPayments, sales, copy.getUser());
+
+        return copy.getId();
+    }
+
+    private void cancelSaleV2(List<ThirdPartySaleLine> originalThirdPartySaleLines, Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales, AppUser user) throws CashRegisterException {
+        checkOpenningCaisse();
+        ThirdPartySales copy = (ThirdPartySales) sales.clone();
+        copy.setThirdPartySaleLines(new ArrayList<>());
+        copy.setSalesLines(new HashSet<>());
+        copy.setPayments(new HashSet<>());
+
+        copySale(sales, copy);
+        copy.setSaleDate(LocalDate.now());
+        copyThirdPartySales(sales, copy);
+        sales.setEffectiveUpdateDate(sales.getUpdatedAt());
+        sales.setCanceled(true);
+        copy.setCanceled(true);
+        thirdPartySaleRepository.save(sales);
+        thirdPartySaleRepository.save(copy);
+        originalPayments.forEach(payment -> paymentService.clonePayment(payment, copy));
+        salesLineService.cloneSalesLine(
+            originalSalesLines,
+            copy,
+            user,
+            storageService.getDefaultConnectedUserMainStorage().getId()
+        );
+        originalThirdPartySaleLines.forEach(thirdPartySaleLine -> {
+            ThirdPartySaleLine thirdPartySaleLineClone = clone(thirdPartySaleLine, copy);
+            updateClientTiersPayantAccount(thirdPartySaleLineClone);
+            updateTiersPayantAccount(thirdPartySaleLineClone);
+        });
     }
 
     @Override
@@ -433,7 +459,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
-         thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
+        thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(saleId);
         this.displayNet(thirdPartySales.getPartAssure());
     }
@@ -501,7 +527,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setMagasin(cashSale.getMagasin());
         return c;
     }
-
 
 
     @Override
@@ -626,6 +651,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return new FinalyseSaleDTO(p.getId(), true);
     }
 
+
+    @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public SaleId copiePourEdition(SaleId saleId)
+        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, CashRegisterException {
+
+
+        ThirdPartySales p = thirdPartySaleRepository.findByIdAndSaleDate(saleId.getId(), saleId.getSaleDate()).orElseThrow(() -> new GenericError("Une erreur est survenue lors de la récupération de la vente"));
+        if (p.getStatut() != SalesStatut.CLOSED) {
+            throw new GenericError("La vente doit être clôturée pour être modifiée");
+        }
+        if (p.isCanceled()) {
+            throw new GenericError("La vente est annulée et ne peut pas être modifiée");
+        }
+        return cloneSale(p);
+    }
+
     @Override
     public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
         this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
@@ -637,6 +679,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         remiseRepository.findById(updateSaleInfo.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
         this.displayNet(thirdPartySales.getPartAssure());
     }
+
     @Override
     public void removeDiscount(SaleId saleId) {
         ThirdPartySales thirdPartySales = findById(saleId);
@@ -644,6 +687,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
         this.displayNet(thirdPartySales.getPartAssure());
     }
+
     @Override
     public void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException {
         ThirdPartySales thirdPartySales = findById(updateSale.id());

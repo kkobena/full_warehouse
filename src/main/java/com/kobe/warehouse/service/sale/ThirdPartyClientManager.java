@@ -32,11 +32,11 @@ public interface ThirdPartyClientManager {
      * Sauvegarde les lignes de tiers-payants pour une vente.
      * Crée les lignes de ThirdPartySaleLine et les associe à la vente.
      *
-     * @param dto la vente contenant les tiers-payants
+     * @param dto             la vente contenant les tiers-payants
      * @param thirdPartySales la vente à laquelle associer les lignes
      * @return message d'erreur si plafond dépassé, null sinon
      * @throws NumBonAlreadyUseException si le numéro de bon est déjà utilisé
-     * @throws GenericError si un tiers-payant n'est pas trouvé
+     * @throws GenericError              si un tiers-payant n'est pas trouvé
      */
     String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales)
         throws NumBonAlreadyUseException, GenericError;
@@ -44,9 +44,9 @@ public interface ThirdPartyClientManager {
     /**
      * Vérifie si un numéro de bon est déjà utilisé pour un client tiers-payant.
      *
-     * @param numBon le numéro de bon à vérifier
+     * @param numBon              le numéro de bon à vérifier
      * @param clientTiersPayantId l'identifiant du client tiers-payant
-     * @param currentSaleId l'identifiant de la vente courante (null pour une nouvelle vente)
+     * @param currentSaleId       l'identifiant de la vente courante (null pour une nouvelle vente)
      * @return true si le numéro de bon est déjà utilisé, false sinon
      */
     boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId, Long currentSaleId);
@@ -54,11 +54,11 @@ public interface ThirdPartyClientManager {
     /**
      * Ajoute une ligne de tiers-payant à une vente existante.
      *
-     * @param dto les informations du client tiers-payant à ajouter
+     * @param dto    les informations du client tiers-payant à ajouter
      * @param saleId l'identifiant de la vente
      * @return message d'erreur si plafond dépassé, null sinon
      * @throws NumBonAlreadyUseException si le numéro de bon est déjà utilisé
-     * @throws GenericError en cas d'erreur métier
+     * @throws GenericError              en cas d'erreur métier
      */
     String addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
         throws NumBonAlreadyUseException, GenericError;
@@ -67,7 +67,7 @@ public interface ThirdPartyClientManager {
      * Supprime une ligne de tiers-payant d'une vente.
      *
      * @param clientTiersPayantId l'identifiant du client tiers-payant à supprimer
-     * @param saleId l'identifiant de la vente
+     * @param saleId              l'identifiant de la vente
      * @return message d'erreur si plafond dépassé après suppression, null sinon
      */
     String removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId);
@@ -99,18 +99,22 @@ public interface ThirdPartyClientManager {
      * Clone une ligne de tiers-payant pour une copie de vente (annulation).
      *
      * @param original la ligne originale
-     * @param copy la copie de la vente
+     * @param copy     la copie de la vente
      * @return la ligne clonée
      */
     ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
+    List<ThirdPartySaleLine> clone(List<ThirdPartySaleLine> originals, ThirdPartySales copy);
+
+    void saveAll(List<ThirdPartySaleLine> thirdPartySaleLines);
+
     /**
      * Met à jour une ligne de tiers-payant existante.
      *
-     * @param numBon le nouveau numéro de bon
-     * @param thirdPartySaleLine la ligne à mettre à jour
+     * @param numBon              le nouveau numéro de bon
+     * @param thirdPartySaleLine  la ligne à mettre à jour
      * @param clientTiersPayantId l'identifiant du client tiers-payant
-     * @param montant le montant
+     * @param montant             le montant
      * @throws NumBonAlreadyUseException si le numéro de bon est déjà utilisé
      */
     void updateThirdPartySaleLine(
@@ -123,7 +127,7 @@ public interface ThirdPartyClientManager {
     /**
      * Trouve une ligne de tiers-payant dans une vente par l'identifiant du client.
      *
-     * @param sale la vente
+     * @param sale                la vente
      * @param clientTiersPayantId l'identifiant du client tiers-payant
      * @return Optional contenant la ligne si trouvée
      */

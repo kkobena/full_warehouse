@@ -42,12 +42,6 @@ export class SalesService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  findForEdit(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<ISales>(`${this.resourceUrl}/edit/${id}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http.get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
@@ -187,6 +181,10 @@ export class SalesService {
   countPendingSales(req?: any): Observable<HttpResponse<number>> {
     const options = createRequestOptions(req);
     return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', { params: options, observe: 'response' });
+  }
+  copyToEdit(sales: ISales): Observable<HttpResponse<SaleId>> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http.put<SaleId>(this.resourceUrl + '/assurance/copier', copy, { observe: 'response' });
   }
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {

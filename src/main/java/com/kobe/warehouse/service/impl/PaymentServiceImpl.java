@@ -18,6 +18,7 @@ import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
         SalePayment paymentCopy = (SalePayment) payment.clone();
         paymentCopy.setId(this.transactionIdGeneratorService.nextId());
         paymentCopy.setCreatedAt(copy.getCreatedAt());
+        paymentCopy.setTransactionDate(LocalDate.now());
         paymentCopy.setCashRegister(copy.getCashRegister());
         paymentCopy.setSale(copy);
         paymentCopy.setMontantVerse(paymentCopy.getMontantVerse() * (-1));
@@ -57,6 +59,25 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public Set<SalePayment> clonePayments(Set<SalePayment> salePayments, Sales copy) {
+
+        Set<SalePayment> copyPayments = new HashSet<>();
+        for (SalePayment salePayment : salePayments) {
+            SalePayment paymentCopy = (SalePayment) salePayment.clone();
+            paymentCopy.setId(this.transactionIdGeneratorService.nextId());
+            paymentCopy.setTransactionDate(LocalDate.now());
+            paymentCopy.setCreatedAt(copy.getCreatedAt());
+            paymentCopy.setCashRegister(copy.getCashRegister());
+            paymentCopy.setSale(copy);
+            copyPayments.add(paymentCopy);
+
+        }
+
+        return copyPayments;
+
+    }
+
+    @Override
     public List<SalePayment> findAllBySales(SaleId id) {
         return this.paymentRepository.findAllBySaleIdAndSaleSaleDate(id.getId(), id.getSaleDate());
     }
@@ -64,6 +85,13 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<SalePayment> findAllBySale(Sales sales) {
         return paymentRepository.findAllBySale(sales);
+    }
+
+    @Override
+    public void saveAll(Set<SalePayment> payments) {
+        if (!CollectionUtils.isEmpty(payments)) {
+            paymentRepository.saveAll(payments);
+        }
     }
 
     @Override
@@ -82,11 +110,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        if (CollectionUtils.isEmpty(sales.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <=0) {
+        if (CollectionUtils.isEmpty(sales.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <= 0) {
             sales.setPayments(new HashSet<>());
             return;
         }
-        saleDTO.getPayments().stream().filter(paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount()) && paymentDTO.getPaidAmount()>0).forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
+        saleDTO.getPayments().stream().filter(paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount()) && paymentDTO.getPaidAmount() > 0).forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
     }
 
     private void removeOldPayment(Sales sales) {

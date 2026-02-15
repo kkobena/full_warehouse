@@ -5,11 +5,14 @@ import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.service.dto.SaleDTO;
+
 import java.util.List;
 import java.util.Set;
 
 public interface PaymentService {
     void clonePayment(SalePayment payment, Sales copy);
+
+    Set<SalePayment> clonePayments(Set<SalePayment> salePayments, Sales copy);
 
     Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user);
 
@@ -20,4 +23,6 @@ public interface PaymentService {
     List<SalePayment> findAllBySales(SaleId id);
 
     List<SalePayment> findAllBySale(Sales sales);
+
+    void saveAll(Set<SalePayment> payments);
 }

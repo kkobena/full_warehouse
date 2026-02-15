@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerComponent, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
@@ -68,6 +68,7 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     PaymentModeComponent,
     ConfirmDialogComponent,
     QuantiteProdutSaisieComponent,
+    NgxSpinnerModule,
   ],
 })
 export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearchHost {
@@ -108,8 +109,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private customerSearchService = inject(CustomerSearchService);
   private spinner = inject(NgxSpinnerService);
   private modalService = inject(NgbModal);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   // State signals

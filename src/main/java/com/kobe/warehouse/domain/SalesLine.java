@@ -1,7 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +15,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -24,16 +26,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
+
+import static java.util.Objects.isNull;
 
 /**
  * A SalesLine.
  */
 @Entity
 @IdClass(SaleLineId.class)
-@Table(name = "sales_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "sales_id", "sale_date" }) })
+@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id", "sale_date"})})
 public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneable {
 
     @Serial
@@ -475,7 +476,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Override
     public Object clone() {
         try {
-            return super.clone();
+            SalesLine cloned = (SalesLine) super.clone();
+            cloned.setId(null);
+            cloned.isNew = true;
+            return cloned;
         } catch (CloneNotSupportedException _) {
             return null;
         }

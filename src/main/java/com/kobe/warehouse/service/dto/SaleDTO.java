@@ -89,6 +89,7 @@ public class SaleDTO implements Serializable {
     private String posteName;
     private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
     private String commentaire;
+    private boolean canceled;
 
     public SaleDTO() {}
 
@@ -96,6 +97,7 @@ public class SaleDTO implements Serializable {
         this.saleId = sale.getId();
         this.id = saleId.getId();
         this.commentaire = sale.getCommentaire();
+        this.canceled=sale.isCanceled();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {
             if (thirdPartySales.getCustomer() != null) {
@@ -293,6 +295,14 @@ public class SaleDTO implements Serializable {
     public SaleDTO setSalesLines(List<SaleLineDTO> salesLines) {
         this.salesLines = salesLines;
         return this;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
+    }
+
+    public void setCanceled(boolean canceled) {
+        this.canceled = canceled;
     }
 
     public List<PaymentDTO> getPayments() {

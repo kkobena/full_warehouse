@@ -106,7 +106,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner) {
+    public CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner)throws CashRegisterException,NonClosedCashRegisterException {
         AppConfiguration appConfiguration = this.appConfigurationService.findOneById(EntityConstant.APP_CASH_FUND).orElse(null);
         if (Objects.nonNull(appConfiguration) && Integer.parseInt(appConfiguration.getValue().trim()) == 1) {
             if (this.hasOpenCashRegister()) {

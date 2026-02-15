@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,13 @@ public interface ThirdPartySaleRepository
     extends JpaRepository<ThirdPartySales, SaleId>, JpaSpecificationExecutor<ThirdPartySales>, ThirdPartySaleCustomRepository {
     @Query("select sale from ThirdPartySales sale left join fetch sale.salesLines where sale.id =:id and sale.saleDate =:saleDate")
     Optional<ThirdPartySales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
+
+    @Query("select sale from ThirdPartySales sale left join fetch sale.salesLines left join fetch sale.thirdPartySaleLines left join fetch sale.payments where sale.id =:id and sale.saleDate =:saleDate")
+    Optional<ThirdPartySales> findOneWithEagerRelations(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
+
+    @EntityGraph(attributePaths = {"salesLines", "thirdPartySaleLines", "payments"})
+    @Query("select sale from ThirdPartySales sale where sale.id = :id and sale.saleDate = :saleDate")
+    Optional<ThirdPartySales> findByIdAndSaleDate(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
     ThirdPartySales findOneById(Long id);
 

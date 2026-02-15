@@ -48,7 +48,7 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
     private static final long serialVersionUID = 1L;
 
     @Transient
-    private boolean isNew = true;
+    protected boolean isNew = true;
 
     @Id
     private Long id;

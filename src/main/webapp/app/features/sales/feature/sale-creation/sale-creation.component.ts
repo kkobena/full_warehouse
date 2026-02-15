@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerComponent, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   CustomerSelectionModalComponent,
@@ -62,6 +62,7 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     PaymentModeComponent,
     ConfirmDialogComponent,
     QuantiteProdutSaisieComponent,
+    NgxSpinnerModule,
   ],
 })
 export class SaleCreationComponent implements OnInit, ProductSearchHost {
@@ -99,8 +100,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+
   protected userVendeurService = inject(UserVendeurService);
 
   // State depuis le store (signals computed)

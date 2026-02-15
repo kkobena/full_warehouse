@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
@@ -22,6 +25,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
@@ -29,9 +33,8 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,9 +43,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import static java.util.Objects.nonNull;
 
@@ -273,6 +273,24 @@ public class SaleCommonService {
         finalizeSale(c, dto);
     }
 
+    protected CashRegister getCashRegister() {
+        AppUser user = storageService.getUser();
+        CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
+        if (Objects.isNull(cashRegister)) {
+            cashRegister = cashRegisterService.openCashRegister(user, user);
+        }
+        return cashRegister;
+    }
+
+    protected void checkOpenningCaisse() throws CashRegisterException {
+        AppUser user = storageService.getUser();
+        CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
+        if (Objects.isNull(cashRegister)) {
+            throw new CashRegisterException();
+        }
+
+    }
+
     private void finalizeSale(Sales c, SaleDTO dto) {
         AppUser user = storageService.getUser();
         c.setUser(user);
@@ -440,6 +458,23 @@ public class SaleCommonService {
         copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
         copy.setUser(storageService.getUser());
+
+        copy.setPayments(Collections.emptySet());
+        copy.setSalesLines(Collections.emptySet());
+    }
+
+    protected void copySaleCommon(Sales sales, Sales copy) {
+        AppUser user = storageService.getUser();
+        copy.setId(getNextId());
+        copy.setSaleDate(LocalDate.now());
+        copy.setUpdatedAt(LocalDateTime.now());
+        copy.setCreatedAt(copy.getUpdatedAt());
+        copy.setEffectiveUpdateDate(copy.getUpdatedAt());
+        buildReference(copy);
+        copy.setUser(user);
+        copy.setCaissier(user);
+        copy.setCanceledSale(sales);
+        copy.setStatut(SalesStatut.ACTIVE);
 
         copy.setPayments(Collections.emptySet());
         copy.setSalesLines(Collections.emptySet());

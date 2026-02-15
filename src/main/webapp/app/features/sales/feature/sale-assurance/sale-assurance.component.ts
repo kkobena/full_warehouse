@@ -121,7 +121,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
   private spinner = inject(NgxSpinnerService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
   protected userVendeurService = inject(UserVendeurService);
 

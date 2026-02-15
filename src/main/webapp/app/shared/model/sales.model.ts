@@ -58,6 +58,7 @@ export interface ISales {
   saleId?: SaleId;
   remise?: IRemise;
   magasin?: IMagasin;
+  canceled?: boolean;
 }
 
 export class Sales implements ISales {

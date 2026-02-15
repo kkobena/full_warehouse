@@ -666,7 +666,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
           // Sinon l'appel API de setCustomer n'est pas terminé quand finalizeSale() est appelé
           if (isAvoir && !currentSale?.differe) {
             // S'abonner au succès de l'association client AVANT d'appeler setCustomer
-            this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
+            this.facade.customerSetSuccess$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
               // Après association client réussie, continuer avec le paiement
               // Utiliser l'événement de paiement en attente si disponible (évite de reconstruire et re-montrer des dialogs)
               const pendingEvent = this.pendingPaymentEvent();
@@ -774,7 +774,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
           if (currentSale) {
             currentSale.customerId = customer.id;
           }
-          this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
+          this.facade.customerSetSuccess$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             this.doFinalizePresale();
           });
           this.facade.setCustomer(customer);

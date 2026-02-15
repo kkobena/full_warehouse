@@ -110,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        if (CollectionUtils.isEmpty(sales.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <= 0) {
+        if (CollectionUtils.isEmpty(saleDTO.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <= 0) {
             sales.setPayments(new HashSet<>());
             return;
         }

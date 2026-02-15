@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.sale;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -26,16 +24,17 @@ import com.kobe.warehouse.domain.VenteDepot_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
+import com.kobe.warehouse.service.dto.PaymentDTO;
+import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
@@ -52,16 +51,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.Resource;
@@ -72,6 +61,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -86,6 +88,7 @@ public class SaleDataService {
     private final ReceiptPrinterService receiptPrinterService;
     private final SalesRepository salesRepository;
     private final StorageService storageService;
+    private final SalePaymentRepository salePaymentRepository;
 
     public SaleDataService(
         EntityManager em,
@@ -93,7 +96,7 @@ public class SaleDataService {
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ReceiptPrinterService receiptPrinterService,
-        SalesRepository salesRepository, StorageService storageService
+        SalesRepository salesRepository, StorageService storageService, SalePaymentRepository salePaymentRepository
     ) {
         this.em = em;
 
@@ -105,6 +108,7 @@ public class SaleDataService {
         this.receiptPrinterService = receiptPrinterService;
         this.salesRepository = salesRepository;
         this.storageService = storageService;
+        this.salePaymentRepository = salePaymentRepository;
     }
 
     public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate, LocalDate toDate) {
@@ -179,62 +183,62 @@ public class SaleDataService {
     }
 
     private AppUser getUser() {
-      return   storageService.getUser();
+        return storageService.getUser();
     }
 
-    public List<SaleDTO> allPrevente(String query, String type, Integer userId,SalesStatut statut) {
+    public List<SaleDTO> allPrevente(String query, String type, Integer userId, SalesStatut statut) {
         if (StringUtils.isEmpty(type) || type.equals(EntityConstant.TOUT)) {
-            return allPreventes(query, userId,statut);
+            return allPreventes(query, userId, statut);
         }
         if (type.equals(EntityConstant.VNO)) {
-            return allPreventeVNO(query, userId,statut);
+            return allPreventeVNO(query, userId, statut);
         }
         if (type.equals(EntityConstant.VO)) {
-            return allPreventeVO(query, userId,statut);
+            return allPreventeVO(query, userId, statut);
         } else {
-            return allPreventes(query, userId,statut);
+            return allPreventes(query, userId, statut);
         }
     }
 
-    public List<SaleDTO> allPreventeVNO(String query, Integer userId,SalesStatut statut) {
+    public List<SaleDTO> allPreventeVNO(String query, Integer userId, SalesStatut statut) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         Root<CashSale> cashSaleRoot = cb.treat(root, CashSale.class);
         cq.select(cashSaleRoot).distinct(true).orderBy(cb.desc(root.get(CashSale_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId,statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statut);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventes(String query, Integer userId,SalesStatut statut) {
+    public List<SaleDTO> allPreventes(String query, Integer userId, SalesStatut statut) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId,statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statut);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventeVO(String query, Integer userId,SalesStatut statut) {
+    public List<SaleDTO> allPreventeVO(String query, Integer userId, SalesStatut statut) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         Root<ThirdPartySales> thirdPartySalesRoot = cb.treat(root, ThirdPartySales.class);
         cq.select(thirdPartySalesRoot).distinct(true).orderBy(cb.desc(root.get(ThirdPartySales_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId,statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statut);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    private void predicatesPrevente(String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, Integer userId,SalesStatut statut) {
+    private void predicatesPrevente(String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, Integer userId, SalesStatut statut) {
         LocalDate now = LocalDate.now();
         predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
         if (StringUtils.isNotEmpty(query)) {
@@ -392,7 +396,20 @@ public class SaleDataService {
 
         List<Sales> results = q.getResultList();
 
-        return new PageImpl<>(results.stream().map(this::buildSaleDTO).toList(), pageable, totalCount);
+        return new PageImpl<>(results.stream().map(sales -> {
+            System.err.println("SALE ID " + sales.getId() + " SALE DATE " + sales.getSaleDate());
+            var dto = buildSaleDTO(sales);
+            dto.setPayments(salePaymentRepository.findAllBySaleIdAndSaleSaleDate(sales.getId().getId(),sales.getSaleDate()).stream().map(pa -> {
+                PaymentDTO paymentDTO = new PaymentDTO();
+                paymentDTO.setPaidAmount(pa.getPaidAmount());
+                paymentDTO.setNetAmount(pa.getReelAmount());
+                paymentDTO.setPaymentMode(new PaymentModeDTO(pa.getPaymentMode()));
+                paymentDTO.setMontantVerse(pa.getMontantVerse());
+                System.err.println("PAID AMOUNT " + pa.getPaidAmount());
+                return paymentDTO;
+            }).toList());
+            return dto;
+        }).toList(), pageable, totalCount);
     }
 
     private long countVentesDepot(

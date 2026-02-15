@@ -238,7 +238,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Recharge l'état de la caisse (appelé après ouverture de caisse depuis un composant enfant)
    */
   onCashRegisterStatusChanged(): void {
-    this.cashRegisterService.getConnectedUserHasOpenCashRegister().subscribe({
+    this.cashRegisterService.getConnectedUserHasOpenCashRegister().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => {
         this.isCashRegisterOpen.set(res.body ?? false);
       },

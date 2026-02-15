@@ -142,6 +142,7 @@ public class SaleDTO implements Serializable {
             .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
             .toList();
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
+
         AppUser user = sale.getUser();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
         this.numberTransaction = sale.getNumberTransaction();

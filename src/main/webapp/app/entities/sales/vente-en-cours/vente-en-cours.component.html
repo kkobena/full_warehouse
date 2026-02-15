@@ -43,13 +43,13 @@
                 />
               } @else {
                 <p-button
+                  (click)="openNewSalesHome()"
                   [raised]="true"
-                  [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-shopping-cart"
+                  icon="pi pi-shopping-bag"
                   label="Nouvelle vente"
                   severity="primary"
-                  type="button"
                 />
+
               }
             </div>
           </div>
@@ -109,39 +109,27 @@
             <td>{{ sale.seller?.abbrName }}</td>
             <td>{{ sale.cassier?.abbrName }}</td>
             <td>
-              <div class="btn-group d-flex justify-content-end">
+              <p-buttonGroup>
                 <p-button
-                  [routerLink]="['/sales-home/edit', sale.saleId.id]"
+                  [routerLink]="['/sales-home', sale.saleId.id]"
                   [queryParams]="{ saleDate: sale.saleId.saleDate }"
                   [text]="true"
-                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  icon="pi pi-file-edit"
                   pTooltip="Editer"
                   rounded="true"
                   severity="success"
-                  size="small"
-                >
-                </p-button>
-                <p-button
-                  [routerLink]="['/sales', sale.saleId.id, sale.saleId.saleDate, false, 'edit']"
-                  [text]="true"
-                  icon="pi pi-pencil"
-                  pTooltip="Editer"
-                  rounded="true"
-                  severity="success"
-                  size="small"
-                >
-                </p-button>
+                />
                 <p-button
                   (click)="confirmRemove(sale)"
                   [text]="true"
-                  class="ml-2"
                   icon="pi pi-trash"
                   pTooltip="Supprimer"
                   rounded="true"
                   severity="danger"
-                  size="small"
-                ></p-button>
-              </div>
+                />
+
+              </p-buttonGroup>
             </td>
           </tr>
         </ng-template>

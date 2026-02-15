@@ -227,22 +227,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
 
-  // ===== Customer Handling Mixin =====
-  private customerHandling = createCustomerHandling({
-    facade: this.facade,
-    customerSearchService: this.customerSearchService,
-    notificationService: this.notificationService,
-    modalService: this.modalService,
-    config: {
-      saleType: 'COMPTANT',
-      customerRequired: false, // Client optionnel pour vente comptant
-    },
-    selectedCustomer: this.facade.selectedCustomer,
-    customers: this.customers,
-    customerFormComponent: UninsuredCustomerFormComponent,
-    onCustomerSelectedCallback: () => this.focusProductSearch(),
-  });
-
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
@@ -757,6 +741,65 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       return;
     }
 
+    const isAvoir = this.facade.isAvoir();
+    const hasCustomer = this.facade.hasCustomer();
+
+    if (isAvoir && !this.avoirConfirmed()) {
+      this.confirmDialog().onConfirm(
+        () => {
+          this.avoirConfirmed.set(true);
+          if (!hasCustomer) {
+            this.openCustomerModalForPresale();
+          } else {
+            this.doFinalizePresale();
+          }
+        },
+        'Avoir détecté',
+        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
+      );
+    } else {
+      this.doFinalizePresale();
+    }
+  }
+
+  /**
+   * Ouvre le modal de sélection client pour le flux avoir en mode prévente
+   * Après sélection, attend l'association client puis finalise la prévente
+   */
+  private openCustomerModalForPresale(): void {
+    const currentSale = this.facade.currentSale();
+
+    const modalRef = this.modalService.open(CustomerSelectionModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.modalTitle = 'SÉLECTION CLIENT - Avoir (livraison partielle)';
+
+    modalRef.result.then(
+      (customer: ICustomer) => {
+        if (customer && customer.id) {
+          if (currentSale) {
+            currentSale.customerId = customer.id;
+          }
+          this.facade.customerSetSuccess$.pipe(take(1)).subscribe(() => {
+            this.doFinalizePresale();
+          });
+          this.facade.setCustomer(customer);
+        } else {
+          this.notificationService.warning('Client requis', 'Un client est obligatoire pour un avoir (livraison partielle)');
+        }
+      },
+      () => {
+        this.notificationService.warning('Vente annulée', 'Un client est obligatoire pour un avoir (livraison partielle)');
+      },
+    );
+  }
+
+  private doFinalizePresale(): void {
+    const sale = this.currentSale();
+    if (!sale) return;
+
     this.facade
       .finalizePresale(sale)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -774,9 +817,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     if (isEdit) {
       if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente']);
+        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
       } else {
-        this.router.navigate(['/sales-home']);
+        this.router.navigate(['/sales-home'], { replaceUrl: true });
       }
     } else {
       this.resetForNewSale();

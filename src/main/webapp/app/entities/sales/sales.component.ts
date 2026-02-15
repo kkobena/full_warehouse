@@ -42,6 +42,7 @@ import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
 import { ConfigurationService } from '../../shared/configuration.service';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-sales',
@@ -70,6 +71,7 @@ import { ConfigurationService } from '../../shared/configuration.service';
     FloatLabel,
     ConfirmDialogComponent,
     Card,
+    ButtonGroup,
   ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {

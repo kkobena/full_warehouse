@@ -1366,20 +1366,15 @@ export class SalesFacade {
    * Finalize a presale
    * Determines comptant/assurance based on saleType and calls the appropriate endpoint
    */
-  finalizePresale(sale: ISales): Observable<ISales | null> {
+  finalizePresale(sale: ISales): Observable<boolean | null> {
     this.store.setIsSaving(true);
     this.store.setError(null);
 
     const saleType = this.store.saleType();
-    let apiCall$: Observable<ISales>;
-
-    if (saleType === 'COMPTANT') {
-      apiCall$ = this.apiService.finalizePresaleComptant(sale);
-    } else {
-      apiCall$ = this.apiService.finalizePresaleAssurance(sale);
-    }
+    const apiCall$ = saleType === 'COMPTANT' ? this.apiService.finalizePresaleComptant(sale) : this.apiService.finalizePresaleAssurance(sale);
 
     return apiCall$.pipe(
+      map(() => true as boolean),
       tap(() => {
         this.store.resetCurrentSale();
         this.store.setIsSaving(false);

@@ -15,6 +15,7 @@ import { Select } from 'primeng/select';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ConfigurationService } from '../../../shared/configuration.service';
 import { SalesStatut } from '../../../shared/model';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-presale',
@@ -34,6 +35,7 @@ import { SalesStatut } from '../../../shared/model';
     InputIcon,
     Select,
     ConfirmDialogComponent,
+    ButtonGroup,
   ],
 })
 export class PresaleComponent implements OnInit {

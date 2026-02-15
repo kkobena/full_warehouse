@@ -85,23 +85,17 @@ export class SalesApiService {
   /**
    * Finalize a presale (comptant)
    */
-  finalizePresaleComptant(sales: ISales): Observable<ISales> {
+  finalizePresaleComptant(sales: ISales): Observable<void> {
     const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(`${this.resourceUrl}/comptant/finalize-prevente`, copy, { observe: 'response' }).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
-      map(res => res.body!),
-    );
+    return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente`, copy, { observe: 'response' }).pipe(map((): void => undefined));
   }
 
   /**
    * Finalize a presale (assurance/carnet)
    */
-  finalizePresaleAssurance(sales: ISales): Observable<ISales> {
+  finalizePresaleAssurance(sales: ISales): Observable<void> {
     const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(`${this.resourceUrl}/assurance/finalize-prevente`, copy, { observe: 'response' }).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
-      map(res => res.body!),
-    );
+    return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente`, copy, { observe: 'response' }).pipe(map((): void => undefined));
   }
 
   /**

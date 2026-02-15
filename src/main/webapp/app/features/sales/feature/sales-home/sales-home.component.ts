@@ -101,6 +101,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.checkScreenSize();
+    this.salesFacade.resetCurrentSale();
     // Initialiser le caissier (utilisateur connecté)
     const currentUser = this.accountService.trackCurrentAccount()();
     if (currentUser) {

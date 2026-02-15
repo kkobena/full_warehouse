@@ -78,13 +78,7 @@
             <div class="pharma-button-group pharma-hide-mobile">
               <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
-              <p-button
-                (click)="openNewSalesHome()"
-                [raised]="true"
-                icon="pi pi-shopping-bag"
-                label="Point de Vente"
-                severity="secondary"
-              />
+
 
               <div>
                 @if (useSimpleSale) {
@@ -97,9 +91,9 @@
                   />
                 } @else {
                   <p-button
+                    (click)="openNewSalesHome()"
                     [raised]="true"
-                    [routerLink]="['/sales', false, 'new']"
-                    icon="pi pi-shopping-cart"
+                    icon="pi pi-shopping-bag"
                     label="Nouvelle vente"
                     severity="primary"
                   />
@@ -118,16 +112,6 @@
                 tooltipPosition="top"
               />
 
-              <p-button
-                (click)="openNewSalesHome()"
-                [rounded]="true"
-                [raised]="true"
-                icon="pi pi-shopping-bag"
-                pTooltip="Point de Vente"
-                severity="secondary"
-                tooltipPosition="top"
-              />
-
               @if (useSimpleSale) {
                 <p-button
                   [rounded]="true"
@@ -140,12 +124,11 @@
                 />
               } @else {
                 <p-button
+                  (click)="openNewSalesHome()"
                   [rounded]="true"
-                  [text]="true"
-                  [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-cart-plus"
-                  pTooltip="Nouvelle vente"
-                  raised="true"
+                  [raised]="true"
+                  icon="pi pi-shopping-bag"
+                  pTooltip="Point de Vente"
                   severity="primary"
                   tooltipPosition="top"
                 />
@@ -218,18 +201,20 @@
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td>
-                <div class="btn-group d-flex justify-content-end">
+
+                  <p-buttonGroup>
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
                     <p-button
-                      [rounded]="true"
-                      [routerLink]="['/sales', sale.saleId.id, sale.saleId.saleDate, false, 'edit']"
+                      [routerLink]="['/sales-home/edit', sale.saleId.id]"
+                      [queryParams]="{ saleDate: sale.saleId.saleDate }"
                       [text]="true"
-                      icon="pi pi-pencil"
+                      icon="pi pi-file-edit"
                       pTooltip="Editer"
+                      rounded="true"
                       severity="success"
-                      size="small"
-                    >
-                    </p-button>
+                      [rounded]="true"
+                      tooltipPosition="left"
+                    />
                     <p-button
                       (click)="onEditCustomer(sale)"
                       [rounded]="true"
@@ -237,10 +222,9 @@
                       icon="pi pi-user-edit"
                       pTooltip="Modifier les informations du client"
                       severity="help"
-                      size="small"
                       tooltipPosition="left"
-                    >
-                    </p-button>
+                    />
+
                     <p-button
                       (click)="editSaleUpdatedDate(sale)"
                       [rounded]="true"
@@ -248,10 +232,9 @@
                       icon="pi pi-calendar-plus"
                       pTooltip="Modifier la date"
                       severity="contrast"
-                      size="small"
                       tooltipPosition="left"
-                    >
-                    </p-button>
+                    />
+
                   }
 
                   @if (sale.customer) {
@@ -259,13 +242,11 @@
                       (click)="printSale(sale)"
                       [rounded]="true"
                       [text]="true"
-                      class="ml-1"
                       icon="pi pi-print"
                       pTooltip="Imprimer"
                       severity="secondary"
-                      size="small"
                       tooltipPosition="left"
-                    ></p-button>
+                    />
                     <p-button
                       (click)="print(sale)"
                       [rounded]="true"
@@ -273,9 +254,8 @@
                       icon="pi pi-receipt"
                       pTooltip="Imprimer la facture"
                       severity="warn"
-                      size="small"
                       tooltipPosition="left"
-                    ></p-button>
+                    />
                   }
 
                   <p-button
@@ -283,27 +263,23 @@
                     [hidden]="true"
                     [rounded]="true"
                     [text]="true"
-                    class="ml-1"
                     icon="pi pi-send"
                     pTooltip="Suggérer"
                     severity="help"
-                    size="small"
                     tooltipPosition="left"
-                  ></p-button>
+                  />
                   @if (canCancel) {
                     <p-button
                       (click)="confirmRemove(sale)"
                       [rounded]="true"
                       [text]="true"
-                      class="ml-1"
                       icon="pi pi-trash"
                       pTooltip="Annuler"
                       severity="danger"
-                      size="small"
                       tooltipPosition="left"
-                    ></p-button>
-                  }
-                </div>
+                    />
+                  }</p-buttonGroup>
+
               </td>
             </tr>
           </ng-template>

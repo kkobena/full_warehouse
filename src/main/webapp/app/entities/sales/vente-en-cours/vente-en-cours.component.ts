@@ -2,7 +2,7 @@ import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ISales } from '../../../shared/model';
 import { SalesService } from '../sales.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ConfigurationService } from '../../../shared/configuration.service';
 import { SalesStatut } from '../../../shared/model';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-vente-en-cours',
@@ -33,6 +34,7 @@ import { SalesStatut } from '../../../shared/model';
     IconField,
     InputIcon,
     ConfirmDialogComponent,
+    ButtonGroup,
   ],
 })
 export class VenteEnCoursComponent implements OnInit {
@@ -44,7 +46,7 @@ export class VenteEnCoursComponent implements OnInit {
   private readonly salesService = inject(SalesService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly configService = inject(ConfigurationService);
-
+  private readonly router = inject(Router);
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadVentesEnCours();
@@ -57,6 +59,9 @@ export class VenteEnCoursComponent implements OnInit {
 
   onTypeVenteChange(): void {
     this.loadVentesEnCours();
+  }
+  protected openNewSalesHome(): void {
+    this.router.navigate(['/sales-home']);
   }
 
   loadVentesEnCours(): void {

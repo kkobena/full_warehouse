@@ -12,17 +12,17 @@
           [raised]="true"
           size="large"
           (onClick)="onSave()"
-        ></p-button>
+        />
 
         <p-button
           size="large"
           icon="pi pi-pause"
           severity="secondary"
-          [disabled]="!canSaveAsPresale() || isSaving()"
+          [disabled]="isSaving()"
           [raised]="true"
           pTooltip="Mettre en attente"
           (onClick)="onPutOnHold()"
-        ></p-button>
+        />
 
       }@else{
 
@@ -35,11 +35,8 @@
           [loading]="isSaving()"
           [raised]="true"
           (onClick)="onSaveAsPresale()"
-        ></p-button>
+        />
       }
-
-
-
       <p-button
         icon="pi pi-times"
         severity="danger"
@@ -48,7 +45,7 @@
         size="large"
         pTooltip="Annuler"
         (onClick)="onCancel()"
-      ></p-button>
+      />
     </p-buttonGroup>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
@@ -63,28 +60,28 @@
             [loading]="isSaving()"
             [raised]="true"
             (onClick)="onSave()"
-          ></p-button>
+          />
 
 
           <p-button
             label="En attente"
             icon="pi pi-pause"
             severity="secondary"
-            [disabled]=" isSaving()"
+            [disabled]="isSaving()"
             [raised]="true"
             (onClick)="onPutOnHold()"
-          ></p-button>
+          />
 
         } @else {
           <p-button
             [label]="getSaveButtonLabel()"
             [icon]="getSaveButtonIcon()"
             [severity]="getSaveButtonSeverity()"
-            [disabled]=" isSaving()"
+            [disabled]="isSaving()"
             [loading]="isSaving()"
             [raised]="true"
             (onClick)="onSaveAsPresale()"
-          ></p-button>
+          />
         }
 
 
@@ -95,7 +92,7 @@
           [disabled]="!canCancel() || isSaving()"
           [raised]="true"
           (onClick)="onCancel()"
-        ></p-button>
+        />
       </p-buttonGroup>
 
 
@@ -109,7 +106,7 @@
           severity="secondary"
           [disabled]="!canPrint()"
           (onClick)="onPrint()"
-          size="small"></p-button>
+         />
       </p-buttonGroup>
 
     }

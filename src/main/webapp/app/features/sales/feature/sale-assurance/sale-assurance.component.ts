@@ -306,7 +306,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
-    this.facade.resetCurrentSale();
+
     this.facade.initializeAssuranceSale();
 
     // Initialize typePrescription with default value
@@ -894,9 +894,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     if (isEdit) {
       if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente']);
+        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
       } else {
-        this.router.navigate(['/sales-home']);
+        this.router.navigate(['/sales-home'], { replaceUrl: true });
       }
     } else {
       this.resetForNewSale();

@@ -22,8 +22,8 @@
 
             <div class="pharma-search-input">
               <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
+                <p-inputicon class="pi pi-search"/>
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text"/>
               </p-iconfield>
             </div>
           </div>
@@ -106,7 +106,8 @@
             <td>{{ sale.seller?.fullName }}</td>
             <td>{{ sale.cassier?.fullName }}</td>
             <td class="text-center">
-              <div class="btn-group">
+              <p-buttonGroup>
+
                 <p-button
                   [rounded]="true"
                   [routerLink]="['/sales-home/prevente/edit', sale.saleId.id]"
@@ -115,7 +116,7 @@
                   icon="pi pi-file-edit"
                   pTooltip="Editer la pré-vente"
                   severity="primary"
-                  size="small"
+
                 />
 
                 <p-button
@@ -126,9 +127,9 @@
                   icon="pi pi-trash"
                   pTooltip="Supprimer"
                   severity="danger"
-                  size="small"
+
                 ></p-button>
-              </div>
+              </p-buttonGroup>
             </td>
           </tr>
         </ng-template>

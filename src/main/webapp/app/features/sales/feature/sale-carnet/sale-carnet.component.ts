@@ -265,7 +265,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   ngOnInit(): void {
     // Initialiser une vente CARNET
-    this.facade.resetCurrentSale();
+
     this.facade.initializeCarnetSale();
 
     // Initialize typePrescription with default value
@@ -551,9 +551,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     if (isEdit) {
       if (this.isPresale()) {
-        this.router.navigate(['/sales-home/prevente']);
+        this.router.navigate(['/sales-home/prevente'], { replaceUrl: true });
       } else {
-        this.router.navigate(['/sales-home']);
+        this.router.navigate(['/sales-home'], { replaceUrl: true });
       }
     } else {
       this.resetForNewSale();

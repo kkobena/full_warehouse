@@ -37,6 +37,7 @@
       <app-product-search
         #produitbox
         [autofocus]="false"
+        [enableScanner]="false"
         (productSelected)="onProductSelected($event)"
         (productScanned)="onProductScanned($event)"
         (onKeyEnter)="onProductSearchEnter($event)">

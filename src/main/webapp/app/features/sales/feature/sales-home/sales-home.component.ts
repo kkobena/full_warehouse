@@ -23,9 +23,13 @@ import { AccountService } from '../../../../core/auth/account.service';
 import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
 import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
 import { SalesApiService } from '../../data-access/services/sales-api.service';
-import { interval } from 'rxjs';
-import { SalesStatut } from '../../../../shared/model';
+import { finalize, interval } from 'rxjs';
+import { ProduitSearch, SalesStatut } from '../../../../shared/model';
 import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
+import { GlobalScannerService } from '../../../../shared/global-scanner.service';
+import { ProduitService } from '../../../../entities/produit/produit.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ScanAudioFeedbackService } from '../../../../shared/services/scan-audio-feedback.service';
 
 @Component({
   selector: 'app-sales-home',
@@ -66,6 +70,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private cashRegisterService = inject(CashRegisterService);
   private destroyRef = inject(DestroyRef);
   private remiseCacheService = inject(RemiseCacheService);
+  private globalScanner = inject(GlobalScannerService);
+  private produitService = inject(ProduitService);
+  private notificationService = inject(NotificationService);
+  private scanAudio = inject(ScanAudioFeedbackService);
   protected confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   protected alert = viewChild.required<ToastAlertComponent>('alert');
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits
@@ -91,11 +99,26 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected remises = this.remiseCacheService.remises;
   initSaleForEditInfo = model<SaleForEditInfo>(null);
 
+  // Scan global - file d'attente multi-scan
+  private scanQueue: string[] = [];
+  private processingQueue = false;
+  private pendingScanCode = signal<string | null>(null);
+
   constructor() {
     this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
     effect(() => {
       this.disableButton = !this.produitSelected;
+    });
+
+    // Effect pour traiter un scan en attente quand le chargement se termine
+    effect(() => {
+      const code = this.pendingScanCode();
+      const isLoading = this.salesFacade.loading();
+      if (code && !isLoading) {
+        this.pendingScanCode.set(null);
+        setTimeout(() => this.enqueueScan(code), 100);
+      }
     });
   }
 
@@ -106,6 +129,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.checkScreenSize();
     this.salesFacade.resetCurrentSale();
+
+    // Activer le scanner global et s'abonner aux scans
+    this.globalScanner.enable();
+    this.globalScanner.onScan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(code => this.enqueueScan(code));
     // Initialiser le caissier (utilisateur connecté)
     const currentUser = this.accountService.trackCurrentAccount()();
     if (currentUser) {
@@ -359,7 +386,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Les F-keys contextuelles (F1-F10) sont gérées par les composants enfants.
    */
   handleGlobalKeyboardEvent(event: KeyboardEvent): void {
-    // Alt+1/2/3 : Switch type de vente
+    // 1. Raccourcis clavier (Alt+1/2/3, F11)
     if (event.altKey && !event.ctrlKey && ['1', '2', '3'].includes(event.key)) {
       event.preventDefault();
       const tabMap: Record<string, string> = { '1': 'comptant', '2': 'assurance', '3': 'carnet' };
@@ -367,11 +394,23 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // F11 : Ouvrir ventes en attente (pas en mode prévente)
     if (event.key === 'F11' && !this.isPresaleMode()) {
       event.preventDefault();
       this.openPendingSales();
       return;
+    }
+
+    // 2. Scanner global - toujours traiter pour détecter les codes-barres
+    const result = this.globalScanner.processKeyEvent(event);
+    if (result.isScanInProgress) {
+      // Ne pas bloquer la saisie dans les inputs en mode TIMING
+      // (les caractères du scanner apparaissent dans l'input, nettoyés après dispatch)
+      // En mode PREFIX_SUFFIX, on peut toujours bloquer car la détection est certaine
+      const activeEl = document.activeElement;
+      const isInInput = activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement;
+      if (!isInInput) {
+        event.preventDefault();
+      }
     }
   }
 
@@ -395,6 +434,103 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     } else {
       this.active.set(tab);
       this.focusActiveTab();
+    }
+  }
+
+  // ===== Scan global - file d'attente et dispatch =====
+
+  private enqueueScan(code: string): void {
+    if (this.salesFacade.loading()) {
+      this.pendingScanCode.set(code);
+      return;
+    }
+    this.scanQueue.push(code);
+    this.processNextScan();
+  }
+
+  private processNextScan(): void {
+    if (this.processingQueue || this.scanQueue.length === 0) {
+      return;
+    }
+    this.processingQueue = true;
+    const code = this.scanQueue.shift()!;
+    this.searchAndDispatch(code);
+  }
+
+  private searchAndDispatch(code: string): void {
+    this.produitService
+      .search({ page: 0, size: 5, search: code }, false)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.processingQueue = false;
+          this.processNextScan();
+        }),
+      )
+      .subscribe({
+        next: res => {
+          const results = res.body || [];
+          if (results.length === 1) {
+            this.scanAudio.beepSuccess();
+            this.dispatchScannedProduct(results[0]);
+          } else if (results.length === 0) {
+            this.scanAudio.beepError();
+            this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
+          } else {
+            this.scanAudio.beepSuccess();
+            this.dispatchScannedProduct(results[0]);
+          }
+        },
+        error: () => {
+          this.scanAudio.beepError();
+          this.notificationService.error('Erreur de recherche produit', 'Scan');
+        },
+      });
+  }
+
+  private dispatchScannedProduct(product: ProduitSearch): void {
+    // Nettoyer l'input actif (code-barres du scanner visible dans un champ)
+    this.clearActiveInputAfterScan();
+
+    switch (this.active()) {
+      case 'comptant':
+        this.saleCreation()?.onProductScanned(product);
+        break;
+      case 'assurance':
+        this.saleAssurance()?.onProductScanned(product);
+        break;
+      case 'carnet':
+        this.saleCarnet()?.onProductScanned(product);
+        break;
+    }
+  }
+
+  /**
+   * Nettoie les traces du scan : reset le product-search et vide l'input actif
+   * si ce n'est pas le champ produit (ex: champ paiement).
+   */
+  private clearActiveInputAfterScan(): void {
+    // 1. Reset le product-search (supprime le texte code-barres + cache dropdown)
+    switch (this.active()) {
+      case 'comptant':
+        this.saleCreation()?.productSearchComponent()?.reset();
+        break;
+      case 'assurance':
+        this.saleAssurance()?.productSearchComponent()?.reset();
+        break;
+      case 'carnet':
+        this.saleCarnet()?.productSearchComponent()?.reset();
+        break;
+    }
+
+    // 2. Si le focus est dans un autre input (ex: champ paiement), vider le code-barres
+    const activeEl = document.activeElement;
+    if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
+      const isProductSearch = activeEl.closest('app-product-search');
+      if (!isProductSearch) {
+        activeEl.value = '';
+        activeEl.dispatchEvent(new Event('input', { bubbles: true }));
+      }
     }
   }
 }

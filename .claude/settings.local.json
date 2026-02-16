@@ -65,7 +65,8 @@
       "WebFetch(domain:www.winpharma.com)",
       "WebFetch(domain:www.clubofficine.fr)",
       "WebFetch(domain:www.nngroup.com)",
-      "WebFetch(domain:support.soopos.com)"
+      "WebFetch(domain:support.soopos.com)",
+      "Bash(npx ng build:*)"
     ],
     "deny": [],
     "ask": []

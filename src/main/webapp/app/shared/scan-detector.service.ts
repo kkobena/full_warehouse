@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseScannerService, ScanEvent } from './scanner/base-scanner.service';
+import { BaseScannerService, ScanEvent } from './scanner';
 
 // Re-export ScanEvent pour la compatibilité avec le code existant
 export { ScanEvent } from './scanner/base-scanner.service';

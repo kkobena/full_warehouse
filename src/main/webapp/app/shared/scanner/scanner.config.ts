@@ -1,5 +1,8 @@
 import { InjectionToken } from '@angular/core';
 
+/** Mode de détection du scanner */
+export type ScannerMode = 'TIMING' | 'PREFIX_SUFFIX';
+
 /**
  * Configuration pour les services de détection de scanner.
  * Ces valeurs peuvent être ajustées selon le type de scanner utilisé.
@@ -19,6 +22,15 @@ export interface ScannerConfig {
 
   /** Délai avant de terminer un scan après la dernière touche (ms) */
   endScanTimeout: number;
+
+  /** Mode de détection : TIMING (vitesse de frappe) ou PREFIX_SUFFIX (caractères STX/ETX) */
+  mode: ScannerMode;
+
+  /** Caractère préfixe envoyé par le scanner (défaut: STX = Ctrl+B) */
+  prefixKey: string;
+
+  /** Caractère suffixe envoyé par le scanner (défaut: ETX = Ctrl+C) */
+  suffixKey: string;
 }
 
 /**
@@ -31,6 +43,9 @@ export const DEFAULT_SCANNER_CONFIG: ScannerConfig = {
   scanMaxTime: 500,
   resetDelay: 150,
   endScanTimeout: 100,
+  mode: 'TIMING',
+  prefixKey: '\x02',
+  suffixKey: '\x03',
 };
 
 /**

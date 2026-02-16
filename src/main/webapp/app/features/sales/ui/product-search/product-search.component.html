@@ -6,7 +6,7 @@
     [suggestions]="produits()"
     (completeMethod)="searchFn($event)"
     (onSelect)="onSelect()"
-    (onKeyDown)="onKeyDown($event)"
+    (keydown)="onKeyDown($event)"
     [minLength]="PRODUIT_COMBO_MIN_LENGTH"
     optionLabel="libelle"
     [appendTo]="APPEND_TO"

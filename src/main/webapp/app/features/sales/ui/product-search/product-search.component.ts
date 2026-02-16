@@ -11,8 +11,6 @@ import {
   output,
   signal,
   viewChild,
-  ElementRef,
-  HostListener,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -21,14 +19,15 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../../shared/constants/pagination.constants';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../../shared/model';
 import { ProduitService } from '../../../../entities/produit/produit.service';
 import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
 import { ScanDetectorService, ScanEvent } from '../../../../shared/scan-detector.service';
+import { GlobalScannerService } from '../../../../shared/global-scanner.service';
 
 /**
  * Composant de recherche produit avec scanner intégré
- * 
+ *
  * Version adaptée de ProduitSearchAutocompleteScannerComponent pour le nouveau système
  * Fonctionnalités:
  * - Recherche produit par libellé/code
@@ -75,6 +74,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   // Services
   private readonly produitService = inject(ProduitService);
   private readonly scanDetectorService = inject(ScanDetectorService);
+  private readonly globalScanner = inject(GlobalScannerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly searchTrigger$ = new Subject<string>();
@@ -89,9 +89,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Debounce search
-    this.searchTrigger$
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(search => this.loadProduits(search));
+    this.searchTrigger$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(search => this.loadProduits(search));
   }
 
   get produitSelected(): ProduitSearch | null {
@@ -130,7 +128,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.stopInputClearLoop();
         }
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 
@@ -147,6 +145,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   // ===== Event Handlers =====
 
   searchFn(event: any): void {
+    // Si le scanner local est désactivé et qu'un scan global est en cours,
+    // ne pas déclencher la recherche autocomplete (les caractères viennent du scanner)
+    if (!this.enableScanner() && this.globalScanner.isScanActive()) {
+      return;
+    }
+
     // Abort scan if user is manually searching
     if (this.isScanning) {
       this.isScanning = false;
@@ -174,28 +178,15 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
+      // Si un scan global est en cours, laisser l'événement propager au scanner
+      if (!this.enableScanner() && this.globalScanner.isScanActive()) {
+        return;
+      }
+
       // Vérifier si le champ est vide en utilisant selectProduit (signal lié au modèle)
       const selected = this.selectProduit();
       const isEmpty = selected === null || selected === undefined;
-      
-      if (isEmpty) {
-        this.onKeyEnter.emit(true);
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-  }
 
-  /**
-   * HostListener natif pour intercepter toutes les touches Enter
-   * Complément au onKeyDown de PrimeNG
-   */
-  @HostListener('keydown', ['$event'])
-  onHostKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      const selected = this.selectProduit();
-      const isEmpty = selected === null || selected === undefined;
-      
       if (isEmpty) {
         this.onKeyEnter.emit(true);
         event.preventDefault();
@@ -262,7 +253,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete')
+        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete'),
       )
       .subscribe((event: ScanEvent) => {
         if (event.type === 'start') {
@@ -299,7 +290,6 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
     this.stopInputClearLoop();
     this.clearInputValue();
-    this.clearActiveElement();
 
     this.onBarcodeScanned.emit(scannedCode);
     this.searchByBarcode(scannedCode);
@@ -313,13 +303,6 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     const inputEl = this.produitbox()?.inputEL?.nativeElement;
     if (inputEl) {
       inputEl.value = '';
-    }
-  }
-
-  private clearActiveElement(): void {
-    const activeElement = document.activeElement as HTMLInputElement;
-    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-      activeElement.value = '';
     }
   }
 
@@ -364,7 +347,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           search: barcode,
           storageId: this.storageId(),
         },
-        this.storageId() !== null
+        this.storageId() !== null,
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -372,7 +355,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.isScanning = false;
           this.produits.set([]);
           return of({ body: [] });
-        })
+        }),
       )
       .subscribe(res => {
         const result = res.body || [];
@@ -394,6 +377,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private loadProduits(search: string): void {
+    // Ignorer les recherches obsolètes (input vidé par reset() après un scan global)
+    const inputEl = this.produitbox()?.inputEL?.nativeElement;
+    if (inputEl && !inputEl.value?.trim()) {
+      return;
+    }
+
     this.produitService
       .search(
         {
@@ -402,13 +391,13 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           search,
           storageId: this.storageId(),
         },
-        this.storageId() !== null
+        this.storageId() !== null,
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           return of({ body: [] });
-        })
+        }),
       )
       .subscribe(res => {
         const result = res.body || [];
@@ -418,10 +407,14 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.produitSelected = selected;
           this.selectProduit.set(selected);
           this.productSelected.emit(selected);
+          // Cacher le dropdown après auto-sélection du résultat unique
+          const autocomplete = this.produitbox();
+          if (autocomplete) {
+            autocomplete.hide();
+          }
         } else {
           this.selectProduit.set(null);
         }
       });
   }
 }
-

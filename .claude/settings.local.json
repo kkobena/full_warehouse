@@ -61,7 +61,11 @@
       "Bash(ls:*)",
       "Bash(./gradlew.bat compileDebugKotlin:*)",
       "Bash(./gradlew.bat:*)",
-      "Bash(gradlew.bat assembleDebug:*)"
+      "Bash(gradlew.bat assembleDebug:*)",
+      "WebFetch(domain:www.winpharma.com)",
+      "WebFetch(domain:www.clubofficine.fr)",
+      "WebFetch(domain:www.nngroup.com)",
+      "WebFetch(domain:support.soopos.com)"
     ],
     "deny": [],
     "ask": []

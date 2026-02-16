@@ -31,6 +31,9 @@ import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
   selector: 'app-sales-home',
   templateUrl: './sales-home.component.html',
   styleUrls: ['./sales-home.component.scss'],
+  host: {
+    '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
+  },
   imports: [
     CommonModule,
     FormsModule,
@@ -345,6 +348,52 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       }
 
       // Focus sur le tab actif après chargement
+      this.focusActiveTab();
+    }
+  }
+
+  // ===== Raccourcis clavier globaux =====
+
+  /**
+   * Gère les raccourcis globaux (navigation inter-onglets, ventes en attente).
+   * Les F-keys contextuelles (F1-F10) sont gérées par les composants enfants.
+   */
+  handleGlobalKeyboardEvent(event: KeyboardEvent): void {
+    // Alt+1/2/3 : Switch type de vente
+    if (event.altKey && !event.ctrlKey && ['1', '2', '3'].includes(event.key)) {
+      event.preventDefault();
+      const tabMap: Record<string, string> = { '1': 'comptant', '2': 'assurance', '3': 'carnet' };
+      this.switchToTab(tabMap[event.key]);
+      return;
+    }
+
+    // F11 : Ouvrir ventes en attente (pas en mode prévente)
+    if (event.key === 'F11' && !this.isPresaleMode()) {
+      event.preventDefault();
+      this.openPendingSales();
+      return;
+    }
+  }
+
+  /**
+   * Bascule vers un onglet avec confirmation si une vente est en cours.
+   * Réutilise la même logique que onNavChange() pour la confirmation.
+   */
+  private switchToTab(tab: string): void {
+    if (tab === this.active()) return;
+
+    const currentSale = this.salesFacade.currentSale();
+    if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
+      this.confirmDialog().onConfirm(
+        () => {
+          this.active.set(tab);
+          this.focusActiveTab();
+        },
+        'Changement de type de vente',
+        'Vous avez une vente en cours. Voulez-vous vraiment changer de type de vente ?',
+      );
+    } else {
+      this.active.set(tab);
       this.focusActiveTab();
     }
   }

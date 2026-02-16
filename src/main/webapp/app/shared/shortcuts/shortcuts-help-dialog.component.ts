@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Button } from 'primeng/button';
 import { KeyboardShortcut } from '../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
-import { SellingHomeShortcutsService } from '../../entities/sales/selling-home/racourci/selling-home-shortcuts.service';
+import { ShortcutsProvider } from './shortcuts-provider.interface';
 
 interface ShortcutDisplay {
   keys: string[];
@@ -404,7 +404,7 @@ interface CategoryDisplay {
 })
 export class ShortcutsHelpDialogComponent implements OnInit {
   public activeModal = inject(NgbActiveModal);
-  public shortcutsService?: SellingHomeShortcutsService;
+  public shortcutsService?: ShortcutsProvider;
 
   sortedCategories: CategoryDisplay[] = [];
   isRunningInTauri = false;

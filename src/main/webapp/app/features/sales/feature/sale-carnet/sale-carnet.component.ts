@@ -29,6 +29,7 @@ import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } fro
 import {
   createCustomerHandling,
   createForceStockHandling,
+  createKeyboardShortcuts,
   createPaymentHandling,
   createProductHandling,
   ProductSearchHost,
@@ -54,6 +55,9 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
   selector: 'app-sale-carnet',
   templateUrl: './sale-carnet.component.html',
   styleUrls: ['./sale-carnet.component.scss'],
+  host: {
+    '(window:keydown)': 'handleKeyboardEvent($event)',
+  },
   imports: [
     CommonModule,
     FormsModule,
@@ -256,6 +260,30 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       }
     },
   });
+
+  // ===== Keyboard Shortcuts Mixin =====
+  private keyboardShortcutsMixin = createKeyboardShortcuts(
+    { saleType: 'CARNET', isPresale: () => this.isPresale() },
+    {
+      focusProductSearch: () => this.focusProductSearch(),
+      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusCustomer: () => {
+        setTimeout(() => this.insuranceDataBar()?.searchInput()?.nativeElement.focus(), 100);
+      },
+      addProduct: () => {
+        const product = this.selectedProduct();
+        if (product) {
+          this.productHandling.onAddQuantity(1);
+        }
+      },
+      clearProduct: () => this.productHandling.resetProductSelection(),
+      finalizeSale: () => this.onSave(),
+      putOnStandby: () => this.onPutOnHold(),
+      cancelSale: () => this.onCancel(),
+      focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
+      saveAsPresale: () => this.onSaveAsPresale(),
+    },
+  );
 
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
@@ -578,6 +606,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         setTimeout(() => this.paymentHandling.completeSale(), 100);
       }
     });
+  }
+
+  // ===== Raccourcis clavier =====
+
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    this.keyboardShortcutsMixin.handleKeyboardEvent(event);
   }
 
   // ===== Payment =====

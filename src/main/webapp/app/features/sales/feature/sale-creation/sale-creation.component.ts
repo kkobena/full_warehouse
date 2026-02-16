@@ -29,7 +29,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
 import { ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { createForceStockHandling, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
+import { createForceStockHandling, createKeyboardShortcuts, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
 import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
@@ -182,6 +182,31 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   // Vendeur sélectionné
   selectedSeller = signal<IUser | null>(null);
+
+  // ===== Keyboard Shortcuts Mixin =====
+  private keyboardShortcuts = createKeyboardShortcuts(
+    { saleType: 'COMPTANT', isPresale: () => this.isPresale() },
+    {
+      focusProductSearch: () => this.productHandling.focusProductSearch(),
+      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusCustomer: () => {
+        // TODO: ouvrir overlay client si nécessaire
+      },
+      addProduct: () => {
+        const product = this.selectedProduct();
+        if (product) {
+          this.facade.addProductToSale(product, 1);
+        }
+      },
+      clearProduct: () => this.productHandling.resetProductSelection(),
+      finalizeSale: () => this.onSave(),
+      putOnStandby: () => this.onPutOnHold(),
+      cancelSale: () => this.onCancel(),
+      focusPayment: () => this.paymentMode()?.focusFirstMode(),
+      printReceipt: () => this.onPrint(),
+      saveAsPresale: () => this.onSaveAsPresale(),
+    },
+  );
 
   // ===== Payment Handling Mixin =====
   private paymentHandling = createPaymentHandling({
@@ -948,95 +973,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   // ===== Raccourcis clavier =====
 
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // F2: Focus recherche produit
-    if (event.key === 'F2') {
-      event.preventDefault();
-      // Le focus sera géré par le composant ProductSearchComponent
-      this.notificationService.info('Raccourci', 'F2: Focus recherche produit');
-    }
-
-    // F5: Ajouter produit sélectionné
-    if (event.key === 'F5') {
-      event.preventDefault();
-      const product = this.selectedProduct();
-      if (product) {
-        this.facade.addProductToSale(product, 1);
-      } else {
-        this.notificationService.warning('Aucun produit', "Veuillez sélectionner un produit d'abord");
-      }
-    }
-
-    // F6: Mettre en attente (Put on standby)
-    if (event.key === 'F6') {
-      event.preventDefault();
-      this.onPutOnHold();
-    }
-
-    // F7: Annuler la vente
-    if (event.key === 'F7') {
-      event.preventDefault();
-      this.onCancel();
-    }
-
-    // F8: Enregistrer la vente
-    if (event.key === 'F8') {
-      event.preventDefault();
-      if (this.canSave()) {
-        this.onSave();
-      } else {
-        this.notificationService.warning('Vente invalide', "Impossible d'enregistrer la vente");
-      }
-    }
-
-    // F9: Ventes en attente
-    if (event.key === 'F9') {
-      event.preventDefault();
-      this.openPendingSales();
-    }
-
-    // F10: Focus mode de paiement
-    if (event.key === 'F10') {
-      event.preventDefault();
-      if (this.currentSale() && this.salesLines().length > 0) {
-        // Le composant payment est déjà visible inline, on peut simplement mettre le focus
-        // TODO: Ajouter une méthode focus() au PaymentModeComponent si nécessaire
-        console.log('F10: Focus mode de paiement');
-      } else {
-        this.notificationService.warning('Vente vide', 'Ajoutez des produits avant de payer');
-      }
-    }
-
-    // F11: Focus sélection client (COMPTANT uniquement)
-    if (event.key === 'F11') {
-      event.preventDefault();
-      if (this.selectedSaleType() === 'COMPTANT') {
-        // Le customer overlay panel s'ouvrira via un clic programmé ou un signal
-        this.notificationService.info('Sélection client', 'Cliquez sur le bouton client dans le header');
-      } else {
-        this.notificationService.info('Non disponible', 'La sélection client est uniquement pour les ventes COMPTANT');
-      }
-    }
-
-    // Escape: Annuler
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.onCancel();
-    }
-
-    // Ctrl+S: Enregistrer
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-      event.preventDefault();
-      if (this.canSave()) {
-        this.onSave();
-      }
-    }
-
-    // Ctrl+P: Enregistrer et imprimer
-    if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
-      event.preventDefault();
-      if (this.canSave()) {
-        this.onSaveAndPrint();
-      }
-    }
+    this.keyboardShortcuts.handleKeyboardEvent(event);
   }
 }

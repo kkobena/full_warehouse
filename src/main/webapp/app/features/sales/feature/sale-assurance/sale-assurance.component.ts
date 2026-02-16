@@ -49,6 +49,7 @@ import { CashRegisterFormComponent } from '../../../../entities/cash-register/us
 import {
   createCustomerHandling,
   createForceStockHandling,
+  createKeyboardShortcuts,
   createPaymentHandling,
   createProductHandling,
   ProductSearchHost,
@@ -287,14 +288,28 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     },
   });
 
-  // Keyboard shortcuts state
-  private readonly keyboardShortcuts = [
-    { key: 'F2', action: () => this.productHandling.focusProductSearch(), description: 'Recherche produit' },
-    { key: 'F3', action: () => this.focusCustomerSearch(), description: 'Recherche client' },
-    { key: 'F4', action: () => this.putOnStandby(), description: 'Mise en attente' },
-    { key: 'F9', action: () => this.onSave(), description: 'Finaliser' },
-    { key: 'F10', action: () => this.onCancel(), description: 'Annuler' },
-  ];
+  // ===== Keyboard Shortcuts Mixin =====
+  private keyboardShortcutsMixin = createKeyboardShortcuts(
+    { saleType: 'ASSURANCE', isPresale: () => this.isPresale() },
+    {
+      focusProductSearch: () => this.productHandling.focusProductSearch(),
+      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusCustomer: () => this.focusCustomerSearch(),
+      addProduct: () => {
+        const product = this.selectedProduct();
+        if (product) {
+          this.productHandling.onAddQuantity(1);
+        }
+      },
+      clearProduct: () => this.productHandling.resetProductSelection(),
+      finalizeSale: () => this.onSave(),
+      putOnStandby: () => this.putOnStandby(),
+      cancelSale: () => this.onCancel(),
+      focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
+      printReceipt: () => this.onPrint(),
+      saveAsPresale: () => this.onSaveAsPresale(),
+    },
+  );
 
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
@@ -949,17 +964,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // ============================================
 
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // Ignorer si focus dans un input/textarea
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-      return;
-    }
-
-    const shortcut = this.keyboardShortcuts.find(s => s.key === event.key);
-    if (shortcut) {
-      event.preventDefault();
-      shortcut.action();
-    }
+    this.keyboardShortcutsMixin.handleKeyboardEvent(event);
   }
 
   // ============================================

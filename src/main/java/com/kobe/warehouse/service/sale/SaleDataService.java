@@ -311,6 +311,11 @@ public class SaleDataService {
         return new PageImpl<>(results.stream().map(this::buildDepotExtensionSaleDTO).toList(), pageable, totalCount);
     }
 
+    //TODO: factoriser avec listVenteTerminees sans transactional qui est couteux en ressource et qui peut poser des problèmes de concurrence et de performance, il faut juste faire attention à la session et au fetch des associations pour éviter les problèmes de lazy loading
+    //TODO: utiliser une projection pour éviter de charger toutes les associations et de faire le mapping en base de données plutôt que dans l'application, cela permettra d'améliorer les performances et de réduire la consommation de mémoire
+    //TODO: construire une requete native pour éviter les problèmes de performance liés à la construction de la requete criteria qui peut être complexe et couteuse en ressource, cela permettra d'améliorer les performances et de réduire la consommation de mémoire
+    //TODO: construire les requetes dynamique en fonction des critères de recherche
+    //TODO: utiiser un pattern builder pour construire le DTO de retour
     @Transactional
     public Page<SaleDTO> listVenteTerminees(
         String search,
@@ -399,7 +404,7 @@ public class SaleDataService {
         return new PageImpl<>(results.stream().map(sales -> {
             System.err.println("SALE ID " + sales.getId() + " SALE DATE " + sales.getSaleDate());
             var dto = buildSaleDTO(sales);
-            dto.setPayments(salePaymentRepository.findAllBySaleIdAndSaleSaleDate(sales.getId().getId(),sales.getSaleDate()).stream().map(pa -> {
+            dto.setPayments(salePaymentRepository.findAllBySaleIdAndSaleSaleDate(sales.getId().getId(), sales.getSaleDate()).stream().map(pa -> {
                 PaymentDTO paymentDTO = new PaymentDTO();
                 paymentDTO.setPaidAmount(pa.getPaidAmount());
                 paymentDTO.setNetAmount(pa.getReelAmount());

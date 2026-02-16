@@ -77,3 +77,11 @@ export {
   type CustomerHandlingContext,
   type CustomerSearchHost,
 } from './customer-handling.mixin';
+
+// Keyboard shortcuts mixin
+export {
+  createKeyboardShortcuts,
+  type KeyboardShortcutsMixin,
+  type SaleShortcutCallbacks,
+  type KeyboardShortcutsConfig,
+} from './keyboard-shortcuts.mixin';

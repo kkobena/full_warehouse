@@ -402,19 +402,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         const result = res.body || [];
         this.produits.set(result);
-        if (result.length === 1) {
-          const selected = result[0];
-          this.produitSelected = selected;
-          this.selectProduit.set(selected);
-          this.productSelected.emit(selected);
-          // Cacher le dropdown après auto-sélection du résultat unique
-          const autocomplete = this.produitbox();
-          if (autocomplete) {
-            autocomplete.hide();
-          }
-        } else {
-          this.selectProduit.set(null);
-        }
+        // Ne pas auto-sélectionner : laisser l'utilisateur choisir dans le dropdown
+        // (évite les sélections involontaires pendant la saisie manuelle)
+        this.selectProduit.set(null);
       });
   }
 }

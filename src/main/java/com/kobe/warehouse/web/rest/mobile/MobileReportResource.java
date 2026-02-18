@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.mobile;
 
+import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.domain.enumeration.BCGCategory;
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.ClassePareto;
@@ -49,6 +50,8 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -611,24 +614,25 @@ public class MobileReportResource {
     // -------------------------------------------------------------------------
 
     /**
-     * GET /api/mobile/reports/stock-valuation/all
+     * GET /api/mobile/reports/stock-valuation
      * Get all stock valuation data with pagination.
      *
-     * @param page Page number (0-indexed, default 0)
-     * @param size Page size (default 50)
+
      * @return List of products with stock valuation and pagination headers
      */
-    @GetMapping("/reports/stock-valuation/all")
-    public ResponseEntity<List<StockValuationDTO>> getAllStockValuation(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "50") int size
+    @GetMapping("/reports/stock-valuation")
+    public ResponseEntity<List<StockValuationView>> getAllStockValuation( Pageable pageable ,
+        @RequestParam(value = "familleProduitId",required = false) Integer familleProduitId,
+        @RequestParam(value = "rayonId",required = false) Integer rayonId
+
     ) {
-        LOG.debug("REST request to get all stock valuation - page: {}, size: {}", page, size);
+
+        Page<StockValuationView> page= stockValuationReportService.getStockValuationPaginated(familleProduitId, rayonId,pageable);
         return PaginationHelper.createPaginatedResponse(
-            () -> stockValuationReportService.getStockValuationPaginated(page, size),
-            () -> stockValuationReportService.getStockValuationCount(),
-            page,
-            size
+            page::getContent,
+            page::getTotalElements,
+            pageable.getPageNumber(),
+            pageable.getPageSize()
         );
     }
 
@@ -644,35 +648,8 @@ public class MobileReportResource {
         return ResponseEntity.ok(stockValuationReportService.getStockValuationSummary());
     }
 
-    /**
-     * GET /api/mobile/reports/stock-valuation/by-category
-     * Get stock valuation filtered by category.
-     *
-     * @param category Category name
-     * @return List of products in category with valuation
-     */
-    @GetMapping("/reports/stock-valuation/by-category")
-    public ResponseEntity<List<StockValuationDTO>> getStockValuationByCategory(
-        @RequestParam String category
-    ) {
-        LOG.debug("REST request to get stock valuation for category: {}", category);
-        return ResponseEntity.ok(stockValuationReportService.getStockValuationByCategory(category));
-    }
 
-    /**
-     * GET /api/mobile/reports/stock-valuation/by-storage
-     * Get stock valuation filtered by storage location.
-     *
-     * @param rayonId Rayon id
-     * @return List of products in storage with valuation
-     */
-    @GetMapping("/reports/stock-valuation/by-storage")
-    public ResponseEntity<List<StockValuationDTO>> getStockValuationByStorage(
-        @RequestParam Integer rayonId
-    ) {
-        LOG.debug("REST request to get stock valuation for storage: {}", rayonId);
-        return ResponseEntity.ok(stockValuationReportService.getStockValuationByRayon(rayonId));
-    }
+
 
     // -------------------------------------------------------------------------
     // Rentabilité (Profitability)

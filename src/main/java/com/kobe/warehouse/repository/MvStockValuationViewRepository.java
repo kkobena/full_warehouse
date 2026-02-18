@@ -6,17 +6,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * Repository pour la vue matérialisée mv_semois_suggestion.
- * LECTURE SEULE: Cette vue est rafraîchie automatiquement tous les jours à 3h du matin
- * après le recalcul SEMOIS. Ne jamais tenter d'écrire dans cette vue.
- */
+
 @Repository
-public interface MvStockValuationViewRepository extends JpaRepository<MvStockValuationView, Integer> {
+public interface MvStockValuationViewRepository extends JpaRepository<MvStockValuationView, Integer>, JpaSpecificationExecutor<MvStockValuationView> {
     //total_sales_value DESC
     List<MvStockValuationView> findAllByOrderByTotalSalesValueDesc();
 

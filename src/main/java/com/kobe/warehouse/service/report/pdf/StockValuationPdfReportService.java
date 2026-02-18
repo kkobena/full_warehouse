@@ -1,11 +1,13 @@
 package com.kobe.warehouse.service.report.pdf;
 
 import com.kobe.warehouse.config.FileStorageProperties;
+import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import com.kobe.warehouse.service.report.StockValuationReportService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -49,8 +51,8 @@ public class StockValuationPdfReportService extends AbstractStatistiqueReportSer
     }
 
 
-    public byte[] export() {
-        List<StockValuationDTO> valuations = stockValuationReportService.getAllStockValuation();
+    public byte[] export(Integer familleProduitId, Integer rayonId) {
+        List<StockValuationView> valuations = stockValuationReportService.getStockValuation(familleProduitId, rayonId);
         StockValuationSummaryDTO summary = stockValuationReportService.getStockValuationSummary();
 
         this.getParameters().put("valuations", valuations);

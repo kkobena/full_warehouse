@@ -1,33 +1,13 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.service.dto.report.StockValuationDTO;
+import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface StockValuationReportService {
-    /**
-     * Get all stock valuation data
-     *
-     * @return List of stock valuation records
-     */
-    List<StockValuationDTO> getAllStockValuation();
-
-    /**
-     * Get stock valuation filtered by category
-     *
-     * @param categorie The category name to filter by
-     * @return List of stock valuation records for the category
-     */
-    List<StockValuationDTO> getStockValuationByCategory(String categorie);
-
-    /**
-     * Get stock valuation filtered by storage location
-     *
-     * @param rayonId The storage location id to filter by
-     * @return List of stock valuation records for the storage location
-     */
-    List<StockValuationDTO> getStockValuationByRayon(Integer rayonId);
 
     /**
      * Get aggregated stock valuation summary
@@ -36,16 +16,6 @@ public interface StockValuationReportService {
      */
     StockValuationSummaryDTO getStockValuationSummary();
 
-    /**
-     * Get stock valuation data with pagination
-     *
-     * @param page Page number (0-indexed)
-     * @param size Page size
-     * @return List of stock valuation records for the page
-     */
-    List<StockValuationDTO> getStockValuationPaginated(int page, int size);
-
-    List<StockValuationDTO> getStockValuationByRayonPaginated(int page, int size);
 
     /**
      * Get total count of stock valuation records
@@ -53,4 +23,10 @@ public interface StockValuationReportService {
      * @return Total count
      */
     long getStockValuationCount();
+
+    Page<StockValuationView> getStockValuationPaginated(Integer familleProduitId, Integer rayonId, Pageable pageable);
+
+    List<StockValuationView> getStockValuation(Integer familleProduitId, Integer rayonId);
+
+
 }

@@ -33,8 +33,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
-import com.kobe.warehouse.service.dto.PaymentDTO;
-import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
@@ -401,8 +399,7 @@ public class SaleDataService {
 
         List<Sales> results = q.getResultList();
 
-        return new PageImpl<>(results.stream().map(sales -> {
-            System.err.println("SALE ID " + sales.getId() + " SALE DATE " + sales.getSaleDate());
+      /*  return new PageImpl<>(results.stream().map(sales -> {
             var dto = buildSaleDTO(sales);
             dto.setPayments(salePaymentRepository.findAllBySaleIdAndSaleSaleDate(sales.getId().getId(), sales.getSaleDate()).stream().map(pa -> {
                 PaymentDTO paymentDTO = new PaymentDTO();
@@ -414,7 +411,10 @@ public class SaleDataService {
                 return paymentDTO;
             }).toList());
             return dto;
-        }).toList(), pageable, totalCount);
+        }).toList(), pageable, totalCount);*/
+
+
+        return new PageImpl<>(results.stream().map(this::buildSaleDTO).toList(), pageable, totalCount);
     }
 
     private long countVentesDepot(

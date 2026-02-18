@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.sale;
 
+import com.kobe.warehouse.Util;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -22,8 +23,10 @@ import com.kobe.warehouse.domain.ThirdPartySales_;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.VenteDepot_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
@@ -36,6 +39,7 @@ import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
+import com.kobe.warehouse.service.dto.UserDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
 import com.kobe.warehouse.service.stock.dto.StockDepotExportDTO;
 import jakarta.persistence.EntityManager;
@@ -63,10 +67,13 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -262,7 +269,6 @@ public class SaleDataService {
         predicates.add(cb.equal(root.get(Sales_.saleDate), now));
     }
 
-    @Transactional
     public Page<DepotExtensionSaleDTO> fetchVenteDepot(
         String search,
         LocalDate fromDate,
@@ -309,12 +315,6 @@ public class SaleDataService {
         return new PageImpl<>(results.stream().map(this::buildDepotExtensionSaleDTO).toList(), pageable, totalCount);
     }
 
-    //TODO: factoriser avec listVenteTerminees sans transactional qui est couteux en ressource et qui peut poser des problèmes de concurrence et de performance, il faut juste faire attention à la session et au fetch des associations pour éviter les problèmes de lazy loading
-    //TODO: utiliser une projection pour éviter de charger toutes les associations et de faire le mapping en base de données plutôt que dans l'application, cela permettra d'améliorer les performances et de réduire la consommation de mémoire
-    //TODO: construire une requete native pour éviter les problèmes de performance liés à la construction de la requete criteria qui peut être complexe et couteuse en ressource, cela permettra d'améliorer les performances et de réduire la consommation de mémoire
-    //TODO: construire les requetes dynamique en fonction des critères de recherche
-    //TODO: utiiser un pattern builder pour construire le DTO de retour
-    @Transactional
     public Page<SaleDTO> listVenteTerminees(
         String search,
         LocalDate fromDate,
@@ -337,84 +337,120 @@ public class SaleDataService {
                 CategorieChiffreAffaire.TO_IGNORE
             );
         }
-        var totalCount = countVentesTerminees(
-            search,
-            fromDate,
-            toDate,
-            fromHour,
-            toHour,
-            global,
-            userId,
-            paymentStatus,
-            isDiffere,
-            categorieChiffreAffaires,
-            userMagasinId
-        );
+
+        List<String> conditions = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+
+        String caIn = String.join(", ", categorieChiffreAffaires.stream()
+            .map(ca -> "'" + ca.name() + "'").toList());
+        conditions.add("s.ca IN (" + caIn + ")");
+        conditions.add("s.statut IN ('CLOSED', 'CANCELED')");
+        conditions.add("m.id = :magasinId");
+        params.put("magasinId", userMagasinId);
+
+        if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
+            conditions.add(type.equals(EntityConstant.VO)
+                ? "s.dtype = 'ThirdPartySales'" : "s.dtype = 'CashSale'");
+        }
+
+        if (fromDate != null && toDate != null) {
+            conditions.add("s.sale_date BETWEEN :fromDate AND :toDate");
+            params.put("fromDate", fromDate);
+            params.put("toDate", toDate);
+        }
+
+        if (Boolean.TRUE.equals(global)) {
+            if (StringUtils.isNotEmpty(search)) {
+                conditions.add(
+                    "EXISTS (SELECT 1 FROM sales_line sl" +
+                    " JOIN produit p ON sl.produit_id = p.id" +
+                    " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id" +
+                    " WHERE sl.sales_id = s.id AND sl.sales_sale_date = s.sale_date" +
+                    " AND (UPPER(p.libelle) LIKE :search" +
+                    " OR p.code_ean_labo LIKE :search" +
+                    " OR fp.code_cip LIKE :search" +
+                    " OR fp.code_ean LIKE :search))"
+                );
+                params.put("search", search.toUpperCase() + "%");
+            }
+            if (isValidHour(fromHour, toHour)) {
+                conditions.add("TO_CHAR(s.updated_at, 'HH24:MI') BETWEEN :fromHour AND :toHour");
+                params.put("fromHour", fromHour + ":00");
+                params.put("toHour", toHour + ":59");
+            }
+        } else {
+            if (StringUtils.isNotEmpty(search)) {
+                conditions.add("s.number_transaction LIKE :refSearch");
+                params.put("refSearch", search.toUpperCase() + "%");
+            }
+        }
+
+        if (userId != null) {
+            conditions.add("(cas.id = :userId OR u.id = :userId OR sel.id = :userId)");
+            params.put("userId", userId);
+        }
+
+        if (paymentStatus != null && !paymentStatus.equals(PaymentStatus.ALL)) {
+            conditions.add("s.payment_status = :paymentStatus");
+            params.put("paymentStatus", paymentStatus.name());
+        }
+
+        if (isDiffere != null) {
+            conditions.add("s.differe = :isDiffere");
+            params.put("isDiffere", isDiffere);
+        }
+
+        String whereClause = " WHERE " + String.join(" AND ", conditions);
+
+        String baseJoins =
+            " FROM sales s" +
+            " JOIN app_user u ON s.user_id = u.id" +
+            " JOIN magasin m ON u.magasin_id = m.id" +
+            " JOIN app_user sel ON s.seller_id = sel.id" +
+            " JOIN app_user cas ON s.caissier_id = cas.id";
+
+        var countQuery = em.createNativeQuery("SELECT COUNT(DISTINCT s.id)" + baseJoins + whereClause);
+        params.forEach(countQuery::setParameter);
+        long totalCount = ((Number) countQuery.getSingleResult()).longValue();
+
         if (totalCount == 0) {
             return new PageImpl<>(Collections.emptyList(), pageable, totalCount);
         }
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
 
-        Root<Sales> root = cq.from(Sales.class);
-        Join<Sales, AppUser> userJoin = root.join(Sales_.user);
-        Join<AppUser, Magasin> magasinJoin = userJoin.join(AppUser_.magasin);
-        if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
-            if (type.equals(EntityConstant.VO)) {
-                Root<ThirdPartySales> thirdPartySalesRoot = cb.treat(root, ThirdPartySales.class);
-                cq.select(thirdPartySalesRoot).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
-            } else {
-                Root<CashSale> cashSaleRoot = cb.treat(root, CashSale.class);
-                cq.select(cashSaleRoot).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
-            }
-        } else {
-            cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
-        }
-        List<Predicate> predicates = new ArrayList<>();
-        predicatesVentesTerminees(
-            search,
-            fromDate,
-            toDate,
-            fromHour,
-            toHour,
-            global,
-            userId,
-            paymentStatus,
-            isDiffere,
-            predicates,
-            cb,
-            root,
-            userJoin,
-            magasinJoin,
-            userMagasinId,
-            categorieChiffreAffaires
+        String selectClause =
+            "SELECT s.dtype, s.id, s.sale_date, s.number_transaction," +
+            " s.discount_amount, s.sales_amount, s.amount_to_be_paid, s.rest_to_pay," +
+            " s.statut, s.payment_status, s.nature_vente, s.type_prescription," +
+            " s.differe, s.canceled, s.created_at, s.updated_at," +
+            " s.commentaire, s.monnaie, s.tvaembeded," +
+            " s.num_bon, s.part_assure, s.part_tiers_payant," +
+            " CONCAT(u.first_name, ' ', u.last_name)," +
+            " sel.id, sel.first_name, sel.last_name," +
+            " cas.id, cas.first_name, cas.last_name," +
+            " p.poste_number, lp.poste_number," +
+            " c.id";
+
+        String dataJoins = baseJoins +
+            " LEFT JOIN poste p ON s.caisse_id = p.id" +
+            " LEFT JOIN poste lp ON s.lastcaisse_id = lp.id" +
+            " LEFT JOIN customer c ON s.customer_id = c.id";
+
+        var dataQuery = em.createNativeQuery(
+            selectClause + dataJoins + whereClause + " ORDER BY s.updated_at DESC"
         );
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Sales> q = em.createQuery(cq);
-
+        params.forEach(dataQuery::setParameter);
         if (pageable != null) {
-            q.setFirstResult((int) pageable.getOffset());
-            q.setMaxResults(pageable.getPageSize());
+            dataQuery.setFirstResult((int) pageable.getOffset());
+            dataQuery.setMaxResults(pageable.getPageSize());
         }
 
-        List<Sales> results = q.getResultList();
-
-      /*  return new PageImpl<>(results.stream().map(sales -> {
-            var dto = buildSaleDTO(sales);
-            dto.setPayments(salePaymentRepository.findAllBySaleIdAndSaleSaleDate(sales.getId().getId(), sales.getSaleDate()).stream().map(pa -> {
-                PaymentDTO paymentDTO = new PaymentDTO();
-                paymentDTO.setPaidAmount(pa.getPaidAmount());
-                paymentDTO.setNetAmount(pa.getReelAmount());
-                paymentDTO.setPaymentMode(new PaymentModeDTO(pa.getPaymentMode()));
-                paymentDTO.setMontantVerse(pa.getMontantVerse());
-                System.err.println("PAID AMOUNT " + pa.getPaidAmount());
-                return paymentDTO;
-            }).toList());
-            return dto;
-        }).toList(), pageable, totalCount);*/
-
-
-        return new PageImpl<>(results.stream().map(this::buildSaleDTO).toList(), pageable, totalCount);
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = dataQuery.getResultList();
+        return new PageImpl<>(
+            rows.stream().map(SaleDataService::mapRowToSaleDTO).toList(),
+            pageable,
+            totalCount
+        );
     }
 
     private long countVentesDepot(
@@ -450,49 +486,6 @@ public class SaleDataService {
         return q.getSingleResult();
     }
 
-    private long countVentesTerminees(
-        String search,
-        LocalDate fromDate,
-        LocalDate toDate,
-        String fromHour,
-        String toHour,
-        Boolean global,
-        Integer userId,
-        PaymentStatus paymentStatus,
-        Boolean isDiffere,
-        Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        long userMagasinId
-    ) {
-        List<Predicate> predicates = new ArrayList<>();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Sales> root = cq.from(Sales.class);
-        Join<Sales, AppUser> userJoin = root.join(Sales_.user);
-        Join<AppUser, Magasin> magasinJoin = userJoin.join(AppUser_.magasin);
-        predicatesVentesTerminees(
-            search,
-            fromDate,
-            toDate,
-            fromHour,
-            toHour,
-            global,
-            userId,
-            paymentStatus,
-            isDiffere,
-            predicates,
-            cb,
-            root,
-            userJoin,
-            magasinJoin,
-            userMagasinId,
-            categorieChiffreAffaires
-        );
-        cq.select(cb.countDistinct(root));
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Long> q = em.createQuery(cq);
-        return q.getSingleResult();
-    }
-
     private void buildDepotPredicatSaleLines(String query, CriteriaBuilder cb, List<Predicate> predicates, Root<VenteDepot> root) {
         if (StringUtils.isNotEmpty(query)) {
             if (StringUtils.isNotEmpty(query)) {
@@ -512,90 +505,11 @@ public class SaleDataService {
         }
     }
 
-    private void lineSetJoin(String query, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
-        if (StringUtils.isNotEmpty(query)) {
-            if (StringUtils.isNotEmpty(query)) {
-                query = query.toUpperCase() + "%";
-                SetJoin<Sales, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
-                Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
-                SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
-                predicates.add(
-                    cb.or(
-                        cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
-                        cb.like(produitJoin.get(Produit_.codeEanLaboratoire), query),
-                        cb.like(fp.get(FournisseurProduit_.codeCip), query),
-                        cb.like(fp.get(FournisseurProduit_.codeEan), query)
-                    )
-                );
-            }
-        }
-    }
-
-    private void periodeDatePredicat(
-        LocalDate fromDate,
-        LocalDate toDate,
-        CriteriaBuilder cb,
-        List<Predicate> predicates,
-        Root<Sales> root
-    ) {
-        if (fromDate != null && toDate != null) {
-            predicates.add(cb.between(root.get(Sales_.saleDate), fromDate, toDate));
-        }
-    }
-
-    private void periodeTimePredicat(String fromHour, String toHour, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
-        if (isValidHour(fromHour, toHour)) {
-            Expression<String> timeExpr = cb.function("TO_CHAR", String.class, root.get(Sales_.updatedAt), cb.literal("HH24:MI"));
-            predicates.add(cb.between(timeExpr, fromHour.concat(":00"), toHour.concat(":59")));
-        }
-    }
-
     private boolean isValidHour(String fromHour, String toHour) {
         if (StringUtils.isEmpty(fromHour) || StringUtils.isEmpty(toHour)) {
             return false;
         }
         return !fromHour.equals(DEFAULT_HEURE_DEBUT) && !toHour.equals(DEFAULT_HEURE_FIN);
-    }
-
-    private void predicatesVentesTerminees(
-        String search,
-        LocalDate fromDate,
-        LocalDate toDate,
-        String fromHour,
-        String toHour,
-        Boolean global,
-        Integer userId,
-        PaymentStatus paymentStatus,
-        Boolean isDiffere,
-        List<Predicate> predicates,
-        CriteriaBuilder cb,
-        Root<Sales> root,
-        Join<Sales, AppUser> userJoin,
-        Join<AppUser, Magasin> magasinJoin,
-        Long userMagasinId,
-        Set<CategorieChiffreAffaire> categorieChiffreAffaires
-    ) {
-        predicates.add(root.get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires));
-        if (global) {
-            lineSetJoin(search, cb, predicates, root);
-            periodeDatePredicat(fromDate, toDate, cb, predicates, root);
-            periodeTimePredicat(fromHour, toHour, cb, predicates, root);
-        } else { // recherche par reference
-            periodeDatePredicat(fromDate, toDate, cb, predicates, root); // a cause du partitionnement par date
-            predicatRechercheParReference(search, cb, predicates, root);
-        }
-        periodeUserPredicat(userId, cb, predicates, root, userJoin);
-        // predicates.add(cb.isFalse(root.get(Sales_.canceled)));
-        predicates.add(root.get(Sales_.statut).in(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)));
-        predicates.add(cb.equal(magasinJoin.get(Magasin_.id), userMagasinId));
-        impayePredicats(predicates, cb, root, paymentStatus);
-        if (isDiffere != null) {
-            if (isDiffere) {
-                predicates.add(cb.isTrue(root.get(Sales_.differe)));
-            } else {
-                predicates.add(cb.isFalse(root.get(Sales_.differe)));
-            }
-        }
     }
 
     private void predicatesVentesDepot(
@@ -623,39 +537,6 @@ public class SaleDataService {
         predicates.add(root.get(VenteDepot_.statut).in(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)));
         predicates.add(cb.equal(root.get(VenteDepot_.user).get(AppUser_.magasin), getUser().getMagasin()));
         buildVenteDepotImpayePredicats(predicates, cb, root, paymentStatus);
-    }
-
-    private void periodeUserPredicat(
-        Integer userId,
-        CriteriaBuilder cb,
-        List<Predicate> predicates,
-        Root<Sales> root,
-        Join<Sales, AppUser> userJoin
-    ) {
-        if (userId != null) {
-            Join<Sales, AppUser> caissierJoin = root.join(Sales_.caissier);
-            Join<Sales, AppUser> selleJoin = root.join(Sales_.seller);
-            predicates.add(
-                cb.or(
-                    cb.equal(caissierJoin.get(AppUser_.id), userId),
-                    cb.equal(userJoin.get(AppUser_.id), userId),
-                    cb.equal(selleJoin.get(AppUser_.id), userId)
-                )
-            );
-        }
-    }
-
-    private void predicatRechercheParReference(String query, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
-        if (StringUtils.isNotEmpty(query) && StringUtils.isNotEmpty(query)) {
-            query = query.toUpperCase() + "%";
-            predicates.add(cb.like(root.get(Sales_.numberTransaction), query));
-        }
-    }
-
-    private void impayePredicats(List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, PaymentStatus paymentStatus) {
-        if (paymentStatus != null && !paymentStatus.equals(PaymentStatus.ALL)) {
-            predicates.add(cb.equal(root.get(Sales_.paymentStatus), paymentStatus));
-        }
     }
 
     private void buildVenteDepotImpayePredicats(
@@ -743,8 +624,6 @@ public class SaleDataService {
         Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
         Join<SalesLine, Sales> saleJoin = root.join(SalesLine_.sales);
         Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduitPrincipal);
-        //Long produitId, String code, String produitLibelle, String codeEan, Integer quantitySold, Integer quantityRequested, Integer regularUnitPrice, Integer taxValue, Integer costAmount
-        //java.lang.Integer, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer
         cq
             .select(
                 cb.construct(
@@ -776,5 +655,211 @@ public class SaleDataService {
             specification = specification.and(salesRepository.hasCaissier(storageService.getUser()));
         }
         return salesRepository.count(specification);
+    }
+
+    private static SaleDTO mapRowToSaleDTO(Object[] row) {
+        int i = 0;
+        String dtype = (String) row[i++];
+        Long id = ((Number) row[i++]).longValue();
+        LocalDate saleDate = toLocalDate(row[i++]);
+        String numberTransaction = (String) row[i++];
+        Integer discountAmount = asInteger(row[i++]);
+        Integer salesAmount = asInteger(row[i++]);
+        Integer amountToBePaid = asInteger(row[i++]);
+        Integer restToPay = asInteger(row[i++]);
+        String statut = (String) row[i++];
+        String paymentStatus = (String) row[i++];
+        String natureVente = (String) row[i++];
+        String typePrescription = (String) row[i++];
+        boolean differe = Boolean.TRUE.equals(row[i++]);
+        boolean canceled = Boolean.TRUE.equals(row[i++]);
+        LocalDateTime createdAt = toLocalDateTime(row[i++]);
+        LocalDateTime updatedAt = toLocalDateTime(row[i++]);
+        String commentaire = (String) row[i++];
+        Integer monnaie = asInteger(row[i++]);
+        String tvaEmbeded = (String) row[i++];
+        String numBon = (String) row[i++];
+        Integer partAssure = asInteger(row[i++]);
+        Integer partTiersPayant = asInteger(row[i++]);
+        String userFullName = (String) row[i++];
+        Integer sellerId = asInteger(row[i++]);
+        String sellerFirstName = (String) row[i++];
+        String sellerLastName = (String) row[i++];
+        Integer cassierId = asInteger(row[i++]);
+        String cassierFirstName = (String) row[i++];
+        String cassierLastName = (String) row[i++];
+        String caisseNum = (String) row[i++];
+        String caisseEndNum = (String) row[i++];
+        Integer customerId = asInteger(row[i]);
+
+        return SaleDTOBuilder.of(dtype)
+            .id(id, saleDate)
+            .numberTransaction(numberTransaction)
+            .amounts(discountAmount, salesAmount, amountToBePaid, restToPay, monnaie)
+            .statut(statut, paymentStatus)
+            .saleInfo(natureVente, typePrescription, commentaire)
+            .flags(differe, canceled)
+            .dates(createdAt, updatedAt)
+            .tvaEmbeded(tvaEmbeded)
+            .thirdPartyInfo(numBon, partAssure, partTiersPayant)
+            .user(userFullName)
+            .seller(sellerId, sellerFirstName, sellerLastName)
+            .cassier(cassierId, cassierFirstName, cassierLastName)
+            .caisses(caisseNum, caisseEndNum)
+            .customerId(customerId)
+            .build();
+    }
+
+    private static Integer asInteger(Object o) {
+        if (o == null) return null;
+        return ((Number) o).intValue();
+    }
+
+    private static LocalDate toLocalDate(Object o) {
+        if (o == null) return null;
+        if (o instanceof LocalDate ld) return ld;
+        if (o instanceof java.sql.Date d) return d.toLocalDate();
+        return (LocalDate) o;
+    }
+
+    private static LocalDateTime toLocalDateTime(Object o) {
+        if (o == null) return null;
+        if (o instanceof LocalDateTime ldt) return ldt;
+        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime();
+        return (LocalDateTime) o;
+    }
+
+    private static final class SaleDTOBuilder {
+
+        private final SaleDTO dto;
+
+        private SaleDTOBuilder(String dtype) {
+            this.dto = switch (dtype) {
+                case "ThirdPartySales" -> new ThirdPartySaleDTO();
+                case "VenteDepot" -> new DepotExtensionSaleDTO();
+                default -> new CashSaleDTO();
+            };
+        }
+
+        static SaleDTOBuilder of(String dtype) {
+            return new SaleDTOBuilder(dtype);
+        }
+
+        SaleDTOBuilder id(Long id, LocalDate saleDate) {
+            dto.setId(id);
+            dto.setSaleId(new SaleId(id, saleDate));
+            return this;
+        }
+
+        SaleDTOBuilder numberTransaction(String numberTransaction) {
+            dto.setNumberTransaction(numberTransaction);
+            return this;
+        }
+
+        SaleDTOBuilder amounts(Integer discountAmount, Integer salesAmount,
+                               Integer amountToBePaid, Integer restToPay, Integer monnaie) {
+            dto.setDiscountAmount(discountAmount);
+            dto.setSalesAmount(salesAmount);
+            int sa = salesAmount != null ? salesAmount : 0;
+            int da = discountAmount != null ? discountAmount : 0;
+            dto.setNetAmount(sa - da);
+            dto.setAmountToBePaid(amountToBePaid);
+            dto.setRestToPay(restToPay);
+            dto.setMontantRendu(monnaie);
+            return this;
+        }
+
+        SaleDTOBuilder statut(String statut, String paymentStatus) {
+            dto.setStatut(SalesStatut.valueOf(statut));
+            dto.setPaymentStatus(PaymentStatus.valueOf(paymentStatus));
+            return this;
+        }
+
+        SaleDTOBuilder saleInfo(String natureVente, String typePrescription, String commentaire) {
+            dto.setNatureVente(NatureVente.valueOf(natureVente));
+            dto.setTypePrescription(TypePrescription.valueOf(typePrescription));
+            dto.setCommentaire(commentaire);
+            return this;
+        }
+
+        SaleDTOBuilder flags(boolean differe, boolean canceled) {
+            dto.setDiffere(differe);
+            dto.setCanceled(canceled);
+            return this;
+        }
+
+        SaleDTOBuilder dates(LocalDateTime createdAt, LocalDateTime updatedAt) {
+            dto.setCreatedAt(createdAt);
+            dto.setUpdatedAt(updatedAt);
+            return this;
+        }
+
+        SaleDTOBuilder tvaEmbeded(String tvaEmbeded) {
+            dto.setTvaEmbededs(Util.transformTvaEmbeded(tvaEmbeded));
+            return this;
+        }
+
+        SaleDTOBuilder thirdPartyInfo(String numBon, Integer partAssure, Integer partTiersPayant) {
+            if (dto instanceof ThirdPartySaleDTO tp) {
+                tp.setNumBon(numBon);
+                tp.setPartAssure(partAssure);
+                tp.setPartTiersPayant(partTiersPayant);
+                tp.setCategorie("VO");
+            }
+            return this;
+        }
+
+        SaleDTOBuilder user(String userFullName) {
+            dto.setUserFullName(userFullName);
+            return this;
+        }
+
+        SaleDTOBuilder seller(Integer id, String firstName, String lastName) {
+            if (id == null) return this;
+            UserDTO seller = new UserDTO();
+            seller.setId(id);
+            seller.setFirstName(firstName);
+            seller.setLastName(lastName);
+            seller.setFullName(firstName + " " + lastName);
+            seller.setAbbrName(firstName.charAt(0) + ". " + lastName);
+            dto.setSeller(seller);
+            dto.setSellerId(id);
+            return this;
+        }
+
+        SaleDTOBuilder cassier(Integer id, String firstName, String lastName) {
+            if (id == null) return this;
+            UserDTO cassier = new UserDTO();
+            cassier.setId(id);
+            cassier.setFirstName(firstName);
+            cassier.setLastName(lastName);
+            cassier.setFullName(firstName + " " + lastName);
+            cassier.setAbbrName(firstName.charAt(0) + ". " + lastName);
+            dto.setCassier(cassier);
+            dto.setCassierId(id);
+            return this;
+        }
+
+        SaleDTOBuilder caisses(String caisseNum, String caisseEndNum) {
+            dto.setCaisseNum(caisseNum);
+            dto.setCaisseEndNum(caisseEndNum);
+            return this;
+        }
+
+        SaleDTOBuilder customerId(Integer customerId) {
+            dto.setCustomerId(customerId);
+            return this;
+        }
+
+        SaleDTO build() {
+            switch (dto) {
+                case CashSaleDTO _ -> dto.setCategorie("VNO");
+                case ThirdPartySaleDTO _ -> dto.setCategorie("VO");
+                case DepotExtensionSaleDTO _ -> dto.setCategorie("DEPOT");
+                default -> {
+                }
+            }
+            return dto;
+        }
     }
 }

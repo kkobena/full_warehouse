@@ -35,6 +35,7 @@ import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
@@ -46,7 +47,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -79,6 +79,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -363,13 +364,13 @@ public class SaleDataService {
             if (StringUtils.isNotEmpty(search)) {
                 conditions.add(
                     "EXISTS (SELECT 1 FROM sales_line sl" +
-                    " JOIN produit p ON sl.produit_id = p.id" +
-                    " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id" +
-                    " WHERE sl.sales_id = s.id AND sl.sales_sale_date = s.sale_date" +
-                    " AND (UPPER(p.libelle) LIKE :search" +
-                    " OR p.code_ean_labo LIKE :search" +
-                    " OR fp.code_cip LIKE :search" +
-                    " OR fp.code_ean LIKE :search))"
+                        " JOIN produit p ON sl.produit_id = p.id" +
+                        " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id" +
+                        " WHERE sl.sales_id = s.id AND sl.sales_sale_date = s.sale_date" +
+                        " AND (UPPER(p.libelle) LIKE :search" +
+                        " OR p.code_ean_labo LIKE :search" +
+                        " OR fp.code_cip LIKE :search" +
+                        " OR fp.code_ean LIKE :search))"
                 );
                 params.put("search", search.toUpperCase() + "%");
             }
@@ -404,10 +405,10 @@ public class SaleDataService {
 
         String baseJoins =
             " FROM sales s" +
-            " JOIN app_user u ON s.user_id = u.id" +
-            " JOIN magasin m ON u.magasin_id = m.id" +
-            " JOIN app_user sel ON s.seller_id = sel.id" +
-            " JOIN app_user cas ON s.caissier_id = cas.id";
+                " JOIN app_user u ON s.user_id = u.id" +
+                " JOIN magasin m ON u.magasin_id = m.id" +
+                " JOIN app_user sel ON s.seller_id = sel.id" +
+                " JOIN app_user cas ON s.caissier_id = cas.id";
 
         var countQuery = em.createNativeQuery("SELECT COUNT(DISTINCT s.id)" + baseJoins + whereClause);
         params.forEach(countQuery::setParameter);
@@ -419,16 +420,15 @@ public class SaleDataService {
 
         String selectClause =
             "SELECT s.dtype, s.id, s.sale_date, s.number_transaction," +
-            " s.discount_amount, s.sales_amount, s.amount_to_be_paid, s.rest_to_pay," +
-            " s.statut, s.payment_status, s.nature_vente, s.type_prescription," +
-            " s.differe, s.canceled, s.created_at, s.updated_at," +
-            " s.commentaire, s.monnaie, s.tvaembeded," +
-            " s.num_bon, s.part_assure, s.part_tiers_payant," +
-            " CONCAT(u.first_name, ' ', u.last_name)," +
-            " sel.id, sel.first_name, sel.last_name," +
-            " cas.id, cas.first_name, cas.last_name," +
-            " p.poste_number, lp.poste_number," +
-            " c.id";
+                " s.discount_amount, s.sales_amount, s.amount_to_be_paid, s.rest_to_pay," +
+                " s.statut, s.payment_status, s.nature_vente, s.type_prescription," +
+                " s.differe, s.canceled, s.created_at, s.updated_at," +
+                " s.commentaire, s.monnaie, s.tvaembeded," +
+                " s.num_bon, s.part_assure, s.part_tiers_payant," +
+                " CONCAT(u.first_name, ' ', u.last_name)," +
+                " sel.id, sel.first_name, sel.last_name," +
+                " cas.id, cas.first_name, cas.last_name," +
+                " p.poste_number, lp.poste_number,c.first_name,c.last_name,c.phone,c.id";
 
         String dataJoins = baseJoins +
             " LEFT JOIN poste p ON s.caisse_id = p.id" +
@@ -690,6 +690,10 @@ public class SaleDataService {
         String cassierLastName = (String) row[i++];
         String caisseNum = (String) row[i++];
         String caisseEndNum = (String) row[i++];
+        String firstName = (String) row[i++];
+        String lastName = (String) row[i++];
+        String phone = (String) row[i++];
+
         Integer customerId = asInteger(row[i]);
 
         return SaleDTOBuilder.of(dtype)
@@ -706,7 +710,7 @@ public class SaleDataService {
             .seller(sellerId, sellerFirstName, sellerLastName)
             .cassier(cassierId, cassierFirstName, cassierLastName)
             .caisses(caisseNum, caisseEndNum)
-            .customerId(customerId)
+            .customer(customerId, firstName, lastName, phone)
             .build();
     }
 
@@ -716,17 +720,21 @@ public class SaleDataService {
     }
 
     private static LocalDate toLocalDate(Object o) {
-        if (o == null) return null;
-        if (o instanceof LocalDate ld) return ld;
-        if (o instanceof java.sql.Date d) return d.toLocalDate();
-        return (LocalDate) o;
+        return switch (o) {
+            case null -> null;
+            case LocalDate ld -> ld;
+            case java.sql.Date d -> d.toLocalDate();
+            default -> (LocalDate) o;
+        };
     }
 
     private static LocalDateTime toLocalDateTime(Object o) {
-        if (o == null) return null;
-        if (o instanceof LocalDateTime ldt) return ldt;
-        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime();
-        return (LocalDateTime) o;
+        return switch (o) {
+            case null -> null;
+            case LocalDateTime ldt -> ldt;
+            case java.sql.Timestamp ts -> ts.toLocalDateTime();
+            default -> (LocalDateTime) o;
+        };
     }
 
     private static final class SaleDTOBuilder {
@@ -846,8 +854,20 @@ public class SaleDataService {
             return this;
         }
 
-        SaleDTOBuilder customerId(Integer customerId) {
-            dto.setCustomerId(customerId);
+
+        SaleDTOBuilder customer(Integer customerId, String firstName, String lastName, String phone) {
+            if (nonNull(customerId)) {
+                dto.setCustomerId(customerId);
+                var customer = new CustomerDTO();
+                customer.setId(customerId);
+                customer.setFirstName(firstName);
+                customer.setLastName(lastName);
+                customer.setPhone(phone);
+                customer.setFullName(firstName + " " + lastName);
+                dto.setCustomer(customer);
+            }
+
+
             return this;
         }
 

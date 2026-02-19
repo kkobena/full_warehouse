@@ -11,19 +11,22 @@ import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Set;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
@@ -91,13 +94,14 @@ public class SaleDTO implements Serializable {
     private String commentaire;
     private boolean canceled;
 
-    public SaleDTO() {}
+    public SaleDTO() {
+    }
 
     public SaleDTO(Sales sale) {
         this.saleId = sale.getId();
         this.id = saleId.getId();
         this.commentaire = sale.getCommentaire();
-        this.canceled=sale.isCanceled();
+        this.canceled = sale.isCanceled();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {
             if (thirdPartySales.getCustomer() != null) {
@@ -135,12 +139,14 @@ public class SaleDTO implements Serializable {
         this.statut = sale.getStatut();
         this.createdAt = sale.getCreatedAt();
         this.updatedAt = sale.getUpdatedAt();
-        this.salesLines = sale
+        buildItemDTOFromSaleLines(sale
+            .getSalesLines());
+       /* this.salesLines = sale
             .getSalesLines()
             .stream()
             .map(SaleLineDTO::new)
             .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
-            .toList();
+            .toList();*/
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
 
         AppUser user = sale.getUser();
@@ -173,6 +179,20 @@ public class SaleDTO implements Serializable {
             }
         }
 
+    }
+
+    private void buildItemDTOFromSaleLines(Set<SalesLine> salesLines) {
+        int montantTva = 0;
+        int montantHt = 0;
+        for (SalesLine salesLine : salesLines) {
+            SaleLineDTO saleLineDTO = new SaleLineDTO(salesLine);
+            montantTva += Objects.requireNonNullElse(saleLineDTO.getTaxAmount(), 0);
+            montantHt += Objects.requireNonNullElse(saleLineDTO.getHtAmount(), 0);
+            this.salesLines.add(saleLineDTO);
+        }
+        this.taxAmount = montantTva;
+        this.htAmount = montantHt;
+        this.salesLines.sort(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()));
     }
 
     public Long getId() {
@@ -657,27 +677,27 @@ public class SaleDTO implements Serializable {
     }
 
     public static CashSaleDTO toSaleDTOConverter(CashSale cashSale) {
-            if (cashSale == null) {
-                return null;
-            }
-            CashSaleDTO dto = new CashSaleDTO();
-            dto.setId(cashSale.getId().getId());
-            dto.setSaleId(cashSale.getId());
-            dto.setDiscountAmount(cashSale.getDiscountAmount());
-            dto.setNumberTransaction(cashSale.getNumberTransaction());
-            dto.setSalesAmount(cashSale.getSalesAmount());
-            dto.setHtAmount(cashSale.getHtAmount());
-            dto.setNetAmount(cashSale.getNetAmount());
-            dto.setTaxAmount(cashSale.getTaxAmount());
-            dto.setCostAmount(cashSale.getCostAmount());
-            dto.setAmountToBePaid(cashSale.getAmountToBePaid());
-            dto.setStatut(cashSale.getStatut());
-            dto.setCreatedAt(cashSale.getCreatedAt());
-            dto.setUpdatedAt(cashSale.getUpdatedAt());
-            dto.setDiffere(cashSale.isDiffere());
-            dto.setMontantRendu(cashSale.getMonnaie());
-            dto.setRestToPay(cashSale.getRestToPay());
-            return dto;
+        if (cashSale == null) {
+            return null;
         }
+        CashSaleDTO dto = new CashSaleDTO();
+        dto.setId(cashSale.getId().getId());
+        dto.setSaleId(cashSale.getId());
+        dto.setDiscountAmount(cashSale.getDiscountAmount());
+        dto.setNumberTransaction(cashSale.getNumberTransaction());
+        dto.setSalesAmount(cashSale.getSalesAmount());
+        dto.setHtAmount(cashSale.getHtAmount());
+        dto.setNetAmount(cashSale.getNetAmount());
+        dto.setTaxAmount(cashSale.getTaxAmount());
+        dto.setCostAmount(cashSale.getCostAmount());
+        dto.setAmountToBePaid(cashSale.getAmountToBePaid());
+        dto.setStatut(cashSale.getStatut());
+        dto.setCreatedAt(cashSale.getCreatedAt());
+        dto.setUpdatedAt(cashSale.getUpdatedAt());
+        dto.setDiffere(cashSale.isDiffere());
+        dto.setMontantRendu(cashSale.getMonnaie());
+        dto.setRestToPay(cashSale.getRestToPay());
+        return dto;
+    }
 
 }

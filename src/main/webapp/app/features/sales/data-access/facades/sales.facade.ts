@@ -1,13 +1,13 @@
-import { computed, inject, Injectable } from '@angular/core';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, finalize, map, Observable, of, pipe, Subject, switchMap, tap } from 'rxjs';
-import { SalesStore } from '../store/sales.store';
-import { SalesApiService } from '../services/sales-api.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISales, SaleId, UpdateSaleInfo } from '../../../../shared/model/sales.model';
-import { createSalesLineFromProduct } from '../utils/sales-line.utils';
-import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch, SalesStatut } from '../../../../shared/model';
-import { PrintService } from '../services/print.service';
+import {computed, inject, Injectable} from '@angular/core';
+import {rxMethod} from '@ngrx/signals/rxjs-interop';
+import {catchError, finalize, map, Observable, of, pipe, Subject, switchMap, tap} from 'rxjs';
+import {SalesStore} from '../store/sales.store';
+import {SalesApiService} from '../services/sales-api.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {ISales, SaleId, UpdateSaleInfo} from '../../../../shared/model/sales.model';
+import {createSalesLineFromProduct} from '../utils/sales-line.utils';
+import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch, SalesStatut} from '../../../../shared/model';
+import {PrintService} from '../services/print.service';
 
 /**
  * Configuration pour la création d'une vente
@@ -48,7 +48,7 @@ interface ExecuteAndReloadOptions {
  * this.facade.addProductToSale(product, quantity);
  * this.facade.saveSale();
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SalesFacade {
   private readonly store = inject(SalesStore);
   private readonly apiService = inject(SalesApiService);
@@ -88,6 +88,9 @@ export class SalesFacade {
 
   private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
   readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
+
+  private readonly cashSaleTransformedSubject = new Subject<'ASSURANCE' | 'CARNET'>();
+  readonly cashSaleTransformed$ = this.cashSaleTransformedSubject.asObservable();
 
   // ============================================
   // EXPOSE STORE STATE (Read-only)
@@ -211,7 +214,7 @@ export class SalesFacade {
       }
     }
 
-    return { errorMessage, errorKey };
+    return {errorMessage, errorKey};
   }
 
   /**
@@ -219,7 +222,7 @@ export class SalesFacade {
    */
   private handleCreateSaleError(error: any, initialLine: ISalesLine, defaultMessage: string): Observable<null> {
     console.error('Error creating sale:', error);
-    const { errorMessage, errorKey } = this.extractApiError(error, defaultMessage);
+    const {errorMessage, errorKey} = this.extractApiError(error, defaultMessage);
 
     if (errorKey === 'stock') {
       this.store.setError(errorMessage);
@@ -284,7 +287,7 @@ export class SalesFacade {
         this.store.setLoading(true);
 
         return config.apiCall(sale).pipe(
-          map(createdSale => ({ createdSale, initialLine })),
+          map(createdSale => ({createdSale, initialLine})),
           catchError(error => this.handleCreateSaleError(error, initialLine, config.defaultErrorMessage)),
         );
       }),
@@ -320,7 +323,7 @@ export class SalesFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product:', error);
-          const { errorMessage, errorKey } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
+          const {errorMessage, errorKey} = this.extractApiError(error, "Erreur lors de l'ajout du produit");
 
           // Si erreur de stock, recharger la vente pour récupérer l'état actuel
           // La ligne peut déjà exister si le produit a été ajouté précédemment
@@ -335,13 +338,13 @@ export class SalesFacade {
 
                   const lineToAttempt: ISalesLine = existingLine
                     ? {
-                        ...existingLine,
-                        quantityRequested: salesLine.quantityRequested || 1,
-                        saleCompositeId: existingLine.saleCompositeId || {
-                          id: currentSale.saleId!.id,
-                          saleDate: currentSale.saleId!.saleDate,
-                        },
-                      }
+                      ...existingLine,
+                      quantityRequested: salesLine.quantityRequested || 1,
+                      saleCompositeId: existingLine.saleCompositeId || {
+                        id: currentSale.saleId!.id,
+                        saleDate: currentSale.saleId!.saleDate,
+                      },
+                    }
                     : salesLine;
 
                   this.store.setError(errorMessage);
@@ -458,6 +461,65 @@ export class SalesFacade {
   // ============================================
   // BUSINESS ACTIONS (High-level)
   // ============================================
+
+  /**
+   * Transforme une vente comptant (VNO) en vente ASSURANCE.
+   * Équivalent de onChangeCashSaleToVo() du legacy selling-home.component.ts.
+   * Émet cashSaleTransformed$ avec 'ASSURANCE' après succès.
+   */
+  transformCashSaleToAssurance(): void {
+    this.doTransformCashSale('ASSURANCE');
+  }
+
+  /**
+   * Transforme une vente comptant (VNO) en vente CARNET.
+   * Équivalent de onChangeCashSaleToCarnet() du legacy selling-home.component.ts.
+   * Émet cashSaleTransformed$ avec 'CARNET' après succès.
+   */
+  transformCashSaleToCarnet(): void {
+    this.doTransformCashSale('CARNET');
+  }
+
+  /**
+   * Helper commun pour la transformation VNO → ASSURANCE ou CARNET.
+   * 1. Vide le client sélectionné
+   * 2. Appelle l'API transform
+   * 3. Recharge la vente transformée
+   * 4. Met à jour le store (sale, saleType, customer si présent)
+   * 5. Émet cashSaleTransformed$
+   */
+  private doTransformCashSale(natureVente: 'ASSURANCE' | 'CARNET'): void {
+    const currentSale = this.store.currentSale();
+    if (!currentSale?.saleId) {
+      return;
+    }
+
+    this.store.setSelectedCustomer(null);
+    this.store.setLoading(true);
+
+    this.apiService
+      .transformSale(natureVente, currentSale.saleId)
+      .pipe(
+        switchMap(saleId => this.apiService.findSale(saleId)),
+        tap(sale => {
+          this.store.setVoFromCashSale(true);
+          this.store.setCurrentSale(sale);
+          this.store.setSaleType(natureVente);
+          if (sale.customer) {
+            this.store.setSelectedCustomer(sale.customer);
+          }
+          this.store.setLoading(false);
+          this.cashSaleTransformedSubject.next(natureVente);
+        }),
+        catchError(err => {
+          const errorMessage = err?.error?.message || err?.error?.detail || 'Erreur lors de la transformation de la vente';
+          this.notificationService.error(errorMessage);
+          this.store.setLoading(false);
+          return of(null);
+        }),
+      )
+      .subscribe();
+  }
 
   /**
    * Create a new comptant sale
@@ -1017,11 +1079,11 @@ export class SalesFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error adding product:', error);
-          const { errorMessage, errorKey } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
+          const {errorMessage, errorKey} = this.extractApiError(error, "Erreur lors de l'ajout du produit");
 
           // Stocker l'erreur avec les détails pour traitement par le composant
           this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine });
+          this.store.setLastErrorDetails({errorKey, originalError: error, attemptedLine: newLine});
           this.notificationService.error(errorMessage);
           this.store.setLoading(false);
           return of(null);
@@ -1214,7 +1276,7 @@ export class SalesFacade {
     }
 
     const isComptant = saleType === 'COMPTANT';
-    const key = { id: currentSale.saleId, value: remise?.id! };
+    const key = {id: currentSale.saleId, value: remise?.id!};
 
     let action$;
     if (remise) {
@@ -1253,7 +1315,7 @@ export class SalesFacade {
     this.store.setSelectedCustomer(customer);
 
     // Determine which endpoint to use based on sale type
-    const updateSaleInfo: UpdateSaleInfo = { id: currentSale.saleId, value: customer.id! };
+    const updateSaleInfo: UpdateSaleInfo = {id: currentSale.saleId, value: customer.id!};
     const updateObservable$ =
       currentSale.type === 'VNO'
         ? this.apiService.addCustommerToCashSale(updateSaleInfo)
@@ -1271,7 +1333,7 @@ export class SalesFacade {
       )
       .subscribe(sale => {
         if (sale) {
-          this.store.setCurrentSale({ ...sale, differe: currentSale.differe, avoir: currentSale.avoir }); // Conserver les flags differe et avoir qui ne sont pas gérés par le backend
+          this.store.setCurrentSale({...sale, differe: currentSale.differe, avoir: currentSale.avoir}); // Conserver les flags differe et avoir qui ne sont pas gérés par le backend
           this.customerSetSuccessSubject.next();
         }
       });

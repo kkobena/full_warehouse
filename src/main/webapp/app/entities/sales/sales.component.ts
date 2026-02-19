@@ -260,7 +260,13 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.fetchSales(this.page, this.itemsPerPage);
     }
   }
-
+  onRowExpand(event: any): void {
+    this.salesService.find(event.data?.saleId).subscribe(res => {
+      if (res.body) {
+        Object.assign(event.data, res.body);
+      }
+    });
+  }
   protected onSearch(): void {
     this.searchSubject.next();
   }

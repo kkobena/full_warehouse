@@ -2,13 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.Immutable;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * Entité en lecture seule mappée sur la vue matérialisée mv_stock_valuation.
@@ -16,8 +10,7 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "mv_stock_valuation_by_rayon")
-@Immutable // Hibernate: empêche INSERT/UPDATE/DELETE
-public class MvStockValuationByRayonView  extends StockValuationView  {
+public class MvStockValuationByRayonView extends StockValuationView {
 
     @Column(name = "rayon")
     private String rayon;

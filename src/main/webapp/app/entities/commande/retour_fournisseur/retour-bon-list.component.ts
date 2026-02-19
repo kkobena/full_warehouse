@@ -32,7 +32,7 @@ export type ExpandMode = 'single' | 'multiple';
     TooltipModule,
     TagModule,
     ToastModule,
-    ConfirmDialogModule,
+    ConfirmDialogModule ,
     RippleModule,
     WarehouseCommonModule,
   ],

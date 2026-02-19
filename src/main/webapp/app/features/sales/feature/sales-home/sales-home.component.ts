@@ -1,35 +1,56 @@
-﻿import { AfterViewInit, Component, computed, DestroyRef, effect, inject, input, model, OnInit, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { Drawer } from 'primeng/drawer';
-import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
-import { Select } from 'primeng/select';
-import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
-import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
-import { SaleCarnetComponent } from '../sale-carnet/sale-carnet.component';
-import { CustomerOverlayPanelComponent, PendingSalesListComponent } from '../../ui';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { IUser } from '../../../../core/user/user.model';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
-import { AccountService } from '../../../../core/auth/account.service';
-import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
-import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
-import { SalesApiService } from '../../data-access/services/sales-api.service';
-import { finalize, interval } from 'rxjs';
-import { ProduitSearch, SalesStatut } from '../../../../shared/model';
-import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
-import { GlobalScannerService } from '../../../../shared/global-scanner.service';
-import { ProduitService } from '../../../../entities/produit/produit.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ScanAudioFeedbackService } from '../../../../shared/services/scan-audio-feedback.service';
+﻿import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  model,
+  OnInit,
+  signal,
+  viewChild
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {Button} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {Drawer} from 'primeng/drawer';
+import {
+  NgbNav,
+  NgbNavChangeEvent,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavOutlet
+} from '@ng-bootstrap/ng-bootstrap';
+import {Select} from 'primeng/select';
+import {SaleCreationComponent} from '../sale-creation/sale-creation.component';
+import {SaleAssuranceComponent} from '../sale-assurance/sale-assurance.component';
+import {SaleCarnetComponent} from '../sale-carnet/sale-carnet.component';
+import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import {IUser} from '../../../../core/user/user.model';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ToastAlertComponent} from '../../../../shared/toast-alert/toast-alert.component';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {MagasinService} from '../../../../entities/magasin/magasin.service';
+import {AccountService} from '../../../../core/auth/account.service';
+import {CashRegisterService} from '../../../../entities/cash-register/cash-register.service';
+import {RemiseCacheService} from '../../data-access/services/remise-cache.service';
+import {SalesApiService} from '../../data-access/services/sales-api.service';
+import {finalize, interval} from 'rxjs';
+import {ProduitSearch, SalesStatut} from '../../../../shared/model';
+import {SaleForEditInfo, SaleId} from '../../../../shared/model/sales.model';
+import {GlobalScannerService} from '../../../../shared/global-scanner.service';
+import {ProduitService} from '../../../../entities/produit/produit.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
+import {getNavChangeMessage, SaleType} from "../../../../entities/sales/selling-home/sale-helper";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sales-home',
@@ -70,6 +91,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private cashRegisterService = inject(CashRegisterService);
   private destroyRef = inject(DestroyRef);
   private remiseCacheService = inject(RemiseCacheService);
+  private readonly translate = inject(TranslateService);
   private globalScanner = inject(GlobalScannerService);
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
@@ -154,7 +176,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       const saleId: SaleId = saleInfo.saleId;
       const isPresale = saleInfo.isPresale === true;
       this.isPresaleFromRoute.set(isPresale);
-      this.initSaleForEditInfo.set({ saleId, isPresale, isEdit });
+      this.initSaleForEditInfo.set({saleId, isPresale, isEdit});
       this.loadSale(saleId);
     }
 
@@ -207,23 +229,101 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       .subscribe(resp => this.countPendingSales.set(resp?.body?.toString() ?? '0'));
   }
 
+  private getMessateOnNavChange(evt: NgbNavChangeEvent): string {
+    return getNavChangeMessage(evt.nextId, this.translate);
+  }
+
+
+
   protected onNavChange(evt: NgbNavChangeEvent): void {
-    const newTab = evt.nextId;
+    const fromTab = this.active();
+    const toTab = evt.nextId;
     const currentSale = this.salesFacade.currentSale();
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
+      evt.preventDefault();
       this.confirmDialog().onConfirm(
         () => {
-          this.active.set(newTab);
+          this.dispatchTabTransition(fromTab, toTab);
+          this.active.set(toTab);
           this.focusActiveTab();
         },
         'Changement de type de vente',
-        'Vous avez une vente en cours. Voulez-vous vraiment changer de type de vente ?',
+        this.getMessateOnNavChange(evt),
       );
-      evt.preventDefault();
     } else {
-      this.active.set(newTab);
+      this.salesFacade.setSelectedCustomer(null);
+      this.active.set(toTab);
       this.focusActiveTab();
     }
+  }
+
+  /**
+   * Transforme la vente comptant courante en vente ASSURANCE.
+   */
+  onChangeCashSaleToVo(): void {
+    this.salesFacade.transformCashSaleToAssurance();
+  }
+
+  /**
+   * Transforme la vente comptant courante en vente CARNET.
+   */
+  onChangeCashSaleToCarnet(): void {
+    this.salesFacade.transformCashSaleToCarnet();
+  }
+
+  // ===== Transitions entre onglets =====
+
+  /**
+   * Dispatch de la transition entre deux onglets quand une vente est en cours.
+   * Utilisé par onNavChange() et switchToTab().
+   */
+  private dispatchTabTransition(fromTab: string, toTab: string): void {
+    if (fromTab === SaleType.COMPTANT && toTab === SaleType.ASSURANCE) {
+      this.switchComptantToAssurance();
+    } else if (fromTab === SaleType.COMPTANT && toTab === SaleType.CARNET) {
+      this.switchComptantToCarnet();
+    } else if (fromTab === SaleType.ASSURANCE && toTab === SaleType.COMPTANT) {
+      this.switchAssuranceToComptant();
+    } else if (fromTab === SaleType.ASSURANCE && toTab === SaleType.CARNET) {
+      this.switchAssuranceToCarnet();
+    } else if (fromTab === SaleType.CARNET && toTab === SaleType.COMPTANT) {
+      this.switchCarnetToComptant();
+    } else if (fromTab === SaleType.CARNET && toTab === SaleType.ASSURANCE) {
+      this.switchCarnetToAssurance();
+    }
+  }
+
+  /** COMPTANT → ASSURANCE : vide le client puis transforme la vente en assurance */
+  private switchComptantToAssurance(): void {
+    this.salesFacade.setSelectedCustomer(null);
+    this.onChangeCashSaleToVo();
+  }
+
+  /** COMPTANT → CARNET : vide le client puis transforme la vente en carnet */
+  private switchComptantToCarnet(): void {
+    this.salesFacade.setSelectedCustomer(null);
+    this.onChangeCashSaleToCarnet();
+  }
+
+  /** ASSURANCE → COMPTANT : annule la vente VO en cours (mise en attente) */
+  private switchAssuranceToComptant(): void {
+    this.salesFacade.resetCurrentSale();
+  }
+
+  /** ASSURANCE → CARNET : transforme la vente assurance en carnet (conserve le client) */
+  private switchAssuranceToCarnet(): void {
+    this.onChangeCashSaleToCarnet();
+  }
+
+  /** CARNET → COMPTANT : annule la vente carnet en cours */
+  private switchCarnetToComptant(): void {
+    this.salesFacade.resetCurrentSale();
+  }
+
+  /** CARNET → ASSURANCE : vide le client puis transforme la vente en assurance */
+  private switchCarnetToAssurance(): void {
+    this.salesFacade.setSelectedCustomer(null);
+    this.onChangeCashSaleToVo();
   }
 
   /**
@@ -389,7 +489,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // 1. Raccourcis clavier (Alt+1/2/3, F11)
     if (event.altKey && !event.ctrlKey && ['1', '2', '3'].includes(event.key)) {
       event.preventDefault();
-      const tabMap: Record<string, string> = { '1': 'comptant', '2': 'assurance', '3': 'carnet' };
+      const tabMap: Record<string, string> = {'1': 'comptant', '2': 'assurance', '3': 'carnet'};
       this.switchToTab(tabMap[event.key]);
       return;
     }
@@ -419,12 +519,14 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Réutilise la même logique que onNavChange() pour la confirmation.
    */
   private switchToTab(tab: string): void {
-    if (tab === this.active()) return;
+    const fromTab = this.active();
+    if (tab === fromTab) return;
 
     const currentSale = this.salesFacade.currentSale();
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
       this.confirmDialog().onConfirm(
         () => {
+          this.dispatchTabTransition(fromTab, tab);
           this.active.set(tab);
           this.focusActiveTab();
         },
@@ -432,6 +534,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         'Vous avez une vente en cours. Voulez-vous vraiment changer de type de vente ?',
       );
     } else {
+      this.salesFacade.setSelectedCustomer(null);
       this.active.set(tab);
       this.focusActiveTab();
     }
@@ -459,7 +562,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   private searchAndDispatch(code: string): void {
     this.produitService
-      .search({ page: 0, size: 5, search: code }, false)
+      .search({page: 0, size: 5, search: code}, false)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
@@ -529,7 +632,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       const isProductSearch = activeEl.closest('app-product-search');
       if (!isProductSearch) {
         activeEl.value = '';
-        activeEl.dispatchEvent(new Event('input', { bubbles: true }));
+        activeEl.dispatchEvent(new Event('input', {bubbles: true}));
       }
     }
   }

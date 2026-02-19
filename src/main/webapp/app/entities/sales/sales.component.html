@@ -144,6 +144,7 @@
     <div class="mt-3 -mb-3">
       @if (sales && sales.length > 0) {
         <p-table
+          (onRowExpand)="onRowExpand($event)"
           (onLazyLoad)="lazyLoading($event)"
           [(selection)]="selectedEl"
           [lazy]="true"
@@ -164,10 +165,10 @@
             <tr class="pharma-table-head">
               <th style="width: 3%"></th>
               <th style="width: 12%">Date</th>
-              <th style="width: 5%">Type</th>
-              <th style="width: 8%">Référence</th>
-              <th style="width: 6%">Nbre d'articles</th>
-              <th style="width: 6%">Montant</th>
+              <th style="width: 7%">Type</th>
+              <th style="width: 11%">Référence</th>
+           <!--   <th style="width: 6%">Nbre d'articles</th>-->
+              <th style="width: 8%">Montant</th>
               <th style="width: 16%">Client</th>
               <th style="width: 15%">Vendeur</th>
               <th style="width: 15%">Caissier</th>
@@ -196,7 +197,7 @@
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-              <td class="text-right">{{ sale.salesLines.length | number }}</td>
+            <!--  <td class="text-right">{{ sale.salesLines.length | number }}</td>-->
               <td [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
                 {{ sale.salesAmount | number }}
               </td>
@@ -388,9 +389,9 @@
                                     <span class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
                                   </td>
                                   <td class="text-right">
-                                    <span class="pharma-badge pharma-badge-info">{{ tp?.taux }}%</span>
+                                    <span class="fs-6">{{ tp?.taux }}%</span>
                                   </td>
-                                  <td class="text-right pharma-price">{{ tp?.montant | number }}</td>
+                                  <td class="fs-6 text-right pharma-price">{{ tp?.montant | number }}</td>
                                 </tr>
                               </ng-template>
                             </p-table>

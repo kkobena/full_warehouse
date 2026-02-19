@@ -234,7 +234,7 @@ export class SalesFacade {
       });
       // NE PAS afficher le toast - le dialog sera affiché par l'effect
     } else if (errorKey === 'stockChInsufisant') {
-      console.warn('deconditionnement error on create sale, passing through for mixin to handle:', errorKey);
+
       this.store.setError(errorMessage);
       this.store.setLastErrorDetails({
         errorKey,
@@ -370,10 +370,6 @@ export class SalesFacade {
               map((): null => null),
             );
           }
-          console.warn('deconditionnement error, not handling in facade, passing through for mixin to handle:', {
-            errorKey,
-            errorMessage
-          });
           // Pour les autres erreurs, traitement normal
           this.store.setError(errorMessage);
           this.store.setLastErrorDetails({
@@ -1210,7 +1206,10 @@ export class SalesFacade {
             return of(null);
           } else {
             // Autres erreurs : toast simple
-            this.notificationService.error(errorMessage);
+            if (errorKey !== 'stockChInsufisant') {
+              this.notificationService.error(errorMessage);
+            }
+
             this.store.setError(errorMessage);
             this.store.setLastErrorDetails({
               errorKey: errorKey || null,

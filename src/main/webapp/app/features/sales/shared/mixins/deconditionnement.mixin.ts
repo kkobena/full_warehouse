@@ -43,9 +43,11 @@ export interface DeconditionnementHandlingContext {
  * - Annulation propre (effacement erreur + reset sélection produit)
  *
  * Prérequis :
- *  - `createSalesLineFromProduct` doit renseigner `produit.produitId` avec `ProduitSearch.parentId`
- *    (fait dans `sales-line.utils.ts`)
  *  - `createForceStockHandling` doit être initialisé avant ce mixin
+ *
+ * Résolution du CH parent (deux chemins) :
+ *  - Rapide (1 HTTP) : `attemptedLine.produit.produitId` renseigné par `createSalesLineFromProduct`
+ *  - Lent   (2 HTTP) : fallback sur fetch du produit détail (cell edit / lignes backend)
  *
  * @example
  * ```typescript
@@ -87,31 +89,59 @@ export function createDeconditionnementHandling(context: DeconditionnementHandli
 
   /**
    * Point d'entrée principal.
-   * Lit `attemptedLine.produit.produitId` (= parentId du ProduitSearch, renseigné dans
-   * createSalesLineFromProduct) pour obtenir l'ID CH, puis récupère le produit CH
-   * afin de vérifier son stock.
+   *
+   * Deux chemins pour résoudre l'ID du CH parent :
+   *  - Chemin rapide (1 appel HTTP) : `attemptedLine.produit.produitId` est renseigné.
+   *    C'est le cas des lignes créées par `createSalesLineFromProduct` (parentId stocké).
+   *  - Chemin lent  (2 appels HTTP) : seul `attemptedLine.produitId` est disponible.
+   *    C'est le cas des lignes existantes rechargées depuis le backend (cell edit),
+   *    où `produit.produitId` n'est pas retourné par l'API.
    */
   function handleDeconditionnement(errorDetails: { errorKey: string | null; originalError: any; attemptedLine?: ISalesLine }): void {
     if (isHandlingDeconditionnement) return;
     isHandlingDeconditionnement = true;
 
     const attemptedLine = errorDetails.attemptedLine;
-    const chParentId = attemptedLine?.produit?.produitId;
 
-    if (!chParentId) {
+    // Chemin rapide : parentId déjà disponible sur la ligne (via createSalesLineFromProduct)
+    const chParentId = attemptedLine?.produit?.produitId;
+    if (chParentId) {
+      fetchChAndConfirm(attemptedLine, chParentId);
+      return;
+    }
+
+    // Chemin lent : récupérer d'abord le produit détail pour obtenir l'ID CH parent
+    const lineProductId = attemptedLine?.produit?.id ?? attemptedLine?.produitId;
+    if (!lineProductId) {
       releaseHandling();
       facade.clearError();
-      notificationService.error('Stock insuffisant - ce produit ne peut pas être déconditionné');
+      notificationService.error('Stock insuffisant - déconditionnement impossible (identifiant produit introuvable)');
       resetProductSelection();
       return;
     }
 
-    // Récupérer le produit CH (conditionnement parent) pour vérifier son stock
+    produitService.find(lineProductId).subscribe(res => {
+      const detailProduit = res.body;
+      if (!detailProduit?.produitId) {
+        releaseHandling();
+        facade.clearError();
+        notificationService.error('Stock insuffisant - ce produit ne peut pas être déconditionné');
+        resetProductSelection();
+        return;
+      }
+      fetchChAndConfirm(attemptedLine, detailProduit.produitId);
+    });
+  }
+
+  /**
+   * Récupère le produit CH, vérifie son stock, puis affiche le dialogue de confirmation.
+   */
+  function fetchChAndConfirm(line: ISalesLine, chParentId: number): void {
     produitService.find(chParentId).subscribe(res => {
       const chProduit = res.body;
       if (chProduit && (chProduit.totalQuantity ?? 0) > 0) {
         // Le dialogue prend le relais ; le verrou est libéré dans confirm/cancel
-        confirmDeconditionnement(attemptedLine, chProduit);
+        confirmDeconditionnement(line, chProduit);
       } else {
         releaseHandling();
         facade.clearError();

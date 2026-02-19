@@ -151,7 +151,7 @@
                 pInputText
                 [value]="line.quantityRequested"
 
-                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value); $event.target.blur()"
+                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value) "
                 (focus)="$event.target.select()"
                 min="1"
                 class="pharma-input-qty" />
@@ -171,7 +171,7 @@
                 pInputText
                 [value]="line.quantitySold"
 
-                (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value); $event.target.blur()"
+                (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value)"
                 (focus)="$event.target.select()"
                 min="0"
                 class="pharma-input-qty" />

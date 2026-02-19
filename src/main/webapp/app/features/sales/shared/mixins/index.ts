@@ -85,3 +85,11 @@ export {
   type SaleShortcutCallbacks,
   type KeyboardShortcutsConfig,
 } from './keyboard-shortcuts.mixin';
+
+// Deconditionnement handling mixin
+export {
+  createDeconditionnementHandling,
+  type DeconditionnementHandling,
+  type DeconditionnementHandlingContext,
+  type DeconditionnementSaleOperations,
+} from './deconditionnement.mixin';

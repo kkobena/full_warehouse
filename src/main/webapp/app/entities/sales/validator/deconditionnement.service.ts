@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from '../../../shared/model';
 import { ProduitService } from '../../produit/produit.service';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { ISalesLine } from '../../../shared/model';
 import { DeconditionService } from '../../decondition/decondition.service';
 import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
 import { ErrorService } from '../../../shared/error.service';

@@ -233,6 +233,16 @@ export class SalesFacade {
         isFromTableCellEdit: false,
       });
       // NE PAS afficher le toast - le dialog sera affiché par l'effect
+    } else if (errorKey === 'stockChInsufisant') {
+      console.warn('deconditionnement error on create sale, passing through for mixin to handle:', errorKey);
+      this.store.setError(errorMessage);
+      this.store.setLastErrorDetails({
+        errorKey,
+        originalError: error,
+        attemptedLine: initialLine,
+        isFromTableCellEdit: false,
+      });
+      // NE PAS afficher le toast - le dialog de déconditionnement sera affiché par le mixin
     } else {
       this.store.setError(errorMessage);
       this.notificationService.error(errorMessage);
@@ -360,7 +370,10 @@ export class SalesFacade {
               map((): null => null),
             );
           }
-
+          console.warn('deconditionnement error, not handling in facade, passing through for mixin to handle:', {
+            errorKey,
+            errorMessage
+          });
           // Pour les autres erreurs, traitement normal
           this.store.setError(errorMessage);
           this.store.setLastErrorDetails({
@@ -369,7 +382,10 @@ export class SalesFacade {
             attemptedLine: salesLine,
             isFromTableCellEdit: false,
           });
-          this.notificationService.error(errorMessage);
+          // NE PAS afficher le toast pour stockChInsufisant - le mixin déconditionnement gère le dialog
+          if (errorKey !== 'stockChInsufisant') {
+            this.notificationService.error(errorMessage);
+          }
           this.store.setLoading(false);
           return of(null);
         }),
@@ -509,7 +525,7 @@ export class SalesFacade {
             this.store.setSelectedCustomer(sale.customer);
           }
           this.store.setLoading(false);
-          this.cashSaleTransformedSubject.next(natureVente);
+          //  this.cashSaleTransformedSubject.next(natureVente);
         }),
         catchError(err => {
           const errorMessage = err?.error?.message || err?.error?.detail || 'Erreur lors de la transformation de la vente';

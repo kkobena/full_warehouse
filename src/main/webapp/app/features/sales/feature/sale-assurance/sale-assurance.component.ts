@@ -48,6 +48,7 @@ import { UserVendeurService } from '../../../../entities/sales/service/user-vend
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import {
   createCustomerHandling,
+  createDeconditionnementHandling,
   createForceStockHandling,
   createKeyboardShortcuts,
   createPaymentHandling,
@@ -211,6 +212,18 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     },
   });
 
+  // ===== Deconditionnement Handling Mixin =====
+  private deconditionnementHandling = createDeconditionnementHandling({
+    facade: this.facade,
+    waitingForForceStockSuccess: this.waitingForForceStockSuccess,
+    getConfirmDialog: () => this.confirmDialog(),
+    resetProductSelection: () => this.productHandling.resetProductSelection(),
+    operations: {
+      createSale: (line: ISalesLine) => this.facade.createAssuranceSale(line),
+      addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
+    },
+  });
+
   // ===== Payment Handling Mixin =====
   private paymentHandling = createPaymentHandling({
     facade: this.facade,
@@ -314,6 +327,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
+    // Initialiser les effects de déconditionnement (après force-stock)
+    this.deconditionnementHandling.initializeEffects();
     this.initializeEffects();
   }
 

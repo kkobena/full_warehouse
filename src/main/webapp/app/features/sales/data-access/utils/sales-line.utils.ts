@@ -1,6 +1,6 @@
 import { ISalesLine, SalesLine } from '../../../../shared/model/sales-line.model';
-import { ISales } from '../../../../shared/model/sales.model';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
+import { ISales } from '../../../../shared/model';
+import { ProduitSearch } from '../../../../shared/model';
 
 /**
  * Utilitaires pour la création et manipulation de lignes de vente
@@ -28,5 +28,11 @@ export function createSalesLineFromProduct(product: ProduitSearch, quantity: num
     saleId: currentSale?.id,
     sales: null, // Toujours null pour correspondre au payload attendu par le backend
     saleCompositeId: currentSale?.saleId,
+    // Informations CH nécessaires pour le déconditionnement (non envoyées au backend)
+    produit: {
+      id: product.id,
+      produitId: product.parentId || undefined, // ID du conditionnement parent (CH)
+      itemQty: product.itemQty,
+    },
   };
 }

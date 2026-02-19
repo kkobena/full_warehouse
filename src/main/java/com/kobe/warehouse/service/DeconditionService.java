@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 import com.kobe.warehouse.repository.DeconditionRepository;
@@ -77,9 +78,10 @@ public class DeconditionService {
     //TODO a revoir pour optimisation des ug
     public void save(DeconditionDTO deconditionDTO) throws StockException {
         Produit parent = produitRepository.getReferenceById(deconditionDTO.getProduitId());
+        Storage storage = storageService.getDefaultConnectedUserMainStorage();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
             deconditionDTO.getProduitId(),
-            storageService.getDefaultConnectedUserMainStorage().getId()
+            storage.getId()
         );
         int stock = stockProduit.getQtyStock();
         AppUser user = storageService.getUser();
@@ -90,7 +92,7 @@ public class DeconditionService {
             Produit detail = parent.getProduits().getFirst();
             StockProduit stockDetail = stockProduitRepository.findOneByProduitIdAndStockageId(
                 detail.getId(),
-                storageService.getDefaultConnectedUserMainStorage().getId()
+                storage.getId()
             );
             int stockDetailInit = stockDetail.getQtyStock();
             int stockDetailFinal = (deconditionDTO.getQtyMvt() * parent.getItemQty()) + stockDetailInit;

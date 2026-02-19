@@ -182,16 +182,14 @@ public class SaleDTO implements Serializable {
     }
 
     private void buildItemDTOFromSaleLines(Set<SalesLine> salesLines) {
-        int montantTva = 0;
-        int montantHt = 0;
+
         for (SalesLine salesLine : salesLines) {
-            SaleLineDTO saleLineDTO = new SaleLineDTO(salesLine);
-            montantTva += Objects.requireNonNullElse(saleLineDTO.getTaxAmount(), 0);
-            montantHt += Objects.requireNonNullElse(saleLineDTO.getHtAmount(), 0);
-            this.salesLines.add(saleLineDTO);
+           // SaleLineDTO saleLineDTO = new SaleLineDTO(salesLine);
+           // montantTva += Objects.requireNonNullElse(saleLineDTO.getTaxAmount(), 0);
+          //  montantHt += Objects.requireNonNullElse(saleLineDTO.getHtAmount(), 0);
+            this.salesLines.add(new SaleLineDTO(salesLine));
         }
-        this.taxAmount = montantTva;
-        this.htAmount = montantHt;
+
         this.salesLines.sort(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()));
     }
 

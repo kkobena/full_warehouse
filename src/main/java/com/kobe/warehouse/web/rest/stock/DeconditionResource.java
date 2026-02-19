@@ -42,10 +42,9 @@ public class DeconditionResource {
      * @param decondition the decondition to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
      *     decondition, or with status {@code 400 (Bad Request)} if the decondition has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/deconditions")
-    public ResponseEntity<Void> createDecondition(@Valid @RequestBody DeconditionDTO decondition) throws Exception {
+    public ResponseEntity<Void> createDecondition(@Valid @RequestBody DeconditionDTO decondition) {
         log.debug("REST request to save Decondition : {}", decondition);
         deconditionService.save(decondition);
         return ResponseEntity.ok().build();

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IProduit, ProduitSearch } from '../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../shared/model';
 
 @Injectable({ providedIn: 'root' })
 export class SaleStockValidator {

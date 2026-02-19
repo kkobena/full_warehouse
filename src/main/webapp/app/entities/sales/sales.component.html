@@ -204,8 +204,7 @@
               <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
-              <td>
-
+              <td class="text-right">
                 <p-buttonGroup>
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET') && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button

@@ -8,7 +8,6 @@ public class DeconditionnementStockOut extends BadRequestAlertException {
     private static final long serialVersionUID = 1L;
 
     public DeconditionnementStockOut(String produitId) {
-        super(String.format("Stock insuffisant [%s]", produitId), "stockChInsufisant", produitId);
-        //  BadRequestAlertException(String defaultMessage, String errorKey, Object payload)
+        super(String.format("Stock insuffisant [%s]", produitId), "stockChInsufisant");
     }
 }

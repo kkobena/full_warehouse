@@ -84,16 +84,16 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "sales_amount", nullable = false)
     private Integer salesAmount = 0;
 
-    @Transient
+    @Column(name = "ht_amount")
     private Integer htAmount = 0;
 
-    @Transient
+    @Column(name = "net_amount")
     private Integer netAmount = 0;
 
-    @Transient
+    @Column(name = "tax_amount")
     private Integer taxAmount = 0;
 
-    @Transient
+    @Column(name = "cost_amount")
     private Integer costAmount = 0;
 
     @NotNull

@@ -28,6 +28,7 @@ import { CustomerSearchService } from '../../data-access/services/customer-searc
 import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import {
   createCustomerHandling,
+  createDeconditionnementHandling,
   createForceStockHandling,
   createKeyboardShortcuts,
   createPaymentHandling,
@@ -187,6 +188,18 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     },
   });
 
+  // ===== Deconditionnement Handling Mixin =====
+  private deconditionnementHandling = createDeconditionnementHandling({
+    facade: this.facade,
+    waitingForForceStockSuccess: this.waitingForForceStockSuccess,
+    getConfirmDialog: () => this.confirmDialog(),
+    resetProductSelection: () => this.productHandling.resetProductSelection(),
+    operations: {
+      createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
+      addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
+    },
+  });
+
   // ===== Customer Handling Mixin =====
   private customerHandling = createCustomerHandling({
     facade: this.facade,
@@ -288,6 +301,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
+    // Initialiser les effects de déconditionnement (après force-stock)
+    this.deconditionnementHandling.initializeEffects();
   }
 
   ngOnInit(): void {

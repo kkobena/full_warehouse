@@ -29,7 +29,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
 import { ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { createForceStockHandling, createKeyboardShortcuts, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
+import { createDeconditionnementHandling, createForceStockHandling, createKeyboardShortcuts, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
 import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
@@ -176,6 +176,18 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     },
   });
 
+  // ===== Deconditionnement Handling Mixin =====
+  private deconditionnementHandling = createDeconditionnementHandling({
+    facade: this.facade,
+    waitingForForceStockSuccess: this.waitingForForceStockSuccess,
+    getConfirmDialog: () => this.confirmDialog(),
+    resetProductSelection: () => this.productHandling.resetProductSelection(),
+    operations: {
+      createSale: (line: ISalesLine) => this.facade.createComptantSale(line),
+      addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
+    },
+  });
+
   // UI state for sidebar and pending sales
   sidebarCollapsed = signal(false);
   pendingSalesSidebar = signal(false);
@@ -249,6 +261,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
+    // Initialiser les effects de déconditionnement (après force-stock)
+    this.deconditionnementHandling.initializeEffects();
   }
 
   ngOnInit(): void {

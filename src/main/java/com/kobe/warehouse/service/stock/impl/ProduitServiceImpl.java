@@ -394,7 +394,7 @@ public class ProduitServiceImpl implements ProduitService {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.error(null, e);
+            LOG.info( e.getMessage());
             return List.of();
         }
     }

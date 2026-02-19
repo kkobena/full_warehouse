@@ -87,7 +87,7 @@ public class SaleLineDTO {
     public SaleLineDTO(SalesLine salesLine) {
         super();
         saleLineId = salesLine.getId();
-        id = saleLineId.getId();
+        id = salesLine.getId().getId();
         quantitySold = salesLine.getQuantitySold();
         quantityRequested = salesLine.getQuantityRequested();
         regularUnitPrice = salesLine.getRegularUnitPrice();

@@ -31,6 +31,7 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { FloatLabel } from 'primeng/floatlabel';
+import {ButtonGroup} from "primeng/buttongroup";
 
 @Component({
   selector: 'jhi-tiers-payant',
@@ -58,6 +59,7 @@ import { FloatLabel } from 'primeng/floatlabel';
     ConfirmDialogComponent,
     SpinnerComponent,
     FloatLabel,
+    ButtonGroup,
   ],
 })
 export class TiersPayantComponent implements OnInit {

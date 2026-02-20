@@ -51,9 +51,9 @@ public interface ThirdPartySaleService {
 
     void cancelSale(SaleId id) throws CashRegisterException;
 
-    ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
+    ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto)  throws PlafondVenteException;
 
-    void updateDate(ThirdPartySaleDTO dto);
+    void updateDate(ThirdPartySaleDTO dto)  throws PlafondVenteException;
 
     FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
@@ -67,7 +67,7 @@ public interface ThirdPartySaleService {
 
     void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException;
 
-    SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente);
+    SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente)  throws PlafondVenteException;
 
     void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
@@ -78,17 +78,17 @@ public interface ThirdPartySaleService {
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
-    void processDiscount(UpdateSaleInfo updateSaleInfo);
+    void processDiscount(UpdateSaleInfo updateSaleInfo) throws PlafondVenteException;
 
     void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
 
-    String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales);
+    String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) throws PlafondVenteException;
 
-    void upddateSaleAmountsOnRemovingItem(ThirdPartySales c);
+    void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) throws PlafondVenteException;
 
-    void savePrevente(ThirdPartySaleDTO dto);
+    void savePrevente(ThirdPartySaleDTO dto) throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
-    void removeDiscount(SaleId saleId);
+    void removeDiscount(SaleId saleId) throws PlafondVenteException;
 
     /**
      * Copie une vente pour l'édition, en s'assurant que les données sont à jour et conformes aux règles métier.

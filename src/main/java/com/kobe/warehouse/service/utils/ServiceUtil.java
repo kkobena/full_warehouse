@@ -1,15 +1,17 @@
 package com.kobe.warehouse.service.utils;
 
 import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
+import org.springframework.util.StringUtils;
+
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 
 public class ServiceUtil {
-
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     public static PaymentMode getPaymentMode(String code) {
         PaymentMode paymentMode = new PaymentMode();
         paymentMode.setCode(code);
@@ -49,7 +51,28 @@ public class ServiceUtil {
             ModePaimentCode.WAVE.name().equalsIgnoreCase(modePayment)
         );
     }
+    public static String buildCodeCip(String initialCodeCip) {
 
+        // If null or empty → generate 8-digit numeric code
+        if (!StringUtils.hasLength(initialCodeCip)) {
+            return generateNumeric(8);
+        }
+
+        // If length < 7 → append 2 random digits
+        if (initialCodeCip.length() < 7) {
+            return initialCodeCip + String.format("%02d", SECURE_RANDOM.nextInt(100));
+        }
+
+        return initialCodeCip;
+    }
+
+    private static String generateNumeric(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(SECURE_RANDOM.nextInt(10));
+        }
+        return sb.toString();
+    }
     public static PeremptionStatut buildPeremptionStatut(LocalDate datePeremption) {
         if (datePeremption == null) {
             return null;

@@ -97,15 +97,16 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width: 9%">Type</th>
+          <th style="width: 8%">Type</th>
           <th style="width: 7%">Code</th>
           <th style="width: 15%">Nom abrégé</th>
-          <th style="width: 20%">Nom longue</th>
-          <th style="width: 10%">Téléphone</th>
-          <th style="width: 8%">Plafond</th>
+          <th style="width: 16%">Nom longue</th>
+          <th style="width: 9%">Téléphone</th>
+          <th style="width: 8%">Plafond.Conso.Clients</th>
+          <th style="width: 8%">Plafond.Journalier.Client</th>
           <th style="width: 7%">Encours</th>
           <th style="width: 7%">Nbre Clients</th>
-          <th style="width: 14%"></th>
+          <th style="width: 12%"></th>
         </tr>
       </ng-template>
       <ng-template let-tiersPayant #body>
@@ -121,8 +122,14 @@
             <div class="pharma-entity-name">{{ tiersPayant.fullName }}</div>
           </td>
           <td>{{ tiersPayant.telephone }}</td>
-          <td class="text-right">
+          <!--<td class="text-right">
             <span class="pharma-total">{{ tiersPayant.plafondConso | number }}</span>
+          </td>-->
+          <td class="text-right">
+            <span class="pharma-total">{{ tiersPayant.plafondConsoClient | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-total">{{ tiersPayant.plafondJournalierClient | number }}</span>
           </td>
           <td class="text-right">
             <span class="pharma-total">{{ tiersPayant.encours | number }}</span>
@@ -130,51 +137,54 @@
           <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
 
           <td class="text-right">
-            <div class="btn-group">
-              <p-button
-                [hidden]="true"
-                [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
-                [rounded]="true"
-                [text]="true"
-                severity="info"
-                pTooltip="Voir détails"
-                icon="pi pi-eye"
-              >
-              </p-button>
 
-              <p-button
-                (click)="editTiersPayant(tiersPayant)"
-                severity="success"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-pencil"
-                data-placement="left"
-                pTooltip="Editer"
-                type="button"
-              >
-              </p-button>
-              <p-button
-                (click)="confirmDesactivation(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                severity="warn"
-                pTooltip="Désativer"
-                icon="pi pi-lock"
-                type="button"
-              >
-              </p-button>
-              <p-button
-                (click)="confirmRemove(tiersPayant)"
-                severity="danger"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-trash"
-                data-placement="left"
-                pTooltip="Supprimer"
-                type="button"
-              >
-              </p-button>
-            </div>
+              <p-buttonGroup>
+                <p-button
+                  [hidden]="true"
+                  [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="info"
+                  pTooltip="Voir détails"
+                  icon="pi pi-eye"
+                >
+                </p-button>
+
+                <p-button
+                  (click)="editTiersPayant(tiersPayant)"
+                  severity="success"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  data-placement="left"
+                  pTooltip="Editer"
+                  type="button"
+                >
+                </p-button>
+                <p-button
+                  (click)="confirmDesactivation(tiersPayant)"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="warn"
+                  pTooltip="Désativer"
+                  icon="pi pi-lock"
+                  type="button"
+                >
+                </p-button>
+                <p-button
+                  (click)="confirmRemove(tiersPayant)"
+                  severity="danger"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  data-placement="left"
+                  pTooltip="Supprimer"
+                  type="button"
+                >
+                </p-button>
+              </p-buttonGroup>
+
+
           </td>
         </tr>
       </ng-template>

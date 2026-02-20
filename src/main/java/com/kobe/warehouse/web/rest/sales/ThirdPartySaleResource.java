@@ -182,6 +182,7 @@ public class ThirdPartySaleResource {
     }
 
     @GetMapping("/sales/assurance/transform")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<SaleId> transform(
         @RequestParam(name = "natureVente") NatureVente natureVente,
         @RequestParam(name = "saleId") Long saleId,
@@ -230,6 +231,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/add-remise")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> addRemise(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
         saleService.processDiscount(updateSaleInfo);
         return ResponseEntity.accepted().build();
@@ -242,12 +244,14 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/update-customer-information")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> updateCustomerInformation(@Valid @RequestBody UpdateSale updateSale) throws JsonProcessingException {
         saleService.updateCustomerInformation(updateSale);
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/sales/assurance/finalize-prevente")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> savePrevente(@Valid @RequestBody ThirdPartySaleDTO sale) {
         saleService.savePrevente(sale);
         return ResponseEntity.accepted().build();
@@ -255,7 +259,8 @@ public class ThirdPartySaleResource {
 
 
     @DeleteMapping("/sales/assurance/remove-remise/{id}/{saleDate}")
-    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public ResponseEntity<Void> removeRemiseSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.removeDiscount(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }

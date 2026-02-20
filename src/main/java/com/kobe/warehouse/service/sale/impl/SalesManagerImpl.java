@@ -62,8 +62,9 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment)
-        throws StockException, DeconditionnementStockOut {
+        throws StockException, DeconditionnementStockOut, PlafondVenteException {
         if (increment) {
             return incrementItemQuantityRequested(saleLineDTO, sales);
         }
@@ -78,8 +79,9 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO incrementItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
-        throws StockException, DeconditionnementStockOut {
+        throws StockException, DeconditionnementStockOut,PlafondVenteException {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.incrementItemQuantityRequested(
             saleLineDTO,
@@ -91,6 +93,7 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO, Sales sales) {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
@@ -99,6 +102,7 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO, Sales sales) {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
@@ -107,6 +111,7 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
         int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
@@ -124,6 +129,7 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void deleteSaleLineById(SalesLine salesLine) {
         Sales sales = salesLine.getSales();
         sales.removeSalesLine(salesLine);
@@ -155,7 +161,7 @@ public class SalesManagerImpl implements SalesManager {
         return salesLineService.getOneById(saleLineDTO.getSaleLineId());
     }
 
-    private void finalizeSaleUpdate(Sales sales) {
+    private void finalizeSaleUpdate(Sales sales) throws  PlafondVenteException {
         if (sales instanceof CashSale cashSale) {
             saleService.upddateCashSaleAmounts(cashSale);
             cashSaleRepository.saveAndFlush(cashSale);

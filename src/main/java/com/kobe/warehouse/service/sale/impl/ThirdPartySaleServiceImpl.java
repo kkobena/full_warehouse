@@ -83,7 +83,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 
 @Service
-@Transactional
+@Transactional(noRollbackFor = {PlafondVenteException.class})
 public class ThirdPartySaleServiceImpl extends SaleCommonService implements ThirdPartySaleService {
 
     private final ThirdPartySaleLineService thirdPartySaleLineService;
@@ -162,7 +162,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
@@ -222,13 +221,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         return salesManager.addOrUpdateSaleLine(dto, findById(dto.getSaleCompositeId()));
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public void deleteSaleLineById(SaleLineId id) {
         salesManager.deleteSaleLineById(salesLineService.getOneById(id));
     }
@@ -242,14 +241,14 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
         return salesManager.updateItemQuantityRequested(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
         return salesManager.updateItemRegularPrice(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
@@ -335,7 +334,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
         ThirdPartySales p = thirdPartySaleRepository
@@ -385,7 +384,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
@@ -424,7 +423,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         return salesManager.updateItemQuantitySold(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
@@ -441,7 +440,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(saleId);
@@ -457,7 +456,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
         thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(saleId);
@@ -465,7 +464,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente) {
+
+    public SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente) throws PlafondVenteException{
         CashSale cashSale = this.cashSaleRepository.getReferenceById(saleId);
         ThirdPartySales c = copyFromCashSale(cashSale);
         c.setNatureVente(natureVente);
@@ -484,7 +484,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(dto.getSaleId());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
@@ -530,19 +530,22 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
 
     @Override
-    public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) {
+
+    public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) throws PlafondVenteException{
         applRemiseToSale(thirdPartySales);
         return thirdPartyCalculationManager.computeThirdPartySaleAmounts(thirdPartySales);
     }
 
     @Override
-    public void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) {
+
+    public void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) throws PlafondVenteException{
         applRemiseToSale(c);
         thirdPartyCalculationManager.upddateSaleAmountsOnRemovingItem(c);
     }
 
     @Override
-    public void savePrevente(ThirdPartySaleDTO dto) {
+
+    public void savePrevente(ThirdPartySaleDTO dto) throws PlafondVenteException{
         thirdPartySaleRepository
             .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate()).ifPresent(p -> {
                 preValidatePrevente(p);
@@ -593,7 +596,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public void changeCustomer(UpdateSaleInfo updateSaleInfo) throws GenericError, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
@@ -616,7 +619,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         SaleId saleId = dto.getSaleId();
@@ -653,7 +656,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
 
     @Override
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+
     public SaleId copiePourEdition(SaleId saleId)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, CashRegisterException {
 
@@ -674,6 +677,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
+
     public void processDiscount(UpdateSaleInfo updateSaleInfo) {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
         remiseRepository.findById(updateSaleInfo.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
@@ -681,6 +685,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
+
     public void removeDiscount(SaleId saleId) {
         ThirdPartySales thirdPartySales = findById(saleId);
         removeRemise(thirdPartySales);

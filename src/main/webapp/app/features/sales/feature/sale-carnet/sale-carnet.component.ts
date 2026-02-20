@@ -123,6 +123,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly selectedProduct = this.facade.selectedProduct;
   readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
+  readonly plafondIsReached = this.facade.plafondIsReached;
   readonly selectedLineId = signal<number | null>(null);
   readonly waitingForForceStockSuccess = signal<boolean>(false);
   readonly previousLoadingState = signal<boolean>(false);

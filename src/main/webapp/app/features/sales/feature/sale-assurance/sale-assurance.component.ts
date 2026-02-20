@@ -144,6 +144,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   cashier = this.facade.cashier;
   seller = this.facade.seller;
 
+  plafondIsReached = this.facade.plafondIsReached;
+
   selectedLineId = signal<number | null>(null);
   customers = signal<ICustomer[]>([]);
   showPendingSales = signal(false);

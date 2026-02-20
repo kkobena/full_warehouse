@@ -1,8 +1,8 @@
 // Enum to manage sale types
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from '../../../shared/model';
 import { TranslateService } from '@ngx-translate/core';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { ISales } from '../../../shared/model/sales.model';
+import { ICustomer } from '../../../shared/model';
+import { ISales } from '../../../shared/model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 

@@ -13,11 +13,10 @@ import com.kobe.warehouse.service.stock.ProduitService;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Pageable;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import static java.util.Objects.isNull;
 
@@ -48,14 +47,7 @@ public class FournisseurProduitService {
     }
 
     private String buildCodeCip(String initialCodeCip) {
-        if (StringUtils.isEmpty(initialCodeCip)) {
-            return RandomStringUtils.randomNumeric(8);
-        }
-        if (initialCodeCip.length() < 7) {
-            return String.format("%s%s", initialCodeCip, RandomStringUtils.randomNumeric(2));
-        }
-
-        return initialCodeCip;
+        return ServiceUtil.buildCodeCip(initialCodeCip);
     }
 
     public Optional<FournisseurProduitDTO> create(FournisseurProduitDTO dto) throws GenericError {
@@ -172,7 +164,7 @@ public class FournisseurProduitService {
     }
 
     public void updateCip(String cip, FournisseurProduit fournisseurProduit) {
-        if (StringUtils.isEmpty(cip) || fournisseurProduit.getCodeCip().equals(cip)) {
+        if (!StringUtils.hasLength(cip) || fournisseurProduit.getCodeCip().equals(cip)) {
             return;
         }
         long constraint = fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(

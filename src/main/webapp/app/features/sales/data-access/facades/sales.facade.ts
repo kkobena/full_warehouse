@@ -135,6 +135,12 @@ export class SalesFacade {
   /** Last error for compatibility */
   readonly lastError = this.store.error;
 
+  /** Plafond de vente atteint (ventes VO uniquement) */
+  readonly plafondIsReached = this.store.plafondIsReached;
+
+  /** Message backend du dépassement de plafond */
+  readonly plafondMessage = this.store.plafondMessage;
+
   /** Pending sales */
   readonly pendingSales = this.store.pendingSales;
 
@@ -207,6 +213,8 @@ export class SalesFacade {
         errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
       } else if (errorKey === 'stockChInsufisant') {
         errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
+      } else if (errorKey === 'customerInsuranceCreditLimit') {
+        errorMessage = error.error.message || 'Plafond de vente atteint';
       } else if (error.error.message) {
         errorMessage = error.error.message;
       } else if (error.error.detail) {
@@ -218,9 +226,24 @@ export class SalesFacade {
   }
 
   /**
+   * Notifie le dépassement de plafond une seule fois par vente.
+   * Subsequent calls are silently ignored (plafondIsReached flag remains set).
+   */
+  private handlePlafondVenteWarning(errorMessage: string): void {
+    if (!this.store.plafondIsReached()) {
+      this.notificationService.warning(errorMessage);
+      this.store.setPlafondIsReached(true, errorMessage);
+    }
+  }
+
+  /**
    * Gère l'erreur de stock lors de la création d'une vente (pas de reload nécessaire)
    */
-  private handleCreateSaleError(error: any, initialLine: ISalesLine, defaultMessage: string): Observable<null> {
+  private handleCreateSaleError(
+    error: any,
+    initialLine: ISalesLine,
+    defaultMessage: string,
+  ): Observable<{ createdSale: ISales; initialLine: ISalesLine } | null> {
     console.error('Error creating sale:', error);
     const {errorMessage, errorKey} = this.extractApiError(error, defaultMessage);
 
@@ -234,7 +257,6 @@ export class SalesFacade {
       });
       // NE PAS afficher le toast - le dialog sera affiché par l'effect
     } else if (errorKey === 'stockChInsufisant') {
-
       this.store.setError(errorMessage);
       this.store.setLastErrorDetails({
         errorKey,
@@ -243,6 +265,16 @@ export class SalesFacade {
         isFromTableCellEdit: false,
       });
       // NE PAS afficher le toast - le dialog de déconditionnement sera affiché par le mixin
+    } else if (errorKey === 'customerInsuranceCreditLimit') {
+      this.handlePlafondVenteWarning(errorMessage);
+      const saleId: SaleId | null = error.error?.payload?.saleId ?? null;
+      if (saleId) {
+        // La transaction a commis malgré l'exception - recharger la vente créée
+        return this.apiService.findSale(saleId).pipe(
+          map(reloadedSale => ({createdSale: reloadedSale, initialLine})),
+          catchError(() => of(null)),
+        );
+      }
     } else {
       this.store.setError(errorMessage);
       this.notificationService.error(errorMessage);
@@ -370,6 +402,12 @@ export class SalesFacade {
               map((): null => null),
             );
           }
+          // Plafond atteint : la transaction a commis - recharger la vente et continuer
+          if (errorKey === 'customerInsuranceCreditLimit') {
+            this.handlePlafondVenteWarning(errorMessage);
+            return this.apiService.findSale(currentSale.saleId!);
+          }
+
           // Pour les autres erreurs, traitement normal
           this.store.setError(errorMessage);
           this.store.setLastErrorDetails({
@@ -414,14 +452,11 @@ export class SalesFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error updating product quantity:', error);
+          const {errorMessage, errorKey} = this.extractApiError(error, 'Erreur lors de la mise à jour du produit');
 
-          let errorMessage = 'Erreur lors de la mise à jour du produit';
-          if (error?.error) {
-            if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
+          if (errorKey === 'customerInsuranceCreditLimit') {
+            this.handlePlafondVenteWarning(errorMessage);
+            return this.apiService.findSale(currentSale.saleId!);
           }
 
           this.store.setError(errorMessage);

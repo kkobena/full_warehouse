@@ -20,6 +20,7 @@ interface SalesState {
   printInvoice: boolean;
   printReceipt: boolean;
   plafondIsReached: boolean;
+  plafondMessage: string | null;
 
   // Customer
   selectedCustomer: ICustomer | null;
@@ -76,6 +77,7 @@ const initialState: SalesState = {
   printInvoice: false,
   printReceipt: true,
   plafondIsReached: false,
+  plafondMessage: null,
 
   // Customer
   selectedCustomer: null,
@@ -392,10 +394,10 @@ export const SalesStore = signalStore(
     },
 
     /**
-     * Set plafond reached flag
+     * Set plafond reached flag with optional message from backend
      */
-    setPlafondIsReached(isReached: boolean): void {
-      patchState(store, { plafondIsReached: isReached });
+    setPlafondIsReached(isReached: boolean, message?: string): void {
+      patchState(store, { plafondIsReached: isReached, plafondMessage: message ?? null });
     },
 
     /**
@@ -531,6 +533,7 @@ export const SalesStore = signalStore(
         printInvoice: false,
         printReceipt: true,
         plafondIsReached: false,
+        plafondMessage: null,
         selectedCustomer: null,
         error: null,
         selectedProductData: null,

@@ -123,6 +123,27 @@ $presale-color-light: lighten($pharma-info, 38%);
   min-width: 0;
 }
 
+.plafond-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: $border-radius-sm;
+  background: lighten($pharma-warning, 42%);
+  border: 1px solid $pharma-warning;
+  color: darken($pharma-warning, 30%);
+  white-space: nowrap;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+}
+
 .back-button {
   color: $gray-600 !important;
   transition: all 0.2s ease;

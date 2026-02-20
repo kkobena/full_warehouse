@@ -79,6 +79,14 @@
           optionLabel="abbrName"
         ></p-select>
       </div>
+
+      <!-- Indicateur plafond de vente -->
+      @if (salesFacade.plafondIsReached()) {
+        <div class="plafond-indicator">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ salesFacade.plafondMessage() }}</span>
+        </div>
+      }
     </div>
 
     <div class="header-actions">

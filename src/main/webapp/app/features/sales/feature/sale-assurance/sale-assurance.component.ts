@@ -239,8 +239,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     customerDisplay: this.customerDisplay,
     config: {
       saleType: 'ASSURANCE',
-      toleranceThreshold: 0, // Pas de tolérance pour ASSURANCE
-      allowDiffere: false, // Pas de vente différée pour ASSURANCE
+      toleranceThreshold: 5, // Seuil de 5 FCFA pour CARNET
+      allowDiffere: true,
     },
     currentSale: this.facade.currentSale,
     salesLines: this.facade.salesLines,
@@ -266,9 +266,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+
     onPaymentSuccess: () => {},
     // Fonction de sauvegarde personnalisée pour ASSURANCE
     customSaveSale: payments => this.facade.saveAssuranceSale(payments),
+    onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
 
   // ===== Customer Handling Mixin =====
@@ -695,7 +697,15 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       `Êtes-vous sûr de vouloir supprimer le tiers payant ${tiersPayant.tiersPayantName} ?`,
     );
   }
-
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) return;
+    currentSale.differe = true;
+    this.isDiffere.set(true);
+    setTimeout(() => {
+      this.paymentModeComponent()?.focusCommentInput();
+    }, 100);
+  }
   private removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
     const dataBar = this.insuranceDataBar();
     if (dataBar) {
@@ -1014,6 +1024,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.initSaleForEditInfo.set(null);
     this.selectedLineId.set(null);
     this.customers.set([]);
+    this.isDiffere.set(false);
     this.facade.resetCurrentSale();
     this.switchToComptant.emit();
   }

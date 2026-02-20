@@ -136,7 +136,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   readonly isAvoir = this.facade.isAvoir;
   customers = signal<ICustomer[]>([]);
-
+  isDiffere = signal<boolean>(false);
   // Computed signals
   readonly canSave = computed(() => {
     const sale = this.currentSale();
@@ -271,14 +271,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
     onPaymentSuccess: () => {},
-    onDiffereConfirmed: () => {
-      // Pour CARNET, le client est normalement obligatoire
-      // mais vérifier au cas où
-      const currentSale = this.currentSale();
-      if (currentSale && !currentSale.customerId) {
-        this.notificationService.warning('Client requis', 'Un client est obligatoire pour une vente différée');
-      }
-    },
+    onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
 
   // ===== Keyboard Shortcuts Mixin =====
@@ -601,7 +594,15 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       this.resetForNewSale();
     }
   }
-
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) return;
+    currentSale.differe = true;
+    this.isDiffere.set(true);
+    setTimeout(() => {
+      this.paymentModeComponent()?.focusCommentInput();
+    }, 100);
+  }
   /**
    * Réinitialiser pour une nouvelle vente
    * Appelé après sauvegarde ou annulation pour rester sur l'écran de vente
@@ -611,6 +612,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.initSaleForEditInfo.set(null);
     this.selectedLineId.set(null);
     this.customers.set([]);
+    this.isDiffere.set(false);
     this.facade.resetCurrentSale();
     this.switchToComptant.emit();
   }

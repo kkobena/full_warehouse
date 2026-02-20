@@ -84,7 +84,7 @@
       <div class="col-12">
         <app-payment-mode
           #paymentMode
-          [amountToBePaid]="currentSale()!.amountToBePaid || currentSale()!.netAmount || 0"
+          [amountToBePaid]="currentSale()!.amountToBePaid ||  0"
           [maxPaymentModes]="2"
           [isDiffere]="isDiffere()"
           (paymentComplete)="onPaymentComplete($event)"

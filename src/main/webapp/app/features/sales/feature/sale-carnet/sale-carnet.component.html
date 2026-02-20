@@ -98,7 +98,7 @@
       #paymentMode
       [amountToBePaid]="currentSale()!.amountToBePaid || 0"
       [maxPaymentModes]="2"
-      [isDiffere]="currentSale()!.differe || false"
+      [isDiffere]="isDiffere()"
       (paymentComplete)="onPaymentComplete($event)"
       (validationError)="onPaymentError($event)"
     />

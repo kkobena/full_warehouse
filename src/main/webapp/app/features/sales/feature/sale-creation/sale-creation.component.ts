@@ -857,6 +857,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private resetForNewSale(): void {
     // Reset UI uniquement
     this.customerDisplay.clear();
+    this.facade.resetCurrentSale();
     this.initSaleForEditInfo.set(null);
     this.customers.set([]);
     this.selectedLineId.set(null);

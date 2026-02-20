@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.repository.CashSaleRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.VenteDepotRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -170,7 +169,7 @@ public class SalesManagerImpl implements SalesManager {
             var message = thirdPartySaleService.computeThirdPartySaleAmounts(thirdPartySales);
             this.displayNet(thirdPartySales.getPartAssure());
             if (StringUtils.hasLength(message)) {
-                throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
+                throw new PlafondVenteException( ThirdPartySaleDTO.from(thirdPartySales).build(), message);
             }
         } else if (sales instanceof VenteDepot venteDepot) {
             upddateDepotSaleAmounts(venteDepot);

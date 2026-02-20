@@ -154,8 +154,8 @@ public class SaleDTO implements Serializable {
         this.numberTransaction = sale.getNumberTransaction();
         this.natureVente = sale.getNatureVente();
         this.typePrescription = sale.getTypePrescription();
-        this.seller = new UserDTO(sale.getSeller());
-        this.cassier = new UserDTO(sale.getCaissier());
+        this.seller =  UserDTO.user(sale.getSeller());
+        this.cassier =  UserDTO.user(sale.getCaissier());
         this.cassierId = this.cassier.getId();
         this.sellerId = this.seller.getId();
         this.differe = sale.isDiffere();

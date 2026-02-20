@@ -295,7 +295,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         this.facade.initializeAssuranceSale();
         // Définir le client après l'initialisation
         this.facade.setCustomer(customer);
-        currentSale = this.currentSale();
+     //   this.currentSale();
       }
 
       // Mettre à jour les tiers payants via la facade

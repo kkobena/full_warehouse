@@ -4,8 +4,10 @@ import com.kobe.warehouse.Util;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
+import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Magasin;
@@ -25,6 +27,7 @@ import com.kobe.warehouse.domain.VenteDepot_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.repository.SalePaymentRepository;
@@ -33,11 +36,14 @@ import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
+import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.UserDTO;
@@ -70,6 +76,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -134,14 +141,7 @@ public class SaleDataService {
         return fetchById(id, false);
     }
 
-    public SaleDTO getOneSaleDTO(SaleId id) {
-        Sales sales = getOne(id);
-        return switch (sales) {
-            case CashSale cashSale -> new CashSaleDTO(cashSale);
-            case ThirdPartySales thirdPartySales -> new ThirdPartySaleDTO(thirdPartySales);
-            default -> throw new RuntimeException("Not yet implemented");
-        };
-    }
+
 
     public SaleDTO fetchPurchaseBy(@NotNull Long id, @NotNull LocalDate saleDate) {
         return fetch(new SaleId(id, saleDate), false).orElseThrow(() -> new RuntimeException("Sale not found"));
@@ -568,15 +568,58 @@ public class SaleDataService {
         return salesLineRepository.findAllByQuantityAvoirGreaterThan(0);
     }
 
+
+
+
     private ThirdPartySaleDTO buildFromEntity(ThirdPartySales thirdPartySales) {
-        ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         SaleId saleId = thirdPartySales.getId();
-        Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> listListPair = buildTiersPayantDTOFromSale(
-            thirdPartySaleLineRepository.findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate())
-        );
-        thirdPartySaleDTO.setTiersPayants(listListPair.getRight());
-        thirdPartySaleDTO.setThirdPartySaleLines(listListPair.getLeft());
-        return thirdPartySaleDTO;
+        List<ThirdPartySaleLine> tpsLines = thirdPartySaleLineRepository
+            .findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate());
+        Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> pair = buildTiersPayantDTOFromSale(tpsLines);
+        String numBon = null;
+        String num = null;
+        for (ThirdPartySaleLine line : tpsLines) {
+            ClientTiersPayant clientTiersPayant = line.getClientTiersPayant();
+            if (clientTiersPayant.getPriorite() == PrioriteTiersPayant.R0) {
+                numBon = line.getNumBon();
+                num = clientTiersPayant.getNum();
+                break;
+            }
+        }
+        if (StringUtils.isEmpty(numBon) && !tpsLines.isEmpty()) {
+            numBon = tpsLines.getFirst().getNumBon();
+        }
+        AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
+        AssuredCustomerDTO customer = new AssuredCustomerDTO(assuredCustomer);
+        if (StringUtils.isEmpty(num)) {
+            Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
+            if (!CollectionUtils.isEmpty(clientTiersPayants)) {
+                Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()
+                    .filter(ctp -> ctp.getPriorite() == PrioriteTiersPayant.R0)
+                    .findFirst();
+                if (clientTiersPayantOpt.isPresent()) {
+                    num = clientTiersPayantOpt.get().getNum();
+                }
+            }
+        }
+
+        customer.setNum(num);
+        List<SaleLineDTO> salesLines = thirdPartySales.getSalesLines().stream()
+            .map(SaleLineDTO::new)
+            .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
+            .toList();
+        List<PaymentDTO> payments = thirdPartySales.getPayments().stream()
+            .map(PaymentDTO::new)
+            .toList();
+        return ThirdPartySaleDTO.from(thirdPartySales)
+            .customer(customer)
+            .customerId(customer.getId())
+            .salesLines(salesLines)
+            .payments(payments)
+            .thirdPartySaleLines(pair.getLeft())
+            .tiersPayants(pair.getRight())
+            .numBon(numBon)
+            .build();
     }
 
     private DepotExtensionSaleDTO buildDepotExtensionSaleDTO(VenteDepot venteDepot) {

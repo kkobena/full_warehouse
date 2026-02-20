@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
+
 import java.time.LocalDateTime;
 
 public class ThirdPartySaleLineDTO {
@@ -29,8 +30,27 @@ public class ThirdPartySaleLineDTO {
     private Integer montantNet;
     private PrioriteTiersPayant priorite;
     private AssuranceSaleId assuranceSaleId;
+    private String num;
+    private short tauxVente;
 
-    public ThirdPartySaleLineDTO() {}
+    public ThirdPartySaleLineDTO() {
+    }
+
+    public String getNum() {
+        return num;
+    }
+
+    public void setNum(String num) {
+        this.num = num;
+    }
+
+    public short getTauxVente() {
+        return tauxVente;
+    }
+
+    public void setTauxVente(short tauxVente) {
+        this.tauxVente = tauxVente;
+    }
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
         this.assuranceSaleId = thirdPartySaleLine.getId();
@@ -52,6 +72,39 @@ public class ThirdPartySaleLineDTO {
         this.taux = thirdPartySaleLine.getTaux();
         this.statut = thirdPartySaleLine.getStatut();
         this.priorite = clientTiersPayant.getPriorite();
+        this.tauxVente = thirdPartySaleLine.getTauxVente();
+        this.num = clientTiersPayant.getNum();
+
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder from(ThirdPartySaleLine thirdPartySaleLine) {
+        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+        TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
+        AssuredCustomer assuredCustomer = clientTiersPayant.getAssuredCustomer();
+        AssuranceSaleId assuranceSaleId = thirdPartySaleLine.getId();
+        return new Builder()
+            .assuranceSaleId(assuranceSaleId)
+            .id(assuranceSaleId.getId())
+            .numBon(thirdPartySaleLine.getNumBon())
+            .montant(thirdPartySaleLine.getMontant())
+            .clientTiersPayantId(clientTiersPayant.getId())
+            .customerId(assuredCustomer.getId())
+            .tiersPayantId(tiersPayant.getId())
+            .customerFullName(String.format("%s %s", assuredCustomer.getFirstName(), assuredCustomer.getLastName()))
+            .tiersPayantFullName(tiersPayant.getFullName())
+            .name(tiersPayant.getName())
+            .created(thirdPartySaleLine.getCreated())
+            .updated(thirdPartySaleLine.getUpdated())
+            .effectiveUpdateDate(thirdPartySaleLine.getEffectiveUpdateDate())
+            .taux(thirdPartySaleLine.getTaux())
+            .tauxVente(thirdPartySaleLine.getTauxVente())
+            .num(clientTiersPayant.getNum())
+            .statut(thirdPartySaleLine.getStatut())
+            .priorite(clientTiersPayant.getPriorite());
     }
 
     public AssuranceSaleId getAssuranceSaleId() {
@@ -212,5 +265,155 @@ public class ThirdPartySaleLineDTO {
     public ThirdPartySaleLineDTO setStatut(ThirdPartySaleStatut statut) {
         this.statut = statut;
         return this;
+    }
+
+    public static final class Builder {
+
+        private Long id;
+        private String numBon;
+        private Integer montant;
+        private Integer clientTiersPayantId;
+        private Integer customerId;
+        private Integer tiersPayantId;
+        private String customerFullName;
+        private String tiersPayantFullName;
+        private String name;
+        private LocalDateTime created;
+        private LocalDateTime updated;
+        private LocalDateTime effectiveUpdateDate;
+        private short taux;
+        private ThirdPartySaleStatut statut;
+        private Integer montantRemise;
+        private Integer montantNet;
+        private PrioriteTiersPayant priorite;
+        private AssuranceSaleId assuranceSaleId;
+        private String num;
+        private short tauxVente;
+
+        private Builder() {
+        }
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder numBon(String numBon) {
+            this.numBon = numBon;
+            return this;
+        }
+
+        public Builder montant(Integer montant) {
+            this.montant = montant;
+            return this;
+        }
+
+        public Builder clientTiersPayantId(Integer clientTiersPayantId) {
+            this.clientTiersPayantId = clientTiersPayantId;
+            return this;
+        }
+
+        public Builder customerId(Integer customerId) {
+            this.customerId = customerId;
+            return this;
+        }
+
+        public Builder tiersPayantId(Integer tiersPayantId) {
+            this.tiersPayantId = tiersPayantId;
+            return this;
+        }
+
+        public Builder customerFullName(String customerFullName) {
+            this.customerFullName = customerFullName;
+            return this;
+        }
+
+        public Builder tiersPayantFullName(String tiersPayantFullName) {
+            this.tiersPayantFullName = tiersPayantFullName;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder num(String num) {
+            this.num = name;
+            return this;
+        }
+
+        public Builder created(LocalDateTime created) {
+            this.created = created;
+            return this;
+        }
+
+        public Builder updated(LocalDateTime updated) {
+            this.updated = updated;
+            return this;
+        }
+
+        public Builder effectiveUpdateDate(LocalDateTime effectiveUpdateDate) {
+            this.effectiveUpdateDate = effectiveUpdateDate;
+            return this;
+        }
+
+        public Builder taux(short taux) {
+            this.taux = taux;
+            return this;
+        }
+
+        public Builder tauxVente(short taux) {
+            this.tauxVente = taux;
+            return this;
+        }
+
+        public Builder statut(ThirdPartySaleStatut statut) {
+            this.statut = statut;
+            return this;
+        }
+
+        public Builder montantRemise(Integer montantRemise) {
+            this.montantRemise = montantRemise;
+            return this;
+        }
+
+        public Builder montantNet(Integer montantNet) {
+            this.montantNet = montantNet;
+            return this;
+        }
+
+        public Builder priorite(PrioriteTiersPayant priorite) {
+            this.priorite = priorite;
+            return this;
+        }
+
+        public Builder assuranceSaleId(AssuranceSaleId assuranceSaleId) {
+            this.assuranceSaleId = assuranceSaleId;
+            return this;
+        }
+
+        public ThirdPartySaleLineDTO build() {
+            ThirdPartySaleLineDTO dto = new ThirdPartySaleLineDTO();
+            dto.id = this.id;
+            dto.numBon = this.numBon;
+            dto.montant = this.montant;
+            dto.clientTiersPayantId = this.clientTiersPayantId;
+            dto.customerId = this.customerId;
+            dto.tiersPayantId = this.tiersPayantId;
+            dto.customerFullName = this.customerFullName;
+            dto.tiersPayantFullName = this.tiersPayantFullName;
+            dto.name = this.name;
+            dto.created = this.created;
+            dto.updated = this.updated;
+            dto.effectiveUpdateDate = this.effectiveUpdateDate;
+            dto.taux = this.taux;
+            dto.statut = this.statut;
+            dto.montantRemise = this.montantRemise;
+            dto.montantNet = this.montantNet;
+            dto.priorite = this.priorite;
+            dto.assuranceSaleId = this.assuranceSaleId;
+            return dto;
+        }
     }
 }

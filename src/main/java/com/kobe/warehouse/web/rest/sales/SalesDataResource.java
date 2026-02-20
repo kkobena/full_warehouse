@@ -48,9 +48,9 @@ public class SalesDataResource {
      */
     @GetMapping("/sales/{id}/{saleDate}")
     public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
-        log.debug("REST request to get Sales : {}", id);
-        SaleDTO sale = saleDataService.fetchPurchaseBy(id, saleDate);
-        return ResponseEntity.ok().body(sale);
+
+
+        return ResponseEntity.ok().body(saleDataService.fetchPurchaseBy(id, saleDate));
     }
 
     @GetMapping("/sales/edit/{id}/{saleDate}")

@@ -8,10 +8,10 @@ import { Authority } from '../../../../shared/constants/authority.constants';
 
 /**
  * AuthorizationService
- * 
+ *
  * Service for requesting authorizations for protected actions in sales
  * Opens a modal to request security key from authorized user
- * 
+ *
  * @example
  * this.authService.requestAuthorization(saleId, 'PR_SUPPRIME_PRODUIT_VENTE')
  *   .subscribe(authorized => {
@@ -107,5 +107,9 @@ export class AuthorizationService {
    */
   canForceStock(): boolean {
     return this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
+  }
+  canShowStock(): boolean {
+   // return this.hasAuthorityService.hasAuthorities(Authority.PR_SHOW_STOCK);//TODO: a mettre en base de données
+    return true;
   }
 }

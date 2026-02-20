@@ -25,52 +25,19 @@
 </div>
 
 <!-- 2ème ligne: Recherche produit (ligne entière) -->
-<div class="product-search-section">
-  <div class="search-section-header">
-    <i class="pi pi-search"></i>
-    <span>Recherche de produit</span>
-  </div>
-
-  <div class="search-controls">
-    <!-- Product Search Autocomplete -->
-    <div class="product-search-input">
-      <app-product-search
-        #produitbox
-        [autofocus]="false"
-        [enableScanner]="false"
-        (productSelected)="onProductSelected($event)"
-        (productScanned)="onProductScanned($event)"
-        (onKeyEnter)="onProductSearchEnter($event)">
-      </app-product-search>
-    </div>
-
-    <!-- Quantity Input -->
-    <div class="quantity-input-wrapper">
-      <jhi-quantite-produt-saisie
-        #quantityBox
-        (addQuantite)="onAddQuantity($event)"
-        [isValid]="!!selectedProduct() && hasCustomer()"
-        [disabledButton]="!selectedProduct() || !hasCustomer()">
-      </jhi-quantite-produt-saisie>
-    </div>
-
-    <!-- Product Meta -->
-    @if (selectedProduct()) {
-      <div class="product-meta">
-        <div class="meta-item">
-          <label>Prix:</label>
-          <span class="value">{{ selectedProduct()?.regularUnitPrice || 0 | number:'1.0-0' }} FCFA</span>
-        </div>
-        <div class="meta-item">
-          <label>Stock:</label>
-          <span class="value stock-badge" [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10">
-              {{ selectedProduct()?.totalQuantity || 0 }}
-            </span>
-        </div>
-      </div>
-    }
-  </div>
-</div>
+<app-product-search-section
+  #produitbox
+  [autofocus]="false"
+  [selectedProduct]="selectedProduct()"
+  [saleType]="'ASSURANCE'"
+  [requiresCustomer]="true"
+  [showStock]="showStock()"
+  [hasCustomer]="hasCustomer()"
+  (productSelected)="onProductSelected($event)"
+  (productScanned)="onProductScanned($event)"
+  (onKeyEnter)="onProductSearchEnter($event)"
+  (addQuantite)="onAddQuantity($event)">
+</app-product-search-section>
 
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
 @if (currentSale()) {

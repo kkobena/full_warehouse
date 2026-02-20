@@ -10,7 +10,7 @@ import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog
 import {
   InsuranceDataBarComponent,
   ProductListComponent,
-  ProductSearchComponent,
+  ProductSearchSectionComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
@@ -18,7 +18,6 @@ import {
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
-import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
@@ -64,27 +63,34 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     FormsModule,
     TooltipModule,
     Toast,
-    ProductSearchComponent,
+    ProductSearchSectionComponent,
     InsuranceDataBarComponent,
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
     PaymentModeComponent,
     ConfirmDialogComponent,
-    QuantiteProdutSaisieComponent,
     NgxSpinnerModule,
   ],
 })
 export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearchHost {
   // Services
 
-  productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
-  quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
+  productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
+  readonly quantityComponent = computed(() => {
+    const section = this.productSearchComponent();
+    if (!section) return undefined;
+    return {
+      focusProduitControl: () => section.focusProduitControl(),
+      reset: (qty: number) => section.resetQuantity(qty),
+    };
+  });
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   selectedSaleType = signal<SaleType>('CARNET');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
+  showStock = input(false);
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
    * Appelée par le composant parent lors du changement de tab
@@ -280,7 +286,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     { saleType: 'CARNET', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.focusProductSearch(),
-      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
       focusCustomer: () => {
         setTimeout(() => this.insuranceDataBar()?.searchInput()?.nativeElement.focus(), 100);
       },

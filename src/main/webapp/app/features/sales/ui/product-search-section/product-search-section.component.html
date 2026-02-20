@@ -1,0 +1,54 @@
+<div class="product-search-section">
+  <div class="search-section-header">
+    <i class="pi pi-search"></i>
+    <span>Recherche de produit</span>
+  </div>
+
+  <div class="search-controls">
+    <!-- Product Search Autocomplete -->
+    <div class="product-search-input">
+      <app-product-search
+        #produitbox
+        [autofocus]="autofocus()"
+        [enableScanner]="false"
+        (productSelected)="productSelected.emit($event)"
+        (productScanned)="productScanned.emit($event)"
+        (onKeyEnter)="onKeyEnter.emit($event)">
+      </app-product-search>
+    </div>
+
+    <!-- Quantity Input -->
+    <div class="quantity-input-wrapper">
+      <jhi-quantite-produt-saisie
+        #quantityBox
+        (addQuantite)="addQuantite.emit($event)"
+        [isValid]="quantityIsValid()"
+        [disabledButton]="quantityIsDisabled()"
+        [class.pharma-quantity-input]="saleType() === 'COMPTANT'">
+      </jhi-quantite-produt-saisie>
+    </div>
+
+    <!-- Product Meta Information -->
+    @if (selectedProduct()) {
+      <div class="product-meta">
+          @if (showStock()) {
+            <div [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10" class="meta-item">
+              <i class="pi pi-database"></i>
+              <span>Stock: <strong>{{ selectedProduct()?.totalQuantity | number }}</strong></span>
+            </div>
+          }
+          <div class="meta-item price-display">
+            <i class="pi pi-tag"></i>
+            <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | number }} F</strong></span>
+          </div>
+          @for (rayon of selectedProduct()?.rayons || []; track rayon.code) {
+            <div class="meta-item">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ rayon.libelle }}</span>
+            </div>
+          }
+
+      </div>
+    }
+  </div>
+</div>

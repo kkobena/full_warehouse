@@ -26,7 +26,7 @@ import {
   InsuranceDataBarComponent,
   PendingSalesListComponent,
   ProductListComponent,
-  ProductSearchComponent,
+  ProductSearchSectionComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
@@ -35,7 +35,6 @@ import { AssureFormStepComponent } from '../../../../entities/customer/assure-fo
 import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { AddComplementaireComponent } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
-import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
@@ -82,13 +81,12 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     FormsModule,
     TooltipModule,
     Toast,
-    ProductSearchComponent,
+    ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
     PaymentModeComponent,
     InsuranceDataBarComponent,
-    QuantiteProdutSaisieComponent,
     ConfirmDialogComponent,
     NgxSpinnerModule,
     Drawer,
@@ -96,8 +94,15 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
   ],
 })
 export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSearchHost {
-  productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
-  quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
+  productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
+  readonly quantityComponent = computed(() => {
+    const section = this.productSearchComponent();
+    if (!section) return undefined;
+    return {
+      focusProduitControl: () => section.focusProduitControl(),
+      reset: (qty: number) => section.resetQuantity(qty),
+    };
+  });
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -108,6 +113,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   readonly remises = input<IRemise[]>([]);
   readonly isPresale = input(false);
   initSaleForEditInfo = model<SaleForEditInfo>(null);
+  showStock = input(false);
   // Outputs
   productAddedSuccess = output<void>();
   switchToComptant = output<void>();
@@ -308,7 +314,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     { saleType: 'ASSURANCE', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
-      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
       focusCustomer: () => this.focusCustomerSearch(),
       addProduct: () => {
         const product = this.selectedProduct();

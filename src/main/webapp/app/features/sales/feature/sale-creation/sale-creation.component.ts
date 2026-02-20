@@ -3,16 +3,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
-import { NgxSpinnerComponent, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
-  ProductSearchComponent,
+  ProductSearchSectionComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
@@ -20,7 +19,6 @@ import {
 import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 
 import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import { QuantiteProdutSaisieComponent } from '../../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
@@ -55,19 +53,25 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     FormsModule,
     TooltipModule,
     Toast,
-    ProductSearchComponent,
+    ProductSearchSectionComponent,
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
     PaymentModeComponent,
     ConfirmDialogComponent,
-    QuantiteProdutSaisieComponent,
     NgxSpinnerModule,
   ],
 })
 export class SaleCreationComponent implements OnInit, ProductSearchHost {
-  productSearchComponent = viewChild<ProductSearchComponent>('produitbox');
-  quantityComponent = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
+  productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
+  readonly quantityComponent = computed(() => {
+    const section = this.productSearchComponent();
+    if (!section) return undefined;
+    return {
+      focusProduitControl: () => section.focusProduitControl(),
+      reset: (qty: number) => section.resetQuantity(qty),
+    };
+  });
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
@@ -93,7 +97,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   // Services
   protected facade = inject(SalesFacade);
-  // private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
@@ -112,6 +115,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
   remises = input<IRemise[]>([]);
+  showStock = input(false);
 
   // Local UI state
   customers = signal<ICustomer[]>([]);
@@ -200,7 +204,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     { saleType: 'COMPTANT', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
-      focusQuantity: () => this.quantityComponent()?.focusProduitControl(),
+      focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
       focusCustomer: () => {
         // TODO: ouvrir overlay client si nécessaire
       },

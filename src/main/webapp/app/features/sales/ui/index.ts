@@ -6,6 +6,7 @@
  */
 
 export * from './product-search/product-search.component';
+export * from './product-search-section/product-search-section.component';
 export * from './product-list/product-list.component';
 export * from './sale-summary/sale-summary.component';
 export * from './sale-actions/sale-actions.component';

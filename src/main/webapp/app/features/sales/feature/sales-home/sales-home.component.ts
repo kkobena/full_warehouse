@@ -51,6 +51,7 @@ import {NotificationService} from '../../../../shared/services/notification.serv
 import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
 import {getNavChangeMessage, SaleType} from "../../../../entities/sales/selling-home/sale-helper";
 import {TranslateService} from "@ngx-translate/core";
+import {AuthorizationService} from "../../data-access/services/authorization.service";
 
 @Component({
   selector: 'app-sales-home',
@@ -96,6 +97,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
   private scanAudio = inject(ScanAudioFeedbackService);
+  private authorizationService = inject(AuthorizationService);
   protected confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   protected alert = viewChild.required<ToastAlertComponent>('alert');
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits
@@ -120,13 +122,15 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected isCashRegisterOpen = signal(false);
   protected remises = this.remiseCacheService.remises;
   initSaleForEditInfo = model<SaleForEditInfo>(null);
-
+  showStock = signal(false);
   // Scan global - file d'attente multi-scan
   private scanQueue: string[] = [];
   private processingQueue = false;
   private pendingScanCode = signal<string | null>(null);
 
   constructor() {
+
+    this.showStock.set(this.authorizationService.canShowStock());
     this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
     effect(() => {
@@ -234,8 +238,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   }
 
 
-
   protected onNavChange(evt: NgbNavChangeEvent): void {
+    this.salesFacade.setSelectedProduct(null);
     const fromTab = this.active();
     const toTab = evt.nextId;
     const currentSale = this.salesFacade.currentSale();

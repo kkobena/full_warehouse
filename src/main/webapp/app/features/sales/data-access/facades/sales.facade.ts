@@ -1370,7 +1370,6 @@ export class SalesFacade {
       currentSale.type === 'VNO'
         ? this.apiService.addCustommerToCashSale(updateSaleInfo)
         : this.apiService.changeAssuranceCustomer(updateSaleInfo);
-    //TODO: synchroniser tiersPayants dans la store avec le nouveau client pour les vente ASSURANCE/CARNET au retour de l'appel API
     updateObservable$
       .pipe(
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),

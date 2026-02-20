@@ -1,54 +1,19 @@
-﻿<!-- Notifications Toast -->
+<!-- Notifications Toast -->
 <p-toast position="center" />
 
 <!-- Content spécifique COMPTANT -->
 <!-- 1ère ligne: Recherche produit (ligne entière) -->
-<div class="product-search-section">
-    <div class="search-section-header">
-      <i class="pi pi-search"></i>
-      <span>Recherche de produit</span>
-    </div>
-
-    <div class="search-controls">
-      <!-- Product Search Autocomplete -->
-      <div class="product-search-input">
-        <app-product-search
-          #produitbox
-          [autofocus]="true"
-          [enableScanner]="false"
-          (productSelected)="onProductSelected($event)"
-          (productScanned)="onProductScanned($event)"
-          (onKeyEnter)="onProductSearchEnter($event)">
-        </app-product-search>
-      </div>
-
-      <!-- Quantity Input -->
-      <div class="quantity-input-wrapper">
-        <jhi-quantite-produt-saisie
-          #quantityBox
-          (addQuantite)="onAddQuantity($event)"
-          [isValid]="!!selectedProduct()"
-          class="pharma-quantity-input">
-        </jhi-quantite-produt-saisie>
-      </div>
-
-      <!-- Product Meta Information -->
-      @if (selectedProduct()) {
-        <div class="product-meta">
-          <div class="meta-item">
-            <i class="pi pi-tag"></i>
-            <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | number }} F</strong></span>
-          </div>
-          @if (selectedProduct()?.totalQuantity !== undefined) {
-            <div [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10" class="meta-item">
-              <i class="pi pi-database"></i>
-              <span>Stock: <strong>{{ selectedProduct()?.totalQuantity | number }}</strong></span>
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
+<app-product-search-section
+  #produitbox
+  [autofocus]="true"
+  [selectedProduct]="selectedProduct()"
+  [saleType]="'COMPTANT'"
+  [showStock]="showStock()"
+  (productSelected)="onProductSelected($event)"
+  (productScanned)="onProductScanned($event)"
+  (onKeyEnter)="onProductSearchEnter($event)"
+  (addQuantite)="onAddQuantity($event)">
+</app-product-search-section>
 
 <!-- 2ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
 @if (currentSale()) {

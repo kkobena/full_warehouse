@@ -57,6 +57,16 @@ export const SALES_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Prevente',
     },
+  },
+  {
+    path: 'devis',
+    loadComponent: () => import('./feature/devis-home/devis-home.component').then(m => m.DevisHomeComponent),
+    canActivate: [UserRouteAccessService],
+    title: 'Devis',
+    data: {
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      pageTitle: 'Devis',
+    },
   } /*,
   {
     path: 'prevente/edit/:id',

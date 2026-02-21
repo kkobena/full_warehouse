@@ -22,8 +22,9 @@
 
             <div class="pharma-search-input">
               <p-iconfield>
-                <p-inputicon class="pi pi-search"/>
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text"/>
+                <p-inputicon class="pi pi-search" />
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..."
+                       type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -47,6 +48,14 @@
                   [routerLink]="['/sales-home/prevente']"
                   icon="pi pi-shopping-cart"
                   label="Nouvelle pré-vente"
+                  severity="primary"
+                  type="button"
+                />
+                <p-button
+                  [raised]="true"
+                  [routerLink]="['/sales-home/devis']"
+                  icon="pi pi-shopping-cart"
+                  label="Nouveau devis"
                   severity="primary"
                   type="button"
                 />
@@ -109,9 +118,9 @@
               <p-buttonGroup>
 
                 <p-button
+                  (click)="navigateToSale(sale)"
                   [rounded]="true"
                   [text]="true"
-                  (click)="navigateToSale(sale)"
                   icon="pi pi-file-edit"
                   pTooltip="Editer la pré-vente"
                   severity="primary"
@@ -143,7 +152,8 @@
                     </div>
                     <div class="activity-card-header-content">
                       <h3 class="activity-card-title">Liste des produits</h3>
-                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
+                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
+                        article(s)</span>
                     </div>
                   </div>
                   <div class="activity-card-table-body">
@@ -186,9 +196,15 @@
                           <td>
                             <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                           </td>
-                          <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
-                          <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                          <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                          </td>
                           <td class="pharma-total" style="text-align: right; font-weight: bold">
                             {{ saleLine.salesAmount | number }}
                           </td>

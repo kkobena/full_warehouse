@@ -1,0 +1,143 @@
+// Styles spécifiques au composant SaleDevis
+// Inspiré de sale-carnet avec adaptations pour la recherche client simplifiée
+
+.devis-customer-section {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--surface-card);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+}
+
+.customer-search-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.search-section {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  min-width: 300px;
+
+  .search-input-wrapper {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+}
+
+.customer-info-card {
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+  background: var(--surface-ground);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--primary-color);
+    color: var(--primary-color-text);
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 0.75rem;
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0;
+      font-size: 0.875rem;
+
+      &:not(:last-child) {
+        border-bottom: 1px dashed var(--surface-border);
+      }
+
+      .info-label {
+        color: var(--text-color-secondary);
+        font-weight: 500;
+      }
+
+      .info-value {
+        color: var(--text-color);
+        font-weight: 600;
+        text-align: right;
+      }
+    }
+  }
+}
+
+.empty-cart-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-color-secondary);
+
+  .empty-cart-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .customer-search-wrapper {
+    flex-direction: column;
+  }
+
+  .search-section {
+    width: 100%;
+    min-width: unset;
+
+    .search-input-wrapper {
+      max-width: unset;
+    }
+  }
+
+  .customer-info-card {
+    width: 100%;
+    max-width: unset;
+  }
+}

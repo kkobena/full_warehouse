@@ -115,6 +115,194 @@ $presale-color-light: lighten($pharma-info, 38%);
   }
 }
 
+// ============================================
+// MODE DEVIS - 3 Variantes de couleur
+// Switcher via classe: devis-mode-purple, devis-mode-teal, devis-mode-indigo
+// ============================================
+
+// --- OPTION 1: VIOLET/PURPLE ---
+// Couleur élégante, évoque les documents professionnels
+$devis-purple: #8e44ad;
+$devis-purple-dark: #6c3483;
+$devis-purple-light: #f5eef8;
+
+// --- OPTION 2: TEAL/SARCELLE ---
+// Couleur fraîche, distincte du cyan presale, harmonieuse avec le primary bleu-gris
+$devis-teal: #009688;
+$devis-teal-dark: #00796b;
+$devis-teal-light: #e0f2f1;
+
+// --- OPTION 3: INDIGO ---
+// Couleur formelle, business, complémentaire au primary
+$devis-indigo: #5c6bc0;
+$devis-indigo-dark: #3949ab;
+$devis-indigo-light: #e8eaf6;
+
+// ============================================
+// MIXIN pour générer les styles de chaque thème
+// ============================================
+@mixin devis-theme($color, $color-dark, $color-light) {
+  // Header
+  &.pharma-sales-header {
+    background: linear-gradient(135deg, $color-light 0%, lighten($color-light, 3%) 100%);
+    border-bottom: 2px solid $color;
+
+    .page-title h1 {
+      color: $color-dark;
+    }
+
+    .presale-icon {
+      margin-right: 0.375rem;
+      font-size: 1.1rem;
+      color: $color;
+    }
+
+    .subtitle {
+      color: $color !important;
+      font-weight: 500;
+    }
+  }
+
+  // Sidebar
+  &.sales-sidebar {
+    .pharma-nav-sidebar-header {
+      background: linear-gradient(135deg, $color 0%, $color-dark 100%);
+    }
+
+    .pharma-nav-sidebar-content {
+      .pharma-nav-vertical-link {
+        i {
+          color: $color;
+        }
+
+        &:hover {
+          background: $color-light;
+          border-color: $color;
+          color: $color-dark;
+
+          .link-arrow {
+            color: $color;
+          }
+
+          i {
+            color: $color-dark;
+          }
+        }
+
+        &.active {
+          background: linear-gradient(135deg, $color 0%, $color-dark 100%);
+          color: $white;
+
+          i,
+          .link-arrow {
+            color: $white;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// APPLICATION DES 3 THÈMES
+// ============================================
+
+// OPTION 1: PURPLE (Violet)
+.devis-mode-purple {
+  @include devis-theme($devis-purple, $devis-purple-dark, $devis-purple-light);
+}
+
+// OPTION 2: TEAL (Sarcelle)
+.devis-mode-teal {
+  @include devis-theme($devis-teal, $devis-teal-dark, $devis-teal-light);
+}
+
+// OPTION 3: INDIGO
+.devis-mode-indigo {
+  @include devis-theme($devis-indigo, $devis-indigo-dark, $devis-indigo-light);
+}
+
+// ============================================
+// SÉLECTEUR DE THÈME DEVIS (temporaire pour test)
+// ============================================
+.devis-theme-selector {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: $white;
+  border-radius: 12px;
+  box-shadow: $shadow-lg;
+  padding: 1rem;
+  border: 1px solid $gray-200;
+
+  .selector-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  .theme-options {
+    display: flex;
+    gap: 0.5rem;
+
+    .theme-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: $shadow-md;
+      }
+
+      &.active {
+        border-color: $gray-900;
+        transform: scale(1.15);
+      }
+
+      &.purple {
+        background: linear-gradient(135deg, $devis-purple 0%, $devis-purple-dark 100%);
+      }
+
+      &.teal {
+        background: linear-gradient(135deg, $devis-teal 0%, $devis-teal-dark 100%);
+      }
+
+      &.indigo {
+        background: linear-gradient(135deg, $devis-indigo 0%, $devis-indigo-dark 100%);
+      }
+
+      i {
+        color: $white;
+        font-size: 1rem;
+        opacity: 0;
+      }
+
+      &.active i {
+        opacity: 1;
+      }
+    }
+  }
+
+  .theme-label {
+    font-size: 0.7rem;
+    color: $gray-500;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
+
 .header-left {
   display: flex;
   align-items: center;

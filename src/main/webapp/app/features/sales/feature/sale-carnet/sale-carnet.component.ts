@@ -106,6 +106,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly isSmallScreen = input(false);
   readonly remises = input<IRemise[]>([]);
   readonly isPresale = input(false);
+  readonly isDevis = input(false);
 
   // Outputs
   switchToComptant = output<void>();
@@ -306,9 +307,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   ngOnInit(): void {
-    // Initialiser une vente CARNET
-
-    this.facade.initializeCarnetSale();
+    // Initialiser une vente CARNET (ou DEVIS CARNET)
+    if (this.isDevis()) {
+      this.facade.initializeDevisCarnetSale();
+    } else {
+      this.facade.initializeCarnetSale();
+    }
 
     // Initialize typePrescription with default value
     this.facade.setTypePrescription('PRESCRIPTION');
@@ -572,6 +576,36 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     this.facade
       .finalizePresale(sale)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.resetForNewSale();
+          }
+        },
+      });
+  }
+
+  onSaveAsDevis(): void {
+    const sale = this.currentSale();
+    if (!sale) {
+      this.notificationService.warning('Aucun devis à enregistrer', 'Devis vide');
+      return;
+    }
+    if (this.salesLines().length === 0) {
+      this.notificationService.warning('Ajoutez au moins un produit', 'Devis vide');
+      return;
+    }
+    if (!this.hasCustomer()) {
+      this.notificationService.error('Un client est obligatoire pour un devis', 'Client requis');
+      return;
+    }
+
+    // Rebuilder les tiers payants avec les numBon des inputs
+    this.rebuildTiersPayantsFromInputs();
+
+    this.facade
+      .saveDevisCarnet(sale)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: result => {

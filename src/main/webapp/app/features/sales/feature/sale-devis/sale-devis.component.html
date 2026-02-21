@@ -1,22 +1,74 @@
 <!-- Notifications Toast -->
 <p-toast position="center" />
 
-<!-- Content spécifique CARNET -->
-<!-- 1ère ligne: Barre données CARNET (ligne entière) -->
-<div class="carnet-data-section">
-  <app-insurance-data-bar
-    #insuranceDataBar
-    [customer]="selectedCustomer()"
-    [tiersPayants]="currentSale()?.tiersPayants || []"
-    [saleType]="'CARNET'"
-    [ayantDroit]="null"
-    (customerSelected)="onCustomerSelectedFromBar($event)"
-    (openCustomerList)="onOpenCustomerList($event)"
-    (editCustomer)="onEditCustomer()"
-    (addCustomer)="onAddCustomer()"
-    (tiersPayantsChanged)="onTiersPayantsChanged($event)"
-    (focusProductSearch)="focusProductSearch()">
-  </app-insurance-data-bar>
+<!-- Content spécifique DEVIS -->
+<!-- 1ère ligne: Barre recherche client (ligne entière) -->
+<div class="devis-customer-section">
+  <div class="customer-search-wrapper">
+    <!-- Search Section -->
+    <div class="search-section">
+      <p-iconfield class="search-input-wrapper">
+        <p-inputicon class="pi pi-search"/>
+        <input #searchInput
+               (keydown.enter)="onSearchCustomer()"
+               [(ngModel)]="search"
+               autocomplete="off"
+               class="search-input"
+               pInputText
+               [fluid]="true"
+               placeholder="Rechercher un client..."
+               type="text"/>
+      </p-iconfield>
+      <p-button
+        (onClick)="onOpenCustomerList()"
+        icon="pi pi-list"
+        pTooltip="Liste des clients"
+        severity="secondary"
+        size="small"
+        [rounded]="true"/>
+      <p-button
+        (onClick)="onAddCustomer()"
+        icon="pi pi-user-plus"
+        pTooltip="Nouveau client"
+        severity="success"
+        size="small"
+        [rounded]="true"/>
+    </div>
+
+    <!-- Customer Information Card -->
+    @if (selectedCustomer()) {
+      <div class="customer-info-card">
+        <div class="card-header">
+          <div class="header-title">
+            <i class="pi pi-user"></i>
+            <span>Client</span>
+          </div>
+          <p-button
+            (onClick)="onEditCustomer()"
+            pTooltip="Modifier les infos du client"
+            icon="pi pi-user-edit"
+            severity="info"
+            size="small"
+            [rounded]="true"/>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-label">Nom/Prénom(s)</span>
+            <span class="info-value">
+              {{ selectedCustomer().firstName }}
+              {{ selectedCustomer().lastName }}
+            </span>
+          </div>
+          @if (selectedCustomer().phone) {
+            <div class="info-row">
+              <span class="info-label">Téléphone</span>
+              <span class="info-value">{{ selectedCustomer().phone }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>
 
 <!-- 2ème ligne: Recherche produit (ligne entière) -->
@@ -24,7 +76,7 @@
   #produitbox
   [autofocus]="false"
   [selectedProduct]="selectedProduct()"
-  [saleType]="'CARNET'"
+  [saleType]="'COMPTANT'"
   [requiresCustomer]="true"
   [showStock]="showStock()"
   [hasCustomer]="hasCustomer()"
@@ -43,7 +95,7 @@
         [isEditable]="!isSaving()"
         [selectedLineId]="selectedLineId()"
         [saleId]="currentSale()?.id"
-        [saleType]="'CARNET'"
+        [saleType]="'COMPTANT'"
         [remises]="remises()"
         [currentRemise]="currentSale()?.remise"
         [showRemiseSection]="true"
@@ -69,41 +121,28 @@
             [itemCount]="salesLines().length"
             [currentRemise]="currentSale()?.remise"
             [isAvoir]="isAvoir()"
-            [saleType]="'CARNET'"
-            [partAssurance]="currentSale()?.partTiersPayant || 0"
-            [partClient]="currentSale()?.amountToBePaid || 0"
-            [changeAmount]="currentChange()" />
+            [saleType]="'COMPTANT'" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
-            [saleType]="'CARNET'"
+            [saleType]="'COMPTANT'"
             [canSave]="canSave()"
             [canSaveAsPresale]="canSave()"
             [canCancel]="true"
             [isSaving]="isSaving()"
-            [isPresale]="isPresale()"
-            [isDevis]="isDevis()"
+            [isPresale]="true"
+            [isDevis]="true"
             [isSmallScreen]="isSmallScreen()"
-            (save)="isDevis() ? onSaveAsDevis() : onSave()"
+            (save)="onSaveAsDevis()"
             (putOnHold)="onPutOnHold()"
-            (saveAsPresale)="isDevis() ? onSaveAsDevis() : onSaveAsPresale()"
+            (saveAsPresale)="onSaveAsDevis()"
             (cancel)="onCancel()" />
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4ème ligne: Mode règlement (ligne entière) - Uniquement si montant à payer > 0, masqué en prévente et devis -->
-  @if (!isPresale() && !isDevis() && (currentSale()?.amountToBePaid || 0) > 0) {
-    <app-payment-mode
-      #paymentMode
-      [amountToBePaid]="currentSale()!.amountToBePaid || 0"
-      [maxPaymentModes]="2"
-      [isDiffere]="isDiffere()"
-      (paymentComplete)="onPaymentComplete($event)"
-      (validationError)="onPaymentError($event)"
-    />
-  }
+  <!-- Pas de section paiement pour les devis -->
 } @else {
   <div class="empty-cart-state">
     <div class="empty-cart-icon">
@@ -117,4 +156,4 @@
 <!-- Confirm Dialog -->
 <jhi-confirm-dialog #confirmDialog />
 <!-- Spinner global -->
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151"  name="sale-spinner" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner" size="medium" type="timer"></ngx-spinner>

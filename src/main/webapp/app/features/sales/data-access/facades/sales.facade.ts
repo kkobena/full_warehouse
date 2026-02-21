@@ -116,6 +116,9 @@ export class SalesFacade {
   /** Presale mode */
   readonly isPresale = this.store.isPresale;
 
+  /** Devis mode */
+  readonly isDevis = this.store.isDevis;
+
   /** Pending tiers payants (avant création vente backend) */
   readonly pendingTiersPayants = this.store.pendingTiersPayants;
 
@@ -298,7 +301,7 @@ export class SalesFacade {
         defaultErrorMessage: `Erreur lors de la création de la vente ${natureVente.toLowerCase()}`,
         apiCall: sale => this.apiService.createAssuranceSale(sale),
         buildSale: initialLine => ({
-          statut: this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE,
+          statut: this.store.isDevis() ? SalesStatut.DEVIS : (this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE),
           salesLines: [initialLine],
           customerId: this.store.selectedCustomer()?.id,
           natureVente,
@@ -606,6 +609,32 @@ export class SalesFacade {
    * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
    */
   createCarnetSale = this.createVOSale('CARNET');
+
+  /**
+   * Create a new devis sale (COMPTANT with DEVIS status)
+   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
+   */
+  createDevisSale = rxMethod<ISalesLine>(
+    this.createSalePipeline({
+      saleType: 'COMPTANT',
+      defaultErrorMessage: 'Erreur lors de la création du devis',
+      apiCall: sale => this.apiService.createComptantSale(sale),
+      buildSale: initialLine => ({
+        statut: SalesStatut.DEVIS,
+        salesLines: [initialLine],
+        customerId: this.store.selectedCustomer()?.id,
+        natureVente: 'COMPTANT',
+        typePrescription: 'PRESCRIPTION',
+        cassierId: this.store.cashier()?.id,
+        sellerId: this.store.seller()?.id,
+        type: 'VNO',
+        categorie: 'VNO',
+        differe: false,
+        sansBon: false,
+        avoir: false,
+      }),
+    }),
+  );
 
   /**
    * Save current sale (finalize)
@@ -944,6 +973,23 @@ export class SalesFacade {
   }
 
   /**
+   * Initialize a new devis sale (COMPTANT with customer required)
+   */
+  initializeDevisSale(): void {
+    this.store.setSaleType('COMPTANT');
+    this.store.setIsDevis(true);
+  }
+
+  /**
+   * Initialize a new devis carnet sale (CARNET with DEVIS status)
+   */
+  initializeDevisCarnetSale(): void {
+    this.store.setSaleType('CARNET');
+    this.store.setIsDevis(true);
+    this.store.setPendingTiersPayants([]);
+  }
+
+  /**
    * Update tiers payants - stocke dans pendingTiersPayants si pas de vente, sinon dans currentSale
    * Called when customer is selected or when tiers payants are modified in UI
    */
@@ -1106,6 +1152,15 @@ export class SalesFacade {
    */
   onAddProduitCarnet(salesLine: ISalesLine): void {
     this.addProductWithStockHandling(salesLine, this.apiService.addItemAssurance(salesLine));
+  }
+
+  /**
+   * Add product to existing DEVIS sale
+   * Uses /add-item/comptant endpoint (same as COMPTANT)
+   * @param salesLine - Product line to add
+   */
+  onAddProduitDevis(salesLine: ISalesLine): void {
+    this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
   }
 
   /**
@@ -1564,6 +1619,84 @@ export class SalesFacade {
   }
 
   /**
+   * Save a devis (like presale, no payment)
+   * Uses the same endpoint as finalizePresale for COMPTANT
+   */
+  saveDevis(sale: ISales): Observable<boolean | null> {
+    this.store.setIsSaving(true);
+    this.store.setError(null);
+
+    // Vérifier le client obligatoire pour devis
+    if (!sale.customerId && !this.store.selectedCustomer()?.id) {
+      const error = 'Un client est obligatoire pour un devis';
+      this.notificationService.error(error);
+      this.store.setError(error);
+      this.store.setIsSaving(false);
+      return of(null);
+    }
+
+    // S'assurer que le statut est DEVIS
+    sale.statut = SalesStatut.DEVIS;
+
+    // Utiliser l'endpoint de finalisation prévente comptant
+    return this.apiService.finalizePresaleComptant(sale).pipe(
+      map(() => true as boolean),
+      tap(() => {
+        this.notificationService.success('Devis enregistré avec succès');
+        this.store.resetCurrentSale();
+        this.store.setIsSaving(false);
+      }),
+      catchError(error => {
+        console.error('Error saving devis:', error);
+        const errorMessage = error?.error?.message || error.message || "Erreur lors de l'enregistrement du devis";
+        this.notificationService.error(errorMessage);
+        this.store.setError(errorMessage);
+        this.store.setIsSaving(false);
+        return of(null);
+      }),
+    );
+  }
+
+  /**
+   * Save a devis carnet (CARNET with DEVIS status, like presale, no payment)
+   * Uses the same endpoint as finalizePresale for ASSURANCE/CARNET
+   */
+  saveDevisCarnet(sale: ISales): Observable<boolean | null> {
+    this.store.setIsSaving(true);
+    this.store.setError(null);
+
+    // Vérifier le client obligatoire pour devis carnet
+    if (!sale.customerId && !this.store.selectedCustomer()?.id) {
+      const error = 'Un client est obligatoire pour un devis carnet';
+      this.notificationService.error(error);
+      this.store.setError(error);
+      this.store.setIsSaving(false);
+      return of(null);
+    }
+
+    // S'assurer que le statut est DEVIS
+    sale.statut = SalesStatut.DEVIS;
+
+    // Utiliser l'endpoint de finalisation prévente assurance (partagé par CARNET)
+    return this.apiService.finalizePresaleAssurance(sale).pipe(
+      map(() => true as boolean),
+      tap(() => {
+        this.notificationService.success('Devis carnet enregistré avec succès');
+        this.store.resetCurrentSale();
+        this.store.setIsSaving(false);
+      }),
+      catchError(error => {
+        console.error('Error saving devis carnet:', error);
+        const errorMessage = error?.error?.message || error.message || "Erreur lors de l'enregistrement du devis carnet";
+        this.notificationService.error(errorMessage);
+        this.store.setError(errorMessage);
+        this.store.setIsSaving(false);
+        return of(null);
+      }),
+    );
+  }
+
+  /**
    * Load pending sales from backend
    */
   loadPendingSales(params: any): void {
@@ -1666,6 +1799,7 @@ export class SalesFacade {
   setSeller = this.store.setSeller.bind(this.store);
   setSaleType = this.store.setSaleType.bind(this.store);
   setIsPresale = this.store.setIsPresale.bind(this.store);
+  setIsDevis = this.store.setIsDevis.bind(this.store);
   setIsEdit = this.store.setIsEdit.bind(this.store);
   setTypePrescription = this.store.setTypePrescription.bind(this.store);
   setPaymentMode = this.store.setPaymentMode.bind(this.store);

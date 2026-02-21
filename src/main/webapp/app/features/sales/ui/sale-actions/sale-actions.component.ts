@@ -28,6 +28,7 @@ export class SaleActionsComponent {
   canCancel = input(true);
   canSaveAsPresale = input(true);
   isPresale = input(false);
+  isDevis = input(false);
   isSaving = input(false);
   saleType = input<'COMPTANT' | 'ASSURANCE' | 'CARNET'>('COMPTANT');
   showPrintButton = input(false);
@@ -61,13 +62,13 @@ export class SaleActionsComponent {
   }
 
   onSaveAsPresale(): void {
-    if (this.isPresale()) {
+    if (this.isPresale() || this.isDevis()) {
       this.saveAsPresale.emit();
     }
   }
 
   onPutOnHold(): void {
-    if (!this.isPresale()) {
+    if (!this.isPresale() && !this.isDevis()) {
       this.putOnHold.emit();
     }
   }
@@ -80,14 +81,23 @@ export class SaleActionsComponent {
 
   // Helper methods
   getSaveButtonLabel(): string {
+    if (this.isDevis()) {
+      return 'Enregistrer le devis';
+    }
     return this.isPresale() ? 'Finaliser la prévente' : 'Enregistrer';
   }
 
   getSaveButtonIcon(): string {
-    return this.isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check';
+    if (this.isSaving()) {
+      return 'pi pi-spin pi-spinner';
+    }
+    return this.isDevis() ? 'pi pi-file-edit' : 'pi pi-check';
   }
 
-  getSaveButtonSeverity(): 'success' | 'info' {
+  getSaveButtonSeverity(): 'success' | 'info' | 'warning' {
+    if (this.isDevis()) {
+      return 'warning';
+    }
     return this.isPresale() ? 'info' : 'success';
   }
 }

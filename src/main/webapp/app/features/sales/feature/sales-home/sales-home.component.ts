@@ -30,6 +30,7 @@ import {Select} from 'primeng/select';
 import {SaleCreationComponent} from '../sale-creation/sale-creation.component';
 import {SaleAssuranceComponent} from '../sale-assurance/sale-assurance.component';
 import {SaleCarnetComponent} from '../sale-carnet/sale-carnet.component';
+import {SaleDevisComponent} from '../sale-devis/sale-devis.component';
 import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
@@ -75,6 +76,7 @@ import {AuthorizationService} from "../../data-access/services/authorization.ser
     SaleCreationComponent,
     SaleAssuranceComponent,
     SaleCarnetComponent,
+    SaleDevisComponent,
     PendingSalesListComponent,
     CustomerOverlayPanelComponent,
     ConfirmDialogComponent,
@@ -104,11 +106,20 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected saleCreation = viewChild<SaleCreationComponent>(SaleCreationComponent);
   protected saleAssurance = viewChild<SaleAssuranceComponent>(SaleAssuranceComponent);
   protected saleCarnet = viewChild<SaleCarnetComponent>(SaleCarnetComponent);
+  protected saleDevis = viewChild<SaleDevisComponent>(SaleDevisComponent);
   protected active = signal('comptant');
   protected sidebarCollapsed = signal(false);
   readonly isPresale = input(false);
+  readonly isDevis = input(false);
   private isPresaleFromRoute = signal(false);
+  private isDevisFromRoute = signal(false);
   protected isPresaleMode = computed(() => this.isPresale() || this.isPresaleFromRoute());
+  protected isDevisMode = computed(() => this.isDevis() || this.isDevisFromRoute());
+
+  // Thème devis: 'purple' | 'teal' | 'indigo' (temporaire pour test)
+  protected devisTheme = signal<'purple' | 'teal' | 'indigo'>('teal');
+  protected devisThemeClass = computed(() => this.isDevisMode() ? `devis-mode-${this.devisTheme()}` : '');
+
   protected userSeller = signal<IUser | null>(null);
   protected appendTo = 'body'; // Utilisé dans p-select du template
   protected produitSelected: any | null = null;
@@ -166,6 +177,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     }
     // Synchroniser le mode prevente dans le store
     this.salesFacade.setIsPresale(this.isPresale());
+    // Synchroniser le mode devis dans le store
+    this.salesFacade.setIsDevis(this.isDevis());
     // S'abonner au rechargement de vente (après annulation forçage stock)
     this.salesFacade.saleReloadedToEditSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       history.replaceState({}, '');
@@ -339,7 +352,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       switch (this.active()) {
         case 'comptant':
-          this.saleCreation()?.focusProductSearch();
+          if (this.isDevisMode()) {
+            this.saleDevis()?.focusProductSearch();
+          } else {
+            this.saleCreation()?.focusProductSearch();
+          }
           break;
         case 'assurance':
           this.saleAssurance()?.focusProductSearch();
@@ -493,8 +510,17 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // 1. Raccourcis clavier (Alt+1/2/3, F11)
     if (event.altKey && !event.ctrlKey && ['1', '2', '3'].includes(event.key)) {
       event.preventDefault();
-      const tabMap: Record<string, string> = {'1': 'comptant', '2': 'assurance', '3': 'carnet'};
-      this.switchToTab(tabMap[event.key]);
+      // En mode devis, pas de tab assurance (Alt+2 ignoré)
+      if (this.isDevisMode() && event.key === '2') {
+        return;
+      }
+      const tabMap: Record<string, string> = this.isDevisMode()
+        ? {'1': 'comptant', '3': 'carnet'}  // En mode devis: 1=comptant, 3=carnet
+        : {'1': 'comptant', '2': 'assurance', '3': 'carnet'};
+      const targetTab = tabMap[event.key];
+      if (targetTab) {
+        this.switchToTab(targetTab);
+      }
       return;
     }
 
@@ -601,7 +627,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
     switch (this.active()) {
       case 'comptant':
-        this.saleCreation()?.onProductScanned(product);
+        if (this.isDevisMode()) {
+          this.saleDevis()?.onProductScanned(product);
+        } else {
+          this.saleCreation()?.onProductScanned(product);
+        }
         break;
       case 'assurance':
         this.saleAssurance()?.onProductScanned(product);
@@ -620,7 +650,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // 1. Reset le product-search (supprime le texte code-barres + cache dropdown)
     switch (this.active()) {
       case 'comptant':
-        this.saleCreation()?.productSearchComponent()?.reset();
+        if (this.isDevisMode()) {
+          this.saleDevis()?.productSearchComponent()?.reset();
+        } else {
+          this.saleCreation()?.productSearchComponent()?.reset();
+        }
         break;
       case 'assurance':
         this.saleAssurance()?.productSearchComponent()?.reset();

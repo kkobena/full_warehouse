@@ -9,4 +9,5 @@ export const enum SalesStatut {
   DELETED = 'DELETED',
   CLOSED = 'CLOSED', //Status d'une vente cloturée
   ACTIVE = 'ACTIVE', // Status d'une vente en cours
+  DEVIS = 'DEVIS', // Status d'une vente en devis
 }

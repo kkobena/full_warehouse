@@ -10,9 +10,9 @@ public enum SalesStatut {
     PENDING,
     CLOSED,
     ACTIVE,
-    DESABLED,
     CANCELED,
-    REMOVED;
+    REMOVED,
+    DEVIS;
 
     public static Set<SalesStatut> getStatutForFacturation() {
         return Set.of(CLOSED, CANCELED);

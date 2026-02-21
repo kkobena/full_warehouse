@@ -120,20 +120,6 @@
   </div>
 }
 
-<!-- Drawer Ventes en attente -->
-@if (showPendingSales()) {
-  <p-drawer
-    [(visible)]="showPendingSales"
-    position="right"
-    [style]="{ width: '50vw' }">
-    <ng-template #header>
-      <h5>Ventes en attente</h5>
-    </ng-template>
-    <app-pending-sales-list
-      (saleResumed)="onPendingSaleResumed($event)"
-      (closed)="onPendingSalesClose()"/>
-  </p-drawer>
-}
 
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

@@ -1,24 +1,22 @@
-import { Component, inject, OnInit, output, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { SelectModule } from 'primeng/select';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { ISales, SaleId } from '../../../../shared/model/sales.model';
-import { IUser } from '../../../../core/user/user.model';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { SalesStatut } from '../../../../shared/model';
+import {Component, computed, inject, OnInit, output, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {SelectModule} from 'primeng/select';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {TooltipModule} from 'primeng/tooltip';
+import {TagModule} from 'primeng/tag';
+import {ISales} from '../../../../shared/model/sales.model';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import {SalesStatut} from '../../../../shared/model';
 
 /**
  * PendingSalesListComponent
@@ -81,23 +79,23 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== Computed =====
   readonly filteredSales = computed(() => {
-    let sales = this.pendingSales();
-    const search = this.searchTerm().toLowerCase();
-    const sellerId = this.sellerFilter();
+    const sales = this.pendingSales();
+    /* const search = this.searchTerm().toLowerCase();
+     const sellerId = this.sellerFilter();
 
-    if (search) {
-      sales = sales.filter(
-        sale =>
-          sale.numberTransaction?.toLowerCase().includes(search) ||
-          sale.customer?.fullName?.toLowerCase().includes(search) ||
-          sale.seller?.abbrName?.toLowerCase().includes(search),
-      );
-    }
+     if (search) {
+       sales = sales.filter(
+         sale =>
+           sale.numberTransaction?.toLowerCase().includes(search) ||
+           sale.customer?.fullName?.toLowerCase().includes(search) ||
+           sale.seller?.abbrName?.toLowerCase().includes(search),
+       );
+     }
 
-    if (sellerId) {
-      sales = sales.filter(sale => sale.seller?.id === sellerId);
-    }
-
+     if (sellerId) {
+       sales = sales.filter(sale => sale.seller?.id === sellerId);
+     }
+ */
     return sales;
   });
 
@@ -124,10 +122,11 @@ export class PendingSalesListComponent implements OnInit {
   onSearch(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchTerm.set(target.value);
+    this.onRefresh();
   }
 
   onSellerChange(): void {
-    // Filter is applied via computed signal
+    this.onRefresh();
   }
 
   onSelectSale(sale: ISales): void {
@@ -141,6 +140,7 @@ export class PendingSalesListComponent implements OnInit {
     }
 
     this.facade.resumePendingSale(sale.saleId);
+
     this.saleResumed.emit(sale);
     this.closed.emit();
   }
@@ -186,7 +186,7 @@ export class PendingSalesListComponent implements OnInit {
   }
 
   private buildParameters(): any {
-    const params: any = { statut: SalesStatut.ACTIVE };
+    const params: any = {statut: SalesStatut.ACTIVE};
 
     const sellerId = this.sellerFilter();
     if (sellerId) {

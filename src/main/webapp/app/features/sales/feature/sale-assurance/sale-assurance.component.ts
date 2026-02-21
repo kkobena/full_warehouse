@@ -12,39 +12,44 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Toast } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Toast} from 'primeng/toast';
+import {TooltipModule} from 'primeng/tooltip';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
-  PendingSalesListComponent,
   ProductListComponent,
   ProductSearchSectionComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
-import { AyantDroitCustomerListComponent } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
-import { AddComplementaireComponent } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
-import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { CustomerSearchService } from '../../data-access/services/customer-search.service';
-import { AuthorizationService } from '../../data-access/services/authorization.service';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { IClientTiersPayant, ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
-import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import {
+  AyantDroitCustomerListComponent
+} from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
+import {
+  AddComplementaireComponent
+} from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
+import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
+import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {CustomerSearchService} from '../../data-access/services/customer-search.service';
+import {AuthorizationService} from '../../data-access/services/authorization.service';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import {
+  CashRegisterFormComponent
+} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -54,8 +59,7 @@ import {
   createProductHandling,
   ProductSearchHost,
 } from '../../shared/mixins';
-import { Drawer } from 'primeng/drawer';
-import { SaleForEditInfo } from '../../../../shared/model/sales.model';
+import {SaleForEditInfo} from '../../../../shared/model/sales.model';
 
 /**
  * Composant Container : Création de vente ASSURANCE
@@ -89,8 +93,7 @@ import { SaleForEditInfo } from '../../../../shared/model/sales.model';
     InsuranceDataBarComponent,
     ConfirmDialogComponent,
     NgxSpinnerModule,
-    Drawer,
-    PendingSalesListComponent,
+
   ],
 })
 export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSearchHost {
@@ -154,7 +157,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   selectedLineId = signal<number | null>(null);
   customers = signal<ICustomer[]>([]);
-  showPendingSales = signal(false);
   isDiffere = signal<boolean>(false);
 
   // Force Stock state signals
@@ -205,7 +207,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     facade: this.facade,
     authorizationService: this.authorizationService,
     spinner: this.spinner,
-    config: { saleType: 'ASSURANCE' },
+    config: {saleType: 'ASSURANCE'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -267,7 +269,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
 
-    onPaymentSuccess: () => {},
+    onPaymentSuccess: () => {
+    },
     // Fonction de sauvegarde personnalisée pour ASSURANCE
     customSaveSale: payments => this.facade.saveAssuranceSale(payments),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
@@ -295,7 +298,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         this.facade.initializeAssuranceSale();
         // Définir le client après l'initialisation
         this.facade.setCustomer(customer);
-     //   this.currentSale();
+        //   this.currentSale();
       }
 
       // Mettre à jour les tiers payants via la facade
@@ -313,7 +316,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    { saleType: 'ASSURANCE', isPresale: () => this.isPresale() },
+    {saleType: 'ASSURANCE', isPresale: () => this.isPresale()},
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -394,6 +397,16 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     });
     this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
+    });
+    this.facade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
+        const updatedTiersPayants = currentSale.tiersPayants || [];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+
+      }
+
     });
     // S'abonner au succès d'ajout de tiers payant complémentaire
     this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
@@ -572,7 +585,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
-    const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
+    const newCustomer = {...customer, tiersPayants: [...(customer.tiersPayants || [])]};
     // Utiliser le mixin qui gère la logique commune + callback ASSURANCE
     this.customerHandling.selectCustomer(newCustomer);
   }
@@ -697,6 +710,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       `Êtes-vous sûr de vouloir supprimer le tiers payant ${tiersPayant.tiersPayantName} ?`,
     );
   }
+
   private handleDiffereConfirmed(): void {
     const currentSale = this.facade.currentSale();
     if (!currentSale) return;
@@ -706,6 +720,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.paymentModeComponent()?.focusCommentInput();
     }, 100);
   }
+
   private removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
     const dataBar = this.insuranceDataBar();
     if (dataBar) {
@@ -984,13 +999,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     );
   }
 
-  onPendingSaleResumed(sale: ISales): void {
-    this.showPendingSales.set(false);
-  }
-
-  onPendingSalesClose(): void {
-    this.showPendingSales.set(false);
-  }
 
   // ============================================
   // Raccourcis clavier

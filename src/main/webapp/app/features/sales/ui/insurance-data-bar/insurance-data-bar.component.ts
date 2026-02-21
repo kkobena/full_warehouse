@@ -115,9 +115,6 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     return this.selectedTiersPayants();
   }
 
-  onChangeCustomerClick(): void {
-    this.openCustomerList.emit({ customers: [], searchTerm: '' });
-  }
 
   reset(): void {
     this.selectedTiersPayants.set([]);

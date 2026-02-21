@@ -88,6 +88,8 @@ export class SalesFacade {
 
   private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
   readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
+  private readonly resumePendingSaleSuccessSubject = new Subject<void>();
+  readonly resumePendingSaleSuccess$ = this.resumePendingSaleSuccessSubject.asObservable();
 
   private readonly cashSaleTransformedSubject = new Subject<'ASSURANCE' | 'CARNET'>();
   readonly cashSaleTransformed$ = this.cashSaleTransformedSubject.asObservable();
@@ -337,7 +339,6 @@ export class SalesFacade {
         next: (result: { createdSale: ISales; initialLine: ISalesLine } | null) => {
           if (result?.createdSale) {
             this.store.setCurrentSale(result.createdSale);
-            this.store.setIsEdit(true);
             this.store.clearError();
             this.productAddedSuccessSubject.next();
           }
@@ -755,6 +756,67 @@ export class SalesFacade {
       }),
     ),
   );
+  resumePendingSale = rxMethod<SaleId>(
+    pipe(
+      tap(() => {
+        this.store.setLoading(true);
+        this.store.setError(null);
+      }),
+      switchMap(saleId => this.apiService.findSale(saleId)),
+      tap({
+        next: sale => {
+          if (sale.statut !== SalesStatut.CLOSED) {
+
+            this.store.setCurrentSale(sale);
+          /*  this.store.setCurrentSale({
+              ...sale,
+              tiersPayants: sale.tiersPayants,
+            });*/
+
+
+            // Mettre à jour le saleType dans le store selon la natureVente
+            if (sale.natureVente === 'ASSURANCE') {
+              this.store.setSaleType('ASSURANCE');
+            } else if (sale.natureVente === 'CARNET') {
+              this.store.setSaleType('CARNET');
+            } else {
+              this.store.setSaleType('COMPTANT');
+            }
+            console.error('Error saving sale:', sale);
+            console.error('sale.customer', sale.customer);
+
+            if (sale.customer) {
+              this.store.setSelectedCustomer(sale.customer);
+            }
+
+            if (sale.cassier) {
+              this.store.setCashier(sale.cassier);
+            }
+
+            if (sale.seller) {
+              this.store.setSeller(sale.seller);
+            }
+
+            console.error('store', this.store.currentSale());
+             this.resumePendingSaleSuccessSubject.next();
+
+          } else {
+            this.store.resetCurrentSale();
+          }
+          this.store.removePendingSale(sale.saleId);
+          this.store.setLoading(false);
+        },
+        error: error => {
+          this.store.setError(error.message || 'Erreur lors du chargement de la vente');
+          this.store.setLoading(false);
+        },
+      }),
+      catchError(error => {
+        console.error('Error loading sale:', error);
+        return of(null);
+      }),
+    ),
+  );
 
   /**
    * Load sale for editing
@@ -767,11 +829,11 @@ export class SalesFacade {
         this.store.setLoading(true);
         this.store.setError(null);
       }),
-      switchMap(saleId => this.apiService.findSaleForEdit(saleId)), //Ne pas utilise findSale ici
+      switchMap(saleId => this.apiService.findSale(saleId)),
       tap({
         next: sale => {
           this.store.setCurrentSale(sale);
-          this.store.setIsEdit(true);
+
 
           // Mettre à jour le saleType dans le store selon la natureVente
           if (sale.natureVente === 'ASSURANCE') {
@@ -1523,37 +1585,6 @@ export class SalesFacade {
       });
   }
 
-  /**
-   * Resume a pending sale (load it as current sale)
-   * @param saleId - ID of the pending sale to resume
-   */
-  resumePendingSale(saleId: SaleId): void {
-    this.store.setLoading(true);
-
-    this.apiService
-      .findSale(saleId)
-      .pipe(
-        catchError(error => {
-          console.error('Error loading pending sale:', error);
-          this.notificationService.error('Erreur lors de la reprise de la vente');
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.removePendingSale(saleId);
-          this.store.setIsEdit(true);
-
-          // Load customer if exists
-          if (sale.customer) {
-            this.store.setSelectedCustomer(sale.customer);
-          }
-        }
-      });
-  }
 
   /**
    * Delete a pending sale permanently

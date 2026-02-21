@@ -92,7 +92,7 @@
         </tr>
       </ng-template>
     <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
-      
+
         <tr
           [ngClass]="getRowClass(sale)"
           (click)="onSelectSale(sale)"
@@ -145,7 +145,7 @@
                 size="small"
                 pTooltip="Reprendre la vente"
               />
-             
+
             </div>
           </td>
         </tr>
@@ -166,7 +166,7 @@
                   [paginator]="true"
                   [rows]="5"
                   [rowsPerPageOptions]="[5, 10, 15]"
-                  styleClass="p-datatable-sm"
+                  class="p-datatable-sm"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">

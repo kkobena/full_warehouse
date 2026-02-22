@@ -51,14 +51,6 @@
                   severity="primary"
                   type="button"
                 />
-                <p-button
-                  [raised]="true"
-                  [routerLink]="['/sales-home/devis']"
-                  icon="pi pi-shopping-cart"
-                  label="Nouveau devis"
-                  severity="primary"
-                  type="button"
-                />
               }
 
             </div>
@@ -125,6 +117,17 @@
                   pTooltip="Editer la pré-vente"
                   severity="primary"
 
+                />
+
+                <!-- Transformer en vente -->
+                <p-button
+                  (click)="confirmTransform(sale)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-sync"
+                  pTooltip="Transformer en vente"
+                  severity="help"
+                  tooltipPosition="top"
                 />
 
                 <p-button
@@ -222,3 +225,11 @@
   </div>
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="prevente-spinner"
+  size="medium"
+  type="timer"
+/>

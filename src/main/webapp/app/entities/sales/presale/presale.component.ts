@@ -1,21 +1,23 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ISales } from '../../../shared/model';
-import { SalesService } from '../sales.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { Router, RouterModule } from '@angular/router';
-import { ToolbarModule } from 'primeng/toolbar';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { Select } from 'primeng/select';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ConfigurationService } from '../../../shared/configuration.service';
-import { SalesStatut } from '../../../shared/model';
-import { ButtonGroup } from 'primeng/buttongroup';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {ISales, SalesStatut} from '../../../shared/model';
+import {SalesService} from '../sales.service';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {Router, RouterModule} from '@angular/router';
+import {ToolbarModule} from 'primeng/toolbar';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {Select} from 'primeng/select';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfigurationService} from '../../../shared/configuration.service';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {NgxSpinnerComponent, NgxSpinnerService} from "ngx-spinner";
 
 @Component({
   selector: 'jhi-presale',
@@ -36,6 +38,7 @@ import { ButtonGroup } from 'primeng/buttongroup';
     Select,
     ConfirmDialogComponent,
     ButtonGroup,
+    NgxSpinnerComponent,
   ],
 })
 export class PresaleComponent implements OnInit {
@@ -48,6 +51,8 @@ export class PresaleComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly configService = inject(ConfigurationService);
   private readonly router = inject(Router);
+  private readonly spinner = inject(NgxSpinnerService);
+
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
@@ -67,7 +72,7 @@ export class PresaleComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        statut: SalesStatut.PROCESSING,
+        statut: [SalesStatut.PROCESSING, SalesStatut.PENDING],
       })
       .subscribe(res => {
         this.sales = res.body ?? [];
@@ -80,7 +85,11 @@ export class PresaleComponent implements OnInit {
 
   deletePrevente(sale: ISales): void {
     if (sale.id) {
-      this.salesService.deletePrevente(sale.saleId).subscribe(() => this.loadPreventes());
+      this.spinner.show('prevente-spinner');
+      this.salesService.deletePrevente(sale.saleId).subscribe(() => {
+        this.spinner.hide('prevente-spinner');
+        this.loadPreventes();
+      });
     }
   }
 
@@ -88,9 +97,44 @@ export class PresaleComponent implements OnInit {
     this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
 
+  confirmTransform(sale: ISales): void {
+    this.confimDialog().onConfirm(
+      () => this.transformPrevente(sale),
+      'Transformer en vente',
+      'Voulez-vous transformer cette pré-vente en vente ? La pré-vente sera supprimée après transformation.'
+    );
+  }
+
   navigateToSale(sale: ISales): void {
     this.router.navigate(['/sales-home/prevente'], {
-      state: { saleInfo: { saleId: sale.saleId, isPresale: true } },
+      state: {saleInfo: {saleId: sale.saleId, isPresale: true}},
+    });
+  }
+
+  navigateToSaleEnCors(sale: ISales): void {
+    this.router.navigate(['/sales-home'], {
+      state: {saleInfo: {saleId: sale.saleId}},
+    });
+  }
+
+  transformPrevente(sale: ISales): void {
+    if (!sale.saleId) {
+      return;
+    }
+    const isAssurance = sale.natureVente === 'ASSURANCE';
+    this.spinner.show('prevente-spinner');
+    const transform$ = isAssurance
+      ? this.salesService.transformToVenteAssurance(sale.saleId)
+      : this.salesService.transformToVenteComptant(sale.saleId);
+
+    transform$.subscribe({
+      next: () => {
+        this.spinner.hide('prevente-spinner');
+        this.navigateToSaleEnCors(sale);
+      },
+      error: () => {
+        this.spinner.hide('prevente-spinner');
+      },
     });
   }
 }

@@ -1,0 +1,78 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/expanded-row';
+
+// ============================================
+// DEVIS LIST - Styles spécifiques
+// ============================================
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+
+  .empty-state-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0, 150, 136, 0.1) 0%, rgba(0, 150, 136, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 150, 136, 0.15);
+
+    i {
+      font-size: 2.5rem;
+      color: #009688;
+    }
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    max-width: 300px;
+  }
+}
+
+// Actions column
+.pharma-table {
+  td:last-child {
+    white-space: nowrap;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .pharma-toolbar-filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .pharma-toolbar-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.p-floatlabel {
+  max-width: 150px !important;
+
+
+}

@@ -91,7 +91,7 @@ public interface ThirdPartySaleService {
 
     void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) throws PlafondVenteException;
 
-    void savePrevente(ThirdPartySaleDTO dto)
+    void savePrevente(ThirdPartySaleDTO dto, boolean transform)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     void removeDiscount(SaleId saleId) throws PlafondVenteException;
@@ -103,7 +103,9 @@ public interface ThirdPartySaleService {
     SaleId copiePourEdition(SaleId saleId)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException, CashRegisterException;
 
-    void transformDevisToVenteEncour(SaleId saleId);
+    SaleId transformToVenteEncour(SaleId saleId);
 
     void cloneDevis(SaleId saleId);
+
+
 }

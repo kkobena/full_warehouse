@@ -1,0 +1,306 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <!-- Modern Pharma Toolbar -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-file-edit"></i>
+        <span class="pharma-toolbar-title">Liste des Proformas</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              (onChange)="onTypeVenteChange()"
+              [(ngModel)]="typeVenteSelected"
+              [filter]="false"
+              [options]="typeVentes"
+              appendTo="body"
+              class="mr-2"
+              placeholder="Filtrer par type"
+            />
+
+            <div class="pharma-search-input">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input
+                  (keyup.enter)="onSearch()"
+                  [(ngModel)]="search"
+                  pInputText
+                  placeholder="Rechercher..."
+                  type="text"
+                />
+              </p-iconfield>
+            </div>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [style]="'max-width: 150px;'"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="fromDate"
+              />
+              <label for="fromDate">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [style]="'max-width: 150px;'"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="toDate"
+                inputId="toDate"
+              />
+              <label for="toDate">Au</label>
+            </p-floatlabel>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <p-button
+              (click)="loadDevis()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+              type="button"
+            />
+            <p-button
+              [raised]="true"
+              [routerLink]="['/sales-home/devis']"
+              icon="pi pi-plus"
+              label="Créer une proforma"
+              severity="primary"
+              type="button"
+            />
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <div class="mt-3 mb-3">
+      @if (sales.length > 0) {
+        <p-table
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [value]="sales"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} devis"
+          dataKey="id"
+          selectionMode="single"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3%"></th>
+              <th style="width: 12%">Date</th>
+              <th style="width: 7%">Type</th>
+              <th style="width: 10%">Référence</th>
+              <th style="width: 8%">Articles</th>
+              <th style="width: 10%">Montant</th>
+              <th style="width: 18%">Client</th>
+              <th style="width: 14%">Vendeur</th>
+              <th style="width: 18%">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-expanded="expanded" let-sale>
+            <tr>
+              <td>
+                <p-button
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="sale"
+                  [rounded]="true"
+                  [text]="true"
+                  type="button"
+                />
+              </td>
+              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                @if (sale.natureVente === 'ASSURANCE') {
+                  <span class="pharma-badge pharma-badge-info">Assurance</span>
+                } @else if (sale.natureVente === 'CARNET') {
+                  <span class="pharma-badge pharma-badge-warning">Carnet</span>
+                } @else {
+                  <span class="pharma-badge pharma-badge-success">Comptant</span>
+                }
+              </td>
+              <td>
+                <span class="pharma-code">{{ sale.numberTransaction }}</span>
+              </td>
+              <td class="text-right">{{ sale.salesLines?.length | number }}</td>
+              <td class="text-right">
+                <span class="pharma-total">{{ sale.salesAmount | number }}</span>
+              </td>
+              <td>
+                <div class="pharma-entity-name">{{ sale.customer?.fullName }}</div>
+              </td>
+              <td>{{ sale.seller?.abbrName }}</td>
+              <td class="text-center">
+                <p-buttonGroup>
+                  <!-- Editer -->
+                  <p-button
+                    (click)="editDevis(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-pencil"
+                    pTooltip="Éditer le devis"
+                    severity="primary"
+                    tooltipPosition="top"
+                  />
+
+                  <!-- Transformer en vente -->
+                  <p-button
+                    (click)="confirmTransform(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-sync"
+                    pTooltip="Transformer en vente"
+                    severity="help"
+                    tooltipPosition="top"
+                  />
+
+                  <!-- Cloner -->
+                  <p-button
+                    (click)="confirmClone(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-copy"
+                    pTooltip="Cloner le devis"
+                    severity="info"
+                    tooltipPosition="top"
+                  />
+
+                  <!-- Imprimer PDF -->
+                  <p-button
+                    (click)="printDevisPdf(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-file-pdf"
+                    pTooltip="Imprimer en PDF"
+                    severity="secondary"
+                    tooltipPosition="top"
+                  />
+
+                  <!-- Supprimer -->
+                  <p-button
+                    (click)="confirmDelete(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    pTooltip="Supprimer"
+                    severity="danger"
+                    tooltipPosition="top"
+                  />
+                </p-buttonGroup>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #expandedrow let-elRow>
+            <tr class="pharma-expanded-row">
+              <td colspan="9">
+                <div class="expanded-row-container">
+                  <div class="activity-card activity-card-products">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-list"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Liste des produits</h3>
+                        <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
+                          article(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      <p-table
+                        [paginator]="true"
+                        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                        [rows]="10"
+                        [showCurrentPageReport]="true"
+                        [stripedRows]="true"
+                        [value]="elRow.salesLines"
+                        class="pharma-table rowexpansion-table"
+                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                        dataKey="id"
+                        selectionMode="single"
+                      >
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 12%">CODE</th>
+                            <th style="width: 45%">LIBELLE</th>
+                            <th class="text-right" style="width: 10%">QTE</th>
+                            <th class="text-right" style="width: 12%">PU</th>
+                            <th class="text-right" style="width: 12%">TOTAL</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                          <tr class="pharma-row-hover">
+                            <td style="text-align: left">
+                              <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                            </td>
+                            <td>
+                              <span class="pharma-code">{{ saleLine.code }}</span>
+                            </td>
+                            <td>
+                              <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                            </td>
+                            <td
+                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                            </td>
+                            <td
+                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                            </td>
+                            <td class="pharma-total" style="text-align: right; font-weight: bold">
+                              {{ saleLine.salesAmount | number }}
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="pi pi-file-edit"></i>
+          </div>
+          <h3>Aucun devis</h3>
+          <p>Aucune proforma trouvée. Créez une nouvelle proforma pour commencer.</p>
+          <p-button
+            [raised]="true"
+            [routerLink]="['/sales-home/devis']"
+            icon="pi pi-plus"
+            label="Créer une proforma"
+            severity="primary"
+          />
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<jhi-confirm-dialog #confirmDialog />
+<p-toast position="top-right" />
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="devis-spinner"
+  size="medium"
+  type="timer"
+/>

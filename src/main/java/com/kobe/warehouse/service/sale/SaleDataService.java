@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.sale;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
@@ -59,17 +62,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
@@ -84,9 +76,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional(readOnly = true)
@@ -109,7 +108,8 @@ public class SaleDataService {
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ReceiptPrinterService receiptPrinterService,
-        SalesRepository salesRepository, StorageService storageService, SalePaymentRepository salePaymentRepository
+        SalesRepository salesRepository, StorageService storageService,
+        SalePaymentRepository salePaymentRepository
     ) {
         this.em = em;
 
@@ -124,9 +124,94 @@ public class SaleDataService {
         this.salePaymentRepository = salePaymentRepository;
     }
 
-    public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate, LocalDate toDate) {
-        Specification<Sales> specification = Specification.where(salesRepository.filterByCustomerId(customerId));
-        specification = specification.and(salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
+    private static SaleDTO mapRowToSaleDTO(Object[] row) {
+        int i = 0;
+        String dtype = (String) row[i++];
+        Long id = ((Number) row[i++]).longValue();
+        LocalDate saleDate = toLocalDate(row[i++]);
+        String numberTransaction = (String) row[i++];
+        Integer discountAmount = asInteger(row[i++]);
+        Integer salesAmount = asInteger(row[i++]);
+        Integer amountToBePaid = asInteger(row[i++]);
+        Integer restToPay = asInteger(row[i++]);
+        String statut = (String) row[i++];
+        String paymentStatus = (String) row[i++];
+        String natureVente = (String) row[i++];
+        String typePrescription = (String) row[i++];
+        boolean differe = Boolean.TRUE.equals(row[i++]);
+        boolean canceled = Boolean.TRUE.equals(row[i++]);
+        LocalDateTime createdAt = toLocalDateTime(row[i++]);
+        LocalDateTime updatedAt = toLocalDateTime(row[i++]);
+        String commentaire = (String) row[i++];
+        Integer monnaie = asInteger(row[i++]);
+        String tvaEmbeded = (String) row[i++];
+        String numBon = (String) row[i++];
+        Integer partAssure = asInteger(row[i++]);
+        Integer partTiersPayant = asInteger(row[i++]);
+        String userFullName = (String) row[i++];
+        Integer sellerId = asInteger(row[i++]);
+        String sellerFirstName = (String) row[i++];
+        String sellerLastName = (String) row[i++];
+        Integer cassierId = asInteger(row[i++]);
+        String cassierFirstName = (String) row[i++];
+        String cassierLastName = (String) row[i++];
+        String caisseNum = (String) row[i++];
+        String caisseEndNum = (String) row[i++];
+        String firstName = (String) row[i++];
+        String lastName = (String) row[i++];
+        String phone = (String) row[i++];
+
+        Integer customerId = asInteger(row[i]);
+
+        return SaleDTOBuilder.of(dtype)
+            .id(id, saleDate)
+            .numberTransaction(numberTransaction)
+            .amounts(discountAmount, salesAmount, amountToBePaid, restToPay, monnaie)
+            .statut(statut, paymentStatus)
+            .saleInfo(natureVente, typePrescription, commentaire)
+            .flags(differe, canceled)
+            .dates(createdAt, updatedAt)
+            .tvaEmbeded(tvaEmbeded)
+            .thirdPartyInfo(numBon, partAssure, partTiersPayant)
+            .user(userFullName)
+            .seller(sellerId, sellerFirstName, sellerLastName)
+            .cassier(cassierId, cassierFirstName, cassierLastName)
+            .caisses(caisseNum, caisseEndNum)
+            .customer(customerId, firstName, lastName, phone)
+            .build();
+    }
+
+    private static Integer asInteger(Object o) {
+        if (o == null) {
+            return null;
+        }
+        return ((Number) o).intValue();
+    }
+
+    private static LocalDate toLocalDate(Object o) {
+        return switch (o) {
+            case null -> null;
+            case LocalDate ld -> ld;
+            case java.sql.Date d -> d.toLocalDate();
+            default -> (LocalDate) o;
+        };
+    }
+
+    private static LocalDateTime toLocalDateTime(Object o) {
+        return switch (o) {
+            case null -> null;
+            case LocalDateTime ldt -> ldt;
+            case java.sql.Timestamp ts -> ts.toLocalDateTime();
+            default -> (LocalDateTime) o;
+        };
+    }
+
+    public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate,
+        LocalDate toDate) {
+        Specification<Sales> specification = Specification.where(
+            salesRepository.filterByCustomerId(customerId));
+        specification = specification.and(
+            salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         if (fromDate != null) {
             specification = specification.and(salesRepository.between(fromDate, toDate));
         }
@@ -141,10 +226,9 @@ public class SaleDataService {
         return fetchById(id, false);
     }
 
-
-
     public SaleDTO fetchPurchaseBy(@NotNull Long id, @NotNull LocalDate saleDate) {
-        return fetch(new SaleId(id, saleDate), false).orElseThrow(() -> new RuntimeException("Sale not found"));
+        return fetch(new SaleId(id, saleDate), false).orElseThrow(
+            () -> new RuntimeException("Sale not found"));
     }
 
     public Optional<SaleDTO> fetchPurchaseForEditBy(@NotNull Long id, @NotNull LocalDate saleDate) {
@@ -192,66 +276,76 @@ public class SaleDataService {
         return storageService.getUser();
     }
 
-    public List<SaleDTO> allPrevente(String query, String type, Integer userId, SalesStatut statut) {
+    public List<SaleDTO> allPrevente(String query, String type, Integer userId,
+        Set<SalesStatut> statuts,
+        LocalDate fromDate, LocalDate toDate) {
         if (StringUtils.isEmpty(type) || type.equals(EntityConstant.TOUT)) {
-            return allPreventes(query, userId, statut);
+            return allPreventes(query, userId, statuts, fromDate, toDate);
         }
         if (type.equals(EntityConstant.VNO)) {
-            return allPreventeVNO(query, userId, statut);
+            return allPreventeVNO(query, userId, statuts, fromDate, toDate);
         }
         if (type.equals(EntityConstant.VO)) {
-            return allPreventeVO(query, userId, statut);
+            return allPreventeVO(query, userId, statuts, fromDate, toDate);
         } else {
-            return allPreventes(query, userId, statut);
+            return allPreventes(query, userId, statuts, fromDate, toDate);
         }
     }
 
-    public List<SaleDTO> allPreventeVNO(String query, Integer userId, SalesStatut statut) {
+    public List<SaleDTO> allPreventeVNO(String query, Integer userId, Set<SalesStatut> statuts,
+        LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         Root<CashSale> cashSaleRoot = cb.treat(root, CashSale.class);
         cq.select(cashSaleRoot).distinct(true).orderBy(cb.desc(root.get(CashSale_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId, statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statuts, fromDate, toDate);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventes(String query, Integer userId, SalesStatut statut) {
+    public List<SaleDTO> allPreventes(String query, Integer userId, Set<SalesStatut> statuts,
+        LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId, statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statuts, fromDate, toDate);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventeVO(String query, Integer userId, SalesStatut statut) {
+    public List<SaleDTO> allPreventeVO(String query, Integer userId, Set<SalesStatut> statuts,
+        LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
         Root<ThirdPartySales> thirdPartySalesRoot = cb.treat(root, ThirdPartySales.class);
-        cq.select(thirdPartySalesRoot).distinct(true).orderBy(cb.desc(root.get(ThirdPartySales_.updatedAt)));
+        cq.select(thirdPartySalesRoot).distinct(true)
+            .orderBy(cb.desc(root.get(ThirdPartySales_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicatesPrevente(query, predicates, cb, root, userId, statut);
+        predicatesPrevente(query, predicates, cb, root, userId, statuts, fromDate, toDate);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    private void predicatesPrevente(String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, Integer userId, SalesStatut statut) {
-        LocalDate now = LocalDate.now();
-        predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
+    private void predicatesPrevente(String query, List<Predicate> predicates, CriteriaBuilder cb,
+        Root<Sales> root, Integer userId, Set<SalesStatut> statuts, LocalDate fromDate,
+        LocalDate toDate) {
+
+        predicates.add(
+            cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
         if (StringUtils.isNotEmpty(query)) {
             query = query.toUpperCase() + "%";
             SetJoin<Sales, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
             Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
-            SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(
+                Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(root.get(Sales_.numberTransaction), query),
@@ -266,8 +360,8 @@ public class SaleDataService {
             predicates.add(cb.equal(root.get(Sales_.seller).get(AppUser_.id), userId));
         }
 
-        predicates.add(cb.equal(root.get(Sales_.statut), statut));
-        predicates.add(cb.equal(root.get(Sales_.saleDate), now));
+        predicates.add(root.get(Sales_.statut).in(statuts));
+        predicates.add(cb.between(root.get(Sales_.saleDate), fromDate, toDate));
     }
 
     public Page<DepotExtensionSaleDTO> fetchVenteDepot(
@@ -279,8 +373,10 @@ public class SaleDataService {
         Integer depotId,
         Pageable pageable
     ) {
-        Set<CategorieChiffreAffaire> categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CA_DEPOT);
-        var totalCount = countVentesDepot(search, fromDate, toDate, userId, depotId, paymentStatus, categorieChiffreAffaires);
+        Set<CategorieChiffreAffaire> categorieChiffreAffaires = Set.of(
+            CategorieChiffreAffaire.CA_DEPOT);
+        var totalCount = countVentesDepot(search, fromDate, toDate, userId, depotId, paymentStatus,
+            categorieChiffreAffaires);
         if (totalCount == 0) {
             return new PageImpl<>(Collections.emptyList(), pageable, totalCount);
         }
@@ -313,7 +409,8 @@ public class SaleDataService {
 
         List<VenteDepot> results = q.getResultList();
 
-        return new PageImpl<>(results.stream().map(this::buildDepotExtensionSaleDTO).toList(), pageable, totalCount);
+        return new PageImpl<>(results.stream().map(this::buildDepotExtensionSaleDTO).toList(),
+            pageable, totalCount);
     }
 
     public Page<SaleDTO> listVenteTerminees(
@@ -410,7 +507,8 @@ public class SaleDataService {
                 " JOIN app_user sel ON s.seller_id = sel.id" +
                 " JOIN app_user cas ON s.caissier_id = cas.id";
 
-        var countQuery = em.createNativeQuery("SELECT COUNT(DISTINCT s.id)" + baseJoins + whereClause);
+        var countQuery = em.createNativeQuery(
+            "SELECT COUNT(DISTINCT s.id)" + baseJoins + whereClause);
         params.forEach(countQuery::setParameter);
         long totalCount = ((Number) countQuery.getSingleResult()).longValue();
 
@@ -486,13 +584,15 @@ public class SaleDataService {
         return q.getSingleResult();
     }
 
-    private void buildDepotPredicatSaleLines(String query, CriteriaBuilder cb, List<Predicate> predicates, Root<VenteDepot> root) {
+    private void buildDepotPredicatSaleLines(String query, CriteriaBuilder cb,
+        List<Predicate> predicates, Root<VenteDepot> root) {
         if (StringUtils.isNotEmpty(query)) {
             if (StringUtils.isNotEmpty(query)) {
                 query = query.toUpperCase() + "%";
                 SetJoin<VenteDepot, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
                 Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
-                SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+                SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(
+                    Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
                 predicates.add(
                     cb.or(
                         cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
@@ -534,8 +634,10 @@ public class SaleDataService {
             predicates.add(cb.between(root.get(VenteDepot_.saleDate), fromDate, toDate));
         }
 
-        predicates.add(root.get(VenteDepot_.statut).in(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)));
-        predicates.add(cb.equal(root.get(VenteDepot_.user).get(AppUser_.magasin), getUser().getMagasin()));
+        predicates.add(
+            root.get(VenteDepot_.statut).in(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)));
+        predicates.add(
+            cb.equal(root.get(VenteDepot_.user).get(AppUser_.magasin), getUser().getMagasin()));
         buildVenteDepotImpayePredicats(predicates, cb, root, paymentStatus);
     }
 
@@ -558,7 +660,8 @@ public class SaleDataService {
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
             thirdPartySaleLineDTOS.add(new ThirdPartySaleLineDTO(thirdPartySaleLine));
             clientTiersPayantDTOS.add(
-                new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant()).setNumBon(thirdPartySaleLine.getNumBon())
+                new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant()).setNumBon(
+                    thirdPartySaleLine.getNumBon())
             );
         });
         return Pair.of(thirdPartySaleLineDTOS, clientTiersPayantDTOS);
@@ -568,14 +671,12 @@ public class SaleDataService {
         return salesLineRepository.findAllByQuantityAvoirGreaterThan(0);
     }
 
-
-
-
     private ThirdPartySaleDTO buildFromEntity(ThirdPartySales thirdPartySales) {
         SaleId saleId = thirdPartySales.getId();
         List<ThirdPartySaleLine> tpsLines = thirdPartySaleLineRepository
             .findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate());
-        Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> pair = buildTiersPayantDTOFromSale(tpsLines);
+        Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> pair = buildTiersPayantDTOFromSale(
+            tpsLines);
         String numBon = null;
         String num = null;
         for (ThirdPartySaleLine line : tpsLines) {
@@ -653,9 +754,11 @@ public class SaleDataService {
         if (sales instanceof CashSale g) {
             return receiptPrinterService.generateEscPosReceipt(new CashSaleDTO(g), isEdit);
         } else if (sales instanceof ThirdPartySales thirdPartySales) {
-            return receiptPrinterService.generateEscPosReceipt(new ThirdPartySaleDTO(thirdPartySales), isEdit);
+            return receiptPrinterService.generateEscPosReceipt(
+                new ThirdPartySaleDTO(thirdPartySales), isEdit);
         } else if (sales instanceof VenteDepot venteDepot) {
-            return receiptPrinterService.generateEscPosReceipt(new DepotExtensionSaleDTO(venteDepot), isEdit);
+            return receiptPrinterService.generateEscPosReceipt(
+                new DepotExtensionSaleDTO(venteDepot), isEdit);
         }
         return new byte[0];
     }
@@ -666,7 +769,8 @@ public class SaleDataService {
         Root<SalesLine> root = cq.from(SalesLine.class);
         Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
         Join<SalesLine, Sales> saleJoin = root.join(SalesLine_.sales);
-        Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduitPrincipal);
+        Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(
+            Produit_.fournisseurProduitPrincipal);
         cq
             .select(
                 cb.construct(
@@ -691,105 +795,23 @@ public class SaleDataService {
         return q.getResultList();
     }
 
-
     public long countPendingSales(Integer cashRegisterId) {
         Specification<Sales> specification = salesRepository.isActif().and(salesRepository.toDay());
         if (cashRegisterId != null) {
-            specification = specification.and(salesRepository.hasCaissier(storageService.getUser()));
+            specification = specification.and(
+                salesRepository.hasCaissier(storageService.getUser()));
         }
         return salesRepository.count(specification);
     }
 
-    private static SaleDTO mapRowToSaleDTO(Object[] row) {
-        int i = 0;
-        String dtype = (String) row[i++];
-        Long id = ((Number) row[i++]).longValue();
-        LocalDate saleDate = toLocalDate(row[i++]);
-        String numberTransaction = (String) row[i++];
-        Integer discountAmount = asInteger(row[i++]);
-        Integer salesAmount = asInteger(row[i++]);
-        Integer amountToBePaid = asInteger(row[i++]);
-        Integer restToPay = asInteger(row[i++]);
-        String statut = (String) row[i++];
-        String paymentStatus = (String) row[i++];
-        String natureVente = (String) row[i++];
-        String typePrescription = (String) row[i++];
-        boolean differe = Boolean.TRUE.equals(row[i++]);
-        boolean canceled = Boolean.TRUE.equals(row[i++]);
-        LocalDateTime createdAt = toLocalDateTime(row[i++]);
-        LocalDateTime updatedAt = toLocalDateTime(row[i++]);
-        String commentaire = (String) row[i++];
-        Integer monnaie = asInteger(row[i++]);
-        String tvaEmbeded = (String) row[i++];
-        String numBon = (String) row[i++];
-        Integer partAssure = asInteger(row[i++]);
-        Integer partTiersPayant = asInteger(row[i++]);
-        String userFullName = (String) row[i++];
-        Integer sellerId = asInteger(row[i++]);
-        String sellerFirstName = (String) row[i++];
-        String sellerLastName = (String) row[i++];
-        Integer cassierId = asInteger(row[i++]);
-        String cassierFirstName = (String) row[i++];
-        String cassierLastName = (String) row[i++];
-        String caisseNum = (String) row[i++];
-        String caisseEndNum = (String) row[i++];
-        String firstName = (String) row[i++];
-        String lastName = (String) row[i++];
-        String phone = (String) row[i++];
-
-        Integer customerId = asInteger(row[i]);
-
-        return SaleDTOBuilder.of(dtype)
-            .id(id, saleDate)
-            .numberTransaction(numberTransaction)
-            .amounts(discountAmount, salesAmount, amountToBePaid, restToPay, monnaie)
-            .statut(statut, paymentStatus)
-            .saleInfo(natureVente, typePrescription, commentaire)
-            .flags(differe, canceled)
-            .dates(createdAt, updatedAt)
-            .tvaEmbeded(tvaEmbeded)
-            .thirdPartyInfo(numBon, partAssure, partTiersPayant)
-            .user(userFullName)
-            .seller(sellerId, sellerFirstName, sellerLastName)
-            .cassier(cassierId, cassierFirstName, cassierLastName)
-            .caisses(caisseNum, caisseEndNum)
-            .customer(customerId, firstName, lastName, phone)
-            .build();
-    }
-
-    private static Integer asInteger(Object o) {
-        if (o == null) return null;
-        return ((Number) o).intValue();
-    }
-
-    private static LocalDate toLocalDate(Object o) {
-        return switch (o) {
-            case null -> null;
-            case LocalDate ld -> ld;
-            case java.sql.Date d -> d.toLocalDate();
-            default -> (LocalDate) o;
-        };
-    }
-
-    private static LocalDateTime toLocalDateTime(Object o) {
-        return switch (o) {
-            case null -> null;
-            case LocalDateTime ldt -> ldt;
-            case java.sql.Timestamp ts -> ts.toLocalDateTime();
-            default -> (LocalDateTime) o;
-        };
-    }
-
-    private static final class SaleDTOBuilder {
-
-        private final SaleDTO dto;
+    private record SaleDTOBuilder(SaleDTO dto) {
 
         private SaleDTOBuilder(String dtype) {
-            this.dto = switch (dtype) {
+            this(switch (dtype) {
                 case "ThirdPartySales" -> new ThirdPartySaleDTO();
                 case "VenteDepot" -> new DepotExtensionSaleDTO();
                 default -> new CashSaleDTO();
-            };
+            });
         }
 
         static SaleDTOBuilder of(String dtype) {
@@ -808,7 +830,7 @@ public class SaleDataService {
         }
 
         SaleDTOBuilder amounts(Integer discountAmount, Integer salesAmount,
-                               Integer amountToBePaid, Integer restToPay, Integer monnaie) {
+            Integer amountToBePaid, Integer restToPay, Integer monnaie) {
             dto.setDiscountAmount(discountAmount);
             dto.setSalesAmount(salesAmount);
             int sa = salesAmount != null ? salesAmount : 0;
@@ -866,7 +888,9 @@ public class SaleDataService {
         }
 
         SaleDTOBuilder seller(Integer id, String firstName, String lastName) {
-            if (id == null) return this;
+            if (id == null) {
+                return this;
+            }
             UserDTO seller = new UserDTO();
             seller.setId(id);
             seller.setFirstName(firstName);
@@ -879,7 +903,9 @@ public class SaleDataService {
         }
 
         SaleDTOBuilder cassier(Integer id, String firstName, String lastName) {
-            if (id == null) return this;
+            if (id == null) {
+                return this;
+            }
             UserDTO cassier = new UserDTO();
             cassier.setId(id);
             cassier.setFirstName(firstName);
@@ -898,7 +924,8 @@ public class SaleDataService {
         }
 
 
-        SaleDTOBuilder customer(Integer customerId, String firstName, String lastName, String phone) {
+        SaleDTOBuilder customer(Integer customerId, String firstName, String lastName,
+            String phone) {
             if (nonNull(customerId)) {
                 dto.setCustomerId(customerId);
                 var customer = new CustomerDTO();
@@ -909,7 +936,6 @@ public class SaleDataService {
                 customer.setFullName(firstName + " " + lastName);
                 dto.setCustomer(customer);
             }
-
 
             return this;
         }

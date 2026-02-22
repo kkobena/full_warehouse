@@ -39,7 +39,6 @@ import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {CustomerSearchService} from '../../data-access/services/customer-search.service';
 import {CustomerService} from '../../../../entities/customer/customer.service';
 import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {
@@ -98,7 +97,9 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
-    if (!section) return undefined;
+    if (!section) {
+      return undefined;
+    }
     return {
       focusProduitControl: () => section.focusProduitControl(),
       reset: (qty: number) => section.resetQuantity(qty),
@@ -109,7 +110,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   initSaleForEditInfo = model<SaleForEditInfo>(null);
   showStock = input(false);
   // Modal and responsive state
-  readonly isCashRegisterOpen = input(false);
+
   readonly isSmallScreen = input(false);
   readonly remises = input<IRemise[]>([]);
   readonly isDevis = input(true);
@@ -147,13 +148,12 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private customerDisplay = inject(CustomerDisplayService);
-  private customerSearchService = inject(CustomerSearchService);
   private customerService = inject(CustomerService);
   private spinner = inject(NgxSpinnerService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
-  // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
-  private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
+
+
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -176,7 +176,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     facade: this.facade,
     authorizationService: this.authorizationService,
     spinner: this.spinner,
-    config: { saleType: 'COMPTANT' },
+    config: {saleType: 'COMPTANT'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -203,7 +203,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    { saleType: 'COMPTANT', isPresale: () => true }, // Toujours en mode "prévente" pour devis (pas de paiement)
+    {saleType: 'COMPTANT', isPresale: () => true}, // Toujours en mode "prévente" pour devis (pas de paiement)
     {
       focusProductSearch: () => this.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -220,7 +220,8 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       finalizeSale: () => this.onSaveAsDevis(),
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
-      focusPayment: () => {}, // Pas de paiement pour devis
+      focusPayment: () => {
+      }, // Pas de paiement pour devis
       saveAsPresale: () => this.onSaveAsDevis(),
     },
   );
@@ -292,7 +293,9 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   // ===== Customer Search & Selection =====
 
   onProductSearchEnter(shouldSave: boolean): void {
-    if (!shouldSave) return;
+    if (!shouldSave) {
+      return;
+    }
 
     const currentSale = this.currentSale();
 
@@ -471,7 +474,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     }
 
     this.customerService
-      .query({
+      .queryUninsuredCustomers({
         search: this.search,
         size: 5,
       })
@@ -502,11 +505,12 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   }
 
   private handleCustomerQueryResponse(customers: ICustomer[] | null): void {
+    console.error('customers ', customers);
     if (!customers?.length) {
       this.handleNoCustomersFound();
       return;
     }
-
+    console.error('customers.length ', customers.length);
     if (customers.length === 1) {
       this.handleSingleCustomerFound(customers[0]);
     } else {
@@ -544,6 +548,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       CustomerSelectionModalComponent,
       {
         modalTitle: 'Sélection client',
+        customers: _preloadedCustomers
       },
       (customer: ICustomer) => {
         if (customer) {

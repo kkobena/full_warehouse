@@ -5,14 +5,14 @@
 <!-- 1ère ligne: Recherche produit (ligne entière) -->
 <app-product-search-section
   #produitbox
-  [autofocus]="true"
-  [selectedProduct]="selectedProduct()"
-  [saleType]="'COMPTANT'"
-  [showStock]="showStock()"
-  (productSelected)="onProductSelected($event)"
-  (productScanned)="onProductScanned($event)"
+  (addQuantite)="onAddQuantity($event)"
   (onKeyEnter)="onProductSearchEnter($event)"
-  (addQuantite)="onAddQuantity($event)">
+  (productScanned)="onProductScanned($event)"
+  (productSelected)="onProductSelected($event)"
+  [autofocus]="true"
+  [saleType]="'COMPTANT'"
+  [selectedProduct]="selectedProduct()"
+  [showStock]="showStock()">
 </app-product-search-section>
 
 <!-- 2ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
@@ -20,59 +20,60 @@
   <div class="row">
     <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
       <app-product-list
-        [salesLines]="salesLines()"
-        [isEditable]="!isSaving()"
-        [canEditPrice]="canEditPrice()"
-        [selectedLineId]="selectedLineId()"
-        [saleId]="currentSale()?.id"
-        [saleType]="'COMPTANT'"
-        [remises]="remises()"
-        [currentRemise]="currentSale()?.remise"
-        [showRemiseSection]="true"
-        (quantityChanged)="onLineQuantityChanged($event)"
-        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
-        (priceChanged)="onLinePriceChanged($event)"
+        (authorizationRequired)="onAuthorizationRequired($event)"
+        (discountChanged)="onLineDiscountChanged($event)"
         (lineRemoved)="onLineRemoved($event)"
         (lineSelected)="onLineSelected($event)"
-        (discountChanged)="onLineDiscountChanged($event)"
-        (authorizationRequired)="onAuthorizationRequired($event)"
+        (priceChanged)="onLinePriceChanged($event)"
+        (quantityChanged)="onLineQuantityChanged($event)"
+        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (remiseActionCancelled)="focusProductSearch()"
         (remiseSelected)="onRemiseSelected($event)"
         (removeRemise)="onRemoveRemise()"
-        (remiseActionCancelled)="focusProductSearch()" />
+        [canEditPrice]="canEditPrice()"
+        [currentRemise]="currentSale()?.remise"
+        [isEditable]="!isSaving()"
+        [remises]="remises()"
+        [saleId]="currentSale()?.id"
+        [saleType]="'COMPTANT'"
+        [salesLines]="salesLines()"
+        [selectedLineId]="selectedLineId()"
+        [showRemiseSection]="true" />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
       <div class="grid">
         <div class="col-12">
           <app-sale-summary
-            [totalAmount]="currentSale()?.salesAmount || 0"
-            [discountAmount]="currentSale()?.discountAmount || 0"
-            [taxAmount]="currentSale()?.taxAmount || 0"
-            [netAmount]="currentSale()?.netAmount || 0"
             [amountToBePaid]="currentSale()?.amountToBePaid || 0"
-            [itemCount]="salesLines().length"
+            [changeAmount]="currentChange()"
             [currentRemise]="currentSale()?.remise"
+            [discountAmount]="currentSale()?.discountAmount || 0"
             [isAvoir]="facade.isAvoir()"
+            [itemCount]="salesLines().length"
+            [netAmount]="currentSale()?.netAmount || 0"
             [saleType]="'COMPTANT'"
-            [changeAmount]="currentChange()" />
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [totalAmount]="currentSale()?.salesAmount || 0" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
-            [canSave]="canSave()"
-            [canPrint]="false"
-            [canCancel]="!isSaving()"
-            [isSaving]="isSaving()"
-            [saleType]="'COMPTANT'"
-            [showPrintButton]="false"
-            [canSaveAsPresale]="canSave()"
-            [isPresale]="isPresale()"
-            [isSmallScreen]="isSmallScreen()"
+            (cancel)="onCancel()"
+            (print)="onPrint()"
+            (putOnHold)="onPutOnHold()"
             (save)="onSave()"
             (saveAndPrint)="onSaveAndPrint()"
-            (putOnHold)="onPutOnHold()"
-            (saveAsPresale)="onSaveAsPresale()"
-            (print)="onPrint()"
-            (cancel)="onCancel()" />
+            (saveAsPresale)="onSaveAsPresale(true)"
+            (savePresale)="onSaveAsPresale(false)"
+            [canCancel]="!isSaving()"
+            [canPrint]="false"
+            [canSaveAsPresale]="canSave()"
+            [canSave]="canSave()"
+            [isPresale]="isPresale()"
+            [isSaving]="isSaving()"
+            [isSmallScreen]="isSmallScreen()"
+            [saleType]="'COMPTANT'"
+            [showPrintButton]="false" />
         </div>
       </div>
     </div>
@@ -84,10 +85,10 @@
       <div class="col-12">
         <app-payment-mode
           #paymentMode
-          [amountToBePaid]="currentSale()!.amountToBePaid ||  0"
-          [maxPaymentModes]="2"
-          [isDiffere]="isDiffere()"
           (paymentComplete)="onPaymentComplete($event)"
+          [amountToBePaid]="currentSale()!.amountToBePaid ||  0"
+          [isDiffere]="isDiffere()"
+          [maxPaymentModes]="2"
         />
       </div>
     </div>
@@ -106,4 +107,6 @@
 <jhi-confirm-dialog #confirmDialog />
 <!-- Spinner global -->
 
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151"  name="sale-spinner" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
+             color="#009688" name="sale-spinner"
+             size="medium" type="timer"></ngx-spinner>

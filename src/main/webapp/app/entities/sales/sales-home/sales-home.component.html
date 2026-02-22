@@ -41,12 +41,23 @@
 
             <ng-container ngbNavItem="presale">
               <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-file-edit"></i>
+                <i class="pi pi-bookmark"></i>
                 <span>Pré-ventes</span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
                 <jhi-presale></jhi-presale>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="devis">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-file-edit"></i>
+                <span>Proformas</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-devis-list></jhi-devis-list>
               </ng-template>
             </ng-container>
           </div>

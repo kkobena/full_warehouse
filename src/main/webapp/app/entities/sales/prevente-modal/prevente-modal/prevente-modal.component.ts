@@ -1,30 +1,29 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
-import { IUser } from '../../../../core/user/user.model';
-import { ISales } from '../../../../shared/model';
-import { SalesService } from '../../sales.service';
-import { APPEND_TO } from '../../../../shared/constants/pagination.constants';
-import { HttpResponse } from '@angular/common/http';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { CurrentSaleService } from '../../service/current-sale.service';
-import { CustomerService } from '../../../customer/customer.service';
-import { SelectedCustomerService } from '../../service/selected-customer.service';
-import { ICustomer } from '../../../../shared/model';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { Select } from 'primeng/select';
-import { UserVendeurService } from '../../service/user-vendeur.service';
-import { SalesStatut } from '../../../../features/sales/models/enumerations/sales-statut.enum';
+import {Component, inject, input, OnInit, output, signal} from '@angular/core';
+import {IUser} from '../../../../core/user/user.model';
+import {ICustomer, ISales} from '../../../../shared/model';
+import {SalesService} from '../../sales.service';
+import {APPEND_TO} from '../../../../shared/constants/pagination.constants';
+import {HttpResponse} from '@angular/common/http';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {RippleModule} from 'primeng/ripple';
+import {TableModule} from 'primeng/table';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {CurrentSaleService} from '../../service/current-sale.service';
+import {CustomerService} from '../../../customer/customer.service';
+import {SelectedCustomerService} from '../../service/selected-customer.service';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {Select} from 'primeng/select';
+import {UserVendeurService} from '../../service/user-vendeur.service';
+import {SalesStatut} from '../../../../features/sales/models/enumerations/sales-statut.enum';
 
 @Component({
   selector: 'jhi-prevente-modal',
@@ -88,7 +87,7 @@ export class PreventeModalComponent implements OnInit {
         search: this.search,
         type: this.typeVenteSelected,
         userId: this.userSignal().id,
-        statut: SalesStatut.ACTIVE,
+        statut: [SalesStatut.ACTIVE],
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];
@@ -103,7 +102,7 @@ export class PreventeModalComponent implements OnInit {
     if (sale.customer) {
       this.customerService
         .find(sale.customer.id)
-        .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+        .subscribe({next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)});
     }
     this.currentSaleService.setCurrentSale(sale);
     this.pendingSalesSidebarChange.emit(false);

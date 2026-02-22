@@ -1,9 +1,15 @@
-import { inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { KeyboardShortcut } from '../../../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
-import { TauriKeyboardService } from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
-import { ShortcutsProvider } from '../../../../shared/shortcuts/shortcuts-provider.interface';
-import { ShortcutsHelpDialogComponent } from '../../../../shared/shortcuts/shortcuts-help-dialog.component';
+import {inject} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  KeyboardShortcut
+} from '../../../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
+import {
+  TauriKeyboardService
+} from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
+import {ShortcutsProvider} from '../../../../shared/shortcuts/shortcuts-provider.interface';
+import {
+  ShortcutsHelpDialogComponent
+} from '../../../../shared/shortcuts/shortcuts-help-dialog.component';
 
 // ============================================
 // Types
@@ -33,6 +39,7 @@ export interface SaleShortcutCallbacks {
   applyDiscount?: () => void;
   removeDiscount?: () => void;
   saveAsPresale?: () => void;
+  savePresale?: () => void;
 }
 
 export interface KeyboardShortcutsConfig {
@@ -144,8 +151,12 @@ export function createKeyboardShortcuts(
 
       for (const s of shortcuts) {
         // Filter by environment
-        if (s.environmentRestriction === 'tauri' && !isTauri) continue;
-        if (s.environmentRestriction === 'web' && isTauri) continue;
+        if (s.environmentRestriction === 'tauri' && !isTauri) {
+          continue;
+        }
+        if (s.environmentRestriction === 'web' && isTauri) {
+          continue;
+        }
 
         const existing = grouped.get(s.category) || [];
         existing.push(s);
@@ -406,8 +417,12 @@ function buildShortcuts(
         const grouped = new Map<string, KeyboardShortcut[]>();
         const isTauri = tauriService.isRunningInTauri();
         for (const s of shortcuts) {
-          if (s.environmentRestriction === 'tauri' && !isTauri) continue;
-          if (s.environmentRestriction === 'web' && isTauri) continue;
+          if (s.environmentRestriction === 'tauri' && !isTauri) {
+            continue;
+          }
+          if (s.environmentRestriction === 'web' && isTauri) {
+            continue;
+          }
           const existing = grouped.get(s.category) || [];
           existing.push(s);
           grouped.set(s.category, existing);
@@ -435,20 +450,36 @@ function buildShortcuts(
 
 function getShortcutKey(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
-  if (shortcut.ctrl) parts.push('ctrl');
-  if (shortcut.alt) parts.push('alt');
-  if (shortcut.shift) parts.push('shift');
-  if (shortcut.meta) parts.push('meta');
+  if (shortcut.ctrl) {
+    parts.push('ctrl');
+  }
+  if (shortcut.alt) {
+    parts.push('alt');
+  }
+  if (shortcut.shift) {
+    parts.push('shift');
+  }
+  if (shortcut.meta) {
+    parts.push('meta');
+  }
   parts.push(shortcut.key.toLowerCase());
   return parts.join('+');
 }
 
 function getEventKey(event: KeyboardEvent): string {
   const parts: string[] = [];
-  if (event.ctrlKey) parts.push('ctrl');
-  if (event.altKey) parts.push('alt');
-  if (event.shiftKey) parts.push('shift');
-  if (event.metaKey) parts.push('meta');
+  if (event.ctrlKey) {
+    parts.push('ctrl');
+  }
+  if (event.altKey) {
+    parts.push('alt');
+  }
+  if (event.shiftKey) {
+    parts.push('shift');
+  }
+  if (event.metaKey) {
+    parts.push('meta');
+  }
   parts.push(event.key.toLowerCase());
   return parts.join('+');
 }

@@ -78,34 +78,19 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final RemiseRepository remiseRepository;
     private final SalesManager salesManager;
 
-    public SaleServiceImpl(
-        SalesRepository salesRepository,
-        UserRepository userRepository,
+    public SaleServiceImpl(SalesRepository salesRepository, UserRepository userRepository,
         UninsuredCustomerRepository uninsuredCustomerRepository,
-        PaymentModeRepository paymentModeRepository,
-        StorageService storageService,
-        CashSaleRepository cashSaleRepository,
-        CashRegisterService cashRegisterService,
-        SaleLineServiceFactory saleLineServiceFactory,
-        PaymentService paymentService,
-        ReferenceService referenceService,
-        PosteRepository posteRepository,
+        PaymentModeRepository paymentModeRepository, StorageService storageService,
+        CashSaleRepository cashSaleRepository, CashRegisterService cashRegisterService,
+        SaleLineServiceFactory saleLineServiceFactory, PaymentService paymentService,
+        ReferenceService referenceService, PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
-        RemiseRepository remiseRepository,
-        CustomerDisplayService afficheurPosService,
+        RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
         SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
-        SalesManager salesManager
-    ) {
-        super(
-            referenceService,
-            storageService,
-            userRepository,
-            saleLineServiceFactory,
-            cashRegisterService,
-            posteRepository,
-            afficheurPosService,
-            idGeneratorService, objectMapper
-        );
+        SalesManager salesManager) {
+        super(referenceService, storageService, userRepository, saleLineServiceFactory,
+            cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
+            objectMapper);
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
@@ -175,8 +160,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         payment.setReelAmount(dto.getNetAmount());
         payment.setPaidAmount(dto.getPaidAmount());
         payment.setCashRegister(s.getCashRegister());
-        PaymentMode paymentMode = paymentModeRepository
-            .findById(dto.getPaymentCode())
+        PaymentMode paymentMode = paymentModeRepository.findById(dto.getPaymentCode())
             .orElse(paymentModeRepository.getReferenceById(Constants.MODE_ESP));
         payment.setPaymentMode(paymentMode);
         payment.setSale(s);
@@ -218,10 +202,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.intSale(dto, cashSale);
         cashSale.setCustomer(uninsuredCustomer);
         cashSale.setOrigineVente(OrigineVente.DIRECT);
-        SalesLine saleLine = salesLineService.createSaleLineFromDTO(
-            dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
+        SalesLine saleLine = salesLineService.createSaleLineFromDTO(dto.getSalesLines().getFirst(),
+            storageService.getDefaultConnectedUserMainStorage().getId());
         cashSale.getSalesLines().add(saleLine);
         upddateCashSaleAmounts(cashSale);
 
@@ -275,9 +257,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public FinalyseSaleDTO save(CashSaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
-        CashSale cashSale = cashSaleRepository
-            .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
-            .orElseThrow();
+        CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),
+                dto.getSaleId().getSaleDate())
+            .orElseThrow(() -> new GenericError("Une erreur est survenue"));
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
         this.save(cashSale, dto);
@@ -316,8 +298,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public void deleteSalePrevente(SaleId id) {
-        salesRepository
-            .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
+        salesRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 paymentService.findAllBySales(sales.getId()).forEach(paymentService::delete);
                 sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
@@ -328,8 +309,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public void cancelCashSale(SaleId id) {
         AppUser user = storageService.getUser();
-        cashSaleRepository
-            .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
+        cashSaleRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 if (sales.isCanceled()) {
                     throw new GenericError("La vente est déjà annulée");
@@ -346,12 +326,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                 cashSaleRepository.save(copy);
                 paymentService.findAllBySale(sales)
                     .forEach(payment -> paymentService.clonePayment(payment, copy));
-                salesLineService.cloneSalesLine(
-                    sales.getSalesLines(),
-                    copy,
-                    user,
-                    storageService.getDefaultConnectedUserMainStorage().getId()
-                );
+                salesLineService.cloneSalesLine(sales.getSalesLines(), copy, user,
+                    storageService.getDefaultConnectedUserMainStorage().getId());
             });
     }
 
@@ -366,39 +342,41 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public void savePrevente(CashSaleDTO dto) {
-        cashSaleRepository
-            .findById(dto.getSaleId()).ifPresent(s -> {
-                preValidatePrevente(s);
-                cashSaleRepository.save(s);
-            });
+    public void savePrevente(CashSaleDTO dto, boolean transform) {
+        cashSaleRepository.findById(dto.getSaleId()).ifPresent(s -> {
+            preValidatePrevente(s, transform ? SalesStatut.ACTIVE : SalesStatut.PROCESSING);
+            cashSaleRepository.save(s);
+        });
     }
 
     @Override
-    public void transformDevisToVenteEncour(SaleId saleId) {
-        cashSaleRepository
-            .findById(saleId).ifPresent(s -> {
-                s.setStatut(SalesStatut.ACTIVE);
-                cashSaleRepository.save(s);
-            });
+    public SaleId transformToVenteEncour(SaleId saleId) {
+        CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLine(saleId.getId(),
+                saleId.getSaleDate())
+            .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        preValidateTrasnform(cashSale.getStatut(), cashSale.getNatureVente());
+        if (cashSale.getStatut() == SalesStatut.DEVIS) {
+            SaleId cloneId = clone(cashSale, SalesStatut.ACTIVE);
+            cashSale.getSalesLines().forEach(salesLineService::deleteSaleLine);
+            salesRepository.delete(cashSale);
+            return cloneId;
+        } else {
+            cashSale.setStatut(SalesStatut.ACTIVE);
+            cashSaleRepository.save(cashSale);
+        }
+        return saleId;
+
     }
 
     @Override
     public void cloneDevis(SaleId saleId) {
 
-        cashSaleRepository
-            .findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate()).ifPresent(s -> {
+        cashSaleRepository.findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate())
+            .ifPresent(s -> {
                 if (s.getStatut() != SalesStatut.DEVIS) {
                     throw new GenericError("Une erreur est survenue");
                 }
-                Set<SalesLine> originalSalesLines = new HashSet<>(s.getSalesLines());
-                CashSale copy = (CashSale) s.clone();
-                copy.setSalesLines(new HashSet<>());
-                copy.setPayments(new HashSet<>());
-                copySaleCommon(copy, SalesStatut.DEVIS);
-                copy = cashSaleRepository.saveAndFlush(copy);
-                salesLineService.saveAll(salesLineService.cloneSalesLine(originalSalesLines, copy));
-                cashSaleRepository.flush();
+                clone(s, SalesStatut.DEVIS);
             });
     }
 
@@ -413,26 +391,22 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public void processDiscount(UpdateSaleInfo keyValue) {
-        cashSaleRepository
-            .findById(keyValue.id())
-            .ifPresent(cashSale -> {
-                remiseRepository
-                    .findById(keyValue.value())
-                    .ifPresent(remise -> {
-                        if (cashSale.getRemise() != null) {
-                            this.removeRemise(cashSale);
-                        }
-                        if (remise instanceof RemiseProduit remiseProduit) {
-                            this.applyRemiseProduit(cashSale, remiseProduit);
-                        } else {
-                            this.applyRemiseClient(cashSale, (RemiseClient) remise);
-                        }
-                        computeCashSaleAmountToPaid(cashSale);
-                        arrondirMontantCaisse(cashSale);
-                        this.cashSaleRepository.save(cashSale);
-                        this.displayNet(cashSale.getNetAmount());
-                    });
+        cashSaleRepository.findById(keyValue.id()).ifPresent(cashSale -> {
+            remiseRepository.findById(keyValue.value()).ifPresent(remise -> {
+                if (cashSale.getRemise() != null) {
+                    this.removeRemise(cashSale);
+                }
+                if (remise instanceof RemiseProduit remiseProduit) {
+                    this.applyRemiseProduit(cashSale, remiseProduit);
+                } else {
+                    this.applyRemiseClient(cashSale, (RemiseClient) remise);
+                }
+                computeCashSaleAmountToPaid(cashSale);
+                arrondirMontantCaisse(cashSale);
+                this.cashSaleRepository.save(cashSale);
+                this.displayNet(cashSale.getNetAmount());
             });
+        });
     }
 
     @Override
@@ -450,5 +424,15 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             saleDate);
     }
 
-
+    private SaleId clone(CashSale cashSale, SalesStatut salesStatut) {
+        Set<SalesLine> originalSalesLines = new HashSet<>(cashSale.getSalesLines());
+        CashSale copy = (CashSale) cashSale.clone();
+        copy.setSalesLines(new HashSet<>());
+        copy.setPayments(new HashSet<>());
+        copySaleCommon(copy, salesStatut);
+        copy = cashSaleRepository.saveAndFlush(copy);
+        salesLineService.saveAll(salesLineService.cloneSalesLine(originalSalesLines, copy));
+        cashSaleRepository.flush();
+        return copy.getId();
+    }
 }

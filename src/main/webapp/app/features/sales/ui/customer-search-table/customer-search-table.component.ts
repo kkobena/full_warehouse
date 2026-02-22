@@ -1,17 +1,28 @@
-import { AfterViewInit, Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ICustomer } from '../../../../shared/model';
-import { CustomerSearchService } from '../../data-access/services/customer-search.service';
-import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  model,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ICustomer} from '../../../../shared/model';
+import {CustomerSearchService} from '../../data-access/services/customer-search.service';
+import {
+  UninsuredCustomerFormComponent
+} from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
+import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
 
 /**
  * Composant de recherche et sélection de client réutilisable.
@@ -37,7 +48,7 @@ export class CustomerSearchTableComponent implements AfterViewInit {
   readonly customerSelected = output<ICustomer>();
 
   searchTerm = '';
-  customers = signal<ICustomer[]>([]);
+  customers = model<ICustomer[]>([]);
   loading = signal(false);
 
   protected searchInput = viewChild<ElementRef>('searchInput');
@@ -76,7 +87,7 @@ export class CustomerSearchTableComponent implements AfterViewInit {
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      { title: "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT", entity: null },
+      {title: "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT", entity: null},
       (newCustomer: ICustomer) => {
         if (newCustomer) {
           this.customerSelected.emit(newCustomer);

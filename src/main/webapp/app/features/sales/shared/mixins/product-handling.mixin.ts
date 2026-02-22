@@ -1,9 +1,9 @@
-import { Signal, signal } from '@angular/core';
-import { ProduitSearch, ISalesLine, ISales } from '../../../../shared/model';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
+import {Signal, signal} from '@angular/core';
+import {ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {createSalesLineFromProduct} from '../../data-access/utils/sales-line.utils';
 
 /**
  * Type pour les infos de produit en attente d'affichage
@@ -19,6 +19,7 @@ export interface PendingDisplayProduct {
  */
 export interface ProductSearchHost {
   productSearchComponent(): { getFocus(): void; reset(): void } | undefined;
+
   quantityComponent(): { focusProduitControl(): void; reset(qty: number): void } | undefined;
 }
 
@@ -96,7 +97,15 @@ export interface ProductHandlingContext {
  * ```
  */
 export function createProductHandling(context: ProductHandlingContext) {
-  const { facade, customerDisplay, notificationService, host, config, selectedProduct, currentSale } = context;
+  const {
+    facade,
+    customerDisplay,
+    notificationService,
+    host,
+    config,
+    selectedProduct,
+    currentSale
+  } = context;
 
   // Signal pour stocker les infos du produit en attente d'affichage (après succès API)
   const pendingDisplayProduct = signal<PendingDisplayProduct | null>(null);
@@ -138,8 +147,8 @@ export function createProductHandling(context: ProductHandlingContext) {
     const hasCustomer = context.hasCustomer?.() ?? !!facade.selectedCustomer();
     if (!hasCustomer) {
       notificationService.warning(
-        'Client requis',
         config.customerRequiredMessage || "Veuillez sélectionner un client avant d'ajouter des produits",
+        'Client requis',
       );
       return false;
     }

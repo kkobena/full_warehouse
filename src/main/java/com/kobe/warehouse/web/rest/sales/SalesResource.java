@@ -183,14 +183,20 @@ public class SalesResource {
 
     @PutMapping("/sales/comptant/finalize-prevente")
     public ResponseEntity<Void> savePrevente(@Valid @RequestBody CashSaleDTO sale) {
-        saleService.savePrevente(sale);
+        saleService.savePrevente(sale, false);
         return ResponseEntity.accepted().build();
     }
 
-    @PutMapping("/sales/comptant/transform-devis")
-    public ResponseEntity<Void> transformDevis(@Valid @RequestBody SaleId saleId) {
-        saleService.transformDevisToVenteEncour(saleId);
+    @PutMapping("/sales/comptant/finalize-prevente-and-transform")
+    public ResponseEntity<Void> savePreventeAndTransform(@Valid @RequestBody CashSaleDTO sale) {
+        saleService.savePrevente(sale, true);
         return ResponseEntity.accepted().build();
+    }
+
+
+    @PutMapping("/sales/comptant/transform")
+    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId) {
+        return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId));
     }
 
     @PutMapping("/sales/comptant/clone-devis")

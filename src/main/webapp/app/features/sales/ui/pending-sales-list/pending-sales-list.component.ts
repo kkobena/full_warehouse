@@ -186,7 +186,7 @@ export class PendingSalesListComponent implements OnInit {
   }
 
   private buildParameters(): any {
-    const params: any = {statut: SalesStatut.ACTIVE};
+    const params: any = {statut: [SalesStatut.ACTIVE]};
 
     const sellerId = this.sellerFilter();
     if (sellerId) {

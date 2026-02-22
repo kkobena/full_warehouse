@@ -25,8 +25,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -34,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A Sales.
@@ -58,97 +57,24 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
-    @Transient
-    private boolean isNew = true;
-
-    @Id
-    private Long id;
-
-    @Id
-    @Column(name = "sale_date")
-    private LocalDate saleDate = LocalDate.now();
-
-    @Column(name = "dtype", insertable = false, updatable = false)
-    private String type;
-
-    @NotNull
-    @Column(name = "number_transaction", nullable = false, length = 20)
-    private String numberTransaction;
-
-    @NotNull
-    @Column(name = "discount_amount", nullable = false)
-    private Integer discountAmount = 0;
-
-    @NotNull
-    @Column(name = "sales_amount", nullable = false)
-    private Integer salesAmount = 0;
-
-    @Column(name = "ht_amount")
-    private Integer htAmount = 0;
-
-    @Column(name = "net_amount")
-    private Integer netAmount = 0;
-
-    @Column(name = "tax_amount")
-    private Integer taxAmount = 0;
-
-    @Column(name = "cost_amount")
-    private Integer costAmount = 0;
-
-    @NotNull
-    @Column(name = "amount_to_be_paid", nullable = false)
-    private Integer amountToBePaid = 0;
-
-    @NotNull
-    @Column(name = "payroll_amount", nullable = false)
-    private Integer payrollAmount = 0; // montant paye
-
-    @NotNull
-    @Column(name = "rest_to_pay", nullable = false)
-    private Integer restToPay = 0;
-
-    @Column(name = "amount_to_be_taken_into_account", nullable = false)
-    private Integer amountToBeTakenIntoAccount;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false, length = 11)
-    private SalesStatut statut;
-
-    @NotNull
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
     @OneToMany(mappedBy = "sales")
     protected Set<SalesLine> salesLines = new HashSet<>();
-
     @ManyToOne
     protected Remise remise;
-
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser user;
-
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser seller;
-
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser caissier;
-
     @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
     protected Set<SalePayment> payments = new HashSet<>();
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     protected Magasin magasin;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
         {
@@ -157,7 +83,53 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         }
     )
     protected Sales canceledSale;
-
+    @Transient
+    private boolean isNew = true;
+    @Id
+    private Long id;
+    @Id
+    @Column(name = "sale_date")
+    private LocalDate saleDate = LocalDate.now();
+    @Column(name = "dtype", insertable = false, updatable = false)
+    private String type;
+    @NotNull
+    @Column(name = "number_transaction", nullable = false, length = 20)
+    private String numberTransaction;
+    @NotNull
+    @Column(name = "discount_amount", nullable = false)
+    private Integer discountAmount = 0;
+    @NotNull
+    @Column(name = "sales_amount", nullable = false)
+    private Integer salesAmount = 0;
+    @Column(name = "ht_amount")
+    private Integer htAmount = 0;
+    @Column(name = "net_amount")
+    private Integer netAmount = 0;
+    @Column(name = "tax_amount")
+    private Integer taxAmount = 0;
+    @Column(name = "cost_amount")
+    private Integer costAmount = 0;
+    @NotNull
+    @Column(name = "amount_to_be_paid", nullable = false)
+    private Integer amountToBePaid = 0;
+    @NotNull
+    @Column(name = "payroll_amount", nullable = false)
+    private Integer payrollAmount = 0; // montant paye
+    @NotNull
+    @Column(name = "rest_to_pay", nullable = false)
+    private Integer restToPay = 0;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false)
+    private Integer amountToBeTakenIntoAccount;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", nullable = false, length = 11)
+    private SalesStatut statut;
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
@@ -179,7 +151,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "nature_vente", nullable = false, length = 15)
-    private NatureVente natureVente; //TODO : remove this column and use each child class
+    private NatureVente natureVente;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -268,7 +240,9 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     }
 
     public @NotNull Integer getNetAmount() {
-        netAmount = Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount, 0);
+        netAmount =
+            Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount,
+                0);
         return netAmount;
     }
 
@@ -663,7 +637,9 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Sales sales = (Sales) o;
         return Objects.equals(id, sales.id) && Objects.equals(saleDate, sales.saleDate);
     }

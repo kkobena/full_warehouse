@@ -273,7 +273,16 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/assurance/finalize-prevente")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> savePrevente(@Valid @RequestBody ThirdPartySaleDTO sale) {
-        saleService.savePrevente(sale);
+        saleService.savePrevente(sale, false);
+        return ResponseEntity.accepted().build();
+    }
+
+
+    @PutMapping("/sales/assurance/finalize-prevente-and-transform")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public ResponseEntity<Void> savePreventeAndTransform(
+        @Valid @RequestBody ThirdPartySaleDTO sale) {
+        saleService.savePrevente(sale, true);
         return ResponseEntity.accepted().build();
     }
 
@@ -300,10 +309,9 @@ public class ThirdPartySaleResource {
     }
 
 
-    @PutMapping("/sales/assurance/transform-devis")
-    public ResponseEntity<Void> transformDevis(@Valid @RequestBody SaleId saleId) {
-        saleService.transformDevisToVenteEncour(saleId);
-        return ResponseEntity.accepted().build();
+    @PutMapping("/sales/assurance/transform")
+    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId) {
+        return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId));
     }
 
     @PutMapping("/sales/assurance/clone-devis")
@@ -311,4 +319,6 @@ public class ThirdPartySaleResource {
         saleService.cloneDevis(saleId);
         return ResponseEntity.accepted().build();
     }
+
+
 }

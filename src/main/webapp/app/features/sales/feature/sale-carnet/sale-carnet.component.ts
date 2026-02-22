@@ -1,13 +1,28 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Toast } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  model,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Toast} from 'primeng/toast';
+import {TooltipModule} from 'primeng/tooltip';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {
+  ConfirmDialogComponent
+} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
   ProductListComponent,
   ProductSearchSectionComponent,
@@ -15,16 +30,29 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
-import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { AuthorizationService } from '../../data-access/services/authorization.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { CustomerSearchService } from '../../data-access/services/customer-search.service';
-import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import {
+  PaymentCompleteEvent,
+  PaymentModeComponent
+} from '../../ui/payment-mode/payment-mode.component';
+import {
+  CashRegisterFormComponent
+} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import {
+  CustomerCarnetComponent
+} from '../../../../entities/customer/carnet/customer-carnet.component';
+import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {AuthorizationService} from '../../data-access/services/authorization.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {CustomerSearchService} from '../../data-access/services/customer-search.service';
+import {
+  IClientTiersPayant,
+  ICustomer,
+  IRemise,
+  ISalesLine,
+  ProduitSearch
+} from '../../../../shared/model';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -34,8 +62,7 @@ import {
   createProductHandling,
   ProductSearchHost,
 } from '../../shared/mixins';
-import { AssuredCustomerListModalComponent } from '../../ui';
-import { SaleForEditInfo } from '../../../../shared/model/sales.model';
+import {SaleForEditInfo} from '../../../../shared/model/sales.model';
 
 /**
  * SaleCarnetComponent
@@ -79,7 +106,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
-    if (!section) return undefined;
+    if (!section) {
+      return undefined;
+    }
     return {
       focusProduitControl: () => section.focusProduitControl(),
       reset: (qty: number) => section.resetQuantity(qty),
@@ -87,55 +116,24 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   });
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   selectedSaleType = signal<SaleType>('CARNET');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
   showStock = input(false);
-  /**
-   * Méthode publique pour mettre le focus sur la recherche produit
-   * Appelée par le composant parent lors du changement de tab
-   */
-  public focusProductSearch(): void {
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
-  }
-
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
   readonly remises = input<IRemise[]>([]);
   readonly isPresale = input(false);
   readonly isDevis = input(false);
-
   // Outputs
   switchToComptant = output<void>();
   cashRegisterOpened = output<void>();
-
-  // Services
-  private facade = inject(SalesFacade);
-  private authorizationService = inject(AuthorizationService);
-  private notificationService = inject(NotificationService);
-  private customerDisplay = inject(CustomerDisplayService);
-  private customerSearchService = inject(CustomerSearchService);
-  private spinner = inject(NgxSpinnerService);
-  private modalService = inject(NgbModal);
-  private destroyRef = inject(DestroyRef);
-
   // State signals
   readonly saleType = signal<'CARNET'>('CARNET');
-  readonly currentSale = this.facade.currentSale;
-  readonly salesLines = this.facade.salesLines;
-  readonly selectedCustomer = this.facade.selectedCustomer;
-  readonly selectedProduct = this.facade.selectedProduct;
-  readonly loading = this.facade.loading;
-  readonly isSaving = this.facade.isSaving;
-  readonly plafondIsReached = this.facade.plafondIsReached;
   readonly selectedLineId = signal<number | null>(null);
   readonly waitingForForceStockSuccess = signal<boolean>(false);
   readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
-  readonly isAvoir = this.facade.isAvoir;
   customers = signal<ICustomer[]>([]);
   isDiffere = signal<boolean>(false);
   // Computed signals
@@ -145,19 +143,33 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     const customer = this.selectedCustomer();
     return !!sale && lines.length > 0 && !!customer && !this.isSaving();
   });
-
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
-
   // Monnaie calculée en temps réel depuis le composant payment-mode
   currentChange = computed(() => {
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
-
+  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  // Services
+  private facade = inject(SalesFacade);
+  readonly currentSale = this.facade.currentSale;
+  readonly salesLines = this.facade.salesLines;
+  readonly selectedCustomer = this.facade.selectedCustomer;
+  readonly selectedProduct = this.facade.selectedProduct;
+  readonly loading = this.facade.loading;
+  readonly isSaving = this.facade.isSaving;
+  readonly plafondIsReached = this.facade.plafondIsReached;
+  readonly isAvoir = this.facade.isAvoir;
+  private authorizationService = inject(AuthorizationService);
+  private notificationService = inject(NotificationService);
+  private customerDisplay = inject(CustomerDisplayService);
+  private customerSearchService = inject(CustomerSearchService);
+  private spinner = inject(NgxSpinnerService);
+  private modalService = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
   // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
   private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
-
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -175,13 +187,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
     addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
   });
-
   // ===== Force Stock Handling Mixin =====
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
     spinner: this.spinner,
-    config: { saleType: 'CARNET' },
+    config: {saleType: 'CARNET'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -195,7 +206,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
     },
   });
-
   // ===== Deconditionnement Handling Mixin =====
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
@@ -207,7 +217,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
     },
   });
-
   // ===== Customer Handling Mixin =====
   private customerHandling = createCustomerHandling({
     facade: this.facade,
@@ -236,7 +245,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       setTimeout(() => this.insuranceDataBar()?.focusFirstBon(), 100);
     },
   });
-
   // ===== Payment Handling Mixin =====
   private paymentHandling = createPaymentHandling({
     facade: this.facade,
@@ -253,7 +261,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     isCashRegisterOpen: this.isCashRegisterOpenSignal,
     getPaymentModeComponent: () => {
       const comp = this.paymentModeComponent();
-      if (!comp) return undefined;
+      if (!comp) {
+        return undefined;
+      }
       return {
         selectedModes: () =>
           comp.selectedModes().map(m => ({
@@ -271,13 +281,13 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
-    onPaymentSuccess: () => {},
+    onPaymentSuccess: () => {
+    },
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
-
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    { saleType: 'CARNET', isPresale: () => this.isPresale() },
+    {saleType: 'CARNET', isPresale: () => this.isPresale()},
     {
       focusProductSearch: () => this.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -295,7 +305,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
       focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
-      saveAsPresale: () => this.onSaveAsPresale(),
+      saveAsPresale: () => this.onSaveAsPresale(true),
+      savePresale: () => this.onSaveAsPresale(false),
     },
   );
 
@@ -304,6 +315,16 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
     this.deconditionnementHandling.initializeEffects();
+  }
+
+  /**
+   * Méthode publique pour mettre le focus sur la recherche produit
+   * Appelée par le composant parent lors du changement de tab
+   */
+  public focusProductSearch(): void {
+    setTimeout(() => {
+      this.productSearchComponent()?.getFocus();
+    }, 100);
   }
 
   ngOnInit(): void {
@@ -362,7 +383,9 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   // ===== Handlers pour InsuranceDataBarComponent =====
 
   onProductSearchEnter(shouldSave: boolean): void {
-    if (!shouldSave) return;
+    if (!shouldSave) {
+      return;
+    }
 
     const currentSale = this.currentSale();
 
@@ -390,7 +413,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
     //TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
-    const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
+    const newCustomer = {...customer, tiersPayants: [...(customer.tiersPayants || [])]};
     this.customerHandling.selectCustomer(newCustomer);
   }
 
@@ -501,29 +524,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   // ===== Sale Actions =====
 
-  /**
-   * Rebuilde les tiers payants avec les numBon des inputs et met à jour la vente
-   * Doit être appelé avant toute finalisation de vente CARNET
-   */
-  private rebuildTiersPayantsFromInputs(): void {
-    const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
-    if (tiersPayantsFromInputs.length > 0) {
-      this.facade.updateSaleTiersPayants(tiersPayantsFromInputs);
-    }
-  }
-
-  /**
-   * Finalise la vente sans paiement (amountToBePaid <= 0)
-   * Délègue au mixin paymentHandling après pré-validation
-   */
-  private finalizeSaleWithoutPayment(): void {
-    // Rebuilder les tiers payants avec les numBon des inputs
-    this.rebuildTiersPayantsFromInputs();
-
-    // Déléguer au mixin
-    this.paymentHandling.finalizeSaleWithoutPayment();
-  }
-
   onSave(): void {
     // Pré-validation: rebuilder les tiers payants avant de sauvegarder
     this.rebuildTiersPayantsFromInputs();
@@ -556,7 +556,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.putOnStandby();
   }
 
-  onSaveAsPresale(): void {
+  onSaveAsPresale(transform: boolean = true): void {
     const sale = this.currentSale();
     if (!sale) {
       this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
@@ -575,7 +575,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.rebuildTiersPayantsFromInputs();
 
     this.facade
-      .finalizePresale(sale)
+      .finalizePresale(sale, transform)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: result => {
@@ -628,51 +628,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       this.resetForNewSale();
     }
   }
-  private handleDiffereConfirmed(): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) return;
-    currentSale.differe = true;
-    this.isDiffere.set(true);
-    setTimeout(() => {
-      this.paymentModeComponent()?.focusCommentInput();
-    }, 100);
-  }
-  /**
-   * Réinitialiser pour une nouvelle vente
-   * Appelé après sauvegarde ou annulation pour rester sur l'écran de vente
-   */
-  private resetForNewSale(): void {
-    this.customerDisplay.clear();
-    this.initSaleForEditInfo.set(null);
-    this.selectedLineId.set(null);
-    this.customers.set([]);
-    this.isDiffere.set(false);
-    this.facade.resetCurrentSale();
-    this.switchToComptant.emit();
-  }
-
-  /**
-   * Ouvre le modal de formulaire de caisse
-   * Utilisé pour enregistrer le montant en caisse avant de finaliser la vente
-   */
-  private openCashRegister(): void {
-    showCommonModal(this.modalService, CashRegisterFormComponent, {}, (resp: boolean) => {
-      if (resp) {
-        // Notifier le parent que la caisse est maintenant ouverte
-        this.cashRegisterOpened.emit();
-        // Finaliser la vente via le mixin après ouverture de la caisse
-        setTimeout(() => this.paymentHandling.completeSale(), 100);
-      }
-    });
-  }
-
-  // ===== Raccourcis clavier =====
 
   handleKeyboardEvent(event: KeyboardEvent): void {
     this.keyboardShortcutsMixin.handleKeyboardEvent(event);
   }
-
-  // ===== Payment =====
 
   /**
    * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode
@@ -689,8 +648,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   onPaymentError(error: string): void {
     this.notificationService.error('Erreur', error);
   }
-
-  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
 
   onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
@@ -741,6 +698,76 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
           }
         });
     }
+  }
+
+  // ===== Raccourcis clavier =====
+
+  /**
+   * Rebuilde les tiers payants avec les numBon des inputs et met à jour la vente
+   * Doit être appelé avant toute finalisation de vente CARNET
+   */
+  private rebuildTiersPayantsFromInputs(): void {
+    const tiersPayantsFromInputs = this.insuranceDataBar()?.buildIClientTiersPayantFromInputs() || [];
+    if (tiersPayantsFromInputs.length > 0) {
+      this.facade.updateSaleTiersPayants(tiersPayantsFromInputs);
+    }
+  }
+
+  // ===== Payment =====
+
+  /**
+   * Finalise la vente sans paiement (amountToBePaid <= 0)
+   * Délègue au mixin paymentHandling après pré-validation
+   */
+  private finalizeSaleWithoutPayment(): void {
+    // Rebuilder les tiers payants avec les numBon des inputs
+    this.rebuildTiersPayantsFromInputs();
+
+    // Déléguer au mixin
+    this.paymentHandling.finalizeSaleWithoutPayment();
+  }
+
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) {
+      return;
+    }
+    currentSale.differe = true;
+    this.isDiffere.set(true);
+    setTimeout(() => {
+      this.paymentModeComponent()?.focusCommentInput();
+    }, 100);
+  }
+
+  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
+
+  /**
+   * Réinitialiser pour une nouvelle vente
+   * Appelé après sauvegarde ou annulation pour rester sur l'écran de vente
+   */
+  private resetForNewSale(): void {
+    this.customerDisplay.clear();
+    this.initSaleForEditInfo.set(null);
+    this.selectedLineId.set(null);
+    this.customers.set([]);
+    this.isDiffere.set(false);
+    this.facade.resetCurrentSale();
+    this.switchToComptant.emit();
+  }
+
+  /**
+   * Ouvre le modal de formulaire de caisse
+   * Utilisé pour enregistrer le montant en caisse avant de finaliser la vente
+   */
+  private openCashRegister(): void {
+    showCommonModal(this.modalService, CashRegisterFormComponent, {}, (resp: boolean) => {
+      if (resp) {
+        // Notifier le parent que la caisse est maintenant ouverte
+        this.cashRegisterOpened.emit();
+        // Finaliser la vente via le mixin après ouverture de la caisse
+        setTimeout(() => this.paymentHandling.completeSale(), 100);
+      }
+    });
   }
 
   /**

@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonGroup } from 'primeng/buttongroup';
+import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {ButtonGroup} from 'primeng/buttongroup';
 
 /**
  * Composant de présentation : Boutons d'action vente
@@ -39,6 +39,7 @@ export class SaleActionsComponent {
   print = output<void>();
   cancel = output<void>();
   saveAsPresale = output<void>();
+  savePresale = output<void>();
   saveAndPrint = output<void>();
   putOnHold = output<void>();
 
@@ -67,6 +68,12 @@ export class SaleActionsComponent {
     }
   }
 
+  onSavePresale(): void {
+    if (this.isPresale()) {
+      this.savePresale.emit();
+    }
+  }
+
   onPutOnHold(): void {
     if (!this.isPresale() && !this.isDevis()) {
       this.putOnHold.emit();
@@ -81,10 +88,14 @@ export class SaleActionsComponent {
 
   // Helper methods
   getSaveButtonLabel(): string {
-    if (this.isDevis()) {
-      return 'Enregistrer le devis';
+    if (this.isPresale()) {
+      return 'Passer en vente';
     }
-    return this.isPresale() ? 'Finaliser la prévente' : 'Enregistrer';
+    return this.isDevis() ? 'Enregistrer' : 'Finaliser';
+  }
+
+  getSavePresaleButtonLabel(): string {
+    return 'Enregistrer';
   }
 
   getSaveButtonIcon(): string {
@@ -94,10 +105,18 @@ export class SaleActionsComponent {
     return this.isDevis() ? 'pi pi-file-edit' : 'pi pi-check';
   }
 
-  getSaveButtonSeverity(): 'success' | 'info' | 'warning' {
-    if (this.isDevis()) {
-      return 'warning';
+  getSavePresaleIcon(): string {
+    if (this.isSaving()) {
+      return 'pi pi-spin pi-spinner';
     }
-    return this.isPresale() ? 'info' : 'success';
+    return 'pi pi-file-edit';
+  }
+
+  getSavePresaleSeverity(): 'success' | 'info' | 'warn' {
+    return 'success';
+  }
+
+  getSaveButtonSeverity(): 'success' | 'info' | 'warn' {
+    return this.isPresale() || this.isDevis() ? 'info' : 'success';
   }
 }

@@ -20,7 +20,9 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent
+} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
@@ -30,8 +32,12 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import {
+  AssureFormStepComponent
+} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import {
+  FormAyantDroitComponent
+} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import {
   AyantDroitCustomerListComponent
 } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
@@ -39,13 +45,22 @@ import {
   AddComplementaireComponent
 } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
+import {
+  PaymentCompleteEvent,
+  PaymentModeComponent
+} from '../../ui/payment-mode/payment-mode.component';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {CustomerSearchService} from '../../data-access/services/customer-search.service';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {
+  IClientTiersPayant,
+  ICustomer,
+  IRemise,
+  ISalesLine,
+  ProduitSearch
+} from '../../../../shared/model';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {
   CashRegisterFormComponent
@@ -100,7 +115,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
-    if (!section) return undefined;
+    if (!section) {
+      return undefined;
+    }
     return {
       focusProduitControl: () => section.focusProduitControl(),
       reset: (qty: number) => section.resetQuantity(qty),
@@ -108,7 +125,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   });
   insuranceDataBar = viewChild<InsuranceDataBarComponent>('insuranceDataBar');
   paymentModeComponent = viewChild<PaymentModeComponent>('paymentMode');
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   selectedSaleType = signal<SaleType>('ASSURANCE');
   // Inputs
   readonly isSmallScreen = input(false);
@@ -120,21 +136,24 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // Outputs
   productAddedSuccess = output<void>();
   switchToComptant = output<void>();
+  selectedLineId = signal<number | null>(null);
 
   // Modal and responsive state
-
+  customers = signal<ICustomer[]>([]);
+  isDiffere = signal<boolean>(false);
+  // Force Stock state signals
+  waitingForForceStockSuccess = signal<boolean>(false);
+  previousLoadingState = signal<boolean>(false);
+  forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
+  // Monnaie calculée en temps réel depuis le composant payment-mode
+  currentChange = computed(() => {
+    const change = this.paymentModeComponent()?.changeAmount() || 0;
+    return change > 0 ? change : null;
+  });
+  protected userVendeurService = inject(UserVendeurService);
+  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   // Services
   private facade = inject(SalesFacade);
-  private customerSearchService = inject(CustomerSearchService);
-  private authorizationService = inject(AuthorizationService);
-  private notificationService = inject(NotificationService);
-  private customerDisplay = inject(CustomerDisplayService);
-  private modalService = inject(NgbModal);
-  private destroyRef = inject(DestroyRef);
-  private spinner = inject(NgxSpinnerService);
-  private route = inject(ActivatedRoute);
-  protected userVendeurService = inject(UserVendeurService);
-
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
   selectedCustomer = this.facade.selectedCustomer;
@@ -149,24 +168,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   hasCustomer = this.facade.hasCustomer;
   isAvoir = this.facade.isAvoir;
   isSaving = this.facade.isSaving;
-  loading = this.facade.loading;
-  cashier = this.facade.cashier;
-  seller = this.facade.seller;
-
-  plafondIsReached = this.facade.plafondIsReached;
-
-  selectedLineId = signal<number | null>(null);
-  customers = signal<ICustomer[]>([]);
-  isDiffere = signal<boolean>(false);
-
-  // Force Stock state signals
-  waitingForForceStockSuccess = signal<boolean>(false);
-  previousLoadingState = signal<boolean>(false);
-  forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
-
-  // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
-  private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
-
   // Computed pour savoir si la vente peut être sauvegardée (spécifique ASSURANCE)
   canSave = computed(() => {
     const sale = this.currentSale();
@@ -175,13 +176,21 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const tiersPayants = sale?.tiersPayants || [];
     return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
   });
+  loading = this.facade.loading;
+  cashier = this.facade.cashier;
+  seller = this.facade.seller;
 
-  // Monnaie calculée en temps réel depuis le composant payment-mode
-  currentChange = computed(() => {
-    const change = this.paymentModeComponent()?.changeAmount() || 0;
-    return change > 0 ? change : null;
-  });
-
+  plafondIsReached = this.facade.plafondIsReached;
+  private customerSearchService = inject(CustomerSearchService);
+  private authorizationService = inject(AuthorizationService);
+  private notificationService = inject(NotificationService);
+  private customerDisplay = inject(CustomerDisplayService);
+  private modalService = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
+  private spinner = inject(NgxSpinnerService);
+  private route = inject(ActivatedRoute);
+  // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
+  private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -196,9 +205,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     selectedProduct: this.facade.selectedProduct,
     currentSale: this.facade.currentSale,
     hasCustomer: this.hasCustomer,
-    // createAssuranceSale pour créer une nouvelle vente ASSURANCE avec le premier produit
     createSale: (line: ISalesLine) => this.facade.createAssuranceSale(line),
-    // onAddProduitCarnet utilise le même endpoint /add-item/assurance partagé avec CARNET
     addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
   });
 
@@ -250,7 +257,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     isCashRegisterOpen: this.isCashRegisterOpenSignal,
     getPaymentModeComponent: () => {
       const comp = this.paymentModeComponent();
-      if (!comp) return undefined;
+      if (!comp) {
+        return undefined;
+      }
       return {
         selectedModes: () =>
           comp.selectedModes().map(m => ({
@@ -333,7 +342,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       cancelSale: () => this.onCancel(),
       focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
       printReceipt: () => this.onPrint(),
-      saveAsPresale: () => this.onSaveAsPresale(),
+      saveAsPresale: () => this.onSaveAsPresale(true),
+      savePresale: () => this.onSaveAsPresale(false),
     },
   );
 
@@ -346,19 +356,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   // ===== Effects Initialization =====
-
-  private initializeEffects(): void {
-    this.setupSavingStateEffect();
-  }
-
-  /**
-   * Effect pour contrôler le spinner selon l'état de sauvegarde
-   */
-  private setupSavingStateEffect(): void {
-    effect(() => {
-      this.isSaving() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
-    });
-  }
 
   ngOnInit(): void {
     // Initialiser une vente ASSURANCE
@@ -432,10 +429,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }, 200);
   }
 
-  // ============================================
-  // Gestion Produits
-  // ============================================
-
   /**
    * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
@@ -456,7 +449,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
    * Enter dans champ produit vide → validation si amountToBePaid <= 0
    */
   onProductSearchEnter(shouldSave: boolean): void {
-    if (!shouldSave) return;
+    if (!shouldSave) {
+      return;
+    }
 
     const currentSale = this.currentSale();
 
@@ -538,10 +533,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  // ============================================
-  // Gestion Client
-  // ============================================
-
   /**
    * Délègue au mixin customerHandling
    */
@@ -557,6 +548,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     );
   }
 
+  // ============================================
+  // Gestion Client
+  // ============================================
+
   /**
    * Ouvre le formulaire de création client assuré
    */
@@ -570,10 +565,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   onCustomerSearchChange(searchTerm: string): void {
     this.customerHandling.searchCustomers(searchTerm);
   }
-
-  // ============================================
-  // Gestion Tiers Payants
-  // ============================================
 
   onInsuranceDataUpdate(data: { customer: ICustomer; tiersPayants: IClientTiersPayant[] }): void {
     // Mettre à jour le client
@@ -589,6 +580,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // Utiliser le mixin qui gère la logique commune + callback ASSURANCE
     this.customerHandling.selectCustomer(newCustomer);
   }
+
+  // ============================================
+  // Gestion Tiers Payants
+  // ============================================
 
   onOpenCustomerList(event?: { customers: ICustomer[]; searchTerm: string }): void {
     showCommonModal(
@@ -711,85 +706,14 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     );
   }
 
-  private handleDiffereConfirmed(): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) return;
-    currentSale.differe = true;
-    this.isDiffere.set(true);
-    setTimeout(() => {
-      this.paymentModeComponent()?.focusCommentInput();
-    }, 100);
-  }
-
-  private removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
-    const dataBar = this.insuranceDataBar();
-    if (dataBar) {
-      dataBar.removeTiersPayantLocally(tiersPayant);
-    }
-  }
-
   onTiersPayantsChanged(tiersPayants: IClientTiersPayant[]): void {
     // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
     this.facade.updateSaleTiersPayants(tiersPayants);
   }
 
-  private openAssuredCustomerForm(customer: ICustomer | null): void {
-    const isEdit = !!customer;
-    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT";
-
-    showCommonModal(
-      this.modalService,
-      AssureFormStepComponent,
-      {
-        entity: customer || undefined,
-        typeAssure: 'ASSURANCE',
-        header,
-      },
-      (updatedCustomer: ICustomer) => {
-        if (updatedCustomer) {
-          this.facade.setCustomer(updatedCustomer);
-          // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
-          if (updatedCustomer.tiersPayants) {
-            this.facade.updateSaleTiersPayants(updatedCustomer.tiersPayants);
-          }
-        }
-      },
-      'xl',
-      'modal-dialog-80',
-    );
-  }
-
-  private openAyantDroitForm(ayantDroit: ICustomer): void {
-    const customer = this.selectedCustomer();
-    if (!customer) return;
-
-    showCommonModal(
-      this.modalService,
-      FormAyantDroitComponent,
-      {
-        entity: ayantDroit,
-        assure: customer,
-        title: 'FORMULAIRE DE MODIFICATION',
-      },
-      (updatedAyantDroit: ICustomer) => {
-        if (updatedAyantDroit) {
-          const currentSale = this.currentSale();
-          if (currentSale) {
-            currentSale.ayantDroit = updatedAyantDroit;
-          }
-        }
-      },
-      'xl',
-    );
-  }
-
   onCreateNewInsuredCustomer(): void {
     this.openAssuredCustomerForm(null);
   }
-
-  // ============================================
-  // Handlers pour remise globale (depuis ProductListComponent caption)
-  // ============================================
 
   onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
@@ -842,10 +766,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  // ============================================
-  // Actions de vente
-  // ============================================
-
   onSave(): void {
     // Validations spécifiques ASSURANCE avant d'appeler le mixin
     if (!this.validateAssuranceSale()) {
@@ -864,6 +784,203 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       this.paymentHandling.onSave();
     }
   }
+
+  /**
+   * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode
+   * Délègue au mixin paymentHandling
+   */
+  onPaymentComplete(event: PaymentCompleteEvent): void {
+    if (!this.validateAssuranceSale()) {
+      return;
+    }
+    this.paymentHandling.processPayment(event);
+  }
+
+  onSaveAndPrint(): void {
+    this.facade.setPrintReceipt(true);
+    this.onSave();
+  }
+
+  onPrint(): void {
+    const sale = this.currentSale();
+    if (sale?.saleId) {
+      this.facade.printCurrentSale();
+    } else {
+      this.notificationService.error("La vente doit être enregistrée d'abord", 'Impression impossible');
+    }
+  }
+
+  // ============================================
+  // Handlers pour remise globale (depuis ProductListComponent caption)
+  // ============================================
+
+  putOnStandby(): void {
+    const sale = this.currentSale();
+    if (!sale || this.salesLines().length === 0) {
+      this.notificationService.error('Ajoutez au moins un produit', 'Vente vide');
+      return;
+    }
+
+    if (!this.hasCustomer()) {
+      this.notificationService.error('Un client assuré est obligatoire', 'Client requis');
+      return;
+    }
+
+    this.facade.putOnStandby();
+  }
+
+  onSaveAsPresale(transform: boolean = true): void {
+    if (!this.validateAssuranceSale()) {
+      return;
+    }
+
+    const sale = this.currentSale();
+    if (!sale) {
+      return;
+    }
+
+    this.facade
+      .finalizePresale(sale, transform)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: result => {
+          if (result) {
+            this.resetForNewSale();
+          }
+        },
+      });
+  }
+
+  // ============================================
+  // Actions de vente
+  // ============================================
+
+  onCancel(): void {
+    // Si pas de lignes, reset simple sans confirmation
+    if (this.salesLines().length === 0) {
+      this.resetForNewSale();
+      return;
+    }
+
+    // Confirmer avant d'annuler (comportement identique à sale-carnet)
+    this.confirmDialog().onConfirm(
+      () => this.facade.cancelSale(),
+      'Annulation de la vente',
+      'Êtes-vous sûr de vouloir annuler cette vente ?',
+    );
+  }
+
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    this.keyboardShortcutsMixin.handleKeyboardEvent(event);
+  }
+
+  /**
+   * Méthode publique pour mettre le focus sur la recherche produit
+   * Appelée par le composant parent lors du changement de tab
+   */
+  public focusProductSearch(): void {
+    this.productHandling.focusProductSearch();
+  }
+
+  getCustomerDisplay(customer: ICustomer | null): string {
+    if (!customer) {
+      return '';
+    }
+    return `${customer.firstName || ''} ${customer.lastName || ''} ${customer.phone || ''}`;
+  }
+
+  private initializeEffects(): void {
+    this.setupSavingStateEffect();
+  }
+
+  /**
+   * Effect pour contrôler le spinner selon l'état de sauvegarde
+   */
+  private setupSavingStateEffect(): void {
+    effect(() => {
+      this.isSaving() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
+    });
+  }
+
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) {
+      return;
+    }
+    currentSale.differe = true;
+    this.isDiffere.set(true);
+    setTimeout(() => {
+      this.paymentModeComponent()?.focusCommentInput();
+    }, 100);
+  }
+
+  private removeTiersPayantLocally(tiersPayant: IClientTiersPayant): void {
+    const dataBar = this.insuranceDataBar();
+    if (dataBar) {
+      dataBar.removeTiersPayantLocally(tiersPayant);
+    }
+  }
+
+  private openAssuredCustomerForm(customer: ICustomer | null): void {
+    const isEdit = !!customer;
+    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT";
+
+    showCommonModal(
+      this.modalService,
+      AssureFormStepComponent,
+      {
+        entity: customer || undefined,
+        typeAssure: 'ASSURANCE',
+        header,
+      },
+      (updatedCustomer: ICustomer) => {
+        if (updatedCustomer) {
+          this.facade.setCustomer(updatedCustomer);
+          // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
+          if (updatedCustomer.tiersPayants) {
+            this.facade.updateSaleTiersPayants(updatedCustomer.tiersPayants);
+          }
+        }
+      },
+      'xl',
+      'modal-dialog-80',
+    );
+  }
+
+
+  // ============================================
+  // Raccourcis clavier
+  // ============================================
+
+  private openAyantDroitForm(ayantDroit: ICustomer): void {
+    const customer = this.selectedCustomer();
+    if (!customer) {
+      return;
+    }
+
+    showCommonModal(
+      this.modalService,
+      FormAyantDroitComponent,
+      {
+        entity: ayantDroit,
+        assure: customer,
+        title: 'FORMULAIRE DE MODIFICATION',
+      },
+      (updatedAyantDroit: ICustomer) => {
+        if (updatedAyantDroit) {
+          const currentSale = this.currentSale();
+          if (currentSale) {
+            currentSale.ayantDroit = updatedAyantDroit;
+          }
+        }
+      },
+      'xl',
+    );
+  }
+
+  // ============================================
+  // Helpers
+  // ============================================
 
   /**
    * Validations spécifiques pour une vente ASSURANCE
@@ -922,104 +1039,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.paymentHandling.finalizeSaleWithoutPayment();
   }
 
-  /**
-   * Appelé quand l'utilisateur valide le paiement depuis le composant payment-mode
-   * Délègue au mixin paymentHandling
-   */
-  onPaymentComplete(event: PaymentCompleteEvent): void {
-    if (!this.validateAssuranceSale()) {
-      return;
-    }
-    this.paymentHandling.processPayment(event);
-  }
-
-  onSaveAndPrint(): void {
-    this.facade.setPrintReceipt(true);
-    this.onSave();
-  }
-
-  onPrint(): void {
-    const sale = this.currentSale();
-    if (sale?.saleId) {
-      this.facade.printCurrentSale();
-    } else {
-      this.notificationService.error("La vente doit être enregistrée d'abord", 'Impression impossible');
-    }
-  }
-
-  putOnStandby(): void {
-    const sale = this.currentSale();
-    if (!sale || this.salesLines().length === 0) {
-      this.notificationService.error('Ajoutez au moins un produit', 'Vente vide');
-      return;
-    }
-
-    if (!this.hasCustomer()) {
-      this.notificationService.error('Un client assuré est obligatoire', 'Client requis');
-      return;
-    }
-
-    this.facade.putOnStandby();
-  }
-
-  onSaveAsPresale(): void {
-    if (!this.validateAssuranceSale()) {
-      return;
-    }
-
-    const sale = this.currentSale();
-    if (!sale) return;
-
-    const isEdit = !!this.route.snapshot.params['id'] && !!this.route.snapshot.queryParams['saleDate'];
-
-    this.facade
-      .finalizePresale(sale)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: result => {
-          if (result) {
-            this.resetForNewSale();
-          }
-        },
-      });
-  }
-
-  onCancel(): void {
-    // Si pas de lignes, reset simple sans confirmation
-    if (this.salesLines().length === 0) {
-      this.resetForNewSale();
-      return;
-    }
-
-    // Confirmer avant d'annuler (comportement identique à sale-carnet)
-    this.confirmDialog().onConfirm(
-      () => this.facade.cancelSale(),
-      'Annulation de la vente',
-      'Êtes-vous sûr de vouloir annuler cette vente ?',
-    );
-  }
-
-
-  // ============================================
-  // Raccourcis clavier
-  // ============================================
-
-  handleKeyboardEvent(event: KeyboardEvent): void {
-    this.keyboardShortcutsMixin.handleKeyboardEvent(event);
-  }
-
-  // ============================================
-  // Helpers
-  // ============================================
-
-  /**
-   * Méthode publique pour mettre le focus sur la recherche produit
-   * Appelée par le composant parent lors du changement de tab
-   */
-  public focusProductSearch(): void {
-    this.productHandling.focusProductSearch();
-  }
-
   private focusCustomerSearch(): void {
     // Focus sur le champ de recherche client dans la barre assurance
     setTimeout(() => {
@@ -1048,10 +1067,5 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         setTimeout(() => this.paymentHandling.completeSale(), 100);
       }
     });
-  }
-
-  getCustomerDisplay(customer: ICustomer | null): string {
-    if (!customer) return '';
-    return `${customer.firstName || ''} ${customer.lastName || ''} ${customer.phone || ''}`;
   }
 }

@@ -85,16 +85,22 @@ export class SalesApiService {
   /**
    * Finalize a presale (comptant)
    */
-  finalizePresaleComptant(sales: ISales): Observable<void> {
+  finalizePresaleComptant(sales: ISales, transform: boolean = true): Observable<void> {
     const copy = this.convertDateFromClient(sales);
+    if (transform) {
+      return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente-and-transform`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+    }
     return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente`, copy, {observe: 'response'}).pipe(map((): void => undefined));
   }
 
   /**
    * Finalize a presale (assurance/carnet)
    */
-  finalizePresaleAssurance(sales: ISales): Observable<void> {
+  finalizePresaleAssurance(sales: ISales, transform: boolean = true): Observable<void> {
     const copy = this.convertDateFromClient(sales);
+    if (transform) {
+      return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente-and-transform`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+    }
     return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente`, copy, {observe: 'response'}).pipe(map((): void => undefined));
   }
 
@@ -185,7 +191,10 @@ export class SalesApiService {
 
   countPendingSales(req?: any): Observable<HttpResponse<number>> {
     const options = createRequestOptions(req);
-    return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', {params: options, observe: 'response'});
+    return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', {
+      params: options,
+      observe: 'response'
+    });
   }
 
   printReceipt(id: SaleId): Observable<HttpResponse<void>> {
@@ -380,12 +389,19 @@ export class SalesApiService {
    */
   getPendingSales(req: any): Observable<ISales[]> {
     const params = createRequestOptions(req);
-    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {params, observe: 'response'}).pipe(
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {
+      params,
+      observe: 'response'
+    }).pipe(
       map((res: EntityArrayResponseType) => {
         if (res.body) {
           res.body.forEach(sale => {
-            if (sale.createdAt) sale.createdAt = moment(sale.createdAt);
-            if (sale.updatedAt) sale.updatedAt = moment(sale.updatedAt);
+            if (sale.createdAt) {
+              sale.createdAt = moment(sale.createdAt);
+            }
+            if (sale.updatedAt) {
+              sale.updatedAt = moment(sale.updatedAt);
+            }
           });
         }
         return res.body || [];
@@ -453,7 +469,7 @@ export class SalesApiService {
    * Convert item dates from client format (Moment) to server format (string)
    */
   private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
-    return  Object.assign({}, salesLine, {
+    return Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
       updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
     });
@@ -475,7 +491,7 @@ export class SalesApiService {
    * Convert dates from client format (Moment) to server format (string)
    */
   private convertDateFromClient(sales: ISales): ISales {
-    return  Object.assign({}, sales, {
+    return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
       updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
     });

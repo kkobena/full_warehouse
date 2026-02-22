@@ -6,32 +6,32 @@
 <div class="carnet-data-section">
   <app-insurance-data-bar
     #insuranceDataBar
-    [customer]="selectedCustomer()"
-    [tiersPayants]="currentSale()?.tiersPayants || []"
-    [saleType]="'CARNET'"
-    [ayantDroit]="null"
-    (customerSelected)="onCustomerSelectedFromBar($event)"
-    (openCustomerList)="onOpenCustomerList($event)"
-    (editCustomer)="onEditCustomer()"
     (addCustomer)="onAddCustomer()"
+    (customerSelected)="onCustomerSelectedFromBar($event)"
+    (editCustomer)="onEditCustomer()"
+    (focusProductSearch)="focusProductSearch()"
+    (openCustomerList)="onOpenCustomerList($event)"
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
-    (focusProductSearch)="focusProductSearch()">
+    [ayantDroit]="null"
+    [customer]="selectedCustomer()"
+    [saleType]="'CARNET'"
+    [tiersPayants]="currentSale()?.tiersPayants || []">
   </app-insurance-data-bar>
 </div>
 
 <!-- 2ème ligne: Recherche produit (ligne entière) -->
 <app-product-search-section
   #produitbox
-  [autofocus]="false"
-  [selectedProduct]="selectedProduct()"
-  [saleType]="'CARNET'"
-  [requiresCustomer]="true"
-  [showStock]="showStock()"
-  [hasCustomer]="hasCustomer()"
-  (productSelected)="onProductSelected($event)"
-  (productScanned)="onProductScanned($event)"
+  (addQuantite)="onAddQuantity($event)"
   (onKeyEnter)="onProductSearchEnter($event)"
-  (addQuantite)="onAddQuantity($event)">
+  (productScanned)="onProductScanned($event)"
+  (productSelected)="onProductSelected($event)"
+  [autofocus]="false"
+  [hasCustomer]="hasCustomer()"
+  [requiresCustomer]="true"
+  [saleType]="'CARNET'"
+  [selectedProduct]="selectedProduct()"
+  [showStock]="showStock()">
 </app-product-search-section>
 
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
@@ -39,55 +39,56 @@
   <div class="row">
     <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
       <app-product-list
-        [salesLines]="salesLines()"
-        [isEditable]="!isSaving()"
-        [selectedLineId]="selectedLineId()"
-        [saleId]="currentSale()?.id"
-        [saleType]="'CARNET'"
-        [remises]="remises()"
-        [currentRemise]="currentSale()?.remise"
-        [showRemiseSection]="true"
-        (quantityChanged)="onLineQuantityChanged($event)"
-        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (authorizationRequired)="onAuthorizationRequired($event)"
         (lineRemoved)="onLineRemoved($event)"
         (lineSelected)="onLineSelected($event)"
-        (authorizationRequired)="onAuthorizationRequired($event)"
+        (quantityChanged)="onLineQuantityChanged($event)"
+        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (remiseActionCancelled)="focusProductSearch()"
         (remiseSelected)="onRemiseSelected($event)"
         (removeRemise)="onRemoveRemise()"
-        (remiseActionCancelled)="focusProductSearch()" />
+        [currentRemise]="currentSale()?.remise"
+        [isEditable]="!isSaving()"
+        [remises]="remises()"
+        [saleId]="currentSale()?.id"
+        [saleType]="'CARNET'"
+        [salesLines]="salesLines()"
+        [selectedLineId]="selectedLineId()"
+        [showRemiseSection]="true" />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
       <div class="grid">
         <div class="col-12">
           <app-sale-summary
-            [totalAmount]="currentSale()?.salesAmount || 0"
-            [discountAmount]="currentSale()?.discountAmount || 0"
-            [taxAmount]="currentSale()?.taxAmount || 0"
-            [netAmount]="currentSale()?.netAmount || 0"
             [amountToBePaid]="currentSale()?.amountToBePaid || 0"
-            [itemCount]="salesLines().length"
+            [changeAmount]="currentChange()"
             [currentRemise]="currentSale()?.remise"
+            [discountAmount]="currentSale()?.discountAmount || 0"
             [isAvoir]="isAvoir()"
-            [saleType]="'CARNET'"
+            [itemCount]="salesLines().length"
+            [netAmount]="currentSale()?.netAmount || 0"
             [partAssurance]="currentSale()?.partTiersPayant || 0"
             [partClient]="currentSale()?.amountToBePaid || 0"
-            [changeAmount]="currentChange()" />
+            [saleType]="'CARNET'"
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [totalAmount]="currentSale()?.salesAmount || 0" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
-            [saleType]="'CARNET'"
-            [canSave]="canSave()"
-            [canSaveAsPresale]="canSave()"
-            [canCancel]="true"
-            [isSaving]="isSaving()"
-            [isPresale]="isPresale()"
-            [isDevis]="isDevis()"
-            [isSmallScreen]="isSmallScreen()"
-            (save)="isDevis() ? onSaveAsDevis() : onSave()"
+            (cancel)="onCancel()"
             (putOnHold)="onPutOnHold()"
-            (saveAsPresale)="isDevis() ? onSaveAsDevis() : onSaveAsPresale()"
-            (cancel)="onCancel()" />
+            (save)="isDevis() ? onSaveAsDevis() : onSave()"
+            (saveAsPresale)="isDevis() ? onSaveAsDevis() : onSaveAsPresale(true)"
+            (savePresale)="onSaveAsPresale(false)"
+            [canCancel]="true"
+            [canSaveAsPresale]="canSave()"
+            [canSave]="canSave()"
+            [isDevis]="isDevis()"
+            [isPresale]="isPresale()"
+            [isSaving]="isSaving()"
+            [isSmallScreen]="isSmallScreen()"
+            [saleType]="'CARNET'" />
         </div>
       </div>
     </div>
@@ -97,11 +98,11 @@
   @if (!isPresale() && !isDevis() && (currentSale()?.amountToBePaid || 0) > 0) {
     <app-payment-mode
       #paymentMode
-      [amountToBePaid]="currentSale()!.amountToBePaid || 0"
-      [maxPaymentModes]="2"
-      [isDiffere]="isDiffere()"
       (paymentComplete)="onPaymentComplete($event)"
       (validationError)="onPaymentError($event)"
+      [amountToBePaid]="currentSale()!.amountToBePaid || 0"
+      [isDiffere]="isDiffere()"
+      [maxPaymentModes]="2"
     />
   }
 } @else {
@@ -117,4 +118,6 @@
 <!-- Confirm Dialog -->
 <jhi-confirm-dialog #confirmDialog />
 <!-- Spinner global -->
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151"  name="sale-spinner" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
+             color="#009688" name="sale-spinner"
+             size="medium" type="timer"></ngx-spinner>

@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { ICustomer } from '../../../../shared/model';
-import { CustomerSearchTableComponent } from '../customer-search-table/customer-search-table.component';
+import {Component, inject} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ButtonModule} from 'primeng/button';
+import {ICustomer} from '../../../../shared/model';
+import {
+  CustomerSearchTableComponent
+} from '../customer-search-table/customer-search-table.component';
 
 /**
  * Modal de sélection de client pour les ventes différées
@@ -19,11 +21,13 @@ import { CustomerSearchTableComponent } from '../customer-search-table/customer-
     </div>
 
     <div class="modal-body">
-      <app-customer-search-table (customerSelected)="selectCustomer($event)" />
+      <app-customer-search-table [(customers)]="customers"
+                                 (customerSelected)="selectCustomer($event)" />
     </div>
 
     <div class="modal-footer">
-      <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+      <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
+                severity="secondary" type="button" />
     </div>
   `,
   styles: [
@@ -37,6 +41,7 @@ import { CustomerSearchTableComponent } from '../customer-search-table/customer-
 })
 export class CustomerSelectionModalComponent {
   modalTitle: string = 'Sélection client';
+  customers: ICustomer[];
 
   private activeModal = inject(NgbActiveModal);
 

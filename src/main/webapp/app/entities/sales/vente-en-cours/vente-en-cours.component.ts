@@ -1,21 +1,22 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ISales } from '../../../shared/model';
-import { SalesService } from '../sales.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Select } from 'primeng/select';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ConfigurationService } from '../../../shared/configuration.service';
-import { SalesStatut } from '../../../shared/model';
-import { ButtonGroup } from 'primeng/buttongroup';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {ISales, SalesStatut} from '../../../shared/model';
+import {SalesService} from '../sales.service';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {Router, RouterModule} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {TableModule} from 'primeng/table';
+import {ToolbarModule} from 'primeng/toolbar';
+import {Select} from 'primeng/select';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfigurationService} from '../../../shared/configuration.service';
+import {ButtonGroup} from 'primeng/buttongroup';
 
 @Component({
   selector: 'jhi-vente-en-cours',
@@ -47,6 +48,7 @@ export class VenteEnCoursComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly configService = inject(ConfigurationService);
   private readonly router = inject(Router);
+
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadVentesEnCours();
@@ -60,16 +62,13 @@ export class VenteEnCoursComponent implements OnInit {
   onTypeVenteChange(): void {
     this.loadVentesEnCours();
   }
-  protected openNewSalesHome(): void {
-    this.router.navigate(['/sales-home']);
-  }
 
   loadVentesEnCours(): void {
     this.salesService
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        statut: SalesStatut.ACTIVE,
+        statut: [SalesStatut.ACTIVE],
       })
       .subscribe(res => {
         this.sales = res.body ?? [];
@@ -89,9 +88,14 @@ export class VenteEnCoursComponent implements OnInit {
   confirmRemove(sale: ISales): void {
     this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
+
   navigateToSale(sale: ISales): void {
     this.router.navigate(['/sales-home'], {
-      state: { saleInfo: { saleId: sale.saleId } },
+      state: {saleInfo: {saleId: sale.saleId}},
     });
+  }
+
+  protected openNewSalesHome(): void {
+    this.router.navigate(['/sales-home']);
   }
 }

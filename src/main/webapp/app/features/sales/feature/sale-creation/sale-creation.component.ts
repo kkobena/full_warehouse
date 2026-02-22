@@ -1,13 +1,26 @@
-import { Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { take } from 'rxjs/operators';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TooltipModule } from 'primeng/tooltip';
-import { Toast } from 'primeng/toast';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+  model,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {take} from 'rxjs/operators';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {TooltipModule} from 'primeng/tooltip';
+import {Toast} from 'primeng/toast';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {
+  ConfirmDialogComponent
+} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -16,19 +29,31 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
+import {
+  PaymentCompleteEvent,
+  PaymentModeComponent
+} from '../../ui/payment-mode/payment-mode.component';
 
-import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { AuthorizationService } from '../../data-access/services/authorization.service';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ICustomer, IRemise, ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
-import { IUser } from '../../../../core/user/user.model';
-import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { createDeconditionnementHandling, createForceStockHandling, createKeyboardShortcuts, createPaymentHandling, createProductHandling, ProductSearchHost } from '../../shared/mixins';
-import { SaleForEditInfo } from '../../../../shared/model/sales.model';
+import {
+  CashRegisterFormComponent
+} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {AuthorizationService} from '../../data-access/services/authorization.service';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {ICustomer, IRemise, ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {IUser} from '../../../../core/user/user.model';
+import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import {
+  createDeconditionnementHandling,
+  createForceStockHandling,
+  createKeyboardShortcuts,
+  createPaymentHandling,
+  createProductHandling,
+  ProductSearchHost
+} from '../../shared/mixins';
+import {SaleForEditInfo} from '../../../../shared/model/sales.model';
 
 /**
  * Composant Container : Création de vente (Comptant)
@@ -66,7 +91,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
-    if (!section) return undefined;
+    if (!section) {
+      return undefined;
+    }
     return {
       focusProduitControl: () => section.focusProduitControl(),
       reset: (qty: number) => section.resetQuantity(qty),
@@ -75,37 +102,37 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
-
-  /**
-   * Méthode publique pour mettre le focus sur la recherche produit
-   * Appelée par le composant parent lors du changement de tab
-   */
-  public focusProductSearch(): void {
-    setTimeout(() => {
-      this.productSearchComponent()?.getFocus();
-    }, 100);
-  }
-
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
   cashRegisterOpened = output<void>();
-
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
   readonly isPresale = input(false);
-
+  remises = input<IRemise[]>([]);
+  showStock = input(false);
+  // Local UI state
+  customers = signal<ICustomer[]>([]);
+  selectedLineId = signal<number | null>(null);
+  selectedSaleType = signal<SaleType>('COMPTANT');
+  isDiffere = signal<boolean>(false); // Signal local pour forcer la détection de changement
+  // Monnaie calculée en temps réel depuis le composant payment-mode
+  currentChange = computed(() => {
+    const change = this.paymentMode()?.changeAmount() || 0;
+    return change > 0 ? change : null;
+  });
+  canEditPrice = signal<boolean>(false);
+  // Force Stock state signals
+  waitingForForceStockSuccess = signal<boolean>(false);
+  previousLoadingState = signal<boolean>(false);
+  forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
+  // UI state for sidebar and pending sales
+  sidebarCollapsed = signal(false);
+  pendingSalesSidebar = signal(false);
+  // Vendeur sélectionné
+  selectedSeller = signal<IUser | null>(null);
   // Services
   protected facade = inject(SalesFacade);
-  private authorizationService = inject(AuthorizationService);
-  private notificationService = inject(NotificationService);
-  private customerDisplay = inject(CustomerDisplayService);
-  private modalService = inject(NgbModal);
-  private destroyRef = inject(DestroyRef);
-  private spinner = inject(NgxSpinnerService);
-
-  protected userVendeurService = inject(UserVendeurService);
-
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
   salesLines = this.facade.salesLines;
@@ -114,21 +141,17 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   canSave = this.facade.canSave;
   isSaving = this.facade.isSaving;
   loading = this.facade.loading;
-  remises = input<IRemise[]>([]);
-  showStock = input(false);
-
-  // Local UI state
-  customers = signal<ICustomer[]>([]);
-  selectedLineId = signal<number | null>(null);
-  selectedSaleType = signal<SaleType>('COMPTANT');
-  isDiffere = signal<boolean>(false); // Signal local pour forcer la détection de changement
-
+  protected userVendeurService = inject(UserVendeurService);
+  private authorizationService = inject(AuthorizationService);
+  private notificationService = inject(NotificationService);
+  private customerDisplay = inject(CustomerDisplayService);
+  private modalService = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
+  private spinner = inject(NgxSpinnerService);
   // Événement de paiement en attente (pour flux avoir avec sélection client)
   private pendingPaymentEvent = signal<PaymentCompleteEvent | null>(null);
-
   // Flag pour éviter de réafficher le dialogue avoir après confirmation
   private avoirConfirmed = signal<boolean>(false);
-
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -144,28 +167,14 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     createSale: (line: ISalesLine) => this.facade.createComptant(line),
     addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
   });
-
-  // Monnaie calculée en temps réel depuis le composant payment-mode
-  currentChange = computed(() => {
-    const change = this.paymentMode()?.changeAmount() || 0;
-    return change > 0 ? change : null;
-  });
-  canEditPrice = signal<boolean>(false);
-
   // Computed pour convertir l'input isCashRegisterOpen en Signal<boolean>
   private isCashRegisterOpenSignal = computed(() => this.isCashRegisterOpen() ?? false);
-
-  // Force Stock state signals
-  waitingForForceStockSuccess = signal<boolean>(false);
-  previousLoadingState = signal<boolean>(false);
-  forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
-
   // ===== Force Stock Handling Mixin =====
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
     spinner: this.spinner,
-    config: { saleType: 'COMPTANT' },
+    config: {saleType: 'COMPTANT'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -179,7 +188,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
     },
   });
-
   // ===== Deconditionnement Handling Mixin =====
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
@@ -191,17 +199,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
     },
   });
-
-  // UI state for sidebar and pending sales
-  sidebarCollapsed = signal(false);
-  pendingSalesSidebar = signal(false);
-
-  // Vendeur sélectionné
-  selectedSeller = signal<IUser | null>(null);
-
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcuts = createKeyboardShortcuts(
-    { saleType: 'COMPTANT', isPresale: () => this.isPresale() },
+    {saleType: 'COMPTANT', isPresale: () => this.isPresale()},
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -220,10 +220,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       cancelSale: () => this.onCancel(),
       focusPayment: () => this.paymentMode()?.focusFirstMode(),
       printReceipt: () => this.onPrint(),
-      saveAsPresale: () => this.onSaveAsPresale(),
+      saveAsPresale: () => this.onSaveAsPresale(true),
+      savePresale: () => this.onSaveAsPresale(false),
     },
   );
-
   // ===== Payment Handling Mixin =====
   private paymentHandling = createPaymentHandling({
     facade: this.facade,
@@ -240,7 +240,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     isCashRegisterOpen: this.isCashRegisterOpenSignal,
     getPaymentModeComponent: () => {
       const comp = this.paymentMode();
-      if (!comp) return undefined;
+      if (!comp) {
+        return undefined;
+      }
       // Adapter le type pour le mixin
       return {
         selectedModes: () =>
@@ -267,6 +269,16 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
     this.deconditionnementHandling.initializeEffects();
+  }
+
+  /**
+   * Méthode publique pour mettre le focus sur la recherche produit
+   * Appelée par le composant parent lors du changement de tab
+   */
+  public focusProductSearch(): void {
+    setTimeout(() => {
+      this.productSearchComponent()?.getFocus();
+    }, 100);
   }
 
   ngOnInit(): void {
@@ -356,7 +368,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
    * Si montant = 0 → sauvegarde directe
    */
   onProductSearchEnter(shouldSave: boolean): void {
-    if (!shouldSave) return;
+    if (!shouldSave) {
+      return;
+    }
 
     const currentSale = this.currentSale();
 
@@ -513,49 +527,11 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.validateAndProcessPayment(event);
   }
 
-  /**
-   * Méthode unifiée pour la validation et le traitement du paiement
-   * Gère le flux avoir avec vérification client, puis délègue au mixin paymentHandling
-   * Utilisée par onSave() et onPaymentComplete() pour avoir le même comportement
-   */
-  private validateAndProcessPayment(event: PaymentCompleteEvent): void {
-    // Vérifier si la vente peut être sauvegardée
-    if (!this.paymentHandling.validateSaleForSave()) {
-      return;
-    }
-
-    const isAvoir = this.facade.isAvoir();
-    const hasCustomer = this.facade.hasCustomer();
-
-    // Si c'est un avoir ET pas encore confirmé, afficher un dialogue de confirmation
-    if (isAvoir && !this.avoirConfirmed()) {
-      this.confirmDialog().onConfirm(
-        () => {
-          // Marquer l'avoir comme confirmé pour ne plus afficher le dialogue
-          this.avoirConfirmed.set(true);
-
-          // Après confirmation avoir, vérifier si client associé
-          if (!hasCustomer) {
-            // Stocker l'événement de paiement pour le récupérer après sélection client
-            this.pendingPaymentEvent.set(event);
-            // Ouvrir modal sélection client pour avoir
-            this.openCustomerModal(false);
-          } else {
-            this.paymentHandling.processPayment(event);
-          }
-        },
-        'Avoir détecté',
-        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
-      );
-    } else {
-      // Avoir déjà confirmé ou pas un avoir → traiter directement
-      this.paymentHandling.processPayment(event);
-    }
-  }
-
   finalizeSale(): void {
     const sale = this.facade.currentSale();
-    if (!sale) return;
+    if (!sale) {
+      return;
+    }
 
     // Vérifier si la caisse est ouverte
     if (!this.isCashRegisterOpen()) {
@@ -591,25 +567,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
           // L'erreur est déjà gérée par le facade
         },
       });
-  }
-
-  /**
-   * Callback appelé par le mixin quand une vente différée est confirmée
-   * Gère la sélection client si nécessaire
-   */
-  private handleDiffereConfirmed(): void {
-    const currentSale = this.facade.currentSale();
-    if (!currentSale) return;
-
-    // Vérifier si un client est déjà associé
-    if (!currentSale.customerId) {
-      // Pas de client → Ouvrir modal sélection client
-      this.openCustomerModal(true); // true = pour différé
-    } else {
-      // Client déjà présent, marquer directement en différé
-      currentSale.differe = true;
-      this.isDiffere.set(true); // Mettre à jour le signal pour afficher le champ commentaire
-    }
   }
 
   onSaveAndPrint(): void {
@@ -665,6 +622,192 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       this.resetForNewSale();
     }
   }
+
+  /**
+   * Sauvegarde la vente après confirmation de vente différée
+   * Cette méthode ne repasse pas par processPaymentValidation pour éviter la boucle
+   */
+  onPutOnHold(): void {
+    const sale = this.currentSale();
+    if (!sale || this.salesLines().length === 0) {
+      this.notificationService.warning('Vente vide', 'Ajoutez au moins un produit avant de mettre en attente');
+      return;
+    }
+
+    // Mettre la vente en attente via le facade
+    // Le composant s'abonne déjà à standbySuccess$ dans ngOnInit
+    this.facade.putOnStandby();
+  }
+
+  onSaveAsPresale(transform: boolean = true): void {
+    const sale = this.currentSale();
+    if (!sale) {
+      this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
+      return;
+    }
+    if (this.salesLines().length === 0) {
+      this.notificationService.warning('Ajoutez au moins un produit', 'Vente vide');
+      return;
+    }
+
+    const isAvoir = this.facade.isAvoir();
+    const hasCustomer = this.facade.hasCustomer();
+
+    if (isAvoir && !this.avoirConfirmed()) {
+      this.confirmDialog().onConfirm(
+        () => {
+          this.avoirConfirmed.set(true);
+          if (!hasCustomer) {
+            this.openCustomerModalForPresale();
+          } else {
+            this.doFinalizePresale(transform);
+          }
+        },
+        'Avoir détecté',
+        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
+      );
+    } else {
+      this.doFinalizePresale(transform);
+    }
+  }
+
+  onSaleTypeChange(saleType: SaleType): void {
+    const currentSale = this.currentSale();
+    const hasLines = this.salesLines().length > 0;
+
+    // Si le type de vente change et qu'il y a déjà des lignes, demander confirmation
+    if (hasLines && saleType !== this.selectedSaleType()) {
+      this.confirmDialog().onConfirm(
+        () => this.proceedWithSaleTypeChange(saleType, currentSale),
+        'Changement de type de vente',
+        `Voulez-vous vraiment changer le type de vente vers ${saleType}?\n\nAttention: Les données actuelles seront perdues.`,
+      );
+      return;
+    }
+
+    this.proceedWithSaleTypeChange(saleType, currentSale);
+  }
+
+  openPendingSales(): void {
+    this.pendingSalesSidebar.set(true);
+  }
+
+  onSaleResumed(sale: ISales): void {
+    this.pendingSalesSidebar.set(false);
+    // The sale is already loaded by PendingSalesListComponent via CurrentSaleService
+
+    // Charger les données de la vente en attente
+    this.onLoadPrevente(sale);
+  }
+
+  /**
+   * Charge une vente en attente (prevente)
+   * Restaure l'état de la vente: client, remise, etc.
+   */
+  onLoadPrevente(sale: ISales): void {
+    // La vente est déjà chargée dans le store par le facade
+    // Cette méthode sert à restaurer l'état UI spécifique
+
+    // Si la vente a un client, le charger
+    if (sale.customer) {
+      this.facade.setCustomer(sale.customer);
+    }
+
+    // Si la vente a une remise, l'afficher
+    if (sale.remise) {
+      // La remise est déjà dans la vente, pas besoin de la réappliquer
+      console.log('Remise chargée:', sale.remise);
+    }
+
+    // Restaurer le type de vente si différent
+    if (sale.type && sale.type !== 'VNO') {
+      console.log('Type de vente chargé:', sale.type);
+    } else {
+      // Retour du focus sur le champ produit
+      this.focusProductSearch();
+    }
+  }
+
+  onClosePendingSalesDrawer(): void {
+    this.pendingSalesSidebar.set(false);
+  }
+
+  onSellerChange(seller: IUser): void {
+    this.selectedSeller.set(seller);
+    // Utiliser le facade pour définir le vendeur dans le store centralisé
+    this.facade.setSeller(seller);
+    // Le vendeur sera associé à la vente lors de la sauvegarde
+
+    // Retour du focus sur le champ produit
+    this.focusProductSearch();
+  }
+
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    this.keyboardShortcuts.handleKeyboardEvent(event);
+  }
+
+  /**
+   * Méthode unifiée pour la validation et le traitement du paiement
+   * Gère le flux avoir avec vérification client, puis délègue au mixin paymentHandling
+   * Utilisée par onSave() et onPaymentComplete() pour avoir le même comportement
+   */
+  private validateAndProcessPayment(event: PaymentCompleteEvent): void {
+    // Vérifier si la vente peut être sauvegardée
+    if (!this.paymentHandling.validateSaleForSave()) {
+      return;
+    }
+
+    const isAvoir = this.facade.isAvoir();
+    const hasCustomer = this.facade.hasCustomer();
+
+    // Si c'est un avoir ET pas encore confirmé, afficher un dialogue de confirmation
+    if (isAvoir && !this.avoirConfirmed()) {
+      this.confirmDialog().onConfirm(
+        () => {
+          // Marquer l'avoir comme confirmé pour ne plus afficher le dialogue
+          this.avoirConfirmed.set(true);
+
+          // Après confirmation avoir, vérifier si client associé
+          if (!hasCustomer) {
+            // Stocker l'événement de paiement pour le récupérer après sélection client
+            this.pendingPaymentEvent.set(event);
+            // Ouvrir modal sélection client pour avoir
+            this.openCustomerModal(false);
+          } else {
+            this.paymentHandling.processPayment(event);
+          }
+        },
+        'Avoir détecté',
+        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
+      );
+    } else {
+      // Avoir déjà confirmé ou pas un avoir → traiter directement
+      this.paymentHandling.processPayment(event);
+    }
+  }
+
+  /**
+   * Callback appelé par le mixin quand une vente différée est confirmée
+   * Gère la sélection client si nécessaire
+   */
+  private handleDiffereConfirmed(): void {
+    const currentSale = this.facade.currentSale();
+    if (!currentSale) {
+      return;
+    }
+
+    // Vérifier si un client est déjà associé
+    if (!currentSale.customerId) {
+      // Pas de client → Ouvrir modal sélection client
+      this.openCustomerModal(true); // true = pour différé
+    } else {
+      // Client déjà présent, marquer directement en différé
+      currentSale.differe = true;
+      this.isDiffere.set(true); // Mettre à jour le signal pour afficher le champ commentaire
+    }
+  }
+
+  // ===== Gestion des ventes en attente =====
 
   /**
    * Méthode unifiée pour les avoirs ET les ventes différées
@@ -750,54 +893,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   }
 
   /**
-   * Sauvegarde la vente après confirmation de vente différée
-   * Cette méthode ne repasse pas par processPaymentValidation pour éviter la boucle
-   */
-  onPutOnHold(): void {
-    const sale = this.currentSale();
-    if (!sale || this.salesLines().length === 0) {
-      this.notificationService.warning('Vente vide', 'Ajoutez au moins un produit avant de mettre en attente');
-      return;
-    }
-
-    // Mettre la vente en attente via le facade
-    // Le composant s'abonne déjà à standbySuccess$ dans ngOnInit
-    this.facade.putOnStandby();
-  }
-
-  onSaveAsPresale(): void {
-    const sale = this.currentSale();
-    if (!sale) {
-      this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
-      return;
-    }
-    if (this.salesLines().length === 0) {
-      this.notificationService.warning('Ajoutez au moins un produit', 'Vente vide');
-      return;
-    }
-
-    const isAvoir = this.facade.isAvoir();
-    const hasCustomer = this.facade.hasCustomer();
-
-    if (isAvoir && !this.avoirConfirmed()) {
-      this.confirmDialog().onConfirm(
-        () => {
-          this.avoirConfirmed.set(true);
-          if (!hasCustomer) {
-            this.openCustomerModalForPresale();
-          } else {
-            this.doFinalizePresale();
-          }
-        },
-        'Avoir détecté',
-        'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
-      );
-    } else {
-      this.doFinalizePresale();
-    }
-  }
-
-  /**
    * Ouvre le modal de sélection client pour le flux avoir en mode prévente
    * Après sélection, attend l'association client puis finalise la prévente
    */
@@ -831,12 +926,14 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     );
   }
 
-  private doFinalizePresale(): void {
+  private doFinalizePresale(transform: boolean = true): void {
     const sale = this.currentSale();
-    if (!sale) return;
+    if (!sale) {
+      return;
+    }
 
     this.facade
-      .finalizePresale(sale)
+      .finalizePresale(sale, transform)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: result => {
@@ -873,6 +970,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }, 150);
   }
 
+  // ===== Gestion du vendeur =====
+
   /**
    * Ouvre le modal de formulaire de caisse
    * Utilisé pour enregistrer le montant en caisse avant de finaliser la vente
@@ -888,22 +987,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     });
   }
 
-  onSaleTypeChange(saleType: SaleType): void {
-    const currentSale = this.currentSale();
-    const hasLines = this.salesLines().length > 0;
-
-    // Si le type de vente change et qu'il y a déjà des lignes, demander confirmation
-    if (hasLines && saleType !== this.selectedSaleType()) {
-      this.confirmDialog().onConfirm(
-        () => this.proceedWithSaleTypeChange(saleType, currentSale),
-        'Changement de type de vente',
-        `Voulez-vous vraiment changer le type de vente vers ${saleType}?\n\nAttention: Les données actuelles seront perdues.`,
-      );
-      return;
-    }
-
-    this.proceedWithSaleTypeChange(saleType, currentSale);
-  }
+  // ===== Raccourcis clavier =====
 
   private proceedWithSaleTypeChange(saleType: SaleType, currentSale: any): void {
     // Changer le type sélectionné
@@ -929,69 +1013,5 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
         this.selectedSaleType.set('COMPTANT');
         break;
     }
-  }
-
-  // ===== Gestion des ventes en attente =====
-
-  openPendingSales(): void {
-    this.pendingSalesSidebar.set(true);
-  }
-
-  onSaleResumed(sale: ISales): void {
-    this.pendingSalesSidebar.set(false);
-    // The sale is already loaded by PendingSalesListComponent via CurrentSaleService
-
-    // Charger les données de la vente en attente
-    this.onLoadPrevente(sale);
-  }
-
-  /**
-   * Charge une vente en attente (prevente)
-   * Restaure l'état de la vente: client, remise, etc.
-   */
-  onLoadPrevente(sale: ISales): void {
-    // La vente est déjà chargée dans le store par le facade
-    // Cette méthode sert à restaurer l'état UI spécifique
-
-    // Si la vente a un client, le charger
-    if (sale.customer) {
-      this.facade.setCustomer(sale.customer);
-    }
-
-    // Si la vente a une remise, l'afficher
-    if (sale.remise) {
-      // La remise est déjà dans la vente, pas besoin de la réappliquer
-      console.log('Remise chargée:', sale.remise);
-    }
-
-    // Restaurer le type de vente si différent
-    if (sale.type && sale.type !== 'VNO') {
-      console.log('Type de vente chargé:', sale.type);
-    } else {
-      // Retour du focus sur le champ produit
-      this.focusProductSearch();
-    }
-  }
-
-  onClosePendingSalesDrawer(): void {
-    this.pendingSalesSidebar.set(false);
-  }
-
-  // ===== Gestion du vendeur =====
-
-  onSellerChange(seller: IUser): void {
-    this.selectedSeller.set(seller);
-    // Utiliser le facade pour définir le vendeur dans le store centralisé
-    this.facade.setSeller(seller);
-    // Le vendeur sera associé à la vente lors de la sauvegarde
-
-    // Retour du focus sur le champ produit
-    this.focusProductSearch();
-  }
-
-  // ===== Raccourcis clavier =====
-
-  handleKeyboardEvent(event: KeyboardEvent): void {
-    this.keyboardShortcuts.handleKeyboardEvent(event);
   }
 }

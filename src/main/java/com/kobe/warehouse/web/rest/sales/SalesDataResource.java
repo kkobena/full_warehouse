@@ -8,6 +8,12 @@ import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -21,12 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -47,17 +47,19 @@ public class SalesDataResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/sales/{id}/{saleDate}")
-    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
-
+    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
 
         return ResponseEntity.ok().body(saleDataService.fetchPurchaseBy(id, saleDate));
     }
 
     @GetMapping("/sales/edit/{id}/{saleDate}")
-    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to get Sales : {}", id);
         Optional<SaleDTO> saleDTO = saleDataService.fetchPurchaseForEditBy(id, saleDate);
-        return saleDTO.map(dto -> ResponseEntity.ok().body(dto)).orElseGet(() -> ResponseEntity.ok().build());
+        return saleDTO.map(dto -> ResponseEntity.ok().body(dto))
+            .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @GetMapping("/sales/print/invoice/{id}/{saleDate}")
@@ -74,11 +76,12 @@ public class SalesDataResource {
     public ResponseEntity<List<SaleDTO>> getAllSalesPreventes(
         @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "type", required = false) String typeVente,
-        @RequestParam(name = "statut", required = false,defaultValue = "PENDING") SalesStatut statut,
+        @RequestParam(name = "statut") Set<SalesStatut> statuts,
         @RequestParam(name = "userId", required = false) Integer userId
     ) {
         log.debug("REST request to get a page of Sales");
-        List<SaleDTO> data = saleDataService.allPrevente(search, typeVente, userId,statut);
+        List<SaleDTO> data = saleDataService.allPrevente(search, typeVente, userId, statuts,
+            LocalDate.now(), LocalDate.now());
         return ResponseEntity.ok().body(data);
     }
 
@@ -110,30 +113,35 @@ public class SalesDataResource {
             categorieChiffreAffaires,
             pageable
         );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/re-print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> rePrintCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> rePrintCashReceipt(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> printVoReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> printVoReceipt(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/re-print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> rePrintVoReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> rePrintVoReceipt(@PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
@@ -144,9 +152,11 @@ public class SalesDataResource {
         @PathVariable("saleDate") LocalDate saleDate,
         @RequestParam(value = "isEdition", required = false) boolean isEdition
     ) {
-        log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id, saleDate);
+        log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id,
+            saleDate);
         try {
-            byte[] escPosData = saleDataService.generateEscPosReceipt(new SaleId(id, saleDate), isEdition);
+            byte[] escPosData = saleDataService.generateEscPosReceipt(new SaleId(id, saleDate),
+                isEdition);
             return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
@@ -158,7 +168,24 @@ public class SalesDataResource {
     }
 
     @GetMapping("/sales/vente-en-attente-count")
-    public ResponseEntity<Long> getVenteEnAttenteCount(@RequestParam(name = "userId", required = false) Integer userId) {
+    public ResponseEntity<Long> getVenteEnAttenteCount(
+        @RequestParam(name = "userId", required = false) Integer userId) {
         return ResponseEntity.ok(saleDataService.countPendingSales(userId));
     }
+
+    @GetMapping("/sales/devis")
+    public ResponseEntity<List<SaleDTO>> getAllDevis(
+        @RequestParam(name = "search", required = false) String search,
+        @RequestParam(name = "type", required = false) String typeVente,
+        @RequestParam(name = "statut", required = false, defaultValue = "DEVIS") SalesStatut statut,
+        @RequestParam(name = "userId", required = false) Integer userId,
+        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(name = "toDate", required = false) LocalDate toDate
+    ) {
+        List<SaleDTO> data = saleDataService.allPrevente(search, typeVente, userId, Set.of(statut),
+            Objects.requireNonNullElse(fromDate, LocalDate.now()),
+            Objects.requireNonNullElse(toDate, LocalDate.now()));
+        return ResponseEntity.ok().body(data);
+    }
+
 }

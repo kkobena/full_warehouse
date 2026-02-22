@@ -26,7 +26,8 @@ public interface SaleService {
 
     CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut;
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
+        throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 
@@ -34,7 +35,8 @@ public interface SaleService {
 
     SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto);
 
-    FinalyseSaleDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException;
+    FinalyseSaleDTO save(CashSaleDTO dto)
+        throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException;
 
     /*
     Sauvegarder l etat de la vente
@@ -59,21 +61,24 @@ public interface SaleService {
 
     void removeCustomer(SaleId saleId);
 
-    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
+    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
+        throws PrivilegeException;
 
     void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void removeRemiseFromCashSale(SaleId saleId);
 
-    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
+    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
+        LocalDate saleDate);
 
     void upddateCashSaleAmounts(CashSale c);
 
-    void upddateCashSaleAmountsOnRemovingItem(CashSale c, com.kobe.warehouse.domain.SalesLine saleLine);
+    void upddateCashSaleAmountsOnRemovingItem(CashSale c,
+        com.kobe.warehouse.domain.SalesLine saleLine);
 
-    void savePrevente(CashSaleDTO dto) ;
+    void savePrevente(CashSaleDTO dto, boolean transform);
 
-    void transformDevisToVenteEncour(SaleId saleId);
+    SaleId transformToVenteEncour(SaleId saleId);
 
     void cloneDevis(SaleId saleId);
 }

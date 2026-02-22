@@ -8,31 +8,31 @@
     <!-- Search Section -->
     <div class="search-section">
       <p-iconfield class="search-input-wrapper">
-        <p-inputicon class="pi pi-search"/>
+        <p-inputicon class="pi pi-search" />
         <input #searchInput
                (keydown.enter)="onSearchCustomer()"
                [(ngModel)]="search"
+               [fluid]="true"
                autocomplete="off"
                class="search-input"
                pInputText
-               [fluid]="true"
                placeholder="Rechercher un client..."
-               type="text"/>
+               type="text" />
       </p-iconfield>
       <p-button
         (onClick)="onOpenCustomerList()"
+        [rounded]="true"
         icon="pi pi-list"
         pTooltip="Liste des clients"
         severity="secondary"
-        size="small"
-        [rounded]="true"/>
+        size="small" />
       <p-button
         (onClick)="onAddCustomer()"
+        [rounded]="true"
         icon="pi pi-user-plus"
         pTooltip="Nouveau client"
         severity="success"
-        size="small"
-        [rounded]="true"/>
+        size="small" />
     </div>
 
     <!-- Customer Display - Style compact inline (comme customer-overlay-panel) -->
@@ -43,22 +43,22 @@
           <div class="customer-action-btn">
             <p-button
               (click)="onOpenCustomerList()"
-              pTooltip="Changer le client"
-              tooltipPosition="top"
-              icon="pi pi-pencil"
-              severity="info"
-              size="small"
               [rounded]="true"
-              [text]="true"/>
+              [text]="true"
+              icon="pi pi-times"
+              pTooltip="Changer le client"
+              severity="danger"
+              size="small"
+              tooltipPosition="top" />
             <p-button
               (click)="onEditCustomer()"
-              pTooltip="Modifier le client"
-              tooltipPosition="top"
-              icon="pi pi-user-edit"
-              severity="secondary"
-              size="small"
               [rounded]="true"
-              [text]="true"/>
+              [text]="true"
+              icon="pi pi-user-edit"
+              pTooltip="Modifier le client"
+              severity="info"
+              size="small"
+              tooltipPosition="top" />
           </div>
 
           <!-- Customer Information Display -->
@@ -66,7 +66,8 @@
             <div class="customer-info-row">
               <div class="info-item name-info">
                 <i class="pi pi-user"></i>
-                <span class="info-value">{{ selectedCustomer().firstName }} {{ selectedCustomer().lastName }}</span>
+                <span
+                  class="info-value">{{ selectedCustomer().firstName }} {{ selectedCustomer().lastName }}</span>
               </div>
 
               @if (selectedCustomer().phone) {
@@ -86,16 +87,16 @@
 <!-- 2ème ligne: Recherche produit (ligne entière) -->
 <app-product-search-section
   #produitbox
-  [autofocus]="false"
-  [selectedProduct]="selectedProduct()"
-  [saleType]="'COMPTANT'"
-  [requiresCustomer]="true"
-  [showStock]="showStock()"
-  [hasCustomer]="hasCustomer()"
-  (productSelected)="onProductSelected($event)"
-  (productScanned)="onProductScanned($event)"
+  (addQuantite)="onAddQuantity($event)"
   (onKeyEnter)="onProductSearchEnter($event)"
-  (addQuantite)="onAddQuantity($event)">
+  (productScanned)="onProductScanned($event)"
+  (productSelected)="onProductSelected($event)"
+  [autofocus]="false"
+  [hasCustomer]="hasCustomer()"
+  [requiresCustomer]="true"
+  [saleType]="'COMPTANT'"
+  [selectedProduct]="selectedProduct()"
+  [showStock]="showStock()">
 </app-product-search-section>
 
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
@@ -103,52 +104,52 @@
   <div class="row">
     <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
       <app-product-list
-        [salesLines]="salesLines()"
-        [isEditable]="!isSaving()"
-        [selectedLineId]="selectedLineId()"
-        [saleId]="currentSale()?.id"
-        [saleType]="'COMPTANT'"
-        [remises]="remises()"
-        [currentRemise]="currentSale()?.remise"
-        [showRemiseSection]="true"
-        (quantityChanged)="onLineQuantityChanged($event)"
-        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (authorizationRequired)="onAuthorizationRequired($event)"
         (lineRemoved)="onLineRemoved($event)"
         (lineSelected)="onLineSelected($event)"
-        (authorizationRequired)="onAuthorizationRequired($event)"
+        (quantityChanged)="onLineQuantityChanged($event)"
+        (quantityRequestedChanged)="onLineQuantityRequestedChanged($event)"
+        (remiseActionCancelled)="focusProductSearch()"
         (remiseSelected)="onRemiseSelected($event)"
         (removeRemise)="onRemoveRemise()"
-        (remiseActionCancelled)="focusProductSearch()" />
+        [currentRemise]="currentSale()?.remise"
+        [isEditable]="!isSaving()"
+        [remises]="remises()"
+        [saleId]="currentSale()?.id"
+        [saleType]="'COMPTANT'"
+        [salesLines]="salesLines()"
+        [selectedLineId]="selectedLineId()"
+        [showRemiseSection]="true" />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
       <div class="grid">
         <div class="col-12">
           <app-sale-summary
-            [totalAmount]="currentSale()?.salesAmount || 0"
-            [discountAmount]="currentSale()?.discountAmount || 0"
-            [taxAmount]="currentSale()?.taxAmount || 0"
-            [netAmount]="currentSale()?.netAmount || 0"
             [amountToBePaid]="currentSale()?.amountToBePaid || 0"
-            [itemCount]="salesLines().length"
             [currentRemise]="currentSale()?.remise"
+            [discountAmount]="currentSale()?.discountAmount || 0"
             [isAvoir]="isAvoir()"
-            [saleType]="'COMPTANT'" />
+            [itemCount]="salesLines().length"
+            [netAmount]="currentSale()?.netAmount || 0"
+            [saleType]="'COMPTANT'"
+            [taxAmount]="currentSale()?.taxAmount || 0"
+            [totalAmount]="currentSale()?.salesAmount || 0" />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
-            [saleType]="'COMPTANT'"
-            [canSave]="canSave()"
-            [canSaveAsPresale]="canSave()"
-            [canCancel]="true"
-            [isSaving]="isSaving()"
-            [isPresale]="true"
-            [isDevis]="true"
-            [isSmallScreen]="isSmallScreen()"
-            (save)="onSaveAsDevis()"
+            (cancel)="onCancel()"
             (putOnHold)="onPutOnHold()"
+            (save)="onSaveAsDevis()"
             (saveAsPresale)="onSaveAsDevis()"
-            (cancel)="onCancel()" />
+            [canCancel]="true"
+            [canSaveAsPresale]="canSave()"
+            [canSave]="canSave()"
+            [isDevis]="true"
+            [isPresale]="false"
+            [isSaving]="isSaving()"
+            [isSmallScreen]="isSmallScreen()"
+            [saleType]="'COMPTANT'" />
         </div>
       </div>
     </div>
@@ -168,4 +169,5 @@
 <!-- Confirm Dialog -->
 <jhi-confirm-dialog #confirmDialog />
 <!-- Spinner global -->
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner"
+             size="medium" type="timer"></ngx-spinner>

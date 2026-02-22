@@ -17,6 +17,7 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -512,20 +513,35 @@ public class SaleCommonService {
         this.buildReference(c);
     }
 
-    protected void preValidatePrevente(Sales c) throws GenericError, SaleNotFoundCustomerException {
+    protected void preValidatePrevente(Sales c, SalesStatut salesStatut)
+        throws GenericError, SaleNotFoundCustomerException {
         Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING,
             SalesStatut.DEVIS);
         if (!statuts.contains(c.getStatut())) {
             throw new GenericError("La vente ne peut pas être finalisée dans son état actuel");
         }
         if (SalesStatut.DEVIS != c.getStatut()) {
-            c.setStatut(SalesStatut.ACTIVE);
+            c.setStatut(salesStatut);
         }
         if (SalesStatut.DEVIS == c.getStatut()) {
             if (isNull(c.getCustomer())) {
                 throw new SaleNotFoundCustomerException();
             }
         }
+
+    }
+
+
+    protected void preValidateTrasnform(SalesStatut salesStatut, NatureVente natureVente)
+        throws GenericError, SaleNotFoundCustomerException {
+        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING,
+            SalesStatut.DEVIS);
+        Set<NatureVente> natureVentes = Set.of(NatureVente.COMPTANT,
+            NatureVente.CARNET);
+        if (!statuts.contains(salesStatut) || !natureVentes.contains(natureVente)) {
+            throw new GenericError("Impossible de transformer la vente");
+        }
+
 
     }
 }

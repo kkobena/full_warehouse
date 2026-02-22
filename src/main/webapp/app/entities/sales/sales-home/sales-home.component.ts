@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { SalesComponent } from '../sales.component';
 import { PresaleComponent } from '../presale/presale.component';
 import { VenteEnCoursComponent } from '../vente-en-cours/vente-en-cours.component';
+import { DevisListComponent } from '../devis-list/devis-list.component';
 import { CardModule } from 'primeng/card';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { NgbNav, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -11,7 +12,7 @@ import { SaleToolBarService } from '../service/sale-tool-bar.service';
 
 @Component({
   selector: 'jhi-sales-home',
-  imports: [WarehouseCommonModule, CardModule, NgbNav, FormsModule, RouterModule, SalesComponent, PresaleComponent, VenteEnCoursComponent],
+  imports: [WarehouseCommonModule, CardModule, NgbNav, FormsModule, RouterModule, SalesComponent, PresaleComponent, VenteEnCoursComponent, DevisListComponent],
   templateUrl: './sales-home.component.html',
   styleUrl: './sales-home.component.scss',
 })

@@ -11,13 +11,13 @@
   signal,
   viewChild
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { Drawer } from 'primeng/drawer';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {Button} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
+import {Drawer} from 'primeng/drawer';
 import {
   NgbNav,
   NgbNavChangeEvent,
@@ -26,35 +26,35 @@ import {
   NgbNavLink,
   NgbNavOutlet
 } from '@ng-bootstrap/ng-bootstrap';
-import { Select } from 'primeng/select';
-import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
-import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
-import { SaleCarnetComponent } from '../sale-carnet/sale-carnet.component';
-import { SaleDevisComponent } from '../sale-devis/sale-devis.component';
-import { CustomerOverlayPanelComponent, PendingSalesListComponent } from '../../ui';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
-import { IUser } from '../../../../core/user/user.model';
+import {Select} from 'primeng/select';
+import {SaleCreationComponent} from '../sale-creation/sale-creation.component';
+import {SaleAssuranceComponent} from '../sale-assurance/sale-assurance.component';
+import {SaleCarnetComponent} from '../sale-carnet/sale-carnet.component';
+import {SaleDevisComponent} from '../sale-devis/sale-devis.component';
+import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
+import {IUser} from '../../../../core/user/user.model';
 import {
   ConfirmDialogComponent
 } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
-import { AccountService } from '../../../../core/auth/account.service';
-import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
-import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
-import { SalesApiService } from '../../data-access/services/sales-api.service';
-import { finalize, interval } from 'rxjs';
-import { ProduitSearch, SalesStatut } from '../../../../shared/model';
-import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
-import { GlobalScannerService } from '../../../../shared/global-scanner.service';
-import { ProduitService } from '../../../../entities/produit/produit.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ScanAudioFeedbackService } from '../../../../shared/services/scan-audio-feedback.service';
-import { getNavChangeMessage, SaleType } from '../../../../entities/sales/selling-home/sale-helper';
-import { TranslateService } from '@ngx-translate/core';
-import { AuthorizationService } from '../../data-access/services/authorization.service';
+import {ToastAlertComponent} from '../../../../shared/toast-alert/toast-alert.component';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {MagasinService} from '../../../../entities/magasin/magasin.service';
+import {AccountService} from '../../../../core/auth/account.service';
+import {CashRegisterService} from '../../../../entities/cash-register/cash-register.service';
+import {RemiseCacheService} from '../../data-access/services/remise-cache.service';
+import {SalesApiService} from '../../data-access/services/sales-api.service';
+import {finalize, interval} from 'rxjs';
+import {ProduitSearch, SalesStatut} from '../../../../shared/model';
+import {SaleForEditInfo, SaleId} from '../../../../shared/model/sales.model';
+import {GlobalScannerService} from '../../../../shared/global-scanner.service';
+import {ProduitService} from '../../../../entities/produit/produit.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
+import {getNavChangeMessage, SaleType} from '../../../../entities/sales/selling-home/sale-helper';
+import {TranslateService} from '@ngx-translate/core';
+import {AuthorizationService} from '../../data-access/services/authorization.service';
 
 @Component({
   selector: 'app-sales-home',
@@ -113,7 +113,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   // Responsive state - passé aux composants enfants
   protected isSmallScreen = signal(false);
   protected isCashRegisterOpen = signal(false);
-  protected  showTheme = signal(false);
+  protected showTheme = signal(false);
   protected devisThemeClass = computed(() => this.isDevisMode() ? `devis-mode-${this.devisTheme()}` : '');
   private router = inject(Router);
   private readonly apiService = inject(SalesApiService);
@@ -231,6 +231,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.apiService
       .countPendingSales({
         userId: this.salesFacade.cashier()?.id,
+        statut: [SalesStatut.ACTIVE]
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(resp => this.countPendingSales.set(resp?.body?.toString() ?? '0'));
@@ -319,7 +320,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     const fromTab = this.active();
     const toTab = evt.nextId;
     const currentSale = this.salesFacade.currentSale();
-    if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
+    const asCurrentSale = currentSale && currentSale.salesLines && currentSale.salesLines.length > 0;
+    if (!this.isDevisMode() && asCurrentSale) {
       evt.preventDefault();
       this.confirmDialog().onConfirm(
         () => {
@@ -331,13 +333,22 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         this.getMessateOnNavChange(evt),
       );
     } else {
-      this.salesFacade.setSelectedCustomer(null);
-      this.active.set(toTab);
-      this.focusActiveTab();
+      if (asCurrentSale) {
+        evt.preventDefault();
+        this.confirmDialog().onConfirm(
+          () => {
+            this.salesFacade.resetCurrentSale();
+            this.goToNextTab(toTab);
+          },
+          'Changement de type de vente',
+          'La proforma en cours sera perdue. Souhaitez-vous continuer ?'
+        );
+      } else {
+        this.goToNextTab(toTab);
+      }
+
     }
   }
-
-  // ===== Transitions entre onglets =====
 
   protected onSelectUser(): void {
     const seller = this.userSeller();
@@ -345,6 +356,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       this.salesFacade.setSeller(seller);
     }
   }
+
+  // ===== Transitions entre onglets =====
 
   protected toggleSidebar(): void {
     this.sidebarCollapsed.update(collapsed => !collapsed);
@@ -374,6 +387,12 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     } else {
       this.active.set('comptant');
     }
+  }
+
+  private goToNextTab(toTab: any): void {
+    this.salesFacade.setSelectedCustomer(null);
+    this.active.set(toTab);
+    this.focusActiveTab();
   }
 
   private checkScreenSize(): void {
@@ -549,7 +568,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    */
   private switchToTab(tab: string): void {
     const fromTab = this.active();
-    if (tab === fromTab) return;
+    if (tab === fromTab) {
+      return;
+    }
 
     const currentSale = this.salesFacade.currentSale();
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {

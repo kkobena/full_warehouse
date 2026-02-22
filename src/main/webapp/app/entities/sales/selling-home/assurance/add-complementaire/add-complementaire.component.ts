@@ -1,20 +1,37 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild } from '@angular/core';
-import { ClientTiersPayant, IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
-import { ICustomer } from '../../../../../shared/model/customer.model';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { ToastModule } from 'primeng/toast';
-import { ButtonModule } from 'primeng/button';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Select, SelectModule } from 'primeng/select';
-import { Card } from 'primeng/card';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { CustomerService } from '../../../../customer/customer.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import {
+  ClientTiersPayant,
+  IClientTiersPayant
+} from '../../../../../shared/model/client-tiers-payant.model';
+import {ICustomer} from '../../../../../shared/model';
+import {
+  FormBuilder,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import {InputMaskModule} from 'primeng/inputmask';
+import {InputTextModule} from 'primeng/inputtext';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {ToastModule} from 'primeng/toast';
+import {ButtonModule} from 'primeng/button';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {Select, SelectModule} from 'primeng/select';
+import {Card} from 'primeng/card';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {CustomerService} from '../../../../customer/customer.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-add-complementaire',
@@ -107,7 +124,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
     if (this.selectedTiersPayant) {
       // Store original state for change detection
-      this.originalTiersPayant = { ...this.selectedTiersPayant };
+      this.originalTiersPayant = {...this.selectedTiersPayant};
       this.updateForm(this.selectedTiersPayant);
 
       // Show priorite switch if priorite is not 0, but keep it unchecked by default

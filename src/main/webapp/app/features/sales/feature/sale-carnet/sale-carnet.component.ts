@@ -136,15 +136,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   customers = signal<ICustomer[]>([]);
   isDiffere = signal<boolean>(false);
-  // Computed signals
-  readonly canSave = computed(() => {
-    const sale = this.currentSale();
-    const lines = this.salesLines();
-    const customer = this.selectedCustomer();
-    return !!sale && lines.length > 0 && !!customer && !this.isSaving();
-  });
-  // Helper method pour savoir si un client est sélectionné
-  hasCustomer = computed(() => !!this.selectedCustomer());
   // Monnaie calculée en temps réel depuis le composant payment-mode
   currentChange = computed(() => {
     const change = this.paymentModeComponent()?.changeAmount() || 0;
@@ -156,9 +147,18 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly currentSale = this.facade.currentSale;
   readonly salesLines = this.facade.salesLines;
   readonly selectedCustomer = this.facade.selectedCustomer;
+  // Helper method pour savoir si un client est sélectionné
+  hasCustomer = computed(() => !!this.selectedCustomer());
   readonly selectedProduct = this.facade.selectedProduct;
   readonly loading = this.facade.loading;
   readonly isSaving = this.facade.isSaving;
+  // Computed signals
+  readonly canSave = computed(() => {
+    const sale = this.currentSale();
+    const lines = this.salesLines();
+    const customer = this.selectedCustomer();
+    return !!sale && lines.length > 0 && !!customer && !this.isSaving();
+  });
   readonly plafondIsReached = this.facade.plafondIsReached;
   readonly isAvoir = this.facade.isAvoir;
   private authorizationService = inject(AuthorizationService);
@@ -370,6 +370,15 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
+    });
+    this.facade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
+        const updatedTiersPayants = currentSale.tiersPayants || [];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+
+      }
     });
   }
 

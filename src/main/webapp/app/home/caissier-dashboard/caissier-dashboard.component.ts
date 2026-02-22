@@ -1,45 +1,45 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {HttpResponse} from '@angular/common/http';
+import {Router} from '@angular/router';
 
-import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { BadgeModule } from 'primeng/badge';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import {TableModule} from 'primeng/table';
+import {ChartModule} from 'primeng/chart';
+import {ButtonModule} from 'primeng/button';
+import {CardModule} from 'primeng/card';
+import {BadgeModule} from 'primeng/badge';
+import {TooltipModule} from 'primeng/tooltip';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {TagModule} from 'primeng/tag';
+import {ToastModule} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {
   faCashRegister,
-  faMoneyBillWave,
   faChartLine,
-  faSync,
-  faFileExport,
-  faShoppingCart,
-  faUsers,
   faClock,
   faExclamationTriangle,
-  faStar,
+  faFileExport,
+  faMoneyBillWave,
   faPrint,
+  faShoppingCart,
+  faStar,
+  faSync,
+  faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { CaissierDashboardService } from './caissier-dashboard.service';
+import {CaissierDashboardService} from './caissier-dashboard.service';
 import {
-  ICaissierDashboard,
-  IVentesJour,
-  ICaisseStatus,
-  IStatistiquesRapides,
-  IVenteRecente,
-  ITopProduit,
-  IPerformanceVendeur,
   IAlerteCaisse,
+  ICaisseStatus,
+  ICaissierDashboard,
+  IPerformanceVendeur,
+  IStatistiquesRapides,
+  ITopProduit,
+  IVenteRecente,
+  IVentesJour,
 } from './caissier-dashboard.model';
 
 @Component({
@@ -63,11 +63,6 @@ import {
   styleUrls: ['./caissier-dashboard.component.scss'],
 })
 export class CaissierDashboardComponent implements OnInit {
-  // Services
-  private dashboardService = inject(CaissierDashboardService);
-  private messageService = inject(MessageService);
-  private router = inject(Router);
-
   // Font Awesome icons
   faCashRegister = faCashRegister;
   faMoneyBillWave = faMoneyBillWave;
@@ -80,7 +75,6 @@ export class CaissierDashboardComponent implements OnInit {
   faExclamationTriangle = faExclamationTriangle;
   faStar = faStar;
   faPrint = faPrint;
-
   // Signals pour les données
   protected ventesJour = signal<IVentesJour | null>(null);
   protected caisseStatus = signal<ICaisseStatus | null>(null);
@@ -91,26 +85,26 @@ export class CaissierDashboardComponent implements OnInit {
   protected alertes = signal<IAlerteCaisse[]>([]);
   protected isLoading = signal<boolean>(false);
   protected lastRefresh = signal<Date | null>(null);
-
   // Computed signals
   protected totalAlertes = computed(() => {
     return this.alertes().filter(a => a.type === 'URGENT' || a.type === 'ATTENTION').length;
   });
-
   protected isCaisseOuverte = computed(() => {
     return this.caisseStatus()?.etat === 'OUVERTE';
   });
-
   protected objectifAtteint = computed(() => {
     const ventes = this.ventesJour();
-    if (!ventes?.objectifJour) return false;
+    if (!ventes?.objectifJour) {
+      return false;
+    }
     return (ventes.tauxAtteinte || 0) >= 100;
   });
-
   // Chart data
   protected repartitionPaiementsData = computed(() => {
     const ventes = this.ventesJour();
-    if (!ventes) return null;
+    if (!ventes) {
+      return null;
+    }
 
     return {
       labels: ['Espèces', 'CB', 'Chèque', 'Mobile Money', 'Virement', 'Assurance'],
@@ -131,7 +125,6 @@ export class CaissierDashboardComponent implements OnInit {
       ],
     };
   });
-
   protected chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -140,11 +133,15 @@ export class CaissierDashboardComponent implements OnInit {
         position: 'bottom',
         labels: {
           color: '#cbd5e1',
-          font: { size: 12 },
+          font: {size: 12},
         },
       },
     },
   };
+  // Services
+  private dashboardService = inject(CaissierDashboardService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -160,10 +157,18 @@ export class CaissierDashboardComponent implements OnInit {
           this.ventesJour.set(data.ventesJour);
           this.caisseStatus.set(data.caisseStatus);
           this.statistiquesRapides.set(data.statistiquesRapides);
-          if (data.ventesRecentes) this.ventesRecentes.set(data.ventesRecentes);
-          if (data.topProduits) this.topProduits.set(data.topProduits);
-          if (data.performanceVendeurs) this.performanceVendeurs.set(data.performanceVendeurs);
-          if (data.alertes) this.alertes.set(data.alertes);
+          if (data.ventesRecentes) {
+            this.ventesRecentes.set(data.ventesRecentes);
+          }
+          if (data.topProduits) {
+            this.topProduits.set(data.topProduits);
+          }
+          if (data.performanceVendeurs) {
+            this.performanceVendeurs.set(data.performanceVendeurs);
+          }
+          if (data.alertes) {
+            this.alertes.set(data.alertes);
+          }
         }
         this.lastRefresh.set(new Date());
         this.isLoading.set(false);
@@ -205,7 +210,7 @@ export class CaissierDashboardComponent implements OnInit {
   }
 
   protected formatCurrency(value: number): string {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(value);
+    return new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'XOF'}).format(value);
   }
 
   protected formatNumber(value: number): string {
@@ -214,7 +219,7 @@ export class CaissierDashboardComponent implements OnInit {
 
   // Quick Actions Methods
   protected nouvelleVente(): void {
-    this.router.navigate(['/sales/new']);
+    this.router.navigate(['/sales-home']);
   }
 
   protected ouvrirCaisse(): void {
@@ -226,7 +231,7 @@ export class CaissierDashboardComponent implements OnInit {
     this.dashboardService.imprimerRapportCaisse().subscribe({
       next: res => {
         if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
+          const blob = new Blob([res.body], {type: 'application/pdf'});
           const url = window.URL.createObjectURL(blob);
           window.open(url);
           this.messageService.add({

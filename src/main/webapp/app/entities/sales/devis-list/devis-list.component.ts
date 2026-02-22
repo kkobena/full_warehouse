@@ -16,7 +16,6 @@ import {
   ConfirmDialogComponent
 } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {ButtonGroup} from 'primeng/buttongroup';
-import {saveAs} from 'file-saver';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
@@ -25,6 +24,8 @@ import {FloatLabel} from "primeng/floatlabel";
 import {DatePipe} from "@angular/common";
 import {HttpResponse} from "@angular/common/http";
 import {SaleId} from "../../../shared/model/sales.model";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 @Component({
   selector: 'jhi-devis-list',
@@ -61,6 +62,7 @@ export class DevisListComponent implements OnInit {
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   private readonly salesService = inject(SalesService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly router = inject(Router);
   private readonly spinner = inject(NgxSpinnerService);
@@ -201,26 +203,21 @@ export class DevisListComponent implements OnInit {
     });
   }
 
-  printDevisPdf(sale: ISales): void {
-    if (!sale.saleId) {
+
+  protected printDevisPdf(sales: ISales): void {
+    if (!sales.saleId) {
       return;
     }
-
     this.spinner.show('devis-spinner');
-    this.salesService.printDevisPdf(sale.saleId).subscribe({
-      next: (blob: Blob) => {
+    this.salesService.printInvoice(sales.saleId).subscribe({
+      next: (blob) => {
         this.spinner.hide('devis-spinner');
-        const fileName = `devis_${sale.numberTransaction}.pdf`;
-        saveAs(blob, fileName);
-      },
-      error: () => {
-        this.spinner.hide('devis-spinner');
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Une erreur est survenue lors de l'impression",
-        });
-      },
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, `devis_${sales.numberTransaction}`);
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
+      }, error: () => this.spinner.hide('devis-spinner')
     });
   }
 

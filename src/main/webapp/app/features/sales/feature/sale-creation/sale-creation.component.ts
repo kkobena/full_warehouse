@@ -325,7 +325,9 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.resetForNewSale();
     });
-
+    this.facade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.productHandling.focusProductSearch();
+    });
     // Initialiser le vendeur avec celui du store
     const currentSeller = this.facade.seller();
     if (currentSeller) {

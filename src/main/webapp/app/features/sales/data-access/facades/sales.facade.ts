@@ -346,6 +346,8 @@ export class SalesFacade {
   readonly tiersPayantAddedSuccess$ = this.tiersPayantAddedSuccessSubject.asObservable();
   private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
   readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
+  //private readonly cashSaleTransformedSubject = new Subject<'ASSURANCE' | 'CARNET'>();
+  // readonly cashSaleTransformed$ = this.cashSaleTransformedSubject.asObservable();
   /**
    * Load sale for editing
    * Uniquement pour modification  d'une vente cloturée
@@ -433,7 +435,7 @@ export class SalesFacade {
               this.store.setSeller(sale.seller);
             }
 
-            console.error('store', this.store.currentSale());
+
             this.resumePendingSaleSuccessSubject.next();
 
           } else {
@@ -453,8 +455,7 @@ export class SalesFacade {
       }),
     ),
   );
-  private readonly cashSaleTransformedSubject = new Subject<'ASSURANCE' | 'CARNET'>();
-  readonly cashSaleTransformed$ = this.cashSaleTransformedSubject.asObservable();
+
 
   /**
    * Transforme une vente comptant (VNO) en vente ASSURANCE.

@@ -1,31 +1,32 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ErrorService } from '../../../shared/error.service';
-import { MessageService } from 'primeng/api';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { DividerModule } from 'primeng/divider';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { InputMaskModule } from 'primeng/inputmask';
-import { ClientTiersPayant, IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { Observable, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { CustomerService } from '../customer.service';
-import { HttpResponse } from '@angular/common/http';
-import { Card } from 'primeng/card';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {ErrorService} from '../../../shared/error.service';
+import {MessageService} from 'primeng/api';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ToastModule} from 'primeng/toast';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import {DividerModule} from 'primeng/divider';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {InputMaskModule} from 'primeng/inputmask';
+import {
+  ClientTiersPayant,
+  IClientTiersPayant
+} from '../../../shared/model/client-tiers-payant.model';
+import {ICustomer, ITiersPayant} from '../../../shared/model';
+import {Observable, Subject} from 'rxjs';
+import {finalize, takeUntil} from 'rxjs/operators';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {CustomerService} from '../customer.service';
+import {HttpResponse} from '@angular/common/http';
+import {Card} from 'primeng/card';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-customer-tiers-payant',
@@ -34,7 +35,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     WarehouseCommonModule,
     ToastModule,
     FormsModule,
-    NgSelectModule,
     ButtonModule,
     RippleModule,
     ConfirmDialogModule,
@@ -120,7 +120,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+          this.tiersPayants.push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
         }
       });
   }

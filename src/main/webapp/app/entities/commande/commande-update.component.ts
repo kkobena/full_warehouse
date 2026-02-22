@@ -1,64 +1,69 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
-import { Commande, ICommande } from 'app/shared/model/commande.model';
-import { CommandeService } from './commande.service';
-import { ProduitService } from '../produit/produit.service';
-import { IProduit } from 'app/shared/model/produit.model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
-import { IFournisseur } from '../../shared/model/fournisseur.model';
-import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
-import { MenuItem } from 'primeng/api';
-import { ErrorService } from '../../shared/error.service';
-import { saveAs } from 'file-saver';
-import { IResponseCommande } from '../../shared/model/response-commande.model';
-import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TableModule } from 'primeng/table';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { FileUploadModule } from 'primeng/fileupload';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { CommandCommonService } from './command-common.service';
-import { SelectModule } from 'primeng/select';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { SORT } from '../../shared/util/command-item-sort';
-import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
-import { DeliveryService } from './delevery/delivery.service';
-import { OrderLineLotsComponent } from './lot/order-line-lots.component';
-import { ButtonGroup } from 'primeng/buttongroup';
-import { ListLotComponent } from './lot/list/list-lot.component';
-import { FormLotComponent } from './lot/form-lot.component';
-import { OrderStatut } from '../../shared/model/enumerations/order-statut.model';
-import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
-import { FloatLabel } from 'primeng/floatlabel';
-import { Params } from '../../shared/model/enumerations/params.model';
-import { ConfigurationService } from '../../shared/configuration.service';
-import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
-import { SpinnerComponent } from '../../shared/spinner/spinner.component';
-import { CommandeId } from '../../shared/model/abstract-commande.model';
-import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../shared/util/tauri-util';
-import { finalize } from 'rxjs/operators';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {Observable} from 'rxjs';
+import {Commande, ICommande} from 'app/shared/model/commande.model';
+import {CommandeService} from './commande.service';
+import {ProduitService} from '../produit/produit.service';
+import {IProduit} from 'app/shared/model/produit.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AlertInfoComponent} from 'app/shared/alert/alert-info.component';
+import {IFournisseur} from '../../shared/model/fournisseur.model';
+import {FournisseurService} from '../fournisseur/fournisseur.service';
+import {IOrderLine, OrderLine} from '../../shared/model/order-line.model';
+import {MenuItem} from 'primeng/api';
+import {ErrorService} from '../../shared/error.service';
+import {saveAs} from 'file-saver';
+import {IResponseCommande} from '../../shared/model/response-commande.model';
+import {
+  CommandeEnCoursResponseDialogComponent
+} from './commande-en-cours-response-dialog.component';
+import {
+  APPEND_TO,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_NOT_FOUND
+} from '../../shared/constants/pagination.constants';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {InputTextModule} from 'primeng/inputtext';
+import {TagModule} from 'primeng/tag';
+import {TableModule} from 'primeng/table';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {FileUploadModule} from 'primeng/fileupload';
+import {ToolbarModule} from 'primeng/toolbar';
+import {TooltipModule} from 'primeng/tooltip';
+import {CommandCommonService} from './command-common.service';
+import {SelectModule} from 'primeng/select';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {SORT} from '../../shared/util/command-item-sort';
+import {DeliveryModalComponent} from './delevery/form/delivery-modal.component';
+import {DeliveryService} from './delevery/delivery.service';
+import {OrderLineLotsComponent} from './lot/order-line-lots.component';
+import {ButtonGroup} from 'primeng/buttongroup';
+import {ListLotComponent} from './lot/list/list-lot.component';
+import {FormLotComponent} from './lot/form-lot.component';
+import {OrderStatut} from '../../shared/model/enumerations/order-statut.model';
+import {EtiquetteComponent} from './delevery/etiquette/etiquette.component';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Params} from '../../shared/model/enumerations/params.model';
+import {ConfigurationService} from '../../shared/configuration.service';
+import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.component';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {ConfirmDialogComponent} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ToastAlertComponent} from '../../shared/toast-alert/toast-alert.component';
+import {FileResponseModalComponent} from './file-response-modal/file-response-modal.component';
+import {SpinnerComponent} from '../../shared/spinner/spinner.component';
+import {CommandeId} from '../../shared/model/abstract-commande.model';
+import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
+import {handleBlobForTauri} from '../../shared/util/tauri-util';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -67,7 +72,6 @@ import { finalize } from 'rxjs/operators';
   imports: [
     WarehouseCommonModule,
     FormsModule,
-    NgSelectModule,
     ButtonModule,
     RippleModule,
     InputTextModule,
@@ -132,12 +136,13 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly tauriPrinterService = inject(TauriPrinterService);
+
   constructor() {
     this.selectedEl = [];
     this.filtres = [
-      { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
-      { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
-      { label: 'Tous', value: 'ALL' },
+      {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
+      {label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP'},
+      {label: 'Tous', value: 'ALL'},
     ];
     this.commandebuttons = [
       {
@@ -170,7 +175,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ commande }) => {
+    this.activatedRoute.data.subscribe(({commande}) => {
       if (commande?.id) {
         this.commande = commande;
         this.orderLines = this.commande.orderLines;
@@ -190,7 +195,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   openDialog(message: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static' });
+    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static'});
     modalRef.componentInstance.message = message;
   }
 
@@ -318,7 +323,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   protected deleteSelectedOrderLine(): void {
     const ids = this.selectedEl.map(e => {
-      return { id: e.id, orderDate: e.orderDate };
+      return {id: e.id, orderDate: e.orderDate};
     });
     this.commandeService.deleteOrderLinesByIds(this.commande.commandeId, ids).subscribe(() => {
       this.refreshCommande();
@@ -630,7 +635,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.produits = data || [];
   }
 
-  private onError(): void {}
+  private onError(): void {
+  }
 
   private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
@@ -652,9 +658,9 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         this.commande?.id !== undefined
           ? this.commande
           : {
-              ...new Commande(),
-              fournisseurId: this.selectedProvider,
-            },
+            ...new Commande(),
+            fournisseurId: this.selectedProvider,
+          },
       quantityRequested,
     };
   }

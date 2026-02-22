@@ -1,27 +1,28 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ErrorService } from 'app/shared/error.service';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
-import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { ITiersPayant, ModelFacture, TiersPayant } from 'app/shared/model/tierspayant.model';
-import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
-import { HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { ToastModule } from 'primeng/toast';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { Select } from 'primeng/select';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { InputNumber } from 'primeng/inputnumber';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Card } from 'primeng/card';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {ErrorService} from 'app/shared/error.service';
+import {DynamicDialogModule} from 'primeng/dynamicdialog';
+import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
+import {
+  GroupeTiersPayantService
+} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import {ITiersPayant, ModelFacture, TiersPayant} from 'app/shared/model/tierspayant.model';
+import {IGroupeTiersPayant} from 'app/shared/model/groupe-tierspayant.model';
+import {HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {RippleModule} from 'primeng/ripple';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {ToastModule} from 'primeng/toast';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {Select} from 'primeng/select';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {InputNumber} from 'primeng/inputnumber';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastAlertComponent} from '../../../shared/toast-alert/toast-alert.component';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
@@ -35,7 +36,6 @@ import { Card } from 'primeng/card';
     InputTextModule,
     RippleModule,
     DynamicDialogModule,
-    NgSelectModule,
     KeyFilterModule,
     ToastModule,
     AutoCompleteModule,
@@ -99,7 +99,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {
-    return await this.groupeTiersPayantService.queryPromise({ search: '' });
+    return await this.groupeTiersPayantService.queryPromise({search: ''});
   }
 
   loadModelFacture(): void {

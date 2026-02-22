@@ -62,7 +62,6 @@
     "@fortawesome/fontawesome-svg-core": "7.2.0",
     "@fortawesome/free-solid-svg-icons": "7.2.0",
     "@ng-bootstrap/ng-bootstrap": "20.0.0",
-    "@ng-select/ng-select": "21.4.0",
     "@ngrx/signals": "^21.0.1",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",

@@ -150,14 +150,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
-  // Computed pour savoir si la vente peut être sauvegardée (spécifique ASSURANCE)
-  canSave = computed(() => {
-    const sale = this.currentSale();
-    const lines = this.salesLines();
-    const customer = this.selectedCustomer();
-    const tiersPayants = sale?.tiersPayants || [];
-    return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
-  });
   protected userVendeurService = inject(UserVendeurService);
   private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   // Services
@@ -176,6 +168,14 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   hasCustomer = this.facade.hasCustomer;
   isAvoir = this.facade.isAvoir;
   isSaving = this.facade.isSaving;
+  // Computed pour savoir si la vente peut être sauvegardée (spécifique ASSURANCE)
+  canSave = computed(() => {
+    const sale = this.currentSale();
+    const lines = this.salesLines();
+    const customer = this.selectedCustomer();
+    const tiersPayants = sale?.tiersPayants || [];
+    return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
+  });
   loading = this.facade.loading;
   cashier = this.facade.cashier;
   seller = this.facade.seller;
@@ -401,6 +401,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
         const updatedTiersPayants = currentSale.tiersPayants || [];
         this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+        setTimeout(() => {
+          this.productHandling.focusProductSearch();
+        }, 200);
+        // this.productHandling.focusProductSearch();
 
       }
     });

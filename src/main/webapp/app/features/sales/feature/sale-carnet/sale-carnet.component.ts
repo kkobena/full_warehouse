@@ -141,17 +141,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  // Services
-  private facade = inject(SalesFacade);
-  readonly currentSale = this.facade.currentSale;
-  readonly salesLines = this.facade.salesLines;
-  readonly selectedCustomer = this.facade.selectedCustomer;
   // Helper method pour savoir si un client est sélectionné
   hasCustomer = computed(() => !!this.selectedCustomer());
-  readonly selectedProduct = this.facade.selectedProduct;
-  readonly loading = this.facade.loading;
-  readonly isSaving = this.facade.isSaving;
   // Computed signals
   readonly canSave = computed(() => {
     const sale = this.currentSale();
@@ -159,6 +150,15 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     const customer = this.selectedCustomer();
     return !!sale && lines.length > 0 && !!customer && !this.isSaving();
   });
+  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  // Services
+  private facade = inject(SalesFacade);
+  readonly currentSale = this.facade.currentSale;
+  readonly salesLines = this.facade.salesLines;
+  readonly selectedCustomer = this.facade.selectedCustomer;
+  readonly selectedProduct = this.facade.selectedProduct;
+  readonly loading = this.facade.loading;
+  readonly isSaving = this.facade.isSaving;
   readonly plafondIsReached = this.facade.plafondIsReached;
   readonly isAvoir = this.facade.isAvoir;
   private authorizationService = inject(AuthorizationService);
@@ -377,7 +377,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
         const updatedTiersPayants = currentSale.tiersPayants || [];
         this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
-
+        setTimeout(() => {
+          this.productHandling.focusProductSearch();
+        }, 200);
+        // this.productHandling.focusProductSearch();
       }
     });
   }

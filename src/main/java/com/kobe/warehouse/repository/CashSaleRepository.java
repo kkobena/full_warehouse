@@ -5,15 +5,12 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
 import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.SaleId;
-
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Optional;
-
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +21,12 @@ import org.springframework.util.StringUtils;
 @Repository
 public interface CashSaleRepository extends JpaRepository<CashSale, SaleId> , JpaSpecificationExecutor<CashSale> {
     @Query("select sale from CashSale sale left join fetch sale.salesLines where sale.id =:id AND  sale.saleDate =:saleDate")
-    Optional<CashSale> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") java.time.LocalDate saleDate);
+    Optional<CashSale> findOneWithEagerSalesLine(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
+
+    @EntityGraph(attributePaths = {"salesLines"})
+    @Query("select sale from CashSale sale where sale.id = :id and sale.saleDate = :saleDate")
+    Optional<CashSale> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
+
 
     default Specification<CashSale> between(LocalDate fromDate, LocalDate toDate) {
         return (root, query, cb) -> cb.between(root.get(CashSale_.saleDate), fromDate, toDate);

@@ -51,15 +51,16 @@ import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -119,10 +120,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     private AppUser getUserFormImport() {
-        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin);
         return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).orElse(null));
     }
-
 
 
     @Override
@@ -147,17 +148,20 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         c.setSalesAmount(dto.getSalesAmount());
         c.setRestToPay(dto.getRestToPay());
         if (StringUtils.isNotEmpty(dto.getUserFullName())) {
-            userRepository.findOneByLogin(dto.getUserFullName()).ifPresentOrElse(c::setUser, () -> c.setUser(getUserFormImport()));
+            userRepository.findOneByLogin(dto.getUserFullName())
+                .ifPresentOrElse(c::setUser, () -> c.setUser(getUserFormImport()));
         } else {
             c.setUser(getUserFormImport());
         }
         if (StringUtils.isNotEmpty(dto.getSellerUserName())) {
-            userRepository.findOneByLogin(dto.getSellerUserName()).ifPresentOrElse(c::setSeller, () -> c.setSeller(getUserFormImport()));
+            userRepository.findOneByLogin(dto.getSellerUserName())
+                .ifPresentOrElse(c::setSeller, () -> c.setSeller(getUserFormImport()));
         } else {
             c.setSeller(getUserFormImport());
         }
         if (StringUtils.isNotEmpty(dto.getCustomerNum())) {
-            uninsuredCustomerRepository.findOneByCode(dto.getCustomerNum()).ifPresent(c::setCustomer);
+            uninsuredCustomerRepository.findOneByCode(dto.getCustomerNum())
+                .ifPresent(c::setCustomer);
         }
         c.setMagasin(c.getUser().getMagasin());
         return c;
@@ -207,7 +211,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut {
+    public CashSaleDTO createCashSale(CashSaleDTO dto)
+        throws StockException, DeconditionnementStockOut {
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         CashSale cashSale = new CashSale();
         this.intSale(dto, cashSale);
@@ -237,18 +242,22 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment) throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()), increment);
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
+        throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(saleLineDTO,
+            findOneById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemQuantitySold(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantitySold(saleLineDTO,
+            findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemRegularPrice(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemRegularPrice(saleLineDTO,
+            findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
 
@@ -264,7 +273,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
 
     @Override
-    public FinalyseSaleDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
+    public FinalyseSaleDTO save(CashSaleDTO dto)
+        throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
         CashSale cashSale = cashSaleRepository
             .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
             .orElseThrow();
@@ -334,7 +344,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
                 cashSaleRepository.save(sales);
                 cashSaleRepository.save(copy);
-                paymentService.findAllBySale(sales).forEach(payment -> paymentService.clonePayment(payment, copy));
+                paymentService.findAllBySale(sales)
+                    .forEach(payment -> paymentService.clonePayment(payment, copy));
                 salesLineService.cloneSalesLine(
                     sales.getSalesLines(),
                     copy,
@@ -363,11 +374,41 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             });
     }
 
+    @Override
+    public void transformDevisToVenteEncour(SaleId saleId) {
+        cashSaleRepository
+            .findById(saleId).ifPresent(s -> {
+                s.setStatut(SalesStatut.ACTIVE);
+                cashSaleRepository.save(s);
+            });
+    }
+
+    @Override
+    public void cloneDevis(SaleId saleId) {
+
+        cashSaleRepository
+            .findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate()).ifPresent(s -> {
+                if (s.getStatut() != SalesStatut.DEVIS) {
+                    throw new GenericError("Une erreur est survenue");
+                }
+                Set<SalesLine> originalSalesLines = new HashSet<>(s.getSalesLines());
+                CashSale copy = (CashSale) s.clone();
+                copy.setSalesLines(new HashSet<>());
+                copy.setPayments(new HashSet<>());
+                copySaleCommon(copy, SalesStatut.DEVIS);
+                copy = cashSaleRepository.saveAndFlush(copy);
+                salesLineService.saveAll(salesLineService.cloneSalesLine(originalSalesLines, copy));
+                cashSaleRepository.flush();
+            });
+    }
+
     // java -jar your-application.jar
     // --spring.config.location=file:/path/to/your/additional-config1.yml,file:/path/to/your/additional-config2.yml
     @Override
-    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
-        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
+        throws PrivilegeException {
+        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO,
+            ThirdPartySaleService.class);
     }
 
     @Override
@@ -403,8 +444,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate) {
-        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate);
+    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
+        LocalDate saleDate) {
+        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId,
+            saleDate);
     }
 
 

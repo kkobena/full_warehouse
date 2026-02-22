@@ -24,10 +24,10 @@ import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
-
 import java.util.List;
 
 public interface ThirdPartySaleService {
+
     ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
     List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId);
@@ -51,9 +51,9 @@ public interface ThirdPartySaleService {
 
     void cancelSale(SaleId id) throws CashRegisterException;
 
-    ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto)  throws PlafondVenteException;
+    ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
-    void updateDate(ThirdPartySaleDTO dto)  throws PlafondVenteException;
+    void updateDate(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
     FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
@@ -65,9 +65,11 @@ public interface ThirdPartySaleService {
     void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException;
 
-    void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException;
+    void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId)
+        throws PlafondVenteException;
 
-    SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente)  throws PlafondVenteException;
+    SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente)
+        throws PlafondVenteException;
 
     void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
@@ -76,24 +78,32 @@ public interface ThirdPartySaleService {
     FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
-    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
+    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
+        throws PrivilegeException;
 
     void processDiscount(UpdateSaleInfo updateSaleInfo) throws PlafondVenteException;
 
-    void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
+    void updateCustomerInformation(UpdateSale updateSale)
+        throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
 
-    String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) throws PlafondVenteException;
+    String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales)
+        throws PlafondVenteException;
 
     void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) throws PlafondVenteException;
 
-    void savePrevente(ThirdPartySaleDTO dto) throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+    void savePrevente(ThirdPartySaleDTO dto)
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     void removeDiscount(SaleId saleId) throws PlafondVenteException;
 
     /**
-     * Copie une vente pour l'édition, en s'assurant que les données sont à jour et conformes aux règles métier.
-     * Annuler la vente originale pour éviter les conflits de données.
+     * Copie une vente pour l'édition, en s'assurant que les données sont à jour et conformes aux
+     * règles métier. Annuler la vente originale pour éviter les conflits de données.
      */
     SaleId copiePourEdition(SaleId saleId)
-        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException,CashRegisterException;
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException, CashRegisterException;
+
+    void transformDevisToVenteEncour(SaleId saleId);
+
+    void cloneDevis(SaleId saleId);
 }

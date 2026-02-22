@@ -18,7 +18,6 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -73,4 +72,8 @@ public interface SaleService {
     void upddateCashSaleAmountsOnRemovingItem(CashSale c, com.kobe.warehouse.domain.SalesLine saleLine);
 
     void savePrevente(CashSaleDTO dto) ;
+
+    void transformDevisToVenteEncour(SaleId saleId);
+
+    void cloneDevis(SaleId saleId);
 }

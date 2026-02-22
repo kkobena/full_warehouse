@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,9 +36,6 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,8 +43,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class SaleCommonService {
@@ -144,7 +144,8 @@ public class SaleCommonService {
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        c.setCostAmount(c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
+        c.setCostAmount(
+            c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
     }
 
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
@@ -159,12 +160,14 @@ public class SaleCommonService {
     }
 
     public void buildReference(Sales sales) {
-        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(referenceService.buildNumSale());
+        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+            .concat(referenceService.buildNumSale());
         sales.setNumberTransaction(ref);
     }
 
     public void buildPreventeReference(Sales sales) {
-        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(referenceService.buildNumPreventeSale());
+        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+            .concat(referenceService.buildNumPreventeSale());
         sales.setNumberTransaction(ref);
     }
 
@@ -245,10 +248,11 @@ public class SaleCommonService {
             c.setStatut(SalesStatut.ACTIVE);
         }
 
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum()).ifPresent(poste -> {
-            c.setCaisse(poste);
-            c.setLastCaisse(poste);
-        });
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum())
+            .ifPresent(poste -> {
+                c.setCaisse(poste);
+                c.setLastCaisse(poste);
+            });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
         c.setOrigineVente(OrigineVente.DIRECT);
@@ -311,7 +315,8 @@ public class SaleCommonService {
             throw new SaleNotFoundCustomerException();
         }
         c.setPayrollAmount(dto.getPayrollAmount());
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum()).ifPresent(c::setLastCaisse);
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum())
+            .ifPresent(c::setLastCaisse);
         c.setRestToPay(dto.getRestToPay());
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
@@ -463,7 +468,7 @@ public class SaleCommonService {
         copy.setSalesLines(Collections.emptySet());
     }
 
-    protected void copySaleCommon(Sales sales, Sales copy) {
+    protected void copySaleCommon(Sales copy, SalesStatut salesStatut) {
         AppUser user = storageService.getUser();
         copy.setId(getNextId());
         copy.setSaleDate(LocalDate.now());
@@ -473,11 +478,12 @@ public class SaleCommonService {
         buildReference(copy);
         copy.setUser(user);
         copy.setCaissier(user);
-        copy.setCanceledSale(sales);
-        copy.setStatut(SalesStatut.ACTIVE);
+        copy.setStatut(salesStatut);
 
-        copy.setPayments(Collections.emptySet());
-        copy.setSalesLines(Collections.emptySet());
+    }
+
+    protected void copyOrigin(Sales sales, Sales copy) {
+        copy.setCanceledSale(sales);
     }
 
     protected long getNextId() {
@@ -506,11 +512,20 @@ public class SaleCommonService {
         this.buildReference(c);
     }
 
-    protected void preValidatePrevente(Sales c) throws GenericError {
-        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING);
+    protected void preValidatePrevente(Sales c) throws GenericError, SaleNotFoundCustomerException {
+        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING,
+            SalesStatut.DEVIS);
         if (!statuts.contains(c.getStatut())) {
             throw new GenericError("La vente ne peut pas être finalisée dans son état actuel");
         }
-        c.setStatut(SalesStatut.ACTIVE);
+        if (SalesStatut.DEVIS != c.getStatut()) {
+            c.setStatut(SalesStatut.ACTIVE);
+        }
+        if (SalesStatut.DEVIS == c.getStatut()) {
+            if (isNull(c.getCustomer())) {
+                throw new SaleNotFoundCustomerException();
+            }
+        }
+
     }
 }

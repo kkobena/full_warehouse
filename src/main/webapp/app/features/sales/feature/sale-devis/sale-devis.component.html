@@ -2,7 +2,7 @@
 <p-toast position="center" />
 
 <!-- Content spécifique DEVIS -->
-<!-- 1ère ligne: Barre recherche client (ligne entière) -->
+<!-- 1ère ligne: Barre recherche client (style harmonisé avec insurance-data-bar) -->
 <div class="devis-customer-section">
   <div class="customer-search-wrapper">
     <!-- Search Section -->
@@ -35,36 +35,48 @@
         [rounded]="true"/>
     </div>
 
-    <!-- Customer Information Card -->
+    <!-- Customer Display - Style compact inline (comme customer-overlay-panel) -->
     @if (selectedCustomer()) {
-      <div class="customer-info-card">
-        <div class="card-header">
-          <div class="header-title">
-            <i class="pi pi-user"></i>
-            <span>Client</span>
+      <div class="customer-data-display">
+        <div class="customer-display-card">
+          <!-- Action Buttons -->
+          <div class="customer-action-btn">
+            <p-button
+              (click)="onOpenCustomerList()"
+              pTooltip="Changer le client"
+              tooltipPosition="top"
+              icon="pi pi-pencil"
+              severity="info"
+              size="small"
+              [rounded]="true"
+              [text]="true"/>
+            <p-button
+              (click)="onEditCustomer()"
+              pTooltip="Modifier le client"
+              tooltipPosition="top"
+              icon="pi pi-user-edit"
+              severity="secondary"
+              size="small"
+              [rounded]="true"
+              [text]="true"/>
           </div>
-          <p-button
-            (onClick)="onEditCustomer()"
-            pTooltip="Modifier les infos du client"
-            icon="pi pi-user-edit"
-            severity="info"
-            size="small"
-            [rounded]="true"/>
-        </div>
-        <div class="card-body">
-          <div class="info-row">
-            <span class="info-label">Nom/Prénom(s)</span>
-            <span class="info-value">
-              {{ selectedCustomer().firstName }}
-              {{ selectedCustomer().lastName }}
-            </span>
-          </div>
-          @if (selectedCustomer().phone) {
-            <div class="info-row">
-              <span class="info-label">Téléphone</span>
-              <span class="info-value">{{ selectedCustomer().phone }}</span>
+
+          <!-- Customer Information Display -->
+          <div class="customer-info-display">
+            <div class="customer-info-row">
+              <div class="info-item name-info">
+                <i class="pi pi-user"></i>
+                <span class="info-value">{{ selectedCustomer().firstName }} {{ selectedCustomer().lastName }}</span>
+              </div>
+
+              @if (selectedCustomer().phone) {
+                <div class="info-item phone-info">
+                  <i class="pi pi-phone"></i>
+                  <span class="info-value">{{ selectedCustomer().phone }}</span>
+                </div>
+              }
             </div>
-          }
+          </div>
         </div>
       </div>
     }
@@ -146,10 +158,10 @@
 } @else {
   <div class="empty-cart-state">
     <div class="empty-cart-icon">
-      <i class="pi pi-shopping-cart"></i>
+      <i class="pi pi-file-edit"></i>
     </div>
     <h3>Panier vide</h3>
-    <p>Sélectionnez un client et ajoutez des produits</p>
+    <p>Sélectionnez un client et ajoutez des produits pour créer un devis</p>
   </div>
 }
 

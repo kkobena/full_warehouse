@@ -1,143 +1,220 @@
-// Styles spécifiques au composant SaleDevis
-// Inspiré de sale-carnet avec adaptations pour la recherche client simplifiée
+// ============================================
+// SALE DEVIS - Styles spécifiques
+// Utilise les styles communs + insurance-data-bar patterns
+// ============================================
+
+@import '../../../../shared/scss/pharma-nav';
+@import '../../shared/styles/sales-common';
+
+// ============================================
+// DEVIS CUSTOMER SECTION
+// Style harmonisé avec insurance-data-bar
+// ============================================
 
 .devis-customer-section {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: var(--surface-card);
-  border-radius: 8px;
-  border: 1px solid var(--surface-border);
+  background: $gray-50;
+  border-radius: $pharma-radius-lg;
+  box-shadow: $pharma-shadow-md;
+  border: 1px solid $gray-200;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
 }
 
 .customer-search-wrapper {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
 }
+
+// ============================================
+// SEARCH SECTION - Style identique à insurance-data-bar
+// ============================================
 
 .search-section {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
-  flex: 1;
-  min-width: 300px;
+  gap: 0.5rem;
+  flex-shrink: 0;
 
   .search-input-wrapper {
     flex: 1;
+    min-width: 250px;
     max-width: 400px;
   }
 
-  .search-input {
-    width: 100%;
-  }
-}
+  // Style direct pour le champ input
+  ::ng-deep {
+    .search-input,
+    .p-inputtext {
+      width: 100%;
+      font-size: 0.8125rem !important;
+      padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
+      border-radius: $pharma-radius !important;
+      border: 2px solid $gray-300 !important;
+      transition: all 0.2s ease !important;
 
-.customer-info-card {
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
-  background: var(--surface-ground);
-  border-radius: 6px;
-  border: 1px solid var(--surface-border);
-  overflow: hidden;
+      &:enabled:focus,
+      &:focus {
+        border-color: $pharma-primary !important;
+        box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1) !important;
+        outline: none !important;
+      }
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0.75rem;
-    background: var(--primary-color);
-    color: var(--primary-color-text);
+      &::placeholder {
+        color: $gray-400 !important;
+        font-style: italic !important;
+      }
+    }
 
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
-      font-size: 0.875rem;
+    .p-iconfield {
+      width: 100%;
 
-      i {
-        font-size: 1rem;
+      .p-inputicon {
+        color: $gray-500;
       }
     }
   }
+}
 
-  .card-body {
-    padding: 0.75rem;
+// ============================================
+// CUSTOMER DATA DISPLAY - Style compact inline
+// Inspiré de customer-overlay-panel
+// ============================================
 
-    .info-row {
+.customer-data-display {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-display-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  border: 1px solid $gray-200;
+  box-shadow: $pharma-shadow-sm;
+
+  .customer-action-btn {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .customer-info-display {
+    flex: 1;
+    min-width: 0;
+
+    .customer-info-row {
       display: flex;
-      justify-content: space-between;
+      gap: 0.75rem;
       align-items: center;
-      padding: 0.25rem 0;
-      font-size: 0.875rem;
+    }
 
-      &:not(:last-child) {
-        border-bottom: 1px dashed var(--surface-border);
-      }
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
 
-      .info-label {
-        color: var(--text-color-secondary);
-        font-weight: 500;
+      i {
+        font-size: 0.8125rem;
+        color: $pharma-primary;
       }
 
       .info-value {
-        color: var(--text-color);
+        font-size: 0.8125rem;
         font-weight: 600;
-        text-align: right;
+        color: $gray-900;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
-}
 
-.empty-cart-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  text-align: center;
-  color: var(--text-color-secondary);
-
-  .empty-cart-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+  .customer-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $gray-500;
+    font-size: 0.875rem;
+    font-style: italic;
 
     i {
-      color: var(--primary-color);
+      font-size: 1rem;
+      color: $gray-400;
     }
-  }
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-color);
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.9rem;
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
+// ============================================
+// EMPTY CART STATE - Thème devis (warning/orange par défaut)
+// Peut être overridé par le thème sélectionné
+// ============================================
+
+.empty-cart-state .empty-cart-icon {
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.1) 0%, rgba(0, 150, 136, 0.05) 100%);
+  box-shadow: 0 4px 12px rgba(0, 150, 136, 0.15);
+
+  i {
+    color: #009688;
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 900px) {
   .customer-search-wrapper {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .search-section {
     width: 100%;
-    min-width: unset;
 
     .search-input-wrapper {
+      flex: 1;
       max-width: unset;
     }
   }
 
-  .customer-info-card {
+  .customer-data-display {
     width: 100%;
-    max-width: unset;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-section {
+    flex-wrap: wrap;
+
+    .search-input-wrapper {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+
+  .customer-display-card {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.5rem;
+
+    .customer-info-display .customer-info-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
   }
 }

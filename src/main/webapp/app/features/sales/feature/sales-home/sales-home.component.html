@@ -1,29 +1,32 @@
 <!-- Notifications Toast -->
 <!--<p-toast position="top-right" />-->
 
-<!-- Drawer pour ventes en attente -->
-<p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
-  <ng-template #header>
-    <div class="drawer-header-content">
-      <i class="pi pi-clock text-xl"></i>
-      <div class="drawer-header-text">
-        <h3>Ventes en attente</h3>
-        <span class="drawer-subtitle">Reprendre une vente en cours</span>
+<!-- Drawer pour ventes en attente (masqué en mode devis) -->
+@if (!isDevisMode()) {
+  <p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
+    <ng-template #header>
+      <div class="drawer-header-content">
+        <i class="pi pi-clock text-xl"></i>
+        <div class="drawer-header-text">
+          <h3>Ventes en attente</h3>
+          <span class="drawer-subtitle">Reprendre une vente en cours</span>
+        </div>
       </div>
-    </div>
-  </ng-template>
-  <ng-template #content>
-    <app-pending-sales-list
-      (saleResumed)="onSaleResumed($event)"
-      (closed)="closePendingSales()"
-    />
-  </ng-template>
-</p-drawer>
+    </ng-template>
+    <ng-template #content>
+      <app-pending-sales-list
+        (closed)="closePendingSales()"
+        (saleResumed)="onSaleResumed($event)"
+      />
+    </ng-template>
+  </p-drawer>
+}
 
 <!-- Interface principale Point de Vente -->
 <div class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales -->
-  <div class="pharma-sales-header" [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()">
+  <div [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()"
+       class="pharma-sales-header">
     <div class="header-left">
       <!-- Bouton retour -->
       <p-button
@@ -109,16 +112,16 @@
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
       @if (active() === 'comptant' && salesFacade.currentSale()) {
         <div class="header-customer-wrapper">
-          <app-customer-overlay-panel ></app-customer-overlay-panel>
+          <app-customer-overlay-panel></app-customer-overlay-panel>
         </div>
       }
 
-      <!-- Pending sales button (tous les tabs) -->
-      @if (!isPresaleMode()) {
+      <!-- Pending sales button (masqué en mode prévente et devis) -->
+      @if (!isPresaleMode() && !isDevisMode()) {
         <p-button
           (click)="openPendingSales()"
           [badge]="countPendingSales().toString()"
-          [disabled]="salesFacade.currentSale() !== null || isPresaleMode()"
+          [disabled]="salesFacade.currentSale() !== null"
           [outlined]="true"
           badgeSeverity="danger"
           class="pending-sales-btn"
@@ -135,11 +138,13 @@
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Navigation par type de vente -->
-    <div [class.collapsed]="sidebarCollapsed()" [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()" class="sales-sidebar pharma-nav-sidebar">
+    <div [class.collapsed]="sidebarCollapsed()" [class.presale-mode]="isPresaleMode()"
+         [ngClass]="devisThemeClass()" class="sales-sidebar pharma-nav-sidebar">
       <div class="sidebar-card pharma-nav-sidebar-card">
         <div class="sidebar-header pharma-nav-sidebar-header">
           @if (!sidebarCollapsed()) {
-            <i [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"></i>
+            <i
+              [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"></i>
             <span>
               @if (isDevisMode()) {
                 Types de Devis
@@ -183,22 +188,22 @@
               <ng-template ngbNavContent>
                 @if (isDevisMode()) {
                   <app-sale-devis
-                    [isSmallScreen]="isSmallScreen()"
-                    [isCashRegisterOpen]="isCashRegisterOpen()"
-                    [remises]="remises()"
-                    [showStock]="showStock()"
-                    [(initSaleForEditInfo)]="initSaleForEditInfo"
+                    (cashRegisterOpened)="onCashRegisterStatusChanged()"
                     (switchToComptant)="onSwitchToComptant()"
-                    (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-devis>
+                    [(initSaleForEditInfo)]="initSaleForEditInfo"
+                    [isCashRegisterOpen]="isCashRegisterOpen()"
+                    [isSmallScreen]="isSmallScreen()"
+                    [remises]="remises()"
+                    [showStock]="showStock()"></app-sale-devis>
                 } @else {
                   <app-sale-creation
-                    [isSmallScreen]="isSmallScreen()"
-                    [isCashRegisterOpen]="isCashRegisterOpen()"
-                    [remises]="remises()"
-                    [showStock]="showStock()"
-                    [isPresale]="isPresaleMode()"
+                    (cashRegisterOpened)="onCashRegisterStatusChanged()"
                     [(initSaleForEditInfo)]="initSaleForEditInfo"
-                    (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-creation>
+                    [isCashRegisterOpen]="isCashRegisterOpen()"
+                    [isPresale]="isPresaleMode()"
+                    [isSmallScreen]="isSmallScreen()"
+                    [remises]="remises()"
+                    [showStock]="showStock()"></app-sale-creation>
                 }
               </ng-template>
             </ng-container>
@@ -213,13 +218,13 @@
                 </a>
                 <ng-template ngbNavContent>
                   <app-sale-assurance
-                    [isSmallScreen]="isSmallScreen()"
-                    [isCashRegisterOpen]="isCashRegisterOpen()"
-                    [remises]="remises()"
-                    [showStock]="showStock()"
-                    [isPresale]="isPresaleMode()"
+                    (switchToComptant)="onSwitchToComptant()"
                     [(initSaleForEditInfo)]="initSaleForEditInfo"
-                    (switchToComptant)="onSwitchToComptant()"></app-sale-assurance>
+                    [isCashRegisterOpen]="isCashRegisterOpen()"
+                    [isPresale]="isPresaleMode()"
+                    [isSmallScreen]="isSmallScreen()"
+                    [remises]="remises()"
+                    [showStock]="showStock()"></app-sale-assurance>
                 </ng-template>
               </ng-container>
             }
@@ -233,15 +238,15 @@
               </a>
               <ng-template ngbNavContent>
                 <app-sale-carnet
-                  [isSmallScreen]="isSmallScreen()"
-                  [isCashRegisterOpen]="isCashRegisterOpen()"
-                  [remises]="remises()"
-                  [showStock]="showStock()"
-                  [isPresale]="isPresaleMode()"
-                  [isDevis]="isDevisMode()"
-                  [(initSaleForEditInfo)]="initSaleForEditInfo"
+                  (cashRegisterOpened)="onCashRegisterStatusChanged()"
                   (switchToComptant)="onSwitchToComptant()"
-                  (cashRegisterOpened)="onCashRegisterStatusChanged()"></app-sale-carnet>
+                  [(initSaleForEditInfo)]="initSaleForEditInfo"
+                  [isCashRegisterOpen]="isCashRegisterOpen()"
+                  [isDevis]="isDevisMode()"
+                  [isPresale]="isPresaleMode()"
+                  [isSmallScreen]="isSmallScreen()"
+                  [remises]="remises()"
+                  [showStock]="showStock()"></app-sale-carnet>
               </ng-template>
             </ng-container>
           </div>
@@ -264,37 +269,43 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 
 <!-- Sélecteur de thème DEVIS (temporaire pour test) -->
-@if (isDevisMode()) {
+@if (showTheme()) {
   <div class="devis-theme-selector">
     <div class="selector-title">Thème Devis</div>
     <div class="theme-options">
       <button
-        class="theme-btn purple"
-        [class.active]="devisTheme() === 'purple'"
         (click)="devisTheme.set('purple')"
+        [class.active]="devisTheme() === 'purple'"
+        class="theme-btn purple"
         title="Violet/Purple">
         <i class="pi pi-check"></i>
       </button>
       <button
-        class="theme-btn teal"
-        [class.active]="devisTheme() === 'teal'"
         (click)="devisTheme.set('teal')"
+        [class.active]="devisTheme() === 'teal'"
+        class="theme-btn teal"
         title="Teal/Sarcelle">
         <i class="pi pi-check"></i>
       </button>
       <button
-        class="theme-btn indigo"
-        [class.active]="devisTheme() === 'indigo'"
         (click)="devisTheme.set('indigo')"
+        [class.active]="devisTheme() === 'indigo'"
+        class="theme-btn indigo"
         title="Indigo">
         <i class="pi pi-check"></i>
       </button>
     </div>
     <div class="theme-label">
       @switch (devisTheme()) {
-        @case ('purple') { Violet }
-        @case ('teal') { Sarcelle }
-        @case ('indigo') { Indigo }
+        @case ('purple') {
+          Violet
+        }
+        @case ('teal') {
+          Sarcelle
+        }
+        @case ('indigo') {
+          Indigo
+        }
       }
     </div>
   </div>

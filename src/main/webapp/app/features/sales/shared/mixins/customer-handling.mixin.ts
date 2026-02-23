@@ -1,5 +1,6 @@
 import { Signal, WritableSignal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
 import { ICustomer } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CustomerSearchService } from '../../data-access/services/customer-search.service';
@@ -28,7 +29,8 @@ export interface CustomerSearchHost {
  */
 export interface CustomerHandlingContext {
   facade: SalesFacade;
-  customerSearchService: CustomerSearchService;
+  /** Requis si searchFn n'est pas fourni */
+  customerSearchService?: CustomerSearchService;
   notificationService: NotificationService;
   modalService: NgbModal;
   config: CustomerHandlingConfig;
@@ -42,6 +44,12 @@ export interface CustomerHandlingContext {
   // Composants modaux spécifiques au type de vente
   customerListComponent?: unknown;
   customerFormComponent?: unknown;
+  /** Fonction custom pour sélectionner le client (par défaut: facade.setCustomer) */
+  selectCustomerFn?: (customer: ICustomer) => void;
+  /** Fonction custom de recherche (par défaut: customerSearchService.search) */
+  searchFn?: (term: string, limit: number) => Observable<ICustomer[]>;
+  /** Auto-sélectionner si 1 seul résultat, ouvrir form si 0 résultat, ouvrir liste si N résultats */
+  smartSearch?: boolean;
 }
 
 /**
@@ -73,16 +81,24 @@ export interface CustomerHandlingContext {
  * ```
  */
 export function createCustomerHandling(context: CustomerHandlingContext) {
-  const { facade, customerSearchService, notificationService, config, customers } = context;
+  const { facade, notificationService, config, customers } = context;
 
   /**
    * Recherche des clients par terme de recherche
    */
   function searchCustomers(searchTerm: string, minLength = 2, limit = 10): void {
     if (searchTerm && searchTerm.length >= minLength) {
-      customerSearchService.search(searchTerm, limit).subscribe({
+      const search$ = context.searchFn
+        ? context.searchFn(searchTerm, limit)
+        : context.customerSearchService!.search(searchTerm, limit);
+
+      search$.subscribe({
         next: (results: ICustomer[]) => {
-          customers.set(results);
+          if (context.smartSearch) {
+            handleSmartSearchResults(results);
+          } else {
+            customers.set(results);
+          }
         },
         error: () => {
           notificationService.error('Erreur', 'Erreur lors de la recherche client');
@@ -95,10 +111,31 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
   }
 
   /**
+   * Gère les résultats de recherche en mode smartSearch :
+   * - 1 résultat → auto-sélection
+   * - 0 résultats → ouverture formulaire création
+   * - N résultats → ouverture modal liste avec résultats préchargés
+   */
+  function handleSmartSearchResults(results: ICustomer[]): void {
+    if (results.length === 1) {
+      selectCustomer(results[0]);
+    } else if (results.length === 0) {
+      openCustomerFormModal(null);
+    } else {
+      customers.set(results);
+      openCustomerListModal({ componentInputs: { customers: results } });
+    }
+  }
+
+  /**
    * Sélectionne un client pour la vente
    */
   function selectCustomer(customer: ICustomer): void {
-    facade.setCustomer(customer);
+    if (context.selectCustomerFn) {
+      context.selectCustomerFn(customer);
+    } else {
+      facade.setCustomer(customer);
+    }
     customers.set([]); // Clear search results
     context.onCustomerSelectedCallback?.(customer);
   }
@@ -143,6 +180,8 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
     title?: string;
     backdrop?: 'static' | boolean;
     size?: 'sm' | 'lg' | 'xl';
+    modalDialogClass?: string;
+    componentInputs?: Record<string, unknown>;
   }): NgbModalRef | null {
     if (!context.customerListComponent) {
       notificationService.error('Erreur', 'Composant de liste client non configuré');
@@ -153,10 +192,16 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       size: options?.size || 'lg',
       backdrop: options?.backdrop ?? 'static',
       centered: true,
+      modalDialogClass: options?.modalDialogClass,
     });
 
-    if (options?.title && modalRef.componentInstance) {
-      modalRef.componentInstance.title = options.title;
+    if (modalRef.componentInstance) {
+      if (options?.title) {
+        modalRef.componentInstance.title = options.title;
+      }
+      if (options?.componentInputs) {
+        Object.assign(modalRef.componentInstance, options.componentInputs);
+      }
     }
 
     modalRef.result.then(
@@ -187,6 +232,8 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       title?: string;
       backdrop?: 'static' | boolean;
       size?: 'sm' | 'lg' | 'xl';
+      modalDialogClass?: string;
+      componentInputs?: Record<string, unknown>;
     },
   ): NgbModalRef | null {
     if (!context.customerFormComponent) {
@@ -198,12 +245,16 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       size: options?.size || 'lg',
       backdrop: options?.backdrop ?? 'static',
       centered: true,
+      modalDialogClass: options?.modalDialogClass,
     });
 
     if (modalRef.componentInstance) {
       modalRef.componentInstance.entity = customer;
       if (options?.title) {
         modalRef.componentInstance.title = options.title;
+      }
+      if (options?.componentInputs) {
+        Object.assign(modalRef.componentInstance, options.componentInputs);
       }
     }
 

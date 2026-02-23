@@ -15,7 +15,7 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {HttpResponse} from '@angular/common/http';
+import {map} from 'rxjs';
 import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {InputTextModule} from 'primeng/inputtext';
@@ -42,6 +42,7 @@ import {CustomerDisplayService} from '../../data-access/services/customer-displa
 import {CustomerService} from '../../../../entities/customer/customer.service';
 import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {
+  createCustomerHandling,
   createDeconditionnementHandling,
   createForceStockHandling,
   createKeyboardShortcuts,
@@ -51,7 +52,6 @@ import {
 import {
   UninsuredCustomerFormComponent
 } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
 import {SaleForEditInfo} from '../../../../shared/model/sales.model';
 
 /**
@@ -198,6 +198,26 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       createSale: (line: ISalesLine) => this.facade.createDevisSale(line),
       addProduct: (line: ISalesLine) => this.facade.onAddProduitDevis(line),
     },
+  });
+  // ===== Customer Handling Mixin =====
+  private customerHandling = createCustomerHandling({
+    facade: this.facade,
+    notificationService: this.notificationService,
+    modalService: this.modalService,
+    config: {
+      saleType: 'COMPTANT',
+      customerRequired: true,
+      customerRequiredMessage: 'Un client est obligatoire pour un devis',
+    },
+    selectedCustomer: this.facade.selectedCustomer,
+    customers: this.customers,
+    customerListComponent: CustomerSelectionModalComponent,
+    customerFormComponent: UninsuredCustomerFormComponent,
+    selectCustomerFn: customer => this.facade.setSelectedCustomer(customer),
+    searchFn: (term, limit) =>
+      this.customerService.queryUninsuredCustomers({ search: term, size: limit }).pipe(map(res => res.body || [])),
+    smartSearch: true,
+    onCustomerSelectedCallback: () => this.focusProductSearch(),
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
@@ -470,114 +490,29 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     if (!this.search) {
       return;
     }
-
-    this.customerService
-      .queryUninsuredCustomers({
-        search: this.search,
-        size: 5,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ICustomer[]>) => this.handleCustomerQueryResponse(res.body),
-      });
-  }
-
-  // ===== Handlers pour ProductListComponent =====
-
-  protected selectCustomer(customer: ICustomer): void {
-    this.facade.setSelectedCustomer(customer);
+    this.customerHandling.searchCustomers(this.search, 1, 5);
+    this.search = '';
   }
 
   protected onOpenCustomerList(): void {
-    this.openCustomerListModal([]);
+    this.customerHandling.openCustomerListModal({ modalDialogClass: 'modal-dialog-70' });
   }
 
   protected onEditCustomer(): void {
     const customer = this.selectedCustomer();
     if (customer) {
-      this.openCustomerFormModal(customer);
+      this.customerHandling.openCustomerFormModal(customer, {
+        title: 'MODIFICATION CLIENT',
+        modalDialogClass: 'modal-dialog-80',
+      });
     }
   }
 
   protected onAddCustomer(): void {
-    this.openCustomerFormModal(null);
-  }
-
-  private handleCustomerQueryResponse(customers: ICustomer[] | null): void {
-    console.error('customers ', customers);
-    if (!customers?.length) {
-      this.handleNoCustomersFound();
-      return;
-    }
-    console.error('customers.length ', customers.length);
-    if (customers.length === 1) {
-      this.handleSingleCustomerFound(customers[0]);
-    } else {
-      this.handleMultipleCustomersFound(customers);
-    }
-  }
-
-  // ===== Sale Actions =====
-
-  private handleSingleCustomerFound(customer: ICustomer): void {
-    this.selectCustomer(customer);
-    this.clearSearch();
-    this.focusProductSearch();
-  }
-
-  private handleMultipleCustomersFound(customers: ICustomer[]): void {
-    this.openCustomerListModal(customers);
-    this.clearSearch();
-  }
-
-  private handleNoCustomersFound(): void {
-    this.openCustomerFormModal(null);
-    this.clearSearch();
-  }
-
-  private clearSearch(): void {
-    this.search = '';
-  }
-
-  // ===== Raccourcis clavier =====
-
-  private openCustomerListModal(_preloadedCustomers?: ICustomer[]): void {
-    showCommonModal(
-      this.modalService,
-      CustomerSelectionModalComponent,
-      {
-        modalTitle: 'Sélection client',
-        customers: _preloadedCustomers
-      },
-      (customer: ICustomer) => {
-        if (customer) {
-          this.selectCustomer(customer);
-          this.focusProductSearch();
-        }
-      },
-      'lg',
-      'modal-dialog-70',
-    );
-  }
-
-  // ===== Handlers pour remise globale (depuis ProductListComponent caption) =====
-
-  private openCustomerFormModal(customer: ICustomer | null): void {
-    showCommonModal(
-      this.modalService,
-      UninsuredCustomerFormComponent,
-      {
-        entity: customer,
-        title: customer ? 'MODIFICATION CLIENT' : 'NOUVEAU CLIENT',
-      },
-      (updatedCustomer: ICustomer) => {
-        if (updatedCustomer) {
-          this.selectCustomer(updatedCustomer);
-          this.focusProductSearch();
-        }
-      },
-      'lg',
-      'modal-dialog-80',
-    );
+    this.customerHandling.openCustomerFormModal(null, {
+      title: 'NOUVEAU CLIENT',
+      modalDialogClass: 'modal-dialog-80',
+    });
   }
 
   /**

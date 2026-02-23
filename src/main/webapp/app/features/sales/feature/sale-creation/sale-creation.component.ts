@@ -1,15 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  input,
-  model,
-  OnInit,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
+import {Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {take} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
@@ -18,9 +7,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TooltipModule} from 'primeng/tooltip';
 import {Toast} from 'primeng/toast';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -29,10 +16,7 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {
-  PaymentCompleteEvent,
-  PaymentModeComponent
-} from '../../ui/payment-mode/payment-mode.component';
+import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
 
 import {
   CashRegisterFormComponent
@@ -42,7 +26,7 @@ import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {ICustomer, IRemise, ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {IUser} from '../../../../core/user/user.model';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {
@@ -51,6 +35,7 @@ import {
   createKeyboardShortcuts,
   createPaymentHandling,
   createProductHandling,
+  createSaleLifecycle,
   ProductSearchHost
 } from '../../shared/mixins';
 import {SaleForEditInfo} from '../../../../shared/model/sales.model';
@@ -261,6 +246,14 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
+  // ===== Sale Lifecycle Mixin =====
+  private lifecycle = createSaleLifecycle({
+    facade: this.facade,
+    destroyRef: this.destroyRef,
+    productHandling: this.productHandling,
+    resetForNewSale: () => this.resetForNewSale(),
+    onProductAddedExtra: () => this.productAddedSuccess.emit(),
+  });
 
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
@@ -283,49 +276,14 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
 
-    // S'abonner à l'événement de succès de mise en attente
-    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
+    // Initialiser les souscriptions communes via le mixin lifecycle
+    this.lifecycle.initializeSubscriptions();
 
-    // S'abonner aux événements de succès pour gérer le focus et reset
-    this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // Utiliser le mixin pour l'affichage client et le reset
-      this.productHandling.updatePendingDisplay();
-      this.productHandling.resetProductSelection();
-      this.productAddedSuccess.emit();
-    });
-
-    this.facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    // S'abonner au succès de mise à jour de la remise
-    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    // S'abonner au rechargement de vente (après annulation forçage stock)
-    this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.resetProductSelection();
-    });
-
-    // S'abonner à la suppression du client (après succès API)
+    // Souscription spécifique: suppression du client (uniquement vente comptant)
     this.facade.customerRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.productHandling.focusProductSearch();
     });
 
-    // S'abonner à l'annulation de la vente (après succès API)
-    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
-    this.facade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
     // Initialiser le vendeur avec celui du store
     const currentSeller = this.facade.seller();
     if (currentSeller) {
@@ -671,66 +629,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
   }
 
-  onSaleTypeChange(saleType: SaleType): void {
-    const currentSale = this.currentSale();
-    const hasLines = this.salesLines().length > 0;
-
-    // Si le type de vente change et qu'il y a déjà des lignes, demander confirmation
-    if (hasLines && saleType !== this.selectedSaleType()) {
-      this.confirmDialog().onConfirm(
-        () => this.proceedWithSaleTypeChange(saleType, currentSale),
-        'Changement de type de vente',
-        `Voulez-vous vraiment changer le type de vente vers ${saleType}?\n\nAttention: Les données actuelles seront perdues.`,
-      );
-      return;
-    }
-
-    this.proceedWithSaleTypeChange(saleType, currentSale);
-  }
-
-  openPendingSales(): void {
-    this.pendingSalesSidebar.set(true);
-  }
-
-  onSaleResumed(sale: ISales): void {
-    this.pendingSalesSidebar.set(false);
-    // The sale is already loaded by PendingSalesListComponent via CurrentSaleService
-
-    // Charger les données de la vente en attente
-    this.onLoadPrevente(sale);
-  }
-
-  /**
-   * Charge une vente en attente (prevente)
-   * Restaure l'état de la vente: client, remise, etc.
-   */
-  onLoadPrevente(sale: ISales): void {
-    // La vente est déjà chargée dans le store par le facade
-    // Cette méthode sert à restaurer l'état UI spécifique
-
-    // Si la vente a un client, le charger
-    if (sale.customer) {
-      this.facade.setCustomer(sale.customer);
-    }
-
-    // Si la vente a une remise, l'afficher
-    if (sale.remise) {
-      // La remise est déjà dans la vente, pas besoin de la réappliquer
-      console.log('Remise chargée:', sale.remise);
-    }
-
-    // Restaurer le type de vente si différent
-    if (sale.type && sale.type !== 'VNO') {
-      console.log('Type de vente chargé:', sale.type);
-    } else {
-      // Retour du focus sur le champ produit
-      this.focusProductSearch();
-    }
-  }
-
-  onClosePendingSalesDrawer(): void {
-    this.pendingSalesSidebar.set(false);
-  }
 
   onSellerChange(seller: IUser): void {
     this.selectedSeller.set(seller);

@@ -72,6 +72,7 @@ import {
   createKeyboardShortcuts,
   createPaymentHandling,
   createProductHandling,
+  createSaleLifecycle,
   ProductSearchHost,
 } from '../../shared/mixins';
 import {SaleForEditInfo} from '../../../../shared/model/sales.model';
@@ -344,6 +345,21 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       savePresale: () => this.onSaveAsPresale(false),
     },
   );
+  // ===== Sale Lifecycle Mixin =====
+  private lifecycle = createSaleLifecycle({
+    facade: this.facade,
+    destroyRef: this.destroyRef,
+    productHandling: this.productHandling,
+    resetForNewSale: () => this.resetForNewSale(),
+    onResumePendingSale: () => {
+      const currentSale = this.currentSale();
+      if (currentSale?.saleId) {
+        const updatedTiersPayants = currentSale.tiersPayants || [];
+        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
+        setTimeout(() => this.productHandling.focusProductSearch(), 200);
+      }
+    },
+  });
 
   constructor() {
     // Initialiser les effects de gestion du forçage de stock via le mixin
@@ -363,50 +379,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // Initialize typePrescription with default value
     this.facade.setTypePrescription('PRESCRIPTION');
 
-    // S'abonner aux événements de succès pour gérer le focus et reset
-    this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      // Utiliser le mixin pour l'affichage client et le reset
-      this.productHandling.updatePendingDisplay();
-      this.productHandling.resetProductSelection();
-    });
+    // Initialiser les souscriptions communes via le mixin lifecycle
+    this.lifecycle.initializeSubscriptions();
 
-    this.facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    // S'abonner au rechargement de vente (après annulation forçage stock)
-    this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.resetProductSelection();
-    });
-    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
-
-    // S'abonner au succès de mise à jour de la remise
-    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
-    this.facade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const currentSale = this.currentSale();
-      if (currentSale?.saleId) {
-        // Vente existe sur le backend: utiliser les tiers payants de la vente rechargée
-        const updatedTiersPayants = currentSale.tiersPayants || [];
-        this.insuranceDataBar()?.updateTiersPayants(updatedTiersPayants);
-        setTimeout(() => {
-          this.productHandling.focusProductSearch();
-        }, 200);
-        // this.productHandling.focusProductSearch();
-
-      }
-    });
-    // S'abonner au succès d'ajout de tiers payant complémentaire
+    // Souscription spécifique: ajout de tiers payant complémentaire (uniquement ASSURANCE)
     this.facade.tiersPayantAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(newTiersPayant => {
       const currentSale = this.currentSale();
       if (currentSale?.saleId) {

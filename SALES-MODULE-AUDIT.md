@@ -415,6 +415,6 @@ private convertDates<T extends { createdAt?: any; updatedAt?: any }>(obj: T): T 
 | 5.4 | MAJEUR | Standardiser extractApiError() partout | Coherence, maintenabilite | Faible | ok
 | 5.5 | MAJEUR | Remplacer Subjects par signaux/observables | Decouplage, testabilite | Eleve |
 | 5.6 | MOYEN | Corriger effect previousLoadingState | Performance | Faible | ok
-| 5.8 | MOYEN | Adopter customerHandling dans Creation/Devis | Coherence | Moyen |
+| 5.8 | MOYEN | Adopter customerHandling dans Creation/Devis | Coherence | Moyen |ok
 | 5.9 | BAS | Unifier clearError() | Coherence | Tres faible | ok
 | 5.10 | BAS | Genericiser conversion de date | Clarte | Tres faible |

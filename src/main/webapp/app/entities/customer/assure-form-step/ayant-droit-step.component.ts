@@ -45,7 +45,7 @@ export class AyantDroitStepComponent implements OnInit {
 
   ngOnInit(): void {
     const currentAssure = this.assureFormStepService.assure();
-    if (currentAssure.ayantDroits?.length > 0) {
+    if (currentAssure?.ayantDroits?.length > 0) {
       this.updateForm(currentAssure.ayantDroits[0]);
     }
   }

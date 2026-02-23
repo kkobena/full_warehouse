@@ -24,9 +24,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {Button} from 'primeng/button';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -47,6 +45,7 @@ import {
   createForceStockHandling,
   createKeyboardShortcuts,
   createProductHandling,
+  createSaleLifecycle,
   ProductSearchHost,
 } from '../../shared/mixins';
 import {
@@ -215,9 +214,17 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     customerFormComponent: UninsuredCustomerFormComponent,
     selectCustomerFn: customer => this.facade.setSelectedCustomer(customer),
     searchFn: (term, limit) =>
-      this.customerService.queryUninsuredCustomers({ search: term, size: limit }).pipe(map(res => res.body || [])),
+      this.customerService.queryUninsuredCustomers({search: term, size: limit}).pipe(map(res => res.body || [])),
     smartSearch: true,
     onCustomerSelectedCallback: () => this.focusProductSearch(),
+  });
+  // ===== Sale Lifecycle Mixin =====
+  private lifecycle = createSaleLifecycle({
+    facade: this.facade,
+    destroyRef: this.destroyRef,
+    productHandling: this.productHandling,
+    resetForNewSale: () => this.resetForNewSale(),
+    onResumePendingSale: false, // Devis ne gère pas la reprise de ventes en attente
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
@@ -268,37 +275,8 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     // Initialize customer display
     this.customerDisplay.initialize('PHARMA SMART');
 
-    this.facade.standbySuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
-
-    // S'abonner aux événements de succès pour gérer le focus et reset
-    this.facade.productAddedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.updatePendingDisplay();
-      this.productHandling.resetProductSelection();
-    });
-
-    this.facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    this.facade.lineRemovedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    // S'abonner au succès de mise à jour de la remise
-    this.facade.remiseUpdatedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.focusProductSearch();
-    });
-
-    // S'abonner au rechargement de vente (après annulation forçage stock)
-    this.facade.saleReloadedSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.productHandling.resetProductSelection();
-    });
-
-    this.facade.cancelSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.resetForNewSale();
-    });
+    // Initialiser les souscriptions communes via le mixin lifecycle
+    this.lifecycle.initializeSubscriptions();
   }
 
   ngAfterViewInit(): void {
@@ -495,7 +473,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   }
 
   protected onOpenCustomerList(): void {
-    this.customerHandling.openCustomerListModal({ modalDialogClass: 'modal-dialog-70' });
+    this.customerHandling.openCustomerListModal({modalDialogClass: 'modal-dialog-70'});
   }
 
   protected onEditCustomer(): void {

@@ -62,6 +62,7 @@ interface SalesState {
     isFromTableCellEdit?: boolean;
   } | null;
   loading: boolean;
+  pendingSalesLoading: boolean;
 }
 
 /**
@@ -115,6 +116,7 @@ const initialState: SalesState = {
   error: null,
   errorDetails: null,
   loading: false,
+  pendingSalesLoading: false,
 };
 
 /**
@@ -330,6 +332,13 @@ export const SalesStore = signalStore(
      */
     setLoading(loading: boolean): void {
       patchState(store, { loading });
+    },
+
+    /**
+     * Set pending sales loading state (separate from global loading)
+     */
+    setPendingSalesLoading(pendingSalesLoading: boolean): void {
+      patchState(store, { pendingSalesLoading });
     },
 
     /**

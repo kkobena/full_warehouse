@@ -68,7 +68,7 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== State from Facade =====
   readonly pendingSales = this.facade.pendingSales;
-  readonly loading = this.facade.loading;
+  readonly loading = this.facade.pendingSalesLoading;
   readonly seller = this.facade.seller;
 
   // ===== Local State Signals =====

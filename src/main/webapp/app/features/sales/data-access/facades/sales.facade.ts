@@ -113,6 +113,8 @@ export class SalesFacade {
   readonly plafondMessage = this.store.plafondMessage;
   /** Pending sales */
   readonly pendingSales = this.store.pendingSales;
+  /** Pending sales loading (separate from global loading) */
+  readonly pendingSalesLoading = this.store.pendingSalesLoading;
   /** Selected product for search */
   readonly selectedProduct = this.store.selectedProduct;
   /** Sales lines of current sale */
@@ -1336,7 +1338,7 @@ export class SalesFacade {
    * Load pending sales from backend
    */
   loadPendingSales(params: any): void {
-    this.store.setLoading(true);
+    this.store.setPendingSalesLoading(true);
 
     this.apiService
       .getPendingSales(params)
@@ -1344,10 +1346,10 @@ export class SalesFacade {
         catchError(error => {
           console.error('Error loading pending sales:', error);
           this.store.setError('Erreur lors du chargement des ventes en attente');
-          this.store.setLoading(false);
+          this.store.setPendingSalesLoading(false);
           return of([]);
         }),
-        finalize(() => this.store.setLoading(false)),
+        finalize(() => this.store.setPendingSalesLoading(false)),
       )
       .subscribe(sales => {
         this.store.setPendingSales(sales);

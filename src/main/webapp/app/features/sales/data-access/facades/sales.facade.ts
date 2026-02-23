@@ -247,51 +247,11 @@ export class SalesFacade {
    * Ne pas utiliser pour recharger la vente courante en édition
    */
   loadSaleForEdit = rxMethod<SaleId>(
-    pipe(
-      tap(() => {
-        this.store.setLoading(true);
-        this.store.setError(null);
-      }),
-      switchMap(saleId => this.apiService.findSale(saleId)),
-      tap({
-        next: sale => {
-          this.store.setCurrentSale(sale);
-
-
-          // Mettre à jour le saleType dans le store selon la natureVente
-          if (sale.natureVente === 'ASSURANCE') {
-            this.store.setSaleType('ASSURANCE');
-          } else if (sale.natureVente === 'CARNET') {
-            this.store.setSaleType('CARNET');
-          } else {
-            this.store.setSaleType('COMPTANT');
-          }
-
-          if (sale.customer) {
-            this.store.setSelectedCustomer(sale.customer);
-          }
-
-          if (sale.cassier) {
-            this.store.setCashier(sale.cassier);
-          }
-
-          if (sale.seller) {
-            this.store.setSeller(sale.seller);
-          }
-
-          this.store.setLoading(false);
-          this.saleReloadedSuccessSubject.next();
-        },
-        error: error => {
-          this.store.setError(error.message || 'Erreur lors du chargement de la vente');
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error loading sale:', error);
-        return of(null);
-      }),
-    ),
+    this.loadSalePipeline(sale => {
+      this.hydrateSaleInStore(sale);
+      this.store.setLoading(false);
+      this.saleReloadedSuccessSubject.next();
+    }),
   );
   private readonly customerRemovedSuccessSubject = new Subject<void>();
   readonly customerRemovedSuccess$ = this.customerRemovedSuccessSubject.asObservable();
@@ -326,7 +286,8 @@ export class SalesFacade {
           this.cancelSaleSuccessSubject.next();
         },
         error: error => {
-          this.store.setError(error.message || "Erreur lors de l'annulation de la vente");
+          const { errorMessage } = this.extractApiError(error, "Erreur lors de l'annulation de la vente");
+          this.store.setError(errorMessage);
           this.store.setLoading(false);
         },
       }),
@@ -356,106 +317,25 @@ export class SalesFacade {
    * Ne pas utiliser pour recharger la vente courante en édition
    */
   loadSale = rxMethod<SaleId>(
-    pipe(
-      tap(() => {
-        this.store.setLoading(true);
-        this.store.setError(null);
-      }),
-      switchMap(saleId => this.apiService.findSale(saleId)),
-      tap({
-        next: sale => {
-          this.store.setCurrentSale(sale);
-
-          // Mettre à jour le saleType dans le store selon la natureVente
-          if (sale.natureVente === 'ASSURANCE') {
-            this.store.setSaleType('ASSURANCE');
-          } else if (sale.natureVente === 'CARNET') {
-            this.store.setSaleType('CARNET');
-          } else {
-            this.store.setSaleType('COMPTANT');
-          }
-
-          if (sale.customer) {
-            this.store.setSelectedCustomer(sale.customer);
-          }
-
-          if (sale.cassier) {
-            this.store.setCashier(sale.cassier);
-          }
-
-          if (sale.seller) {
-            this.store.setSeller(sale.seller);
-          }
-
-          this.store.setLoading(false);
-          this.saleReloadedToEditSuccessSubject.next();
-        },
-        error: error => {
-          this.store.setError(error.message || 'Erreur lors du chargement de la vente');
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error loading sale:', error);
-        return of(null);
-      }),
-    ),
+    this.loadSalePipeline(sale => {
+      this.hydrateSaleInStore(sale);
+      this.store.setLoading(false);
+      this.saleReloadedToEditSuccessSubject.next();
+    }),
   );
   private readonly resumePendingSaleSuccessSubject = new Subject<void>();
   readonly resumePendingSaleSuccess$ = this.resumePendingSaleSuccessSubject.asObservable();
   resumePendingSale = rxMethod<SaleId>(
-    pipe(
-      tap(() => {
-        this.store.setLoading(true);
-        this.store.setError(null);
-      }),
-      switchMap(saleId => this.apiService.findSale(saleId)),
-      tap({
-        next: sale => {
-          if (sale.statut !== SalesStatut.CLOSED) {
-
-            this.store.setCurrentSale(sale);
-
-            // Mettre à jour le saleType dans le store selon la natureVente
-            if (sale.natureVente === 'ASSURANCE') {
-              this.store.setSaleType('ASSURANCE');
-            } else if (sale.natureVente === 'CARNET') {
-              this.store.setSaleType('CARNET');
-            } else {
-              this.store.setSaleType('COMPTANT');
-            }
-
-            if (sale.customer) {
-              this.store.setSelectedCustomer(sale.customer);
-            }
-
-            if (sale.cassier) {
-              this.store.setCashier(sale.cassier);
-            }
-
-            if (sale.seller) {
-              this.store.setSeller(sale.seller);
-            }
-
-
-            this.resumePendingSaleSuccessSubject.next();
-
-          } else {
-            this.store.resetCurrentSale();
-          }
-          this.store.removePendingSale(sale.saleId);
-          this.store.setLoading(false);
-        },
-        error: error => {
-          this.store.setError(error.message || 'Erreur lors du chargement de la vente');
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error loading sale:', error);
-        return of(null);
-      }),
-    ),
+    this.loadSalePipeline(sale => {
+      if (sale.statut !== SalesStatut.CLOSED) {
+        this.hydrateSaleInStore(sale);
+        this.resumePendingSaleSuccessSubject.next();
+      } else {
+        this.store.resetCurrentSale();
+      }
+      this.store.removePendingSale(sale.saleId);
+      this.store.setLoading(false);
+    }),
   );
 
 
@@ -543,7 +423,7 @@ export class SalesFacade {
       }),
       catchError(error => {
         console.error('Error saving sale:', error);
-        const errorMessage = error?.error?.message || error.message || "Erreur lors de l'enregistrement de la vente";
+        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement de la vente");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -952,18 +832,7 @@ export class SalesFacade {
         catchError(error => {
           console.error('Error updating quantity requested:', error);
 
-          // Extraire le message d'erreur et errorKey
-          let errorMessage = 'Erreur lors de la mise à jour de la quantité demandée';
-          let errorKey: string | undefined;
-
-          if (error?.error) {
-            if (error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.error.detail) {
-              errorMessage = error.error.detail;
-            }
-            errorKey = error.error.errorKey;
-          }
+          const { errorMessage, errorKey } = this.extractApiError(error, 'Erreur lors de la mise à jour de la quantité demandée');
 
           // Si erreur de stock pour modification cellule:
           // NE PAS recharger la vente car cela écraserait la valeur saisie par l'utilisateur
@@ -1220,7 +1089,7 @@ export class SalesFacade {
         }),
         catchError(error => {
           console.error('Error putting sale on standby:', error);
-          const errorMessage = error?.error?.message || 'Erreur lors de la mise en attente';
+          const { errorMessage } = this.extractApiError(error, 'Erreur lors de la mise en attente');
           this.notificationService.error(errorMessage);
           this.store.setError(errorMessage);
           return of(null);
@@ -1249,7 +1118,7 @@ export class SalesFacade {
       }),
       catchError(error => {
         console.error('Error finalizing presale:', error);
-        const errorMessage = error?.error?.message || error.message || 'Erreur lors de la finalisation de la prevente';
+        const { errorMessage } = this.extractApiError(error, 'Erreur lors de la finalisation de la prevente');
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -1287,7 +1156,7 @@ export class SalesFacade {
       }),
       catchError(error => {
         console.error('Error saving devis:', error);
-        const errorMessage = error?.error?.message || error.message || "Erreur lors de l'enregistrement du devis";
+        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement du devis");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -1325,7 +1194,7 @@ export class SalesFacade {
       }),
       catchError(error => {
         console.error('Error saving devis carnet:', error);
-        const errorMessage = error?.error?.message || error.message || "Erreur lors de l'enregistrement du devis carnet";
+        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement du devis carnet");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -1768,13 +1637,67 @@ export class SalesFacade {
           //  this.cashSaleTransformedSubject.next(natureVente);
         }),
         catchError(err => {
-          const errorMessage = err?.error?.message || err?.error?.detail || 'Erreur lors de la transformation de la vente';
+          const { errorMessage } = this.extractApiError(err, 'Erreur lors de la transformation de la vente');
           this.notificationService.error(errorMessage);
           this.store.setLoading(false);
           return of(null);
         }),
       )
       .subscribe();
+  }
+
+  /**
+   * Hydrate le store avec les données d'une vente chargée.
+   * Logique commune à loadSaleForEdit, loadSale, resumePendingSale.
+   */
+  private hydrateSaleInStore(sale: ISales): void {
+    this.store.setCurrentSale(sale);
+
+    if (sale.natureVente === 'ASSURANCE') {
+      this.store.setSaleType('ASSURANCE');
+    } else if (sale.natureVente === 'CARNET') {
+      this.store.setSaleType('CARNET');
+    } else {
+      this.store.setSaleType('COMPTANT');
+    }
+
+    if (sale.customer) {
+      this.store.setSelectedCustomer(sale.customer);
+    }
+
+    if (sale.cassier) {
+      this.store.setCashier(sale.cassier);
+    }
+
+    if (sale.seller) {
+      this.store.setSeller(sale.seller);
+    }
+  }
+
+  /**
+   * Pipeline rxMethod commun pour charger une vente et hydrater le store.
+   * @param onSuccess callback appelé avec la vente chargée (doit appeler setLoading(false))
+   */
+  private loadSalePipeline(onSuccess: (sale: ISales) => void) {
+    return pipe(
+      tap((_: SaleId) => {
+        this.store.setLoading(true);
+        this.store.setError(null);
+      }),
+      switchMap((saleId: SaleId) => this.apiService.findSale(saleId)),
+      tap({
+        next: (sale: ISales) => onSuccess(sale),
+        error: (error: any) => {
+          const { errorMessage } = this.extractApiError(error, 'Erreur lors du chargement de la vente');
+          this.store.setError(errorMessage);
+          this.store.setLoading(false);
+        },
+      }),
+      catchError(error => {
+        console.error('Error loading sale:', error);
+        return of(null);
+      }),
+    );
   }
 
   /**

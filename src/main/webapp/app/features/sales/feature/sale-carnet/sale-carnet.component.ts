@@ -132,7 +132,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly saleType = signal<'CARNET'>('CARNET');
   readonly selectedLineId = signal<number | null>(null);
   readonly waitingForForceStockSuccess = signal<boolean>(false);
-  readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   customers = signal<ICustomer[]>([]);
   isDiffere = signal<boolean>(false);
@@ -197,7 +196,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     loading: this.facade.loading,
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    previousLoadingState: this.previousLoadingState,
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog(),
     resetProductSelection: () => this.productHandling.resetProductSelection(),

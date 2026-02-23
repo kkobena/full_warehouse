@@ -124,7 +124,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   canEditPrice = signal<boolean>(false);
   // Force Stock state signals
   waitingForForceStockSuccess = signal<boolean>(false);
-  previousLoadingState = signal<boolean>(false);
   forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   // UI state for sidebar and pending sales
   sidebarCollapsed = signal(false);
@@ -179,7 +178,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     loading: this.facade.loading,
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    previousLoadingState: this.previousLoadingState,
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog(),
     resetProductSelection: () => this.productHandling.resetProductSelection(),

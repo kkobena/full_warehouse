@@ -143,7 +143,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   isDiffere = signal<boolean>(false);
   // Force Stock state signals
   waitingForForceStockSuccess = signal<boolean>(false);
-  previousLoadingState = signal<boolean>(false);
   forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   // Monnaie calculée en temps réel depuis le composant payment-mode
   currentChange = computed(() => {
@@ -219,7 +218,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     loading: this.facade.loading,
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    previousLoadingState: this.previousLoadingState,
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog(),
     resetProductSelection: () => this.productHandling.resetProductSelection(),

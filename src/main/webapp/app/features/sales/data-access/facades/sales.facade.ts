@@ -264,7 +264,7 @@ export class SalesFacade {
     pipe(
       tap(() => {
         this.store.setLoading(true);
-        this.store.setError(null);
+        this.store.clearError();
       }),
       switchMap(() => {
         const currentSale = this.store.currentSale();
@@ -363,7 +363,7 @@ export class SalesFacade {
    */
   saveSale(): Observable<ISales | null> {
     this.store.setIsSaving(true);
-    this.store.setError(null);
+    this.store.clearError();
 
     const currentSale = this.store.currentSale();
     if (!currentSale) {
@@ -879,8 +879,7 @@ export class SalesFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           // Clear l'erreur en cas de succès (important pour le force stock)
-          this.store.setError(null);
-          this.store.setLastErrorDetails(null);
+          this.store.clearError();
           this.lineUpdatedSuccessSubject.next();
         }
         this.store.setLoading(false);
@@ -1072,7 +1071,7 @@ export class SalesFacade {
     }
 
     this.store.setIsSaving(true);
-    this.store.setError(null);
+    this.store.clearError();
 
     // Determine which endpoint to use based on sale type
     const saleType = this.store.saleType();
@@ -1105,7 +1104,7 @@ export class SalesFacade {
    */
   finalizePresale(sale: ISales, transform: boolean = true): Observable<boolean | null> {
     this.store.setIsSaving(true);
-    this.store.setError(null);
+    this.store.clearError();
 
     const saleType = this.store.saleType();
     const apiCall$ = saleType === 'COMPTANT' ? this.apiService.finalizePresaleComptant(sale, transform) : this.apiService.finalizePresaleAssurance(sale, transform);
@@ -1133,7 +1132,7 @@ export class SalesFacade {
    */
   saveDevis(sale: ISales): Observable<boolean | null> {
     this.store.setIsSaving(true);
-    this.store.setError(null);
+    this.store.clearError();
 
     // Vérifier le client obligatoire pour devis
     if (!sale.customerId && !this.store.selectedCustomer()?.id) {
@@ -1171,7 +1170,7 @@ export class SalesFacade {
    */
   saveDevisCarnet(sale: ISales): Observable<boolean | null> {
     this.store.setIsSaving(true);
-    this.store.setError(null);
+    this.store.clearError();
 
     // Vérifier le client obligatoire pour devis carnet
     if (!sale.customerId && !this.store.selectedCustomer()?.id) {
@@ -1413,7 +1412,7 @@ export class SalesFacade {
     return pipe(
       tap(() => {
         this.store.setSaleType(config.saleType);
-        this.store.setError(null);
+        this.store.clearError();
       }),
       switchMap((initialLine: ISalesLine) => {
         if (!initialLine) {
@@ -1682,7 +1681,7 @@ export class SalesFacade {
     return pipe(
       tap((_: SaleId) => {
         this.store.setLoading(true);
-        this.store.setError(null);
+        this.store.clearError();
       }),
       switchMap((saleId: SaleId) => this.apiService.findSale(saleId)),
       tap({

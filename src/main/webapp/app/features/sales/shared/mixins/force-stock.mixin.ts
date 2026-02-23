@@ -54,7 +54,6 @@ export interface ForceStockHandlingContext {
   lastError: Signal<string | null>;
   // Writable signals for state management
   waitingForForceStockSuccess: WritableSignal<boolean>;
-  previousLoadingState: WritableSignal<boolean>;
   forceStockContext: WritableSignal<ForceStockContext>;
   // Host functions
   getConfirmDialog: () => ConfirmDialogHost;
@@ -84,7 +83,6 @@ export interface ForceStockHandlingContext {
  *   loading: this.facade.loading,
  *   lastError: this.facade.lastError,
  *   waitingForForceStockSuccess: this.waitingForForceStockSuccess,
- *   previousLoadingState: this.previousLoadingState,
  *   forceStockContext: this.forceStockContext,
  *   getConfirmDialog: () => this.confirmDialog(),
  *   resetProductSelection: () => this.resetProductSelection(),
@@ -109,7 +107,6 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
     loading,
     lastError,
     waitingForForceStockSuccess,
-    previousLoadingState,
     forceStockContext,
   } = context;
 
@@ -200,22 +197,18 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
    * Note: Le reset du produit sélectionné est géré via souscription à productAddedSuccess$/lineUpdatedSuccess$ dans le composant
    */
   function setupForceStockSuccessEffect(): void {
+    let previousLoading = loading();
+
     effect(() => {
       const isLoading = loading();
-      const previousLoading = previousLoadingState();
       const waiting = waitingForForceStockSuccess();
+      const prevLoading = previousLoading;
+      previousLoading = isLoading;
 
-      if (!waiting) {
-        if (previousLoading !== isLoading) {
-          previousLoadingState.set(isLoading);
-        }
-        return;
-      }
-
-      previousLoadingState.set(isLoading);
+      if (!waiting) return;
 
       // Succès: loading passe de true à false ET pas d'erreur
-      if (previousLoading && !isLoading && !facade.errorDetails()) {
+      if (prevLoading && !isLoading && !facade.errorDetails()) {
         waitingForForceStockSuccess.set(false);
         facade.clearError();
         forceStockContext.set(null);

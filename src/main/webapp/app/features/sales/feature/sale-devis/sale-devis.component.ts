@@ -121,7 +121,6 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   readonly saleType = signal<'COMPTANT'>('COMPTANT');
   readonly selectedLineId = signal<number | null>(null);
   readonly waitingForForceStockSuccess = signal<boolean>(false);
-  readonly previousLoadingState = signal<boolean>(false);
   readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   customers = signal<ICustomer[]>([]);
   // Customer search
@@ -181,7 +180,6 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     loading: this.facade.loading,
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    previousLoadingState: this.previousLoadingState,
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog(),
     resetProductSelection: () => this.productHandling.resetProductSelection(),

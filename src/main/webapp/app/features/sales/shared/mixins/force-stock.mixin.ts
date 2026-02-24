@@ -1,5 +1,4 @@
 import { Signal, WritableSignal, effect } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { ISalesLine, ISales } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
@@ -46,7 +45,6 @@ export interface ForceStockSaleOperations {
 export interface ForceStockHandlingContext {
   facade: SalesFacade;
   authorizationService: AuthorizationService;
-  spinner: NgxSpinnerService;
   config: ForceStockConfig;
   // Signals
   currentSale: Signal<ISales | null>;
@@ -102,7 +100,6 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
   const {
     facade,
     authorizationService,
-    spinner,
     currentSale,
     loading,
     lastError,
@@ -218,22 +215,12 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
   }
 
   /**
-   * Crée l'effect pour contrôler le spinner selon l'état loading
-   */
-  function setupSpinnerEffect(): void {
-    effect(() => {
-      loading() ? spinner.show() : spinner.hide();
-    });
-  }
-
-  /**
    * Initialise tous les effects liés à la gestion du stock
    * À appeler dans le constructor du composant
    */
   function initializeEffects(): void {
     setupErrorHandlingEffect();
     setupForceStockSuccessEffect();
-    setupSpinnerEffect();
   }
 
   return {
@@ -242,7 +229,6 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
     onForceStockCancelled,
     setupErrorHandlingEffect,
     setupForceStockSuccessEffect,
-    setupSpinnerEffect,
     initializeEffects,
   };
 }

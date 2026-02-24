@@ -104,7 +104,7 @@ export function createProductHandling(context: ProductHandlingContext) {
     host,
     config,
     selectedProduct,
-    currentSale
+    currentSale,
   } = context;
 
   // Signal pour stocker les infos du produit en attente d'affichage (après succès API)

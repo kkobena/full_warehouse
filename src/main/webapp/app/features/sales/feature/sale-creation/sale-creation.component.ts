@@ -1,4 +1,16 @@
-import {Component, computed, DestroyRef, inject, input, model, OnInit, output, signal, viewChild} from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  model,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {take} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
@@ -111,8 +123,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   waitingForForceStockSuccess = signal<boolean>(false);
   forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   // UI state for sidebar and pending sales
-  sidebarCollapsed = signal(false);
-  pendingSalesSidebar = signal(false);
   // Vendeur sélectionné
   selectedSeller = signal<IUser | null>(null);
   // Services
@@ -157,7 +167,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    spinner: this.spinner,
     config: {saleType: 'COMPTANT'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
@@ -260,7 +269,23 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
     this.deconditionnementHandling.initializeEffects();
+    this.initializeEffects();
   }
+
+  private initializeEffects(): void {
+    this.setupSavingStateEffect();
+  }
+
+  /**
+   * Effect pour contrôler le spinner selon l'état de sauvegarde
+   */
+  private setupSavingStateEffect(): void {
+    effect(() => {
+      const active = this.facade.loading() || this.isSaving();
+      active ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
+    });
+  }
+
 
   /**
    * Méthode publique pour mettre le focus sur la recherche produit
@@ -885,31 +910,5 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     });
   }
 
-  // ===== Raccourcis clavier =====
 
-  private proceedWithSaleTypeChange(saleType: SaleType, currentSale: any): void {
-    // Changer le type sélectionné
-    this.selectedSaleType.set(saleType);
-
-    // Annuler la vente actuelle
-    if (currentSale) {
-      this.facade.cancelSale();
-    }
-
-    // Note: La vente sera créée au premier produit ajouté (pas de vente vide)
-    // Créer une nouvelle vente selon le type
-    switch (saleType) {
-      case 'COMPTANT':
-        // Vente créée au premier produit ajouté
-        break;
-
-      case 'ASSURANCE':
-      case 'CARNET':
-        // Ces types seront implémentés en Phase 8
-        this.notificationService.info(`Type de vente: ${saleType}`, 'Fonctionnalité disponible en Phase 8');
-        // Revenir au type COMPTANT
-        this.selectedSaleType.set('COMPTANT');
-        break;
-    }
-  }
 }

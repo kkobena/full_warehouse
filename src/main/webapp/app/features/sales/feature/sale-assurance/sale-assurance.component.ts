@@ -20,9 +20,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
@@ -32,12 +30,8 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {
-  AssureFormStepComponent
-} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import {
-  FormAyantDroitComponent
-} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
 import {
   AyantDroitCustomerListComponent
 } from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
@@ -45,22 +39,13 @@ import {
   AddComplementaireComponent
 } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {
-  PaymentCompleteEvent,
-  PaymentModeComponent
-} from '../../ui/payment-mode/payment-mode.component';
+import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {CustomerSearchService} from '../../data-access/services/customer-search.service';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {
-  IClientTiersPayant,
-  ICustomer,
-  IRemise,
-  ISalesLine,
-  ProduitSearch
-} from '../../../../shared/model';
+import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {
   CashRegisterFormComponent
@@ -213,7 +198,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    spinner: this.spinner,
     config: {saleType: 'ASSURANCE'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
@@ -510,46 +494,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerSelected(customer: ICustomer): void {
-    this.customerHandling.selectCustomer(customer);
-  }
-
-  onCustomerRemoved(): void {
-    this.confirmDialog().onConfirm(
-      () => this.customerHandling.removeCustomer(),
-      'Retirer le client',
-      'Êtes-vous sûr de vouloir retirer ce client ?',
-    );
-  }
-
-  // ============================================
-  // Gestion Client
-  // ============================================
-
-  /**
-   * Ouvre le formulaire de création client assuré
-   */
-  onCustomerAdd(): void {
-    this.openAssuredCustomerForm(null);
-  }
-
-  /**
-   * Délègue au mixin customerHandling
-   */
-  onCustomerSearchChange(searchTerm: string): void {
-    this.customerHandling.searchCustomers(searchTerm);
-  }
-
-  onInsuranceDataUpdate(data: { customer: ICustomer; tiersPayants: IClientTiersPayant[] }): void {
-    // Mettre à jour le client
-    this.facade.setCustomer(data.customer);
-
-    // Mettre à jour les tiers payants via la facade de manière réactive
-    this.facade.updateSaleTiersPayants(data.tiersPayants);
-  }
 
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
@@ -688,9 +632,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.facade.updateSaleTiersPayants(tiersPayants);
   }
 
-  onCreateNewInsuredCustomer(): void {
-    this.openAssuredCustomerForm(null);
-  }
 
   onRemiseSelected(remise: IRemise): void {
     const currentSale = this.currentSale();
@@ -859,12 +800,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     this.productHandling.focusProductSearch();
   }
 
-  getCustomerDisplay(customer: ICustomer | null): string {
-    if (!customer) {
-      return '';
-    }
-    return `${customer.firstName || ''} ${customer.lastName || ''} ${customer.phone || ''}`;
-  }
 
   private initializeEffects(): void {
     this.setupSavingStateEffect();
@@ -875,7 +810,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
    */
   private setupSavingStateEffect(): void {
     effect(() => {
-      this.isSaving() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
+      const active = this.facade.loading() || this.isSaving();
+      active ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
     });
   }
 

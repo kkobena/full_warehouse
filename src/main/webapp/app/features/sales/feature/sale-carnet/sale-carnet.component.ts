@@ -2,7 +2,7 @@ import {
   AfterViewInit,
   Component,
   computed,
-  DestroyRef,
+  DestroyRef, effect,
   inject,
   input,
   model,
@@ -191,7 +191,6 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    spinner: this.spinner,
     config: {saleType: 'CARNET'},
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
@@ -329,6 +328,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
     this.deconditionnementHandling.initializeEffects();
+    this.initializeEffects();
   }
 
   /**
@@ -394,6 +394,19 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
         }, 100);
       }
     }
+  }
+  private initializeEffects(): void {
+    this.setupSavingStateEffect();
+  }
+
+  /**
+   * Effect pour contrôler le spinner selon l'état de sauvegarde
+   */
+  private setupSavingStateEffect(): void {
+    effect(() => {
+      const active = this.facade.loading() || this.isSaving();
+      active ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
+    });
   }
 
   onCustomerSelectedFromBar(customer: ICustomer): void {

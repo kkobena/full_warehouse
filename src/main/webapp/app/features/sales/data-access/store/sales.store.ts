@@ -6,6 +6,31 @@ import { ISalesLine } from '../../../../shared/model';
 import { IUser } from '../../../../core/user/user.model';
 
 /**
+ * Types d'événements métier émis par les sous-facades.
+ * Remplace les 12 Subject<void> par un signal unique dans le store.
+ */
+export type SaleEventType =
+  | 'PRODUCT_ADDED'
+  | 'LINE_UPDATED'
+  | 'LINE_REMOVED'
+  | 'STANDBY_SUCCESS'
+  | 'SALE_RELOADED'
+  | 'SALE_RELOADED_TO_EDIT'
+  | 'CUSTOMER_REMOVED'
+  | 'CANCEL_SALE'
+  | 'CUSTOMER_SET'
+  | 'REMISE_UPDATED'
+  | 'TIERS_PAYANT_ADDED'
+  | 'RESUME_PENDING_SALE';
+
+export interface SaleEvent {
+  type: SaleEventType;
+  payload?: any;
+  /** Monotonically increasing counter — guarantees signal change detection */
+  seq: number;
+}
+
+/**
  * Sales State Interface
  * Centralizes all state previously scattered across 14+ singleton services
  */
@@ -63,6 +88,10 @@ interface SalesState {
   } | null;
   loading: boolean;
   pendingSalesLoading: boolean;
+
+  // Event bus — replaces 12 Subjects with a single signal
+  lastEvent: SaleEvent | null;
+  _eventSeq: number;
 }
 
 /**
@@ -117,6 +146,10 @@ const initialState: SalesState = {
   errorDetails: null,
   loading: false,
   pendingSalesLoading: false,
+
+  // Event bus
+  lastEvent: null,
+  _eventSeq: 0,
 };
 
 /**
@@ -528,6 +561,15 @@ export const SalesStore = signalStore(
      */
     clearError(): void {
       patchState(store, { error: null, errorDetails: null });
+    },
+
+    /**
+     * Emit a business event (replaces Subject.next() in sub-facades)
+     * The monotonic seq counter guarantees signal change detection fires.
+     */
+    emitEvent(type: SaleEventType, payload?: any): void {
+      const nextSeq = store._eventSeq() + 1;
+      patchState(store, { lastEvent: { type, payload, seq: nextSeq }, _eventSeq: nextSeq });
     },
 
     /**

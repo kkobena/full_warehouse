@@ -25,7 +25,6 @@ export interface SaleLifecycleContext {
 /**
  * Mixin pour les subscriptions communes du cycle de vie des ventes
  *
- * Factorise les 7-8 souscriptions `facade.*Success$` dupliquées dans
  * sale-creation, sale-carnet, sale-assurance et sale-devis.
  *
  * @example

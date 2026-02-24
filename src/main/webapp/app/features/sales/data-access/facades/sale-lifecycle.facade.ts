@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, map, Observable, of, pipe, Subject, switchMap, tap } from 'rxjs';
+import { catchError, map, Observable, of, pipe, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -27,28 +27,8 @@ export class SaleLifecycleFacade {
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
 
-  // ── Subjects ───────────────────────────────────────────────
-  private readonly saleCreatedWithProductSuccessSubject = new Subject<void>();
-  readonly saleCreatedWithProductSuccess$ = this.saleCreatedWithProductSuccessSubject.asObservable();
-
-  private readonly saleReloadedSuccessSubject = new Subject<void>();
-  readonly saleReloadedSuccess$ = this.saleReloadedSuccessSubject.asObservable();
-
-  private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
-  readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
-
-  private readonly resumePendingSaleSuccessSubject = new Subject<void>();
-  readonly resumePendingSaleSuccess$ = this.resumePendingSaleSuccessSubject.asObservable();
-
-  private readonly cancelSaleSuccessSubject = new Subject<void>();
-  readonly cancelSaleSuccess$ = this.cancelSaleSuccessSubject.asObservable();
-
   // ── Create sale rxMethods ──────────────────────────────────
 
-  /**
-   * Create a new comptant sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
   createComptantSale = rxMethod<ISalesLine>(
     this.createSalePipeline({
       saleType: 'COMPTANT',
@@ -71,10 +51,6 @@ export class SaleLifecycleFacade {
     }),
   );
 
-  /**
-   * Create a new devis sale (COMPTANT with DEVIS status)
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
   createDevisSale = rxMethod<ISalesLine>(
     this.createSalePipeline({
       saleType: 'COMPTANT',
@@ -97,52 +73,32 @@ export class SaleLifecycleFacade {
     }),
   );
 
-  /**
-   * Create a new insurance sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
   createAssuranceSale = this.createVOSale('ASSURANCE');
-
-  /**
-   * Create a new carnet sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
   createCarnetSale = this.createVOSale('CARNET');
 
   // ── Load sale rxMethods ────────────────────────────────────
 
-  /**
-   * Load sale for editing
-   * Uniquement pour modification d'une vente cloturée
-   * Ne pas utiliser pour recharger la vente courante en édition
-   */
   loadSaleForEdit = rxMethod<SaleId>(
     this.loadSalePipeline(sale => {
       this.hydrateSaleInStore(sale);
       this.store.setLoading(false);
-      this.saleReloadedSuccessSubject.next();
+      this.store.emitEvent('SALE_RELOADED');
     }),
   );
 
-  /**
-   * Load sale for editing (variant — emits saleReloadedToEditSuccess$)
-   */
   loadSale = rxMethod<SaleId>(
     this.loadSalePipeline(sale => {
       this.hydrateSaleInStore(sale);
       this.store.setLoading(false);
-      this.saleReloadedToEditSuccessSubject.next();
+      this.store.emitEvent('SALE_RELOADED_TO_EDIT');
     }),
   );
 
-  /**
-   * Resume a pending sale
-   */
   resumePendingSale = rxMethod<SaleId>(
     this.loadSalePipeline(sale => {
       if (sale.statut !== SalesStatut.CLOSED) {
         this.hydrateSaleInStore(sale);
-        this.resumePendingSaleSuccessSubject.next();
+        this.store.emitEvent('RESUME_PENDING_SALE');
       } else {
         this.store.resetCurrentSale();
       }
@@ -151,9 +107,6 @@ export class SaleLifecycleFacade {
     }),
   );
 
-  /**
-   * Cancel current sale
-   */
   cancelSale = rxMethod<void>(
     pipe(
       tap(() => {
@@ -177,7 +130,7 @@ export class SaleLifecycleFacade {
         next: () => {
           this.store.resetCurrentSale();
           this.store.setLoading(false);
-          this.cancelSaleSuccessSubject.next();
+          this.store.emitEvent('CANCEL_SALE');
         },
         error: error => {
           const { errorMessage } = extractApiError(error, "Erreur lors de l'annulation de la vente");
@@ -282,7 +235,7 @@ export class SaleLifecycleFacade {
           if (result?.createdSale) {
             this.store.setCurrentSale(result.createdSale);
             this.store.clearError();
-            this.saleCreatedWithProductSuccessSubject.next();
+            this.store.emitEvent('PRODUCT_ADDED');
           }
           this.store.setLoading(false);
         },

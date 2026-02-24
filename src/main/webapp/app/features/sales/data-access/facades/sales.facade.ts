@@ -1,7 +1,9 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { merge } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
-import { ISalesLine } from '../../../../shared/model';
+import { SaleEvent } from '../store/sales.store';
+import { IClientTiersPayant, ISalesLine } from '../../../../shared/model';
 import { SaleLifecycleFacade } from './sale-lifecycle.facade';
 import { SaleProductFacade } from './sale-product.facade';
 import { SaleCustomerFacade } from './sale-customer.facade';
@@ -12,19 +14,8 @@ import { SalePaymentFacade } from './sale-payment.facade';
  * Délègue aux sous-facades et ré-expose leur API publique.
  * Les 13 consommateurs continuent d'injecter SalesFacade sans modification.
  *
- * @example
- * // In component:
- * facade = inject(SalesFacade);
- *
- * // Read state (montants calculés côté backend)
- * currentSale = this.facade.currentSale;
- * totalAmount = this.facade.currentSale()?.salesAmount;
- * netAmount = this.facade.currentSale()?.netAmount;
- *
- * // Execute actions
- * this.facade.createComptantSale();
- * this.facade.addProductToSale(product, quantity);
- * this.facade.saveSale();
+ * Events are now centralized in the store via `lastEvent` signal.
+ * Observable streams are derived from `toObservable(store.lastEvent)` for backward compat.
  */
 @Injectable({ providedIn: 'root' })
 export class SalesFacade {
@@ -79,6 +70,9 @@ export class SalesFacade {
   readonly isAvoir = this.store.isAvoir;
   readonly typePrescription = computed(() => this.store.typePrescription());
 
+  /** Store event signal — components can also use effect() on this directly */
+  readonly lastEvent = this.store.lastEvent;
+
   // ============================================
   // STORE BINDINGS (Pass-through)
   // ============================================
@@ -107,23 +101,38 @@ export class SalesFacade {
   resetCurrentSale = this.store.resetCurrentSale.bind(this.store);
 
   // ============================================
-  // EVENTS — Merged cross-cutting streams
+  // EVENTS — Derived from store lastEvent signal
   // ============================================
 
-  /** productAddedSuccess$ is emitted by lifecycle (creation) AND product (add) */
-  readonly productAddedSuccess$ = merge(this.lifecycleFacade.saleCreatedWithProductSuccess$, this.productFacade.productAddedSuccess$);
+  /** Shared observable of all store events (skips initial null) */
+  private readonly lastEvent$ = toObservable(this.store.lastEvent).pipe(
+    filter((e): e is SaleEvent => e !== null),
+  );
 
-  readonly standbySuccess$ = this.paymentFacade.standbySuccess$;
-  readonly lineUpdatedSuccess$ = this.productFacade.lineUpdatedSuccess$;
-  readonly lineRemovedSuccess$ = this.productFacade.lineRemovedSuccess$;
-  readonly saleReloadedSuccess$ = this.lifecycleFacade.saleReloadedSuccess$;
-  readonly customerRemovedSuccess$ = this.customerFacade.customerRemovedSuccess$;
-  readonly cancelSaleSuccess$ = this.lifecycleFacade.cancelSaleSuccess$;
-  readonly customerSetSuccess$ = this.customerFacade.customerSetSuccess$;
-  readonly remiseUpdatedSuccess$ = this.productFacade.remiseUpdatedSuccess$;
-  readonly tiersPayantAddedSuccess$ = this.customerFacade.tiersPayantAddedSuccess$;
-  readonly saleReloadedToEditSuccess$ = this.lifecycleFacade.saleReloadedToEditSuccess$;
-  readonly resumePendingSaleSuccess$ = this.lifecycleFacade.resumePendingSaleSuccess$;
+  /** Helper: filter lastEvent$ by type and map to void */
+  private eventOf(type: SaleEvent['type']) {
+    return this.lastEvent$.pipe(
+      filter((e: SaleEvent) => e.type === type),
+      map((): void => undefined),
+    );
+  }
+
+  readonly productAddedSuccess$ = this.eventOf('PRODUCT_ADDED');
+  readonly standbySuccess$ = this.eventOf('STANDBY_SUCCESS');
+  readonly lineUpdatedSuccess$ = this.eventOf('LINE_UPDATED');
+  readonly lineRemovedSuccess$ = this.eventOf('LINE_REMOVED');
+  readonly saleReloadedSuccess$ = this.eventOf('SALE_RELOADED');
+  readonly saleReloadedToEditSuccess$ = this.eventOf('SALE_RELOADED_TO_EDIT');
+  readonly customerRemovedSuccess$ = this.eventOf('CUSTOMER_REMOVED');
+  readonly cancelSaleSuccess$ = this.eventOf('CANCEL_SALE');
+  readonly customerSetSuccess$ = this.eventOf('CUSTOMER_SET');
+  readonly remiseUpdatedSuccess$ = this.eventOf('REMISE_UPDATED');
+  readonly resumePendingSaleSuccess$ = this.eventOf('RESUME_PENDING_SALE');
+
+  readonly tiersPayantAddedSuccess$ = this.lastEvent$.pipe(
+    filter((e: SaleEvent) => e.type === 'TIERS_PAYANT_ADDED'),
+    map((e: SaleEvent): IClientTiersPayant => e.payload as IClientTiersPayant),
+  );
 
   // ============================================
   // LIFECYCLE — Delegate to SaleLifecycleFacade

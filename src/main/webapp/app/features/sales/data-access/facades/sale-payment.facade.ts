@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, finalize, map, Observable, of, Subject, tap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -18,16 +18,8 @@ export class SalePaymentFacade {
   private readonly notificationService = inject(NotificationService);
   private readonly printService = inject(PrintService);
 
-  // ── Subjects ───────────────────────────────────────────────
-  private readonly standbySuccessSubject = new Subject<void>();
-  readonly standbySuccess$ = this.standbySuccessSubject.asObservable();
-
   // ── Public methods ─────────────────────────────────────────
 
-  /**
-   * Save current sale (finalize)
-   * Returns an Observable that emits the saved sale on success, null on error
-   */
   saveSale(): Observable<ISales | null> {
     this.store.setIsSaving(true);
     this.store.clearError();
@@ -93,9 +85,6 @@ export class SalePaymentFacade {
     );
   }
 
-  /**
-   * Save assurance sale with payment modes and tiers payants
-   */
   saveAssuranceSale(paymentModes: any[]): Observable<ISales | null> {
     const currentSale = this.store.currentSale();
     if (!currentSale) {
@@ -113,9 +102,6 @@ export class SalePaymentFacade {
     return this.saveSale();
   }
 
-  /**
-   * Put current sale on standby (prévente)
-   */
   putOnStandby(): void {
     const currentSale = this.store.currentSale();
     if (!currentSale) {
@@ -135,7 +121,7 @@ export class SalePaymentFacade {
         tap(result => {
           if (result?.success) {
             this.store.resetCurrentSale();
-            this.standbySuccessSubject.next();
+            this.store.emitEvent('STANDBY_SUCCESS');
           }
         }),
         catchError(error => {
@@ -150,9 +136,6 @@ export class SalePaymentFacade {
       .subscribe();
   }
 
-  /**
-   * Finalize a presale
-   */
   finalizePresale(sale: ISales, transform: boolean = true): Observable<boolean | null> {
     this.store.setIsSaving(true);
     this.store.clearError();
@@ -180,9 +163,6 @@ export class SalePaymentFacade {
     );
   }
 
-  /**
-   * Save a devis (like presale, no payment)
-   */
   saveDevis(sale: ISales): Observable<boolean | null> {
     this.store.setIsSaving(true);
     this.store.clearError();
@@ -214,9 +194,6 @@ export class SalePaymentFacade {
     );
   }
 
-  /**
-   * Save a devis carnet (CARNET with DEVIS status)
-   */
   saveDevisCarnet(sale: ISales): Observable<boolean | null> {
     this.store.setIsSaving(true);
     this.store.clearError();
@@ -248,9 +225,6 @@ export class SalePaymentFacade {
     );
   }
 
-  /**
-   * Load pending sales from backend
-   */
   loadPendingSales(params: any): void {
     this.store.setPendingSalesLoading(true);
 
@@ -270,9 +244,6 @@ export class SalePaymentFacade {
       });
   }
 
-  /**
-   * Delete a pending sale permanently
-   */
   deletePendingSale(saleId: SaleId): void {
     this.store.setLoading(true);
 
@@ -292,23 +263,14 @@ export class SalePaymentFacade {
       });
   }
 
-  /**
-   * Print sale invoice (PDF)
-   */
   printInvoice(saleId: SaleId): void {
     this.printService.printInvoice(saleId);
   }
 
-  /**
-   * Print sale receipt (thermal printer format)
-   */
   printReceipt(saleId: SaleId): void {
     this.printService.printReceipt(saleId).subscribe();
   }
 
-  /**
-   * Print current sale (invoice or receipt based on preferences)
-   */
   printCurrentSale(): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.saleId) {

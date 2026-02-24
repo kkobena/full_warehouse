@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { ISales, SaleId } from '../../../../shared/model/sales.model';
+import { SaleId } from '../../../../shared/model/sales.model';
 import { IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import { createSalesLineFromProduct } from '../utils/sales-line.utils';
 import { extractApiError, handlePlafondVenteWarning } from './sale-facade.utils';
@@ -13,7 +13,7 @@ import { extractApiError, handlePlafondVenteWarning } from './sale-facade.utils'
  */
 interface ExecuteAndReloadOptions {
   errorMessage: string;
-  successSubject?: Subject<void>;
+  successEvent?: 'LINE_UPDATED' | 'LINE_REMOVED' | 'REMISE_UPDATED';
   clearErrorOnSuccess?: boolean;
 }
 
@@ -26,26 +26,8 @@ export class SaleProductFacade {
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
 
-  // ── Subjects ───────────────────────────────────────────────
-  private readonly productAddedSuccessSubject = new Subject<void>();
-  readonly productAddedSuccess$ = this.productAddedSuccessSubject.asObservable();
-
-  private readonly lineUpdatedSuccessSubject = new Subject<void>();
-  readonly lineUpdatedSuccess$ = this.lineUpdatedSuccessSubject.asObservable();
-
-  private readonly lineRemovedSuccessSubject = new Subject<void>();
-  readonly lineRemovedSuccess$ = this.lineRemovedSuccessSubject.asObservable();
-
-  private readonly remiseUpdatedSuccessSubject = new Subject<void>();
-  readonly remiseUpdatedSuccess$ = this.remiseUpdatedSuccessSubject.asObservable();
-
   // ── Public methods ─────────────────────────────────────────
 
-  /**
-   * Add product to current sale
-   * Reproduit la logique de createSalesLine() de l'original selling-home.component.ts
-   * Envoie au backend qui calcule tous les montants, puis recharge la vente
-   */
   addProductToSale(product: ProduitSearch, quantity: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale || !currentSale.saleId) {
@@ -75,40 +57,25 @@ export class SaleProductFacade {
       .subscribe(sale => {
         if (sale) {
           this.store.setCurrentSale(sale);
-          this.productAddedSuccessSubject.next();
+          this.store.emitEvent('PRODUCT_ADDED');
         }
         this.store.setLoading(false);
         this.setSelectedProduct(null);
       });
   }
 
-  /**
-   * Add product to existing sale (matches original onAddProduit)
-   */
   onAddProduit(salesLine: ISalesLine): void {
     this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
   }
 
-  /**
-   * Add product to existing CARNET sale
-   * Uses /add-item/assurance endpoint (shared by ASSURANCE and CARNET)
-   */
   onAddProduitCarnet(salesLine: ISalesLine): void {
     this.addProductWithStockHandling(salesLine, this.apiService.addItemAssurance(salesLine));
   }
 
-  /**
-   * Add product to existing DEVIS sale
-   * Uses /add-item/comptant endpoint (same as COMPTANT)
-   */
   onAddProduitDevis(salesLine: ISalesLine): void {
     this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
   }
 
-  /**
-   * Update item quantity with force stock (matches original processQtyRequested)
-   * Uses INCREMENT endpoint to add to existing quantity
-   */
   updateItemQtyRequested(salesLine: ISalesLine): void {
     const saleType = this.store.saleType();
     const apiCall =
@@ -119,10 +86,6 @@ export class SaleProductFacade {
     this.executeQtyUpdate(true, apiCall);
   }
 
-  /**
-   * Update item quantity requested with SET (for force stock from table cell edit)
-   * Uses SET endpoint to REPLACE quantity (not increment)
-   */
   updateItemQtyRequestedWithSet(salesLine: ISalesLine): void {
     const saleType = this.store.saleType();
     const apiCall =
@@ -133,9 +96,6 @@ export class SaleProductFacade {
     this.executeQtyUpdate(false, apiCall);
   }
 
-  /**
-   * Remove line by saleLineId (matches original removeLine)
-   */
   removeLine(saleLineId: any): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.saleId) {
@@ -147,22 +107,15 @@ export class SaleProductFacade {
       currentSale.saleId,
       {
         errorMessage: 'Erreur lors de la suppression de la ligne',
-        successSubject: this.lineRemovedSuccessSubject,
+        successEvent: 'LINE_REMOVED',
       },
     );
   }
 
-  /**
-   * Set selected product in search
-   */
   setSelectedProduct(product: any | null): void {
     this.store.setSelectedProductData(product);
   }
 
-  /**
-   * Update line quantity sold
-   * Envoie au backend pour recalcul des montants, puis recharge la vente
-   */
   updateLineQuantitySold(lineId: number, newQuantity: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) {
@@ -182,15 +135,10 @@ export class SaleProductFacade {
 
     this.executeAndReloadSale(this.apiService.updateItemQtySold(updatedLine), currentSale.saleId, {
       errorMessage: 'Erreur lors de la mise à jour de la quantité',
-      successSubject: this.lineUpdatedSuccessSubject,
+      successEvent: 'LINE_UPDATED',
     });
   }
 
-  /**
-   * Update line quantity requested
-   * Used when editing quantity from table cell
-   * Uses SET endpoint to REPLACE quantity (not increment)
-   */
   updateLineQuantityRequested(lineId: number, newQuantity: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) {
@@ -262,15 +210,12 @@ export class SaleProductFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError();
-          this.lineUpdatedSuccessSubject.next();
+          this.store.emitEvent('LINE_UPDATED');
         }
         this.store.setLoading(false);
       });
   }
 
-  /**
-   * Update line unit price
-   */
   updateLinePrice(lineId: number, newPrice: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) {
@@ -293,9 +238,6 @@ export class SaleProductFacade {
     });
   }
 
-  /**
-   * Apply discount to line
-   */
   applyLineDiscount(lineId: number, discountAmount: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) {
@@ -318,9 +260,6 @@ export class SaleProductFacade {
     });
   }
 
-  /**
-   * Update global remise (discount) on current sale
-   */
   updateRemise(remise?: IRemise): void {
     const currentSale = this.store.currentSale();
     const saleType = this.store.saleType();
@@ -343,7 +282,7 @@ export class SaleProductFacade {
 
     this.executeAndReloadSale(action$, currentSale.saleId, {
       errorMessage: 'Erreur lors de la mise à jour de la remise',
-      successSubject: this.remiseUpdatedSuccessSubject,
+      successEvent: 'REMISE_UPDATED',
     });
   }
 
@@ -420,7 +359,7 @@ export class SaleProductFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError();
-          this.productAddedSuccessSubject.next();
+          this.store.emitEvent('PRODUCT_ADDED');
         }
         this.store.setLoading(false);
       });
@@ -457,7 +396,7 @@ export class SaleProductFacade {
         if (sale) {
           this.store.setCurrentSale(sale);
           this.store.clearError();
-          isAjoutProduit ? this.productAddedSuccessSubject.next() : this.lineUpdatedSuccessSubject.next();
+          this.store.emitEvent(isAjoutProduit ? 'PRODUCT_ADDED' : 'LINE_UPDATED');
         }
         this.store.setLoading(false);
       });
@@ -483,7 +422,9 @@ export class SaleProductFacade {
           if (options.clearErrorOnSuccess) {
             this.store.clearError();
           }
-          options.successSubject?.next();
+          if (options.successEvent) {
+            this.store.emitEvent(options.successEvent);
+          }
         }
         this.store.setLoading(false);
       });

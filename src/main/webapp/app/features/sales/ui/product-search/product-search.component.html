@@ -7,7 +7,7 @@
     (completeMethod)="searchFn($event)"
     (onSelect)="onSelect()"
     (keydown)="onKeyDown($event)"
-    [minLength]="PRODUIT_COMBO_MIN_LENGTH"
+    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
     optionLabel="libelle"
     [appendTo]="APPEND_TO"
     [autofocus]="autofocus()"
@@ -15,6 +15,7 @@
     [style]="style()"
     [inputStyle]="inputStyle()"
     [disabled]="disabled()"
+    dataKey="id"
     placeholder=" ">
     <ng-template #item let-item>
       <div [style]="{ width: '100%' }">

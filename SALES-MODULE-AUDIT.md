@@ -410,7 +410,7 @@ private convertDates<T extends { createdAt?: any; updatedAt?: any }>(obj: T): T 
 | # | Priorite | Action | Impact | Effort |
 |---|----------|--------|--------|--------|
 | 5.1 | CRITIQUE | Decouper SalesFacade en sous-facades | Maintenabilite, testabilite | Eleve |
-| 5.2 | CRITIQUE | Mixin `sale-lifecycle` pour subscriptions communes | -600 lignes de duplication | Moyen |
+| 5.2 | CRITIQUE | Mixin `sale-lifecycle` pour subscriptions communes | -600 lignes de duplication | Moyen | ok
 | 5.3 | MAJEUR | Factoriser les 3 methodes de chargement | -80 lignes, moins de bugs | Faible | ok
 | 5.4 | MAJEUR | Standardiser extractApiError() partout | Coherence, maintenabilite | Faible | ok
 | 5.5 | MAJEUR | Remplacer Subjects par signaux/observables | Decouplage, testabilite | Eleve |

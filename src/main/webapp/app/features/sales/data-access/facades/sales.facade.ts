@@ -1,45 +1,16 @@
-import {computed, inject, Injectable} from '@angular/core';
-import {rxMethod} from '@ngrx/signals/rxjs-interop';
-import {catchError, finalize, map, Observable, of, pipe, Subject, switchMap, tap} from 'rxjs';
-import {SalesStore} from '../store/sales.store';
-import {SalesApiService} from '../services/sales-api.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {ISales, SaleId, UpdateSaleInfo} from '../../../../shared/model/sales.model';
-import {createSalesLineFromProduct} from '../utils/sales-line.utils';
-import {
-  IClientTiersPayant,
-  ICustomer,
-  IRemise,
-  ISalesLine,
-  ProduitSearch,
-  SalesStatut
-} from '../../../../shared/model';
-import {PrintService} from '../services/print.service';
+import { computed, inject, Injectable } from '@angular/core';
+import { merge } from 'rxjs';
+import { SalesStore } from '../store/sales.store';
+import { ISalesLine } from '../../../../shared/model';
+import { SaleLifecycleFacade } from './sale-lifecycle.facade';
+import { SaleProductFacade } from './sale-product.facade';
+import { SaleCustomerFacade } from './sale-customer.facade';
+import { SalePaymentFacade } from './sale-payment.facade';
 
 /**
- * Configuration pour la création d'une vente
- */
-interface CreateSaleConfig {
-  saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET';
-  buildSale: (initialLine: ISalesLine) => ISales;
-  apiCall: (sale: ISales) => Observable<ISales>;
-  defaultErrorMessage: string;
-}
-
-/**
- * Options pour executeAndReloadSale
- */
-interface ExecuteAndReloadOptions {
-  errorMessage: string;
-  successSubject?: Subject<void>;
-  clearErrorOnSuccess?: boolean;
-}
-
-/**
- * Sales Facade
- * High-level API for sales operations
- * Encapsulates store and API service interactions
- * Provides simple, business-focused methods for components
+ * Sales Facade — Orchestrateur mince
+ * Délègue aux sous-facades et ré-expose leur API publique.
+ * Les 13 consommateurs continuent d'injecter SalesFacade sans modification.
  *
  * @example
  * // In component:
@@ -55,94 +26,63 @@ interface ExecuteAndReloadOptions {
  * this.facade.addProductToSale(product, quantity);
  * this.facade.saveSale();
  */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class SalesFacade {
-  /**
-   * Create a new insurance sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
-  createAssuranceSale = this.createVOSale('ASSURANCE');
-  /**
-   * Create a new carnet sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
-  createCarnetSale = this.createVOSale('CARNET');
-  /** Type de prescription */
+  // ── Sub-facades ────────────────────────────────────────────
+  private readonly lifecycleFacade = inject(SaleLifecycleFacade);
+  private readonly productFacade = inject(SaleProductFacade);
+  private readonly customerFacade = inject(SaleCustomerFacade);
+  private readonly paymentFacade = inject(SalePaymentFacade);
+
+  // ── Store (exposed for direct access) ──────────────────────
   readonly store = inject(SalesStore);
-  /** Can save current sale */
+
+  // ============================================
+  // EXPOSE STORE STATE (Read-only)
+  // ============================================
+
   readonly canSave = this.store.canSave;
   readonly canSaveSale = this.canSave;
-
-  /** Current sale */
   readonly currentSale = this.store.currentSale;
-  // Computed amounts - expose from store
   readonly totalAmount = computed(() => this.currentSale()?.salesAmount || 0);
   readonly discountAmount = computed(() => this.currentSale()?.discountAmount || 0);
   readonly taxAmount = computed(() => this.currentSale()?.taxAmount || 0);
   readonly netAmount = computed(() => this.currentSale()?.netAmount || 0);
   readonly amountToBePaid = computed(() => this.currentSale()?.amountToBePaid || 0);
-  /** Selected customer */
   readonly selectedCustomer = this.store.selectedCustomer;
-  /** Cashier user */
   readonly cashier = this.store.cashier;
-  /** Seller user */
   readonly seller = this.store.seller;
-  /** Sale type */
   readonly saleType = this.store.saleType;
-  /** Presale mode */
   readonly isPresale = this.store.isPresale;
-  /** Devis mode */
   readonly isDevis = this.store.isDevis;
-  /** Pending tiers payants (avant création vente backend) */
   readonly pendingTiersPayants = this.store.pendingTiersPayants;
-  /** Is edit mode */
   readonly isEdit = this.store.isEdit;
-  /** Is saving */
   readonly isSaving = this.store.isSaving;
-  /** Loading state */
   readonly loading = this.store.loading;
-  /** Error message */
   readonly error = this.store.error;
-  /** Error details for advanced handling */
   readonly errorDetails = this.store.errorDetails;
-  /** Last error for compatibility */
   readonly lastError = this.store.error;
-  /** Plafond de vente atteint (ventes VO uniquement) */
   readonly plafondIsReached = this.store.plafondIsReached;
-  /** Message backend du dépassement de plafond */
   readonly plafondMessage = this.store.plafondMessage;
-  /** Pending sales */
   readonly pendingSales = this.store.pendingSales;
-  /** Pending sales loading (separate from global loading) */
   readonly pendingSalesLoading = this.store.pendingSalesLoading;
-  /** Selected product for search */
   readonly selectedProduct = this.store.selectedProduct;
-  /** Sales lines of current sale */
   readonly salesLines = this.store.salesLines;
-  /** Total items count */
   readonly totalItems = this.store.totalItems;
-
-  // ============================================
-  // EXPOSE STORE STATE (Read-only)
-
-  // ============================================
-  /** Is VO sale (insurance/carnet) */
   readonly isVOSale = this.store.isVOSale;
-  /** Has customer */
   readonly hasCustomer = this.store.hasCustomer;
-  /** Sales lines count */
   readonly salesLinesCount = this.store.salesLinesCount;
-  /** Is sale empty */
   readonly isEmpty = this.store.isEmpty;
-  /** Remaining amount to pay */
   readonly remainingAmount = this.store.remainingAmount;
-  /** Total quantity requested (quantité demandée) */
   readonly totalQuantityRequested = this.store.totalQuantityRequested;
-  /** Total quantity sold (quantité servie) */
   readonly totalQuantitySold = this.store.totalQuantitySold;
-  /** Is avoir - true if quantityRequested !== quantitySold */
   readonly isAvoir = this.store.isAvoir;
   readonly typePrescription = computed(() => this.store.typePrescription());
+
+  // ============================================
+  // STORE BINDINGS (Pass-through)
+  // ============================================
+
   setCurrentSale = this.store.setCurrentSale.bind(this.store);
   setSelectedCustomer = this.store.setSelectedCustomer.bind(this.store);
   setCashier = this.store.setCashier.bind(this.store);
@@ -152,10 +92,6 @@ export class SalesFacade {
   setIsDevis = this.store.setIsDevis.bind(this.store);
   setIsEdit = this.store.setIsEdit.bind(this.store);
   setTypePrescription = this.store.setTypePrescription.bind(this.store);
-
-  // ============================================
-  // EXPOSE COMPUTED SELECTORS
-  // ============================================
   setPaymentMode = this.store.setPaymentMode.bind(this.store);
   setPrintInvoice = this.store.setPrintInvoice.bind(this.store);
   setPrintReceipt = this.store.setPrintReceipt.bind(this.store);
@@ -169,1556 +105,95 @@ export class SalesFacade {
   clearError = this.store.clearError.bind(this.store);
   reset = this.store.reset.bind(this.store);
   resetCurrentSale = this.store.resetCurrentSale.bind(this.store);
-  private readonly apiService = inject(SalesApiService);
-  /**
-   * Create a new comptant sale
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
-  createComptantSale = rxMethod<ISalesLine>(
-    this.createSalePipeline({
-      saleType: 'COMPTANT',
-      defaultErrorMessage: 'Erreur lors de la création de la vente',
-      apiCall: sale => this.apiService.createComptantSale(sale),
-      buildSale: initialLine => ({
-        statut: this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE,
-        salesLines: [initialLine],
-        customerId: this.store.selectedCustomer()?.id,
-        natureVente: 'COMPTANT',
-        typePrescription: 'PRESCRIPTION',
-        cassierId: this.store.cashier()?.id,
-        sellerId: this.store.seller()?.id,
-        type: 'VNO',
-        categorie: 'VNO',
-        differe: false,
-        sansBon: false,
-        avoir: false,
-      }),
-    }),
-  );
-  /**
-   * Create a new devis sale (COMPTANT with DEVIS status)
-   * @param initialLine - REQUIRED first product to add to the sale (cannot create empty sale)
-   */
-  createDevisSale = rxMethod<ISalesLine>(
-    this.createSalePipeline({
-      saleType: 'COMPTANT',
-      defaultErrorMessage: 'Erreur lors de la création du devis',
-      apiCall: sale => this.apiService.createComptantSale(sale),
-      buildSale: initialLine => ({
-        statut: SalesStatut.DEVIS,
-        salesLines: [initialLine],
-        customerId: this.store.selectedCustomer()?.id,
-        natureVente: 'COMPTANT',
-        typePrescription: 'PRESCRIPTION',
-        cassierId: this.store.cashier()?.id,
-        sellerId: this.store.seller()?.id,
-        type: 'VNO',
-        categorie: 'VNO',
-        differe: false,
-        sansBon: false,
-        avoir: false,
-      }),
-    }),
-  );
-  private readonly notificationService = inject(NotificationService);
-  private readonly printService = inject(PrintService);
 
   // ============================================
-  // PRIVATE HELPERS (Shared logic)
+  // EVENTS — Merged cross-cutting streams
   // ============================================
-  // Events - Success subjects for component subscriptions
-  private readonly standbySuccessSubject = new Subject<void>();
-  readonly standbySuccess$ = this.standbySuccessSubject.asObservable();
-  private readonly productAddedSuccessSubject = new Subject<void>();
-  readonly productAddedSuccess$ = this.productAddedSuccessSubject.asObservable();
-  private readonly lineUpdatedSuccessSubject = new Subject<void>();
-  readonly lineUpdatedSuccess$ = this.lineUpdatedSuccessSubject.asObservable();
-  private readonly lineRemovedSuccessSubject = new Subject<void>();
-  readonly lineRemovedSuccess$ = this.lineRemovedSuccessSubject.asObservable();
 
-  // ============================================
-  // BUSINESS ACTIONS (High-level)
-  // ============================================
-  private readonly saleReloadedSuccessSubject = new Subject<void>();
-  readonly saleReloadedSuccess$ = this.saleReloadedSuccessSubject.asObservable();
-  /**
-   * Load sale for editing
-   * Uniquement pour modification  d'une vente cloturée
-   * Ne pas utiliser pour recharger la vente courante en édition
-   */
-  loadSaleForEdit = rxMethod<SaleId>(
-    this.loadSalePipeline(sale => {
-      this.hydrateSaleInStore(sale);
-      this.store.setLoading(false);
-      this.saleReloadedSuccessSubject.next();
-    }),
-  );
-  private readonly customerRemovedSuccessSubject = new Subject<void>();
-  readonly customerRemovedSuccess$ = this.customerRemovedSuccessSubject.asObservable();
-  private readonly cancelSaleSuccessSubject = new Subject<void>();
-  readonly cancelSaleSuccess$ = this.cancelSaleSuccessSubject.asObservable();
-  /**
-   * Cancel current sale
-   */
-  cancelSale = rxMethod<void>(
-    pipe(
-      tap(() => {
-        this.store.setLoading(true);
-        this.store.clearError();
-      }),
-      switchMap(() => {
-        const currentSale = this.store.currentSale();
-        if (!currentSale || !currentSale.id || !currentSale.saleId) {
-          throw new Error('Aucune vente en cours');
-        }
-        const saleId: SaleId = currentSale.saleId;
-        const isVno = this.store.saleType() === 'COMPTANT';
-        if (isVno) {
-          return this.apiService.deletePreventeComptant(saleId); // Ne pas utiliser cancelComptant(saleId):pour les ventes cloturées, le endpoint de suppression est différent (deletePreventeComptant) pour respecter les règles métier de suppression des ventes comptant
-        } else {
-          return this.apiService.deletePreventeAssurance(saleId); // Ne pas utiliser cancelAssurance(saleId):pour les ventes cloturées, le endpoint de suppression est différent (deletePreventeAssurance) pour respecter les règles métier de suppression des ventes assurance/carnet
-        }
-      }),
-      tap({
-        next: () => {
-          this.store.resetCurrentSale();
-          this.store.setLoading(false);
-          this.cancelSaleSuccessSubject.next();
-        },
-        error: error => {
-          const { errorMessage } = this.extractApiError(error, "Erreur lors de l'annulation de la vente");
-          this.store.setError(errorMessage);
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error canceling sale:', error);
-        return of(null);
-      }),
-    ),
-  );
-  private readonly customerSetSuccessSubject = new Subject<void>();
-  readonly customerSetSuccess$ = this.customerSetSuccessSubject.asObservable();
-  private readonly remiseUpdatedSuccessSubject = new Subject<void>();
-  readonly remiseUpdatedSuccess$ = this.remiseUpdatedSuccessSubject.asObservable();
-  private readonly tiersPayantAddedSuccessSubject = new Subject<IClientTiersPayant>();
+  /** productAddedSuccess$ is emitted by lifecycle (creation) AND product (add) */
+  readonly productAddedSuccess$ = merge(this.lifecycleFacade.saleCreatedWithProductSuccess$, this.productFacade.productAddedSuccess$);
+
+  readonly standbySuccess$ = this.paymentFacade.standbySuccess$;
+  readonly lineUpdatedSuccess$ = this.productFacade.lineUpdatedSuccess$;
+  readonly lineRemovedSuccess$ = this.productFacade.lineRemovedSuccess$;
+  readonly saleReloadedSuccess$ = this.lifecycleFacade.saleReloadedSuccess$;
+  readonly customerRemovedSuccess$ = this.customerFacade.customerRemovedSuccess$;
+  readonly cancelSaleSuccess$ = this.lifecycleFacade.cancelSaleSuccess$;
+  readonly customerSetSuccess$ = this.customerFacade.customerSetSuccess$;
+  readonly remiseUpdatedSuccess$ = this.productFacade.remiseUpdatedSuccess$;
+  readonly tiersPayantAddedSuccess$ = this.customerFacade.tiersPayantAddedSuccess$;
+  readonly saleReloadedToEditSuccess$ = this.lifecycleFacade.saleReloadedToEditSuccess$;
+  readonly resumePendingSaleSuccess$ = this.lifecycleFacade.resumePendingSaleSuccess$;
 
   // ============================================
-  // PRODUCT MANAGEMENT
+  // LIFECYCLE — Delegate to SaleLifecycleFacade
   // ============================================
-  readonly tiersPayantAddedSuccess$ = this.tiersPayantAddedSuccessSubject.asObservable();
-  private readonly saleReloadedToEditSuccessSubject = new Subject<void>();
-  readonly saleReloadedToEditSuccess$ = this.saleReloadedToEditSuccessSubject.asObservable();
-  //private readonly cashSaleTransformedSubject = new Subject<'ASSURANCE' | 'CARNET'>();
-  // readonly cashSaleTransformed$ = this.cashSaleTransformedSubject.asObservable();
-  /**
-   * Load sale for editing
-   * Uniquement pour modification  d'une vente cloturée
-   * Ne pas utiliser pour recharger la vente courante en édition
-   */
-  loadSale = rxMethod<SaleId>(
-    this.loadSalePipeline(sale => {
-      this.hydrateSaleInStore(sale);
-      this.store.setLoading(false);
-      this.saleReloadedToEditSuccessSubject.next();
-    }),
-  );
-  private readonly resumePendingSaleSuccessSubject = new Subject<void>();
-  readonly resumePendingSaleSuccess$ = this.resumePendingSaleSuccessSubject.asObservable();
-  resumePendingSale = rxMethod<SaleId>(
-    this.loadSalePipeline(sale => {
-      if (sale.statut !== SalesStatut.CLOSED) {
-        this.hydrateSaleInStore(sale);
-        this.resumePendingSaleSuccessSubject.next();
-      } else {
-        this.store.resetCurrentSale();
-      }
-      this.store.removePendingSale(sale.saleId);
-      this.store.setLoading(false);
-    }),
-  );
 
+  createComptantSale = this.lifecycleFacade.createComptantSale;
+  createDevisSale = this.lifecycleFacade.createDevisSale;
+  createAssuranceSale = this.lifecycleFacade.createAssuranceSale;
+  createCarnetSale = this.lifecycleFacade.createCarnetSale;
+  loadSaleForEdit = this.lifecycleFacade.loadSaleForEdit;
+  loadSale = this.lifecycleFacade.loadSale;
+  resumePendingSale = this.lifecycleFacade.resumePendingSale;
+  cancelSale = this.lifecycleFacade.cancelSale;
 
-  /**
-   * Transforme une vente comptant (VNO) en vente ASSURANCE.
-   * Équivalent de onChangeCashSaleToVo() du legacy selling-home.component.ts.
-   * Émet cashSaleTransformed$ avec 'ASSURANCE' après succès.
-   */
-  transformCashSaleToAssurance(): void {
-    this.doTransformCashSale('ASSURANCE');
-  }
+  initializeComptantSale = this.lifecycleFacade.initializeComptantSale.bind(this.lifecycleFacade);
+  initializeAssuranceSale = this.lifecycleFacade.initializeAssuranceSale.bind(this.lifecycleFacade);
+  initializeCarnetSale = this.lifecycleFacade.initializeCarnetSale.bind(this.lifecycleFacade);
+  initializeDevisSale = this.lifecycleFacade.initializeDevisSale.bind(this.lifecycleFacade);
+  initializeDevisCarnetSale = this.lifecycleFacade.initializeDevisCarnetSale.bind(this.lifecycleFacade);
+  transformCashSaleToAssurance = this.lifecycleFacade.transformCashSaleToAssurance.bind(this.lifecycleFacade);
+  transformCashSaleToCarnet = this.lifecycleFacade.transformCashSaleToCarnet.bind(this.lifecycleFacade);
 
-  /**
-   * Transforme une vente comptant (VNO) en vente CARNET.
-   * Équivalent de onChangeCashSaleToCarnet() du legacy selling-home.component.ts.
-   * Émet cashSaleTransformed$ avec 'CARNET' après succès.
-   */
-  transformCashSaleToCarnet(): void {
-    this.doTransformCashSale('CARNET');
-  }
+  // ============================================
+  // PRODUCT — Delegate to SaleProductFacade
+  // ============================================
 
-  /**
-   * Save current sale (finalize)
-   * Returns an Observable that emits the saved sale on success, null on error
-   */
-  saveSale(): Observable<ISales | null> {
-    this.store.setIsSaving(true);
-    this.store.clearError();
+  addProductToSale = this.productFacade.addProductToSale.bind(this.productFacade);
+  onAddProduit = this.productFacade.onAddProduit.bind(this.productFacade);
+  onAddProduitCarnet = this.productFacade.onAddProduitCarnet.bind(this.productFacade);
+  onAddProduitDevis = this.productFacade.onAddProduitDevis.bind(this.productFacade);
+  updateItemQtyRequested = this.productFacade.updateItemQtyRequested.bind(this.productFacade);
+  updateItemQtyRequestedWithSet = this.productFacade.updateItemQtyRequestedWithSet.bind(this.productFacade);
+  removeLine = this.productFacade.removeLine.bind(this.productFacade);
+  setSelectedProduct = this.productFacade.setSelectedProduct.bind(this.productFacade);
+  updateLineQuantitySold = this.productFacade.updateLineQuantitySold.bind(this.productFacade);
+  updateLineQuantityRequested = this.productFacade.updateLineQuantityRequested.bind(this.productFacade);
+  updateLinePrice = this.productFacade.updateLinePrice.bind(this.productFacade);
+  applyLineDiscount = this.productFacade.applyLineDiscount.bind(this.productFacade);
+  updateRemise = this.productFacade.updateRemise.bind(this.productFacade);
 
-    const currentSale = this.store.currentSale();
-    if (!currentSale) {
-      const error = 'Aucune vente en cours';
-      this.store.setError(error);
-      this.store.setIsSaving(false);
-      return of(null);
-    }
+  // ============================================
+  // CUSTOMER — Delegate to SaleCustomerFacade
+  // ============================================
 
-    // Calculer les montants avant sauvegarde
-    this.calculateSaleAmounts(currentSale);
+  setCustomer = this.customerFacade.setCustomer.bind(this.customerFacade);
+  removeCustomer = this.customerFacade.removeCustomer.bind(this.customerFacade);
+  updateSaleTiersPayants = this.customerFacade.updateSaleTiersPayants.bind(this.customerFacade);
+  removeTiersPayantFromSale = this.customerFacade.removeTiersPayantFromSale.bind(this.customerFacade);
+  addTiersPayantToSale = this.customerFacade.addTiersPayantToSale.bind(this.customerFacade);
 
-    // Appliquer le flag avoir automatiquement
-    currentSale.avoir = this.store.isAvoir();
+  // ============================================
+  // PAYMENT — Delegate to SalePaymentFacade
+  // ============================================
 
-    // Vérifier si client obligatoire pour avoir
-    if (currentSale.avoir && !currentSale.customerId) {
-      const error = 'Un client est obligatoire pour une vente avec avoir (livraison partielle)';
-      this.notificationService.error(error);
-      this.store.setError(error);
-      this.store.setIsSaving(false);
-      return of(null);
-    }
-
-    const saleType = this.store.saleType();
-    let saveObservable: Observable<ISales>;
-
-    if (saleType === 'COMPTANT') {
-      saveObservable = this.apiService.saveCashSale(currentSale);
-    } else if (saleType === 'ASSURANCE' || saleType === 'CARNET') {
-      // CARNET utilise les mêmes endpoints qu'ASSURANCE
-      saveObservable = this.apiService.saveAssuranceSale(currentSale);
-    } else {
-      const error = 'Type de vente non supporté';
-      this.store.setError(error);
-      this.store.setIsSaving(false);
-      return of(null);
-    }
-
-    return saveObservable.pipe(
-      tap(result => {
-        // Print if needed
-        const printInvoice = this.store.printInvoice();
-        const printReceipt = this.store.printReceipt();
-
-        if (printInvoice && result.saleId) {
-          this.printService.printInvoice(result.saleId);
-        }
-
-        if (printReceipt && result.saleId) {
-          this.printService.printReceipt(result.saleId).subscribe();
-        }
-
-        // Reset after successful save
-        this.store.resetCurrentSale();
-        this.store.setIsSaving(false);
-      }),
-      catchError(error => {
-        console.error('Error saving sale:', error);
-        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement de la vente");
-        this.notificationService.error(errorMessage);
-        this.store.setError(errorMessage);
-        this.store.setIsSaving(false);
-        return of(null);
-      }),
-    );
-  }
-
-  /**
-   * Initialize a new comptant sale
-   * @param initialLine - REQUIRED first product to add (matches original behavior - no empty sales)
-   */
-  initializeComptantSale(initialLine: ISalesLine): void {
-    if (!initialLine) {
-      throw new Error('Impossible de créer une vente sans produit');
-    }
-    this.store.setSaleType('COMPTANT');
-    this.createComptantSale(initialLine);
-  }
-
-  /**
-   * Initialize a new assurance sale (without initial product - customer required first)
-   */
-  initializeAssuranceSale(): void {
-    this.store.setSaleType('ASSURANCE');
-    this.store.setPendingTiersPayants([]);
-  }
-
-  /**
-   * Initialize a new carnet sale (without initial product - customer required first)
-   */
-  initializeCarnetSale(): void {
-    this.store.setSaleType('CARNET');
-    this.store.setPendingTiersPayants([]);
-  }
-
-  /**
-   * Initialize a new devis sale (COMPTANT with customer required)
-   */
-  initializeDevisSale(): void {
-    this.store.setSaleType('COMPTANT');
-    this.store.setIsDevis(true);
-  }
-
-  /**
-   * Initialize a new devis carnet sale (CARNET with DEVIS status)
-   */
-  initializeDevisCarnetSale(): void {
-    this.store.setSaleType('CARNET');
-    this.store.setIsDevis(true);
-    this.store.setPendingTiersPayants([]);
-  }
-
-  /**
-   * Update tiers payants - stocke dans pendingTiersPayants si pas de vente, sinon dans currentSale
-   * Called when customer is selected or when tiers payants are modified in UI
-   */
-  updateSaleTiersPayants(tiersPayants: IClientTiersPayant[]): void {
-    const currentSale = this.store.currentSale();
-    if (currentSale?.saleId) {
-      // Vente existe sur le backend, mettre à jour currentSale
-      this.store.setCurrentSale({
-        ...currentSale,
-        tiersPayants: tiersPayants,
-      });
-    } else {
-      // Pas encore de vente backend, stocker dans pendingTiersPayants
-      this.store.setPendingTiersPayants(tiersPayants);
-    }
-  }
-
-  /**
-   * Remove a tiers payant from the current sale
-   * If sale exists (has saleId), makes API call to remove and recalculate amounts
-   * If sale doesn't exist, just removes locally
-   * @param tiersPayant - The tiers payant to remove
-   * @param onSuccess - Optional callback called after successful removal
-   */
-  removeTiersPayantFromSale(tiersPayant: IClientTiersPayant, onSuccess?: () => void): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale) {
-      return;
-    }
-
-    // Calculer la nouvelle liste sans le tiers payant
-    const updatedTiersPayants = (currentSale.tiersPayants || []).filter(tp => tp.id !== tiersPayant.id);
-
-    // Si la vente existe sur le backend, faire un appel API
-    if (currentSale.saleId && tiersPayant.id) {
-      this.store.setLoading(true);
-
-      this.apiService
-        .removeThirdPartyFromSales(tiersPayant.id, currentSale.saleId)
-        .pipe(
-          switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-          catchError(error => {
-            console.error('Error removing tiers payant:', error);
-            this.notificationService.error('Erreur lors de la suppression du tiers payant');
-            this.store.setLoading(false);
-            return of(null);
-          }),
-          finalize(() => this.store.setLoading(false)),
-        )
-        .subscribe(saleFromBackend => {
-          if (saleFromBackend) {
-            this.store.setCurrentSale(saleFromBackend);
-            if (onSuccess) {
-              onSuccess();
-            }
-          }
-        });
-    } else {
-      // Si pas de vente backend, juste mettre à jour localement
-      this.store.setCurrentSale({
-        ...currentSale,
-        tiersPayants: updatedTiersPayants,
-      });
-      if (onSuccess) {
-        onSuccess();
-      }
-    }
-  }
-
-  /**
-   * Add a tiers payant complémentaire to the current sale
-   * If sale exists (has saleId), makes API call to add and recalculate amounts
-   * In all cases, emits success event for UI update
-   * @param tiersPayant - The tiers payant to add
-   */
-  addTiersPayantToSale(tiersPayant: IClientTiersPayant): void {
-    const currentSale = this.store.currentSale();
-
-    // Si la vente existe sur le backend (a un saleId), faire un appel API
-    if (currentSale?.saleId) {
-      this.store.setLoading(true);
-
-      this.apiService
-        .addTiersPayantComplementaire(currentSale.saleId, tiersPayant)
-        .pipe(
-          switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-          catchError(error => {
-            console.error('Error adding tiers payant:', error);
-            this.notificationService.error("Erreur lors de l'ajout du tiers payant complémentaire");
-            this.store.setLoading(false);
-            return of(null);
-          }),
-          finalize(() => this.store.setLoading(false)),
-        )
-        .subscribe(saleFromBackend => {
-          if (saleFromBackend) {
-            this.store.setCurrentSale(saleFromBackend);
-            // Émettre l'événement de succès avec le nouveau tiers payant
-            this.tiersPayantAddedSuccessSubject.next(tiersPayant);
-          }
-        });
-    } else {
-      // Pas de vente backend: mise à jour locale du store si currentSale existe
-      if (currentSale) {
-        const existingTiersPayants = currentSale.tiersPayants || [];
-        const updatedTiersPayants = [...existingTiersPayants, tiersPayant];
-        this.store.setCurrentSale({
-          ...currentSale,
-          tiersPayants: updatedTiersPayants,
-        });
-      }
-      // Toujours émettre l'événement pour que l'UI se mette à jour
-      this.tiersPayantAddedSuccessSubject.next(tiersPayant);
-    }
-  }
-
-  /**
-   * Save assurance sale with payment modes and tiers payants
-   * @param paymentModes - Payment modes used
-   * @returns Observable that emits the saved sale
-   */
-  saveAssuranceSale(paymentModes: any[]): Observable<ISales | null> {
-    const currentSale = this.store.currentSale();
-    if (!currentSale) {
-      this.notificationService.error('Aucune vente en cours');
-      return of(null);
-    }
-
-    if (!currentSale.customerId) {
-      this.notificationService.error('Client obligatoire pour vente ASSURANCE');
-      return of(null);
-    }
-
-    currentSale.payments = paymentModes;
-
-    return this.saveSale();
-  }
+  saveSale = this.paymentFacade.saveSale.bind(this.paymentFacade);
+  saveAssuranceSale = this.paymentFacade.saveAssuranceSale.bind(this.paymentFacade);
+  putOnStandby = this.paymentFacade.putOnStandby.bind(this.paymentFacade);
+  finalizePresale = this.paymentFacade.finalizePresale.bind(this.paymentFacade);
+  saveDevis = this.paymentFacade.saveDevis.bind(this.paymentFacade);
+  saveDevisCarnet = this.paymentFacade.saveDevisCarnet.bind(this.paymentFacade);
+  loadPendingSales = this.paymentFacade.loadPendingSales.bind(this.paymentFacade);
+  deletePendingSale = this.paymentFacade.deletePendingSale.bind(this.paymentFacade);
+  printInvoice = this.paymentFacade.printInvoice.bind(this.paymentFacade);
+  printReceipt = this.paymentFacade.printReceipt.bind(this.paymentFacade);
+  printCurrentSale = this.paymentFacade.printCurrentSale.bind(this.paymentFacade);
 
   /**
    * Create comptant sale with first product (matches original createComptant)
-   * @param salesLine - First product to add to the sale
    */
   createComptant(salesLine: ISalesLine): void {
     this.initializeComptantSale(salesLine);
-  }
-
-  /**
-   * Add product to existing sale (matches original onAddProduit)
-   * @param salesLine - Product line to add
-   */
-  onAddProduit(salesLine: ISalesLine): void {
-    this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
-  }
-
-  // ============================================
-  // CUSTOMER MANAGEMENT
-  // ============================================
-
-  /**
-   * Add product to existing CARNET sale
-   * Uses /add-item/assurance endpoint (shared by ASSURANCE and CARNET)
-   * @param salesLine - Product line to add
-   */
-  onAddProduitCarnet(salesLine: ISalesLine): void {
-    this.addProductWithStockHandling(salesLine, this.apiService.addItemAssurance(salesLine));
-  }
-
-  /**
-   * Add product to existing DEVIS sale
-   * Uses /add-item/comptant endpoint (same as COMPTANT)
-   * @param salesLine - Product line to add
-   */
-  onAddProduitDevis(salesLine: ISalesLine): void {
-    this.addProductWithStockHandling(salesLine, this.apiService.addItemComptant(salesLine));
-  }
-
-  // ============================================
-  // PENDING SALES (MISE EN ATTENTE)
-  // ============================================
-
-  /**
-   * Update item quantity with force stock (matches original processQtyRequested)
-   * Used when forcing stock after confirmation dialog
-   * Uses INCREMENT endpoint to add to existing quantity
-   * @param salesLine - Product line to update with forceStock = true
-   */
-  updateItemQtyRequested(salesLine: ISalesLine): void {
-    const saleType = this.store.saleType();
-    const apiCall =
-      saleType === 'ASSURANCE' || saleType === 'CARNET'
-        ? this.apiService.incrementItemQtyRequestedAssurance(salesLine)
-        : this.apiService.incrementItemQtyRequested(salesLine);
-
-    this.executeQtyUpdate(true, apiCall);
-  }
-
-  /**
-   * Update item quantity requested with SET (for force stock from table cell edit)
-   * Uses SET endpoint to REPLACE quantity (not increment)
-   * @param salesLine - Product line to update with forceStock = true
-   */
-  updateItemQtyRequestedWithSet(salesLine: ISalesLine): void {
-    const saleType = this.store.saleType();
-    const apiCall =
-      saleType === 'ASSURANCE' || saleType === 'CARNET'
-        ? this.apiService.setItemQtyRequestedAssurance(salesLine)
-        : this.apiService.setItemQtyRequested(salesLine);
-
-    this.executeQtyUpdate(false, apiCall);
-  }
-
-  /**
-   * Remove line by saleLineId (matches original removeLine)
-   * @param saleLineId - Composite ID of the line to remove
-   */
-  removeLine(saleLineId: any): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.saleId) {
-      return;
-    }
-    const saleType = this.store.saleType();
-    this.executeAndReloadSale(
-      saleType === 'COMPTANT' ? this.apiService.deleteItem(saleLineId) : this.apiService.deleteItemFromAssurance(saleLineId),
-      currentSale.saleId,
-      {
-        errorMessage: 'Erreur lors de la suppression de la ligne',
-        successSubject: this.lineRemovedSuccessSubject,
-      },
-    );
-  }
-
-  /**
-   * Set selected product in search
-   */
-  setSelectedProduct(product: any | null): void {
-    this.store.setSelectedProductData(product);
-  }
-
-  /**
-   * Add product to current sale
-   * Reproduit la logique de createSalesLine() de l'original selling-home.component.ts
-   * Envoie au backend qui calcule tous les montants, puis recharge la vente
-   */
-  addProductToSale(product: ProduitSearch, quantity: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to add product to');
-      return;
-    }
-
-    // Construction ISalesLine avec l'utilitaire
-    const newLine: ISalesLine = createSalesLineFromProduct(product, quantity, currentSale);
-
-    this.store.setLoading(true);
-
-    // Envoyer au backend pour calcul des montants
-    this.apiService
-      .addItemComptant(newLine)
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error adding product:', error);
-          const {
-            errorMessage,
-            errorKey
-          } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
-
-          // Stocker l'erreur avec les détails pour traitement par le composant
-          this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({errorKey, originalError: error, attemptedLine: newLine});
-          this.notificationService.error(errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.productAddedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-        this.setSelectedProduct(null); // Clear selection
-      });
-  }
-
-  /**
-   * Update line quantity
-   * Envoie au backend pour recalcul des montants, puis recharge la vente
-   */
-  updateLineQuantitySold(lineId: number, newQuantity: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.salesLines || !currentSale.saleId) {
-      return;
-    }
-
-    const line = currentSale.salesLines.find(l => l.id === lineId);
-    if (!line) {
-      return;
-    }
-
-    const updatedLine: ISalesLine = {
-      ...line,
-      quantitySold: newQuantity,
-      saleCompositeId: currentSale.saleId,
-    };
-
-    this.executeAndReloadSale(this.apiService.updateItemQtySold(updatedLine), currentSale.saleId, {
-      errorMessage: 'Erreur lors de la mise à jour de la quantité',
-      successSubject: this.lineUpdatedSuccessSubject,
-    });
-  }
-
-  // ============================================
-  // PRINTING (IMPRESSION) - Délègue au PrintService
-  // ============================================
-
-  /**
-   * Update line quantity requested
-   * Used when editing quantity from table cell
-   * Uses SET endpoint to REPLACE quantity (not increment)
-   * Envoie au backend pour recalcul des montants, puis recharge la vente
-   */
-  updateLineQuantityRequested(lineId: number, newQuantity: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.salesLines || !currentSale.saleId) {
-      return;
-    }
-
-    const line = currentSale.salesLines.find(l => l.id === lineId);
-    if (!line) {
-      return;
-    }
-
-    const updatedLine: ISalesLine = {
-      ...line,
-      quantityRequested: newQuantity,
-      saleCompositeId: currentSale.saleId,
-    };
-
-    this.store.setLoading(true);
-
-    // Route vers le bon endpoint selon le type de vente
-    const saleType = this.store.saleType();
-    const apiCall =
-      saleType === 'ASSURANCE' || saleType === 'CARNET'
-        ? this.apiService.setItemQtyRequestedAssurance(updatedLine)
-        : this.apiService.setItemQtyRequested(updatedLine);
-
-    apiCall
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error updating quantity requested:', error);
-
-          const { errorMessage, errorKey } = this.extractApiError(error, 'Erreur lors de la mise à jour de la quantité demandée');
-
-          // Si erreur de stock pour modification cellule:
-          // NE PAS recharger la vente car cela écraserait la valeur saisie par l'utilisateur
-          // On a déjà toutes les infos nécessaires dans updatedLine
-          if (errorKey === 'stock') {
-            // S'assurer que saleCompositeId est correctement formé
-            if (!updatedLine.saleCompositeId && currentSale.saleId) {
-              updatedLine.saleCompositeId = {
-                id: currentSale.saleId.id,
-                saleDate: currentSale.saleId.saleDate,
-              };
-            }
-
-            // Stocker l'erreur avec la ligne qui contient la NOUVELLE quantité voulue
-            this.store.setError(errorMessage);
-            this.store.setLastErrorDetails({
-              errorKey,
-              originalError: error,
-              attemptedLine: updatedLine, // Contient newQuantity
-              isFromTableCellEdit: true,
-            });
-            // NE PAS afficher le toast - le dialog sera affiché par l'effect
-            this.store.setLoading(false);
-            return of(null);
-          } else {
-            // Autres erreurs : toast simple
-            if (errorKey !== 'stockChInsufisant') {
-              this.notificationService.error(errorMessage);
-            }
-
-            this.store.setError(errorMessage);
-            this.store.setLastErrorDetails({
-              errorKey: errorKey || null,
-              originalError: error,
-              attemptedLine: updatedLine,
-              isFromTableCellEdit: true,
-            });
-            this.store.setLoading(false);
-            return of(null);
-          }
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          // Clear l'erreur en cas de succès (important pour le force stock)
-          this.store.clearError();
-          this.lineUpdatedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
-  }
-
-  /**
-   * Update line unit price
-   * Envoie au backend pour recalcul des montants, puis recharge la vente
-   */
-  updateLinePrice(lineId: number, newPrice: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.salesLines || !currentSale.saleId) {
-      return;
-    }
-
-    const line = currentSale.salesLines.find(l => l.id === lineId);
-    if (!line) {
-      return;
-    }
-
-    const updatedLine: ISalesLine = {
-      ...line,
-      regularUnitPrice: newPrice,
-      saleCompositeId: currentSale.saleId,
-    };
-
-    this.executeAndReloadSale(this.apiService.updateItemPrice(updatedLine), currentSale.saleId, {
-      errorMessage: 'Erreur lors de la mise à jour du prix',
-    });
-  }
-
-  /**
-   * Apply discount to line
-   * Envoie au backend pour recalcul des montants, puis recharge la vente
-   */
-  applyLineDiscount(lineId: number, discountAmount: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.salesLines || !currentSale.saleId) {
-      return;
-    }
-
-    const line = currentSale.salesLines.find(l => l.id === lineId);
-    if (!line) {
-      return;
-    }
-
-    const updatedLine: ISalesLine = {
-      ...line,
-      discountAmount,
-      saleCompositeId: currentSale.saleId,
-    };
-
-    this.executeAndReloadSale(this.apiService.updateItemPrice(updatedLine), currentSale.saleId, {
-      errorMessage: "Erreur lors de l'application de la remise",
-    });
-  }
-
-  // ============================================
-  // SIMPLE STATE UPDATES (Pass-through)
-  // ============================================
-
-  /**
-   * Update global remise (discount) on current sale
-   * @param remise - Remise to apply, or undefined to remove remise
-   */
-  updateRemise(remise?: IRemise): void {
-    const currentSale = this.store.currentSale();
-    const saleType = this.store.saleType();
-    if (!currentSale?.saleId) {
-      this.notificationService.error('Aucune vente en cours');
-      return;
-    }
-
-    const isComptant = saleType === 'COMPTANT';
-    const key = {id: currentSale.saleId, value: remise?.id!};
-
-    let action$;
-    if (remise) {
-      action$ = isComptant ? this.apiService.addRemise(key) : this.apiService.addAssuranceRemise(key);
-    } else {
-      action$ = isComptant
-        ? this.apiService.removeRemiseFromCashSale(currentSale.saleId)
-        : this.apiService.removeRemiseFromAssuranceSale(currentSale.saleId);
-    }
-
-    this.executeAndReloadSale(action$, currentSale.saleId, {
-      errorMessage: 'Erreur lors de la mise à jour de la remise',
-      successSubject: this.remiseUpdatedSuccessSubject,
-    });
-  }
-
-  /**
-   * Set customer for current sale
-   * Backend recalculates amounts and reloads full sale
-   */
-  setCustomer(customer: ICustomer): void {
-    const currentSale = this.store.currentSale();
-
-    // Si pas encore de vente créée (pas de saleId), on stocke juste le client
-    // La vente sera créée avec ce client lors de l'ajout du premier produit
-    if (!currentSale?.saleId) {
-      this.store.setSelectedCustomer(customer);
-      return;
-    }
-
-    this.store.setLoading(true);
-    this.store.setSelectedCustomer(customer);
-
-    // Determine which endpoint to use based on sale type
-    const updateSaleInfo: UpdateSaleInfo = {id: currentSale.saleId, value: customer.id!};
-    const updateObservable$ =
-      currentSale.type === 'VNO'
-        ? this.apiService.addCustommerToCashSale(updateSaleInfo)
-        : this.apiService.changeAssuranceCustomer(updateSaleInfo);
-    updateObservable$
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error setting customer:', error);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale({
-            ...sale,
-            differe: currentSale.differe,
-            avoir: currentSale.avoir
-          }); // Conserver les flags differe et avoir qui ne sont pas gérés par le backend
-          this.customerSetSuccessSubject.next();
-        }
-      });
-  }
-
-  /**
-   * Remove customer from current sale
-   * Backend recalculates amounts and reloads full sale
-   */
-  removeCustomer(): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.saleId) {
-      return;
-    }
-
-    this.store.setLoading(true);
-    this.store.setSelectedCustomer(null);
-
-    // Update sale without customer
-    const updatedSale: ISales = {
-      ...currentSale,
-      customerId: undefined,
-    };
-
-    // Determine which endpoint to use based on sale type
-    const updateObservable$ =
-      currentSale.natureVente === 'VO' ? this.apiService.updateComptantSale(updatedSale) : this.apiService.updateAssuranceSale(updatedSale);
-
-    updateObservable$
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error removing customer:', error);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.customerRemovedSuccessSubject.next();
-        }
-      });
-  }
-
-  /**
-   * Put current sale on standby (prévente)
-   * Saves sale with STANDBY status and resets current sale
-   * Emits standbySuccess$ event on success
-   */
-  putOnStandby(): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale) {
-      console.error('No current sale to put on standby');
-      return;
-    }
-
-    this.store.setIsSaving(true);
-    this.store.clearError();
-
-    // Determine which endpoint to use based on sale type
-    const saleType = this.store.saleType();
-    const standbyObservable$ =
-      saleType === 'COMPTANT' ? this.apiService.putComptantOnStandby(currentSale) : this.apiService.putAssuranceOnStandby(currentSale);
-
-    standbyObservable$
-      .pipe(
-        tap(result => {
-          if (result?.success) {
-            this.store.resetCurrentSale();
-            this.standbySuccessSubject.next();
-          }
-        }),
-        catchError(error => {
-          console.error('Error putting sale on standby:', error);
-          const { errorMessage } = this.extractApiError(error, 'Erreur lors de la mise en attente');
-          this.notificationService.error(errorMessage);
-          this.store.setError(errorMessage);
-          return of(null);
-        }),
-        finalize(() => this.store.setIsSaving(false)),
-      )
-      .subscribe();
-  }
-
-  /**
-   * Finalize a presale
-   * Determines comptant/assurance based on saleType and calls the appropriate endpoint
-   */
-  finalizePresale(sale: ISales, transform: boolean = true): Observable<boolean | null> {
-    this.store.setIsSaving(true);
-    this.store.clearError();
-
-    const saleType = this.store.saleType();
-    const apiCall$ = saleType === 'COMPTANT' ? this.apiService.finalizePresaleComptant(sale, transform) : this.apiService.finalizePresaleAssurance(sale, transform);
-
-    return apiCall$.pipe(
-      map(() => true as boolean),
-      tap(() => {
-        this.store.resetCurrentSale();
-        this.store.setIsSaving(false);
-      }),
-      catchError(error => {
-        console.error('Error finalizing presale:', error);
-        const { errorMessage } = this.extractApiError(error, 'Erreur lors de la finalisation de la prevente');
-        this.notificationService.error(errorMessage);
-        this.store.setError(errorMessage);
-        this.store.setIsSaving(false);
-        return of(null);
-      }),
-    );
-  }
-
-  /**
-   * Save a devis (like presale, no payment)
-   * Uses the same endpoint as finalizePresale for COMPTANT
-   */
-  saveDevis(sale: ISales): Observable<boolean | null> {
-    this.store.setIsSaving(true);
-    this.store.clearError();
-
-    // Vérifier le client obligatoire pour devis
-    if (!sale.customerId && !this.store.selectedCustomer()?.id) {
-      const error = 'Un client est obligatoire pour un devis';
-      this.notificationService.error(error);
-      this.store.setError(error);
-      this.store.setIsSaving(false);
-      return of(null);
-    }
-
-    // S'assurer que le statut est DEVIS
-    sale.statut = SalesStatut.DEVIS;
-
-    // Utiliser l'endpoint de finalisation prévente comptant
-    return this.apiService.finalizePresaleComptant(sale, false).pipe(
-      map(() => true as boolean),
-      tap(() => {
-        this.store.resetCurrentSale();
-        this.store.setIsSaving(false);
-      }),
-      catchError(error => {
-        console.error('Error saving devis:', error);
-        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement du devis");
-        this.notificationService.error(errorMessage);
-        this.store.setError(errorMessage);
-        this.store.setIsSaving(false);
-        return of(null);
-      }),
-    );
-  }
-
-  /**
-   * Save a devis carnet (CARNET with DEVIS status, like presale, no payment)
-   * Uses the same endpoint as finalizePresale for ASSURANCE/CARNET
-   */
-  saveDevisCarnet(sale: ISales): Observable<boolean | null> {
-    this.store.setIsSaving(true);
-    this.store.clearError();
-
-    // Vérifier le client obligatoire pour devis carnet
-    if (!sale.customerId && !this.store.selectedCustomer()?.id) {
-      const error = 'Un client est obligatoire pour un devis carnet';
-      this.notificationService.error(error);
-      this.store.setError(error);
-      this.store.setIsSaving(false);
-      return of(null);
-    }
-
-    // S'assurer que le statut est DEVIS
-    sale.statut = SalesStatut.DEVIS;
-
-    // Utiliser l'endpoint de finalisation prévente assurance (partagé par CARNET)
-    return this.apiService.finalizePresaleAssurance(sale).pipe(
-      map(() => true as boolean),
-      tap(() => {
-        this.store.resetCurrentSale();
-        this.store.setIsSaving(false);
-      }),
-      catchError(error => {
-        console.error('Error saving devis carnet:', error);
-        const { errorMessage } = this.extractApiError(error, "Erreur lors de l'enregistrement du devis carnet");
-        this.notificationService.error(errorMessage);
-        this.store.setError(errorMessage);
-        this.store.setIsSaving(false);
-        return of(null);
-      }),
-    );
-  }
-
-  /**
-   * Load pending sales from backend
-   */
-  loadPendingSales(params: any): void {
-    this.store.setPendingSalesLoading(true);
-
-    this.apiService
-      .getPendingSales(params)
-      .pipe(
-        catchError(error => {
-          console.error('Error loading pending sales:', error);
-          this.store.setError('Erreur lors du chargement des ventes en attente');
-          this.store.setPendingSalesLoading(false);
-          return of([]);
-        }),
-        finalize(() => this.store.setPendingSalesLoading(false)),
-      )
-      .subscribe(sales => {
-        this.store.setPendingSales(sales);
-      });
-  }
-
-  /**
-   * Delete a pending sale permanently
-   * @param saleId - ID of the pending sale to delete
-   */
-  deletePendingSale(saleId: SaleId): void {
-    this.store.setLoading(true);
-
-    this.apiService
-      .deleteSale(saleId)
-      .pipe(
-        catchError(error => {
-          console.error('Error deleting pending sale:', error);
-          this.notificationService.error('Erreur lors de la suppression de la vente');
-          this.store.setLoading(false);
-          return of(undefined);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(() => {
-        this.store.removePendingSale(saleId);
-      });
-  }
-
-  /**
-   * Print sale invoice (PDF)
-   * @param saleId - ID of the sale to print
-   */
-  printInvoice(saleId: SaleId): void {
-    this.printService.printInvoice(saleId);
-  }
-
-  /**
-   * Print sale receipt (thermal printer format)
-   * @param saleId - ID of the sale to print
-   */
-  printReceipt(saleId: SaleId): void {
-    this.printService.printReceipt(saleId).subscribe();
-  }
-
-  /**
-   * Print current sale (invoice or receipt based on preferences)
-   */
-  printCurrentSale(): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.saleId) {
-      this.notificationService.warning('Aucune vente à imprimer');
-      return;
-    }
-
-    const shouldPrintInvoice = this.store.printInvoice();
-    const shouldPrintReceipt = this.store.printReceipt();
-
-    if (shouldPrintInvoice) {
-      this.printInvoice(currentSale.saleId);
-    }
-
-    if (shouldPrintReceipt) {
-      this.printReceipt(currentSale.saleId);
-    }
-
-    if (!shouldPrintInvoice && !shouldPrintReceipt) {
-      // Par défaut, imprimer le ticket
-      this.printReceipt(currentSale.saleId);
-    }
-  }
-
-  /**
-   * Extrait errorKey et errorMessage depuis une erreur HTTP API
-   */
-  private extractApiError(error: any, defaultMessage: string): {
-    errorMessage: string;
-    errorKey: string | null
-  } {
-    let errorMessage = defaultMessage;
-    let errorKey: string | null = null;
-
-    if (error?.error) {
-      errorKey = error.error.errorKey ?? null;
-
-      if (errorKey === 'stock') {
-        errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
-      } else if (errorKey === 'stockChInsufisant') {
-        errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
-      } else if (errorKey === 'customerInsuranceCreditLimit') {
-        errorMessage = error.error.message || 'Plafond de vente atteint';
-      } else if (error.error.message) {
-        errorMessage = error.error.message;
-      } else if (error.error.detail) {
-        errorMessage = error.error.detail;
-      }
-    }
-
-    return {errorMessage, errorKey};
-  }
-
-  /**
-   * Notifie le dépassement de plafond une seule fois par vente.
-   * Subsequent calls are silently ignored (plafondIsReached flag remains set).
-   */
-  private handlePlafondVenteWarning(errorMessage: string): void {
-    if (!this.store.plafondIsReached()) {
-      this.notificationService.warning(errorMessage);
-      this.store.setPlafondIsReached(true, errorMessage);
-    }
-  }
-
-  /**
-   * Gère l'erreur de stock lors de la création d'une vente (pas de reload nécessaire)
-   */
-  private handleCreateSaleError(
-    error: any,
-    initialLine: ISalesLine,
-    defaultMessage: string,
-  ): Observable<{ createdSale: ISales; initialLine: ISalesLine } | null> {
-    console.error('Error creating sale:', error);
-    const {errorMessage, errorKey} = this.extractApiError(error, defaultMessage);
-
-    if (errorKey === 'stock') {
-      this.store.setError(errorMessage);
-      this.store.setLastErrorDetails({
-        errorKey,
-        originalError: error,
-        attemptedLine: initialLine,
-        isFromTableCellEdit: false,
-      });
-      // NE PAS afficher le toast - le dialog sera affiché par l'effect
-    } else if (errorKey === 'stockChInsufisant') {
-      this.store.setError(errorMessage);
-      this.store.setLastErrorDetails({
-        errorKey,
-        originalError: error,
-        attemptedLine: initialLine,
-        isFromTableCellEdit: false,
-      });
-      // NE PAS afficher le toast - le dialog de déconditionnement sera affiché par le mixin
-    } else if (errorKey === 'customerInsuranceCreditLimit') {
-      this.handlePlafondVenteWarning(errorMessage);
-      const saleId: SaleId | null = error.error?.payload?.saleId ?? null;
-      if (saleId) {
-        // La transaction a commis malgré l'exception - recharger la vente créée
-        return this.apiService.findSale(saleId).pipe(
-          map(reloadedSale => ({createdSale: reloadedSale, initialLine})),
-          catchError(() => of(null)),
-        );
-      }
-    } else {
-      this.store.setError(errorMessage);
-      this.notificationService.error(errorMessage);
-    }
-
-    this.store.setLoading(false);
-    return of(null);
-  }
-
-  /**
-   * Crée un rxMethod pour une vente VO (ASSURANCE ou CARNET)
-   * Factorise la logique commune entre createAssuranceSale et createCarnetSale
-   */
-  private createVOSale(natureVente: 'ASSURANCE' | 'CARNET') {
-    const saleType = natureVente;
-    return rxMethod<ISalesLine>(
-      this.createSalePipeline({
-        saleType,
-        defaultErrorMessage: `Erreur lors de la création de la vente ${natureVente.toLowerCase()}`,
-        apiCall: sale => this.apiService.createAssuranceSale(sale),
-        buildSale: initialLine => ({
-          statut: this.store.isDevis() ? SalesStatut.DEVIS : (this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE),
-          salesLines: [initialLine],
-          customerId: this.store.selectedCustomer()?.id,
-          natureVente,
-          typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
-          cassierId: this.store.cashier()?.id,
-          sellerId: this.store.seller()?.id,
-          type: 'VO',
-          categorie: 'VO',
-          tiersPayants: this.store.pendingTiersPayants(),
-        }),
-      }),
-    );
-  }
-
-  /**
-   * Pipeline commun pour la création de vente (COMPTANT, ASSURANCE, CARNET)
-   */
-  private createSalePipeline(config: CreateSaleConfig) {
-    return pipe(
-      tap(() => {
-        this.store.setSaleType(config.saleType);
-        this.store.clearError();
-      }),
-      switchMap((initialLine: ISalesLine) => {
-        if (!initialLine) {
-          throw new Error('Impossible de créer une vente sans produit');
-        }
-
-        const sale = config.buildSale(initialLine);
-        this.store.setLoading(true);
-
-        return config.apiCall(sale).pipe(
-          map(createdSale => ({createdSale, initialLine})),
-          catchError(error => this.handleCreateSaleError(error, initialLine, config.defaultErrorMessage)),
-        );
-      }),
-      tap({
-        next: (result: { createdSale: ISales; initialLine: ISalesLine } | null) => {
-          if (result?.createdSale) {
-            this.store.setCurrentSale(result.createdSale);
-            this.store.clearError();
-            this.productAddedSuccessSubject.next();
-          }
-          this.store.setLoading(false);
-        },
-      }),
-    );
-  }
-
-  /**
-   * Logique commune pour ajouter un produit à une vente existante (COMPTANT ou ASSURANCE/CARNET)
-   * Gère le cas d'erreur de stock avec reload de la vente et reconstruction de la ligne
-   */
-  private addProductWithStockHandling(salesLine: ISalesLine, addApiCall$: Observable<any>): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to add product to');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    addApiCall$
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error adding product:', error);
-          const {
-            errorMessage,
-            errorKey
-          } = this.extractApiError(error, "Erreur lors de l'ajout du produit");
-
-          // Si erreur de stock, recharger la vente pour récupérer l'état actuel
-          // La ligne peut déjà exister si le produit a été ajouté précédemment
-          if (errorKey === 'stock') {
-            return this.apiService.findSale(currentSale.saleId!).pipe(
-              tap(reloadedSale => {
-                if (reloadedSale) {
-                  this.store.setCurrentSale(reloadedSale);
-
-                  // Trouver la ligne qui correspond au produit ajouté
-                  const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
-
-                  const lineToAttempt: ISalesLine = existingLine
-                    ? {
-                      ...existingLine,
-                      quantityRequested: salesLine.quantityRequested || 1,
-                      saleCompositeId: existingLine.saleCompositeId || {
-                        id: currentSale.saleId!.id,
-                        saleDate: currentSale.saleId!.saleDate,
-                      },
-                    }
-                    : salesLine;
-
-                  this.store.setError(errorMessage);
-                  this.store.setLastErrorDetails({
-                    errorKey,
-                    originalError: error,
-                    attemptedLine: lineToAttempt,
-                    isFromTableCellEdit: false,
-                  });
-                }
-              }),
-              tap(() => this.store.setLoading(false)),
-              map((): null => null),
-            );
-          }
-          // Plafond atteint : la transaction a commis - recharger la vente et continuer
-          if (errorKey === 'customerInsuranceCreditLimit') {
-            this.handlePlafondVenteWarning(errorMessage);
-            return this.apiService.findSale(currentSale.saleId!);
-          }
-
-          // Pour les autres erreurs, traitement normal
-          this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({
-            errorKey,
-            originalError: error,
-            attemptedLine: salesLine,
-            isFromTableCellEdit: false,
-          });
-          // NE PAS afficher le toast pour stockChInsufisant - le mixin déconditionnement gère le dialog
-          if (errorKey !== 'stockChInsufisant') {
-            this.notificationService.error(errorMessage);
-          }
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          this.productAddedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
-  }
-
-  /**
-   * Logique commune pour updateItemQtyRequested et updateItemQtyRequestedWithSet
-   * Exécute un appel API de mise à jour de quantité, recharge la vente, gère les erreurs
-   */
-  private executeQtyUpdate(isAjoutProduit: boolean, apiCall$: Observable<any>): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
-      console.error('No current sale to update product');
-      return;
-    }
-
-    this.store.setLoading(true);
-
-    apiCall$
-      .pipe(
-        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
-        catchError(error => {
-          console.error('Error updating product quantity:', error);
-          const {
-            errorMessage,
-            errorKey
-          } = this.extractApiError(error, 'Erreur lors de la mise à jour du produit');
-
-          if (errorKey === 'customerInsuranceCreditLimit') {
-            this.handlePlafondVenteWarning(errorMessage);
-            return this.apiService.findSale(currentSale.saleId!);
-          }
-
-          this.store.setError(errorMessage);
-          this.notificationService.error(errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          isAjoutProduit ? this.productAddedSuccessSubject.next() : this.lineUpdatedSuccessSubject.next();
-        }
-        this.store.setLoading(false);
-      });
-  }
-
-  /**
-   * Pattern commun : exécuter un appel API, recharger la vente, mettre à jour le store
-   * Utilisé par removeLine, updateLineQuantitySold, updateLinePrice, applyLineDiscount, updateRemise
-   */
-  private executeAndReloadSale(apiCall$: Observable<any>, saleId: SaleId, options: ExecuteAndReloadOptions): void {
-    this.store.setLoading(true);
-
-    apiCall$
-      .pipe(
-        switchMap(() => this.apiService.findSale(saleId)),
-        catchError(error => {
-          console.error('Error:', error);
-          this.notificationService.error(options.errorMessage);
-          this.store.setError(options.errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          if (options.clearErrorOnSuccess) {
-            this.store.clearError();
-          }
-          options.successSubject?.next();
-        }
-        this.store.setLoading(false);
-      });
-  }
-
-  /**
-   * Helper commun pour la transformation VNO → ASSURANCE ou CARNET.
-   * 1. Vide le client sélectionné
-   * 2. Appelle l'API transform
-   * 3. Recharge la vente transformée
-   * 4. Met à jour le store (sale, saleType, customer si présent)
-   * 5. Émet cashSaleTransformed$
-   */
-  private doTransformCashSale(natureVente: 'ASSURANCE' | 'CARNET'): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.saleId) {
-      return;
-    }
-
-    this.store.setSelectedCustomer(null);
-    this.store.setLoading(true);
-
-    this.apiService
-      .transformSale(natureVente, currentSale.saleId)
-      .pipe(
-        switchMap(saleId => this.apiService.findSale(saleId)),
-        tap(sale => {
-          this.store.setVoFromCashSale(true);
-          this.store.setCurrentSale(sale);
-          this.store.setSaleType(natureVente);
-          if (sale.customer) {
-            this.store.setSelectedCustomer(sale.customer);
-          }
-          this.store.setLoading(false);
-          //  this.cashSaleTransformedSubject.next(natureVente);
-        }),
-        catchError(err => {
-          const { errorMessage } = this.extractApiError(err, 'Erreur lors de la transformation de la vente');
-          this.notificationService.error(errorMessage);
-          this.store.setLoading(false);
-          return of(null);
-        }),
-      )
-      .subscribe();
-  }
-
-  /**
-   * Hydrate le store avec les données d'une vente chargée.
-   * Logique commune à loadSaleForEdit, loadSale, resumePendingSale.
-   */
-  private hydrateSaleInStore(sale: ISales): void {
-    this.store.setCurrentSale(sale);
-
-    if (sale.natureVente === 'ASSURANCE') {
-      this.store.setSaleType('ASSURANCE');
-    } else if (sale.natureVente === 'CARNET') {
-      this.store.setSaleType('CARNET');
-    } else {
-      this.store.setSaleType('COMPTANT');
-    }
-
-    if (sale.customer) {
-      this.store.setSelectedCustomer(sale.customer);
-    }
-
-    if (sale.cassier) {
-      this.store.setCashier(sale.cassier);
-    }
-
-    if (sale.seller) {
-      this.store.setSeller(sale.seller);
-    }
-  }
-
-  /**
-   * Pipeline rxMethod commun pour charger une vente et hydrater le store.
-   * @param onSuccess callback appelé avec la vente chargée (doit appeler setLoading(false))
-   */
-  private loadSalePipeline(onSuccess: (sale: ISales) => void) {
-    return pipe(
-      tap((_: SaleId) => {
-        this.store.setLoading(true);
-        this.store.clearError();
-      }),
-      switchMap((saleId: SaleId) => this.apiService.findSale(saleId)),
-      tap({
-        next: (sale: ISales) => onSuccess(sale),
-        error: (error: any) => {
-          const { errorMessage } = this.extractApiError(error, 'Erreur lors du chargement de la vente');
-          this.store.setError(errorMessage);
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error loading sale:', error);
-        return of(null);
-      }),
-    );
-  }
-
-  /**
-   * Calculate sale amounts before saving
-   * NOTE: montantRendu et montantRenduArrondi sont déjà calculés par le frontend
-   * avec les règles métier (seuil de 5 FCFA, arrondi au multiple de 5)
-   */
-  private calculateSaleAmounts(sale: ISales): void {
-    const montantVerse = Number(sale.montantVerse) || 0;
-    const amountToBePaid = Number(sale.amountToBePaid) || 0;
-    const restToPay = amountToBePaid - montantVerse;
-
-    // Montant payé = minimum entre montant versé et montant à payer
-    sale.payrollAmount = restToPay <= 0 ? amountToBePaid : montantVerse;
-
-    // Reste à payer = maximum entre 0 et le reste
-    sale.restToPay = Math.max(restToPay, 0);
-
-    // Monnaie: ne recalculer que si pas déjà définie par le frontend
-    // Le frontend gère les règles métier (seuil 5 FCFA, arrondi)
-    if (sale.montantRendu === undefined || sale.montantRendu === null) {
-      sale.montantRendu = restToPay < 0 ? Math.abs(restToPay) : 0;
-    }
   }
 }

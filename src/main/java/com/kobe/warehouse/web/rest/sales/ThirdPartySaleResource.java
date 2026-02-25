@@ -319,6 +319,11 @@ public class ThirdPartySaleResource {
         saleService.cloneDevis(saleId);
         return ResponseEntity.accepted().build();
     }
+    @PutMapping("/sales/assurance/ayant-droit")
+    public ResponseEntity<Void> cloneDevis(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+        saleService.addAyantDroitToSale(updateSaleInfo);
+        return ResponseEntity.accepted().build();
+    }
 
 
 }

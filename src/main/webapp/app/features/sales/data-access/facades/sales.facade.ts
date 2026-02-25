@@ -41,6 +41,7 @@ export class SalesFacade {
   readonly netAmount = computed(() => this.currentSale()?.netAmount || 0);
   readonly amountToBePaid = computed(() => this.currentSale()?.amountToBePaid || 0);
   readonly selectedCustomer = this.store.selectedCustomer;
+  readonly selectedAyantDroit = this.store.selectedAyantDroit;
   readonly cashier = this.store.cashier;
   readonly seller = this.store.seller;
   readonly saleType = this.store.saleType;
@@ -182,6 +183,7 @@ export class SalesFacade {
   updateSaleTiersPayants = this.customerFacade.updateSaleTiersPayants.bind(this.customerFacade);
   removeTiersPayantFromSale = this.customerFacade.removeTiersPayantFromSale.bind(this.customerFacade);
   addTiersPayantToSale = this.customerFacade.addTiersPayantToSale.bind(this.customerFacade);
+  setAyantDroit = this.customerFacade.setAyantDroit.bind(this.customerFacade);
 
   // ============================================
   // PAYMENT — Delegate to SalePaymentFacade

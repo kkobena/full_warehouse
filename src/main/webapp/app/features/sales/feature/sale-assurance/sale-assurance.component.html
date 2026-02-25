@@ -17,7 +17,7 @@
     (openCustomerList)="onOpenCustomerList($event)"
     (removeTiersPayant)="onRemoveTiersPayant($event)"
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
-    [ayantDroit]="currentSale()?.ayantDroit || null"
+    [ayantDroit]="selectedAyantDroit()"
     [customer]="selectedCustomer()"
     [saleType]="'ASSURANCE'"
     [tiersPayants]="currentSale()?.tiersPayants || []">

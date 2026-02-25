@@ -457,6 +457,11 @@ export class SalesApiService {
     return this.http.put<void>(this.resourceUrl + '/assurance/change/customer', keyValue, {observe: 'response'});
   }
 
+  changeAyantDroit(updateSaleInfo: UpdateSaleInfo): Observable<HttpResponse<void>> {
+    return this.http.put<void>(this.resourceUrl + '/assurance/ayant-droit', updateSaleInfo, {observe: 'response'});
+  }
+
+
   /**
    * Convert item dates from client format (Moment) to server format (string)
    */

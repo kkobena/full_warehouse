@@ -1,0 +1,95 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="pi pi-users"></i>
+    {{ tilte }}
+  </h4>
+  <button (click)="cancel()" class="btn-close" type="button" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body">
+  <p-toolbar>
+    <ng-template #end>
+      <p-button
+        (onClick)="addAyantDroit()"
+        icon="pi pi-user-plus"
+        label="Ajouter un ayant droit"
+        severity="primary"
+        size="small"
+      />
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    [value]="customers()"
+    [loading]="loading()"
+    [rows]="10"
+    [paginator]="customers().length > 10"
+    dataKey="id"
+    class="pharma-table mt-2"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 4%">#</th>
+        <th>Nom</th>
+        <th>Prénom(s)</th>
+        <th>Matricule</th>
+        <th>Date de naissance</th>
+        <th style="width: 8%"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-ayantDroit let-i="rowIndex">
+      <tr (dblclick)="onSelect(ayantDroit)" style="cursor: pointer">
+        <td>{{ i + 1 }}</td>
+        <td><strong>{{ ayantDroit.firstName }}</strong></td>
+        <td>{{ ayantDroit.lastName }}</td>
+        <td>
+          @if (ayantDroit.num || ayantDroit.numAyantDroit) {
+            <span class="pharma-badge pharma-badge-info">{{ ayantDroit.num || ayantDroit.numAyantDroit }}</span>
+          }
+        </td>
+        <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
+        <td class="text-center">
+          <p-button
+            (onClick)="onSelect(ayantDroit)"
+            icon="pi pi-check"
+            severity="success"
+            size="small"
+            [rounded]="true"
+            [text]="true"
+            pTooltip="Sélectionner"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center py-4">
+          <div class="empty-state">
+            <i class="pi pi-users" style="font-size: 2rem; color: var(--text-color-secondary)"></i>
+            <p class="mt-2 text-muted">Aucun ayant droit trouvé.</p>
+            <p-button
+              (onClick)="addAyantDroit()"
+              icon="pi pi-user-plus"
+              label="Ajouter le premier ayant droit"
+              severity="primary"
+              size="small"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (onClick)="cancel()"
+    [raised]="true"
+    icon="pi pi-times"
+    label="Fermer"
+    severity="secondary"
+    type="button"
+  />
+</div>

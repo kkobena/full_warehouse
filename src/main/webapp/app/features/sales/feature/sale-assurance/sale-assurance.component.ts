@@ -23,6 +23,7 @@ import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   AssuredCustomerListModalComponent,
+  AyantDroitListModalComponent,
   InsuranceDataBarComponent,
   ProductListComponent,
   ProductSearchSectionComponent,
@@ -32,9 +33,6 @@ import {
 } from '../../ui';
 import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
 import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
-import {
-  AyantDroitCustomerListComponent
-} from '../../../../entities/sales/ayant-droit-customer-list/ayant-droit-customer-list.component';
 import {
   AddComplementaireComponent
 } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
@@ -142,6 +140,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
   selectedCustomer = this.facade.selectedCustomer;
+  selectedAyantDroit = this.facade.selectedAyantDroit;
   selectedProduct = this.facade.selectedProduct;
   salesLines = this.facade.salesLines;
   totalAmount = this.facade.totalAmount;
@@ -545,35 +544,55 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
+  private addAyantDroit(): void {
+    showCommonModal(
+      this.modalService,
+      FormAyantDroitComponent,
+      {
+        entity: undefined,
+        assure: this.selectedCustomer(),
+        title: "FORMULAIRE D'AJOUT D'AYANT DROIT",
+      },
+      (newAyantDroit: ICustomer) => {
+        if (newAyantDroit) {
+          this.facade.setAyantDroit(newAyantDroit);
+          this.productHandling.focusProductSearch();
+        }
+      },
+      'xl', null,
+      () => this.productHandling.focusProductSearch()
+    );
+  }
+
   onLoadAyantDroits(): void {
     const customer = this.selectedCustomer();
     if (!customer) {
       this.notificationService.warning("Sélectionnez d'abord un client assuré", 'Client requis');
       return;
     }
-
-    showCommonModal(
-      this.modalService,
-      AyantDroitCustomerListComponent,
-      {
-        assure: customer,
-        header: `LISTE DES AYANTS DROITS DU CLIENT [${customer.fullName}]`,
-      },
-      (ayantDroit: ICustomer) => {
-        if (ayantDroit) {
-          const currentSale = this.currentSale();
-          if (currentSale) {
-            if (ayantDroit.id) {
-              currentSale.ayantDroit = ayantDroit;
-            } else {
-              // Nouveau ayant droit à créer
-              this.openAyantDroitForm(ayantDroit);
-            }
+    const ayantDroits = customer.ayantDroits || [];
+    if (ayantDroits.length === 0) {
+      this.addAyantDroit();
+    } else {
+      showCommonModal(
+        this.modalService,
+        AyantDroitListModalComponent,
+        {
+          assure: customer,
+          tilte: `LISTE DES AYANTS DROITS DU CLIENT [${customer.fullName}]`,
+        },
+        (ayantDroit: ICustomer) => {
+          if (ayantDroit?.id) {
+            this.facade.setAyantDroit(ayantDroit);
           }
-        }
-      },
-      'xl',
-    );
+          this.productHandling.focusProductSearch();
+        },
+        'xl',null,
+        () => this.productHandling.focusProductSearch()
+      );
+    }
+
+
   }
 
   onAddComplementaire(): void {
@@ -612,9 +631,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         // Cela permet au backend de recalculer les montants
         if (currentSale?.saleId) {
           this.facade.removeTiersPayantFromSale(tiersPayant, () => {
-            // Callback de succès: mettre à jour l'état local de l'insurance-data-bar
-            // Note: La facade a déjà rechargé la vente, donc l'effect de synchronisation
-            // dans InsuranceDataBarComponent mettra automatiquement à jour selectedTiersPayants
             this.removeTiersPayantLocally(tiersPayant);
           });
         } else {
@@ -881,10 +897,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       },
       (updatedAyantDroit: ICustomer) => {
         if (updatedAyantDroit) {
-          const currentSale = this.currentSale();
-          if (currentSale) {
-            currentSale.ayantDroit = updatedAyantDroit;
-          }
+          this.facade.setAyantDroit(updatedAyantDroit);
         }
       },
       'xl',

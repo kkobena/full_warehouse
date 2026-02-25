@@ -107,5 +107,7 @@ public interface ThirdPartySaleService {
 
     void cloneDevis(SaleId saleId);
 
+    void addAyantDroitToSale(UpdateSaleInfo updateSaleInfo) ;
+
 
 }

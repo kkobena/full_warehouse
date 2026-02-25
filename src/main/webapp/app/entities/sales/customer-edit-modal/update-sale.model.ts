@@ -1,4 +1,4 @@
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { IThirdPartySaleLine } from '../../../shared/model/third-party-sale-line';
 
 export class UpdateSale {

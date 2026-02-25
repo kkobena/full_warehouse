@@ -199,6 +199,7 @@ export class SaleLifecycleFacade {
           statut: this.store.isDevis() ? SalesStatut.DEVIS : this.store.isPresale() ? SalesStatut.PROCESSING : SalesStatut.ACTIVE,
           salesLines: [initialLine],
           customerId: this.store.selectedCustomer()?.id,
+          ayantDroitId: natureVente === 'ASSURANCE' ? this.store.selectedAyantDroit()?.id : undefined,
           natureVente,
           typePrescription: this.store.typePrescription() || 'PRESCRIPTION',
           cassierId: this.store.cashier()?.id,

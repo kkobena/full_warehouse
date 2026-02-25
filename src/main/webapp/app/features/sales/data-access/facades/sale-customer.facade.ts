@@ -145,6 +145,38 @@ export class SaleCustomerFacade {
     }
   }
 
+  setAyantDroit(ayantDroit: ICustomer): void {
+    this.store.setSelectedAyantDroit(ayantDroit);
+
+    const currentSale = this.store.currentSale();
+    if (!currentSale) return;
+
+    if (!currentSale.saleId) {
+      this.store.setCurrentSale({ ...currentSale, ayantDroit, ayantDroitId: ayantDroit.id });
+      return;
+    }
+
+    this.store.setLoading(true);
+    const updateSaleInfo: UpdateSaleInfo = { id: currentSale.saleId, value: ayantDroit.id! };
+    this.apiService
+      .changeAyantDroit(updateSaleInfo)
+      .pipe(
+        switchMap(() => this.apiService.findSale(currentSale.saleId!)),
+        catchError(error => {
+          console.error('Error setting ayant droit:', error);
+          this.notificationService.error("Erreur lors de la mise à jour de l'ayant droit");
+          this.store.setLoading(false);
+          return of(null);
+        }),
+        finalize(() => this.store.setLoading(false)),
+      )
+      .subscribe(sale => {
+        if (sale) {
+          this.store.setCurrentSale(sale);
+        }
+      });
+  }
+
   addTiersPayantToSale(tiersPayant: IClientTiersPayant): void {
     const currentSale = this.store.currentSale();
 

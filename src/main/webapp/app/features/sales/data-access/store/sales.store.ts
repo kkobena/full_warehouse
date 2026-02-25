@@ -49,6 +49,7 @@ interface SalesState {
 
   // Customer
   selectedCustomer: ICustomer | null;
+  selectedAyantDroit: ICustomer | null;
 
   // Product Search
   selectedProductData: any | null;
@@ -112,6 +113,7 @@ const initialState: SalesState = {
 
   // Customer
   selectedCustomer: null,
+  selectedAyantDroit: null,
 
   // Product Search
   selectedProductData: null,
@@ -295,6 +297,13 @@ export const SalesStore = signalStore(
      */
     setSelectedCustomer(customer: ICustomer | null): void {
       patchState(store, { selectedCustomer: customer });
+    },
+
+    /**
+     * Set selected ayant droit
+     */
+    setSelectedAyantDroit(ayantDroit: ICustomer | null): void {
+      patchState(store, { selectedAyantDroit: ayantDroit });
     },
 
     /**
@@ -596,6 +605,7 @@ export const SalesStore = signalStore(
         plafondIsReached: false,
         plafondMessage: null,
         selectedCustomer: null,
+        selectedAyantDroit: null,
         error: null,
         selectedProductData: null,
         seller: null,

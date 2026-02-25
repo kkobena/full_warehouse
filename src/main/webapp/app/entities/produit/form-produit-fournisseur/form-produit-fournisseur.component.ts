@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from '../../../shared/model';
 import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
 import { ProduitService } from '../produit.service';
 import { ErrorService } from '../../../shared/error.service';

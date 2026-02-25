@@ -849,10 +849,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       (updatedCustomer: ICustomer) => {
         if (updatedCustomer) {
           this.facade.setCustomer(updatedCustomer);
-          // Utiliser la facade pour mettre à jour les tiers payants de manière réactive
-          if (updatedCustomer.tiersPayants) {
-            this.facade.updateSaleTiersPayants(updatedCustomer.tiersPayants);
-          }
+          this.facade.updateSaleTiersPayants(updatedCustomer.tiersPayants || []);
+          this.insuranceDataBar()?.initializeFromCustomer(updatedCustomer);
+          this.insuranceDataBar()?.focusFirstBon();
+
         }
       },
       'xl',

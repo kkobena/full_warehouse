@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { CustomerService } from '../../../../entities/customer/customer.service';
-import { ICustomer } from '../../../../shared/model/customer.model';
+import { ICustomer } from '../../../../shared/model';
 
 /**
  * Service de recherche de clients pour les ventes

@@ -1,11 +1,11 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
-import { SaleId } from '../../../../shared/model/sales.model';
-import { SalesApiService } from './sales-api.service';
-import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
+import {SaleId} from '../../../../shared/model/sales.model';
+import {SalesApiService} from './sales-api.service';
+import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
 
 /**
  * PrintService
@@ -18,13 +18,12 @@ import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
  * - Receipt printing (ticket)
  * - Tauri environment detection (desktop app)
  * - ESC/POS printing for thermal printers
- * - PDF preview and download (web browser)
  *
  * @example
  * this.printService.printInvoice(saleId).subscribe();
  * this.printService.printReceipt(saleId).subscribe();
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class PrintService {
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
@@ -101,70 +100,5 @@ export class PrintService {
         },
       });
     });
-  }
-
-  /**
-   * Open PDF preview in new window/tab
-   */
-  private openPdfPreview(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const newWindow = window.open(url, '_blank');
-
-    if (!newWindow) {
-      this.notificationService.warning('Popup bloqué', 'Veuillez autoriser les popups pour prévisualiser le document');
-      // Fallback to download
-      this.downloadBlob(blob, filename);
-    } else {
-      // Clean up URL after window is loaded
-      newWindow.onload = () => {
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      };
-    }
-  }
-
-  /**
-   * Print PDF directly using browser print dialog
-   */
-  private printPdf(blob: Blob): void {
-    const url = URL.createObjectURL(blob);
-    const iframe = document.createElement('iframe');
-
-    iframe.style.display = 'none';
-    iframe.src = url;
-
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow?.print();
-
-        // Clean up after print dialog closes
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(url);
-        }, 1000);
-      }, 100);
-    };
-  }
-
-  /**
-   * Download blob as file
-   */
-  private downloadBlob(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
   }
 }

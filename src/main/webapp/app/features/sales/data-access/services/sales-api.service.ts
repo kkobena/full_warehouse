@@ -121,15 +121,7 @@ export class SalesApiService {
     );
   }
 
-  /**
-   * Find a sale by ID for editing
-   */
-  findSaleForEdit(id: SaleId): Observable<ISales> {
-    return this.http.get<ISales>(`${this.resourceUrl}/edit/${id.id}/${id.saleDate}`, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
-      map(res => res.body!),
-    );
-  }
+
 
   /**
    * Query sales with filters

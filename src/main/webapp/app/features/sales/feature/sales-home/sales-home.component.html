@@ -47,7 +47,7 @@
             <i class="pi pi-shopping-cart presale-icon"></i>
           }
           @if (isDevisMode()) {
-            Devis
+            Proforma
           } @else if (isPresaleMode()) {
             Pré-vente
           } @else {
@@ -56,7 +56,7 @@
         </h1>
         <p class="subtitle">
           @if (isDevisMode()) {
-            Gestion des devis {{ active() }}
+            Gestion des proformas {{ active() }}
           } @else if (isPresaleMode()) {
             Gestion des pré-ventes {{ active() }}
           } @else {
@@ -145,7 +145,7 @@
               [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"></i>
             <span>
               @if (isDevisMode()) {
-                Types de Devis
+                Types de Proforma
               } @else if (isPresaleMode()) {
                 Types de Pré-vente
               } @else {

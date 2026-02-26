@@ -7,7 +7,6 @@ import { IUser } from '../../../../core/user/user.model';
 
 /**
  * Types d'événements métier émis par les sous-facades.
- * Remplace les 12 Subject<void> par un signal unique dans le store.
  */
 export type SaleEventType =
   | 'PRODUCT_ADDED'

@@ -33,7 +33,6 @@ export class SalesFacade {
   // ============================================
 
   readonly canSave = this.store.canSave;
-  readonly canSaveSale = this.canSave;
   readonly currentSale = this.store.currentSale;
   readonly totalAmount = computed(() => this.currentSale()?.salesAmount || 0);
   readonly discountAmount = computed(() => this.currentSale()?.discountAmount || 0);
@@ -48,7 +47,6 @@ export class SalesFacade {
   readonly isPresale = this.store.isPresale;
   readonly isDevis = this.store.isDevis;
   readonly pendingTiersPayants = this.store.pendingTiersPayants;
-  readonly isEdit = this.store.isEdit;
   readonly isSaving = this.store.isSaving;
   readonly loading = this.store.loading;
   readonly error = this.store.error;
@@ -60,14 +58,7 @@ export class SalesFacade {
   readonly pendingSalesLoading = this.store.pendingSalesLoading;
   readonly selectedProduct = this.store.selectedProduct;
   readonly salesLines = this.store.salesLines;
-  readonly totalItems = this.store.totalItems;
-  readonly isVOSale = this.store.isVOSale;
   readonly hasCustomer = this.store.hasCustomer;
-  readonly salesLinesCount = this.store.salesLinesCount;
-  readonly isEmpty = this.store.isEmpty;
-  readonly remainingAmount = this.store.remainingAmount;
-  readonly totalQuantityRequested = this.store.totalQuantityRequested;
-  readonly totalQuantitySold = this.store.totalQuantitySold;
   readonly isAvoir = this.store.isAvoir;
   readonly typePrescription = computed(() => this.store.typePrescription());
 
@@ -78,25 +69,15 @@ export class SalesFacade {
   // STORE BINDINGS (Pass-through)
   // ============================================
 
-  setCurrentSale = this.store.setCurrentSale.bind(this.store);
   setSelectedCustomer = this.store.setSelectedCustomer.bind(this.store);
   setCashier = this.store.setCashier.bind(this.store);
   setSeller = this.store.setSeller.bind(this.store);
-  setSaleType = this.store.setSaleType.bind(this.store);
   setIsPresale = this.store.setIsPresale.bind(this.store);
   setIsDevis = this.store.setIsDevis.bind(this.store);
-  setIsEdit = this.store.setIsEdit.bind(this.store);
   setTypePrescription = this.store.setTypePrescription.bind(this.store);
-  setPaymentMode = this.store.setPaymentMode.bind(this.store);
-  setPrintInvoice = this.store.setPrintInvoice.bind(this.store);
   setPrintReceipt = this.store.setPrintReceipt.bind(this.store);
-  addSalesLine = this.store.addSalesLine.bind(this.store);
   updateSalesLine = this.store.updateSalesLine.bind(this.store);
   removeSalesLine = this.store.removeSalesLine.bind(this.store);
-  addPendingSale = this.store.addPendingSale.bind(this.store);
-  removePendingSale = this.store.removePendingSale.bind(this.store);
-  toggleInsuranceDataBar = this.store.toggleInsuranceDataBar.bind(this.store);
-  toggleSidebar = this.store.toggleSidebar.bind(this.store);
   clearError = this.store.clearError.bind(this.store);
   reset = this.store.reset.bind(this.store);
   resetCurrentSale = this.store.resetCurrentSale.bind(this.store);
@@ -196,7 +177,6 @@ export class SalesFacade {
   saveDevis = this.paymentFacade.saveDevis.bind(this.paymentFacade);
   saveDevisCarnet = this.paymentFacade.saveDevisCarnet.bind(this.paymentFacade);
   loadPendingSales = this.paymentFacade.loadPendingSales.bind(this.paymentFacade);
-  deletePendingSale = this.paymentFacade.deletePendingSale.bind(this.paymentFacade);
   printInvoice = this.paymentFacade.printInvoice.bind(this.paymentFacade);
   printReceipt = this.paymentFacade.printReceipt.bind(this.paymentFacade);
   printCurrentSale = this.paymentFacade.printCurrentSale.bind(this.paymentFacade);

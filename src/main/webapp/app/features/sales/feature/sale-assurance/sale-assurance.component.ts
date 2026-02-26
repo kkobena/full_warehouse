@@ -148,7 +148,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   taxAmount = this.facade.taxAmount;
   netAmount = this.facade.netAmount;
   amountToBePaid = this.facade.amountToBePaid;
-  canSaveSale = this.facade.canSaveSale;
+  canSaveSale = this.facade.canSave;
   hasCustomer = this.facade.hasCustomer;
   isAvoir = this.facade.isAvoir;
   isSaving = this.facade.isSaving;

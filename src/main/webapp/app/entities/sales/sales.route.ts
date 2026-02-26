@@ -30,7 +30,7 @@ export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | I
 const salesRoute: Routes = [
   {
     path: '',
-    loadComponent: () => import('./sales-home/sales-home.component').then(m => m.SalesHomeComponent),
+    loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       defaultSort: 'id,asc',
@@ -38,41 +38,7 @@ const salesRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
-  {
-    path: ':id/:saleDate/view',
-    loadComponent: () => import('./sales-detail.component').then(m => m.SalesDetailComponent),
-    resolve: {
-      sales: SalesResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'warehouseApp.sales.home.title',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'presale',
-    loadComponent: () => import('./presale/presale.component').then(m => m.PresaleComponent),
-    resolve: {
-      sales: SalesResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      mode: 'presale',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'ventes-en-cours',
-    loadComponent: () => import('./vente-en-cours/vente-en-cours.component').then(m => m.VenteEnCoursComponent),
-    resolve: {
-      sales: SalesResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-    },
-    canActivate: [UserRouteAccessService],
-  },
+
   {
     path: 'comptant/:isPresale/new',
     loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),

@@ -5,7 +5,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { VoSalesService } from '../service/vo-sales.service';
 import { UtilisationCleSecurite } from '../../action-autorisation/utilisation-cle-securite.model';
 import { SalesService } from '../sales.service';
-import { ISales } from '../../../shared/model/sales.model';
+import { ISales } from '../../../shared/model';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';

@@ -11,7 +11,7 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters">
             <p-select
-              (onChange)="onTypeVenteChange()"
+              (onChange)="load()"
               [(ngModel)]="typeVenteSelected"
               [filter]="false"
               [options]="typeVentes"
@@ -23,7 +23,7 @@
             <div class="pharma-search-input">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
+                <input (keyup.enter)="load()" pInputText placeholder="Rechercher..." type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -120,7 +120,7 @@
                   severity="success"
                 />
                 <p-button
-                  (click)="confirmRemove(sale)"
+                  (click)="confirmDelete(sale)"
                   [text]="true"
                   icon="pi pi-trash"
                   pTooltip="Supprimer"
@@ -172,7 +172,7 @@
                       </ng-template>
                       <ng-template #body let-rowIndex="rowIndex" let-saleLine>
                         <tr
-                          [ngClass]="{
+                          [class]="{
                             'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
                             'pharma-row-hover': true,
                           }"

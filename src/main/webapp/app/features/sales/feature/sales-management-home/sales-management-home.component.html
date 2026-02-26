@@ -1,6 +1,5 @@
 <div class="row">
   <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
-    <!-- Modern Navigation Sidebar -->
     <div class="pharma-nav-sidebar">
       <div class="pharma-nav-sidebar-card">
         <div class="pharma-nav-sidebar-header">
@@ -11,42 +10,42 @@
         <div class="pharma-nav-sidebar-content">
           <div
             #nav="ngbNav"
-            (navChange)="onNavChange($event)"
             [(activeId)]="active"
+            (navChange)="onNavChange($event)"
             class="nav flex-column nav-pills"
             ngbNav
             orientation="vertical"
           >
-            <ng-container ngbNavItem="ventes-terminees">
+            <ng-container ngbNavItem="journal">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-book"></i>
                 <span>Journal des ventes</span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-sales></jhi-sales>
+                <app-sales-journal />
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem="vente-en-cours">
+            <ng-container ngbNavItem="en-cours">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-clock"></i>
                 <span>Ventes en cours</span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-vente-en-cours></jhi-vente-en-cours>
+                <app-sales-en-cours />
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem="presale">
+            <ng-container ngbNavItem="presales">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-bookmark"></i>
                 <span>Pré-ventes</span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-presale></jhi-presale>
+                <app-presale-list />
               </ng-template>
             </ng-container>
 
@@ -57,7 +56,7 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-devis-list></jhi-devis-list>
+                <app-devis-list />
               </ng-template>
             </ng-container>
           </div>

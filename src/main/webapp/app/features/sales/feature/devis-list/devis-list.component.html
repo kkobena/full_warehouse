@@ -11,7 +11,7 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters">
             <p-select
-              (onChange)="onTypeVenteChange()"
+              (onChange)="load()"
               [(ngModel)]="typeVenteSelected"
               [filter]="false"
               [options]="typeVentes"
@@ -24,7 +24,7 @@
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
                 <input
-                  (keyup.enter)="onSearch()"
+                  (keyup.enter)="load()"
                   [(ngModel)]="search"
                   pInputText
                   placeholder="Rechercher..."
@@ -67,7 +67,7 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <p-button
-              (click)="loadDevis()"
+              (click)="load()"
               [raised]="true"
               icon="pi pi-search"
               label="Rechercher"
@@ -138,9 +138,9 @@
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-              <td class="text-right">{{ sale.salesLines?.length | number }}</td>
+              <td class="text-right">{{ sale.salesLines?.length | number: '1.0-0' }}</td>
               <td class="text-right">
-                <span class="pharma-total">{{ sale.salesAmount | number }}</span>
+                <span class="pharma-total">{{ sale.salesAmount | number: '1.0-0' }}</span>
               </td>
               <td>
                 <div class="pharma-entity-name">{{ sale.customer?.fullName }}</div>
@@ -183,7 +183,7 @@
 
                   <!-- Imprimer PDF -->
                   <p-button
-                    (click)="printDevisPdf(sale)"
+                    (click)="printDevis(sale)"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-file-pdf"
@@ -256,13 +256,13 @@
                               <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                             </td>
                             <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number: '1.0-0' }}
                             </td>
                             <td
-                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number: '1.0-0' }}
                             </td>
                             <td class="pharma-total" style="text-align: right; font-weight: bold">
-                              {{ saleLine.salesAmount | number }}
+                              {{ saleLine.salesAmount | number: '1.0-0' }}
                             </td>
                           </tr>
                         </ng-template>

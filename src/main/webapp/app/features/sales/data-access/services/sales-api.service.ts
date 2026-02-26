@@ -2,16 +2,12 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import moment from 'moment';
 
 import {SERVER_API_URL} from '../../../../app.constants';
 import {createRequestOptions} from '../../../../shared/util/request-util';
 import {FinalyseSale, ISales, SaleId, UpdateSaleInfo} from '../../../../shared/model/sales.model';
 import {ISalesLine, SaleLineId} from '../../../../shared/model/sales-line.model';
 import {IClientTiersPayant} from '../../../../shared/model';
-
-type EntityResponseType = HttpResponse<ISales>;
-type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 /**
  * Sales API Service
@@ -26,9 +22,7 @@ export class SalesApiService {
    * Create a cash sale (vente comptant)
    */
   createComptantSale(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.post<ISales>(`${this.resourceUrl}/comptant`, copy, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+    return this.http.post<ISales>(`${this.resourceUrl}/comptant`, sales, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -37,9 +31,7 @@ export class SalesApiService {
    * Update a cash sale
    */
   updateComptantSale(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(`${this.resourceUrl}/comptant`, copy, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+    return this.http.put<ISales>(`${this.resourceUrl}/comptant`, sales, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -48,17 +40,14 @@ export class SalesApiService {
    * Save a cash sale (finalize)
    */
   saveCashSale(sales: ISales): Observable<FinalyseSale> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', copy, {observe: 'response'}).pipe(map(res => res.body!));
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', sales, {observe: 'response'}).pipe(map(res => res.body!));
   }
 
   /**
    * Create an insurance sale (vente assurance)
    */
   createAssuranceSale(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.post<ISales>(`${this.resourceUrl}/assurance`, copy, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+    return this.http.post<ISales>(`${this.resourceUrl}/assurance`, sales, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -67,9 +56,7 @@ export class SalesApiService {
    * Update an insurance sale
    */
   updateAssuranceSale(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(`${this.resourceUrl}/assurance`, copy, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+    return this.http.put<ISales>(`${this.resourceUrl}/assurance`, sales, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -78,30 +65,27 @@ export class SalesApiService {
    * Save an insurance sale (finalize)
    */
   saveAssuranceSale(sales: ISales): Observable<FinalyseSale> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/save', copy, {observe: 'response'}).pipe(map(res => res.body!));
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/save', sales, {observe: 'response'}).pipe(map(res => res.body!));
   }
 
   /**
    * Finalize a presale (comptant)
    */
   finalizePresaleComptant(sales: ISales, transform: boolean = true): Observable<void> {
-    const copy = this.convertDateFromClient(sales);
     if (transform) {
-      return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente-and-transform`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+      return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente-and-transform`, sales, {observe: 'response'}).pipe(map((): void => undefined));
     }
-    return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+    return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente`, sales, {observe: 'response'}).pipe(map((): void => undefined));
   }
 
   /**
    * Finalize a presale (assurance/carnet)
    */
   finalizePresaleAssurance(sales: ISales, transform: boolean = true): Observable<void> {
-    const copy = this.convertDateFromClient(sales);
     if (transform) {
-      return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente-and-transform`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+      return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente-and-transform`, sales, {observe: 'response'}).pipe(map((): void => undefined));
     }
-    return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente`, copy, {observe: 'response'}).pipe(map((): void => undefined));
+    return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente`, sales, {observe: 'response'}).pipe(map((): void => undefined));
   }
 
   /**
@@ -116,12 +100,9 @@ export class SalesApiService {
    */
   findSale(id: SaleId): Observable<ISales> {
     return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
       map(res => res.body!),
     );
   }
-
-
 
   /**
    * Query sales with filters
@@ -156,9 +137,7 @@ export class SalesApiService {
    * Update sale date
    */
   updateSaleDate(sales: ISales): Observable<ISales> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<ISales>(this.resourceUrl + '/assurance/date', copy, {observe: 'response'}).pipe(
-      map((res: EntityResponseType) => this.convertDateFromServer(res)),
+    return this.http.put<ISales>(this.resourceUrl + '/assurance/date', sales, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -178,7 +157,7 @@ export class SalesApiService {
    * Print sale invoice
    */
   printInvoice(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${id.id}/${id.saleDate}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, {responseType: 'blob'});
   }
 
   countPendingSales(req?: any): Observable<HttpResponse<number>> {
@@ -210,9 +189,7 @@ export class SalesApiService {
    * Backend recalculates all amounts and returns updated line
    */
   addItemComptant(salesLine: ISalesLine): Observable<ISalesLine> {
-    const copy = this.convertItemDateFromClient(salesLine);
-    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, copy, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, salesLine, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -223,9 +200,7 @@ export class SalesApiService {
    * Used for both ASSURANCE and CARNET (differentiated by sale type)
    */
   addItemAssurance(salesLine: ISalesLine): Observable<ISalesLine> {
-    const copy = this.convertItemDateFromClient(salesLine);
-    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, copy, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/assurance`, salesLine, {observe: 'response'}).pipe(
       map(res => res.body!),
     );
   }
@@ -236,7 +211,6 @@ export class SalesApiService {
    */
   updateItemQtySold(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
       map(res => res.body!),
     );
   }
@@ -248,7 +222,6 @@ export class SalesApiService {
    */
   incrementItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http.put<ISalesLine>(`${this.resourceUrl}/increment-item/quantity-requested`, salesLine, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
       map(res => res.body!),
     );
   }
@@ -261,10 +234,7 @@ export class SalesApiService {
   incrementItemQtyRequestedAssurance(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http
       .put<ISalesLine>(`${this.resourceUrl}/increment-item/quantity-requested/assurance`, salesLine, {observe: 'response'})
-      .pipe(
-        map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
-        map(res => res.body!),
-      );
+      .pipe(map(res => res.body!));
   }
 
   /**
@@ -274,7 +244,6 @@ export class SalesApiService {
    */
   setItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http.put<ISalesLine>(`${this.resourceUrl}/set-item/quantity-requested`, salesLine, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
       map(res => res.body!),
     );
   }
@@ -286,7 +255,6 @@ export class SalesApiService {
    */
   setItemQtyRequestedAssurance(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http.put<ISalesLine>(`${this.resourceUrl}/set-item/quantity-requested/assurance`, salesLine, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
       map(res => res.body!),
     );
   }
@@ -297,7 +265,6 @@ export class SalesApiService {
    */
   updateItemPrice(salesLine: ISalesLine): Observable<ISalesLine> {
     return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, {observe: 'response'}).pipe(
-      map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)),
       map(res => res.body!),
     );
   }
@@ -358,9 +325,8 @@ export class SalesApiService {
    * Sets sale status to STANDBY without finalizing
    */
   putComptantOnStandby(sales: ISales): Observable<FinalyseSale> {
-    const copy = this.convertDateFromClient(sales);
     return this.http
-      .put<FinalyseSale>(`${this.resourceUrl}/comptant/put-on-hold`, copy, {observe: 'response'})
+      .put<FinalyseSale>(`${this.resourceUrl}/comptant/put-on-hold`, sales, {observe: 'response'})
       .pipe(map(res => res.body!));
   }
 
@@ -369,9 +335,8 @@ export class SalesApiService {
    * Sets sale status to STANDBY without finalizing
    */
   putAssuranceOnStandby(sales: ISales): Observable<FinalyseSale> {
-    const copy = this.convertDateFromClient(sales);
     return this.http
-      .put<FinalyseSale>(`${this.resourceUrl}/assurance/put-on-hold`, copy, {observe: 'response'})
+      .put<FinalyseSale>(`${this.resourceUrl}/assurance/put-on-hold`, sales, {observe: 'response'})
       .pipe(map(res => res.body!));
   }
 
@@ -384,21 +349,7 @@ export class SalesApiService {
     return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {
       params,
       observe: 'response'
-    }).pipe(
-      map((res: EntityArrayResponseType) => {
-        if (res.body) {
-          res.body.forEach(sale => {
-            if (sale.createdAt) {
-              sale.createdAt = moment(sale.createdAt);
-            }
-            if (sale.updatedAt) {
-              sale.updatedAt = moment(sale.updatedAt);
-            }
-          });
-        }
-        return res.body || [];
-      }),
-    );
+    }).pipe(map(res => res.body || []));
   }
 
   /**
@@ -423,8 +374,6 @@ export class SalesApiService {
    * Transform a comptant sale to VO (ASSURANCE or CARNET)
    * Returns the SaleId of the transformed sale
    */
-
-
   transformSale(natureVente: string, saleId: SaleId): Observable<SaleId> {
     const params = {natureVente, saleId: saleId.id, sale_date: saleId.saleDate};
     return this.http
@@ -461,48 +410,82 @@ export class SalesApiService {
     return this.http.put<void>(this.resourceUrl + '/assurance/ayant-droit', updateSaleInfo, {observe: 'response'});
   }
 
+  // ============================================
+  // MANAGEMENT — Journal, préventes, devis
+  // ============================================
 
   /**
-   * Convert item dates from client format (Moment) to server format (string)
+   * Re-print receipt for a comptant sale (VNO)
    */
-  private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
-    return Object.assign({}, salesLine, {
-      createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
-    });
-
+  reprintReceiptComptant(id: SaleId): Observable<HttpResponse<void>> {
+    return this.http.get<void>(`${this.resourceUrl}/re-print/receipt/${id.id}/${id.saleDate}`, {observe: 'response'});
   }
 
   /**
-   * Convert item dates from server format (string) to client format (Moment)
+   * Re-print receipt for an assurance/carnet sale (VO)
    */
-  private convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
+  reprintReceiptAssurance(id: SaleId): Observable<HttpResponse<void>> {
+    return this.http.get<void>(`${this.resourceUrl}/assurance/re-print/receipt/${id.id}/${id.saleDate}`, {observe: 'response'});
   }
 
   /**
-   * Convert dates from client format (Moment) to server format (string)
+   * Copy a closed sale to a new editable sale
    */
-  private convertDateFromClient(sales: ISales): ISales {
-    return Object.assign({}, sales, {
-      createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
-    });
-
+  copyToEdit(id: SaleId): Observable<HttpResponse<SaleId>> {
+    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/copier`, id, {observe: 'response'});
   }
 
   /**
-   * Convert dates from server format (string) to client format (Moment)
+   * Query sales for management views (préventes, ventes en cours)
+   * Filters by statut array (PROCESSING, PENDING, ACTIVE…)
    */
-  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
-      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
-    }
-    return res;
+  queryManagement(req?: any): Observable<HttpResponse<ISales[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {params: options, observe: 'response'});
+  }
+
+  /**
+   * Query devis/proformas
+   */
+  queryDevis(req?: any): Observable<HttpResponse<ISales[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<ISales[]>(`${this.resourceUrl}/devis`, {params: options, observe: 'response'});
+  }
+
+  /**
+   * Delete a prévente (same endpoint regardless of type VNO/VO)
+   */
+  deletePreventeById(id: SaleId): Observable<void> {
+    return this.http
+      .delete<void>(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, {observe: 'response'})
+      .pipe(map((): void => undefined));
+  }
+
+  /**
+   * Transform a prévente to a finalized comptant sale
+   */
+  transformPreventeToSaleComptant(id: SaleId): Observable<HttpResponse<SaleId>> {
+    return this.http.put<SaleId>(`${this.resourceUrl}/comptant/transform`, id, {observe: 'response'});
+  }
+
+  /**
+   * Transform a prévente to a finalized assurance/carnet sale
+   */
+  transformPreventeToSaleAssurance(id: SaleId): Observable<HttpResponse<SaleId>> {
+    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/transform`, id, {observe: 'response'});
+  }
+
+  /**
+   * Clone a comptant devis
+   */
+  cloneDevisComptant(id: SaleId): Observable<HttpResponse<void>> {
+    return this.http.put<void>(`${this.resourceUrl}/comptant/clone-devis`, id, {observe: 'response'});
+  }
+
+  /**
+   * Clone an assurance/carnet devis
+   */
+  cloneDevisAssurance(id: SaleId): Observable<HttpResponse<void>> {
+    return this.http.put<void>(`${this.resourceUrl}/assurance/clone-devis`, id, {observe: 'response'});
   }
 }

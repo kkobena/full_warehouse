@@ -19,40 +19,19 @@ export const SALES_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
     canActivate: [UserRouteAccessService],
-    title: 'Point de vente',
+   // title: 'Point de vente',
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Point de vente',
     },
   },
-  /* {
-    path: 'edit/:id', // Route pour éditer une vente dejà cloturée
-    loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
-    canActivate: [UserRouteAccessService],
-    title: 'Modifier la vente',
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER],
-      pageTitle: 'Modifier la vente',
-      isEdit: true,
-    },
-  },
 
-  {
-    path: ':id',
-    loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
-    canActivate: [UserRouteAccessService],
-    title: 'Modifier la vente',
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER],
-      pageTitle: 'Modifier la vente',
-    },
-  },*/
 
   {
     path: 'prevente',
     loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
     canActivate: [UserRouteAccessService],
-    title: 'Prevente',
+   // title: 'Prevente',
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Prevente',
@@ -62,20 +41,20 @@ export const SALES_ROUTES: Routes = [
     path: 'devis',
     loadComponent: () => import('./feature/devis-home/devis-home.component').then(m => m.DevisHomeComponent),
     canActivate: [UserRouteAccessService],
-    title: 'Devis',
+//    title: 'Devis',
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Devis',
     },
-  } /*,
+  },
   {
-    path: 'prevente/edit/:id',
-    loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
+    path: 'gestion',
+    loadComponent: () => import('./feature/sales-management-home/sales-management-home.component').then(m => m.SalesManagementHomeComponent),
     canActivate: [UserRouteAccessService],
-    title: 'Modifier la prevente',
+   // title: 'Gestion des ventes',
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Modifier la prevente',
+      pageTitle: 'Gestion des ventes',
     },
-  },*/,
+  }
 ];

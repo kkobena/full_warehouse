@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
+import { ApplicationConfig, inject, LOCALE_ID, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   NavigationError,
@@ -66,6 +66,7 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', { enabled: environment.production }),
 
     // --- i18n / Locale ---
+    { provide: LOCALE_ID, useValue: 'fr' },
     provideTranslateService({
       loader: provideTranslateHttpLoader({
         prefix: 'i18n/',

@@ -78,11 +78,17 @@ export class NavigationService {
       faIcon: faThList,
       authorities: [Authority.GESTION_COURANT, Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.SALES],
       children: [
-        {
+       /* {
           label: this.translateLabel('entities.sales'),
           routerLink: '/sales',
           faIcon: faShoppingBag,
+        },*/
+        {
+          label: this.translateLabel('entities.sales'),
+          routerLink: '/sales-home/gestion',
+          faIcon: faShoppingBag,
         },
+
         {
           label: this.translateLabel('mvtCaisse'),
           routerLink: '/mvt-caisse',

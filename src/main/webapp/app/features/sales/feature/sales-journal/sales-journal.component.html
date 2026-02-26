@@ -64,13 +64,13 @@
             </p-floatlabel>
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="fromHour" [options]="hous" [style]="'max-width: 110px;'" appendTo="body"
+              <p-select [(ngModel)]="fromHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
                         id="fromHour"/>
               <label for="fromHour">De</label>
             </p-floatlabel>
 
             <p-floatlabel class="pharma-hide-mobile" variant="on">
-              <p-select [(ngModel)]="toHour" [options]="hous" [style]="'max-width: 110px;'" appendTo="body"
+              <p-select [(ngModel)]="toHour" [options]="hours" [style]="'max-width: 110px;'" appendTo="body"
                         id="toHour"/>
               <label for="toHour">À</label>
             </p-floatlabel>
@@ -146,9 +146,8 @@
         <p-table
           (onRowExpand)="onRowExpand($event)"
           (onLazyLoad)="lazyLoading($event)"
-          [(selection)]="selectedEl"
           [lazy]="true"
-          [loading]="loading"
+          [loading]="loading()"
           [paginator]="true"
           [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
           [rows]="itemsPerPage"
@@ -167,7 +166,7 @@
               <th style="width: 12%">Date</th>
               <th style="width: 7%">Type</th>
               <th style="width: 11%">Référence</th>
-           <!--   <th style="width: 6%">Nbre d'articles</th>-->
+              <!--   <th style="width: 6%">Nbre d'articles</th>-->
               <th style="width: 8%">Montant</th>
               <th style="width: 16%">Client</th>
               <th style="width: 15%">Vendeur</th>
@@ -197,7 +196,7 @@
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-            <!--  <td class="text-right">{{ sale.salesLines.length | number }}</td>-->
+              <!--  <td class="text-right">{{ sale.salesLines.length | number }}</td>-->
               <td [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
                 {{ sale.salesAmount | number }}
               </td>
@@ -208,7 +207,7 @@
                 <p-buttonGroup>
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET') && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button
-                      (click)="navigateToSale(sale)"
+                      (click)="confirmEdit(sale)"
                       [text]="true"
                       icon="pi pi-file-edit"
                       pTooltip="Editer"
@@ -241,7 +240,7 @@
 
                   @if (sale.customer  && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button
-                      (click)="printSale(sale)"
+                      (click)="reprintReceipt(sale)"
                       [rounded]="true"
                       [text]="true"
                       icon="pi pi-print"
@@ -250,7 +249,7 @@
                       tooltipPosition="left"
                     />
                     <p-button
-                      (click)="print(sale)"
+                      (click)="printInvoice(sale)"
                       [rounded]="true"
                       [text]="true"
                       icon="pi pi-receipt"
@@ -272,7 +271,7 @@
                   />
                   @if (canCancel && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button
-                      (click)="confirmRemove(sale)"
+                      (click)="confirmCancel(sale)"
                       [rounded]="true"
                       [text]="true"
                       icon="pi pi-trash"

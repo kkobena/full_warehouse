@@ -279,16 +279,19 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    */
   handleGlobalKeyboardEvent(event: KeyboardEvent): void {
     // 1. Raccourcis clavier (Alt+1/2/3, F11)
-    if (event.altKey && !event.ctrlKey && ['1', '2', '3'].includes(event.key)) {
+    // Utilise event.code (indépendant du layout clavier) pour éviter l'insertion
+    // de caractères spéciaux (¹ ² ³, emoji, etc.) quand un input a le focus.
+    if (event.altKey && !event.ctrlKey && ['Digit1', 'Digit2', 'Digit3'].includes(event.code)) {
       event.preventDefault();
+      const digit = event.code.replace('Digit', '');
       // En mode devis, pas de tab assurance (Alt+2 ignoré)
-      if (this.isDevisMode() && event.key === '2') {
+      if (this.isDevisMode() && digit === '2') {
         return;
       }
       const tabMap: Record<string, string> = this.isDevisMode()
         ? {'1': 'comptant', '3': 'carnet'}  // En mode devis: 1=comptant, 3=carnet
         : {'1': 'comptant', '2': 'assurance', '3': 'carnet'};
-      const targetTab = tabMap[event.key];
+      const targetTab = tabMap[digit];
       if (targetTab) {
         this.switchToTab(targetTab);
       }

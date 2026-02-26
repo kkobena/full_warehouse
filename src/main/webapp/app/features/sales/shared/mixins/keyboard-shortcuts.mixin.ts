@@ -70,11 +70,6 @@ function shouldHandleEvent(event: KeyboardEvent): boolean {
     return true;
   }
 
-  // Escape : TOUJOURS actif
-  if (event.key === 'Escape') {
-    return true;
-  }
-
   // Ctrl+key dans un input : laisser le navigateur gérer (copier/coller/couper)
   if (event.ctrlKey && isInInput) {
     return false;
@@ -276,14 +271,6 @@ function buildShortcuts(
       action: () => cb.putOnStandby(),
     });
   }
-
-  // --- Escape ---
-  shortcuts.push({
-    key: 'Escape',
-    description: 'Annuler la vente',
-    category: 'Finalisation',
-    action: () => cb.cancelSale(),
-  });
 
   // --- Alt+Lettre : Web-safe quick actions ---
 

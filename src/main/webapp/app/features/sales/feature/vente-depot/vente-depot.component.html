@@ -66,6 +66,31 @@
       </div>
 
     </div>
+    @let selected = facade.selectedDepot();
+    @if (selected) {
+      <div class="header-right">
+        <div class="depot-info-display">
+          <div class="depot-info-row">
+            <div class="info-item name-info">
+              <i class="pi pi-user"></i>
+              <div class="info-content">
+                <span class="info-label">Responsable</span>
+                <span class="info-value">{{ selected.managerFirstName }} {{ selected.managerLastName }}</span>
+              </div>
+            </div>
+            @if (selected.phone) {
+              <div class="info-item phone-info">
+                <i class="pi pi-phone"></i>
+                <div class="info-content">
+                  <span class="info-label">Téléphone</span>
+                  <span class="info-value">{{ selected.phone }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   </div>
 
   <!-- CONTENU PRINCIPAL -->
@@ -154,8 +179,8 @@
 
 <!-- Composants de notification -->
 <!-- Notifications Toast -->
-<p-toast position="center" />
-<jhi-confirm-dialog #confirmDialog />
+<p-toast position="center"/>
+<jhi-confirm-dialog #confirmDialog/>
 
 <ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
              color="#009688" name="sale-spinner"

@@ -2,7 +2,8 @@ import {
   AfterViewInit,
   Component,
   computed,
-  DestroyRef, effect,
+  DestroyRef,
+  effect,
   inject,
   input,
   model,
@@ -18,9 +19,7 @@ import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
@@ -30,29 +29,18 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {
-  PaymentCompleteEvent,
-  PaymentModeComponent
-} from '../../ui/payment-mode/payment-mode.component';
+import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
 import {
   CashRegisterFormComponent
 } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import {
-  CustomerCarnetComponent
-} from '../../../../entities/customer/carnet/customer-carnet.component';
+import {CustomerCarnetComponent} from '../../../../entities/customer/carnet/customer-carnet.component';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {CustomerSearchService} from '../../data-access/services/customer-search.service';
-import {
-  IClientTiersPayant,
-  ICustomer,
-  IRemise,
-  ISalesLine,
-  ProduitSearch
-} from '../../../../shared/model';
+import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -403,6 +391,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       }
     }
   }
+
   private initializeEffects(): void {
     this.setupSavingStateEffect();
   }

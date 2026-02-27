@@ -22,24 +22,7 @@ const depotRoutes: Routes = [
     canActivate: [UserRouteAccessService],
   },
 
-  {
-    path: 'new-vente',
-    loadComponent: () => import('./vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Dépôt',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/:saleDate/edit-vente',
-    loadComponent: () => import('./vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Dépôt',
-    },
-    canActivate: [UserRouteAccessService],
-  },
+
 
   {
     path: ':id/edit',

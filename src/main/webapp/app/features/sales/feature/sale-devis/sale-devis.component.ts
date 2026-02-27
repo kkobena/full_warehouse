@@ -25,7 +25,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {Button} from 'primeng/button';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -88,7 +88,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
-    ConfirmDialogComponent,
     NgxSpinnerModule,
   ],
 })
@@ -125,7 +124,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   customers = signal<ICustomer[]>([]);
   // Customer search
   protected search = '';
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
   readonly currentSale = this.facade.currentSale;
@@ -180,7 +179,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
     forceStockContext: this.forceStockContext,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createDevisSale(line),
@@ -191,7 +190,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createDevisSale(line),
@@ -412,7 +411,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   onCancel(): void {
     // Confirm before canceling
     if (this.salesLines().length > 0) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.cancelSale(),
         'Annulation du devis',
         'Êtes-vous sûr de vouloir annuler ce devis ?',
@@ -456,7 +455,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     }
 
     const doRemove = () => {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',

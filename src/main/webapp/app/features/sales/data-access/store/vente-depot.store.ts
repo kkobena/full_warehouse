@@ -176,9 +176,10 @@ export const VenteDepotStore = signalStore(
      * Conserve depots et quantityMax pour éviter des appels API inutiles.
      */
     resetForNewSession(): void {
+      const depot = store.selectedDepot();
       patchState(store, {
         currentSale: null,
-        selectedDepot: null,
+        selectedDepot: depot,
         selectedProductData: null,
         cashier: null,
         seller: null,

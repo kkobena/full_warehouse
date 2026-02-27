@@ -1,12 +1,11 @@
-import { Signal } from '@angular/core';
-import { Observable } from 'rxjs';
-import { IPayment } from '../../../../shared/model';
-import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
-import { ISales } from '../../../../shared/model';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { PaymentCompleteEvent } from '../../ui/payment-mode/payment-mode.component';
+import {Signal} from '@angular/core';
+import {Observable} from 'rxjs';
+import {IPayment, ISales} from '../../../../shared/model';
+import {IPaymentMode} from '../../../../shared/model/payment-mode.model';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
+import {PaymentCompleteEvent} from '../../ui/payment-mode/payment-mode.component';
 
 /**
  * Structure d'un paiement entrant depuis l'événement de paiement
@@ -22,9 +21,13 @@ export interface PaymentEntry {
  */
 export interface PaymentModeHost {
   selectedModes(): Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>;
+
   totalPaid(): number;
+
   changeAmount(): number;
+
   changeExact(): number;
+
   focusFirstMode(): void;
 }
 
@@ -109,7 +112,16 @@ const DEFAULT_TOLERANCE_THRESHOLD = 5;
  * ```
  */
 export function createPaymentHandling(context: PaymentHandlingContext) {
-  const { facade, notificationService, customerDisplay, config, currentSale, salesLines, canSave, isCashRegisterOpen } = context;
+  const {
+    facade,
+    notificationService,
+    customerDisplay,
+    config,
+    currentSale,
+    salesLines,
+    canSave,
+    isCashRegisterOpen
+  } = context;
   const toleranceThreshold = config.toleranceThreshold ?? DEFAULT_TOLERANCE_THRESHOLD;
 
   /**
@@ -278,11 +290,9 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
     // Gérer vente différée si montant insuffisant
     const amountToBePaid = sale.amountToBePaid || 0;
     const restToPay = calculateRestToPay(amountToBePaid, sale.montantVerse);
-
     if (config.allowDiffere && hasSignificantRestToPay(restToPay) && !sale.differe) {
       // Proposer vente différée
       const message = buildDiffereConfirmMessage(amountToBePaid, sale.montantVerse, restToPay);
-
       context.showConfirmDialog(
         () => {
           sale.differe = true;

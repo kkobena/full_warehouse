@@ -219,21 +219,17 @@ public class SaleCommonService {
 
     protected void intSale(SaleDTO dto, Sales c) {
         setId(c);
-        AppUser user = storageService.getUser();
+        AppUser caissier = storageService.getUser();
         c.setNatureVente(dto.getNatureVente());
         c.setTypePrescription(dto.getTypePrescription());
-        AppUser caissier = user;
 
-        if (user.getId().compareTo(dto.getCassierId()) != 0) {
-            caissier = userRepository.getReferenceById(dto.getCassierId());
-        }
         if (nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
             c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
         } else {
             c.setSeller(caissier);
         }
         c.setImported(false);
-        c.setUser(user);
+        c.setUser(caissier);
         c.setCaissier(caissier);
         c.setCopy(dto.getCopy());
         c.setCreatedAt(LocalDateTime.now());

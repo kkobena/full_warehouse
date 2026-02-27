@@ -20,7 +20,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AssuredCustomerListModalComponent,
   AyantDroitListModalComponent,
@@ -90,7 +90,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     SaleActionsComponent,
     PaymentModeComponent,
     InsuranceDataBarComponent,
-    ConfirmDialogComponent,
     NgxSpinnerModule,
 
   ],
@@ -134,7 +133,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     return change > 0 ? change : null;
   });
   protected userVendeurService = inject(UserVendeurService);
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
   // State depuis le store (signals computed)
@@ -203,7 +202,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
     forceStockContext: this.forceStockContext,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createAssuranceSale(line),
@@ -215,7 +214,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createAssuranceSale(line),
@@ -258,7 +257,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     openCashRegister: () => this.openCashRegister(),
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
-      this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+      this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
 
     onPaymentSuccess: () => {
     },
@@ -421,7 +420,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
       // Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
-        this.confirmDialog().onConfirm(
+        this.confirmDialog.onConfirm(
           () => {
             this.finalizeSaleWithoutPayment();
           },
@@ -631,7 +630,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   }
 
   onRemoveTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.confirmDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => {
         const currentSale = this.currentSale();
 
@@ -685,7 +684,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
 
     const doRemove = () => {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',
@@ -716,7 +715,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
     // Si c'est un avoir, confirmer
     if (this.isAvoir()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.paymentHandling.onSave(),
         'Avoir détecté',
         'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
@@ -805,7 +804,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
 
     // Confirmer avant d'annuler (comportement identique à sale-carnet)
-    this.confirmDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.facade.cancelSale(),
       'Annulation de la vente',
       'Êtes-vous sûr de vouloir annuler cette vente ?',

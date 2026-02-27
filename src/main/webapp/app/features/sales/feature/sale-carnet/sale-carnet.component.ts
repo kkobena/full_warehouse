@@ -19,7 +19,7 @@ import {Toast} from 'primeng/toast';
 import {TooltipModule} from 'primeng/tooltip';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
@@ -85,7 +85,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     SaleSummaryComponent,
     SaleActionsComponent,
     PaymentModeComponent,
-    ConfirmDialogComponent,
     NgxSpinnerModule,
   ],
 })
@@ -138,7 +137,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     const customer = this.selectedCustomer();
     return !!sale && lines.length > 0 && !!customer && !this.isSaving();
   });
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
   private facade = inject(SalesFacade);
   readonly currentSale = this.facade.currentSale;
@@ -185,7 +184,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
     forceStockContext: this.forceStockContext,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
@@ -196,7 +195,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
@@ -266,7 +265,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     openCashRegister: () => this.openCashRegister(),
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
-      this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+      this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
     onPaymentSuccess: () => {
     },
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
@@ -370,7 +369,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       //  Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
 
-        this.confirmDialog().onConfirm(
+        this.confirmDialog.onConfirm(
           () => {
             this.finalizeSaleWithoutPayment();
           },
@@ -526,7 +525,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     // Si c'est un avoir, confirmer
     if (this.isAvoir()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.paymentHandling.onSave(),
         'Avoir détecté',
         'Cette vente sera enregistrée comme AVOIR (quantité demandée ≠ quantité servie). Confirmer ?',
@@ -615,7 +614,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   onCancel(): void {
     // Confirm before canceling
     if (this.salesLines().length > 0) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.cancelSale(),
         'Annulation de la vente',
         'Êtes-vous sûr de vouloir annuler cette vente ?',
@@ -673,7 +672,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     }
 
     const doRemove = () => {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',

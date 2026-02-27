@@ -135,6 +135,7 @@ export class VenteDepotFacade {
       .subscribe({
         next: (res: HttpResponse<ISales>) => {
           this.store.setCurrentSale(res.body);
+          this.store.clearError();
           this.store.emitEvent('PRODUCT_ADDED', { success: true });
         },
         error: err => this.handleError(err, salesLine),
@@ -176,7 +177,13 @@ export class VenteDepotFacade {
     );
   }
 
-
+  updateItemQtyRequestedWithSet(salesLine: ISalesLine): void {
+    const saleId = this.store.currentSale()!.saleId;
+    this.handleSaleUpdate(
+      this.api.setItemQtyRequested({ ...salesLine, saleCompositeId: saleId }).pipe(switchMap(() => this.salesApi.findSale(saleId))),
+      salesLine,
+    );
+  }
 
   updateLineQuantityRequested(lineId: number, newQty: number): void {
     const currentSale = this.store.currentSale();

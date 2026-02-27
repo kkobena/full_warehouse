@@ -19,7 +19,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {TooltipModule} from 'primeng/tooltip';
 import {Toast} from 'primeng/toast';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -80,7 +80,6 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     SaleSummaryComponent,
     SaleActionsComponent,
     PaymentModeComponent,
-    ConfirmDialogComponent,
     NgxSpinnerModule,
   ],
 })
@@ -96,7 +95,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       reset: (qty: number) => section.resetQuantity(qty),
     };
   });
-  confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
   // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
@@ -173,7 +172,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
     forceStockContext: this.forceStockContext,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createComptantSale(line),
@@ -184,7 +183,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createComptantSale(line),
@@ -252,7 +251,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     openCashRegister: () => this.openCashRegister(),
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
-      this.confirmDialog().onConfirm(onConfirm, title, message, undefined, onCancel),
+      this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
   // ===== Sale Lifecycle Mixin =====
@@ -465,7 +464,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     }
 
     const doRemove = () => {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',
@@ -593,7 +592,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     if (hasLines) {
       // Si la vente a des lignes, demander confirmation
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.facade.cancelSale(); // Reset géré via souscription à cancelSaleSuccess$
         },
@@ -637,7 +636,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     const hasCustomer = this.facade.hasCustomer();
 
     if (isAvoir && !this.avoirConfirmed()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.avoirConfirmed.set(true);
           if (!hasCustomer) {
@@ -685,7 +684,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // Si c'est un avoir ET pas encore confirmé, afficher un dialogue de confirmation
     if (isAvoir && !this.avoirConfirmed()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           // Marquer l'avoir comme confirmé pour ne plus afficher le dialogue
           this.avoirConfirmed.set(true);

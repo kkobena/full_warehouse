@@ -15,10 +15,6 @@ export class ConfirmDialogComponent {
   style = input<Record<string, any>>({ width: '40vw' });
   private readonly confirmationService = inject(ConfirmationService);
 
-  private get accept(): HTMLButtonElement {
-    return document.querySelector('.ws-dialog .p-confirmdialog-accept-button');
-  }
-
   onConfirm(acceptHandler: () => void, header?: string, message?: string, icon?: string, rejectHandler?: () => void): void {
     this.confirmationService.confirm({
       message: message || this.message(),
@@ -34,16 +30,11 @@ export class ConfirmDialogComponent {
         }
       },
     });
-    
-    // Forcer le focus après le rendu
-    setTimeout(() => {
-      const buttons = document.querySelectorAll('.ws-dialog .p-button');
-      // Le premier bouton devrait être Accept (car acceptButtonProps est en premier)
-      const acceptButton = buttons[0] as HTMLButtonElement;
-      if (acceptButton) {
-        acceptButton.focus();
-      }
-    }, 100);
+    // Workaround bug PrimeNG 20 : getElementToFocus() cherche '.p-confirm-dialog-accept'
+    // mais la classe réelle du bouton est '.p-confirmdialog-accept-button'.
+    // Le sélecteur ne match jamais → focus par défaut sur reject.
+    // On observe l'apparition du bouton accept et on force le focus dessus.
+    this.focusAcceptButton();
   }
 
   onWarn(rejectHandler: () => void, message?: string, header?: string, icon?: string): void {
@@ -53,17 +44,20 @@ export class ConfirmDialogComponent {
       icon: icon || 'pi pi-exclamation-triangle',
       acceptVisible: false,
       rejectButtonProps: rejectWarningButtonProps(),
-      defaultFocus: 'accept',
       reject: () => rejectHandler(),
     });
-    
-    // Forcer le focus sur le bouton après l'ouverture complète du dialog
+  }
+
+  /**
+   * Workaround bug PrimeNG 20 : getElementToFocus() n'est jamais appelé par p-dialog.
+   * Le p-dialog.focus() fait un setTimeout(focus_premier_element, 150ms) sur le footer,
+   * ce qui focus toujours le reject (premier bouton dans le DOM).
+   * On force le focus sur accept APRÈS ce timeout de 150ms.
+   */
+  private focusAcceptButton(): void {
     setTimeout(() => {
-      const button = document.querySelector('.ws-dialog .p-confirmdialog-reject-button') as HTMLButtonElement;
-      if (button) {
-        button.focus();
-        setTimeout(() => button.focus(), 50);
-      }
-    }, 300);
+      const btn = document.querySelector('.p-confirmdialog-accept-button') as HTMLButtonElement;
+      btn?.focus();
+    }, 200);
   }
 }

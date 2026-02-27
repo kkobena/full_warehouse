@@ -10,7 +10,7 @@ import { Popover } from 'primeng/popover';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { IRemise, ISalesLine } from '../../../../shared/model';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { MessageService } from 'primeng/api';
 
 /**
@@ -39,13 +39,12 @@ import { MessageService } from 'primeng/api';
     Popover,
     InputIcon,
     IconField,
-    ConfirmDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductListComponent {
   // ViewChild
-  private confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private remisePopover = viewChild<Popover>('remisePopover');
 
   // Inputs
@@ -121,7 +120,7 @@ export class ProductListComponent {
 
   onRemoveLine(line: ISalesLine): void {
     // Utiliser le modal de confirmation
-    this.confirmDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.authorizationRequired.emit({ line, action: 'delete' }),
       'Supprimer Produit',
       `Voulez-vous supprimer ${line.produitLibelle || 'ce produit'} ?`,
@@ -179,7 +178,7 @@ export class ProductListComponent {
   onPopoverRemiseSelect(remise: IRemise): void {
     this.remisePopover()?.hide();
     if (this.isEditMode()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.remiseSelected.emit(remise),
         'Modifier la remise',
         `Voulez-vous remplacer la remise actuelle par "${remise.valeur}" ?`,

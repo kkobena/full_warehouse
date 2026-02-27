@@ -32,7 +32,7 @@ import {UserVendeurService} from '../../../../entities/sales/service/user-vendeu
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 import {FinalyseSale, SaleId} from '../../../../shared/model/sales.model';
 import {IMagasin, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
@@ -54,7 +54,6 @@ import {Toast} from "primeng/toast";
     Button,
     Select,
     TooltipModule,
-    ConfirmDialogComponent,
     ProductListComponent,
     ProductSearchSectionComponent,
     SaleActionsComponent,
@@ -66,8 +65,8 @@ import {Toast} from "primeng/toast";
   styleUrl: './vente-depot.component.scss',
 })
 export class VenteDepotComponent implements OnInit, ProductSearchHost {
-  // ── ViewChildren ─────────────────────────────────────────────
-  private readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  // ── Confirm Dialog ──────────────────────────────────────────
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
 
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
@@ -134,7 +133,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     lastError: this.facade.lastError,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
     forceStockContext: this.forceStockContext,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.create(line),
@@ -145,7 +144,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade as any,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
-    getConfirmDialog: () => this.confirmDialog(),
+    getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
     operations: {
       createSale: (line: ISalesLine) => this.facade.create(line),
@@ -252,7 +251,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
   protected onCancel(): void {
     if (this.facade.currentSale()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.facade.cancelSale();
         },
@@ -287,7 +286,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   protected onSaveKeyDown(shouldSave: boolean): void {
 
     if (shouldSave && (this.facade.currentSale()?.salesLines?.length ?? 0) > 0) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.save();
         },
@@ -318,7 +317,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
   protected onSelectDepot(): void {
     if (this.facade.currentSale()) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.facade
             .changeDepot(this.facade.currentSale()!.saleId, this.selectedDepot!.id)
@@ -409,7 +408,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     if (!this.facade.currentSale()?.remise) return;
 
     const doRemove = () => {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => this.facade.updateRemise(undefined),
         'Supprimer la remise',
         'Voulez-vous vraiment supprimer la remise appliquée ?',

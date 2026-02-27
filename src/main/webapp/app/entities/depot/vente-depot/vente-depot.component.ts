@@ -13,9 +13,9 @@ import { Tooltip } from 'primeng/tooltip';
 import { AccountService } from '../../../core/auth/account.service';
 import { RemiseCacheService } from '../../sales/service/remise-cache.service';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from '../../../shared/model';
 import { IUser } from '../../../core/user/user.model';
-import { ProduitSearch } from '../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../shared/model';
 import { UserVendeurService } from '../../sales/service/user-vendeur.service';
 import { HasAuthorityService } from '../../sales/service/has-authority.service';
 import { ProduitService } from '../../produit/produit.service';
@@ -31,7 +31,7 @@ import { KeyboardShortcutsService } from '../../sales/selling-home/racourci/keyb
 import { Authority } from '../../../shared/constants/authority.constants';
 import { handleSaleEvents } from '../../sales/selling-home/sale-event-helper';
 import { FinalyseSale, InputToFocus, ISales, SaleId, SaveResponse, StockError } from '../../../shared/model/sales.model';
-import { SalesStatut } from '../../../shared/model/enumerations/sales-statut.model';
+import { SalesStatut } from '../../../shared/model';
 import { showCommonError, translateSalesLabel } from '../../sales/selling-home/sale-helper';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpResponse } from '@angular/common/http';
@@ -159,9 +159,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.produitSelected == null || this.quantyBox().value < 1;
   }
 
-  protected get entryAmount(): number {
-    return 0;
-  }
+
 
   onLoadPrevente(sales: ISales): void {
     if (sales.statut === SalesStatut.CLOSED) {
@@ -184,8 +182,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.userCaissier = { ...this.currentAccount() } as IUser;
     this.depotService.setCaissier(this.userCaissier);
 
-    // Register keyboard shortcuts
-    this.registerKeyboardShortcuts();
+
 
     this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales }) => {
       if (sales?.id) {
@@ -652,63 +649,5 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/depot', 'new-vente']);
   }
 
-  private registerKeyboardShortcuts(): void {
-    this.shortcutsService.registerAll({
-      // Navigation
-      focusProductSearch: () => this.produitbox()?.getFocus(),
-      focusQuantity: () => this.quantyBox()?.focusProduitControl(),
-      focusCustomer() {},
-      focusVendor: () => this.userBox()?.nativeElement?.focus(),
 
-      // Product actions
-      // addProduct: () => this.onAddProduit(),
-      addProduct() {},
-      removeSelectedLine() {},
-      clearProduct: () => {
-        this.produitSelected = null;
-        this.produitbox()?.getFocus();
-      },
-      viewProductStock: () => {
-        if (this.produitSelected) {
-          // Stock modal would be triggered here if available
-          console.log('View stock for product:', this.produitSelected);
-        }
-      },
-
-      // Sale types
-      switchToComptant() {},
-      switchToAssurance() {},
-      switchToCarnet() {},
-
-      // Payment & Finalization
-      finalizeSale: () => this.manageAmountDiv(),
-      savePending() {},
-      viewPendingSales() {},
-      cancelSale: () => this.resetAll(),
-
-      // Quantity
-      incrementQuantity: (amount: number) => {
-        this.quantyBox()?.incrementQuantity(amount);
-      },
-      decrementQuantity: (amount: number) => {
-        this.quantyBox()?.decrementQuantity(amount);
-      },
-
-      // Discounts
-      applyDiscount() {},
-      removeDiscount() {},
-
-      // Printing
-      printInvoice: () => this.onPrintInvoice(),
-      printReceipt: () => this.printSale(this.depotService.currentSale().saleId),
-
-      // Tauri-specific (optional, only if user has permission)
-      forceStock: this.canForceStock()
-        ? () => {
-            console.log('Force stock activated');
-            // Force stock logic would go here
-          }
-        : undefined,
-    });
-  }
 }

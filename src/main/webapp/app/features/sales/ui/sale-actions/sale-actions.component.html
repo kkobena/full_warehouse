@@ -84,15 +84,17 @@
             [severity]="getSaveButtonSeverity()"
           />
 
+          @if (showButtonEnAttente()) {
+            <p-button
+              (onClick)="onPutOnHold()"
+              [disabled]="isSaving()"
+              [raised]="true"
+              icon="pi pi-pause"
+              label="En attente"
+              severity="secondary"
+            />
+          }
 
-          <p-button
-            (onClick)="onPutOnHold()"
-            [disabled]="isSaving()"
-            [raised]="true"
-            icon="pi pi-pause"
-            label="En attente"
-            severity="secondary"
-          />
           <p-button
             (onClick)="onCancel()"
             [disabled]="!canCancel() || isSaving()"

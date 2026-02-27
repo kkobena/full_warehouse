@@ -192,7 +192,7 @@
                   pInputText
                   [value]="line.regularUnitPrice"
 
-                  (keydown.enter)="onPriceChange(line, $any($event.target).value); $event.target.blur()"
+                  (keydown.enter)="onPriceChange(line, $any($event.target).value) "
                   (focus)="$event.target.select()"
                   min="0"
                   class="pharma-input-price" />

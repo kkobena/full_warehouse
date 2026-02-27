@@ -76,13 +76,12 @@
             </p-floatlabel>
           </div>
         </ng-template>
-
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
             <p-button
               [raised]="true"
-              [routerLink]="['/depot', 'new-vente']"
+              [routerLink]="['/sales-home', 'vente-depot']"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente"
               severity="primary"

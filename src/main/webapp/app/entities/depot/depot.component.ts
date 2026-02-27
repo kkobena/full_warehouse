@@ -68,7 +68,7 @@ export class DepotComponent implements OnInit {
   }
 
   onNewVente(): void {
-    this.router.navigate(['/depot', 'new-vente']);
+    this.router.navigate(['/sales-home', 'vente-depot']);
   }
 
   onDelete(depot: IMagasin): void {

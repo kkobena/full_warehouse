@@ -421,7 +421,15 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
       // Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
-        this.finalizeSaleWithoutPayment();
+        this.confirmDialog().onConfirm(
+          () => {
+            this.finalizeSaleWithoutPayment();
+          },
+          'Finaliser la vente',
+          'Voulez-vous vraiment finaliser la vente ?', null,
+          () => this.productSearchComponent()?.getFocus()
+        );
+
       } else {
         // Focus sur le champ cash du payment-mode déjà affiché
         setTimeout(() => {

@@ -1,0 +1,162 @@
+<!-- Interface vente dépôt -->
+<div class="pharma-sales-layout">
+
+  <!-- HEADER TOOLBAR -->
+  <div class="pharma-sales-header">
+    <div class="header-left">
+
+      <p-button
+        (click)="previousState()"
+        [rounded]="true"
+        [text]="true"
+        class="back-button"
+        icon="pi pi-arrow-left"
+        pTooltip="Retour"
+      />
+
+      <div class="page-title">
+        <h1>Ventes dépôts</h1>
+      </div>
+
+      <!-- Sélection vendeur -->
+      <div class="header-select-wrapper">
+        <label class="header-label">
+          <i class="pi pi-user"></i>
+          <span>Vendeur</span>
+        </label>
+        <p-select
+          (onChange)="onSelectUser()"
+          [(ngModel)]="userSeller"
+          [appendTo]="'body'"
+          [dataKey]="'id'"
+          [options]="userVendeurService.vendeurs()"
+          [placeholder]="'Sélectionner un vendeur'"
+          [style]="{ width: '200px' }"
+          class="pharma-select-modern"
+          optionLabel="abbrName"
+        />
+      </div>
+
+      <!-- Sélection dépôt (obligatoire) -->
+      <div class="header-select-wrapper depot-select">
+        <label class="header-label">
+          <i class="pi pi-building"></i>
+          <span>Dépôt</span>
+        </label>
+        <p-select
+          (onChange)="onSelectDepot()"
+          [(ngModel)]="selectedDepot"
+          [appendTo]="'body'"
+          [dataKey]="'id'"
+          [options]="facade.depots()"
+          [placeholder]="'Sélectionner un dépôt'"
+          [style]="{ width: '250px' }"
+          class="pharma-select-modern"
+          optionLabel="name"
+        >
+          <ng-template #item let-depot>
+            <div class="depot-option">
+              <div class="depot-name">{{ depot.name }}</div>
+              @if (depot.address) {
+                <div class="depot-address">{{ depot.address }}</div>
+              }
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="pharma-sales-body">
+    <div class="sales-workspace">
+
+      <!-- RECHERCHE PRODUIT -->
+      <app-product-search-section
+        #produitbox
+        [autofocus]="true"
+        [selectedProduct]="facade.selectedProduct()"
+        [showStock]="true"
+        [saleType]="'COMPTANT'"
+        (productSelected)="onProductSelected($event)"
+        (productScanned)="onProductScanned($event)"
+        (onKeyEnter)="onSaveKeyDown($event)"
+        (addQuantite)="addQuantity($event)"
+      />
+
+      <!-- CONTENU : LISTE + RÉSUMÉ/ACTIONS -->
+      @if (facade.currentSale()) {
+        <div class="content-grid">
+          <!-- Colonne gauche : liste des produits -->
+          <div class="products-section">
+            <app-product-list
+              [salesLines]="facade.currentSale()?.salesLines ?? []"
+              [saleId]="facade.currentSale()?.id"
+              [saleType]="'COMPTANT'"
+              [remises]="remiseCacheService.remises()"
+              [currentRemise]="facade.currentSale()?.remise ?? null"
+              [canEditPrice]="canModifyPrice()"
+              [showRemiseSection]="true"
+              [isEditable]="true"
+              (quantityChanged)="onQuantitySoldChanged($event)"
+              (quantityRequestedChanged)="onQuantityRequestedChanged($event)"
+              (priceChanged)="onPriceChanged($event)"
+              (authorizationRequired)="onAuthorizationRequired($event)"
+              (remiseSelected)="onRemiseSelected($event)"
+              (removeRemise)="onRemoveRemise()"
+            />
+          </div>
+
+          <!-- Colonne droite : résumé + actions -->
+          <div class="summary-section">
+            <app-sale-summary
+              [totalAmount]="facade.currentSale()?.salesAmount ?? 0"
+              [discountAmount]="facade.currentSale()?.discountAmount ?? 0"
+              [taxAmount]="facade.currentSale()?.taxAmount ?? 0"
+              [netAmount]="facade.currentSale()?.netAmount ?? 0"
+              [amountToBePaid]="facade.currentSale()?.amountToBePaid ?? 0"
+              [itemCount]="facade.currentSale()?.salesLines?.length ?? 0"
+              [currentRemise]="facade.currentSale()?.remise ?? null"
+              [isAvoir]="facade.isAvoir()"
+              [saleType]="'COMPTANT'"
+            />
+
+            <app-sale-actions
+              [canSave]="facade.canSave()"
+              [canCancel]="!!facade.currentSale()"
+              [isSaving]="facade.loading()"
+              [saleType]="'COMPTANT'"
+              [canSaveAsPresale]="false"
+              [showPrintButton]="false"
+              [showButtonEnAttente]="false"
+              (save)="save()"
+              (cancel)="onCancel()"
+            />
+          </div>
+        </div>
+      } @else {
+        <div class="empty-depot-state">
+          <div class="empty-depot-icon">
+            <i class="pi pi-building"></i>
+          </div>
+          @if (!facade.selectedDepot()) {
+            <p>Sélectionnez un dépôt puis recherchez un produit pour commencer</p>
+          } @else {
+            <p>Recherchez un produit pour commencer la vente</p>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+</div>
+
+<!-- Composants de notification -->
+<!-- Notifications Toast -->
+<p-toast position="center" />
+<jhi-confirm-dialog #confirmDialog />
+
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
+             color="#009688" name="sale-spinner"
+             size="medium" type="timer"></ngx-spinner>

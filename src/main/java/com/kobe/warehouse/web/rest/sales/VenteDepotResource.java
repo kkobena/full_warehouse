@@ -10,9 +10,6 @@ import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
@@ -35,8 +34,6 @@ public class VenteDepotResource {
 
     private final SaleDepotExtensionService saleDepotExtensionService;
 
-    @Value("${pharma-smart.clientApp.name}")
-    private String applicationName;
 
     public VenteDepotResource(SaleDepotExtensionService saleDepotExtensionService) {
         this.saleDepotExtensionService = saleDepotExtensionService;
@@ -52,9 +49,7 @@ public class VenteDepotResource {
         }
         depotExtensionSaleDTO.setCaisseNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
         depotExtensionSaleDTO.setCaisseEndNum(depotExtensionSaleDTO.getCaisseNum());
-
-        DepotExtensionSaleDTO result = saleDepotExtensionService.create(depotExtensionSaleDTO);
-        return ResponseEntity.accepted().body(result);
+        return ResponseEntity.accepted().body(saleDepotExtensionService.create(depotExtensionSaleDTO));
     }
 
     @PutMapping("/save")
@@ -63,42 +58,41 @@ public class VenteDepotResource {
         HttpServletRequest request
     ) {
         depotExtensionSaleDTO.setCaisseEndNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
-        FinalyseSaleDTO result = saleDepotExtensionService.save(depotExtensionSaleDTO);
-        return ResponseEntity.accepted().body(result);
+        return ResponseEntity.accepted().body(saleDepotExtensionService.save(depotExtensionSaleDTO));
     }
 
     @PostMapping("/add-item")
     public ResponseEntity<SaleLineDTO> addItem(@Valid @RequestBody SaleLineDTO saleLineDTO) {
-        SaleLineDTO result = saleDepotExtensionService.addOrUpdateSaleLine(saleLineDTO);
-        return ResponseEntity.accepted().body(result);
+        return ResponseEntity.accepted().body(saleDepotExtensionService.addOrUpdateSaleLine(saleLineDTO));
     }
 
     @PutMapping("/update-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,true);
-        return ResponseEntity.accepted().body(result);
+    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+
+        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO, true));
     }
+
     @PutMapping("/increment-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,true);
-        return ResponseEntity.accepted().body(result);
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+
+        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO, true));
     }
+
     @PutMapping("/set-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO,false);
-        return ResponseEntity.accepted().body(result);
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO, false));
     }
 
     @PutMapping("/update-item/price")
-    public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemRegularPrice(saleLineDTO);
-        return ResponseEntity.accepted().body(result);
+    public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+
+        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemRegularPrice(saleLineDTO));
     }
 
     @PutMapping("/update-item/quantity-sold")
-    public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        SaleLineDTO result = saleDepotExtensionService.updateItemQuantitySold(saleLineDTO);
-        return ResponseEntity.accepted().body(result);
+    public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+
+        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemQuantitySold(saleLineDTO));
     }
 
     @DeleteMapping("/delete-item/{id}/{saleDate}")

@@ -33,6 +33,7 @@ export class SaleActionsComponent {
   saleType = input<'COMPTANT' | 'ASSURANCE' | 'CARNET'>('COMPTANT');
   showPrintButton = input(false);
   isSmallScreen = input(false); // Pour afficher icon-only sur mobile
+  showButtonEnAttente = input(true);
 
   // Outputs
   save = output<void>();

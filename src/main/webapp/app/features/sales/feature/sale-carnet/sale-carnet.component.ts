@@ -381,7 +381,15 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
       //  Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
-        this.finalizeSaleWithoutPayment();
+
+        this.confirmDialog().onConfirm(
+          () => {
+            this.finalizeSaleWithoutPayment();
+          },
+          'Finaliser la vente',
+          'Voulez-vous vraiment finaliser la vente ?', null,
+          () => this.productSearchComponent()?.getFocus()
+        );
       } else {
         // Montant à payer > 0, le payment-mode est déjà affiché en inline
         // Afficher le total sur l'écran client

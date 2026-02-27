@@ -56,5 +56,14 @@ export const SALES_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Gestion des ventes',
     },
-  }
+  },
+  {
+    path: 'vente-depot',
+    loadComponent: () => import('./feature/vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      pageTitle: 'Vente dépôt',
+    },
+  },
 ];

@@ -47,7 +47,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -141,44 +140,20 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         return salesManager.updateItemRegularPrice(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
 
-    private void finalizeSaleLineUpdate(SalesLine salesLine) {
-        VenteDepot venteDepot = (VenteDepot) salesLine.getSales();
-        upddateAmounts(venteDepot);
-        venteDepotRepository.saveAndFlush(venteDepot);
-        //   this.displayNet(venteDepot.getNetAmount());
-    }
+
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
         return salesManager.addOrUpdateSaleLine(dto, findOne(dto.getSaleCompositeId()));
     }
 
-    private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
-        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
-        if (salesLineOp.isPresent()) {
-            SalesLine salesLine = salesLineOp.get();
-            salesLineService.updateSaleLine(dto, salesLine, storageId);
-            VenteDepot venteDepot = (VenteDepot) salesLine.getSales();
-            upddateAmounts(venteDepot);
-            venteDepotRepository.save(venteDepot);
-            return salesLine;
-        }
-        SalesLine salesLine = salesLineService.create(dto, storageId, findOne(dto.getSaleCompositeId()));
-        updateSaleWhenAddItem(salesLine);
-        return salesLine;
-    }
+
 
     private VenteDepot findOne(SaleId id) {
         return this.venteDepotRepository.getReferenceById(id);
     }
 
-    private void updateSaleWhenAddItem(SalesLine salesLine) {
-        VenteDepot venteDepot = (VenteDepot) salesLine.getSales();
-        upddateAmounts(venteDepot);
-        salesLine.setSales(venteDepot);
-        venteDepotRepository.save(venteDepot);
-    }
+
 
     @Override
     public FinalyseSaleDTO save(DepotExtensionSaleDTO dto)
@@ -233,13 +208,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         );
     }
 
-    private void upddateAmountsOnRemovingItem(VenteDepot c, SalesLine saleLine) {
-        computeSaleEagerAmountOnRemovingItem(c, saleLine);
-        this.proccessDiscount(c);
-        computeAmountToPaid(c);
-        computeSaleLazyAmountOnRemovingItem(c, saleLine);
-        computeTvaAmountOnRemovingItem(c, saleLine);
-    }
 
     @Override
     public void processDiscount(UpdateSaleInfo keyValue) {

@@ -122,7 +122,7 @@
               [remises]="remiseCacheService.remises()"
               [currentRemise]="facade.currentSale()?.remise ?? null"
               [canEditPrice]="canModifyPrice()"
-              [showRemiseSection]="true"
+              [showRemiseSection]="false"
               [isEditable]="true"
               (quantityChanged)="onQuantitySoldChanged($event)"
               (quantityRequestedChanged)="onQuantityRequestedChanged($event)"
@@ -177,8 +177,7 @@
   </div>
 </div>
 
-<!-- Composants de notification -->
-<!-- Notifications Toast -->
+
 <p-toast position="center"/>
 
 <ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"

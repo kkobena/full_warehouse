@@ -3,7 +3,6 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NgbConfirmDialogContentComponent } from './ngb-confirm-dialog.component';
 
 /**
- * Remplacement de ConfirmDialogComponent (PrimeNG) par une implémentation NgbModal.
  * Expose la même API (onConfirm, onWarn) pour faciliter la migration progressive.
  *
  * Usage :

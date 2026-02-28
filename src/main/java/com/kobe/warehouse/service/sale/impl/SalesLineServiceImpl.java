@@ -13,7 +13,6 @@ import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -122,7 +121,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
 
-
     @Override
     public void updateItemQuantitySold(SalesLine salesLine, SaleLineDTO saleLineDTO, Integer storageId) {
         updateItemQuantitySold(saleLineDTO, salesLine, storageId);
@@ -156,10 +154,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         }
         if (sales instanceof CashSale) {
             return grilleRemises.stream().filter(grilleRemise -> grilleRemise.getCode() == codeRemise.getCodeVno()).findFirst();
-        } else if (sales instanceof ThirdPartySales) {
+        } else {
             return grilleRemises.stream().filter(grilleRemise -> grilleRemise.getCode() == codeRemise.getCodeVo()).findFirst();
         }
-        return Optional.empty();
+
     }
 
     public void processProductDiscount(SalesLine salesLine) {

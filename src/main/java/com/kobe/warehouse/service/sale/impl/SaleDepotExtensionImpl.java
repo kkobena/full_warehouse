@@ -219,11 +219,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
                     if (venteDepot.getRemise() != null) {
                         this.removeRemise(venteDepot);
                     }
-                    if (remise instanceof RemiseProduit remiseProduit) {
-                        this.applyRemiseProduit(venteDepot, remiseProduit);
-                    } else {
-                        this.applyRemiseClient(venteDepot, (RemiseClient) remise);
-                    }
+                    this.applyRemiseProduit(venteDepot, (RemiseProduit) remise);
                     computeAmountToPaid(venteDepot);
                     arrondirMontantCaisse(venteDepot);
                     this.venteDepotRepository.save(venteDepot);
@@ -238,10 +234,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         //  this.displayNet(sales.getNetAmount());
     }
 
-    @Override
-    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate) {
-        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate);
-    }
+
 
     @Override
     public void changeDepot(SaleId saleId, Integer depotId) {

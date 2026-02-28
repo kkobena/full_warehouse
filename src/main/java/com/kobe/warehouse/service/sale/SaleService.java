@@ -18,12 +18,11 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+
 import java.time.LocalDate;
 import java.util.List;
 
 public interface SaleService {
-
-
     CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
@@ -69,12 +68,12 @@ public interface SaleService {
     void removeRemiseFromCashSale(SaleId saleId);
 
     List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
-        LocalDate saleDate);
+                                                                         LocalDate saleDate);
 
     void upddateCashSaleAmounts(CashSale c);
 
     void upddateCashSaleAmountsOnRemovingItem(CashSale c,
-        com.kobe.warehouse.domain.SalesLine saleLine);
+                                              com.kobe.warehouse.domain.SalesLine saleLine);
 
     void savePrevente(CashSaleDTO dto, boolean transform);
 

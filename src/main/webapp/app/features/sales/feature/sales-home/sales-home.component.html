@@ -1,4 +1,3 @@
-
 <!-- Drawer pour ventes en attente (masqué en mode devis) -->
 @if (!isDevisMode()) {
   <p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
@@ -108,7 +107,9 @@
 
     <div class="header-actions">
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
-      @if (active() === 'comptant' && salesFacade.currentSale() && !isDevisMode()) {
+      @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale() && !isDevisMode();
+
+      @if (showCustomerPanel) {
         <div class="header-customer-wrapper">
           <app-customer-overlay-panel></app-customer-overlay-panel>
         </div>

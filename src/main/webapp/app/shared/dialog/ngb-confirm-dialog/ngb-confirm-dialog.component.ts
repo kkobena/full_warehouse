@@ -70,9 +70,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
     .confirm-body {
       padding: 1.25rem;
-      font-size: 0.925rem;
+      font-size: 1rem;
       color: #374151;
       line-height: 1.5;
+      font-weight: 500;
     }
 
     .confirm-footer {

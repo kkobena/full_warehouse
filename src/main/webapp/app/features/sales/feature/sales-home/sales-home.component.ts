@@ -333,7 +333,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
           this.focusActiveTab();
         },
         'Changement de type de vente',
-        this.getMessateOnNavChange(evt),
+       this.isFromVo(fromTab)?'La vente sera mise en attente. Voulez-vous continuer ?': this.getMessateOnNavChange(evt),
       );
     } else {
       if (asCurrentSale) {
@@ -411,7 +411,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private getMessateOnNavChange(evt: NgbNavChangeEvent): string {
     return getNavChangeMessage(evt.nextId, this.translate);
   }
-
+private isFromVo(fromTab: string): boolean {
+   return fromTab === SaleType.ASSURANCE || fromTab === SaleType.CARNET;
+}
   /**
    * Dispatch de la transition entre deux onglets quand une vente est en cours.
    * Utilisé par onNavChange() et switchToTab().
@@ -451,7 +453,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   /** ASSURANCE → CARNET : transforme la vente assurance en carnet (conserve le client) */
   private switchAssuranceToCarnet(): void {
-    this.onChangeCashSaleToCarnet();
+    this.salesFacade.setSelectedCustomer(null);
+    this.salesFacade.resetCurrentSale();
   }
 
   /** CARNET → COMPTANT : annule la vente carnet en cours */
@@ -462,7 +465,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   /** CARNET → ASSURANCE : vide le client puis transforme la vente en assurance */
   private switchCarnetToAssurance(): void {
     this.salesFacade.setSelectedCustomer(null);
-    this.onChangeCashSaleToVo();
+    this.salesFacade.resetCurrentSale();
   }
 
   /**
@@ -512,11 +515,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Conforme à l'ancien: selling-home.component.ts onLoadPrevente()
    */
   private loadSale(saleId: SaleId): void {
-    // Appel du rxMethod - il met à jour le store automatiquement
     this.salesFacade.loadSale(saleId);
-
-    // Écouter les changements du store pour basculer l'onglet
-    // (après que la vente soit chargée)
   }
 
   // ===== Raccourcis clavier globaux =====

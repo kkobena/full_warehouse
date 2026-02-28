@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -195,6 +196,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     default Specification<Sales> toDay() {
         return (root, query, cb) -> cb.equal(root.get(Sales_.saleDate), LocalDate.now());
     }
+
     default Specification<Sales> isActif() {
         return (root, query, cb) -> cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE);
     }
@@ -209,6 +211,11 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
 
     default Specification<Sales> hasType(TypeVente typeVente) {
         return (root, query, cb) -> cb.equal(root.get(Sales_.type), typeVente.name());
+    }
+
+    default Specification<Sales> notDepot() {
+        return (root, query, cb) ->
+            cb.notEqual(root.type(), VenteDepot.class);
     }
 
     default Specification<Sales> hasCaissier(AppUser caissier) {

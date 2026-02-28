@@ -97,7 +97,7 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
                 .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
 
             if (clientTiersPayantDTO.getNumBon() != null && checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayant.getId(), null)) {
-                throw new NumBonAlreadyUseException(dto.getNumBon());
+                throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
             }
 
             ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(

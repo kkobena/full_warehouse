@@ -10,13 +10,11 @@ import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
-import java.time.LocalDate;
-import java.util.List;
 
 public interface SaleDepotExtensionService {
     DepotExtensionSaleDTO create(DepotExtensionSaleDTO dto);
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment) throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 
@@ -36,7 +34,6 @@ public interface SaleDepotExtensionService {
 
     void removeRemiseFromSale(SaleId saleId);
 
-    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
     void changeDepot(SaleId saleId, Integer depotId);
 }

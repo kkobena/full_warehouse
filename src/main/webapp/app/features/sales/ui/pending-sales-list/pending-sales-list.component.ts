@@ -13,7 +13,7 @@ import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {TooltipModule} from 'primeng/tooltip';
 import {TagModule} from 'primeng/tag';
-import {ISales} from '../../../../shared/model/sales.model';
+import {ISales} from '../../../../shared/model';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {SalesStatut} from '../../../../shared/model';
@@ -147,7 +147,6 @@ export class PendingSalesListComponent implements OnInit {
   onRefresh(): void {
     this.facade.loadPendingSales(this.buildParameters());
   }
-
 
 
   // ===== Helpers =====

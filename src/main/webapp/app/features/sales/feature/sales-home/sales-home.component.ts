@@ -239,7 +239,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         });
     }
   }
-
+protected onHide(evt: any): void {
+    console.log(evt,'on hide');
+}
   loadPendingSalesCount(): void {
     this.apiService
       .countPendingSales({

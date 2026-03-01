@@ -1,17 +1,17 @@
-import { inject, Injectable } from '@angular/core';
-import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
-import { SalesStore } from '../store/sales.store';
-import { SalesApiService } from '../services/sales-api.service';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { PrintService } from '../services/print.service';
-import { ISales, SaleId } from '../../../../shared/model/sales.model';
-import { SalesStatut } from '../../../../shared/model';
-import { extractApiError } from './sale-facade.utils';
+import {inject, Injectable} from '@angular/core';
+import {catchError, finalize, map, Observable, of, tap} from 'rxjs';
+import {SalesStore} from '../store/sales.store';
+import {SalesApiService} from '../services/sales-api.service';
+import {NotificationService} from '../../../../shared/services/notification.service';
+import {PrintService} from '../services/print.service';
+import {ISales, SaleId} from '../../../../shared/model/sales.model';
+import {SalesStatut} from '../../../../shared/model';
+import {extractApiError} from './sale-facade.utils';
 
 /**
  * Payment Facade — Save, standby, presale, devis, pending, print
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SalePaymentFacade {
   private readonly store = inject(SalesStore);
   private readonly apiService = inject(SalesApiService);
@@ -76,7 +76,7 @@ export class SalePaymentFacade {
       }),
       catchError(error => {
         console.error('Error saving sale:', error);
-        const { errorMessage } = extractApiError(error, "Erreur lors de l'enregistrement de la vente");
+        const {errorMessage} = extractApiError(error, "Erreur lors de l'enregistrement de la vente");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -115,18 +115,18 @@ export class SalePaymentFacade {
     const saleType = this.store.saleType();
     const standbyObservable$ =
       saleType === 'COMPTANT' ? this.apiService.putComptantOnStandby(currentSale) : this.apiService.putAssuranceOnStandby(currentSale);
-
     standbyObservable$
       .pipe(
         tap(result => {
+
           if (result?.success) {
             this.store.resetCurrentSale();
-            this.store.emitEvent('STANDBY_SUCCESS');
+           this.store.emitEvent('STANDBY_SUCCESS');
           }
         }),
         catchError(error => {
           console.error('Error putting sale on standby:', error);
-          const { errorMessage } = extractApiError(error, 'Erreur lors de la mise en attente');
+          const {errorMessage} = extractApiError(error, 'Erreur lors de la mise en attente');
           this.notificationService.error(errorMessage);
           this.store.setError(errorMessage);
           return of(null);
@@ -154,7 +154,7 @@ export class SalePaymentFacade {
       }),
       catchError(error => {
         console.error('Error finalizing presale:', error);
-        const { errorMessage } = extractApiError(error, 'Erreur lors de la finalisation de la prevente');
+        const {errorMessage} = extractApiError(error, 'Erreur lors de la finalisation de la prevente');
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -185,7 +185,7 @@ export class SalePaymentFacade {
       }),
       catchError(error => {
         console.error('Error saving devis:', error);
-        const { errorMessage } = extractApiError(error, "Erreur lors de l'enregistrement du devis");
+        const {errorMessage} = extractApiError(error, "Erreur lors de l'enregistrement du devis");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -216,7 +216,7 @@ export class SalePaymentFacade {
       }),
       catchError(error => {
         console.error('Error saving devis carnet:', error);
-        const { errorMessage } = extractApiError(error, "Erreur lors de l'enregistrement du devis carnet");
+        const {errorMessage} = extractApiError(error, "Erreur lors de l'enregistrement du devis carnet");
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
@@ -226,7 +226,7 @@ export class SalePaymentFacade {
   }
 
   loadPendingSales(params: any): void {
-    this.store.setPendingSalesLoading(true);
+    //  this.store.setPendingSalesLoading(true);
 
     this.apiService
       .getPendingSales(params)
@@ -237,31 +237,13 @@ export class SalePaymentFacade {
           this.store.setPendingSalesLoading(false);
           return of([]);
         }),
-        finalize(() => this.store.setPendingSalesLoading(false)),
+        // finalize(() => this.store.setPendingSalesLoading(false)),
       )
       .subscribe(sales => {
         this.store.setPendingSales(sales);
       });
   }
 
-  deletePendingSale(saleId: SaleId): void {
-    this.store.setLoading(true);
-
-    this.apiService
-      .deleteSale(saleId)
-      .pipe(
-        catchError(error => {
-          console.error('Error deleting pending sale:', error);
-          this.notificationService.error('Erreur lors de la suppression de la vente');
-          this.store.setLoading(false);
-          return of(undefined);
-        }),
-        finalize(() => this.store.setLoading(false)),
-      )
-      .subscribe(() => {
-        this.store.removePendingSale(saleId);
-      });
-  }
 
   printInvoice(saleId: SaleId): void {
     this.printService.printInvoice(saleId);

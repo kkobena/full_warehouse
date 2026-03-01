@@ -181,6 +181,19 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       this.iniLoadSaleForEdit();
     });
 
+    // S'abonner à la reprise d'une vente en attente pour switcher le tab APRÈS hydratation du store
+    this.salesFacade.resumePendingSaleSuccess$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const saleType = this.salesFacade.saleType();
+      if (saleType === 'ASSURANCE') {
+        this.active.set('assurance');
+      } else if (saleType === 'CARNET') {
+        this.active.set('carnet');
+      } else {
+        this.active.set('comptant');
+      }
+      this.focusActiveTab();
+    });
+
     // Vérifier si une caisse est ouverte
     this.hasCashRegisterOpen();
     const saleInfo = this.router.currentNavigation()?.extras?.state?.['saleInfo'] ?? history.state?.saleInfo;
@@ -378,18 +391,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.pendingSalesSidebar.set(false);
   }
 
-  protected onSaleResumed(sale: any): void {
-    // La vente a été reprise, fermer le drawer
+  protected onSaleResumed(_sale: any): void {
+    // Fermer le drawer. Le switch de tab se fait dans le handler RESUME_PENDING_SALE
+    // (après hydratation du store) pour garantir que saleType est correct.
     this.pendingSalesSidebar.set(false);
-    // Le facade a déjà chargé la vente via resumePendingSale
-    // Basculer vers l'onglet approprié selon le type de vente
-    if (sale.natureVente === 'ASSURANCE') {
-      this.active.set('assurance');
-    } else if (sale.natureVente === 'CARNET') {
-      this.active.set('carnet');
-    } else {
-      this.active.set('comptant');
-    }
   }
 
   private goToNextTab(toTab: any): void {

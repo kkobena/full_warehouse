@@ -1,7 +1,7 @@
-import { DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { ProductHandling } from './product-handling.mixin';
+import {DestroyRef} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {SalesFacade} from '../../data-access/facades/sales.facade';
+import {ProductHandling} from './product-handling.mixin';
 
 /**
  * Contexte pour le mixin de cycle de vie des ventes
@@ -43,7 +43,7 @@ export interface SaleLifecycleContext {
  * ```
  */
 export function createSaleLifecycle(context: SaleLifecycleContext) {
-  const { facade, destroyRef, productHandling, resetForNewSale } = context;
+  const {facade, destroyRef, productHandling, resetForNewSale} = context;
 
   /**
    * Initialise toutes les souscriptions communes du cycle de vie

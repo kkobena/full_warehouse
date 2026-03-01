@@ -135,7 +135,6 @@ export class PendingSalesListComponent implements OnInit {
 
   onResumeSale(sale: ISales): void {
     if (!sale.saleId) {
-      console.error('Sale has no saleId');
       return;
     }
 
@@ -149,9 +148,7 @@ export class PendingSalesListComponent implements OnInit {
     this.facade.loadPendingSales(this.buildParameters());
   }
 
-  onClose(): void {
-    this.closed.emit();
-  }
+
 
   // ===== Helpers =====
 

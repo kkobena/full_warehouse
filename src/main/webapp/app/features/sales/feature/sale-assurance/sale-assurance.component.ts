@@ -30,6 +30,7 @@ import {
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
+  ThirdPartyAmount,
 } from '../../ui';
 import {AssureFormStepComponent} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
 import {FormAyantDroitComponent} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
@@ -59,6 +60,7 @@ import {
   ProductSearchHost,
 } from '../../shared/mixins';
 import {SaleForEditInfo} from '../../../../shared/model/sales.model';
+import {IThirdPartySaleLine} from "../../../../shared/model/third-party-sale-line";
 
 /**
  * Composant Container : Création de vente ASSURANCE
@@ -132,6 +134,16 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
+  thirdPartyDetails = computed(() => {
+    const sale = this.currentSale();
+    const items = sale?.thirdPartySaleLines || [];
+    return items?.length > 1 ? items.map((item: IThirdPartySaleLine): ThirdPartyAmount => ({
+      name: item.name || '',
+      id: item.id,
+      amount: item.montant || 0,
+    })) : null;
+  });
+
   protected userVendeurService = inject(UserVendeurService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
@@ -594,7 +606,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
           }
           this.productHandling.focusProductSearch();
         },
-        'xl',null,
+        'xl', null,
         () => this.productHandling.focusProductSearch()
       );
     }

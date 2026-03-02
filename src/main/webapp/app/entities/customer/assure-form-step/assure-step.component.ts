@@ -1,29 +1,28 @@
-import { AfterViewInit, Component, ElementRef, inject, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { DividerModule } from 'primeng/divider';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { RadioButton, RadioButtonModule } from 'primeng/radiobutton';
-import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild} from '@angular/core';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {DividerModule} from 'primeng/divider';
+import {InputMaskModule} from 'primeng/inputmask';
+import {InputTextModule} from 'primeng/inputtext';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {RadioButton, RadioButtonModule} from 'primeng/radiobutton';
+import {ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {SelectButtonModule} from 'primeng/selectbutton';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { Customer, ICustomer } from '../../../shared/model/customer.model';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { HttpResponse } from '@angular/common/http';
-import { CardModule } from 'primeng/card';
-import { AssureFormStepService } from './assure-form-step.service';
-import { CommonService } from './common.service';
-import { ComplementaireStepComponent } from './complementaire-step.component';
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import { DateNaissDirective } from '../../../shared/date-naiss.directive';
-import { CommonModule } from '@angular/common';
-import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Customer, ICustomer} from '../../../shared/model/customer.model';
+import {IClientTiersPayant, ITiersPayant} from '../../../shared/model';
+import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {HttpResponse} from '@angular/common/http';
+import {CardModule} from 'primeng/card';
+import {AssureFormStepService} from './assure-form-step.service';
+import {CommonService} from './common.service';
+import {ComplementaireStepComponent} from './complementaire-step.component';
+import {DateNaissDirective} from '../../../shared/date-naiss.directive';
+import {CommonModule} from '@angular/common';
+import {showCommonModal} from '../../sales/selling-home/sale-helper';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {FormTiersPayantComponent} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -115,7 +114,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
         this.tiersPayants = res.body.filter(tp => !alreadyAddedIds.includes(tp.id));
         if (this.tiersPayants.length === 0) {
-          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+          this.tiersPayants.push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
         }
       });
   }
@@ -133,7 +132,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
     const current = this.tiersPayantAlreadyAdded();
     if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
-      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
+      this.tiersPayantAlreadyAdded.set([...current, {tiersPayantId: tiersPayant.id, tiersPayant}]);
     }
   }
 
@@ -169,7 +168,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants.push(resp);
-          this.editForm.patchValue({ tiersPayantId: resp });
+          this.editForm.patchValue({tiersPayantId: resp});
           this.addToAlreadyAdded(resp);
         }
       },

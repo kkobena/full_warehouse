@@ -77,9 +77,7 @@ export class AyantDroitStepComponent implements OnInit {
     };
   }
 
-  onNext(): void {
-    this.saveFormState();
-  }
+
 
   isValidForm(): boolean {
     const formValue = this.editForm.value;

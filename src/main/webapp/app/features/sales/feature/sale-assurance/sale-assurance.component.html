@@ -76,6 +76,7 @@
             [partAssurance]="currentSale()?.partTiersPayant || 0"
             [partClient]="currentSale()?.amountToBePaid || 0"
             [saleType]="'ASSURANCE'"
+            [thirdPartyDetails]="thirdPartyDetails()"
             [taxAmount]="currentSale()?.taxAmount || 0"
             [totalAmount]="currentSale()?.salesAmount || 0" />
         </div>

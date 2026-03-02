@@ -5,14 +5,14 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { HttpResponse } from '@angular/common/http';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
+import { ITiersPayant } from '../../../shared/model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { AssureFormStepService } from './assure-form-step.service';
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { IClientTiersPayant } from '../../../shared/model';
 import { CustomerService } from '../customer.service';
 import { CardModule } from 'primeng/card';
 import { ErrorService } from '../../../shared/error.service';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { Select, SelectModule } from 'primeng/select';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
@@ -164,7 +164,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       .query({
         page: 0,
         size: 10,
-        type: 'ASSURANCE',
+      //  type: 'ASSURANCE',
         search: query,
       })
       .pipe(takeUntil(this.destroy$))

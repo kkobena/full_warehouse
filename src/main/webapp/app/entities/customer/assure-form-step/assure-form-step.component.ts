@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { StepsModule } from 'primeng/steps';
 import { ConfirmationService, MenuItem } from 'primeng/api';
-import { ICustomer } from '../../../shared/model/customer.model';
+import { ICustomer } from '../../../shared/model';
 import { AssureFormStepService } from './assure-form-step.service';
 import { StepperModule } from 'primeng/stepper';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';

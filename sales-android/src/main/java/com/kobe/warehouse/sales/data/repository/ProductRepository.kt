@@ -36,6 +36,24 @@ class ProductRepository(
 
 
     /**
+     * Get product by ID
+     */
+    suspend fun getProductById(id: Long): Result<Product> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = productApiService.getProductById(id)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Produit non trouvé: $id"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Get product by code (for barcode scanning)
      * Backend returns a list, we take the first product if available
      */

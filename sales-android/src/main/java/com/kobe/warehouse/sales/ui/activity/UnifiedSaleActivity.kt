@@ -119,12 +119,14 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val paymentApi = apiClient.create(PaymentApiService::class.java)
         val customerApi = apiClient.create(CustomerApiService::class.java)
         val authApi = apiClient.create(AuthApiService::class.java)
+        val deconditionApi = apiClient.create(com.kobe.warehouse.sales.data.api.DeconditionApiService::class.java)
 
         val salesRepository = SalesRepository(salesApi)
         val productRepository = ProductRepository(productApi)
         val paymentRepository = PaymentRepository(paymentApi)
         val customerRepository = CustomerRepository(customerApi)
         val authRepository = AuthRepository(authApi, tokenManager)
+        val deconditionRepository = com.kobe.warehouse.sales.data.repository.DeconditionRepository(deconditionApi)
 
         val factory = UnifiedSaleViewModelFactory(
             salesRepository,
@@ -132,7 +134,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
             paymentRepository,
             customerRepository,
             authRepository,
-            tokenManager
+            tokenManager,
+            deconditionRepository
         )
 
         viewModel = ViewModelProvider(this, factory)[UnifiedSaleViewModel::class.java]
@@ -150,11 +153,15 @@ class UnifiedSaleActivity : AppCompatActivity() {
             adapter = customerSearchAdapter
         }
 
-        // Product search adapter
+        // Product search adapter - allow selecting out-of-stock products if user can force stock
+        val canForceStock = viewModel.checkUserPermission(
+            com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment.PERMISSION_FORCE_STOCK
+        )
         productAdapter = ProductAdapter(
             onProductClick = { product ->
                 showAddToCartDialog(product)
-            }
+            },
+            canForceStock = canForceStock
         )
 
         // Setup product search RecyclerView
@@ -547,6 +554,91 @@ class UnifiedSaleActivity : AppCompatActivity() {
             binding.btnFinalizeSale.isEnabled = !isLoading && hasItems
             binding.btnPutOnHold.isEnabled = !isLoading && hasItems
         }
+
+        // Backend stock force required (errorKey='stock')
+        viewModel.stockForceRequired.observe(this) { event ->
+            if (event != null) {
+                showBackendStockForceDialog(event)
+            }
+        }
+
+        // Backend deconditionnement required (errorKey='stockChInsufisant')
+        viewModel.deconditionnementRequired.observe(this) { event ->
+            if (event != null) {
+                showBackendDeconditionnementDialog(event)
+            }
+        }
+
+        // Backend stock error on quantity update
+        viewModel.quantityUpdateStockError.observe(this) { event ->
+            if (event != null) {
+                showQuantityUpdateForceStockDialog(event)
+            }
+        }
+    }
+
+    /**
+     * Show dialog when quantity update fails due to stock (backend errorKey='stock')
+     */
+    private fun showQuantityUpdateForceStockDialog(event: com.kobe.warehouse.sales.ui.viewmodel.QuantityUpdateStockError) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Stock Insuffisant")
+            .setMessage("${event.errorMessage}\n\nVoulez-vous forcer le stock pour la quantité ${event.newQuantity} ?")
+            .setPositiveButton("Forcer le stock") { _, _ ->
+                viewModel.retryQuantityUpdateWithForceStock(event.saleLine, event.newQuantity)
+                focusProductSearch()
+            }
+            .setNegativeButton("Annuler") { _, _ ->
+                focusProductSearch()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Show dialog when backend returns stock error (errorKey='stock')
+     * User can force stock if they have permission
+     */
+    private fun showBackendStockForceDialog(event: com.kobe.warehouse.sales.ui.viewmodel.StockActionRequired) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Stock Insuffisant")
+            .setMessage("${event.errorMessage}\n\nVoulez-vous forcer le stock ?")
+            .setPositiveButton("Forcer le stock") { _, _ ->
+                viewModel.retryWithForceStock(event.product, event.quantity)
+                focusProductSearch()
+            }
+            .setNegativeButton("Annuler") { _, _ ->
+                focusProductSearch()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Show dialog when backend returns deconditionnement error (errorKey='stockChInsufisant')
+     * Triggers deconditioning flow then retries the add
+     */
+    private fun showBackendDeconditionnementDialog(event: com.kobe.warehouse.sales.ui.viewmodel.StockActionRequired) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Déconditionnement Nécessaire")
+            .setMessage("${event.errorMessage}\n\nVoulez-vous déconditionner le produit parent pour obtenir du stock ?")
+            .setPositiveButton("Déconditionner") { _, _ ->
+                viewModel.performDeconditionnement(event.product, event.quantity)
+                focusProductSearch()
+            }
+            .setNegativeButton("Annuler") { _, _ ->
+                focusProductSearch()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Focus the product search field and clear it for next search
+     */
+    private fun focusProductSearch() {
+        binding.includeProductCart.etProductSearch.setText("")
+        binding.includeProductCart.etProductSearch.requestFocus()
     }
 
     /**
@@ -1683,11 +1775,15 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val dialog = com.kobe.warehouse.sales.ui.dialog.StockValidationDialogFragment(
             validationResult = validationResult,
             onConfirm = { forceStock ->
-                // User confirmed, add product with force stock flag
-                viewModel.addProductToCart(product, quantity, forceStock)
+                if (validationResult.status == com.kobe.warehouse.sales.domain.validation.StockValidationStatus.REQUIRES_DECONDITIONING) {
+                    viewModel.addProductToCart(product, quantity)
+                } else {
+                    viewModel.addProductToCart(product, quantity, forceStock)
+                }
+                focusProductSearch()
             },
             onCancel = {
-                // User cancelled, do nothing
+                focusProductSearch()
             }
         )
         dialog.show(supportFragmentManager, com.kobe.warehouse.sales.ui.dialog.StockValidationDialogFragment.TAG)

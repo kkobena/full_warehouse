@@ -30,4 +30,12 @@ interface ProductApiService {
     @Path("code") code: String
   ): Response<List<Product>>
 
+  /**
+   * Get product by ID
+   */
+  @GET("api/produits/{id}")
+  suspend fun getProductById(
+    @Path("id") id: Long
+  ): Response<Product>
+
 }

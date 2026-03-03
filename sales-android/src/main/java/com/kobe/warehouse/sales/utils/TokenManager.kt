@@ -260,8 +260,7 @@ class TokenManager(context: Context) {
      * Note: Backend uses Integer for user IDs
      */
     fun storeUserId(userId: Int?) {
-        android.util.Log.d("TokenManager", "=== STORE USER ID ===")
-        android.util.Log.d("TokenManager", "storeUserId called with: $userId")
+
         sharedPreferences.edit().apply {
             if (userId != null) {
                 putInt(KEY_USER_ID, userId)

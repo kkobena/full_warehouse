@@ -4,7 +4,9 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -53,7 +55,7 @@ class CartAdapter(
             tvLibelle.text = saleLine.produitLibelle ?: ""
             tvCode.text = saleLine.code ?: ""
             tvUnitPrice.text = saleLine.getFormattedUnitPrice()
-            tvQuantity.text = saleLine.quantitySold.toString()
+            tvQuantity.text = saleLine.quantityRequested.toString()
             tvTotal.text = saleLine.getFormattedTotal()
 
             if (isViewMode) {
@@ -92,8 +94,8 @@ class CartAdapter(
                 }
 
                 // Disable decrement if quantity is 1
-                btnDecrement.isEnabled = saleLine.quantitySold > 1
-                btnDecrement.alpha = if (saleLine.quantitySold > 1) 1.0f else 0.5f
+                btnDecrement.isEnabled = saleLine.quantityRequested > 1
+                btnDecrement.alpha = if (saleLine.quantityRequested > 1) 1.0f else 0.5f
             }
         }
 
@@ -102,15 +104,25 @@ class CartAdapter(
          */
         private fun showQuantityEditDialog(saleLine: SaleLine) {
             val context = itemView.context
-            val input = EditText(context)
-            input.inputType = InputType.TYPE_CLASS_NUMBER
-            input.setText(saleLine.quantitySold.toString())
-            input.selectAll()
+            val input = EditText(context).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                setText(saleLine.quantityRequested.toString())
+            }
 
-            MaterialAlertDialogBuilder(context)
+            // Add padding around the input
+            val container = FrameLayout(context)
+            val params = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(48, 16, 48, 16)
+            input.layoutParams = params
+            container.addView(input)
+
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle("Modifier la quantité")
                 .setMessage(saleLine.produitLibelle ?: "")
-                .setView(input)
+                .setView(container)
                 .setPositiveButton("OK") { _, _ ->
                     val newQuantity = input.text.toString().toIntOrNull()
                     if (newQuantity != null && newQuantity > 0) {
@@ -118,7 +130,13 @@ class CartAdapter(
                     }
                 }
                 .setNegativeButton("Annuler", null)
-                .show()
+                .create()
+
+            // Show keyboard automatically and select text
+            dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+            dialog.show()
+            input.requestFocus()
+            input.selectAll()
         }
     }
 
@@ -132,24 +150,6 @@ class CartAdapter(
         }
     }
 
-    /**
-     * Get total amount of all items
-     */
-    fun getTotalAmount(): Int {
-        return currentList.sumOf { it.salesAmount }
-    }
 
-    /**
-     * Get total item count
-     */
-    fun getTotalItemCount(): Int {
-        return currentList.size
-    }
 
-    /**
-     * Get total quantity
-     */
-    fun getTotalQuantity(): Int {
-        return currentList.sumOf { it.quantitySold }
-    }
 }

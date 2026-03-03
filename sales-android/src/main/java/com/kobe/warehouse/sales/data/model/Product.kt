@@ -39,7 +39,10 @@ data class Product(
   val itemQty: Int? = 1, // Number of units per box (for déconditionnement)
 
   @SerializedName("seuilDeconditionnement")
-  val seuilDeconditionnement: Int? = 0 // Minimum detail stock threshold for auto-déconditionnement
+  val seuilDeconditionnement: Int? = 0, // Minimum detail stock threshold for auto-déconditionnement
+
+  @SerializedName("parentId")
+  val parentId: Long? = null // ID of the parent CH product (for déconditionnement)
 ) : Parcelable {
 
   /**

@@ -18,7 +18,8 @@ import com.kobe.warehouse.sales.data.model.Product
  */
 class ProductAdapter(
     private val onProductClick: (Product) -> Unit,
-    private val isGridLayout: Boolean = false
+    private val isGridLayout: Boolean = false,
+    private val canForceStock: Boolean = false
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -63,18 +64,19 @@ class ProductAdapter(
                 )
             )
 
-            // Disable add button if out of stock
-            btnAdd.isEnabled = product.isInStock()
-            btnAdd.alpha = if (product.isInStock()) 1.0f else 0.5f
+            // Allow selection if in stock OR user can force stock
+            val canSelect = product.isInStock() || canForceStock
+            btnAdd.isEnabled = canSelect
+            btnAdd.alpha = if (canSelect) 1.0f else 0.5f
 
             // Click listeners
             cardView.setOnClickListener {
-                if (product.isInStock()) {
+                if (canSelect) {
                     onProductClick(product)
                 }
             }
             btnAdd.setOnClickListener {
-                if (product.isInStock()) {
+                if (canSelect) {
                     onProductClick(product)
                 }
             }

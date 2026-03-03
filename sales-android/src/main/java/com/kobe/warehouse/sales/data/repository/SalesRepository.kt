@@ -33,6 +33,15 @@ data class ApiErrorResponse(
 )
 
 /**
+ * Exception with errorKey from backend API error responses
+ * Allows callers to distinguish between different error types (e.g., 'stock', 'stockChInsufisant')
+ */
+class SalesApiException(
+    message: String,
+    val errorKey: String? = null
+) : Exception(message)
+
+/**
  * Sales Repository
  * Handles sales-related business logic and API calls
  *
@@ -378,8 +387,7 @@ class SalesRepository(
                     Result.success(response.body()!!)
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    val errorMessage = parseErrorResponse(errorBody)
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(errorBody))
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
@@ -454,8 +462,7 @@ class SalesRepository(
                 } else {
                     val errorBody = response.errorBody()?.string()
                     android.util.Log.e("SalesRepository", "ERROR: $errorBody")
-                    val errorMessage = parseErrorResponse(errorBody)
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(errorBody))
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
@@ -477,8 +484,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -499,8 +505,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -521,8 +526,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -674,23 +678,32 @@ class SalesRepository(
      * Extracts the user-friendly error message from backend error body
      */
     private fun parseErrorResponse(errorBody: String?): String {
+        return parseErrorResponseWithKey(errorBody).message ?: "Erreur inconnue"
+    }
+
+    /**
+     * Parse backend error response and return a SalesApiException with errorKey preserved
+     * Allows callers to distinguish between different error types (e.g., 'stock', 'stockChInsufisant')
+     */
+    private fun parseErrorResponseWithKey(errorBody: String?): SalesApiException {
         if (errorBody.isNullOrEmpty()) {
-            return "Erreur inconnue"
+            return SalesApiException("Erreur inconnue")
         }
 
         return try {
             val errorResponse = gson.fromJson(errorBody, ApiErrorResponse::class.java)
 
             // Priority: detail > message > title
-            when {
+            val message = when {
                 !errorResponse.detail.isNullOrEmpty() -> errorResponse.detail
                 !errorResponse.message.isNullOrEmpty() -> errorResponse.message
                 !errorResponse.title.isNullOrEmpty() -> errorResponse.title
                 else -> "Erreur lors de la création de la vente"
             }
+
+            SalesApiException(message, errorResponse.errorKey)
         } catch (e: Exception) {
-            // If parsing fails, return generic error
-            "Erreur lors de la création de la vente"
+            SalesApiException("Erreur lors de la création de la vente")
         }
     }
 }

@@ -11,16 +11,20 @@ import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
 import com.kobe.warehouse.sales.data.model.SaleLineId
+import com.kobe.warehouse.sales.data.model.Decondition
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
+import com.kobe.warehouse.sales.data.repository.DeconditionRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
+import com.kobe.warehouse.sales.data.repository.SalesApiException
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.data.model.SalesStatut
 import com.kobe.warehouse.sales.data.model.TiersPayant
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 
 /**
  * Unified Sale ViewModel
@@ -28,14 +32,44 @@ import kotlinx.coroutines.launch
  * Manages all types of sales (Comptant, Assurance, Carnet) with unified logic
  * Delegates type-specific operations to appropriate handlers
  */
+/**
+ * Event data for stock force or deconditionnement required by backend
+ */
+data class StockActionRequired(
+    val product: Product,
+    val quantity: Int,
+    val errorMessage: String
+)
+
+/**
+ * Event data for stock errors on quantity update (existing sale lines)
+ */
+data class QuantityUpdateStockError(
+    val saleLine: SaleLine,
+    val newQuantity: Int,
+    val errorMessage: String
+)
+
 class UnifiedSaleViewModel(
     private val salesRepository: SalesRepository,
     private val productRepository: ProductRepository,
     private val paymentRepository: PaymentRepository,
     private val customerRepository: CustomerRepository,
     private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val deconditionRepository: DeconditionRepository? = null
 ) : ViewModel(), ISaleViewModel {
+
+    // ===== Backend Stock Error Events =====
+
+    private val _stockForceRequired = MutableLiveData<StockActionRequired?>()
+    val stockForceRequired: LiveData<StockActionRequired?> = _stockForceRequired
+
+    private val _deconditionnementRequired = MutableLiveData<StockActionRequired?>()
+    val deconditionnementRequired: LiveData<StockActionRequired?> = _deconditionnementRequired
+
+    private val _quantityUpdateStockError = MutableLiveData<QuantityUpdateStockError?>()
+    val quantityUpdateStockError: LiveData<QuantityUpdateStockError?> = _quantityUpdateStockError
 
     // ===== Sale Type State =====
 
@@ -381,7 +415,7 @@ class UnifiedSaleViewModel(
                         _errorMessage.value = "Produit ajouté"
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur : ${error.message}"
+                        handleAddProductError(error, product, quantity)
                     }
                 )
             } catch (e: Exception) {
@@ -390,6 +424,135 @@ class UnifiedSaleViewModel(
                 _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Handle errors from addProductToCart API calls
+     * Detects stock and deconditionnement errors from backend errorKey
+     */
+    private fun handleAddProductError(error: Throwable, product: Product, quantity: Int) {
+        if (error is SalesApiException) {
+            val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
+
+            when (error.errorKey) {
+                "stock" -> {
+                    if (hasForceStockPermission) {
+                        _stockForceRequired.value = StockActionRequired(
+                            product = product,
+                            quantity = quantity,
+                            errorMessage = error.message ?: "Stock insuffisant"
+                        )
+                    } else {
+                        _errorMessage.value = "Stock insuffisant. Vous n'avez pas la permission de forcer le stock."
+                    }
+                    return
+                }
+                "stockChInsufisant" -> {
+                    _deconditionnementRequired.value = StockActionRequired(
+                        product = product,
+                        quantity = quantity,
+                        errorMessage = error.message ?: "Déconditionnement nécessaire"
+                    )
+                    return
+                }
+            }
+        }
+        _errorMessage.value = "Erreur : ${error.message}"
+    }
+
+    /**
+     * Retry adding product with forceStock=true (after user confirmation)
+     */
+    fun retryWithForceStock(product: Product, quantity: Int) {
+        _stockForceRequired.value = null // Clear the event
+        addProductToCart(product, quantity, forceStock = true)
+    }
+
+    /**
+     * Perform deconditionnement flow:
+     * 1. Resolve parentId (from product or via API)
+     * 2. Fetch CH parent product
+     * 3. Verify CH parent has stock
+     * 4. Calculate qty to decondition
+     * 5. Call decondition API
+     * 6. Retry the original add product operation
+     */
+    fun performDeconditionnement(product: Product, quantity: Int) {
+        _deconditionnementRequired.value = null // Clear the event
+
+        if (deconditionRepository == null) {
+            _errorMessage.value = "Service de déconditionnement non disponible"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Step 1: Resolve parentId
+                val parentId = product.parentId
+                if (parentId == null) {
+                    // Try to fetch product details to get parentId
+                    val productResult = productRepository.getProductById(product.id)
+                    val fetchedProduct = productResult.getOrNull()
+                    if (fetchedProduct?.parentId == null) {
+                        _errorMessage.value = "Ce produit n'a pas de conditionnement parent (CH)"
+                        return@launch
+                    }
+                    doDeconditionnement(fetchedProduct.parentId, product, quantity)
+                } else {
+                    doDeconditionnement(parentId, product, quantity)
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur de déconditionnement : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Execute the deconditionnement with resolved parentId
+     */
+    private suspend fun doDeconditionnement(parentId: Long, product: Product, quantity: Int) {
+        // Step 2: Fetch CH parent product to check stock
+        val parentResult = productRepository.getProductById(parentId)
+        val parentProduct = parentResult.getOrNull()
+        if (parentProduct == null) {
+            _errorMessage.value = "Impossible de récupérer le produit parent (CH)"
+            return
+        }
+
+        // Step 3: Verify CH parent has stock
+        if (parentProduct.totalQuantity <= 0) {
+            _errorMessage.value = "Stock du conditionnement parent (CH) insuffisant"
+            return
+        }
+
+        // Step 4: Calculate qty to decondition
+        val itemQty = product.itemQty ?: 1
+        val qtyToDecondition = if (itemQty > 0) {
+            ceil(quantity.toDouble() / itemQty.toDouble()).toInt()
+        } else {
+            1
+        }
+
+        // Step 5: Call decondition API
+        val decondition = Decondition(
+            qtyMvt = qtyToDecondition,
+            produitId = parentId
+        )
+        val deconditionResult = deconditionRepository!!.create(decondition)
+
+        deconditionResult.fold(
+            onSuccess = {
+                // Step 6: Retry the original operation (without forceStock, stock should now be available)
+                _isLoading.value = false // Reset loading before retry (addProductToCart sets it again)
+                addProductToCart(product, quantity)
+            },
+            onFailure = { error ->
+                _errorMessage.value = "Erreur de déconditionnement : ${error.message}"
+            }
+        )
     }
 
     /**
@@ -439,9 +602,6 @@ class UnifiedSaleViewModel(
             statut = saleStatut
         )
 
-        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.cassierId = ${saleToCreate.cassierId}")
-        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.sellerId = ${saleToCreate.sellerId}")
-        android.util.Log.d("UnifiedSaleViewModel", "saleToCreate.statut = ${saleToCreate.statut} (isPrevente=${_isPrevente.value})")
 
         return when (saleType) {
             is SaleType.Comptant -> salesRepository.createComptantSale(saleToCreate)
@@ -1143,19 +1303,8 @@ class UnifiedSaleViewModel(
             }
         }
 
-        // Check 2: Déconditionnement (if product has packaging and quantity is not a multiple)
-        product.itemQty?.let { packagingSize ->
-            if (packagingSize > 1 && requestedQuantity % packagingSize != 0) {
-                return com.kobe.warehouse.sales.domain.validation.StockValidationResult(
-                    status = com.kobe.warehouse.sales.domain.validation.StockValidationStatus.REQUIRES_DECONDITIONING,
-                    product = product,
-                    requestedQuantity = requestedQuantity,
-                    availableStock = availableStock,
-                    quantityInCart = quantityInCart,
-                    packagingSize = packagingSize
-                )
-            }
-        }
+        // Note: Déconditionnement is handled by backend errors (errorKey='stockChInsufisant')
+        // No client-side deconditioning check needed — the backend decides when deconditioning is required
 
         // All checks passed
         return com.kobe.warehouse.sales.domain.validation.StockValidationResult(
@@ -1233,6 +1382,71 @@ class UnifiedSaleViewModel(
                             salesAmount = newTotal
                         )
                         _errorMessage.value = "Quantité mise à jour"
+                    },
+                    onFailure = { error ->
+                        if (error is SalesApiException && error.errorKey == "stock") {
+                            val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
+                            if (hasForceStockPermission) {
+                                _quantityUpdateStockError.value = QuantityUpdateStockError(
+                                    saleLine = saleLine,
+                                    newQuantity = newQuantity,
+                                    errorMessage = error.message ?: "Stock insuffisant"
+                                )
+                            } else {
+                                _errorMessage.value = "Stock insuffisant. Vous n'avez pas la permission de forcer le stock."
+                            }
+                        } else {
+                            _errorMessage.value = "Erreur : ${error.message}"
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Retry quantity update with forceStock=true
+     */
+    fun retryQuantityUpdateWithForceStock(saleLine: SaleLine, newQuantity: Int) {
+        _quantityUpdateStockError.value = null
+        val sale = _currentSale.value ?: return
+
+        if (sale.id == null || sale.saleId?.saleDate == null) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val saleLineId = SaleLineId(
+                    id = saleLine.id ?: 0L,
+                    saleDate = sale.saleId!!.saleDate
+                )
+                val saleCompositeId = sale.saleId
+
+                val updatedSaleLine = saleLine.copy(
+                    quantityRequested = newQuantity,
+                    quantitySold = newQuantity,
+                    saleLineId = saleLineId,
+                    saleCompositeId = saleCompositeId,
+                    forceStock = true
+                )
+
+                val result = salesRepository.updateItemQuantity(updatedSaleLine, sale.natureVente)
+
+                result.fold(
+                    onSuccess = { updatedLine ->
+                        val updatedLines = sale.salesLines.map { existingLine ->
+                            if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                        }
+                        val newTotal = updatedLines.sumOf { it.salesAmount }
+                        _currentSale.value = sale.copy(
+                            salesLines = updatedLines.toMutableList(),
+                            salesAmount = newTotal
+                        )
+                        _errorMessage.value = "Quantité mise à jour (stock forcé)"
                     },
                     onFailure = { error ->
                         _errorMessage.value = "Erreur : ${error.message}"

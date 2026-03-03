@@ -171,8 +171,9 @@ class UnifiedSaleViewModel(
         _customerSearchResults.value = emptyList() // Clear search results after selection
 
         // Update sale with customer
-        val updatedSale = _currentSale.value?.copy(customer = customer)
-        _currentSale.value = updatedSale
+        _currentSale.value?.copy(customer = customer)?.let {
+            _currentSale.value = it
+        }
 
         // Update sale type with customer
         when (val saleType = _currentSaleType.value) {
@@ -208,8 +209,9 @@ class UnifiedSaleViewModel(
             return
         }
         _selectedCustomer.value = null
-        val updatedSale = _currentSale.value?.copy(customer = null)
-        _currentSale.value = updatedSale
+        _currentSale.value?.copy(customer = null)?.let {
+            _currentSale.value = it
+        }
     }
 
     private val _customerValidationError = MutableLiveData<String?>()
@@ -351,6 +353,7 @@ class UnifiedSaleViewModel(
             produitId = product.id,
             produitLibelle = product.libelle ?: "",
             code = product.code ?: "",
+            quantityRequested = quantity,
             quantitySold = quantity,
             regularUnitPrice = product.regularUnitPrice,
             salesAmount = quantity * product.regularUnitPrice,
@@ -822,6 +825,10 @@ class UnifiedSaleViewModel(
 
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    fun clearSaleSaved() {
+        _saleSaved.value = null
     }
 
     fun clearStockValidationError() {

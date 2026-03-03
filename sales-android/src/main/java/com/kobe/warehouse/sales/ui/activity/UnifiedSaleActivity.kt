@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,12 +33,12 @@ import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.databinding.ActivityUnifiedSaleBinding
+import com.kobe.warehouse.sales.printer.ReceiptPrinter
 import com.kobe.warehouse.sales.ui.adapter.CartAdapter
 import com.kobe.warehouse.sales.ui.adapter.ProductAdapter
 import com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModelFactory
-import com.kobe.warehouse.sales.printer.ReceiptPrinter
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
 import com.kobe.warehouse.sales.utils.onTextChangedDebounced
@@ -73,25 +75,21 @@ class UnifiedSaleActivity : AppCompatActivity() {
         const val SALE_TYPE_ASSURANCE = "ASSURANCE"
         const val SALE_TYPE_CARNET = "CARNET"
 
-        // Request codes
-        private const val REQUEST_SELECT_CUSTOMER = 1001
+
     }
 
-    // Customer selection launcher
-    private val customerSelectionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data?.getParcelableExtra<Customer>("selected_customer")?.let { customer ->
-                viewModel.selectCustomer(customer)
-            }
-        }
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUnifiedSaleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBackNavigation()
+            }
+        })
 
         setupToolbar()
         setupViewModel()
@@ -347,13 +345,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val content = binding.includeCustomerInfoDisplay.contentCustomerInfo
         val icon = binding.includeCustomerInfoDisplay.ivExpandCustomerInfo
 
-        if (content.visibility == View.VISIBLE) {
+        if (content.isVisible) {
             // Collapse
-            content.visibility = View.GONE
+            content.isGone = true
             icon.setImageResource(R.drawable.ic_expand_more)
         } else {
             // Expand
-            content.visibility = View.VISIBLE
+            content.isVisible = true
             icon.setImageResource(R.drawable.ic_expand_less)
         }
     }
@@ -365,13 +363,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val content = binding.includeProductCart.contentCart
         val icon = binding.includeProductCart.ivExpandCart
 
-        if (content.visibility == View.VISIBLE) {
+        if (content.isVisible) {
             // Collapse
-            content.visibility = View.GONE
+            content.isGone = true
             icon.setImageResource(R.drawable.ic_expand_more)
         } else {
             // Expand
-            content.visibility = View.VISIBLE
+            content.isVisible = true
             icon.setImageResource(R.drawable.ic_expand_less)
         }
     }
@@ -394,7 +392,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 // displayCustomerInfo will call displayTiersPayants which updates the adapter
                 displayCustomerInfo(customer)
             } else {
-                binding.includeCustomerInfoDisplay.root.visibility = View.GONE
+                binding.includeCustomerInfoDisplay.root.isGone = true
             }
         }
 
@@ -419,11 +417,11 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Ayant Droit (Assurance only)
         viewModel.selectedAyantDroit.observe(this) { ayantDroit ->
             if (ayantDroit != null) {
-                binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.visibility = View.VISIBLE
+                binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.isVisible = true
                 binding.includeCustomerInfoDisplay.tvAyantDroitName.text =
                     "${ayantDroit.firstName} ${ayantDroit.lastName}"
             } else {
-                binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.visibility = View.GONE
+                binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.isGone = true
             }
         }
 
@@ -434,30 +432,28 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         // Customer search loading
         viewModel.isSearchingCustomer.observe(this) { isSearching ->
-            binding.includeCustomerZone.layoutCustomerSearchLoading.visibility =
-                if (isSearching) View.VISIBLE else View.GONE
+            binding.includeCustomerZone.layoutCustomerSearchLoading.isVisible = isSearching
 
             // Hide other states while loading
             if (isSearching) {
-                binding.includeCustomerZone.rvCustomerSearchResults.visibility = View.GONE
-                binding.includeCustomerZone.tvCustomerSearchEmpty.visibility = View.GONE
+                binding.includeCustomerZone.rvCustomerSearchResults.isGone = true
+                binding.includeCustomerZone.tvCustomerSearchEmpty.isGone = true
             }
         }
 
         // Customer required
         viewModel.customerRequired.observe(this) { required ->
             if (required) {
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.VISIBLE
+                binding.includeCustomerZone.tvCustomerRequired.isVisible = true
             } else {
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.GONE
+                binding.includeCustomerZone.tvCustomerRequired.isGone = true
             }
         }
 
         // Products
         viewModel.products.observe(this) { products ->
             productAdapter.submitList(products)
-            binding.includeProductCart.rvProductSearchResults.visibility =
-                if (products.isEmpty()) View.GONE else View.VISIBLE
+            binding.includeProductCart.rvProductSearchResults.isVisible = products.isNotEmpty()
         }
 
         // Cart
@@ -469,15 +465,14 @@ class UnifiedSaleActivity : AppCompatActivity() {
             binding.includeProductCart.tvCartItemCount.text = "${sale.salesLines.size}"
 
             // Show/hide empty cart view
-            binding.includeProductCart.emptyCartState.visibility =
-                if (sale.salesLines.isEmpty()) View.VISIBLE else View.GONE
-            binding.includeProductCart.rvCart.visibility =
-                if (sale.salesLines.isEmpty()) View.GONE else View.VISIBLE
-            binding.includeProductCart.tvCartItemCount.visibility =
-                if (sale.salesLines.isEmpty()) View.GONE else View.VISIBLE
+            val hasItems = sale.salesLines.isNotEmpty()
+            binding.includeProductCart.emptyCartState.isVisible = !hasItems
+            binding.includeProductCart.rvCart.isVisible = hasItems
+            binding.includeProductCart.tvCartItemCount.isVisible = hasItems
 
-            // Enable/disable finalize button
-            binding.btnFinalizeSale.isEnabled = sale.salesLines.isNotEmpty()
+            // Enable/disable action buttons based on cart content
+            binding.btnFinalizeSale.isEnabled = hasItems
+            binding.btnPutOnHold.isEnabled = hasItems
         }
 
         // Errors and success messages
@@ -507,11 +502,20 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
-        // Sale saved
+        // Sale saved (put on hold) - stay on screen, switch to Comptant tab
         viewModel.saleSaved.observe(this) { sale ->
             sale?.let {
                 Toast.makeText(this, "Vente mise en attente", Toast.LENGTH_SHORT).show()
-                finish()
+                // Reset to Comptant tab for new sale
+                isChangingChipProgrammatically = true
+                binding.includeSaleTypeSelector.chipGroupSaleType.check(R.id.chipComptant)
+                isChangingChipProgrammatically = false
+                currentCheckedChipId = R.id.chipComptant
+                viewModel.changeSaleType(SaleType.Comptant)
+                viewModel.clearSaleSaved()
+                // Focus product search for next sale
+                binding.includeProductCart.etProductSearch.setText("")
+                binding.includeProductCart.etProductSearch.requestFocus()
             }
         }
 
@@ -538,9 +542,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         // Loading state
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.btnFinalizeSale.isEnabled = !isLoading
-            binding.btnPutOnHold.isEnabled = !isLoading && (viewModel.isPrevente.value == true)
+            binding.progressBar.isVisible = isLoading
+            val hasItems = viewModel.currentSale.value?.salesLines?.isNotEmpty() == true
+            binding.btnFinalizeSale.isEnabled = !isLoading && hasItems
+            binding.btnPutOnHold.isEnabled = !isLoading && hasItems
         }
     }
 
@@ -572,7 +577,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         when (saleType) {
             is SaleType.Assurance, is SaleType.Carnet -> {
                 // Expand customer zone automatically with animation
-                if (binding.includeCustomerZone.layoutCustomerContent.visibility != View.VISIBLE) {
+                if (binding.includeCustomerZone.layoutCustomerContent.isVisible.not()) {
                     expandView(binding.includeCustomerZone.layoutCustomerContent)
                     binding.includeCustomerZone.ivExpandCustomer.animate()
                         .rotation(180f)
@@ -581,7 +586,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 }
 
                 // Show "Obligatoire" badge
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.VISIBLE
+                binding.includeCustomerZone.tvCustomerRequired.isVisible = true
 
                 // Focus on customer search if no customer selected
                 if (viewModel.selectedCustomer.value == null) {
@@ -593,7 +598,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             is SaleType.Comptant -> {
                 // For Comptant, keep collapsed unless customer is required for specific conditions
                 // (deferred payment or avoir - validated at finalization)
-                binding.includeCustomerZone.tvCustomerRequired.visibility = View.GONE
+                binding.includeCustomerZone.tvCustomerRequired.isGone = true
             }
         }
 
@@ -656,8 +661,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         val container = android.widget.FrameLayout(this)
         val params = android.widget.FrameLayout.LayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
         )
         params.setMargins(48, 16, 48, 16)
         input.layoutParams = params
@@ -864,11 +869,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        handleBackNavigation()
-    }
-
     /**
      * Handle back navigation with confirmation if sale is in progress
      */
@@ -939,20 +939,19 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Handle customer search results - Implements UX workflow from expert_ux.agent.md
      * 3 cases:
      * - 0 clients: Show creation confirmation dialog
-     * - 1 client: Auto-select customer
      * - Multiple clients: Show list for manual selection
      */
     private fun handleCustomerSearchResults(customers: List<Customer>) {
         when (customers.size) {
             0 -> {
                 // No results - show empty state
-                binding.includeCustomerZone.rvCustomerSearchResults.visibility = View.GONE
+                binding.includeCustomerZone.rvCustomerSearchResults.isGone = true
                 customerSearchAdapter.submitList(emptyList())
 
                 val query = binding.includeCustomerZone.etCustomerSearch.text.toString().trim()
                 if (query.length >= 2) {
                     // Show empty state message
-                    binding.includeCustomerZone.tvCustomerSearchEmpty.visibility = View.VISIBLE
+                    binding.includeCustomerZone.tvCustomerSearchEmpty.isVisible = true
                     binding.includeCustomerZone.tvCustomerSearchEmpty.text =
                         "Aucun client trouvé pour \"$query\""
 
@@ -961,24 +960,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
                         showCustomerCreateConfirmDialog()
                     }, 500)
                 } else {
-                    binding.includeCustomerZone.tvCustomerSearchEmpty.visibility = View.GONE
+                    binding.includeCustomerZone.tvCustomerSearchEmpty.isGone = true
                 }
             }
-            1 -> {
-                // Single result - Auto-select with smooth transition
-                binding.includeCustomerZone.rvCustomerSearchResults.visibility = View.GONE
-                binding.includeCustomerZone.tvCustomerSearchEmpty.visibility = View.GONE
-                customerSearchAdapter.submitList(emptyList())
-
-                // Small delay for better UX (user sees the result briefly)
-                binding.root.postDelayed({
-                    handleCustomerSelection(customers[0])
-                }, 200)
-            }
             else -> {
-                // Multiple results - Show list for selection
-                binding.includeCustomerZone.tvCustomerSearchEmpty.visibility = View.GONE
-                binding.includeCustomerZone.rvCustomerSearchResults.visibility = View.VISIBLE
+                // Show list for manual selection (even if single result)
+                binding.includeCustomerZone.tvCustomerSearchEmpty.isGone = true
+                binding.includeCustomerZone.rvCustomerSearchResults.isVisible = true
                 customerSearchAdapter.submitList(customers)
 
                 // Animate list appearance
@@ -1099,7 +1087,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             .setMessage("Veuillez sélectionner un client avant d'ajouter des produits pour une vente $saleTypeName.")
             .setPositiveButton("Sélectionner client") { _, _ ->
                 // Expand customer zone if needed
-                if (binding.includeCustomerZone.layoutCustomerContent.visibility != View.VISIBLE) {
+                if (binding.includeCustomerZone.layoutCustomerContent.isVisible.not()) {
                     expandView(binding.includeCustomerZone.layoutCustomerContent)
                     binding.includeCustomerZone.ivExpandCustomer.animate()
                         .rotation(180f)
@@ -1175,7 +1163,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val contentLayout = binding.includeCustomerZone.layoutCustomerContent
         val expandIcon = binding.includeCustomerZone.ivExpandCustomer
 
-        if (contentLayout.visibility == View.VISIBLE) {
+        if (contentLayout.isVisible) {
             // Collapse with animation
             collapseView(contentLayout)
             expandIcon.animate()
@@ -1203,7 +1191,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val targetHeight = view.measuredHeight
 
         view.layoutParams.height = 0
-        view.visibility = View.VISIBLE
+        view.isVisible = true
 
         view.animate()
             .alpha(1f)
@@ -1247,7 +1235,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             override fun onAnimationRepeat(animation: android.animation.Animator) {}
             override fun onAnimationCancel(animation: android.animation.Animator) {}
             override fun onAnimationEnd(animation: android.animation.Animator) {
-                view.visibility = View.GONE
+                view.isGone = true
             }
         })
         animator.duration = 300
@@ -1268,7 +1256,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         android.util.Log.d("UnifiedSale", "displayCustomerInfo called for customer: ${customer.lastName}")
 
         binding.includeCustomerInfoDisplay.apply {
-            root.visibility = View.VISIBLE
+            root.isVisible = true
 
             // Basic info
             tvCustomerLastName.text = customer.lastName
@@ -1280,7 +1268,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
             // Matricule (visible for Carnet and Assurance)
             if (saleType is SaleType.Carnet || saleType is SaleType.Assurance) {
-                layoutMatricule.visibility = View.VISIBLE
+                layoutMatricule.isVisible = true
                 // For Carnet: use customer.tiersPayants
                 // For Assurance: use clientTiersPayants from ViewModel
                 val matricule = if (saleType is SaleType.Assurance) {
@@ -1290,25 +1278,25 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 }
                 tvCustomerMatricule.text = matricule ?: "N/A"
             } else {
-                layoutMatricule.visibility = View.GONE
+                layoutMatricule.isGone = true
             }
 
             // Tiers Payants section
             if (saleType is SaleType.Carnet || saleType is SaleType.Assurance) {
                 android.util.Log.d("UnifiedSale", "Showing tiers payants section for: $saleType")
-                layoutTiersPayantsSection.visibility = View.VISIBLE
+                layoutTiersPayantsSection.isVisible = true
                 displayTiersPayants(customer, saleType)
             } else {
                 android.util.Log.d("UnifiedSale", "Hiding tiers payants section for: $saleType")
-                layoutTiersPayantsSection.visibility = View.GONE
+                layoutTiersPayantsSection.isGone = true
             }
 
             // Ayant Droit section (Assurance only)
             if (saleType is SaleType.Assurance) {
-                layoutAyantDroitSection.visibility = View.VISIBLE
+                layoutAyantDroitSection.isVisible = true
                 setupAyantDroitSection(customer)
             } else {
-                layoutAyantDroitSection.visibility = View.GONE
+                layoutAyantDroitSection.isGone = true
             }
         }
     }
@@ -1319,7 +1307,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         android.util.Log.d("UnifiedSale", "displayTiersPayants called - isAssuranceMode: $isAssuranceMode")
 
         // Ensure RecyclerView is always visible
-        binding.includeCustomerInfoDisplay.rvTiersPayants.visibility = View.VISIBLE
+        binding.includeCustomerInfoDisplay.rvTiersPayants.isVisible = true
 
         // Recreate adapter if it's not initialized OR mode has changed (Carnet ↔ Assurance)
         if (!::tiersPayantsAdapter.isInitialized || currentAdapterMode != isAssuranceMode) {
@@ -1369,12 +1357,12 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Add button (Assurance only)
         if (isAssuranceMode) {
             android.util.Log.d("UnifiedSale", "Showing Add button for Assurance mode")
-            binding.includeCustomerInfoDisplay.btnAddTiersPayant.visibility = View.VISIBLE
+            binding.includeCustomerInfoDisplay.btnAddTiersPayant.isVisible = true
             binding.includeCustomerInfoDisplay.btnAddTiersPayant.setOnClickListener {
                 showAddTiersPayantDialog(customer)
             }
         } else {
-            binding.includeCustomerInfoDisplay.btnAddTiersPayant.visibility = View.GONE
+            binding.includeCustomerInfoDisplay.btnAddTiersPayant.isGone = true
         }
     }
 
@@ -1436,14 +1424,14 @@ class UnifiedSaleActivity : AppCompatActivity() {
      */
     private fun showAddTiersPayantDialog(customer: Customer) {
         // Show loading
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.isVisible = true
 
         // Fetch available tiers payants
         viewModel.loadAvailableTiersPayants()
 
         // Observe the result
         viewModel.availableTiersPayants.observe(this) { tiersPayantsList ->
-            binding.progressBar.visibility = View.GONE
+            binding.progressBar.isGone = true
 
             if (tiersPayantsList.isEmpty()) {
                 Toast.makeText(this, "Aucun tiers payant disponible", Toast.LENGTH_SHORT).show()
@@ -1535,14 +1523,14 @@ class UnifiedSaleActivity : AppCompatActivity() {
      */
     private fun showSelectAyantDroitDialog(customer: Customer) {
         // Show loading
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.isVisible = true
 
         // Fetch ayants droits from backend
         viewModel.loadAyantDroits(customer.id.toInt())
 
         // Observe the result (one-time observation)
         viewModel.ayantDroitsList.observe(this) { ayantDroits ->
-            binding.progressBar.visibility = View.GONE
+            binding.progressBar.isGone = true
 
             if (ayantDroits.isEmpty()) {
                 Toast.makeText(this, "Aucun ayant droit trouvé pour ce client", Toast.LENGTH_SHORT).show()
@@ -1620,7 +1608,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Hide soft keyboard
      */
     private fun hideKeyboard() {
-        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         currentFocus?.let { view ->
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
@@ -1631,7 +1619,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
      */
     private fun showKeyboard(view: View) {
         view.requestFocus()
-        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         view.postDelayed({
             imm.showSoftInput(view, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         }, 100)

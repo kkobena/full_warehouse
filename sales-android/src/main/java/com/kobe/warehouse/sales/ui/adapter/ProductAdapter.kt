@@ -56,7 +56,7 @@ class ProductAdapter(
             tvStock.setTextColor(
                 itemView.context.getColor(
                     when {
-                        product.totalQuantity == 0 -> R.color.error
+                        product.totalQuantity <= 0 -> R.color.error
                         product.totalQuantity < 10 -> R.color.warning
                         else -> R.color.success
                     }

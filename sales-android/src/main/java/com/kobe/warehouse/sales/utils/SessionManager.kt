@@ -1,21 +1,18 @@
 package com.kobe.warehouse.sales.utils
 
 import android.content.Context
-import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Session Manager
  * Handles global session state and authentication events
- * Broadcasts session expiration events to logged-in activities
+ * Uses SharedFlow to emit session events to observers
  */
 class SessionManager(private val context: Context) {
 
     companion object {
-        const val ACTION_SESSION_EXPIRED = "com.kobe.warehouse.sales.SESSION_EXPIRED"
-        const val ACTION_UNAUTHORIZED = "com.kobe.warehouse.sales.UNAUTHORIZED"
-        const val ACTION_CONNECTION_LOST = "com.kobe.warehouse.sales.CONNECTION_LOST"
-
         @Volatile
         private var INSTANCE: SessionManager? = null
 
@@ -26,41 +23,26 @@ class SessionManager(private val context: Context) {
         }
     }
 
+    /**
+     * Session event types
+     */
+    enum class SessionEvent {
+        SESSION_EXPIRED,
+        UNAUTHORIZED,
+        CONNECTION_LOST
+    }
+
     private val tokenManager = TokenManager(context)
-    private val localBroadcastManager = LocalBroadcastManager.getInstance(context)
-
-    /**
-     * Broadcast session expired event
-     * This will trigger logout across all activities
-     */
-    fun broadcastSessionExpired() {
-        val intent = Intent(ACTION_SESSION_EXPIRED)
-        localBroadcastManager.sendBroadcast(intent)
-    }
-
-    /**
-     * Broadcast unauthorized event (401 error)
-     */
-    fun broadcastUnauthorized() {
-        val intent = Intent(ACTION_UNAUTHORIZED)
-        localBroadcastManager.sendBroadcast(intent)
-    }
-
-    /**
-     * Broadcast connection lost event
-     */
-    fun broadcastConnectionLost() {
-        val intent = Intent(ACTION_CONNECTION_LOST)
-        localBroadcastManager.sendBroadcast(intent)
-    }
+    private val _sessionEvents = MutableSharedFlow<SessionEvent>(extraBufferCapacity = 1)
+    val sessionEvents: SharedFlow<SessionEvent> = _sessionEvents.asSharedFlow()
 
     /**
      * Handle session expiration
-     * Clears tokens and broadcasts logout event
+     * Clears tokens and emits session expired event
      */
     fun handleSessionExpired(reason: String = "Session expired") {
         clearSession()
-        broadcastSessionExpired()
+        _sessionEvents.tryEmit(SessionEvent.SESSION_EXPIRED)
     }
 
     /**
@@ -68,17 +50,16 @@ class SessionManager(private val context: Context) {
      */
     fun handleUnauthorized(reason: String = "Unauthorized access") {
         clearSession()
-        broadcastUnauthorized()
+        _sessionEvents.tryEmit(SessionEvent.UNAUTHORIZED)
     }
 
     /**
      * Handle connection lost
-     * Clears session and redirects to login
-     * Backend service must be accessible for the app to function
+     * Clears session and emits connection lost event
      */
     fun handleConnectionLost(reason: String = "Connection lost") {
         clearSession()
-        broadcastConnectionLost()
+        _sessionEvents.tryEmit(SessionEvent.CONNECTION_LOST)
     }
 
     /**
@@ -87,5 +68,4 @@ class SessionManager(private val context: Context) {
     private fun clearSession() {
         tokenManager.clearTokens()
     }
-
 }

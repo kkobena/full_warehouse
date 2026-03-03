@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.AuthApiService
-import com.kobe.warehouse.sales.data.model.ServerConfig
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.databinding.ActivityLoginBinding
 import com.kobe.warehouse.sales.ui.dialog.ServerConfigDialog

@@ -85,7 +85,7 @@ class ComptantSaleActivity : BaseActivity() {
         val productApiService = retrofit.create(ProductApiService::class.java)
         val paymentApiService = retrofit.create(PaymentApiService::class.java)
         val authApiService = retrofit.create(AuthApiService::class.java)
-        val storeApiService = retrofit.create(com.kobe.warehouse.sales.data.api.StoreApiService::class.java)
+        val storeApiService = retrofit.create(StoreApiService::class.java)
 
         val salesRepository = SalesRepository(salesApiService)
         val productRepository = ProductRepository(productApiService)
@@ -238,7 +238,7 @@ class ComptantSaleActivity : BaseActivity() {
         }
 
         // Observe search loading
-        viewModel.isSearching.observe(this) { isSearching ->
+        viewModel.isSearching.observe(this) { _ ->
             // Could show a small progress indicator in search field
         }
 

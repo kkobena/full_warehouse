@@ -22,9 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
-import java.util.Date
 import java.util.Locale
 
 class SaleDetailActivity : BaseActivity() {

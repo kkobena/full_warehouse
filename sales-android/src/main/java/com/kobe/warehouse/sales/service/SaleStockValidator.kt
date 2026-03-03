@@ -8,7 +8,6 @@ import com.kobe.warehouse.sales.data.model.Sale
  * Validates stock availability and quantity limits when adding products to sales
  * Mirrors the Angular SaleStockValidator business logic
  *
- * @see PRODUCT_ADDITION_BUSINESS_RULES.md for complete business rules
  */
 class SaleStockValidator {
 

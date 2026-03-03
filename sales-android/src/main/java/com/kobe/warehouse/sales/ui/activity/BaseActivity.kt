@@ -1,19 +1,17 @@
 package com.kobe.warehouse.sales.ui.activity
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.utils.SessionManager
 import com.kobe.warehouse.sales.utils.TokenManager
+import kotlinx.coroutines.launch
 
 /**
  * Base Activity
@@ -22,7 +20,6 @@ import com.kobe.warehouse.sales.utils.TokenManager
  */
 abstract class BaseActivity : AppCompatActivity() {
 
-    private lateinit var sessionReceiver: BroadcastReceiver
     private lateinit var sessionManager: SessionManager
 
     /**
@@ -36,38 +33,22 @@ abstract class BaseActivity : AppCompatActivity() {
 
         sessionManager = SessionManager.getInstance(this)
 
-        // Register broadcast receiver for session events
-        registerSessionReceiver()
-    }
-
-    /**
-     * Register broadcast receiver to listen for session events
-     */
-    private fun registerSessionReceiver() {
-        sessionReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                when (intent?.action) {
-                    SessionManager.ACTION_SESSION_EXPIRED -> {
+        // Collect session events
+        lifecycleScope.launch {
+            sessionManager.sessionEvents.collect { event ->
+                when (event) {
+                    SessionManager.SessionEvent.SESSION_EXPIRED -> {
                         handleSessionExpired("Votre session a expiré")
                     }
-                    SessionManager.ACTION_UNAUTHORIZED -> {
+                    SessionManager.SessionEvent.UNAUTHORIZED -> {
                         handleSessionExpired("Accès non autorisé. Veuillez vous reconnecter.")
                     }
-                    SessionManager.ACTION_CONNECTION_LOST -> {
+                    SessionManager.SessionEvent.CONNECTION_LOST -> {
                         handleConnectionLost("Connexion au serveur perdue")
                     }
                 }
             }
         }
-
-        // Register for session events
-        val filter = IntentFilter().apply {
-            addAction(SessionManager.ACTION_SESSION_EXPIRED)
-            addAction(SessionManager.ACTION_UNAUTHORIZED)
-            addAction(SessionManager.ACTION_CONNECTION_LOST)
-        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(sessionReceiver, filter)
     }
 
     /**
@@ -97,12 +78,6 @@ abstract class BaseActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Unregister broadcast receiver
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(sessionReceiver)
     }
 
     /**

@@ -33,7 +33,7 @@ interface SalesApiService {
     @GET("api/sales/prevente")
     suspend fun getPreventes(
         @Query("search") search: String? = null,
-        @Query("statut") statut: SalesStatut? = SalesStatut.PENDING,
+        @Query("statut") statut: @JvmSuppressWildcards List<SalesStatut>? = listOf(SalesStatut.PROCESSING),
         @Query("userId") userId: Int? = null,
 
     ): Response<List<Sale>>
@@ -47,7 +47,7 @@ interface SalesApiService {
   @GET("api/sales/prevente")
   suspend fun getVenteEncours(
     @Query("search") search: String? = null,
-    @Query("statut") statut: SalesStatut? = SalesStatut.ACTIVE,
+    @Query("statut") statut: @JvmSuppressWildcards List<SalesStatut>? = listOf(SalesStatut.ACTIVE),
     @Query("userId") userId: Int? = null,
 
     ): Response<List<Sale>>

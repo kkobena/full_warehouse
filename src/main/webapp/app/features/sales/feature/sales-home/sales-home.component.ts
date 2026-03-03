@@ -140,7 +140,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private pendingScanCode = signal<string | null>(null);
 
   constructor() {
-
     this.showStock.set(this.authorizationService.canShowStock());
     this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
@@ -196,6 +195,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
     // Vérifier si une caisse est ouverte
     this.hasCashRegisterOpen();
+
     const saleInfo = this.router.currentNavigation()?.extras?.state?.['saleInfo'] ?? history.state?.saleInfo;
     if (saleInfo) {
       const isEdit = saleInfo.isEdit;
@@ -242,7 +242,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 protected onHide(evt: any): void {
     console.log(evt,'on hide');
 }
-  loadPendingSalesCount(): void {
+ protected loadPendingSalesCount(): void {
     this.apiService
       .countPendingSales({
         userId: this.salesFacade.cashier()?.id,
@@ -255,21 +255,21 @@ protected onHide(evt: any): void {
   /**
    * Transforme la vente comptant courante en vente ASSURANCE.
    */
-  onChangeCashSaleToVo(): void {
+  protected onChangeCashSaleToVo(): void {
     this.salesFacade.transformCashSaleToAssurance();
   }
 
   /**
    * Transforme la vente comptant courante en vente CARNET.
    */
-  onChangeCashSaleToCarnet(): void {
+  protected onChangeCashSaleToCarnet(): void {
     this.salesFacade.transformCashSaleToCarnet();
   }
 
   /**
    * Recharge l'état de la caisse (appelé après ouverture de caisse depuis un composant enfant)
    */
-  onCashRegisterStatusChanged(): void {
+  protected onCashRegisterStatusChanged(): void {
     this.cashRegisterService.getConnectedUserHasOpenCashRegister().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => {
         this.isCashRegisterOpen.set(res.body ?? false);
@@ -283,7 +283,7 @@ protected onHide(evt: any): void {
   /**
    * Basculer vers l'onglet COMPTANT après finalisation d'une vente ASSURANCE/CARNET
    */
-  onSwitchToComptant(): void {
+  protected onSwitchToComptant(): void {
     this.active.set('comptant');
     this.focusActiveTab();
   }
@@ -519,13 +519,13 @@ private isFromVo(fromTab: string): boolean {
 
   /**
    * Charge une vente pour édition (vente clôturée ASSURANCE/CARNET)
-   * Conforme à l'ancien: selling-home.component.ts onLoadPrevente()
+   *
    */
   private loadSale(saleId: SaleId): void {
     this.salesFacade.loadSale(saleId);
   }
 
-  // ===== Raccourcis clavier globaux =====
+
 
   private iniLoadSaleForEdit(): void {
     const sale = this.salesFacade.currentSale();
@@ -543,11 +543,13 @@ private isFromVo(fromTab: string): boolean {
       if (this.isPresaleMode() && sale.statut !== SalesStatut.PROCESSING) {
         this.salesFacade.resetCurrentSale();
         this.router.navigate(['/sales']);
+        return;
       }
-      // const editData = this.initSaleForEditInfo();
+
       if (sale.statut === SalesStatut.CLOSED) {
         this.salesFacade.resetCurrentSale();
         this.router.navigate(['/sales']);
+        return;
       }
       // Basculer vers l'onglet approprié selon le type de vente
       if (sale.natureVente === 'ASSURANCE') {

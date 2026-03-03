@@ -78,7 +78,7 @@ export class SaleSummaryComponent {
   }
 
   hasMultipleThirdParties(): boolean {
-    return this.thirdPartyDetails().length > 1;
+    return this.thirdPartyDetails()?.length > 1;
   }
 
   showLastChange(): boolean {

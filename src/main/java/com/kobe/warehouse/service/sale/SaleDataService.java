@@ -22,6 +22,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
+import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.VenteDepot_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -46,6 +47,7 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
+import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.service.dto.UserDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
 import com.kobe.warehouse.service.stock.dto.StockDepotExportDTO;
@@ -261,7 +263,7 @@ public class SaleDataService {
         }
 
         return switch (sales) {
-            case ThirdPartySales thirdPartySales -> Optional.of(buildFromEntity(thirdPartySales));
+            case ThirdPartySales thirdPartySales -> Optional.of(buildThirdPartySaleFromEntity(thirdPartySales));
             case CashSale cashSale -> Optional.of(new CashSaleDTO(cashSale));
             case VenteDepot venteDepot -> Optional.of(new DepotExtensionSaleDTO(venteDepot));
             default -> Optional.empty();
@@ -725,6 +727,95 @@ public class SaleDataService {
             .numBon(numBon)
             .build();
     }
+
+
+    /**
+     * A utilser dans findById pour eviter de faire du lazy loading dans le controller
+     *
+     * @param thirdPartySales
+     * @return
+     */
+    private ThirdPartySaleDTO buildThirdPartySaleFromEntity(ThirdPartySales thirdPartySales) {
+        SaleId saleId = thirdPartySales.getId();
+        List<ThirdPartySaleLine> tpsLines = thirdPartySaleLineRepository
+            .findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate());
+        Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> pair = buildTiersPayantDTOFromSale(
+            tpsLines);
+        String numBon = null;
+        String num = null;
+        for (ThirdPartySaleLine line : tpsLines) {
+            ClientTiersPayant clientTiersPayant = line.getClientTiersPayant();
+            if (clientTiersPayant.getPriorite() == PrioriteTiersPayant.R0) {
+                numBon = line.getNumBon();
+                num = clientTiersPayant.getNum();
+                break;
+            }
+        }
+        if (StringUtils.isEmpty(numBon) && !tpsLines.isEmpty()) {
+            numBon = tpsLines.getFirst().getNumBon();
+        }
+        AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
+        AssuredCustomerDTO customer = new AssuredCustomerDTO(assuredCustomer);
+        updateAssuranceInfo(customer, assuredCustomer);
+        if (StringUtils.isEmpty(num)) {
+            Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
+            if (!CollectionUtils.isEmpty(clientTiersPayants)) {
+                Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()
+                    .filter(ctp -> ctp.getPriorite() == PrioriteTiersPayant.R0)
+                    .findFirst();
+                if (clientTiersPayantOpt.isPresent()) {
+                    num = clientTiersPayantOpt.get().getNum();
+                }
+            }
+        }
+
+        customer.setNum(num);
+        List<SaleLineDTO> salesLines = thirdPartySales.getSalesLines().stream()
+            .map(SaleLineDTO::new)
+            .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
+            .toList();
+        List<PaymentDTO> payments = thirdPartySales.getPayments().stream()
+            .map(PaymentDTO::new)
+            .toList();
+        return ThirdPartySaleDTO.from(thirdPartySales)
+            .customer(customer)
+            .customerId(customer.getId())
+            .salesLines(salesLines)
+            .payments(payments)
+            .thirdPartySaleLines(pair.getLeft())
+            .tiersPayants(pair.getRight())
+            .numBon(numBon)
+            .build();
+    }
+
+
+    private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer, AssuredCustomer customer) {
+        customer
+            .getClientTiersPayants()
+            .forEach(c -> {
+                var tp = new ClientTiersPayantDTO();
+                TiersPayant tiersPayant = c.getTiersPayant();
+                tp.setId(c.getId());
+                tp.setNum(c.getNum());
+                tp.setTaux(c.getTaux());
+                tp.setTiersPayantFullName(tiersPayant.getFullName());
+                tp.setPriorite(c.getPriorite());
+                tp.setCategorie(c.getPriorite().getValue());
+                tp.setStatut(c.getStatut());
+                tp.setPlafondConso(tiersPayant.getPlafondConsoClient());
+                tp.setPlafondJournalier(tiersPayant.getPlafondJournalierClient());
+                tp.setPlafondAbsolu(tiersPayant.isPlafondAbsolu());
+                tp.setTiersPayantId(tiersPayant.getId());
+                tp.setTypeTiersPayant(tiersPayant.getCategorie());
+                tp.setTiersPayant(new TiersPayantDto()
+                    .setName(tiersPayant.getName())
+                    .setId(tiersPayant.getId())
+                    .setFullName(tiersPayant.getFullName()));
+
+                assuredCustomer.getTiersPayants().add(tp);
+            });
+    }
+
 
     private DepotExtensionSaleDTO buildDepotExtensionSaleDTO(VenteDepot venteDepot) {
         return new DepotExtensionSaleDTO(venteDepot);

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, map, Observable, of, pipe, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of, pipe, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -292,19 +292,18 @@ export class SaleLifecycleFacade {
         this.store.setLoading(true);
         this.store.clearError();
       }),
-      switchMap((saleId: SaleId) => this.apiService.findSale(saleId)),
-      tap({
-        next: (sale: ISales) => onSuccess(sale),
-        error: (error: any) => {
-          const { errorMessage } = extractApiError(error, 'Erreur lors du chargement de la vente');
-          this.store.setError(errorMessage);
-          this.store.setLoading(false);
-        },
-      }),
-      catchError(error => {
-        console.error('Error loading sale:', error);
-        return of(null);
-      }),
+      switchMap((saleId: SaleId) =>
+        this.apiService.findSale(saleId).pipe(
+          tap((sale: ISales) => onSuccess(sale)),
+          catchError(error => {
+            console.error('Error loading sale:', error);
+            const { errorMessage } = extractApiError(error, 'Erreur lors du chargement de la vente');
+            this.store.setError(errorMessage);
+            this.store.setLoading(false);
+            return EMPTY;
+          }),
+        ),
+      ),
     );
   }
 

@@ -609,9 +609,11 @@ export const SalesStore = signalStore(
         selectedProductData: null,
         seller: null,
         pendingTiersPayants: [],
+        saleType: 'COMPTANT',
         typePrescription: 'PRESCRIPTION',
         isPresale: presale, // Conserver le mode prevente apres reset
         isDevis: devis, // Conserver le mode devis apres reset
+        lastEvent: null, // Empêcher le replay d'événements stales
       });
     },
   })),

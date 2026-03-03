@@ -13,7 +13,7 @@
 
   <groupId>com.kobe.warehouse</groupId>
   <artifactId>pharmaSmart</artifactId>
-  <version>0.2.3-SNAPSHOT</version>
+  <version>0.2.3</version>
   <name>PharmaSmart</name>
   <description>Description for Warehouse</description>
   <packaging>jar</packaging>

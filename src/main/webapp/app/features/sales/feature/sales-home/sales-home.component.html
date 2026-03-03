@@ -1,6 +1,6 @@
 <!-- Drawer pour ventes en attente (masqué en mode devis) -->
 @if (!isDevisMode()) {
-  <p-drawer (onHide)="onHide($event)"  [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
+  <p-drawer [visible]="pendingSalesSidebar()" (visibleChange)="pendingSalesSidebar.set($event)" (onHide)="onDrawerHide()" [style]="{ width: '70vw' }" position="right">
     <ng-template #header>
       <div class="drawer-header-content">
         <i class="pi pi-clock text-xl"></i>

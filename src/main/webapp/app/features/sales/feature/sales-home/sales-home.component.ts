@@ -239,10 +239,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         });
     }
   }
-protected onHide(evt: any): void {
-    console.log(evt,'on hide');
-}
- protected loadPendingSalesCount(): void {
+  protected loadPendingSalesCount(): void {
     this.apiService
       .countPendingSales({
         userId: this.salesFacade.cashier()?.id,
@@ -391,6 +388,17 @@ protected onHide(evt: any): void {
 
   protected closePendingSales(): void {
     this.pendingSalesSidebar.set(false);
+  }
+
+  protected onDrawerHide(): void {
+    this.pendingSalesSidebar.set(false);
+    // PrimeNG Drawer relies on animationend to remove the mask from the DOM.
+    // If the callback doesn't fire (double disableModality call), the mask stays
+    // and blocks all pointer events. Force cleanup after the animation duration.
+    setTimeout(() => {
+      document.querySelectorAll('.p-drawer-mask').forEach(el => el.remove());
+      document.body.classList.remove('p-overflow-hidden');
+    }, 400);
   }
 
   protected onSaleResumed(_sale: any): void {

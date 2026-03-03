@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, finalize, Observable, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -46,21 +46,19 @@ export class SaleProductFacade {
         catchError(error => {
           console.error('Error adding product:', error);
           const { errorMessage, errorKey } = extractApiError(error, "Erreur lors de l'ajout du produit");
-
           this.store.setError(errorMessage);
           this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine });
           this.notificationService.error(errorMessage);
+          return EMPTY;
+        }),
+        finalize(() => {
           this.store.setLoading(false);
-          return of(null);
+          this.setSelectedProduct(null);
         }),
       )
       .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.emitEvent('PRODUCT_ADDED');
-        }
-        this.store.setLoading(false);
-        this.setSelectedProduct(null);
+        this.store.setCurrentSale(sale);
+        this.store.emitEvent('PRODUCT_ADDED');
       });
   }
 
@@ -169,7 +167,6 @@ export class SaleProductFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error updating quantity requested:', error);
-
           const { errorMessage, errorKey } = extractApiError(error, 'Erreur lors de la mise à jour de la quantité demandée');
 
           if (errorKey === 'stock') {
@@ -179,40 +176,25 @@ export class SaleProductFacade {
                 saleDate: currentSale.saleId.saleDate,
               };
             }
-
-            this.store.setError(errorMessage);
-            this.store.setLastErrorDetails({
-              errorKey,
-              originalError: error,
-              attemptedLine: updatedLine,
-              isFromTableCellEdit: true,
-            });
-            this.store.setLoading(false);
-            return of(null);
-          } else {
-            if (errorKey !== 'stockChInsufisant') {
-              this.notificationService.error(errorMessage);
-            }
-
-            this.store.setError(errorMessage);
-            this.store.setLastErrorDetails({
-              errorKey: errorKey || null,
-              originalError: error,
-              attemptedLine: updatedLine,
-              isFromTableCellEdit: true,
-            });
-            this.store.setLoading(false);
-            return of(null);
+          } else if (errorKey !== 'stockChInsufisant') {
+            this.notificationService.error(errorMessage);
           }
+
+          this.store.setError(errorMessage);
+          this.store.setLastErrorDetails({
+            errorKey: errorKey || null,
+            originalError: error,
+            attemptedLine: updatedLine,
+            isFromTableCellEdit: true,
+          });
+          return EMPTY;
         }),
+        finalize(() => this.store.setLoading(false)),
       )
       .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          this.store.emitEvent('LINE_UPDATED');
-        }
-        this.store.setLoading(false);
+        this.store.setCurrentSale(sale);
+        this.store.clearError();
+        this.store.emitEvent('LINE_UPDATED');
       });
   }
 
@@ -307,35 +289,37 @@ export class SaleProductFacade {
           if (errorKey === 'stock') {
             return this.apiService.findSale(currentSale.saleId!).pipe(
               tap(reloadedSale => {
-                if (reloadedSale) {
-                  this.store.setCurrentSale(reloadedSale);
+                this.store.setCurrentSale(reloadedSale);
 
-                  const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
+                const existingLine = reloadedSale.salesLines?.find(line => line.produitId === salesLine.produitId);
 
-                  const lineToAttempt: ISalesLine = existingLine
-                    ? {
-                        ...existingLine,
-                        quantityRequested: salesLine.quantityRequested || 1,
-                        saleCompositeId: existingLine.saleCompositeId || {
-                          id: currentSale.saleId!.id,
-                          saleDate: currentSale.saleId!.saleDate,
-                        },
-                      }
-                    : salesLine;
+                const lineToAttempt: ISalesLine = existingLine
+                  ? {
+                      ...existingLine,
+                      quantityRequested: salesLine.quantityRequested || 1,
+                      saleCompositeId: existingLine.saleCompositeId || {
+                        id: currentSale.saleId!.id,
+                        saleDate: currentSale.saleId!.saleDate,
+                      },
+                    }
+                  : salesLine;
 
-                  this.store.setError(errorMessage);
-                  this.store.setLastErrorDetails({
-                    errorKey,
-                    originalError: error,
-                    attemptedLine: lineToAttempt,
-                    isFromTableCellEdit: false,
-                  });
-                }
+                this.store.setError(errorMessage);
+                this.store.setLastErrorDetails({
+                  errorKey,
+                  originalError: error,
+                  attemptedLine: lineToAttempt,
+                  isFromTableCellEdit: false,
+                });
               }),
-              tap(() => this.store.setLoading(false)),
-              map((): null => null),
+              catchError(reloadError => {
+                console.error('Error reloading sale after stock error:', reloadError);
+                return EMPTY;
+              }),
+              switchMap(() => EMPTY),
             );
           }
+
           if (errorKey === 'customerInsuranceCreditLimit') {
             handlePlafondVenteWarning(this.store, this.notificationService, errorMessage);
             return this.apiService.findSale(currentSale.saleId!);
@@ -351,17 +335,14 @@ export class SaleProductFacade {
           if (errorKey !== 'stockChInsufisant') {
             this.notificationService.error(errorMessage);
           }
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
+        finalize(() => this.store.setLoading(false)),
       )
       .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          this.store.emitEvent('PRODUCT_ADDED');
-        }
-        this.store.setLoading(false);
+        this.store.setCurrentSale(sale);
+        this.store.clearError();
+        this.store.emitEvent('PRODUCT_ADDED');
       });
   }
 
@@ -388,17 +369,14 @@ export class SaleProductFacade {
 
           this.store.setError(errorMessage);
           this.notificationService.error(errorMessage);
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
+        finalize(() => this.store.setLoading(false)),
       )
       .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          this.store.clearError();
-          this.store.emitEvent(isAjoutProduit ? 'PRODUCT_ADDED' : 'LINE_UPDATED');
-        }
-        this.store.setLoading(false);
+        this.store.setCurrentSale(sale);
+        this.store.clearError();
+        this.store.emitEvent(isAjoutProduit ? 'PRODUCT_ADDED' : 'LINE_UPDATED');
       });
   }
 
@@ -412,21 +390,18 @@ export class SaleProductFacade {
           console.error('Error:', error);
           this.notificationService.error(options.errorMessage);
           this.store.setError(options.errorMessage);
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
+        finalize(() => this.store.setLoading(false)),
       )
       .subscribe(sale => {
-        if (sale) {
-          this.store.setCurrentSale(sale);
-          if (options.clearErrorOnSuccess) {
-            this.store.clearError();
-          }
-          if (options.successEvent) {
-            this.store.emitEvent(options.successEvent);
-          }
+        this.store.setCurrentSale(sale);
+        if (options.clearErrorOnSuccess) {
+          this.store.clearError();
         }
-        this.store.setLoading(false);
+        if (options.successEvent) {
+          this.store.emitEvent(options.successEvent);
+        }
       });
   }
 }

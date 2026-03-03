@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, finalize, of, switchMap } from 'rxjs';
+import { catchError, EMPTY, finalize, switchMap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -39,8 +39,7 @@ export class SaleCustomerFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error setting customer:', error);
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
         finalize(() => this.store.setLoading(false)),
       )
@@ -78,8 +77,7 @@ export class SaleCustomerFacade {
         switchMap(() => this.apiService.findSale(currentSale.saleId!)),
         catchError(error => {
           console.error('Error removing customer:', error);
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
         finalize(() => this.store.setLoading(false)),
       )
@@ -121,8 +119,7 @@ export class SaleCustomerFacade {
           catchError(error => {
             console.error('Error removing tiers payant:', error);
             this.notificationService.error('Erreur lors de la suppression du tiers payant');
-            this.store.setLoading(false);
-            return of(null);
+            return EMPTY;
           }),
           finalize(() => this.store.setLoading(false)),
         )
@@ -165,8 +162,7 @@ export class SaleCustomerFacade {
         catchError(error => {
           console.error('Error setting ayant droit:', error);
           this.notificationService.error("Erreur lors de la mise à jour de l'ayant droit");
-          this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
         finalize(() => this.store.setLoading(false)),
       )
@@ -190,8 +186,7 @@ export class SaleCustomerFacade {
           catchError(error => {
             console.error('Error adding tiers payant:', error);
             this.notificationService.error("Erreur lors de l'ajout du tiers payant complémentaire");
-            this.store.setLoading(false);
-            return of(null);
+            return EMPTY;
           }),
           finalize(() => this.store.setLoading(false)),
         )

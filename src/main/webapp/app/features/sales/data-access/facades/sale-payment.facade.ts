@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {catchError, finalize, map, Observable, of, tap} from 'rxjs';
+import {catchError, EMPTY, finalize, map, Observable, of, tap} from 'rxjs';
 import {SalesStore} from '../store/sales.store';
 import {SalesApiService} from '../services/sales-api.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
@@ -129,7 +129,7 @@ export class SalePaymentFacade {
           const {errorMessage} = extractApiError(error, 'Erreur lors de la mise en attente');
           this.notificationService.error(errorMessage);
           this.store.setError(errorMessage);
-          return of(null);
+          return EMPTY;
         }),
         finalize(() => this.store.setIsSaving(false)),
       )
@@ -234,10 +234,9 @@ export class SalePaymentFacade {
         catchError(error => {
           console.error('Error loading pending sales:', error);
           this.store.setError('Erreur lors du chargement des ventes en attente');
-          this.store.setPendingSalesLoading(false);
           return of([]);
         }),
-        // finalize(() => this.store.setPendingSalesLoading(false)),
+        finalize(() => this.store.setPendingSalesLoading(false)),
       )
       .subscribe(sales => {
         this.store.setPendingSales(sales);

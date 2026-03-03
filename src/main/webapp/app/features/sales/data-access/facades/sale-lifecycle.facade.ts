@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, EMPTY, map, Observable, of, pipe, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, map, Observable, pipe, switchMap, tap } from 'rxjs';
 import { SalesStore } from '../store/sales.store';
 import { SalesApiService } from '../services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
@@ -126,21 +126,17 @@ export class SaleLifecycleFacade {
           return this.apiService.deletePreventeAssurance(saleId);
         }
       }),
-      tap({
-        next: () => {
-          this.store.resetCurrentSale();
-          this.store.setLoading(false);
-          this.store.emitEvent('CANCEL_SALE');
-        },
-        error: error => {
-          const { errorMessage } = extractApiError(error, "Erreur lors de l'annulation de la vente");
-          this.store.setError(errorMessage);
-          this.store.setLoading(false);
-        },
+      tap(() => {
+        this.store.resetCurrentSale();
+        this.store.setLoading(false);
+        this.store.emitEvent('CANCEL_SALE');
       }),
       catchError(error => {
         console.error('Error canceling sale:', error);
-        return of(null);
+        const { errorMessage } = extractApiError(error, "Erreur lors de l'annulation de la vente");
+        this.store.setError(errorMessage);
+        this.store.setLoading(false);
+        return EMPTY;
       }),
     ),
   );
@@ -248,11 +244,11 @@ export class SaleLifecycleFacade {
     error: any,
     initialLine: ISalesLine,
     defaultMessage: string,
-  ): Observable<{ createdSale: ISales; initialLine: ISalesLine } | null> {
+  ): Observable<{ createdSale: ISales; initialLine: ISalesLine } | never> {
     console.error('Error creating sale:', error);
     const { errorMessage, errorKey } = extractApiError(error, defaultMessage);
 
-    if (errorKey === 'stock') {
+    if (errorKey === 'stock' || errorKey === 'stockChInsufisant') {
       this.store.setError(errorMessage);
       this.store.setLastErrorDetails({
         errorKey,
@@ -260,30 +256,31 @@ export class SaleLifecycleFacade {
         attemptedLine: initialLine,
         isFromTableCellEdit: false,
       });
-    } else if (errorKey === 'stockChInsufisant') {
-      this.store.setError(errorMessage);
-      this.store.setLastErrorDetails({
-        errorKey,
-        originalError: error,
-        attemptedLine: initialLine,
-        isFromTableCellEdit: false,
-      });
-    } else if (errorKey === 'customerInsuranceCreditLimit') {
+      this.store.setLoading(false);
+      return EMPTY;
+    }
+
+    if (errorKey === 'customerInsuranceCreditLimit') {
       handlePlafondVenteWarning(this.store, this.notificationService, errorMessage);
       const saleId: SaleId | null = error.error?.payload?.saleId ?? null;
       if (saleId) {
         return this.apiService.findSale(saleId).pipe(
           map(reloadedSale => ({ createdSale: reloadedSale, initialLine })),
-          catchError(() => of(null)),
+          catchError(reloadError => {
+            console.error('Error reloading sale after plafond warning:', reloadError);
+            this.store.setLoading(false);
+            return EMPTY;
+          }),
         );
       }
-    } else {
-      this.store.setError(errorMessage);
-      this.notificationService.error(errorMessage);
+      this.store.setLoading(false);
+      return EMPTY;
     }
 
+    this.store.setError(errorMessage);
+    this.notificationService.error(errorMessage);
     this.store.setLoading(false);
-    return of(null);
+    return EMPTY;
   }
 
   private loadSalePipeline(onSuccess: (sale: ISales) => void) {
@@ -354,10 +351,11 @@ export class SaleLifecycleFacade {
           this.store.setLoading(false);
         }),
         catchError(err => {
+          console.error('Error transforming sale:', err);
           const { errorMessage } = extractApiError(err, 'Erreur lors de la transformation de la vente');
           this.notificationService.error(errorMessage);
           this.store.setLoading(false);
-          return of(null);
+          return EMPTY;
         }),
       )
       .subscribe();

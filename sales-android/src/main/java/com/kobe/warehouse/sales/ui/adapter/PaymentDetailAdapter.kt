@@ -2,20 +2,27 @@ package com.kobe.warehouse.sales.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kobe.warehouse.sales.data.model.Payment
 import com.kobe.warehouse.sales.databinding.ItemPaymentDetailBinding
 import java.text.NumberFormat
 import java.util.Locale
 
-class PaymentDetailAdapter : RecyclerView.Adapter<PaymentDetailAdapter.ViewHolder>() {
+class PaymentDetailAdapter : ListAdapter<Payment, PaymentDetailAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    private val items = mutableListOf<Payment>()
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Payment>() {
+            override fun areItemsTheSame(oldItem: Payment, newItem: Payment): Boolean {
+                return oldItem.id == newItem.id && oldItem.paymentModeCode == newItem.paymentModeCode
+            }
 
-    fun submitList(newItems: List<Payment>) {
-        items.clear()
-        items.addAll(newItems)
-        notifyDataSetChanged()
+            override fun areContentsTheSame(oldItem: Payment, newItem: Payment): Boolean {
+                return oldItem.paidAmount == newItem.paidAmount
+                        && oldItem.paymentMode?.libelle == newItem.paymentMode?.libelle
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,10 +35,8 @@ class PaymentDetailAdapter : RecyclerView.Adapter<PaymentDetailAdapter.ViewHolde
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount(): Int = items.size
 
     class ViewHolder(private val binding: ItemPaymentDetailBinding) :
         RecyclerView.ViewHolder(binding.root) {

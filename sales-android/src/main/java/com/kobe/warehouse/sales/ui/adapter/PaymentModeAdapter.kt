@@ -34,11 +34,21 @@ class PaymentModeAdapter(
     }
 
     /**
-     * Set selected payment mode
+     * Set selected payment mode — only rebinds the previously selected and newly selected items
      */
     fun setSelected(code: String) {
+        val oldCode = selectedCode
+        if (oldCode == code) return // No change
+
         selectedCode = code
-        notifyDataSetChanged()
+
+        // Notify only the affected items instead of the entire list
+        for (i in 0 until itemCount) {
+            val item = getItem(i)
+            if (item.code == oldCode || item.code == code) {
+                notifyItemChanged(i)
+            }
+        }
     }
 
     inner class PaymentModeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

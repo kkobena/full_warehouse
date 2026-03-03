@@ -41,8 +41,9 @@ import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModelFactory
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
+import com.kobe.warehouse.sales.utils.observeOnce
 import com.kobe.warehouse.sales.utils.onTextChangedDebounced
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +64,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     private lateinit var customerSearchAdapter: com.kobe.warehouse.sales.ui.adapter.CustomerSearchAdapter
     private lateinit var tiersPayantsAdapter: com.kobe.warehouse.sales.ui.adapter.CustomerTiersPayantAdapter
     private var currentAdapterMode: Boolean? = null  // Track if adapter is in Assurance mode
+    private var tiersPayantsInitializedForCustomerId: Int? = null  // Guard against re-initialization loop
 
     companion object {
         const val EXTRA_SALE_TYPE = "extra_sale_type"
@@ -173,10 +175,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Cart adapter
         cartAdapter = CartAdapter(
             onIncrementClick = { line ->
-                handleQuantityChange(line, line.quantitySold + 1)
+                handleQuantityChange(line, line.quantityRequested + 1)
             },
             onDecrementClick = { line ->
-                val newQty = (line.quantitySold - 1).coerceAtLeast(1)
+                val newQty = (line.quantityRequested - 1).coerceAtLeast(1)
                 handleQuantityChange(line, newQty)
             },
             onRemoveClick = { line ->
@@ -382,14 +384,23 @@ class UnifiedSaleActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        // Sale type
+        // Sale type (single observer — do NOT duplicate)
         viewModel.currentSaleType.observe(this) { saleType ->
             updateUIForSaleType(saleType)
+            // If a customer is already selected, refresh their info to show/hide sections
+            val customer = viewModel.selectedCustomer.value
+            if (customer != null) {
+                displayCustomerInfo(customer)
+            }
         }
 
         // Customer
         viewModel.selectedCustomer.observe(this) { customer ->
             if (customer != null) {
+                // Reset tiers payants init flag if customer changed
+                if (tiersPayantsInitializedForCustomerId != customer.id) {
+                    tiersPayantsInitializedForCustomerId = null
+                }
                 // Clear search field when customer is selected
                 // Clear focus first to avoid stealing focus from other fields
                 binding.includeCustomerZone.etCustomerSearch.clearFocus()
@@ -399,6 +410,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 // displayCustomerInfo will call displayTiersPayants which updates the adapter
                 displayCustomerInfo(customer)
             } else {
+                tiersPayantsInitializedForCustomerId = null
                 binding.includeCustomerInfoDisplay.root.isGone = true
             }
         }
@@ -412,14 +424,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
-        // Sale Type - refresh display when mode changes
-        viewModel.currentSaleType.observe(this) { saleType ->
-            // If a customer is already selected, refresh their info to show/hide sections
-            val customer = viewModel.selectedCustomer.value
-            if (customer != null) {
-                displayCustomerInfo(customer)
-            }
-        }
 
         // Ayant Droit (Assurance only)
         viewModel.selectedAyantDroit.observe(this) { ayantDroit ->
@@ -575,6 +579,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 showQuantityUpdateForceStockDialog(event)
             }
         }
+
+        // Backend deconditionnement error on quantity update
+        viewModel.quantityUpdateDeconditionnementRequired.observe(this) { event ->
+            if (event != null) {
+                showQuantityUpdateDeconditionnementDialog(event)
+            }
+        }
     }
 
     /**
@@ -624,6 +635,24 @@ class UnifiedSaleActivity : AppCompatActivity() {
             .setMessage("${event.errorMessage}\n\nVoulez-vous déconditionner le produit parent pour obtenir du stock ?")
             .setPositiveButton("Déconditionner") { _, _ ->
                 viewModel.performDeconditionnement(event.product, event.quantity)
+                focusProductSearch()
+            }
+            .setNegativeButton("Annuler") { _, _ ->
+                focusProductSearch()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Show dialog when quantity update fails due to deconditionnement (backend errorKey='stockChInsufisant')
+     */
+    private fun showQuantityUpdateDeconditionnementDialog(event: com.kobe.warehouse.sales.ui.viewmodel.QuantityUpdateStockError) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Déconditionnement Nécessaire")
+            .setMessage("${event.errorMessage}\n\nVoulez-vous déconditionner le produit parent pour obtenir du stock ?")
+            .setPositiveButton("Déconditionner") { _, _ ->
+                viewModel.performDeconditionnementForQuantityUpdate(event.saleLine, event.newQuantity)
                 focusProductSearch()
             }
             .setNegativeButton("Annuler") { _, _ ->
@@ -847,10 +876,33 @@ class UnifiedSaleActivity : AppCompatActivity() {
             return
         }
 
+        // Check avoir condition: comptant sale with insufficient stock requires a customer
+        if (viewModel.currentSaleType.value is SaleType.Comptant && viewModel.selectedCustomer.value == null) {
+            val hasAvoir = sale.salesLines.any { it.quantitySold < it.quantityRequested }
+            if (hasAvoir) {
+                showCustomerRequiredForAvoirDialog()
+                return
+            }
+        }
+
         // Open payment dialog for normal sale
         val payrollAmount = sale.salesAmount - (sale.discountAmount ?: 0)
         val dialog = com.kobe.warehouse.sales.ui.dialog.PaymentDialogFragment.newInstance(payrollAmount)
         dialog.show(supportFragmentManager, "PaymentDialog")
+    }
+
+    /**
+     * Show dialog requiring customer selection for comptant sales with avoir (insufficient stock).
+     */
+    private fun showCustomerRequiredForAvoirDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Client obligatoire")
+            .setMessage("Cette vente contient des produits avec stock insuffisant (avoir). Un client doit être associé à la vente.")
+            .setPositiveButton("Sélectionner un client") { _, _ ->
+                binding.includeCustomerZone.etCustomerSearch.requestFocus()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
     }
 
     /**
@@ -884,7 +936,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         Toast.makeText(this, "Impression du reçu en cours...", Toast.LENGTH_SHORT).show()
 
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val success = withContext(Dispatchers.IO) {
                 try {
                     val receiptPrinter = ReceiptPrinter(this@UnifiedSaleActivity)
@@ -1424,8 +1476,12 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // For Carnet: Use customer.tiersPayants directly (pre-configured, read-only)
         // For Assurance: Use clientTiersPayants from ViewModel (can be modified for this sale)
         val tiersPayantsList = if (isAssuranceMode) {
-            // Initialize clientTiersPayants from customer if empty
-            if (viewModel.clientTiersPayants.value.isNullOrEmpty() && customer.tiersPayants.isNotEmpty()) {
+            // Initialize clientTiersPayants from customer ONCE per customer (guard against re-initialization loop)
+            if (viewModel.clientTiersPayants.value.isNullOrEmpty()
+                && customer.tiersPayants.isNotEmpty()
+                && tiersPayantsInitializedForCustomerId != customer.id
+            ) {
+                tiersPayantsInitializedForCustomerId = customer.id
                 android.util.Log.d("UnifiedSale", "Initializing clientTiersPayants from customer")
                 customer.tiersPayants.forEach { tp ->
                     viewModel.addClientTiersPayant(
@@ -1521,13 +1577,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Fetch available tiers payants
         viewModel.loadAvailableTiersPayants()
 
-        // Observe the result
-        viewModel.availableTiersPayants.observe(this) { tiersPayantsList ->
+        // Observe the result ONCE (prevents observer leak on repeated clicks)
+        viewModel.availableTiersPayants.observeOnce(this) { tiersPayantsList ->
             binding.progressBar.isGone = true
 
             if (tiersPayantsList.isEmpty()) {
                 Toast.makeText(this, "Aucun tiers payant disponible", Toast.LENGTH_SHORT).show()
-                return@observe
+                return@observeOnce
             }
 
             // Filter out already added tiers payants
@@ -1536,7 +1592,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
             if (availableTiersPayants.isEmpty()) {
                 Toast.makeText(this, "Tous les tiers payants sont déjà ajoutés", Toast.LENGTH_SHORT).show()
-                return@observe
+                return@observeOnce
             }
 
             // Create adapter for dialog
@@ -1618,15 +1674,15 @@ class UnifiedSaleActivity : AppCompatActivity() {
         binding.progressBar.isVisible = true
 
         // Fetch ayants droits from backend
-        viewModel.loadAyantDroits(customer.id.toInt())
+        viewModel.loadAyantDroits(customer.id)
 
-        // Observe the result (one-time observation)
-        viewModel.ayantDroitsList.observe(this) { ayantDroits ->
+        // Observe the result ONCE (prevents observer leak on repeated clicks)
+        viewModel.ayantDroitsList.observeOnce(this) { ayantDroits ->
             binding.progressBar.isGone = true
 
             if (ayantDroits.isEmpty()) {
                 Toast.makeText(this, "Aucun ayant droit trouvé pour ce client", Toast.LENGTH_SHORT).show()
-                return@observe
+                return@observeOnce
             }
 
             // Create list of names for dialog
@@ -1752,13 +1808,21 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 viewModel.addProductToCart(product, quantity, forceStock)
             }
 
+            // User has force stock permission and stock insufficient:
+            // Send to backend without forceStock — let backend decide and return errorKey
+            // Backend will return "stock" error → handleAddProductError shows force dialog
+            validationResult.status == com.kobe.warehouse.sales.domain.validation.StockValidationStatus.INSUFFICIENT_STOCK_CAN_FORCE ||
+            validationResult.status == com.kobe.warehouse.sales.domain.validation.StockValidationStatus.QUANTITY_EXCESSIVE_CAN_FORCE -> {
+                viewModel.addProductToCart(product, quantity, forceStock = false)
+            }
+
             validationResult.isBlocked() -> {
-                // Blocked, show error
+                // Blocked (no permission), show error
                 Toast.makeText(this, validationResult.getErrorMessage(), Toast.LENGTH_LONG).show()
             }
 
             validationResult.requiresConfirmation() -> {
-                // Show confirmation dialog
+                // Other confirmation cases (e.g. deconditioning client-side if still present)
                 showStockValidationDialog(validationResult, product, quantity)
             }
         }
@@ -1851,7 +1915,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Check permission first
         if (sale?.id != null && sale.saleId?.saleDate != null) {
             // Saved sale - check permission
-            if (!viewModel.checkUserPermission(com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment.PERMISSION_MODIFY_PRICE)) {
+            if (!viewModel.checkUserPermission(AuthorizationDialogFragment.PERMISSION_MODIFY_PRICE)) {
                 // User doesn't have permission - request authorization
                 showAuthorizationDialogForPrice(line)
                 return
@@ -1893,7 +1957,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                     // New sale - update locally
                     val updatedLine = line.copy(
                         regularUnitPrice = newPrice,
-                        salesAmount = line.quantitySold * newPrice
+                        salesAmount = line.quantityRequested * newPrice
                     )
                     viewModel.updateLineQuantity(updatedLine, updatedLine.quantitySold)
                 }

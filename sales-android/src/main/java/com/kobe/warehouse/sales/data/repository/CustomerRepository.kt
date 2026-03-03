@@ -105,8 +105,8 @@ class CustomerRepository(
      */
     suspend fun createUninsuredCustomer(customer: Customer): Result<Customer> {
         return createUninsuredCustomer(
-            firstName = customer.firstName ?: "",
-            lastName = customer.lastName ?: "",
+            firstName = customer.firstName,
+            lastName = customer.lastName,
             phone = customer.phone,
             email = customer.email
         )

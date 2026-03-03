@@ -17,12 +17,12 @@ class DeconditionRepository(
      * Create a deconditioning operation
      * @param decondition Decondition with qtyMvt and produitId (CH parent ID)
      */
-    suspend fun create(decondition: Decondition): Result<Decondition> {
+    suspend fun create(decondition: Decondition): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = deconditionApiService.create(decondition)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
                 } else {
                     Result.failure(Exception("Erreur lors du déconditionnement: ${response.message()}"))
                 }

@@ -12,6 +12,7 @@ import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
 import com.kobe.warehouse.sales.data.model.SaleLineId
 import com.kobe.warehouse.sales.data.model.Decondition
+import com.kobe.warehouse.sales.data.model.Payment
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.DeconditionRepository
@@ -70,6 +71,9 @@ class UnifiedSaleViewModel(
 
     private val _quantityUpdateStockError = MutableLiveData<QuantityUpdateStockError?>()
     val quantityUpdateStockError: LiveData<QuantityUpdateStockError?> = _quantityUpdateStockError
+
+    private val _quantityUpdateDeconditionnementRequired = MutableLiveData<QuantityUpdateStockError?>()
+    val quantityUpdateDeconditionnementRequired: LiveData<QuantityUpdateStockError?> = _quantityUpdateDeconditionnementRequired
 
     // ===== Sale Type State =====
 
@@ -286,8 +290,7 @@ class UnifiedSaleViewModel(
             num = num,
             taux = taux,
             numBon = numBon,
-            priorite = PrioriteTiersPayant.fromValue(priorite),
-            typeTiersPayant = if (priorite == 0) "PRINCIPAL" else "COMPLEMENTAIRE"
+            priorite = PrioriteTiersPayant.fromValue(priorite)
         )
 
         val current = _clientTiersPayants.value ?: emptyList()
@@ -415,7 +418,7 @@ class UnifiedSaleViewModel(
                         _errorMessage.value = "Produit ajouté"
                     },
                     onFailure = { error ->
-                        handleAddProductError(error, product, quantity)
+                        handleAddProductError(error, product, quantity, forceStock)
                     }
                 )
             } catch (e: Exception) {
@@ -429,13 +432,18 @@ class UnifiedSaleViewModel(
     /**
      * Handle errors from addProductToCart API calls
      * Detects stock and deconditionnement errors from backend errorKey
+     * If forceStock was already true, don't show the dialog again (backend rejected despite force)
      */
-    private fun handleAddProductError(error: Throwable, product: Product, quantity: Int) {
+    private fun handleAddProductError(error: Throwable, product: Product, quantity: Int, forceStock: Boolean) {
         if (error is SalesApiException) {
-            val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
-
             when (error.errorKey) {
                 "stock" -> {
+                    if (forceStock) {
+                        // Already tried with forceStock=true, backend still rejects
+                        _errorMessage.value = "Impossible de forcer le stock : ${error.message}"
+                        return
+                    }
+                    val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
                     if (hasForceStockPermission) {
                         _stockForceRequired.value = StockActionRequired(
                             product = product,
@@ -448,6 +456,7 @@ class UnifiedSaleViewModel(
                     return
                 }
                 "stockChInsufisant" -> {
+                    // Deconditioning dialog always shown, regardless of forceStock
                     _deconditionnementRequired.value = StockActionRequired(
                         product = product,
                         quantity = quantity,
@@ -545,9 +554,9 @@ class UnifiedSaleViewModel(
 
         deconditionResult.fold(
             onSuccess = {
-                // Step 6: Retry the original operation (without forceStock, stock should now be available)
+                // Step 6: Retry with forceStock=true to avoid another stock rejection
                 _isLoading.value = false // Reset loading before retry (addProductToCart sets it again)
-                addProductToCart(product, quantity)
+                addProductToCart(product, quantity, forceStock = true)
             },
             onFailure = { error ->
                 _errorMessage.value = "Erreur de déconditionnement : ${error.message}"
@@ -565,23 +574,19 @@ class UnifiedSaleViewModel(
     ): Result<Sale> {
         // Get cassierId from TokenManager (required by backend)
         var cassierId = tokenManager.getUserId()
-        android.util.Log.d("UnifiedSaleViewModel", "=== CREATE NEW SALE WITH FIRST LINE ===")
-        android.util.Log.d("UnifiedSaleViewModel", "cassierId from TokenManager = $cassierId")
+
 
         if (cassierId == null) {
             // Fallback: try to load account from API
-            android.util.Log.w("UnifiedSaleViewModel", "cassierId is null, trying fallback via API...")
             val accountResult = authRepository.getAccount()
             val account = accountResult.getOrNull()
             cassierId = account?.id
-            android.util.Log.d("UnifiedSaleViewModel", "cassierId from API = $cassierId")
             if (cassierId != null) {
                 tokenManager.storeUserId(cassierId)
             }
         }
 
         if (cassierId == null) {
-            android.util.Log.e("UnifiedSaleViewModel", "FAILED: cassierId is null - cannot create sale")
             return Result.failure(Exception("Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."))
         }
 
@@ -645,9 +650,19 @@ class UnifiedSaleViewModel(
 
         return result.fold(
             onSuccess = { addedLine ->
-                // Add the line to current sale and recalculate total
-                val updatedLines = currentSale.salesLines.toMutableList()
-                updatedLines.add(addedLine)
+                // Check if this product already exists in the sale (backend merges quantities)
+                val existingIndex = currentSale.salesLines.indexOfFirst { it.produitId == addedLine.produitId }
+                val updatedLines = if (existingIndex >= 0) {
+                    // Replace existing line with updated one from backend
+                    currentSale.salesLines.toMutableList().apply {
+                        set(existingIndex, addedLine)
+                    }
+                } else {
+                    // New product, add to list
+                    currentSale.salesLines.toMutableList().apply {
+                        add(addedLine)
+                    }
+                }
                 val newTotal = updatedLines.sumOf { it.salesAmount }
 
                 Result.success(currentSale.copy(
@@ -672,7 +687,7 @@ class UnifiedSaleViewModel(
             } else {
                 existingLine
             }
-        }.filter { it.quantitySold > 0 } // Remove lines with 0 quantity
+        }.filter { it.quantityRequested > 0 } // Remove lines with 0 quantity
 
         val newTotal = updatedLines.sumOf { it.salesAmount }
 
@@ -838,7 +853,7 @@ class UnifiedSaleViewModel(
         }
     }
 
-    override fun finalizeSale(payments: List<com.kobe.warehouse.sales.data.model.Payment>, montantVerse: Int, montantRendu: Int) {
+    override fun finalizeSale(payments: List<Payment>, montantVerse: Int, montantRendu: Int) {
         if (!validateSaleBeforeFinalize()) {
             return
         }
@@ -858,29 +873,23 @@ class UnifiedSaleViewModel(
 
             // Get cassierId from TokenManager (stored during login)
             var cassierId = tokenManager.getUserId()
-            android.util.Log.d("UnifiedSaleViewModel", "=== FINALIZE SALE DEBUG ===")
-            android.util.Log.d("UnifiedSaleViewModel", "Step 1: cassierId from TokenManager.getUserId() = $cassierId")
 
             if (cassierId == null) {
-                android.util.Log.w("UnifiedSaleViewModel", "Step 2: cassierId is null, trying fallback via API...")
-                // Fallback: try to load account from API
+
                 val accountResult = authRepository.getAccount()
                 val account = accountResult.getOrNull()
-                android.util.Log.d("UnifiedSaleViewModel", "Step 3: Account from API = $account")
-                android.util.Log.d("UnifiedSaleViewModel", "Step 3: Account.id = ${account?.id}")
+
                 cassierId = account?.id
                 if (cassierId == null) {
-                    android.util.Log.e("UnifiedSaleViewModel", "Step 4: FAILED - cassierId still null after API call")
                     _errorMessage.value = "Impossible de récupérer l'ID du caissier. Veuillez vous reconnecter."
                     _isLoading.value = false
                     return@launch
                 }
-                // Store for next time
-                android.util.Log.d("UnifiedSaleViewModel", "Step 5: Storing cassierId in TokenManager: $cassierId")
+
                 tokenManager.storeUserId(cassierId)
             }
 
-            android.util.Log.d("UnifiedSaleViewModel", "Step 6: Final cassierId = $cassierId")
+
 
             // Calculate payrollAmount = salesAmount - discountAmount
             val calculatedPayrollAmount = currentSaleValue.salesAmount - (currentSaleValue.discountAmount ?: 0)
@@ -923,10 +932,6 @@ class UnifiedSaleViewModel(
                 sansBon = false  // TODO: Make this configurable
             )
 
-            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.cassierId = ${completeSale.cassierId}")
-            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.sellerId = ${completeSale.sellerId}")
-            android.util.Log.d("UnifiedSaleViewModel", "Step 7: completeSale.customerId = ${completeSale.customerId}")
-            android.util.Log.d("UnifiedSaleViewModel", "=== END FINALIZE SALE DEBUG ===")
 
             // Call appropriate finalization endpoint based on sale type
             // Use unified sale finalization endpoints (POST /api/sales/comptant/finalize or /api/sales/vo/finalize)
@@ -1047,8 +1052,8 @@ class UnifiedSaleViewModel(
      * @return true if validation passes, false otherwise
      */
     private fun validateCustomerForComptant(
-        payments: List<com.kobe.warehouse.sales.data.model.Payment>,
-        saleAmount: Int
+      payments: List<Payment>,
+      saleAmount: Int
     ): Boolean {
         val totalPaid = payments.sumOf { it.paidAmount ?: 0 }
 
@@ -1127,7 +1132,7 @@ class UnifiedSaleViewModel(
     // Tiers Payant Management
     // ========================================
 
-    fun updateTiersPayantNumBon(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant, numBon: String) {
+    fun updateTiersPayantNumBon(tiersPayant: ClientTiersPayant, numBon: String) {
         when (_currentSaleType.value) {
             is SaleType.Assurance -> {
                 // For Assurance: Update clientTiersPayants (user-selected for this sale)
@@ -1159,30 +1164,30 @@ class UnifiedSaleViewModel(
         }
     }
 
-    fun updateTiersPayantTaux(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant, newTaux: Int) {
-        val customer = _selectedCustomer.value ?: return
-        val updatedTiersPayants = customer.tiersPayants.map {
+    fun updateTiersPayantTaux(tiersPayant: ClientTiersPayant, newTaux: Int) {
+        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.map {
             if (it.tiersPayantId == tiersPayant.tiersPayantId) {
                 it.copy(taux = newTaux)
             } else {
                 it
             }
         }
-        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
     }
 
-    fun removeTiersPayant(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant) {
-        val customer = _selectedCustomer.value ?: return
-        val updatedTiersPayants = customer.tiersPayants.filter {
+    fun removeTiersPayant(tiersPayant: ClientTiersPayant) {
+        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current.filter {
             it.tiersPayantId != tiersPayant.tiersPayantId
         }
-        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
     }
 
-    fun addTiersPayant(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant) {
-        val customer = _selectedCustomer.value ?: return
-        val updatedTiersPayants = (customer.tiersPayants ?: emptyList()) + tiersPayant
-        _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+    fun addTiersPayant(tiersPayant: ClientTiersPayant) {
+        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
+        val current = _clientTiersPayants.value ?: emptyList()
+        _clientTiersPayants.value = current + tiersPayant
     }
 
     // ========================================
@@ -1347,7 +1352,7 @@ class UnifiedSaleViewModel(
                 // Build saleLineId from saleLine.id and sale date
                 val saleLineId = SaleLineId(
                     id = saleLine.id ?: 0L,
-                    saleDate = sale.saleId!!.saleDate
+                    saleDate = sale.saleId.saleDate
                 )
 
                 // Build saleCompositeId from sale
@@ -1361,10 +1366,7 @@ class UnifiedSaleViewModel(
                     saleCompositeId = saleCompositeId
                 )
 
-                android.util.Log.d("UnifiedSaleViewModel", "=== UPDATE QUANTITY ===")
-                android.util.Log.d("UnifiedSaleViewModel", "saleLineId = $saleLineId")
-                android.util.Log.d("UnifiedSaleViewModel", "saleCompositeId = $saleCompositeId")
-                android.util.Log.d("UnifiedSaleViewModel", "quantityRequested = $newQuantity")
+
 
                 // Pass natureVente to use correct endpoint (comptant vs assurance)
                 val result = salesRepository.updateItemQuantity(updatedSaleLine, sale.natureVente)
@@ -1384,16 +1386,28 @@ class UnifiedSaleViewModel(
                         _errorMessage.value = "Quantité mise à jour"
                     },
                     onFailure = { error ->
-                        if (error is SalesApiException && error.errorKey == "stock") {
-                            val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
-                            if (hasForceStockPermission) {
-                                _quantityUpdateStockError.value = QuantityUpdateStockError(
-                                    saleLine = saleLine,
-                                    newQuantity = newQuantity,
-                                    errorMessage = error.message ?: "Stock insuffisant"
-                                )
-                            } else {
-                                _errorMessage.value = "Stock insuffisant. Vous n'avez pas la permission de forcer le stock."
+                        if (error is SalesApiException) {
+                            when (error.errorKey) {
+                                "stock" -> {
+                                    val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
+                                    if (hasForceStockPermission) {
+                                        _quantityUpdateStockError.value = QuantityUpdateStockError(
+                                            saleLine = saleLine,
+                                            newQuantity = newQuantity,
+                                            errorMessage = error.message ?: "Stock insuffisant"
+                                        )
+                                    } else {
+                                        _errorMessage.value = "Stock insuffisant. Vous n'avez pas la permission de forcer le stock."
+                                    }
+                                }
+                                "stockChInsufisant" -> {
+                                    _quantityUpdateDeconditionnementRequired.value = QuantityUpdateStockError(
+                                        saleLine = saleLine,
+                                        newQuantity = newQuantity,
+                                        errorMessage = error.message ?: "Déconditionnement nécessaire"
+                                    )
+                                }
+                                else -> _errorMessage.value = "Erreur : ${error.message}"
                             }
                         } else {
                             _errorMessage.value = "Erreur : ${error.message}"
@@ -1450,6 +1464,78 @@ class UnifiedSaleViewModel(
                     },
                     onFailure = { error ->
                         _errorMessage.value = "Erreur : ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Perform deconditionnement then retry quantity update
+     * Flow: fetch product → resolve parentId → decondition → retry update
+     */
+    fun performDeconditionnementForQuantityUpdate(saleLine: SaleLine, newQuantity: Int) {
+        _quantityUpdateDeconditionnementRequired.value = null
+
+        if (deconditionRepository == null) {
+            _errorMessage.value = "Service de déconditionnement non disponible"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Fetch the product to get parentId and itemQty
+                val productResult = productRepository.getProductById(saleLine.produitId)
+                val product = productResult.getOrNull()
+                if (product == null) {
+                    _errorMessage.value = "Impossible de récupérer les informations du produit"
+                    return@launch
+                }
+
+                val parentId = product.parentId
+                if (parentId == null) {
+                    _errorMessage.value = "Ce produit n'a pas de conditionnement parent (CH)"
+                    return@launch
+                }
+
+                // Fetch CH parent to check stock
+                val parentResult = productRepository.getProductById(parentId)
+                val parentProduct = parentResult.getOrNull()
+                if (parentProduct == null) {
+                    _errorMessage.value = "Impossible de récupérer le produit parent (CH)"
+                    return@launch
+                }
+
+                if (parentProduct.totalQuantity <= 0) {
+                    _errorMessage.value = "Stock du conditionnement parent (CH) insuffisant"
+                    return@launch
+                }
+
+                // Calculate qty to decondition
+                val itemQty = product.itemQty ?: 1
+                val qtyToDecondition = if (itemQty > 0) {
+                    ceil(newQuantity.toDouble() / itemQty.toDouble()).toInt()
+                } else {
+                    1
+                }
+
+                // Call decondition API
+                val decondition = Decondition(qtyMvt = qtyToDecondition, produitId = parentId)
+                val deconditionResult = deconditionRepository!!.create(decondition)
+
+                deconditionResult.fold(
+                    onSuccess = {
+                        // Retry the quantity update (stock should now be available)
+                        _isLoading.value = false
+                        updateProductQuantityWithApi(saleLine, newQuantity)
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur de déconditionnement : ${error.message}"
                     }
                 )
             } catch (e: Exception) {

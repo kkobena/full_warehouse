@@ -12,5 +12,5 @@ import retrofit2.http.POST
 interface DeconditionApiService {
 
     @POST("api/deconditions")
-    suspend fun create(@Body decondition: Decondition): Response<Decondition>
+    suspend fun create(@Body decondition: Decondition): Response<Void>
 }

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
@@ -40,6 +41,7 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
         CriteriaQuery<ProductStatRecord> cq = cb.createQuery(ProductStatRecord.class);
         Root<SalesLine> root = cq.from(SalesLine.class);
         Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit, JoinType.INNER);
+        Join<Produit, FournisseurProduit> produitFournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduitPrincipal, JoinType.INNER);
 
         // TODO avoir comment metre le fourniseur principal en  jsonb dans produit
         Predicate predicates = spec.toPredicate(root, cq, cb);
@@ -51,10 +53,10 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
                 produitJoin.get(Produit_.id),
                 cb.count(produitJoin.get(Produit_.id)),
                 //  cb.sum(root.get(SalesLine_.htAmount)),
-                produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip),
+                produitFournisseurProduitJoin.get(FournisseurProduit_.codeCip),
                 produitJoin.get(Produit_.codeEanLaboratoire),
                 produitJoin.get(Produit_.libelle),
-                cb.sum(root.get(SalesLine_.quantitySold)),
+                cb.sum(root.get(SalesLine_.quantityRequested)),
                 cb.sum(root.get(SalesLine_.costAmount)),
                 cb.sum(root.get(SalesLine_.salesAmount)),
                 cb.sum(root.get(SalesLine_.discountAmount)),
@@ -69,14 +71,14 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
                 .orderBy(cb.desc(cb.sum(root.get(SalesLine_.salesAmount))))
                 .groupBy(
                     produitJoin.get(Produit_.id),
-                    produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip)
+                    produitFournisseurProduitJoin.get(FournisseurProduit_.codeCip)
                 );
         } else {
             cq
                 .orderBy(cb.desc(cb.sum(root.get(SalesLine_.quantitySold))))
                 .groupBy(
                     produitJoin.get(Produit_.id),
-                    produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip)
+                    produitFournisseurProduitJoin.get(FournisseurProduit_.codeCip)
                 );
         }
 

@@ -175,7 +175,7 @@ class UnifiedSaleViewModel(
      * Returns results via customerSearchResults LiveData
      */
     fun searchCustomers(query: String) {
-        if (query.length < 2) {
+        if (query.length < 3) {
             _customerSearchResults.value = emptyList()
             return
         }
@@ -252,6 +252,19 @@ class UnifiedSaleViewModel(
         }
     }
 
+    /**
+     * Reset customer when changing sale type tab (unconditional).
+     */
+    fun resetCustomerForTypeChange() {
+        _selectedCustomer.value = null
+        _clientTiersPayants.value = emptyList()
+        _customerSearchResults.value = emptyList()
+        _customerValidationError.value = null
+        _currentSale.value?.copy(customer = null, customerId = null, tiersPayants = mutableListOf(), thirdPartySaleLines = mutableListOf())?.let {
+            _currentSale.value = it
+        }
+    }
+
     private val _customerValidationError = MutableLiveData<String?>()
     val customerValidationError: LiveData<String?> = _customerValidationError
 
@@ -259,6 +272,14 @@ class UnifiedSaleViewModel(
 
     private val _clientTiersPayants = MutableLiveData<List<ClientTiersPayant>>(emptyList())
     val clientTiersPayants: LiveData<List<ClientTiersPayant>> = _clientTiersPayants
+
+    /**
+     * Initialize clientTiersPayants directly from customer's tiers payants list.
+     * Preserves all fields including id.
+     */
+    fun initClientTiersPayantsFromCustomer(tiersPayants: List<ClientTiersPayant>) {
+        _clientTiersPayants.value = tiersPayants.toList()
+    }
 
     /**
      * Add tiers payant with customer insurance details
@@ -344,7 +365,7 @@ class UnifiedSaleViewModel(
     val isSearching: LiveData<Boolean> = _isSearching
 
     fun searchProducts(query: String) {
-        if (query.length < 2) {
+        if (query.length < 3) {
             _products.value = emptyList()
             return
         }
@@ -650,15 +671,23 @@ class UnifiedSaleViewModel(
 
         return result.fold(
             onSuccess = { addedLine ->
-                // Check if this product already exists in the sale (backend merges quantities)
+                // For VO sales: reload full sale from backend to get updated
+                // partTiersPayant, thirdPartySaleLines, amountToBePaid, etc.
+                if (saleType is SaleType.Assurance || saleType is SaleType.Carnet) {
+                    val saleId = currentSale.id
+                    val saleDate = currentSale.saleId?.saleDate
+                    if (saleId != null && saleDate != null) {
+                        return salesRepository.getSaleById(saleId, saleDate)
+                    }
+                }
+
+                // For Comptant: update locally (no TP calculations needed)
                 val existingIndex = currentSale.salesLines.indexOfFirst { it.produitId == addedLine.produitId }
                 val updatedLines = if (existingIndex >= 0) {
-                    // Replace existing line with updated one from backend
                     currentSale.salesLines.toMutableList().apply {
                         set(existingIndex, addedLine)
                     }
                 } else {
-                    // New product, add to list
                     currentSale.salesLines.toMutableList().apply {
                         add(addedLine)
                     }
@@ -678,34 +707,98 @@ class UnifiedSaleViewModel(
 
     fun updateLineQuantity(line: SaleLine, newQuantity: Int) {
         val currentSale = _currentSale.value ?: return
-        val updatedLines = currentSale.salesLines.map { existingLine ->
-            if (existingLine.produitId == line.produitId) {
-                existingLine.copy(
-                    quantitySold = newQuantity,
-                    salesAmount = newQuantity * existingLine.regularUnitPrice
+        val saleType = _currentSaleType.value
+        val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
+        val hasSaleId = currentSale.id != null && currentSale.saleId?.saleDate != null
+
+        if (isVO && hasSaleId) {
+            // VO sales: call backend then reload full sale
+            val updatedLine = line.copy(
+                quantityRequested = newQuantity,
+                quantitySold = newQuantity,
+                salesAmount = newQuantity * line.regularUnitPrice
+            )
+            viewModelScope.launch {
+                val natureVente = if (saleType is SaleType.Assurance) "ASSURANCE" else "CARNET"
+                salesRepository.updateItemQuantity(updatedLine, natureVente).fold(
+                    onSuccess = {
+                        reloadCurrentSale()
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur mise à jour quantité: ${error.message}"
+                    }
                 )
-            } else {
-                existingLine
             }
-        }.filter { it.quantityRequested > 0 } // Remove lines with 0 quantity
+        } else {
+            // Comptant or local sale: update locally
+            val updatedLines = currentSale.salesLines.map { existingLine ->
+                if (existingLine.produitId == line.produitId) {
+                    existingLine.copy(
+                        quantitySold = newQuantity,
+                        salesAmount = newQuantity * existingLine.regularUnitPrice
+                    )
+                } else {
+                    existingLine
+                }
+            }.filter { it.quantityRequested > 0 }
 
-        val newTotal = updatedLines.sumOf { it.salesAmount }
-
-        _currentSale.value = currentSale.copy(
-            salesLines = updatedLines.toMutableList(),
-            salesAmount = newTotal
-        )
+            val newTotal = updatedLines.sumOf { it.salesAmount }
+            _currentSale.value = currentSale.copy(
+                salesLines = updatedLines.toMutableList(),
+                salesAmount = newTotal
+            )
+        }
     }
 
     fun removeLineFromCart(line: SaleLine) {
         val currentSale = _currentSale.value ?: return
-        val updatedLines = currentSale.salesLines.filter { it.produitId != line.produitId }
-        val newTotal = updatedLines.sumOf { it.salesAmount }
+        val saleType = _currentSaleType.value
+        val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
+        val saleLineId = line.saleLineId?.id
+        val saleDate = currentSale.saleId?.saleDate
 
-        _currentSale.value = currentSale.copy(
-            salesLines = updatedLines.toMutableList(),
-            salesAmount = newTotal
-        )
+        if (isVO && saleLineId != null && saleDate != null) {
+            // VO sales: call backend then reload full sale
+            viewModelScope.launch {
+                salesRepository.deleteItem(saleLineId, saleDate).fold(
+                    onSuccess = {
+                        reloadCurrentSale()
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Erreur suppression ligne: ${error.message}"
+                    }
+                )
+            }
+        } else {
+            // Comptant or local sale: update locally
+            val updatedLines = currentSale.salesLines.filter { it.produitId != line.produitId }
+            val newTotal = updatedLines.sumOf { it.salesAmount }
+            _currentSale.value = currentSale.copy(
+                salesLines = updatedLines.toMutableList(),
+                salesAmount = newTotal
+            )
+        }
+    }
+
+    /**
+     * Reload the current sale from backend to get updated calculated fields
+     * (partTiersPayant, thirdPartySaleLines, amountToBePaid, taxAmount, etc.)
+     */
+    private fun reloadCurrentSale() {
+        val currentSale = _currentSale.value ?: return
+        val saleId = currentSale.id ?: return
+        val saleDate = currentSale.saleId?.saleDate ?: return
+
+        viewModelScope.launch {
+            salesRepository.getSaleById(saleId, saleDate).fold(
+                onSuccess = { reloadedSale ->
+                    _currentSale.value = reloadedSale
+                },
+                onFailure = { error ->
+                    _errorMessage.value = "Erreur rechargement vente: ${error.message}"
+                }
+            )
+        }
     }
 
     // ===== Sale Operations =====
@@ -728,7 +821,11 @@ class UnifiedSaleViewModel(
         }
 
         viewModelScope.launch {
-            salesRepository.putCashSaleOnHold(sale).fold(
+            val result = when (_currentSaleType.value) {
+                is SaleType.Assurance, is SaleType.Carnet -> salesRepository.putAssuranceSaleOnHold(sale)
+                else -> salesRepository.putCashSaleOnHold(sale)
+            }
+            result.fold(
                 onSuccess = { savedSale ->
                     _saleSaved.value = savedSale
                     resetCart()
@@ -818,12 +915,13 @@ class UnifiedSaleViewModel(
                     _currentSale.value = sale
                     _selectedCustomer.value = sale.customer
 
+                    // Restore tiers payants from sale
+                    _clientTiersPayants.value = sale.tiersPayants?.toList() ?: emptyList()
+
                     // Detect if it's a prevente (statut PENDING or PROCESSING)
                     _isPrevente.value = sale.statut == SalesStatut.PENDING || sale.statut == SalesStatut.PROCESSING
 
                     // Restore sale type based on natureVente
-                    // Note: For Assurance, we pass empty tiersPayants list as the actual data
-                    // is already in the Sale object. This just identifies the sale type for UI purposes.
                     val saleType = when (sale.natureVente) {
                         "ASSURANCE" -> SaleType.Assurance(sale.customer, emptyList())
                         "CARNET" -> SaleType.Carnet(sale.customer)
@@ -1022,7 +1120,8 @@ class UnifiedSaleViewModel(
         // Type-specific validations
         when (val saleType = _currentSaleType.value) {
             is SaleType.Assurance -> {
-                if (saleType.tiersPayants.isEmpty()) {
+                // Check the ViewModel's tiers payants list (not the SaleType's which may be empty)
+                if (_clientTiersPayants.value.isNullOrEmpty()) {
                     _errorMessage.value = "Au moins un tiers payant est requis"
                     return false
                 }

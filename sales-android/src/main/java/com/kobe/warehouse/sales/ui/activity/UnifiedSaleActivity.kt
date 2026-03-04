@@ -25,6 +25,7 @@ import com.kobe.warehouse.sales.data.api.ProductApiService
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.Product
+import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
 import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.data.repository.AuthRepository
@@ -221,6 +222,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     // Track current chip to revert if user cancels
     private var currentCheckedChipId: Int = R.id.chipComptant
     private var isChangingChipProgrammatically = false
+    private var isExplicitCustomerSearch = false
 
     private fun setupListeners() {
         // Sale type ChipGroup selection
@@ -243,30 +245,42 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
-        // Customer search - Inline search with debounce (300ms)
+        // Customer search - Inline search with debounce (300ms), min 3 chars
         binding.includeCustomerZone.etCustomerSearch.onTextChangedDebounced(
             lifecycleOwner = this,
             debounceMs = 300,
-            minLength = 2
+            minLength = 3
         ) { query ->
-            if (query.length >= 2) {
+            isExplicitCustomerSearch = false
+            if (query.length >= 3) {
                 viewModel.searchCustomers(query)
             } else {
                 viewModel.clearCustomerSearchResults()
             }
         }
 
-        // Handle IME action (Search button on keyboard)
+        // Handle IME action (Search button on keyboard) - explicit search
         binding.includeCustomerZone.etCustomerSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
                 val query = binding.includeCustomerZone.etCustomerSearch.text.toString().trim()
                 if (query.length >= 2) {
+                    isExplicitCustomerSearch = true
                     viewModel.searchCustomers(query)
                     hideKeyboard()
                 }
                 true
             } else {
                 false
+            }
+        }
+
+        // Search icon click - explicit search
+        binding.includeCustomerZone.tilCustomerSearch.setEndIconOnClickListener {
+            val query = binding.includeCustomerZone.etCustomerSearch.text.toString().trim()
+            if (query.length >= 2) {
+                isExplicitCustomerSearch = true
+                viewModel.searchCustomers(query)
+                hideKeyboard()
             }
         }
 
@@ -473,6 +487,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
             // Update totals and cart UI
             binding.tvTotal.text = formatAmount(sale.salesAmount) + " FCFA"
+            updateTotalDetails(sale)
             binding.includeProductCart.tvCartItemCount.text = "${sale.salesLines.size}"
 
             // Show/hide empty cart view
@@ -727,6 +742,148 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // which is called from the selectedCustomer observer
     }
 
+    /**
+     * Update the total detail rows (TVA, Remise, Tiers Payant breakdown, A payer).
+     */
+    private fun updateTotalDetails(sale: Sale) {
+        // TVA
+        val hasTva = sale.taxAmount > 0
+        binding.rowTva.isVisible = hasTva
+        if (hasTva) {
+            binding.tvTva.text = "${formatAmount(sale.taxAmount)} FCFA"
+        }
+
+        // Remise
+        val hasRemise = sale.discountAmount > 0
+        binding.rowRemise.isVisible = hasRemise
+        if (hasRemise) {
+            binding.tvRemise.text = "-${formatAmount(sale.discountAmount)} FCFA"
+        }
+
+        // Tiers Payant details & A payer (only for Assurance/Carnet)
+        val isVO = viewModel.currentSaleType.value !is SaleType.Comptant
+        val partTP = sale.partTiersPayant ?: 0
+
+        if (isVO && partTP > 0) {
+            val thirdPartyLines = sale.thirdPartySaleLines
+
+            if (thirdPartyLines.size > 1) {
+                // Multiple tiers payants: show detailed breakdown
+                binding.containerTiersPayantDetails.isVisible = true
+                binding.containerTiersPayantDetails.removeAllViews()
+
+                for (tp in thirdPartyLines) {
+                    val row = android.widget.LinearLayout(this).apply {
+                        orientation = android.widget.LinearLayout.HORIZONTAL
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                        setPadding(0, 2, 0, 0)
+                    }
+
+                    val label = TextView(this).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        text = tp.tiersPayantFullName ?: tp.name ?: "Tiers payant"
+                        textSize = 13f
+                        setTextColor(resources.getColor(R.color.text_secondary, theme))
+                    }
+
+                    val value = TextView(this).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        text = "${formatAmount(tp.montant)} FCFA"
+                        textSize = 13f
+                        setTextColor(resources.getColor(R.color.text_secondary, theme))
+                    }
+
+                    row.addView(label)
+                    row.addView(value)
+                    binding.containerTiersPayantDetails.addView(row)
+                }
+
+                // Total assurance row (sum of all tiers payants)
+                val totalRow = android.widget.LinearLayout(this).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(0, 4, 0, 0)
+                }
+
+                val totalLabel = TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    text = "Total assurance"
+                    textSize = 13f
+                    setTextColor(resources.getColor(R.color.text_secondary, theme))
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                }
+
+                val totalValue = TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    text = "${formatAmount(partTP)} FCFA"
+                    textSize = 13f
+                    setTextColor(resources.getColor(R.color.text_secondary, theme))
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                }
+
+                totalRow.addView(totalLabel)
+                totalRow.addView(totalValue)
+                binding.containerTiersPayantDetails.addView(totalRow)
+            } else {
+                // Single tiers payant: show simple total
+                binding.containerTiersPayantDetails.isVisible = true
+                binding.containerTiersPayantDetails.removeAllViews()
+
+                val row = android.widget.LinearLayout(this).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(0, 2, 0, 0)
+                }
+
+                val label = TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    text = "Total assurance"
+                    textSize = 13f
+                    setTextColor(resources.getColor(R.color.text_secondary, theme))
+                }
+
+                val value = TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    text = "${formatAmount(partTP)} FCFA"
+                    textSize = 13f
+                    setTextColor(resources.getColor(R.color.text_secondary, theme))
+                }
+
+                row.addView(label)
+                row.addView(value)
+                binding.containerTiersPayantDetails.addView(row)
+            }
+
+            // A payer row
+            binding.rowAmountToBePaid.isVisible = true
+            binding.tvAmountToBePaid.text = "${formatAmount(sale.amountToBePaid)} FCFA"
+        } else {
+            binding.containerTiersPayantDetails.isVisible = false
+            binding.rowAmountToBePaid.isVisible = false
+        }
+    }
+
     private fun showAddToCartDialog(product: Product) {
         // Check if customer is required but not selected
         val saleType = viewModel.currentSaleType.value ?: SaleType.Comptant
@@ -885,8 +1042,31 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
-        // Open payment dialog for normal sale
-        val payrollAmount = sale.salesAmount - (sale.discountAmount ?: 0)
+        // For VO sales (Assurance/Carnet): if amountToBePaid <= 0, finalize without payment
+        val saleType = viewModel.currentSaleType.value
+        if (saleType is SaleType.Assurance || saleType is SaleType.Carnet) {
+            if (sale.amountToBePaid <= 0) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Finaliser la vente")
+                    .setMessage("Vente entièrement couverte par l'assurance. Aucun paiement requis.\n\nFinaliser ?")
+                    .setPositiveButton("Finaliser") { _, _ ->
+                        viewModel.finalizeSale(
+                            payments = emptyList(),
+                            montantVerse = 0,
+                            montantRendu = 0
+                        )
+                    }
+                    .setNegativeButton("Annuler", null)
+                    .show()
+                return
+            }
+        }
+
+        // Open payment dialog
+        val payrollAmount = when (saleType) {
+            is SaleType.Assurance, is SaleType.Carnet -> sale.amountToBePaid
+            else -> sale.salesAmount - (sale.discountAmount ?: 0)
+        }
         val dialog = com.kobe.warehouse.sales.ui.dialog.PaymentDialogFragment.newInstance(payrollAmount)
         dialog.show(supportFragmentManager, "PaymentDialog")
     }
@@ -1093,13 +1273,12 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 customerSearchAdapter.submitList(emptyList())
 
                 val query = binding.includeCustomerZone.etCustomerSearch.text.toString().trim()
-                if (query.length >= 2) {
-                    // Show empty state message
+                if (query.length >= 2 && isExplicitCustomerSearch) {
+                    // Only show dialog on explicit search (Enter key or search icon)
                     binding.includeCustomerZone.tvCustomerSearchEmpty.isVisible = true
                     binding.includeCustomerZone.tvCustomerSearchEmpty.text =
                         "Aucun client trouvé pour \"$query\""
 
-                    // Show create confirmation dialog with delay for better UX
                     binding.includeCustomerZone.tvCustomerSearchEmpty.postDelayed({
                         showCustomerCreateConfirmDialog()
                     }, 500)
@@ -1277,24 +1456,17 @@ class UnifiedSaleActivity : AppCompatActivity() {
         binding.includeSaleTypeSelector.chipGroupSaleType.check(chipId)
         isChangingChipProgrammatically = false
 
+        // Reset selected customer and clear search field on tab change
+        viewModel.resetCustomerForTypeChange()
+        binding.includeCustomerZone.etCustomerSearch.setText("")
+        customerSearchAdapter.submitList(emptyList())
+        binding.includeCustomerZone.rvCustomerSearchResults.isGone = true
+        binding.includeCustomerZone.tvCustomerSearchEmpty.isGone = true
+
         val newType = when (chipId) {
             R.id.chipComptant -> SaleType.Comptant
-            R.id.chipAssurance -> {
-                val customer = viewModel.selectedCustomer.value
-                if (customer != null) {
-                    SaleType.Assurance(customer, emptyList())
-                } else {
-                    SaleType.Assurance(null, emptyList())
-                }
-            }
-            R.id.chipCarnet -> {
-                val customer = viewModel.selectedCustomer.value
-                if (customer != null) {
-                    SaleType.Carnet(customer)
-                } else {
-                    SaleType.Carnet(null)
-                }
-            }
+            R.id.chipAssurance -> SaleType.Assurance(null, emptyList())
+            R.id.chipCarnet -> SaleType.Carnet(null)
             else -> SaleType.Comptant
         }
         viewModel.changeSaleType(newType)
@@ -1483,16 +1655,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             ) {
                 tiersPayantsInitializedForCustomerId = customer.id
                 android.util.Log.d("UnifiedSale", "Initializing clientTiersPayants from customer")
-                customer.tiersPayants.forEach { tp ->
-                    viewModel.addClientTiersPayant(
-                        tiersPayantId = tp.tiersPayantId,
-                        tiersPayantName = tp.tiersPayantName ?: "",
-                        num = tp.num ?: "",
-                        taux = tp.taux,
-                        numBon = tp.numBon,
-                        priorite = tp.priorite?.value ?: 0
-                    )
-                }
+                viewModel.initClientTiersPayantsFromCustomer(customer.tiersPayants)
             }
             viewModel.clientTiersPayants.value ?: emptyList()
         } else {

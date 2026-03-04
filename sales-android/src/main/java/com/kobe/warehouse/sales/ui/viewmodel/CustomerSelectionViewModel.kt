@@ -27,7 +27,7 @@ class CustomerSelectionViewModel(
     val isSearching: LiveData<Boolean> = _isSearching
 
     fun searchCustomers(query: String) {
-        if (query.length < 2) {
+        if (query.length < 3) {
             _customers.value = emptyList()
             return
         }

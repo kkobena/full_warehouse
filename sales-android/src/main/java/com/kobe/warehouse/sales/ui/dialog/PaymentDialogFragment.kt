@@ -69,11 +69,14 @@ class PaymentDialogFragment : DialogFragment() {
             totalAmount = it.getInt(ARG_TOTAL_AMOUNT, 0)
         }
 
-        // Get ViewModel from activity (try both ComptantSaleViewModel and UnifiedSaleViewModel)
-        saleViewModel = try {
-            ViewModelProvider(requireActivity())[ComptantSaleViewModel::class.java]
-        } catch (e: Exception) {
-            ViewModelProvider(requireActivity())[UnifiedSaleViewModel::class.java]
+        // Get ViewModel from activity
+        // Try to get the existing ViewModel from the activity's ViewModelStore
+        // UnifiedSaleActivity uses UnifiedSaleViewModel, ComptantSaleActivity uses ComptantSaleViewModel
+        val activity = requireActivity()
+        saleViewModel = if (activity is com.kobe.warehouse.sales.ui.activity.UnifiedSaleActivity) {
+            ViewModelProvider(activity)[UnifiedSaleViewModel::class.java]
+        } else {
+            ViewModelProvider(activity)[ComptantSaleViewModel::class.java]
         }
 
         // Get amount to pay from currentSale

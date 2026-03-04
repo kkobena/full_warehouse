@@ -87,6 +87,9 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
         List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(
             tiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(toSet())
         );
+        if (CollectionUtils.isEmpty(clientTiersPayants)) {
+            throw new GenericError("Aucun client tiers payant n'a été trouvé pour les identifiants fournis");
+        }
         List<CompteTiersPayant> compteTiersPayants = new ArrayList<>(clientTiersPayants.size());
         for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
             ClientTiersPayantDTO clientTiersPayantDTO = dto

@@ -53,9 +53,6 @@ data class ClientTiersPayant(
     @SerializedName("numBon")
     val numBon: String? = null,
 
-    /**
-     * Type: "PRINCIPAL" or "COMPLEMENTAIRE"
-     */
     @SerializedName("typeTiersPayant")
     val typeTiersPayant: String? = null,
 

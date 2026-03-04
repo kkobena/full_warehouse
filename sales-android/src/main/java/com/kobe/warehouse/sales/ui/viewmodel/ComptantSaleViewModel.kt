@@ -132,7 +132,7 @@ class ComptantSaleViewModel(
      * Search products by name or code
      */
     fun searchProducts(query: String) {
-        if (query.length < 2) {
+        if (query.length < 3) {
             _products.value = emptyList()
             return
         }

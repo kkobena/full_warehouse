@@ -85,31 +85,138 @@
         android:paddingTop="12dp"
         android:paddingBottom="24dp">
 
-        <!-- Total Row -->
+        <!-- Total Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
             android:layout_marginBottom="8dp">
 
-            <TextView
-                android:layout_width="0dp"
+            <!-- Total Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Total"
-                android:textSize="18sp"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvTotal"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold"
+                    tools:text="15,000 FCFA" />
+
+            </LinearLayout>
+
+            <!-- TVA Row -->
+            <LinearLayout
+                android:id="@+id/rowTva"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:textColor="@color/primary"
-                android:textStyle="bold"
-                tools:text="15,000 FCFA" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="2dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TVA"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvTva"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    tools:text="500 FCFA" />
+
+            </LinearLayout>
+
+            <!-- Remise Row -->
+            <LinearLayout
+                android:id="@+id/rowRemise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="2dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Remise"
+                    android:textSize="13sp"
+                    android:textColor="@color/success" />
+
+                <TextView
+                    android:id="@+id/tvRemise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/success"
+                    tools:text="-1,000 FCFA" />
+
+            </LinearLayout>
+
+            <!-- Tiers Payant Details Container (dynamic rows per insurer) -->
+            <LinearLayout
+                android:id="@+id/containerTiersPayantDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="2dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- A Payer Row (patient share for Assurance/Carnet) -->
+            <LinearLayout
+                android:id="@+id/rowAmountToBePaid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="4dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="A payer"
+                    android:textSize="15sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvAmountToBePaid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold"
+                    tools:text="3,000 FCFA" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -153,7 +153,7 @@
     <string name="transformation_carnet_info">La transformation vers Comptant supprimera les données carnet. Le panier sera conservé.</string>
     <string name="mettre_en_attente">Mettre en attente</string>
     <string name="nouvelle_prevente">Nouvelle prévente</string>
-    <string name="finaliser_prevente">Finaliser la prévente</string>
+    <string name="finaliser_prevente">Passer en vente</string>
     <string name="quantite">Quantité</string>
 
     <!-- Sale Status -->

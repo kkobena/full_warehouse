@@ -213,46 +213,6 @@ class SalesRepository(
         }
     }
 
-    /**
-     * Finalize carnet sale (credit sale)
-     * Sale is added to customer's carnet (credit account)
-     */
-    suspend fun finalizeCarnetSale(sale: Sale): Result<Sale> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = salesApiService.finalizeCarnetSale(sale)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
-
-
-
-    /**
-     * Create assurance sale (insurance sale)
-     * Creates a new sale with tiers payants (insurance providers)
-     */
-    suspend fun createAssuranceSale(sale: Sale): Result<Sale> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = salesApiService.createAssuranceSale(sale)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
 
     /**
      * Put assurance sale on hold (save as prevente)
@@ -273,54 +233,9 @@ class SalesRepository(
         }
     }
 
-    /**
-     * Finalize assurance sale (insurance sale)
-     * Completes sale with insurance data (tiers payants, prescription, etc.)
-     * Backend calculates partAssure, partTiersPayant, costAmount
-     */
-    suspend fun finalizeAssuranceSale(sale: Sale): Result<Sale> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = salesApiService.finalizeAssuranceSale(sale)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
 
-    /**
-     * Transform sale between types (COMPTANT, ASSURANCE, CARNET)
-     * Converts an existing sale from one nature to another
-     *
-     * @param natureVente Target sale type: COMPTANT, ASSURANCE, or CARNET
-     * @param saleId Sale ID
-     * @param saleDate Sale date (format: yyyy-MM-dd)
-     * @return Result with new SaleId after transformation
-     */
-    suspend fun transformSale(
-        natureVente: String,
-        saleId: Long,
-        saleDate: String
-    ): Result<com.kobe.warehouse.sales.data.model.SaleId> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = salesApiService.transformSale(natureVente, saleId, saleDate)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
+
+
 
     /**
      * Add discount to sale
@@ -637,15 +552,15 @@ class SalesRepository(
     }
 
     /**
-     * Finalize COMPTANT prevente
-     * @param sale Sale object (prevente with statut PROCESSING)
+     * Transform COMPTANT prevente to vente en cours
+     * @param saleId SaleId (id + saleDate)
      */
-    suspend fun finalizeComptantPrevente(sale: Sale): Result<Unit> {
+    suspend fun transformComptantPrevente(saleId: SaleId): Result<SaleId> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = salesApiService.finalizeComptantPrevente(sale)
+                val response = salesApiService.transformComptantPrevente(saleId)
                 if (response.isSuccessful) {
-                    Result.success(Unit)
+                    Result.success(response.body()!!)
                 } else {
                     val errorMessage = parseErrorResponse(response.errorBody()?.string())
                     Result.failure(Exception(errorMessage))
@@ -657,15 +572,15 @@ class SalesRepository(
     }
 
     /**
-     * Finalize ASSURANCE/CARNET prevente
-     * @param sale Sale object (prevente with statut PROCESSING)
+     * Transform ASSURANCE/CARNET prevente to vente en cours
+     * @param saleId SaleId (id + saleDate)
      */
-    suspend fun finalizeAssurancePrevente(sale: Sale): Result<Unit> {
+    suspend fun transformAssurancePrevente(saleId: SaleId): Result<SaleId> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = salesApiService.finalizeAssurancePrevente(sale)
+                val response = salesApiService.transformAssurancePrevente(saleId)
                 if (response.isSuccessful) {
-                    Result.success(Unit)
+                    Result.success(response.body()!!)
                 } else {
                     val errorMessage = parseErrorResponse(response.errorBody()?.string())
                     Result.failure(Exception(errorMessage))

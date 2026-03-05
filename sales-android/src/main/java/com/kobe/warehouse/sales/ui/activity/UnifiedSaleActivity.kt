@@ -557,15 +557,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
-        // Prevente finalized
-        viewModel.preventeFinalized.observe(this) { finalized ->
-            if (finalized) {
-                viewModel.clearPreventeFinalized()
-                Toast.makeText(this, "Prévente finalisée avec succès", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        }
-
         // Prevente mode - update buttons
         viewModel.isPrevente.observe(this) { isPrevente ->
             updateButtonsForPreventeMode(isPrevente)

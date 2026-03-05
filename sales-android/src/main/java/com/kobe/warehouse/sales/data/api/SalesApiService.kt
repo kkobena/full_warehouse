@@ -296,23 +296,25 @@ interface SalesApiService {
     ): Response<Void>
 
     /**
-     * Finalize COMPTANT prevente
-     * Backend endpoint: PUT /api/sales/comptant/finalize-prevente
-     * @param sale Sale object (prevente with statut PROCESSING)
+     * Transform COMPTANT prevente to vente en cours
+     * Backend endpoint: PUT /api/sales/comptant/transform
+     * @param saleId SaleId (id + saleDate)
+     * @return SaleId of the transformed sale
      */
-    @PUT("api/sales/comptant/finalize-prevente")
-    suspend fun finalizeComptantPrevente(
-        @Body sale: Sale
-    ): Response<Void>
+    @PUT("api/sales/comptant/transform")
+    suspend fun transformComptantPrevente(
+        @Body saleId: SaleId
+    ): Response<SaleId>
 
     /**
-     * Finalize ASSURANCE/CARNET prevente
-     * Backend endpoint: PUT /api/sales/assurance/finalize-prevente
-     * @param sale Sale object (prevente with statut PROCESSING)
+     * Transform ASSURANCE/CARNET prevente to vente en cours
+     * Backend endpoint: PUT /api/sales/assurance/transform
+     * @param saleId SaleId (id + saleDate)
+     * @return SaleId of the transformed sale
      */
-    @PUT("api/sales/assurance/finalize-prevente")
-    suspend fun finalizeAssurancePrevente(
-        @Body sale: Sale
-    ): Response<Void>
+    @PUT("api/sales/assurance/transform")
+    suspend fun transformAssurancePrevente(
+        @Body saleId: SaleId
+    ): Response<SaleId>
 }
 

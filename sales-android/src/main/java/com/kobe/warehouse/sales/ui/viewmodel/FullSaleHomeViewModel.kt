@@ -226,7 +226,7 @@ class FullSaleHomeViewModel(
     }
 
     /**
-     * Transform a prevente (PENDING) to vente en cours (PROCESSING)
+     * Transform a prevente (PROCESSING) to vente en cours (ACTIVE)
      * and navigate to the vente en cours tab
      */
     fun transformPreventeToVenteEnCours(saleId: Long, saleDate: String, natureVente: String) {

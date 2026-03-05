@@ -887,26 +887,31 @@ class UnifiedSaleViewModel(
             return
         }
 
+        val saleId = sale.saleId
+        if (saleId == null || saleId.id == 0L || saleId.saleDate.isEmpty()) {
+            _errorMessage.value = "La prévente n'a pas encore été sauvegardée"
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
 
-            // Update sale statut to PROCESSING before finalizing
-            val saleToFinalize = sale.copy(statut = SalesStatut.PROCESSING)
-
             val result = when (_currentSaleType.value) {
                 is SaleType.Assurance, is SaleType.Carnet -> {
-                    salesRepository.finalizeAssurancePrevente(saleToFinalize)
+                    salesRepository.transformAssurancePrevente(saleId)
                 }
                 else -> {
-                    salesRepository.finalizeComptantPrevente(saleToFinalize)
+                    salesRepository.transformComptantPrevente(saleId)
                 }
             }
 
             result.fold(
-                onSuccess = {
+                onSuccess = { returnedSaleId ->
                     _isLoading.value = false
-                    _preventeFinalized.value = true
+                    _isPrevente.value = false
+                    // Use saleFinalized so Activity shows print dialog then switches to Comptant
+                    _saleFinalized.value = sale
                 },
                 onFailure = { error ->
                     _isLoading.value = false

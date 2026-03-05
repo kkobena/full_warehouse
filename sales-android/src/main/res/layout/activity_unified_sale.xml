@@ -38,6 +38,35 @@
             android:padding="8dp"
             android:paddingBottom="100dp">
 
+            <!-- Plafond Vente Warning Banner -->
+            <LinearLayout
+                android:id="@+id/plafondWarningBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/warning_light"
+                android:padding="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_warning"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Warning" />
+
+                <TextView
+                    android:id="@+id/tvPlafondWarningMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/gray_800"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
             <!-- Sale Type Selector -->
             <include
                 android:id="@+id/includeSaleTypeSelector"

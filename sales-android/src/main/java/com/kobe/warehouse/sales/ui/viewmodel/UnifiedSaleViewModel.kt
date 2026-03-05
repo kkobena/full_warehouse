@@ -458,6 +458,10 @@ class UnifiedSaleViewModel(
     private fun handleAddProductError(error: Throwable, product: Product, quantity: Int, forceStock: Boolean) {
         if (error is SalesApiException) {
             when (error.errorKey) {
+                "customerInsuranceCreditLimit" -> {
+                    handlePlafondWarning(error)
+                    return
+                }
                 "stock" -> {
                     if (forceStock) {
                         // Already tried with forceStock=true, backend still rejects
@@ -831,7 +835,11 @@ class UnifiedSaleViewModel(
                     resetCart()
                 },
                 onFailure = { error ->
-                    _errorMessage.value = "Erreur de sauvegarde: ${error.message}"
+                    if (error is SalesApiException && isPlafondError(error)) {
+                        handlePlafondWarning(error)
+                    } else {
+                        _errorMessage.value = "Erreur de sauvegarde: ${error.message}"
+                    }
                 }
             )
         }
@@ -1052,8 +1060,12 @@ class UnifiedSaleViewModel(
                     // DON'T clear cart here - let Activity handle it after printing
                 },
                 onFailure = { error ->
-                    _errorMessage.value = error.message ?: "Erreur de finalisation"
                     _isLoading.value = false
+                    if (error is SalesApiException && isPlafondError(error)) {
+                        handlePlafondWarning(error)
+                    } else {
+                        _errorMessage.value = error.message ?: "Erreur de finalisation"
+                    }
                 }
             )
         }
@@ -1076,6 +1088,51 @@ class UnifiedSaleViewModel(
         _clientTiersPayants.value = emptyList()
         _currentSaleType.value = SaleType.Comptant
         _isEditMode.value = false
+        // Reset plafond warning state
+        plafondAlreadyShown = false
+        _plafondWarning.value = null
+    }
+
+    /**
+     * Handle plafond vente warning from backend.
+     * The backend saves the sale with capped amounts (noRollbackFor PlafondVenteException),
+     * so we show a warning and reload the sale to get updated amounts.
+     *
+     * For sale creation (no local sale ID yet), uses saleId from the error payload.
+     */
+    private fun handlePlafondWarning(error: SalesApiException) {
+        if (!plafondAlreadyShown) {
+            plafondAlreadyShown = true
+            _plafondWarning.value = error.message ?: "Plafond de vente atteint"
+        }
+
+        val currentSale = _currentSale.value
+        val localSaleId = currentSale?.id
+        val localSaleDate = currentSale?.saleId?.saleDate
+
+        if (localSaleId != null && localSaleDate != null) {
+            // Sale already exists locally — reload it
+            reloadCurrentSale()
+        } else if (error.saleId != null && error.saleId.id != 0L && error.saleId.saleDate.isNotEmpty()) {
+            // Sale was just created by backend (plafond on first line) — load via payload saleId
+            viewModelScope.launch {
+                salesRepository.getSaleById(error.saleId.id, error.saleId.saleDate).fold(
+                    onSuccess = { reloadedSale ->
+                        _currentSale.value = reloadedSale
+                    },
+                    onFailure = { reloadError ->
+                        _errorMessage.value = "Erreur rechargement vente: ${reloadError.message}"
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * Check if error is a plafond vente warning (customerInsuranceCreditLimit)
+     */
+    private fun isPlafondError(error: Throwable): Boolean {
+        return error is SalesApiException && error.errorKey == "customerInsuranceCreditLimit"
     }
 
     // ===== Validation & Error Handling =====
@@ -1085,6 +1142,11 @@ class UnifiedSaleViewModel(
 
     private val _stockValidationError = MutableLiveData<String?>()
     val stockValidationError: LiveData<String?> = _stockValidationError
+
+    // ===== Plafond Vente Warning =====
+    private val _plafondWarning = MutableLiveData<String?>()
+    val plafondWarning: LiveData<String?> = _plafondWarning
+    private var plafondAlreadyShown = false
 
     fun clearError() {
         _errorMessage.value = null
@@ -1100,6 +1162,10 @@ class UnifiedSaleViewModel(
 
     fun clearCustomerValidationError() {
         _customerValidationError.value = null
+    }
+
+    fun clearPlafondWarning() {
+        _plafondWarning.value = null
     }
 
     private fun validateSaleBeforeFinalize(): Boolean {
@@ -1487,6 +1553,9 @@ class UnifiedSaleViewModel(
                     onFailure = { error ->
                         if (error is SalesApiException) {
                             when (error.errorKey) {
+                                "customerInsuranceCreditLimit" -> {
+                                    handlePlafondWarning(error)
+                                }
                                 "stock" -> {
                                     val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
                                     if (hasForceStockPermission) {

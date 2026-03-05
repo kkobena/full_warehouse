@@ -1,16 +1,18 @@
 package com.kobe.warehouse.sales.data.repository
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Sale
+import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
  * API Error Response model
- * Matches backend error format
+ * Matches backend error format (RFC 7807 Problem Detail)
  */
 data class ApiErrorResponse(
     @SerializedName("detail")
@@ -29,16 +31,21 @@ data class ApiErrorResponse(
     val status: Int? = null,
 
     @SerializedName("title")
-    val title: String? = null
+    val title: String? = null,
+
+    @SerializedName("payload")
+    val payload: JsonObject? = null
 )
 
 /**
  * Exception with errorKey from backend API error responses
  * Allows callers to distinguish between different error types (e.g., 'stock', 'stockChInsufisant')
+ * For plafond errors (customerInsuranceCreditLimit), saleId carries the sale reference for reload.
  */
 class SalesApiException(
     message: String,
-    val errorKey: String? = null
+    val errorKey: String? = null,
+    val saleId: SaleId? = null
 ) : Exception(message)
 
 /**
@@ -239,8 +246,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -259,8 +265,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -280,8 +285,7 @@ class SalesRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(response.errorBody()?.string()))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -602,8 +606,7 @@ class SalesRepository(
                 } else {
                     val errorBody = response.errorBody()?.string()
                     android.util.Log.e("SalesRepository", "ERROR Response: $errorBody")
-                    val errorMessage = parseErrorResponse(errorBody)
-                    Result.failure(Exception(errorMessage))
+                    Result.failure(parseErrorResponseWithKey(errorBody))
                 }
             } catch (e: Exception) {
                 android.util.Log.e("SalesRepository", "EXCEPTION: ${e.message}", e)
@@ -684,6 +687,7 @@ class SalesRepository(
     /**
      * Parse backend error response and return a SalesApiException with errorKey preserved
      * Allows callers to distinguish between different error types (e.g., 'stock', 'stockChInsufisant')
+     * For plafond errors, extracts saleId from payload to allow sale reload
      */
     private fun parseErrorResponseWithKey(errorBody: String?): SalesApiException {
         if (errorBody.isNullOrEmpty()) {
@@ -701,7 +705,22 @@ class SalesRepository(
                 else -> "Erreur lors de la création de la vente"
             }
 
-            SalesApiException(message, errorResponse.errorKey)
+            // Extract saleId from payload for plafond errors (sale is saved despite 400)
+            val saleId = if (errorResponse.errorKey == "customerInsuranceCreditLimit" && errorResponse.payload != null) {
+                try {
+                    val payloadSaleId = errorResponse.payload.getAsJsonObject("saleId")
+                    if (payloadSaleId != null) {
+                        SaleId(
+                            id = payloadSaleId.get("id")?.asLong ?: 0L,
+                            saleDate = payloadSaleId.get("saleDate")?.asString ?: ""
+                        )
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+
+            SalesApiException(message, errorResponse.errorKey, saleId)
         } catch (e: Exception) {
             SalesApiException("Erreur lors de la création de la vente")
         }

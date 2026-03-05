@@ -85,7 +85,7 @@ android {
 
 dependencies {
   // Jetpack Compose BOM (Bill of Materials)
-  implementation platform('androidx.compose:compose-bom:2024.02.00')
+  implementation platform('androidx.compose:compose-bom:2024.12.01')
 
   // Jetpack Compose dependencies
   implementation 'androidx.compose.ui:ui'
@@ -101,8 +101,7 @@ dependencies {
   // Compose Material Icons Extended
   implementation 'androidx.compose.material:material-icons-extended'
 
-  // Accompanist libraries for Compose
-  implementation 'com.google.accompanist:accompanist-swiperefresh:0.30.1'
+  // Accompanist libraries for Compose (swiperefresh migrated to Material 3 PullToRefreshBox)
 
   // Compose integration with existing libraries
   implementation 'androidx.compose.runtime:runtime-livedata'

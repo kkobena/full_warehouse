@@ -574,6 +574,17 @@ class UnifiedSaleActivity : AppCompatActivity() {
             binding.btnPutOnHold.isEnabled = !isLoading && hasItems
         }
 
+        // Plafond vente warning (errorKey='customerInsuranceCreditLimit')
+        viewModel.plafondWarning.observe(this) { message ->
+            if (message != null) {
+                binding.plafondWarningBanner.isVisible = true
+                binding.tvPlafondWarningMessage.text = message
+                Snackbar.make(binding.root, "Plafond de vente atteint", Snackbar.LENGTH_LONG).show()
+            } else {
+                binding.plafondWarningBanner.isVisible = false
+            }
+        }
+
         // Backend stock force required (errorKey='stock')
         viewModel.stockForceRequired.observe(this) { event ->
             if (event != null) {

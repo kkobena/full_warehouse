@@ -6,12 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.ui.compose.components.EmptyState
 import com.kobe.warehouse.sales.ui.compose.components.ErrorState
@@ -103,8 +103,8 @@ fun SalesListScreen(
             }
 
             else -> {
-                SwipeRefresh(
-                    state = rememberSwipeRefreshState(uiState.isRefreshing),
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
                     onRefresh = onRefresh,
                     modifier = Modifier
                         .fillMaxSize()

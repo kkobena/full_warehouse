@@ -25,6 +25,9 @@ import com.kobe.warehouse.sales.data.model.SalesStatut
 import com.kobe.warehouse.sales.data.model.TiersPayant
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.launch
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import kotlin.math.ceil
 
 /**
@@ -188,7 +191,7 @@ class UnifiedSaleViewModel(
                     _isSearchingCustomer.value = false
                 },
                 onFailure = { error ->
-                    _errorMessage.value = "Erreur de recherche client: ${error.message}"
+                    postServerError(error, "Erreur de recherche client")
                     _customerSearchResults.value = emptyList()
                     _isSearchingCustomer.value = false
                 }
@@ -378,7 +381,7 @@ class UnifiedSaleViewModel(
                     _isSearching.value = false
                 },
                 onFailure = { error ->
-                    _errorMessage.value = "Erreur de recherche: ${error.message}"
+                    postServerError(error, "Erreur de recherche")
                     _isSearching.value = false
                 }
             )
@@ -443,7 +446,7 @@ class UnifiedSaleViewModel(
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }
@@ -465,7 +468,7 @@ class UnifiedSaleViewModel(
                 "stock" -> {
                     if (forceStock) {
                         // Already tried with forceStock=true, backend still rejects
-                        _errorMessage.value = "Impossible de forcer le stock : ${error.message}"
+                        postServerError(error, "Impossible de forcer le stock")
                         return
                     }
                     val hasForceStockPermission = tokenManager.hasAuthority("PR_FORCE_STOCK")
@@ -491,7 +494,7 @@ class UnifiedSaleViewModel(
                 }
             }
         }
-        _errorMessage.value = "Erreur : ${error.message}"
+        postServerError(error)
     }
 
     /**
@@ -537,7 +540,7 @@ class UnifiedSaleViewModel(
                     doDeconditionnement(parentId, product, quantity)
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur de déconditionnement : ${e.message}"
+                postServerError(e, "Erreur de déconditionnement")
             } finally {
                 _isLoading.value = false
             }
@@ -584,7 +587,7 @@ class UnifiedSaleViewModel(
                 addProductToCart(product, quantity, forceStock = true)
             },
             onFailure = { error ->
-                _errorMessage.value = "Erreur de déconditionnement : ${error.message}"
+                postServerError(error, "Erreur de déconditionnement")
             }
         )
     }
@@ -710,7 +713,10 @@ class UnifiedSaleViewModel(
     }
 
     fun updateLineQuantity(line: SaleLine, newQuantity: Int) {
-        val currentSale = _currentSale.value ?: return
+        val currentSale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
         val saleType = _currentSaleType.value
         val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
         val hasSaleId = currentSale.id != null && currentSale.saleId?.saleDate != null
@@ -729,7 +735,7 @@ class UnifiedSaleViewModel(
                         reloadCurrentSale()
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur mise à jour quantité: ${error.message}"
+                        postServerError(error, "Erreur mise à jour quantité")
                     }
                 )
             }
@@ -755,7 +761,10 @@ class UnifiedSaleViewModel(
     }
 
     fun removeLineFromCart(line: SaleLine) {
-        val currentSale = _currentSale.value ?: return
+        val currentSale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
         val saleType = _currentSaleType.value
         val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
         val saleLineId = line.saleLineId?.id
@@ -769,7 +778,7 @@ class UnifiedSaleViewModel(
                         reloadCurrentSale()
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur suppression ligne: ${error.message}"
+                        postServerError(error, "Erreur suppression ligne")
                     }
                 )
             }
@@ -799,7 +808,7 @@ class UnifiedSaleViewModel(
                     _currentSale.value = reloadedSale
                 },
                 onFailure = { error ->
-                    _errorMessage.value = "Erreur rechargement vente: ${error.message}"
+                    postServerError(error, "Erreur rechargement vente")
                 }
             )
         }
@@ -838,7 +847,7 @@ class UnifiedSaleViewModel(
                     if (error is SalesApiException && isPlafondError(error)) {
                         handlePlafondWarning(error)
                     } else {
-                        _errorMessage.value = "Erreur de sauvegarde: ${error.message}"
+                        postServerError(error, "Erreur de sauvegarde")
                     }
                 }
             )
@@ -901,7 +910,7 @@ class UnifiedSaleViewModel(
                 },
                 onFailure = { error ->
                     _isLoading.value = false
-                    _errorMessage.value = "Erreur de finalisation: ${error.message}"
+                    postServerError(error, "Erreur de finalisation")
                 }
             )
         }
@@ -920,16 +929,8 @@ class UnifiedSaleViewModel(
         viewModelScope.launch {
             salesRepository.getSaleById(saleId, saleDate).fold(
                 onSuccess = { sale ->
-                    _currentSale.value = sale
-                    _selectedCustomer.value = sale.customer
-
-                    // Restore tiers payants from sale
-                    _clientTiersPayants.value = sale.tiersPayants?.toList() ?: emptyList()
-
-                    // Detect if it's a prevente (statut PENDING or PROCESSING)
-                    _isPrevente.value = sale.statut == SalesStatut.PENDING || sale.statut == SalesStatut.PROCESSING
-
-                    // Restore sale type based on natureVente
+                    // Set sale type BEFORE currentSale so observers see the correct type
+                    // when updateTotalDetails is triggered by the currentSale observer
                     val saleType = when (sale.natureVente) {
                         "ASSURANCE" -> SaleType.Assurance(sale.customer, emptyList())
                         "CARNET" -> SaleType.Carnet(sale.customer)
@@ -937,9 +938,20 @@ class UnifiedSaleViewModel(
                     }
                     _currentSaleType.value = saleType
                     updateCustomerRequired()
+
+                    // Detect if it's a prevente (statut PENDING or PROCESSING)
+                    _isPrevente.value = sale.statut == SalesStatut.PENDING || sale.statut == SalesStatut.PROCESSING
+
+                    _selectedCustomer.value = sale.customer
+
+                    // Restore tiers payants from sale
+                    _clientTiersPayants.value = sale.tiersPayants?.toList() ?: emptyList()
+
+                    // Set currentSale last — its observer uses currentSaleType for TP display
+                    _currentSale.value = sale
                 },
                 onFailure = { error ->
-                    _errorMessage.value = "Erreur de chargement: ${error.message}"
+                    postServerError(error, "Erreur de chargement")
                 }
             )
         }
@@ -964,7 +976,10 @@ class UnifiedSaleViewModel(
             return
         }
 
-        val currentSaleValue = _currentSale.value ?: return
+        val currentSaleValue = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
 
         // For Comptant sales, validate customer requirement based on payment conditions
         if (_currentSaleType.value is SaleType.Comptant) {
@@ -1064,7 +1079,7 @@ class UnifiedSaleViewModel(
                     if (error is SalesApiException && isPlafondError(error)) {
                         handlePlafondWarning(error)
                     } else {
-                        _errorMessage.value = error.message ?: "Erreur de finalisation"
+                        postServerError(error, "Erreur de finalisation")
                     }
                 }
             )
@@ -1121,7 +1136,7 @@ class UnifiedSaleViewModel(
                         _currentSale.value = reloadedSale
                     },
                     onFailure = { reloadError ->
-                        _errorMessage.value = "Erreur rechargement vente: ${reloadError.message}"
+                        postServerError(reloadError, "Erreur rechargement vente")
                     }
                 )
             }
@@ -1140,6 +1155,10 @@ class UnifiedSaleViewModel(
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    /** Server/network errors that need a prominent dialog (not just a snackbar) */
+    private val _serverError = MutableLiveData<String?>()
+    val serverError: LiveData<String?> = _serverError
+
     private val _stockValidationError = MutableLiveData<String?>()
     val stockValidationError: LiveData<String?> = _stockValidationError
 
@@ -1150,6 +1169,32 @@ class UnifiedSaleViewModel(
 
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    fun clearServerError() {
+        _serverError.value = null
+    }
+
+    /**
+     * Convert an exception to a user-friendly error message.
+     * Handles network errors, API errors, and unknown exceptions.
+     */
+    private fun userFriendlyMessage(error: Throwable, fallback: String = "Une erreur est survenue"): String {
+        return when (error) {
+            is ConnectException -> "Impossible de se connecter au serveur. Vérifiez votre connexion réseau."
+            is SocketTimeoutException -> "Le serveur met trop de temps à répondre. Réessayez."
+            is UnknownHostException -> "Serveur introuvable. Vérifiez l'adresse du serveur."
+            is SalesApiException -> error.message ?: fallback
+            else -> error.message?.takeIf { it.isNotBlank() } ?: fallback
+        }
+    }
+
+    /**
+     * Post an error to the serverError LiveData (shown as a dialog in the Activity).
+     * Use this for backend/network errors that must not be missed.
+     */
+    private fun postServerError(error: Throwable, fallback: String = "Une erreur est survenue") {
+        _serverError.value = userFriendlyMessage(error, fallback)
     }
 
     fun clearSaleSaved() {
@@ -1185,15 +1230,12 @@ class UnifiedSaleViewModel(
 
         // Type-specific validations
         when (val saleType = _currentSaleType.value) {
-            is SaleType.Assurance -> {
+            is SaleType.Assurance, is SaleType.Carnet -> {
                 // Check the ViewModel's tiers payants list (not the SaleType's which may be empty)
                 if (_clientTiersPayants.value.isNullOrEmpty()) {
-                    _errorMessage.value = "Au moins un tiers payant est requis"
+                    _errorMessage.value = "Au moins un tiers payant est requis pour ${saleType.getDisplayName()}"
                     return false
                 }
-            }
-            is SaleType.Carnet -> {
-                // TODO: Validate credit limit
             }
             else -> {
                 // Comptant - no additional validation here
@@ -1382,12 +1424,12 @@ class UnifiedSaleViewModel(
                         _availableTiersPayants.value = tiersPayants.filter { it.isEnabled() }
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur chargement tiers payants : ${error.message}"
+                        postServerError(error, "Erreur chargement tiers payants")
                         _availableTiersPayants.value = emptyList()
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
                 _availableTiersPayants.value = emptyList()
             }
         }
@@ -1413,12 +1455,12 @@ class UnifiedSaleViewModel(
                         _ayantDroitsList.value = ayantDroits
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur chargement ayants droits : ${error.message}"
+                        postServerError(error, "Erreur chargement ayants droits")
                         _ayantDroitsList.value = emptyList()
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
                 _ayantDroitsList.value = emptyList()
             }
         }
@@ -1502,7 +1544,10 @@ class UnifiedSaleViewModel(
      * For new sales, use updateLineQuantity() instead
      */
     fun updateProductQuantityWithApi(saleLine: SaleLine, newQuantity: Int) {
-        val sale = _currentSale.value ?: return
+        val sale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
 
         // Check if sale is saved (has ID)
         if (sale.id == null || sale.saleId?.saleDate == null) {
@@ -1538,16 +1583,20 @@ class UnifiedSaleViewModel(
 
                 result.fold(
                     onSuccess = { updatedLine ->
-                        // Update local state with API response
-                        val updatedLines = sale.salesLines.map { existingLine ->
-                            if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                        val isVO = _currentSaleType.value !is SaleType.Comptant
+                        if (isVO) {
+                            // VO sales: reload full sale to get updated TP amounts
+                            reloadCurrentSale()
+                        } else {
+                            // Comptant: update locally (no TP amounts to refresh)
+                            val updatedLines = sale.salesLines.map { existingLine ->
+                                if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                            }
+                            _currentSale.value = sale.copy(
+                                salesLines = updatedLines.toMutableList(),
+                                salesAmount = updatedLines.sumOf { it.salesAmount }
+                            )
                         }
-                        val newTotal = updatedLines.sumOf { it.salesAmount }
-
-                        _currentSale.value = sale.copy(
-                            salesLines = updatedLines.toMutableList(),
-                            salesAmount = newTotal
-                        )
                         _errorMessage.value = "Quantité mise à jour"
                     },
                     onFailure = { error ->
@@ -1575,15 +1624,15 @@ class UnifiedSaleViewModel(
                                         errorMessage = error.message ?: "Déconditionnement nécessaire"
                                     )
                                 }
-                                else -> _errorMessage.value = "Erreur : ${error.message}"
+                                else -> postServerError(error)
                             }
                         } else {
-                            _errorMessage.value = "Erreur : ${error.message}"
+                            postServerError(error)
                         }
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }
@@ -1595,9 +1644,15 @@ class UnifiedSaleViewModel(
      */
     fun retryQuantityUpdateWithForceStock(saleLine: SaleLine, newQuantity: Int) {
         _quantityUpdateStockError.value = null
-        val sale = _currentSale.value ?: return
+        val sale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
 
-        if (sale.id == null || sale.saleId?.saleDate == null) return
+        if (sale.id == null || sale.saleId?.saleDate == null) {
+            _errorMessage.value = "La vente n'a pas encore été sauvegardée"
+            return
+        }
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -1620,22 +1675,26 @@ class UnifiedSaleViewModel(
 
                 result.fold(
                     onSuccess = { updatedLine ->
-                        val updatedLines = sale.salesLines.map { existingLine ->
-                            if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                        val isVO = _currentSaleType.value !is SaleType.Comptant
+                        if (isVO) {
+                            reloadCurrentSale()
+                        } else {
+                            val updatedLines = sale.salesLines.map { existingLine ->
+                                if (existingLine.id == updatedLine.id) updatedLine else existingLine
+                            }
+                            _currentSale.value = sale.copy(
+                                salesLines = updatedLines.toMutableList(),
+                                salesAmount = updatedLines.sumOf { it.salesAmount }
+                            )
                         }
-                        val newTotal = updatedLines.sumOf { it.salesAmount }
-                        _currentSale.value = sale.copy(
-                            salesLines = updatedLines.toMutableList(),
-                            salesAmount = newTotal
-                        )
                         _errorMessage.value = "Quantité mise à jour (stock forcé)"
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur : ${error.message}"
+                        postServerError(error)
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }
@@ -1703,11 +1762,11 @@ class UnifiedSaleViewModel(
                         updateProductQuantityWithApi(saleLine, newQuantity)
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur de déconditionnement : ${error.message}"
+                        postServerError(error, "Erreur de déconditionnement")
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }
@@ -1720,7 +1779,10 @@ class UnifiedSaleViewModel(
      * NOTE: authUserId is tracked in audit but not sent to backend endpoint
      */
     fun updateProductPriceWithApi(saleLine: SaleLine, newPrice: Int, authUserId: Int? = null) {
-        val sale = _currentSale.value ?: return
+        val sale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
 
         // Check if sale is saved (has ID)
         if (sale.id == null || sale.saleId?.saleDate == null) {
@@ -1767,11 +1829,11 @@ class UnifiedSaleViewModel(
                         _errorMessage.value = "Prix mis à jour"
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur : ${error.message}"
+                        postServerError(error)
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }
@@ -1784,7 +1846,10 @@ class UnifiedSaleViewModel(
      * NOTE: authUserId is tracked in audit but not sent to backend endpoint
      */
     fun deleteProductLineWithApi(saleLine: SaleLine, authUserId: Int? = null) {
-        val sale = _currentSale.value ?: return
+        val sale = _currentSale.value ?: run {
+            _errorMessage.value = "Aucune vente en cours"
+            return
+        }
 
         // Check if sale is saved (has ID)
         if (sale.id == null || sale.saleId?.saleDate == null) {
@@ -1815,11 +1880,11 @@ class UnifiedSaleViewModel(
                         _errorMessage.value = "Ligne supprimée"
                     },
                     onFailure = { error ->
-                        _errorMessage.value = "Erreur : ${error.message}"
+                        postServerError(error)
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                postServerError(e)
             } finally {
                 _isLoading.value = false
             }

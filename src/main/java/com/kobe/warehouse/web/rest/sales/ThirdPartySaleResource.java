@@ -127,7 +127,7 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/set-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<SaleLineDTO> setItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+        @Valid @RequestBody SaleLineDTO saleLineDTO) {
         return ResponseEntity.accepted()
             .body(saleService.updateItemQuantityRequested(saleLineDTO, false));
     }

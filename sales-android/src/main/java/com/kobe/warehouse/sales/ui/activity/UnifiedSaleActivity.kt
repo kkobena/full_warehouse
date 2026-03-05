@@ -431,9 +431,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         // Client Tiers Payants - observe separately to avoid recreating adapter
         viewModel.clientTiersPayants.observe(this) { tiersPayants ->
-            // Only update adapter list for Assurance mode
             val saleType = viewModel.currentSaleType.value
-            if (::tiersPayantsAdapter.isInitialized && saleType is SaleType.Assurance) {
+            if (::tiersPayantsAdapter.isInitialized && (saleType is SaleType.Assurance || saleType is SaleType.Carnet)) {
                 tiersPayantsAdapter.submitList(tiersPayants)
             }
         }
@@ -515,6 +514,18 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
         }
 
+        // Server/network errors — shown as a dialog so the user cannot miss them
+        viewModel.serverError.observe(this) { error ->
+            error?.let {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Erreur")
+                    .setMessage(it)
+                    .setPositiveButton("OK", null)
+                    .show()
+                viewModel.clearServerError()
+            }
+        }
+
         viewModel.customerValidationError.observe(this) { error ->
             error?.let {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
@@ -532,16 +543,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
         viewModel.saleSaved.observe(this) { sale ->
             sale?.let {
                 Toast.makeText(this, "Vente mise en attente", Toast.LENGTH_SHORT).show()
-                // Reset to Comptant tab for new sale
-                isChangingChipProgrammatically = true
-                binding.includeSaleTypeSelector.chipGroupSaleType.check(R.id.chipComptant)
-                isChangingChipProgrammatically = false
-                currentCheckedChipId = R.id.chipComptant
+                switchToComptantTab()
                 viewModel.changeSaleType(SaleType.Comptant)
                 viewModel.clearSaleSaved()
-                // Focus product search for next sale
-                binding.includeProductCart.etProductSearch.setText("")
-                binding.includeProductCart.etProductSearch.requestFocus()
+                focusProductSearch()
             }
         }
 
@@ -686,6 +691,30 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
             .setCancelable(false)
             .show()
+    }
+
+    /**
+     * Switch the chip UI to Comptant tab after a sale is finalized or saved.
+     * Resets all Activity-level state related to the previous sale.
+     */
+    private fun switchToComptantTab() {
+        isChangingChipProgrammatically = true
+        binding.includeSaleTypeSelector.chipGroupSaleType.check(R.id.chipComptant)
+        isChangingChipProgrammatically = false
+        currentCheckedChipId = R.id.chipComptant
+
+        // Reset Activity-level state so next sale starts clean
+        tiersPayantsInitializedForCustomerId = null
+        currentAdapterMode = null
+
+        // Hide customer info display (will be shown again when a new customer is selected)
+        binding.includeCustomerInfoDisplay.root.isGone = true
+
+        // Clear customer search
+        binding.includeCustomerZone.etCustomerSearch.setText("")
+        customerSearchAdapter.submitList(emptyList())
+        binding.includeCustomerZone.rvCustomerSearchResults.isGone = true
+        binding.includeCustomerZone.tvCustomerSearchEmpty.isGone = true
     }
 
     /**
@@ -1108,6 +1137,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
             .setNegativeButton("Non") { _, _ ->
                 viewModel.resetAfterSale()
+                switchToComptantTab()
+                focusProductSearch()
                 Toast.makeText(this, "Prêt pour une nouvelle vente", Toast.LENGTH_SHORT).show()
             }
             .setCancelable(false)
@@ -1122,6 +1153,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
         if (sale == null) {
             Toast.makeText(this, "Erreur: Vente introuvable", Toast.LENGTH_SHORT).show()
             viewModel.resetAfterSale()
+            switchToComptantTab()
+            focusProductSearch()
             return
         }
 
@@ -1140,6 +1173,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
             if (success) {
                 viewModel.resetAfterSale()
+                switchToComptantTab()
+                focusProductSearch()
                 Toast.makeText(
                     this@UnifiedSaleActivity,
                     "Reçu imprimé avec succès. Prêt pour une nouvelle vente",
@@ -1151,6 +1186,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
                     .setMessage("Impossible d'imprimer le reçu. Vérifiez que l'imprimante est connectée.")
                     .setPositiveButton("OK") { _, _ ->
                         viewModel.resetAfterSale()
+                        switchToComptantTab()
+                        focusProductSearch()
                         Toast.makeText(
                             this@UnifiedSaleActivity,
                             "Prêt pour une nouvelle vente",
@@ -1585,6 +1622,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
         binding.includeCustomerInfoDisplay.apply {
             root.isVisible = true
 
+            // Auto-expand content when customer is selected
+            contentCustomerInfo.isVisible = true
+            ivExpandCustomerInfo.setImageResource(R.drawable.ic_expand_less)
+
             // Basic info
             tvCustomerLastName.text = customer.lastName
             tvCustomerFirstName.text = customer.firstName
@@ -1656,18 +1697,18 @@ class UnifiedSaleActivity : AppCompatActivity() {
             currentAdapterMode = isAssuranceMode  // Track current mode
         }
 
-        // For Carnet: Use customer.tiersPayants directly (pre-configured, read-only)
-        // For Assurance: Use clientTiersPayants from ViewModel (can be modified for this sale)
+        // For both Assurance and Carnet: initialize clientTiersPayants from customer
+        // so the ViewModel has the data needed for sale creation/validation
+        if (viewModel.clientTiersPayants.value.isNullOrEmpty()
+            && customer.tiersPayants.isNotEmpty()
+            && tiersPayantsInitializedForCustomerId != customer.id
+        ) {
+            tiersPayantsInitializedForCustomerId = customer.id
+            android.util.Log.d("UnifiedSale", "Initializing clientTiersPayants from customer")
+            viewModel.initClientTiersPayantsFromCustomer(customer.tiersPayants)
+        }
+
         val tiersPayantsList = if (isAssuranceMode) {
-            // Initialize clientTiersPayants from customer ONCE per customer (guard against re-initialization loop)
-            if (viewModel.clientTiersPayants.value.isNullOrEmpty()
-                && customer.tiersPayants.isNotEmpty()
-                && tiersPayantsInitializedForCustomerId != customer.id
-            ) {
-                tiersPayantsInitializedForCustomerId = customer.id
-                android.util.Log.d("UnifiedSale", "Initializing clientTiersPayants from customer")
-                viewModel.initClientTiersPayantsFromCustomer(customer.tiersPayants)
-            }
             viewModel.clientTiersPayants.value ?: emptyList()
         } else {
             customer.tiersPayants

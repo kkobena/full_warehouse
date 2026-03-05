@@ -130,6 +130,41 @@ public class ThirdPartySaleDTO extends SaleDTO {
         return builder;
     }
 
+    public static Builder lite(ThirdPartySales thirdPartySales) {
+        Builder builder = new Builder();
+        // --- champs SaleDTO ---
+        SaleId saleId = thirdPartySales.getId();
+        builder.saleId = saleId;
+        builder.id = saleId.getId();
+        builder.commentaire = thirdPartySales.getCommentaire();
+        builder.canceled = thirdPartySales.isCanceled();
+        builder.discountAmount = thirdPartySales.getDiscountAmount();
+        builder.categorie = "VO";
+        builder.salesAmount = thirdPartySales.getSalesAmount();
+        builder.htAmount = thirdPartySales.getHtAmount();
+        builder.netAmount = thirdPartySales.getNetAmount();
+        builder.taxAmount = thirdPartySales.getTaxAmount();
+        builder.costAmount = thirdPartySales.getCostAmount();
+        builder.amountToBePaid = thirdPartySales.getAmountToBePaid();
+        builder.statut = thirdPartySales.getStatut();
+        builder.createdAt = thirdPartySales.getCreatedAt();
+        builder.updatedAt = thirdPartySales.getUpdatedAt();
+        builder.numberTransaction = thirdPartySales.getNumberTransaction();
+        builder.natureVente = thirdPartySales.getNatureVente();
+        builder.typePrescription = thirdPartySales.getTypePrescription();
+        builder.differe = thirdPartySales.isDiffere();
+        builder.montantRendu = thirdPartySales.getMonnaie();
+        builder.restToPay = thirdPartySales.getRestToPay();
+
+        // --- champs ThirdPartySaleDTO ---
+        builder.partAssure = thirdPartySales.getPartAssure();
+        builder.partTiersPayant = thirdPartySales.getPartTiersPayant();
+        builder.hasPriceOption = thirdPartySales.isHasPriceOption();
+
+
+        return builder;
+    }
+
     public AssuredCustomerDTO getAyantDroit() {
         return ayantDroit;
     }
@@ -820,6 +855,36 @@ public class ThirdPartySaleDTO extends SaleDTO {
             dto.setAyantDroitNum(ayantDroitNum);
             dto.setTiersPayants(tiersPayants);
             dto.setThirdPartySaleLines(thirdPartySaleLines);
+            dto.setPartTiersPayant(partTiersPayant);
+            dto.setPartAssure(partAssure);
+            dto.setNumBon(numBon);
+            dto.setSansBon(sansBon);
+            dto.setHasPriceOption(hasPriceOption);
+            return dto;
+        }
+
+        public ThirdPartySaleDTO buildLite() {
+            ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+            // SaleDTO fields
+            dto.setId(id);
+            dto.setSaleId(saleId);
+            dto.setDiscountAmount(discountAmount);
+            dto.setNumberTransaction(numberTransaction);
+            dto.setSalesAmount(salesAmount);
+            dto.setHtAmount(htAmount);
+            dto.setNetAmount(netAmount);
+            dto.setTaxAmount(taxAmount);
+            dto.setCostAmount(costAmount);
+            dto.setCreatedAt(createdAt);
+            dto.setUpdatedAt(updatedAt);
+            dto.setPayrollAmount(payrollAmount);
+            dto.setAmountToBePaid(amountToBePaid);
+            dto.setRestToPay(restToPay);
+            dto.setDiffere(differe);
+            dto.setAvoir(avoir);
+            dto.setNatureVente(natureVente);
+            dto.setTypePrescription(typePrescription);
+            dto.setCategorie(categorie);
             dto.setPartTiersPayant(partTiersPayant);
             dto.setPartAssure(partAssure);
             dto.setNumBon(numBon);

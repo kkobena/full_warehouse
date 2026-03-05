@@ -169,7 +169,7 @@ public class SalesManagerImpl implements SalesManager {
             var message = thirdPartySaleService.computeThirdPartySaleAmounts(thirdPartySales);
             this.displayNet(thirdPartySales.getPartAssure());
             if (StringUtils.hasLength(message)) {
-                throw new PlafondVenteException( ThirdPartySaleDTO.from(thirdPartySales).build(), message);
+                throw new PlafondVenteException( ThirdPartySaleDTO.lite(thirdPartySales).buildLite(), message);
             }
         } else if (sales instanceof VenteDepot venteDepot) {
             upddateDepotSaleAmounts(venteDepot);

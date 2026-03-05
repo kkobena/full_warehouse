@@ -139,18 +139,30 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setCreatedAt(LocalDateTime.now());
         payment.setSale(sales);
         payment.setCashRegister(sales.getCashRegister());
+
+        // Normalisation des montants pour éviter les NPE
+        int netAmount = Objects.requireNonNullElse(paymentDTO.getNetAmount(), 0);
+        int paidAmount = Objects.requireNonNullElse(paymentDTO.getPaidAmount(), 0);
+
         if (paymentDTO.getPaymentMode() != null) {
             PaymentMode paymentMode = paymentModeRepository.getReferenceById(paymentDTO.getPaymentMode().getCode());
             ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
+
             if (modePaimentCode == ModePaimentCode.CASH) {
-                payment.setMontantVerse(paymentDTO.getMontantVerse());
+                applyCashPaymentAmounts(payment, sales, paymentDTO, netAmount, paidAmount);
+            } else {
+                payment.setReelAmount(netAmount);
+                payment.setPaidAmount(paidAmount);
             }
+
             payment.setPaymentMode(paymentMode);
+        } else {
+            payment.setReelAmount(netAmount);
+            payment.setPaidAmount(paidAmount);
         }
 
-        payment.setReelAmount(paymentDTO.getNetAmount());
-        payment.setPaidAmount(paymentDTO.getPaidAmount());
-        payment.setExpectedAmount(paymentDTO.getNetAmount());
+        payment.setExpectedAmount(netAmount);
+
         if (sales instanceof ThirdPartySales thirdPartySales) {
             payment.setPartTiersPayant(thirdPartySales.getPartTiersPayant());
             payment.setPartAssure(thirdPartySales.getPartAssure());
@@ -162,5 +174,20 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setPartAssure(0);
         }
         return payment;
+    }
+
+    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO, int netAmount, int paidAmount) {
+        int montantVerse = Objects.requireNonNullElse(paymentDTO.getMontantVerse(), 0);
+        payment.setMontantVerse(montantVerse);
+
+        int montantAttendu = Objects.requireNonNullElse(sales.getAmountToBePaid(), 0);
+
+        if (montantVerse <= montantAttendu) {
+            payment.setReelAmount(montantVerse);
+            payment.setPaidAmount(montantVerse);
+        } else {
+            payment.setReelAmount(netAmount);
+            payment.setPaidAmount(paidAmount);
+        }
     }
 }

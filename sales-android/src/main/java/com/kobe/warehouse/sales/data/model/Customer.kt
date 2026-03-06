@@ -104,5 +104,5 @@ data class CustomerSearchRequest(
   val search: String = "",
 
   @SerializedName("limit")
-  val limit: Int = 20
+  val limit: Int = 5
 )

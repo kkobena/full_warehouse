@@ -34,7 +34,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipComptant"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/comptant"
@@ -42,7 +42,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipAssurance"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/assurance"
@@ -50,7 +50,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipCarnet"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/carnet"

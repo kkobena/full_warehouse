@@ -435,6 +435,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
             if (::tiersPayantsAdapter.isInitialized && (saleType is SaleType.Assurance || saleType is SaleType.Carnet)) {
                 tiersPayantsAdapter.submitList(tiersPayants)
             }
+            // Update add button visibility based on remaining customer tiers payants
+            val customer = viewModel.selectedCustomer.value
+            if (customer != null) {
+                val selectedTpIds = tiersPayants.map { it.tiersPayantId }.toSet()
+                val hasMoreTp = customer.tiersPayants.any { it.tiersPayantId !in selectedTpIds }
+                binding.includeCustomerInfoDisplay.btnAddTiersPayant.isVisible = hasMoreTp
+            }
         }
 
 
@@ -1708,9 +1715,10 @@ class UnifiedSaleActivity : AppCompatActivity() {
         android.util.Log.d("UnifiedSale", "Submitting list - size: ${tiersPayantsList.size}")
         tiersPayantsAdapter.submitList(tiersPayantsList)
 
-        // Add button (Assurance only)
-        if (isAssuranceMode) {
-            android.util.Log.d("UnifiedSale", "Showing Add button for Assurance mode")
+        // Add button: visible if customer has more tiers payants than already on the sale
+        val selectedTpIds = (viewModel.clientTiersPayants.value ?: emptyList()).map { it.tiersPayantId }.toSet()
+        val hasMoreTp = customer.tiersPayants.any { it.tiersPayantId !in selectedTpIds }
+        if (hasMoreTp) {
             binding.includeCustomerInfoDisplay.btnAddTiersPayant.isVisible = true
             binding.includeCustomerInfoDisplay.btnAddTiersPayant.setOnClickListener {
                 showAddTiersPayantDialog(customer)
@@ -1777,42 +1785,28 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Show dialog to add a tiers payant to the customer
      */
     private fun showAddTiersPayantDialog(customer: Customer) {
-        // Show loading
-        binding.progressBar.isVisible = true
+        // Get tiers payants already on the sale
+        val selectedTpIds = (viewModel.clientTiersPayants.value ?: emptyList()).map { it.tiersPayantId }.toSet()
 
-        // Fetch available tiers payants
-        viewModel.loadAvailableTiersPayants()
+        // Show only customer's tiers payants that are not yet on the sale
+        val availableTp = customer.tiersPayants.filter { it.tiersPayantId !in selectedTpIds }
 
-        // Observe the result ONCE (prevents observer leak on repeated clicks)
-        viewModel.availableTiersPayants.observeOnce(this) { tiersPayantsList ->
-            binding.progressBar.isGone = true
-
-            if (tiersPayantsList.isEmpty()) {
-                Toast.makeText(this, "Aucun tiers payant disponible", Toast.LENGTH_SHORT).show()
-                return@observeOnce
-            }
-
-            // Filter out already added tiers payants
-            val customerTiersPayantIds = customer.tiersPayants.map { it.tiersPayantId }.toSet()
-            val availableTiersPayants = tiersPayantsList.filter { it.id !in customerTiersPayantIds }
-
-            if (availableTiersPayants.isEmpty()) {
-                Toast.makeText(this, "Tous les tiers payants sont déjà ajoutés", Toast.LENGTH_SHORT).show()
-                return@observeOnce
-            }
-
-            // Create adapter for dialog
-            val tiersPayantNames = availableTiersPayants.map { it.getDisplayName() }.toTypedArray()
-
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Ajouter un tiers payant")
-                .setItems(tiersPayantNames) { _, which ->
-                    val selectedTiersPayant = availableTiersPayants[which]
-                    showAddTiersPayantDetailsDialog(customer, selectedTiersPayant)
-                }
-                .setNegativeButton("Annuler", null)
-                .show()
+        if (availableTp.isEmpty()) {
+            Toast.makeText(this, "Tous les tiers payants du client sont déjà ajoutés", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val names = availableTp.map { it.tiersPayantName ?: "Tiers payant #${it.tiersPayantId}" }.toTypedArray()
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Ajouter un tiers payant")
+            .setItems(names) { _, which ->
+                val selected = availableTp[which]
+                viewModel.addTiersPayant(selected)
+                Toast.makeText(this, "Tiers payant ajouté", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
     }
 
     /**

@@ -90,26 +90,6 @@ interface SalesApiService {
         @Body sale: Sale
     ): Response<Sale>
 
-    /**
-     * Finalize carnet sale (credit sale)
-     * Sale is added to customer's carnet account
-     * Backend uses same endpoint as assurance: PUT /api/sales/assurance/save
-     */
-    @PUT("api/sales/assurance/save")
-    suspend fun finalizeCarnetSale(
-        @Body sale: Sale
-    ): Response<Sale>
-
-
-
-    /**
-     * Create assurance sale
-     * Creates a new insurance sale with tiers payants
-     */
-    @POST("api/sales/assurance")
-    suspend fun createAssuranceSale(
-        @Body sale: Sale
-    ): Response<Sale>
 
     /**
      * Put assurance sale on hold

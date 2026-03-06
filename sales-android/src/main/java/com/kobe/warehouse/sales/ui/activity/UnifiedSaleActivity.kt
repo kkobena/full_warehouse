@@ -32,6 +32,8 @@ import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
+import com.kobe.warehouse.sales.data.api.RemiseApiService
+import com.kobe.warehouse.sales.data.repository.RemiseRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.databinding.ActivityUnifiedSaleBinding
 import com.kobe.warehouse.sales.printer.ReceiptPrinter
@@ -98,7 +100,11 @@ class UnifiedSaleActivity : AppCompatActivity() {
         setupViewModel()
         setupAdapters()
         setupListeners()
+        setupRemiseUI()
         observeViewModel()
+
+        // Load remises (cached)
+        viewModel.loadRemises()
 
         // Load sale if editing
         handleIntent(intent)
@@ -123,6 +129,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val customerApi = apiClient.create(CustomerApiService::class.java)
         val authApi = apiClient.create(AuthApiService::class.java)
         val deconditionApi = apiClient.create(com.kobe.warehouse.sales.data.api.DeconditionApiService::class.java)
+        val remiseApi = apiClient.create(RemiseApiService::class.java)
 
         val salesRepository = SalesRepository(salesApi)
         val productRepository = ProductRepository(productApi)
@@ -130,6 +137,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val customerRepository = CustomerRepository(customerApi)
         val authRepository = AuthRepository(authApi, tokenManager)
         val deconditionRepository = com.kobe.warehouse.sales.data.repository.DeconditionRepository(deconditionApi)
+        val remiseRepository = RemiseRepository(remiseApi)
 
         val factory = UnifiedSaleViewModelFactory(
             salesRepository,
@@ -138,7 +146,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
             customerRepository,
             authRepository,
             tokenManager,
-            deconditionRepository
+            deconditionRepository,
+            remiseRepository
         )
 
         viewModel = ViewModelProvider(this, factory)[UnifiedSaleViewModel::class.java]
@@ -454,6 +463,11 @@ class UnifiedSaleActivity : AppCompatActivity() {
             } else {
                 binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.isGone = true
             }
+        }
+
+        // Remise (predefined discounts)
+        viewModel.currentRemise.observe(this) { remise ->
+            updateRemiseUI(remise)
         }
 
         // Customer search results
@@ -791,12 +805,20 @@ class UnifiedSaleActivity : AppCompatActivity() {
             binding.tvTva.text = "${formatAmount(sale.taxAmount)} FCFA"
         }
 
-        // Remise
-        val hasRemise = sale.discountAmount > 0
+        // Remise is not available for assurance sales
+        val isAssurance = viewModel.currentSaleType.value is SaleType.Assurance
+
+        // Remise amount row
+        val hasRemise = sale.discountAmount > 0 && !isAssurance
         binding.rowRemise.isVisible = hasRemise
         if (hasRemise) {
             binding.tvRemise.text = "-${formatAmount(sale.discountAmount)} FCFA"
         }
+
+        // Remise action row (add/edit/remove button)
+        val hasLines = sale.salesLines.isNotEmpty() && !isAssurance
+        binding.rowRemiseAction.isVisible = hasLines
+        updateRemiseUI(viewModel.currentRemise.value)
 
         // Tiers Payant details & A payer (only for Assurance/Carnet)
         val isVO = viewModel.currentSaleType.value !is SaleType.Comptant
@@ -1950,6 +1972,86 @@ class UnifiedSaleActivity : AppCompatActivity() {
             }
             .setNegativeButton("Annuler", null)
             .show()
+    }
+
+    // ========================================
+    // Remise (Predefined Discount) Management
+    // ========================================
+
+    /**
+     * Setup remise UI: button clicks
+     * Shows remise action row only when a sale has lines
+     */
+    private fun setupRemiseUI() {
+        binding.btnAddRemise.setOnClickListener {
+            showRemiseBottomSheet(currentRemiseId = null)
+        }
+
+        binding.btnEditRemise.setOnClickListener {
+            showRemiseBottomSheet(currentRemiseId = viewModel.currentRemise.value?.id)
+        }
+
+        binding.chipCurrentRemise.setOnCloseIconClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.remise_supprimer)
+                .setMessage(R.string.remise_supprimer_confirmation)
+                .setPositiveButton(R.string.remise_supprimer) { _, _ ->
+                    viewModel.removeRemise()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+
+    /**
+     * Update remise action row UI based on current remise state
+     */
+    private fun updateRemiseUI(remise: com.kobe.warehouse.sales.data.model.Remise?) {
+        val isAssurance = viewModel.currentSaleType.value is SaleType.Assurance
+        val hasLines = viewModel.currentSale.value?.salesLines?.isNotEmpty() == true && !isAssurance
+        binding.rowRemiseAction.isVisible = hasLines
+
+        if (remise != null) {
+            val saleType = when (viewModel.currentSaleType.value) {
+                is SaleType.Assurance -> "ASSURANCE"
+                is SaleType.Carnet -> "CARNET"
+                else -> "COMPTANT"
+            }
+            binding.btnAddRemise.isGone = true
+            binding.chipCurrentRemise.isVisible = true
+            binding.chipCurrentRemise.text = remise.getDisplayText(saleType)
+            binding.btnEditRemise.isVisible = true
+        } else {
+            binding.btnAddRemise.isVisible = hasLines
+            binding.chipCurrentRemise.isGone = true
+            binding.btnEditRemise.isGone = true
+        }
+    }
+
+    /**
+     * Show BottomSheet to select a remise
+     */
+    private fun showRemiseBottomSheet(currentRemiseId: Int?) {
+        val remises = viewModel.remises.value
+        if (remises.isNullOrEmpty()) {
+            Toast.makeText(this, R.string.remise_aucune, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val saleType = when (viewModel.currentSaleType.value) {
+            is SaleType.Assurance -> "ASSURANCE"
+            is SaleType.Carnet -> "CARNET"
+            else -> "COMPTANT"
+        }
+
+        val bottomSheet = com.kobe.warehouse.sales.ui.dialog.RemiseBottomSheet.newInstance(
+            remises = remises,
+            saleType = saleType,
+            currentRemiseId = currentRemiseId
+        ) { remise ->
+            viewModel.applyRemise(remise)
+        }
+        bottomSheet.show(supportFragmentManager, "RemiseBottomSheet")
     }
 
     /**

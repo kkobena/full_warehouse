@@ -7,6 +7,7 @@ import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.DeconditionRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
+import com.kobe.warehouse.sales.data.repository.RemiseRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.utils.TokenManager
 
@@ -20,7 +21,8 @@ class UnifiedSaleViewModelFactory(
     private val customerRepository: CustomerRepository,
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
-    private val deconditionRepository: DeconditionRepository
+    private val deconditionRepository: DeconditionRepository,
+    private val remiseRepository: RemiseRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -33,7 +35,8 @@ class UnifiedSaleViewModelFactory(
                 customerRepository,
                 authRepository,
                 tokenManager,
-                deconditionRepository
+                deconditionRepository,
+                remiseRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

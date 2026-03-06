@@ -245,4 +245,15 @@
     <!-- Sale Menu Selection -->
     <string name="vente_simplifiee">Vente Simplifiée</string>
     <string name="menu_complet">Menu Complet</string>
+
+    <!-- Remise (Predefined Discounts) -->
+    <string name="remise_choisir">Choisir une remise</string>
+    <string name="remise_aucune">Aucune remise disponible</string>
+    <string name="remise_icone">Icône remise</string>
+    <string name="remise_appliquee">Remise appliquée</string>
+    <string name="remise_supprimee">Remise supprimée</string>
+    <string name="remise_erreur">Erreur lors de l\'application de la remise</string>
+    <string name="remise_supprimer_confirmation">Voulez-vous supprimer la remise appliquée ?</string>
+    <string name="remise_modifier">Modifier la remise</string>
+    <string name="remise_supprimer">Supprimer</string>
 </resources>

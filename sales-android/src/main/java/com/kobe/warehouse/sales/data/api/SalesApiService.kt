@@ -296,5 +296,25 @@ interface SalesApiService {
     suspend fun transformAssurancePrevente(
         @Body saleId: SaleId
     ): Response<SaleId>
+
+    /**
+     * Add ayant droit (beneficiary) to assurance sale
+     * Backend endpoint: PUT /api/sales/assurance/ayant-droit
+     * @param updateSaleInfo UpdateSaleInfo with sale ID and ayant droit customer ID as value
+     */
+    @PUT("api/sales/assurance/ayant-droit")
+    suspend fun addAyantDroit(
+        @Body updateSaleInfo: UpdateSaleInfo
+    ): Response<Void>
+
+    /**
+     * Remove discount from assurance/carnet sale
+     * Backend endpoint: DELETE /api/sales/assurance/remove-remise/{id}/{saleDate}
+     */
+    @DELETE("api/sales/assurance/remove-remise/{id}/{saleDate}")
+    suspend fun removeDiscountFromAssuranceSale(
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String
+    ): Response<Void>
 }
 

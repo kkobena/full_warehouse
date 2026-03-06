@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:attr/colorBackground">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remise_choisir"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="?attr/colorPrimary"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Remise list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRemises"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="400dp"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tvEmptyRemises"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remise_aucune"
+        android:textAlignment="center"
+        android:textColor="@color/text_secondary"
+        android:padding="24dp"
+        android:visibility="gone" />
+
+</LinearLayout>

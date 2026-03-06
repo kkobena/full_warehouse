@@ -41,7 +41,7 @@ class InsuranceDataViewModel : ViewModel() {
 
     // ===== Prescription Data =====
 
-    private val _prescriptionType = MutableLiveData<String>("PRESCRIPTION")
+    private val _prescriptionType = MutableLiveData("PRESCRIPTION")
     val prescriptionType: LiveData<String> = _prescriptionType
 
     private val _prescriptionNumber = MutableLiveData<String>()

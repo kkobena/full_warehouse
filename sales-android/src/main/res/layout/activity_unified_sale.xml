@@ -206,6 +206,62 @@
 
             </LinearLayout>
 
+            <!-- Remise Action Row: chip showing current remise + add/edit/remove buttons -->
+            <LinearLayout
+                android:id="@+id/rowRemiseAction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="4dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <!-- Add remise button (shown when no remise) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddRemise"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="% Remise"
+                    android:textSize="12sp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="12dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:iconSize="14dp"
+                    app:cornerRadius="16dp" />
+
+                <!-- Current remise chip (shown when remise applied) -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCurrentRemise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:closeIconVisible="true"
+                    app:chipIcon="@drawable/ic_percentage"
+                    app:chipIconTint="@color/white"
+                    app:chipBackgroundColor="@color/success"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    tools:text="Remise A (10%)"
+                    tools:visibility="visible" />
+
+                <!-- Edit remise button (shown when remise applied) -->
+                <ImageButton
+                    android:id="@+id/btnEditRemise"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_edit"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/remise_modifier"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
             <!-- Tiers Payant Details Container (dynamic rows per insurer) -->
             <LinearLayout
                 android:id="@+id/containerTiersPayantDetails"

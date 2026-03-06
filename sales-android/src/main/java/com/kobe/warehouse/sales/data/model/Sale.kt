@@ -126,7 +126,10 @@ VO- Vente Ordonnée - ASSURANCE/CARNET
   val differe: Boolean = false,
 
   @SerializedName("amountToBePaid")
-  var amountToBePaid: Int = 0
+  var amountToBePaid: Int = 0,
+
+  @SerializedName("remise")
+  val remise: Remise? = null
 
   ) : Parcelable {
 

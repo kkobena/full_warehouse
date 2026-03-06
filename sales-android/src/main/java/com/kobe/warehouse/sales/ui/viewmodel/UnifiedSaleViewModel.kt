@@ -15,14 +15,17 @@ import com.kobe.warehouse.sales.data.model.Decondition
 import com.kobe.warehouse.sales.data.model.Payment
 import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
+import com.kobe.warehouse.sales.data.model.Remise
 import com.kobe.warehouse.sales.data.repository.DeconditionRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
+import com.kobe.warehouse.sales.data.repository.RemiseRepository
 import com.kobe.warehouse.sales.data.repository.SalesApiException
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.data.model.SalesStatut
 import com.kobe.warehouse.sales.data.model.TiersPayant
+import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.launch
 import java.net.ConnectException
@@ -61,7 +64,8 @@ class UnifiedSaleViewModel(
     private val customerRepository: CustomerRepository,
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
-    private val deconditionRepository: DeconditionRepository? = null
+    private val deconditionRepository: DeconditionRepository? = null,
+    private val remiseRepository: RemiseRepository? = null
 ) : ViewModel(), ISaleViewModel {
 
     // ===== Backend Stock Error Events =====
@@ -437,6 +441,7 @@ class UnifiedSaleViewModel(
 
                 result.fold(
                     onSuccess = { updatedSale ->
+                        _currentRemise.value = updatedSale.remise
                         _currentSale.value = updatedSale
                         _products.value = emptyList() // Clear search
                         _errorMessage.value = "Produit ajouté"
@@ -718,18 +723,21 @@ class UnifiedSaleViewModel(
             return
         }
         val saleType = _currentSaleType.value
-        val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
         val hasSaleId = currentSale.id != null && currentSale.saleId?.saleDate != null
 
-        if (isVO && hasSaleId) {
-            // VO sales: call backend then reload full sale
+        if (hasSaleId) {
+            // Sale exists on backend: call backend then reload full sale
             val updatedLine = line.copy(
                 quantityRequested = newQuantity,
                 quantitySold = newQuantity,
                 salesAmount = newQuantity * line.regularUnitPrice
             )
             viewModelScope.launch {
-                val natureVente = if (saleType is SaleType.Assurance) "ASSURANCE" else "CARNET"
+                val natureVente = when (saleType) {
+                    is SaleType.Assurance -> "ASSURANCE"
+                    is SaleType.Carnet -> "CARNET"
+                    else -> "COMPTANT"
+                }
                 salesRepository.updateItemQuantity(updatedLine, natureVente).fold(
                     onSuccess = {
                         reloadCurrentSale()
@@ -740,7 +748,7 @@ class UnifiedSaleViewModel(
                 )
             }
         } else {
-            // Comptant or local sale: update locally
+            // Local sale (not yet saved): update locally
             val updatedLines = currentSale.salesLines.map { existingLine ->
                 if (existingLine.produitId == line.produitId) {
                     existingLine.copy(
@@ -766,12 +774,11 @@ class UnifiedSaleViewModel(
             return
         }
         val saleType = _currentSaleType.value
-        val isVO = saleType is SaleType.Assurance || saleType is SaleType.Carnet
         val saleLineId = line.saleLineId?.id
         val saleDate = currentSale.saleId?.saleDate
 
-        if (isVO && saleLineId != null && saleDate != null) {
-            // VO sales: call backend then reload full sale
+        if (saleLineId != null && saleDate != null) {
+            // Sale exists on backend: call backend then reload full sale
             viewModelScope.launch {
                 salesRepository.deleteItem(saleLineId, saleDate).fold(
                     onSuccess = {
@@ -783,7 +790,7 @@ class UnifiedSaleViewModel(
                 )
             }
         } else {
-            // Comptant or local sale: update locally
+            // Local sale (not yet saved): update locally
             val updatedLines = currentSale.salesLines.filter { it.produitId != line.produitId }
             val newTotal = updatedLines.sumOf { it.salesAmount }
             _currentSale.value = currentSale.copy(
@@ -805,6 +812,7 @@ class UnifiedSaleViewModel(
         viewModelScope.launch {
             salesRepository.getSaleById(saleId, saleDate).fold(
                 onSuccess = { reloadedSale ->
+                    _currentRemise.value = reloadedSale.remise
                     _currentSale.value = reloadedSale
                 },
                 onFailure = { error ->
@@ -951,6 +959,9 @@ class UnifiedSaleViewModel(
 
                     // Restore tiers payants from sale
                     _clientTiersPayants.value = sale.tiersPayants?.toList() ?: emptyList()
+
+                    // Restore remise from sale
+                    _currentRemise.value = sale.remise
 
                     // Set currentSale last — its observer uses currentSaleType for TP display
                     _currentSale.value = sale
@@ -1111,6 +1122,8 @@ class UnifiedSaleViewModel(
         // Reset plafond warning state
         plafondAlreadyShown = false
         _plafondWarning.value = null
+        // Reset remise
+        clearRemise()
     }
 
     /**
@@ -1333,11 +1346,116 @@ class UnifiedSaleViewModel(
     val selectedAyantDroit: LiveData<Customer?> = _selectedAyantDroit
 
     fun selectAyantDroit(ayantDroit: Customer) {
-        _selectedAyantDroit.value = ayantDroit
+        val currentSale = _currentSale.value ?: return
+        val saleId = currentSale.saleId ?: return
+
+        viewModelScope.launch {
+            val updateSaleInfo = UpdateSaleInfo(
+                id = saleId,
+                value = ayantDroit.id
+            )
+            salesRepository.addAyantDroitToSale(updateSaleInfo).fold(
+                onSuccess = {
+                    _selectedAyantDroit.value = ayantDroit
+                    reloadCurrentSale()
+                },
+                onFailure = { error ->
+                    postServerError(error, "Erreur ajout ayant droit")
+                }
+            )
+        }
     }
 
     fun removeAyantDroit() {
         _selectedAyantDroit.value = null
+    }
+
+    // ========================================
+    // Remise (Predefined Discount) Management
+    // ========================================
+
+    private val _remises = MutableLiveData<List<Remise>>()
+    val remises: LiveData<List<Remise>> = _remises
+
+    private val _currentRemise = MutableLiveData<Remise?>()
+    val currentRemise: LiveData<Remise?> = _currentRemise
+
+    /**
+     * Load available remises from backend (cached)
+     */
+    fun loadRemises() {
+        if (remiseRepository == null) return
+        viewModelScope.launch {
+            remiseRepository.getRemises().fold(
+                onSuccess = { _remises.value = it },
+                onFailure = { _remises.value = emptyList() }
+            )
+        }
+    }
+
+    /**
+     * Apply a predefined remise to the current sale
+     * Calls backend PUT /api/sales/{comptant|assurance}/add-remise
+     * Then reloads sale to get recalculated amounts
+     */
+    fun applyRemise(remise: Remise) {
+        val currentSale = _currentSale.value ?: return
+        val saleId = currentSale.saleId ?: return
+
+        val updateSaleInfo = UpdateSaleInfo(id = saleId, value = remise.id)
+        val saleType = when (_currentSaleType.value) {
+            is SaleType.Assurance -> "ASSURANCE"
+            is SaleType.Carnet -> "CARNET"
+            else -> "COMPTANT"
+        }
+
+        viewModelScope.launch {
+            salesRepository.addDiscountToSale(updateSaleInfo, saleType).fold(
+                onSuccess = {
+                    _currentRemise.value = remise
+                    reloadCurrentSale()
+                },
+                onFailure = { error ->
+                    postServerError(error, "Erreur application remise")
+                }
+            )
+        }
+    }
+
+    /**
+     * Remove the current remise from the sale
+     * Calls backend DELETE /api/sales/{comptant|assurance}/remove-remise/{id}/{date}
+     */
+    fun removeRemise() {
+        val currentSale = _currentSale.value ?: return
+        val saleId = currentSale.id ?: return
+        val saleDate = currentSale.saleId?.saleDate ?: return
+
+        val isComptant = _currentSaleType.value is SaleType.Comptant
+
+        viewModelScope.launch {
+            val result = if (isComptant) {
+                salesRepository.removeDiscountFromSale(saleId, saleDate)
+            } else {
+                salesRepository.removeDiscountFromAssuranceSale(saleId, saleDate)
+            }
+            result.fold(
+                onSuccess = {
+                    _currentRemise.value = null
+                    reloadCurrentSale()
+                },
+                onFailure = { error ->
+                    postServerError(error, "Erreur suppression remise")
+                }
+            )
+        }
+    }
+
+    /**
+     * Clear remise state (called when resetting sale)
+     */
+    fun clearRemise() {
+        _currentRemise.value = null
     }
 
     // ========================================

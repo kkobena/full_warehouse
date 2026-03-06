@@ -592,6 +592,45 @@ class SalesRepository(
     }
 
     /**
+     * Remove discount from assurance/carnet sale
+     */
+    suspend fun removeDiscountFromAssuranceSale(id: Long, saleDate: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.removeDiscountFromAssuranceSale(id, saleDate)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Add ayant droit (beneficiary) to assurance sale
+     * @param updateSaleInfo UpdateSaleInfo with sale ID and ayant droit customer ID as value
+     */
+    suspend fun addAyantDroitToSale(updateSaleInfo: UpdateSaleInfo): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.addAyantDroit(updateSaleInfo)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Parse backend error response
      * Extracts the user-friendly error message from backend error body
      */

@@ -1476,7 +1476,7 @@ class UnifiedSaleViewModel(
                 }
             }
             is SaleType.Carnet -> {
-                // For Carnet: Update customer.tiersPayants (pre-configured)
+                // For Carnet: Update both customer.tiersPayants and _clientTiersPayants
                 val customer = _selectedCustomer.value ?: return
                 val updatedTiersPayants = customer.tiersPayants.map {
                     if (it.tiersPayantId == tiersPayant.tiersPayantId) {
@@ -1485,8 +1485,17 @@ class UnifiedSaleViewModel(
                         it
                     }
                 }
-                // Update customer with new tiersPayants list
                 _selectedCustomer.value = customer.copy(tiersPayants = updatedTiersPayants)
+
+                // Also update _clientTiersPayants (used when submitting sale to backend)
+                val current = _clientTiersPayants.value ?: emptyList()
+                _clientTiersPayants.value = current.map {
+                    if (it.tiersPayantId == tiersPayant.tiersPayantId) {
+                        it.copy(numBon = numBon)
+                    } else {
+                        it
+                    }
+                }
             }
             else -> {
                 // COMPTANT - no tiers payants

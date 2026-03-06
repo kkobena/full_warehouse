@@ -2,12 +2,15 @@ package com.kobe.warehouse.sales.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.api.UserApiService
 import com.kobe.warehouse.sales.data.repository.SalesRepository
@@ -186,17 +189,29 @@ class FullSaleHomeActivity : BaseActivity(), PreventeFragment.OnTabSwitchListene
         startActivity(intent)
     }
 
-    /**
-     * Refresh when returning from sale activity
-     */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_fullsale_home, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_refresh -> {
+                refreshCurrentTab()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun refreshCurrentTab() {
+        viewModel.refreshOngoingSales()
+        viewModel.refreshPreventes()
+    }
+
     override fun onResume() {
         super.onResume()
-        // Refresh current tab data
-        val currentTab = binding.viewPager.currentItem
-        when (currentTab) {
-            0 -> viewModel.refreshOngoingSales()
-            1 -> viewModel.refreshPreventes()
-        }
+        refreshCurrentTab()
     }
 
     /**

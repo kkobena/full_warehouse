@@ -811,6 +811,12 @@ public class SaleDataService {
                     .setName(tiersPayant.getName())
                     .setId(tiersPayant.getId())
                     .setFullName(tiersPayant.getFullName()));
+                if (c.getPriorite() == PrioriteTiersPayant.R0) {
+                    assuredCustomer.setPriorite(PrioriteTiersPayant.R0);
+                    assuredCustomer.setTaux(c.getTaux());
+                    assuredCustomer.setNum(c.getNum());
+
+                }
 
                 assuredCustomer.getTiersPayants().add(tp);
             });

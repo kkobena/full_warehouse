@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -67,13 +68,11 @@ public interface SaleService {
 
     void removeRemiseFromCashSale(SaleId saleId);
 
-    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
-                                                                         LocalDate saleDate);
+    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
     void upddateCashSaleAmounts(CashSale c);
 
-    void upddateCashSaleAmountsOnRemovingItem(CashSale c,
-                                              com.kobe.warehouse.domain.SalesLine saleLine);
+    void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine);
 
     void savePrevente(CashSaleDTO dto, boolean transform);
 

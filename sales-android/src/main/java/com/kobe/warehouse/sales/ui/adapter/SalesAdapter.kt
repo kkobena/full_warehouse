@@ -44,12 +44,21 @@ class SalesAdapter(
         private val tvCustomerName: TextView = itemView.findViewById(R.id.tvCustomerName)
         private val tvTotalAmount: TextView = itemView.findViewById(R.id.tvTotalAmount)
         private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
+        private val tvSaleType: TextView = itemView.findViewById(R.id.tvSaleType)
 
         fun bind(sale: Sale) {
             tvTransactionNumber.text = sale.numberTransaction
             tvUpdatedDate.text = sale.getFormattedUpdatedDate()
-            tvCustomerName.text = sale.getCustomerName()
+            if (sale.customer != null) {
+                tvCustomerName.text = sale.customer.getDisplayName()
+                tvCustomerName.visibility = View.VISIBLE
+            } else {
+                tvCustomerName.visibility = View.GONE
+            }
             tvTotalAmount.text = sale.getFormattedSalesAmount()
+
+            // Display sale type badge
+            bindSaleTypeBadge(sale.natureVente)
 
             // Display status badge
             bindStatusBadge(sale.statut)
@@ -62,6 +71,28 @@ class SalesAdapter(
                 cardView.setOnLongClickListener {
                     onSaleDelete.invoke(sale)
                     true
+                }
+            }
+        }
+
+        private fun bindSaleTypeBadge(natureVente: String) {
+            val context = itemView.context
+            tvSaleType.setBackgroundResource(R.drawable.bg_badge_sale_type)
+            when (natureVente) {
+                "ASSURANCE" -> {
+                    tvSaleType.text = "Assurance"
+                    tvSaleType.background.setTint(ContextCompat.getColor(context, R.color.badge_assurance_bg))
+                    tvSaleType.setTextColor(ContextCompat.getColor(context, R.color.badge_assurance_text))
+                }
+                "CARNET" -> {
+                    tvSaleType.text = "Carnet"
+                    tvSaleType.background.setTint(ContextCompat.getColor(context, R.color.badge_carnet_bg))
+                    tvSaleType.setTextColor(ContextCompat.getColor(context, R.color.badge_carnet_text))
+                }
+                else -> {
+                    tvSaleType.text = "Comptant"
+                    tvSaleType.background.setTint(ContextCompat.getColor(context, R.color.badge_comptant_bg))
+                    tvSaleType.setTextColor(ContextCompat.getColor(context, R.color.badge_comptant_text))
                 }
             }
         }

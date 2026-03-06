@@ -62,18 +62,39 @@
 
         </LinearLayout>
 
-        <!-- Updated Date -->
-        <TextView
-            android:id="@+id/tvUpdatedDate"
-            android:layout_width="wrap_content"
+        <!-- Date + Sale Type Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
-            android:drawablePadding="4dp"
-            app:drawableStartCompat="@drawable/ic_clock"
-            app:drawableTint="@color/text_secondary"
-            tools:text="19/11/2025 10:30" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <!-- Updated Date -->
+            <TextView
+                android:id="@+id/tvUpdatedDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:drawablePadding="4dp"
+                app:drawableStartCompat="@drawable/ic_clock"
+                app:drawableTint="@color/text_secondary"
+                tools:text="19/11/2025 10:30" />
+
+            <!-- Sale Type Badge -->
+            <TextView
+                android:id="@+id/tvSaleType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="Assurance" />
+
+        </LinearLayout>
 
         <!-- Customer Name -->
         <TextView

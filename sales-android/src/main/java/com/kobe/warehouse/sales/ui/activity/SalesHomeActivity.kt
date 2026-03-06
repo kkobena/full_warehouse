@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.repository.SalesRepository
+import android.view.Menu
+import android.view.MenuItem
+import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.databinding.ActivitySalesHomeBinding
 import com.kobe.warehouse.sales.ui.adapter.SalesAdapter
 import com.kobe.warehouse.sales.ui.viewmodel.SalesHomeViewModel
@@ -187,12 +190,23 @@ class SalesHomeActivity : BaseActivity() {
         startActivity(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Refresh sales list when returning to this activity
-        viewModel.refresh()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_sales_home, menu)
+        return true
     }
 
-    // Note: Logout menu is inherited from BaseActivity
-    // All authenticated activities automatically get the logout option
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_refresh -> {
+                viewModel.refresh()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refresh()
+    }
 }

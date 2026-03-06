@@ -56,6 +56,14 @@
     <!-- Border Color -->
     <color name="border_color">#D1D5DB</color>
 
+    <!-- Sale Type Badge Colors -->
+    <color name="badge_comptant_bg">#E8F4F8</color>
+    <color name="badge_comptant_text">#4A7189</color>
+    <color name="badge_assurance_bg">#D1ECF1</color>
+    <color name="badge_assurance_text">#0C5460</color>
+    <color name="badge_carnet_bg">#D4EDDA</color>
+    <color name="badge_carnet_text">#155724</color>
+
     <!-- Menu Selection Cards - Professional Theme -->
     <color name="card_simple_sales_bg">#D1ECF1</color>         <!-- Light Cyan -->
     <color name="card_simple_sales_text">#0C4A6E</color>       <!-- Dark Blue Text -->

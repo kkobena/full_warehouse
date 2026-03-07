@@ -799,6 +799,7 @@ public class SaleDataService {
                 tp.setNum(c.getNum());
                 tp.setTaux(c.getTaux());
                 tp.setTiersPayantFullName(tiersPayant.getFullName());
+                tp.setTiersPayantName(tiersPayant.getName());
                 tp.setPriorite(c.getPriorite());
                 tp.setCategorie(c.getPriorite().getValue());
                 tp.setStatut(c.getStatut());

@@ -7,14 +7,14 @@ logging:
     org.springframework: WARN
 
     # === Hibernate / JPA ===
-    org.hibernate: WARN
-    org.hibernate.SQL: OFF
-    org.hibernate.type.descriptor.sql: OFF
-    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.hibernate: TRACE
+    org.hibernate.SQL: TRACE
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
     # === Transactions ===
-    org.springframework.transaction: OFF
-    org.springframework.orm.jpa: OFF
+    org.springframework.transaction: TRACE
+    org.springframework.orm.jpa: TRACE
 
     # === RMI / JMX (inutile en prod) ===
     javax.management.remote.rmi: OFF

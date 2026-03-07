@@ -47,6 +47,7 @@ import com.kobe.warehouse.sales.utils.TokenManager
 import com.kobe.warehouse.sales.utils.observeOnce
 import com.kobe.warehouse.sales.utils.onTextChangedDebounced
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -1822,17 +1823,60 @@ class UnifiedSaleActivity : AppCompatActivity() {
             return
         }
 
-        val names = availableTp.map { it.tiersPayantName ?: "Tiers payant #${it.tiersPayantId}" }.toTypedArray()
+        val recyclerView = RecyclerView(this).apply {
+            layoutManager = LinearLayoutManager(this@UnifiedSaleActivity)
+            setPadding(16, 8, 16, 8)
+        }
 
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Ajouter un tiers payant")
-            .setItems(names) { _, which ->
-                val selected = availableTp[which]
-                viewModel.addTiersPayant(selected)
-                Toast.makeText(this, "Tiers payant ajouté", Toast.LENGTH_SHORT).show()
-            }
+            .setView(recyclerView)
             .setNegativeButton("Annuler", null)
-            .show()
+            .create()
+
+        recyclerView.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+                val view = layoutInflater.inflate(R.layout.item_tiers_payant_select, parent, false)
+                return object : RecyclerView.ViewHolder(view) {}
+            }
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val tp = availableTp[position]
+                val view = holder.itemView
+
+                view.findViewById<TextView>(R.id.tvTpName).text =
+                    tp.tiersPayantName ?: "Tiers payant #${tp.tiersPayantId}"
+
+                val tvNum = view.findViewById<TextView>(R.id.tvTpNum)
+                if (!tp.num.isNullOrEmpty()) {
+                    tvNum.text = "N\u00b0 ${tp.num}"
+                    tvNum.isVisible = true
+                } else {
+                    tvNum.isVisible = false
+                }
+
+                view.findViewById<TextView>(R.id.tvTpTaux).text = "${tp.taux}%"
+
+                val chipRang = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipTpRang)
+                if (tp.priorite != null) {
+                    chipRang.text = tp.priorite.name
+                    chipRang.isVisible = true
+                } else {
+                    chipRang.isVisible = false
+                }
+
+                view.setOnClickListener {
+                    viewModel.addTiersPayant(tp)
+                    Toast.makeText(this@UnifiedSaleActivity, "Tiers payant ajouté", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+            }
+
+            override fun getItemCount() = availableTp.size
+        }
+
+        dialog.show()
     }
 
     /**

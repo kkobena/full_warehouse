@@ -26,6 +26,12 @@ class CustomerSelectionViewModel(
     private val _isSearching = MutableLiveData(false)
     val isSearching: LiveData<Boolean> = _isSearching
 
+    private var typeTiersPayant: String? = null
+
+    fun setTypeTiersPayant(type: String?) {
+        typeTiersPayant = type
+    }
+
     fun searchCustomers(query: String) {
         if (query.length < 3) {
             _customers.value = emptyList()
@@ -34,7 +40,7 @@ class CustomerSelectionViewModel(
 
         _isSearching.value = true
         viewModelScope.launch {
-            customerRepository.searchAssuredCustomers(query).fold(
+            customerRepository.searchAssuredCustomers(query, typeTiersPayant).fold(
                 onSuccess = { customerList ->
                     _customers.value = customerList
                     _isSearching.value = false

@@ -188,8 +188,13 @@ class UnifiedSaleViewModel(
         }
 
         _isSearchingCustomer.value = true
+        val typeTiersPayant = when (_currentSaleType.value) {
+            is SaleType.Assurance -> "ASSURANCE"
+            is SaleType.Carnet -> "CARNET"
+            else -> null
+        }
         viewModelScope.launch {
-            customerRepository.searchAssuredCustomers(query).fold(
+            customerRepository.searchAssuredCustomers(query, typeTiersPayant).fold(
                 onSuccess = { customers ->
                     _customerSearchResults.value = customers
                     _isSearchingCustomer.value = false
@@ -1504,29 +1509,101 @@ class UnifiedSaleViewModel(
     }
 
     fun updateTiersPayantTaux(tiersPayant: ClientTiersPayant, newTaux: Int) {
-        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
-        val current = _clientTiersPayants.value ?: emptyList()
-        _clientTiersPayants.value = current.map {
-            if (it.tiersPayantId == tiersPayant.tiersPayantId) {
-                it.copy(taux = newTaux)
-            } else {
-                it
+        val currentSale = _currentSale.value
+        val saleId = currentSale?.saleId
+
+        if (saleId != null && saleId.id > 0 && tiersPayant.id != null) {
+            _isLoading.value = true
+            viewModelScope.launch {
+                salesRepository.updateTiersPayantTaux(saleId, tiersPayant.id.toInt(), newTaux).fold(
+                    onSuccess = {
+                        salesRepository.getSaleById(saleId.id, saleId.saleDate).fold(
+                            onSuccess = { refreshedSale ->
+                                _currentSale.value = refreshedSale
+                                _clientTiersPayants.value = refreshedSale.tiersPayants ?: emptyList()
+                            },
+                            onFailure = { error -> postServerError(error, "Erreur rechargement vente") }
+                        )
+                        _isLoading.value = false
+                    },
+                    onFailure = { error ->
+                        postServerError(error, "Erreur modification taux")
+                        _isLoading.value = false
+                    }
+                )
+            }
+        } else {
+            val current = _clientTiersPayants.value ?: emptyList()
+            _clientTiersPayants.value = current.map {
+                if (it.tiersPayantId == tiersPayant.tiersPayantId) {
+                    it.copy(taux = newTaux)
+                } else {
+                    it
+                }
             }
         }
     }
 
     fun removeTiersPayant(tiersPayant: ClientTiersPayant) {
-        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
-        val current = _clientTiersPayants.value ?: emptyList()
-        _clientTiersPayants.value = current.filter {
-            it.tiersPayantId != tiersPayant.tiersPayantId
+        val currentSale = _currentSale.value
+        val saleId = currentSale?.saleId
+
+        if (saleId != null && saleId.id > 0 && tiersPayant.id != null) {
+            _isLoading.value = true
+            viewModelScope.launch {
+                salesRepository.removeTiersPayantFromSale(tiersPayant.id, saleId.id, saleId.saleDate).fold(
+                    onSuccess = {
+                        salesRepository.getSaleById(saleId.id, saleId.saleDate).fold(
+                            onSuccess = { refreshedSale ->
+                                _currentSale.value = refreshedSale
+                                _clientTiersPayants.value = refreshedSale.tiersPayants ?: emptyList()
+                            },
+                            onFailure = { error -> postServerError(error, "Erreur rechargement vente") }
+                        )
+                        _isLoading.value = false
+                    },
+                    onFailure = { error ->
+                        postServerError(error, "Erreur suppression tiers payant")
+                        _isLoading.value = false
+                    }
+                )
+            }
+        } else {
+            val current = _clientTiersPayants.value ?: emptyList()
+            _clientTiersPayants.value = current.filter {
+                it.tiersPayantId != tiersPayant.tiersPayantId
+            }
         }
     }
 
     fun addTiersPayant(tiersPayant: ClientTiersPayant) {
-        // Use _clientTiersPayants (sale-level) instead of _selectedCustomer to avoid circular observer loop
-        val current = _clientTiersPayants.value ?: emptyList()
-        _clientTiersPayants.value = current + tiersPayant
+        val currentSale = _currentSale.value
+        val saleId = currentSale?.saleId
+
+        if (saleId != null && saleId.id > 0) {
+            _isLoading.value = true
+            viewModelScope.launch {
+                salesRepository.addTiersPayantToSale(saleId.id, saleId.saleDate, tiersPayant).fold(
+                    onSuccess = {
+                        salesRepository.getSaleById(saleId.id, saleId.saleDate).fold(
+                            onSuccess = { refreshedSale ->
+                                _currentSale.value = refreshedSale
+                                _clientTiersPayants.value = refreshedSale.tiersPayants ?: emptyList()
+                            },
+                            onFailure = { error -> postServerError(error, "Erreur rechargement vente") }
+                        )
+                        _isLoading.value = false
+                    },
+                    onFailure = { error ->
+                        postServerError(error, "Erreur ajout tiers payant")
+                        _isLoading.value = false
+                    }
+                )
+            }
+        } else {
+            val current = _clientTiersPayants.value ?: emptyList()
+            _clientTiersPayants.value = current + tiersPayant
+        }
     }
 
     // ========================================

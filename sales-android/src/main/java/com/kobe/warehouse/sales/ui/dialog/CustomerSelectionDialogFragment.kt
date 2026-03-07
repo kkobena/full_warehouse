@@ -13,6 +13,7 @@ import com.kobe.warehouse.sales.data.api.CustomerApiService
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.databinding.DialogCustomerSelectionBinding
 import com.kobe.warehouse.sales.ui.adapter.CustomerSearchAdapter
+import com.kobe.warehouse.sales.data.model.SaleType
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
@@ -105,7 +106,7 @@ class CustomerSelectionDialogFragment : DialogFragment() {
                 // Clear results
                 customerSearchAdapter.submitList(emptyList())
                 binding.tvEmptyState.visibility = View.VISIBLE
-                binding.tvEmptyState.text = "Entrez au moins 2 caractères pour rechercher"
+                binding.tvEmptyState.text = "Entrez au moins 3 caractères pour rechercher"
             }
         }
     }
@@ -116,9 +117,7 @@ class CustomerSelectionDialogFragment : DialogFragment() {
         }
 
         binding.btnCreateCustomer.setOnClickListener {
-            // Open create customer dialog
             val createDialog = UninsuredCustomerCreateDialogFragment.newInstance { createdCustomer ->
-                // Customer created successfully, select it and close
                 saleViewModel.selectCustomer(createdCustomer)
                 dismiss()
             }
@@ -131,7 +130,12 @@ class CustomerSelectionDialogFragment : DialogFragment() {
         binding.tvEmptyState.visibility = View.GONE
 
         coroutineScope.launch {
-            val result = customerRepository.searchAssuredCustomers(query)
+            val typeTiersPayant = when (saleViewModel.currentSaleType.value) {
+                is SaleType.Assurance -> "ASSURANCE"
+                is SaleType.Carnet -> "CARNET"
+                else -> null
+            }
+            val result = customerRepository.searchAssuredCustomers(query, typeTiersPayant)
 
             binding.progressBar.visibility = View.GONE
 

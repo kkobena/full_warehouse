@@ -758,6 +758,18 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository.save(p);
     }
 
+    @Override
+    public void updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux)
+        throws PlafondVenteException {
+        var result = thirdPartyClientManager.updateTiersPayantTaux(clientTiersPayantId, saleId, newTaux);
+        if (result.sale() != null) {
+            this.displayNet(result.sale().getPartAssure());
+            if (StringUtils.hasLength(result.message())) {
+                throw new PlafondVenteException(new ThirdPartySaleDTO(result.sale()), result.message());
+            }
+        }
+    }
+
     private void updateThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
                                           AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();

@@ -4,6 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.kobe.warehouse.sales.data.api.SalesApiService
+import com.kobe.warehouse.sales.data.api.UpdateTiersPayantTauxRequest
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.UpdateSaleInfo
@@ -618,6 +620,55 @@ class SalesRepository(
         return withContext(Dispatchers.IO) {
             try {
                 val response = salesApiService.addAyantDroit(updateSaleInfo)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun addTiersPayantToSale(saleId: Long, saleDate: String, clientTiersPayant: ClientTiersPayant): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.addTiersPayantToSale(saleId, saleDate, clientTiersPayant)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun updateTiersPayantTaux(saleId: SaleId, clientTiersPayantId: Int, taux: Int): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = UpdateTiersPayantTauxRequest(saleId, clientTiersPayantId, taux)
+                val response = salesApiService.updateTiersPayantTaux(request)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun removeTiersPayantFromSale(tiersPayantId: Long, saleId: Long, saleDate: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = salesApiService.removeTiersPayantFromSale(tiersPayantId, saleId, saleDate)
                 if (response.isSuccessful) {
                     Result.success(Unit)
                 } else {

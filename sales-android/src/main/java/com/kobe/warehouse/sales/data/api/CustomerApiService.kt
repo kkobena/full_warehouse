@@ -22,12 +22,13 @@ interface CustomerApiService {
 
     /**
      * Search assured customers only
-     * Backend: GET /customers/assured?search=...
+     * Backend: GET /customers/assured?search=...&typeTiersPayant=...
      */
     @GET("api/customers/assured")
     suspend fun searchAssuredCustomers(
         @Query("search") search: String,
-        @Query("size") size: Int = 20
+        @Query("typeTiersPayant") typeTiersPayant: String? = null,
+        @Query("size") size: Int = 5
     ): Response<List<Customer>>
 
     /**

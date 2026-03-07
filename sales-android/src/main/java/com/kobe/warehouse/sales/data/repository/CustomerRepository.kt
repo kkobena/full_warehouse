@@ -37,10 +37,10 @@ class CustomerRepository(
      * Search assured customers only
      * Backend: GET /customers/assured?search=...
      */
-    suspend fun searchAssuredCustomers(search: String, size: Int = 10): Result<List<Customer>> {
+    suspend fun searchAssuredCustomers(search: String, typeTiersPayant: String? = null, size: Int = 5): Result<List<Customer>> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = customerApiService.searchAssuredCustomers(search, size)
+                val response = customerApiService.searchAssuredCustomers(search, typeTiersPayant, size)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {

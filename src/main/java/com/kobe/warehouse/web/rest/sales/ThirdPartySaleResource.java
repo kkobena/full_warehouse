@@ -11,6 +11,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
+import com.kobe.warehouse.service.dto.records.UpdateTiersPayantTauxInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
@@ -325,5 +326,12 @@ public class ThirdPartySaleResource {
         return ResponseEntity.accepted().build();
     }
 
-
+    @PutMapping("/sales/assurance/update-tiers-payant-taux")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public ResponseEntity<Void> updateTiersPayantTaux(
+        @Valid @RequestBody UpdateTiersPayantTauxInfo request
+    ) {
+        saleService.updateTiersPayantTaux(request.clientTiersPayantId(), request.saleId(), request.taux());
+        return ResponseEntity.accepted().build();
+    }
 }

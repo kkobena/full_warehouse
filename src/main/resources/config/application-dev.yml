@@ -30,9 +30,9 @@ spring:
     graphiql:
       enabled: true
   devtools:
-    add-properties: true
+    add-properties: false
     restart:
-      enabled: true
+      enabled: false
   servlet:
     multipart:
       max-file-size: 10MB

@@ -205,6 +205,23 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
 
 
     @Override
+    public UpdateTiersPayantTauxResult updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux) {
+        Optional<ThirdPartySaleLine> saleLineOpt = thirdPartySaleLineService.findFirstByClientTiersPayantIdAndSaleId(
+            clientTiersPayantId, saleId
+        );
+
+        if (saleLineOpt.isPresent()) {
+            ThirdPartySaleLine thirdPartySaleLine = saleLineOpt.get();
+            thirdPartySaleLine.setTauxVente((short) newTaux);
+            thirdPartySaleLineService.save(thirdPartySaleLine);
+            ThirdPartySales thirdPartySales = thirdPartySaleLine.getSale();
+            String message = calculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
+            return new UpdateTiersPayantTauxResult(thirdPartySales, message);
+        }
+        return new UpdateTiersPayantTauxResult(null, null);
+    }
+
+    @Override
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
         return thirdPartySaleLineService.findAllBySaleId(saleId);
     }

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.sales.data.api
 
+import com.google.gson.annotations.SerializedName
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.SaleLine
@@ -316,5 +318,42 @@ interface SalesApiService {
         @Path("id") id: Long,
         @Path("saleDate") saleDate: String
     ): Response<Void>
+
+    /**
+     * Add complementary tiers payant to assurance sale
+     * Backend endpoint: PUT /api/sales/add-assurance/assurance/{id}/{saleDate}
+     */
+    @PUT("api/sales/add-assurance/assurance/{id}/{saleDate}")
+    suspend fun addTiersPayantToSale(
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String,
+        @Body clientTiersPayant: ClientTiersPayant
+    ): Response<Void>
+
+    /**
+     * Remove tiers payant from assurance sale
+     * Backend endpoint: DELETE /api/sales/remove-tiers-payant/assurance/{tiersPayantId}/{id}/{saleDate}
+     */
+    @DELETE("api/sales/remove-tiers-payant/assurance/{tiersPayantId}/{id}/{saleDate}")
+    suspend fun removeTiersPayantFromSale(
+        @Path("tiersPayantId") tiersPayantId: Long,
+        @Path("id") id: Long,
+        @Path("saleDate") saleDate: String
+    ): Response<Void>
+
+    /**
+     * Update tiers payant coverage rate on assurance sale
+     * Backend endpoint: PUT /api/sales/assurance/update-tiers-payant-taux
+     */
+    @PUT("api/sales/assurance/update-tiers-payant-taux")
+    suspend fun updateTiersPayantTaux(
+        @Body request: UpdateTiersPayantTauxRequest
+    ): Response<Void>
 }
+
+data class UpdateTiersPayantTauxRequest(
+    @SerializedName("saleId") val saleId: SaleId,
+    @SerializedName("clientTiersPayantId") val clientTiersPayantId: Int,
+    @SerializedName("taux") val taux: Int
+)
 

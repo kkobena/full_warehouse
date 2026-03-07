@@ -444,12 +444,17 @@ class UnifiedSaleActivity : AppCompatActivity() {
             if (::tiersPayantsAdapter.isInitialized && (saleType is SaleType.Assurance || saleType is SaleType.Carnet)) {
                 tiersPayantsAdapter.submitList(tiersPayants)
             }
-            // Update add button visibility based on remaining customer tiers payants
+            // Update add button visibility and listener based on remaining customer tiers payants
             val customer = viewModel.selectedCustomer.value
             if (customer != null) {
                 val selectedTpIds = tiersPayants.map { it.tiersPayantId }.toSet()
                 val hasMoreTp = customer.tiersPayants.any { it.tiersPayantId !in selectedTpIds }
                 binding.includeCustomerInfoDisplay.btnAddTiersPayant.isVisible = hasMoreTp
+                if (hasMoreTp) {
+                    binding.includeCustomerInfoDisplay.btnAddTiersPayant.setOnClickListener {
+                        showAddTiersPayantDialog(customer)
+                    }
+                }
             }
         }
 
@@ -1341,8 +1346,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 customerSearchAdapter.submitList(emptyList())
 
                 val query = binding.includeCustomerZone.etCustomerSearch.text.toString().trim()
-                if (query.length >= 2 && isExplicitCustomerSearch) {
-                    // Only show dialog on explicit search (Enter key or search icon)
+                if (query.length >= 2) {
                     binding.includeCustomerZone.tvCustomerSearchEmpty.isVisible = true
                     binding.includeCustomerZone.tvCustomerSearchEmpty.text =
                         "Aucun client trouvé pour \"$query\""

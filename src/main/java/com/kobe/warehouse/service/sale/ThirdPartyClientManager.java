@@ -109,6 +109,19 @@ public interface ThirdPartyClientManager {
     void saveAll(List<ThirdPartySaleLine> thirdPartySaleLines);
 
     /**
+     * Met à jour le taux de vente d'un tiers-payant sur une vente existante
+     * et recalcule les montants.
+     *
+     * @param clientTiersPayantId l'identifiant du client tiers-payant
+     * @param saleId              l'identifiant de la vente
+     * @param newTaux             le nouveau taux de couverture
+     * @return la vente mise à jour avec le message d'erreur éventuel
+     */
+    UpdateTiersPayantTauxResult updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux);
+
+    record UpdateTiersPayantTauxResult(ThirdPartySales sale, String message) {}
+
+    /**
      * Met à jour une ligne de tiers-payant existante.
      *
      * @param numBon              le nouveau numéro de bon

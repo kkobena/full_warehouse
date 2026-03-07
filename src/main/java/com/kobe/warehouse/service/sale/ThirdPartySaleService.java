@@ -107,7 +107,8 @@ public interface ThirdPartySaleService {
 
     void cloneDevis(SaleId saleId);
 
-    void addAyantDroitToSale(UpdateSaleInfo updateSaleInfo) ;
+    void addAyantDroitToSale(UpdateSaleInfo updateSaleInfo);
 
-
+    void updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux)
+        throws PlafondVenteException;
 }

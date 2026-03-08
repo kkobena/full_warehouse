@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { IStockAlert, StockAlertType } from 'app/shared/model/report/stock-alert.model';
+import { createRequestOptions } from 'app/shared/util/request-util';
 
 type EntityArrayResponseType = HttpResponse<IStockAlert[]>;
 type AlertCountResponseType = HttpResponse<Record<StockAlertType, number>>;
@@ -14,11 +15,12 @@ export class StockAlertReportService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Get stock alerts with optional filtering by alert types
+   * Get stock alerts with optional filtering by alert types and pagination
    */
-  getStockAlerts(types?: StockAlertType[]): Observable<EntityArrayResponseType> {
-    let params = new HttpParams();
-    if (types && types.length > 0) {
+  getStockAlerts(req?: { page?: number; size?: number; sort?: string[]; types?: StockAlertType[] }): Observable<EntityArrayResponseType> {
+    const { types, ...paginationParams } = req ?? {};
+    let params = createRequestOptions(paginationParams);
+    if (types?.length) {
       types.forEach(type => {
         params = params.append('types', type);
       });

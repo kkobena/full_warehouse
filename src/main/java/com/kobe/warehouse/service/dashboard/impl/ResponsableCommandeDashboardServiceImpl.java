@@ -9,6 +9,7 @@ import com.kobe.warehouse.service.report.StockAlertReportService;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
 
     @Override
     public StockAlertsDTO getStockAlerts() {
-        List<StockAlertDTO> stockAlerts = stockAlertReportService.getStockAlerts(null);
+        List<StockAlertDTO> stockAlerts = stockAlertReportService.getStockAlerts(null, Pageable.unpaged()).getContent();
         return mapper.toStockAlertsDTO(stockAlerts);
     }
 

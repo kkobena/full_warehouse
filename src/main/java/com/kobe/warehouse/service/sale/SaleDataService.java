@@ -61,7 +61,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -71,6 +70,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -282,7 +282,7 @@ public class SaleDataService {
     public List<SaleDTO> allPrevente(String query, String type, Integer userId,
                                      Set<SalesStatut> statuts,
                                      LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
-        if (StringUtils.isEmpty(type) || type.equals(EntityConstant.TOUT)) {
+        if (!StringUtils.hasLength(type) || type.equals(EntityConstant.TOUT)) {
             return allPreventes(query, userId, statuts, fromDate, toDate, excludeDepot);
         }
         if (type.equals(EntityConstant.VNO)) {
@@ -341,7 +341,7 @@ public class SaleDataService {
         Join<AppUser, Magasin> magasinJoin = userJoin.join(AppUser_.magasin);
         predicates.add(
             cb.equal(magasinJoin, getUser().getMagasin()));
-        if (StringUtils.isNotEmpty(query)) {
+        if (StringUtils.hasLength(query)) {
             query = query.toUpperCase() + "%";
             SetJoin<Sales, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
             Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
@@ -451,7 +451,7 @@ public class SaleDataService {
         conditions.add("m.id = :magasinId");
         params.put("magasinId", userMagasinId);
 
-        if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
+        if (StringUtils.hasLength(type) && !type.equals(EntityConstant.TOUT)) {
             conditions.add(type.equals(EntityConstant.VO)
                 ? "s.dtype = 'ThirdPartySales'" : "s.dtype = 'CashSale'");
         }
@@ -463,7 +463,7 @@ public class SaleDataService {
         }
 
         if (Boolean.TRUE.equals(global)) {
-            if (StringUtils.isNotEmpty(search)) {
+            if (StringUtils.hasLength(search)) {
                 conditions.add(
                     "EXISTS (SELECT 1 FROM sales_line sl" +
                         " JOIN produit p ON sl.produit_id = p.id" +
@@ -482,7 +482,7 @@ public class SaleDataService {
                 params.put("toHour", toHour + ":59");
             }
         } else {
-            if (StringUtils.isNotEmpty(search)) {
+            if (StringUtils.hasLength(search)) {
                 conditions.add("s.number_transaction LIKE :refSearch");
                 params.put("refSearch", search.toUpperCase() + "%");
             }
@@ -591,27 +591,27 @@ public class SaleDataService {
 
     private void buildDepotPredicatSaleLines(String query, CriteriaBuilder cb,
                                              List<Predicate> predicates, Root<VenteDepot> root) {
-        if (StringUtils.isNotEmpty(query)) {
-            if (StringUtils.isNotEmpty(query)) {
-                query = query.toUpperCase() + "%";
-                SetJoin<VenteDepot, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
-                Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
-                SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(
-                    Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
-                predicates.add(
-                    cb.or(
-                        cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
-                        cb.like(produitJoin.get(Produit_.codeEanLaboratoire), query),
-                        cb.like(fp.get(FournisseurProduit_.codeCip), query),
-                        cb.like(fp.get(FournisseurProduit_.codeEan), query)
-                    )
-                );
-            }
+
+        if (StringUtils.hasLength(query)) {
+            query = query.toUpperCase() + "%";
+            SetJoin<VenteDepot, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
+            Join<SalesLine, Produit> produitJoin = lineSetJoin.join(SalesLine_.produit);
+            SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(
+                Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            predicates.add(
+                cb.or(
+                    cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
+                    cb.like(produitJoin.get(Produit_.codeEanLaboratoire), query),
+                    cb.like(fp.get(FournisseurProduit_.codeCip), query),
+                    cb.like(fp.get(FournisseurProduit_.codeEan), query)
+                )
+            );
         }
+
     }
 
     private boolean isValidHour(String fromHour, String toHour) {
-        if (StringUtils.isEmpty(fromHour) || StringUtils.isEmpty(toHour)) {
+        if (!StringUtils.hasLength(fromHour) || !StringUtils.hasLength(toHour)) {
             return false;
         }
         return !fromHour.equals(DEFAULT_HEURE_DEBUT) && !toHour.equals(DEFAULT_HEURE_FIN);
@@ -751,13 +751,13 @@ public class SaleDataService {
                 break;
             }
         }
-        if (StringUtils.isEmpty(numBon) && !tpsLines.isEmpty()) {
+        if (!StringUtils.hasLength(numBon) && !tpsLines.isEmpty()) {
             numBon = tpsLines.getFirst().getNumBon();
         }
         AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
         AssuredCustomerDTO customer = new AssuredCustomerDTO(assuredCustomer);
         updateAssuranceInfo(customer, assuredCustomer);
-        if (StringUtils.isEmpty(num)) {
+        if (!StringUtils.hasLength(num)) {
             Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
             if (!CollectionUtils.isEmpty(clientTiersPayants)) {
                 Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()
@@ -768,8 +768,10 @@ public class SaleDataService {
                 }
             }
         }
+        if (!StringUtils.hasLength(customer.getNum())) {
+            customer.setNum(num);
+        }
 
-        customer.setNum(num);
         List<SaleLineDTO> salesLines = thirdPartySales.getSalesLines().stream()
             .map(SaleLineDTO::new)
             .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
@@ -816,6 +818,7 @@ public class SaleDataService {
                     assuredCustomer.setPriorite(PrioriteTiersPayant.R0);
                     assuredCustomer.setTaux(c.getTaux());
                     assuredCustomer.setNum(c.getNum());
+
 
                 }
 

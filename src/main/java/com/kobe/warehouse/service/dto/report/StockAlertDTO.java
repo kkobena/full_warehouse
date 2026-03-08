@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dto.report;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
+
 import java.time.LocalDate;
 
 public record StockAlertDTO(
@@ -11,9 +13,5 @@ public record StockAlertDTO(
     LocalDate expiryDate,
     StockAlertType alertType
 ) {
-    public enum StockAlertType {
-        RUPTURE,    // Out of stock (quantity = 0)
-        ALERTE,     // Low stock (quantity < minimum threshold)
-        PEREMPTION  // Near expiration (< 3 months)
-    }
+
 }

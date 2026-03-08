@@ -1,23 +1,27 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface StockAlertReportService {
     /**
-     * Get all stock alerts (out of stock, low stock, near expiration)
+     * Get stock alerts (out of stock, low stock, near expiration)
      *
      * @param alertTypes Optional list of alert types to filter by
-     * @return List of stock alerts
+     * @param pageable   Pagination information
+     * @return Page of stock alerts
      */
-    List<StockAlertDTO> getStockAlerts(List<StockAlertDTO.StockAlertType> alertTypes);
+    Page<StockAlertDTO> getStockAlerts(List<StockAlertType> alertTypes, Pageable pageable);
 
     /**
      * Get count of stock alerts by type
      *
      * @return Map of alert type to count
      */
-    Map<StockAlertDTO.StockAlertType, Long> getStockAlertsCount();
+    Map<StockAlertType, Long> getStockAlertsCount();
 
 }

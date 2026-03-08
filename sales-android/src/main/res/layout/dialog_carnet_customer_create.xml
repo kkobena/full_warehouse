@@ -3,19 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:titleTextColor="?attr/colorOnPrimary"
-            app:navigationIconTint="?attr/colorOnPrimary" />
+            android:background="@color/primary"
+            app:titleTextColor="@color/white"
+            app:navigationIconTint="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,7 +32,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="8dp"
-            android:paddingBottom="60dp">
+            android:paddingBottom="80dp">
 
             <!-- SECTION 1: Identité Client -->
             <TextView
@@ -39,7 +42,25 @@
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:textColor="?attr/colorPrimary"
                 android:layout_marginBottom="4dp" />
+          <!-- First Name -->
+          <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFirstName"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:hint="Nom *"
+            app:startIconDrawable="@drawable/ic_person">
 
+            <com.google.android.material.textfield.TextInputEditText
+              android:id="@+id/etFirstName"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:inputType="textPersonName|textCapWords"
+              android:imeOptions="actionNext"
+              android:maxLines="1" />
+
+          </com.google.android.material.textfield.TextInputLayout>
             <!-- Last Name (en premier) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilLastName"
@@ -47,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
-                android:hint="Nom *"
+                android:hint="Prénom(s) *"
                 app:startIconDrawable="@drawable/ic_person">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -60,25 +81,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- First Name -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilFirstName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:hint="Prénom *"
-                app:startIconDrawable="@drawable/ic_person">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etFirstName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName|textCapWords"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Divider -->
             <View
@@ -146,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:hint="N° Matricule *"
+                    android:hint="Matricule *"
                     app:startIconDrawable="@drawable/ic_code">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -163,7 +166,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilTaux"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="100dp"
+                    android:layout_width="180dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:hint="Taux *"
@@ -243,15 +246,18 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Action Buttons - Compact -->
+    <!-- Bottom Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:background="?attr/colorSurface"
+        android:background="@color/white"
         android:elevation="8dp"
-        android:padding="8dp">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"

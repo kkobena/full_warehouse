@@ -1,12 +1,15 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
-import java.util.List;
-import java.util.Map;
-
 import com.kobe.warehouse.service.report.excel.StockAlertExcelCsvReportService;
 import com.kobe.warehouse.service.report.pdf.StockAlertPdfReportService;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import java.util.List;
+import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api")
@@ -29,17 +33,20 @@ public class StockAlertReportResource {
     }
 
     /**
-     * GET /stock/alerts : Get all stock alerts
+     * GET /stock/alerts : Get stock alerts (paginated)
      *
-     * @param types Optional list of alert types to filter by (RUPTURE, ALERTE, PEREMPTION)
-     * @return List of stock alerts
+     * @param types    Optional list of alert types to filter by (RUPTURE, ALERTE, PEREMPTION)
+     * @param pageable Pagination information
+     * @return List of stock alerts with pagination headers
      */
     @GetMapping("/stock/alerts")
     public ResponseEntity<List<StockAlertDTO>> getStockAlerts(
-        @RequestParam(required = false) List<StockAlertDTO.StockAlertType> types
+        @RequestParam(required = false) List<StockAlertType> types,
+        Pageable pageable
     ) {
-        List<StockAlertDTO> alerts = stockAlertReportService.getStockAlerts(types);
-        return ResponseEntity.ok().body(alerts);
+        Page<StockAlertDTO> page = stockAlertReportService.getStockAlerts(types, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**
@@ -48,8 +55,8 @@ public class StockAlertReportResource {
      * @return Map of alert type to count
      */
     @GetMapping("/stock/alerts/count")
-    public ResponseEntity<Map<StockAlertDTO.StockAlertType, Long>> getStockAlertsCount() {
-        Map<StockAlertDTO.StockAlertType, Long> counts = stockAlertReportService.getStockAlertsCount();
+    public ResponseEntity<Map<StockAlertType, Long>> getStockAlertsCount() {
+        Map<StockAlertType, Long> counts = stockAlertReportService.getStockAlertsCount();
         return ResponseEntity.ok().body(counts);
     }
 
@@ -60,7 +67,7 @@ public class StockAlertReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/stock/alerts/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> exportStockAlertsToPdf(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
+    public ResponseEntity<byte[]> exportStockAlertsToPdf(@RequestParam(required = false) List<StockAlertType> types) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=stock-alerts.pdf");
@@ -74,7 +81,7 @@ public class StockAlertReportResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/stock/alerts/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
+    public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] excelData = stockAlertExcelCsvReportService.exportToExcel(types);
             String filename = "stock_alerts.xlsx";
@@ -96,7 +103,7 @@ public class StockAlertReportResource {
      * @return CSV file
      */
     @GetMapping(value = "/stock/alerts/export/csv", produces = "text/csv")
-    public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
+    public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] csvData = stockAlertExcelCsvReportService.exportToCsv(types);
             String filename = "stock_alerts.csv";

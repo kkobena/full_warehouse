@@ -1,6 +1,7 @@
 package com.kobe.warehouse.sales.data.repository
 
 import com.kobe.warehouse.sales.data.api.TiersPayantApiService
+import com.kobe.warehouse.sales.data.model.TiersPayant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,10 +24,10 @@ class TiersPayantRepository(
      */
     suspend fun searchTiersPayants(
         search: String = "",
-        type: String = "",
+        type: String = "",// "CARNET", "ASSURANCE", Ou vide pour les deux pour ajout de tiers payant complementaire
         groupeTiersPayantId: Int? = null,
-        size: Int = 20
-    ): Result<List<com.kobe.warehouse.sales.data.model.TiersPayant>> = withContext(Dispatchers.IO) {
+        size: Int = 5
+    ): Result<List<TiersPayant>> = withContext(Dispatchers.IO) {
         try {
             val response = tiersPayantApi.searchTiersPayants(search, type, groupeTiersPayantId, size)
             if (response.isSuccessful && response.body() != null) {

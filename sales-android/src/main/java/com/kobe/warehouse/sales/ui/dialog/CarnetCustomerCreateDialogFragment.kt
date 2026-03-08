@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.CustomerApiService
 import com.kobe.warehouse.sales.data.api.TiersPayantApiService
@@ -50,8 +49,8 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
     private var onCustomerCreated: ((Customer) -> Unit)? = null
 
     private var searchJob: Job? = null
-    private var selectedTiersPayant: com.kobe.warehouse.sales.data.model.TiersPayant? = null
-    private val tiersPayantsList = mutableListOf<com.kobe.warehouse.sales.data.model.TiersPayant>()
+    private var selectedTiersPayant: TiersPayant? = null
+    private val tiersPayantsList = mutableListOf<TiersPayant>()
 
     companion object {
         const val TAG = "CarnetCustomerCreateDialog"
@@ -98,12 +97,12 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
      * Auto-focus on first required field (Nom) when dialog opens
      */
     private fun setupAutoFocus() {
-        binding.etLastName.post {
-            binding.etLastName.requestFocus()
+        binding.etFirstName.post {
+            binding.etFirstName.requestFocus()
             // Show keyboard
             val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
                 as android.view.inputmethod.InputMethodManager
-            imm.showSoftInput(binding.etLastName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+            imm.showSoftInput(binding.etFirstName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
@@ -121,7 +120,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
             searchJob?.cancel()
             val query = text.toString().trim()
 
-            if (query.length >= 2) {
+            if (query.length > 2) {
                 searchJob = lifecycleScope.launch {
                     delay(300) // Debounce
                     searchTiersPayants(query)
@@ -130,11 +129,13 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         }
 
         binding.actvTiersPayant.setOnItemClickListener { _, _, position, _ ->
-            selectedTiersPayant = tiersPayantsList[position]
-            // Auto-fill taux if available from tiers payant default
-            selectedTiersPayant?.let { tp ->
-                // Taux could be pre-filled if tiers payant has a default rate
-                // For now, leave empty for user input
+            val selected = tiersPayantsList.getOrNull(position)
+            if (selected?.id == null || selected.id == -1L) {
+                selectedTiersPayant = null
+                openTiersPayantCreateDialog()
+            } else {
+                selectedTiersPayant = selected
+                binding.tilTiersPayant.error = null
             }
         }
     }
@@ -153,18 +154,18 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
             openTiersPayantCreateDialog()
         }
     }
-
     private fun searchTiersPayants(query: String) {
         lifecycleScope.launch {
-            tiersPayantRepository.searchTiersPayants(query).fold(
+            tiersPayantRepository.searchTiersPayants(search = query, type = "CARNET").fold(
                 onSuccess = { results ->
                     tiersPayantsList.clear()
                     tiersPayantsList.addAll(results)
+                    tiersPayantsList.add(TiersPayant(id = -1L, name = "Créer un nouveau tiers payant..."))
 
                     val adapter = ArrayAdapter(
                         requireContext(),
                         android.R.layout.simple_dropdown_item_1line,
-                        results.map { it.name } // domain.model.TiersPayant has only 'name'
+                        tiersPayantsList.map { it.name }
                     )
                     binding.actvTiersPayant.setAdapter(adapter)
                     binding.actvTiersPayant.showDropDown()
@@ -181,10 +182,12 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
     }
 
     private fun openTiersPayantCreateDialog() {
-        val dialog = TiersPayantCreateDialogFragment.newInstance { createdTiersPayant ->
-            // Tiers payant created, use it directly
+        val dialog = TiersPayantCreateDialogFragment.newInstance(
+            categorie = "CARNET"
+        ) { createdTiersPayant ->
             selectedTiersPayant = createdTiersPayant
             binding.actvTiersPayant.setText(createdTiersPayant.name, false)
+            binding.tilTiersPayant.error = null
         }
         dialog.show(parentFragmentManager, TiersPayantCreateDialogFragment.TAG)
     }

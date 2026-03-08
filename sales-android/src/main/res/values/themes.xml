@@ -31,6 +31,9 @@
         <!-- Navigation Bar -->
         <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowLightNavigationBar">true</item>
+
+        <!-- Apply Pharma dialog style globally -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.PharmaSmart.MaterialAlertDialog</item>
     </style>
 
     <!-- Main Application Theme -->
@@ -41,6 +44,44 @@
         <item name="windowSplashScreenBackground">@color/primary</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_pharma_logo</item>
         <item name="postSplashScreenTheme">@style/Theme.PharmaSmart</item>
+    </style>
+
+    <!-- Material Alert Dialog — Pharma branded -->
+    <style name="ThemeOverlay.PharmaSmart.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/PharmaSmart.MaterialAlertDialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/PharmaSmart.MaterialAlertDialog.Body</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PharmaSmart.MaterialAlertDialog.Button.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/PharmaSmart.MaterialAlertDialog.Button.Negative</item>
+        <item name="buttonBarNeutralButtonStyle">@style/PharmaSmart.MaterialAlertDialog.Button.Neutral</item>
+        <item name="shapeAppearanceOverlay">@style/PharmaSmart.MaterialAlertDialog.Shape</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Button.Positive" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Button.Negative" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/gray_500</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Button.Neutral" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/gray_500</item>
+    </style>
+
+    <style name="PharmaSmart.MaterialAlertDialog.Shape" parent="">
+        <item name="cornerSize">12dp</item>
     </style>
 
     <!-- Full Screen Dialog Theme -->

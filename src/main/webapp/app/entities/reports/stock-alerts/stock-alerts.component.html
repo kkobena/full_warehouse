@@ -25,7 +25,7 @@
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()"/>
         </div>
       </ng-template>
     </p-toolbar>
@@ -114,6 +114,12 @@
               [loading]="isLoading()"
               [rowHover]="true"
               [scrollable]="true"
+              [lazy]="true"
+              [paginator]="true"
+              [rows]="rowsPerPage"
+              [totalRecords]="totalItems()"
+              [rowsPerPageOptions]="[10, 15, 20,30, 50]"
+              (onLazyLoad)="loadAlerts($event)"
               sortField="alertType"
               class="pharma-table"
               [sortOrder]="1"
@@ -131,7 +137,7 @@
               <ng-template #body let-alert>
                 <tr>
                   <td>
-                    <p-tag [value]="getAlertLabel(alert.alertType)" [severity]="getAlertSeverity(alert.alertType)" />
+                    <p-tag [value]="getAlertLabel(alert.alertType)" [severity]="getAlertSeverity(alert.alertType)"/>
                   </td>
                   <td>
                     <span class="fw-semibold">{{ alert.libelle }}</span>
@@ -140,7 +146,8 @@
                     <span class="text-muted">{{ alert.codeCip }}</span>
                   </td>
                   <td class="text-end">
-                    <span [class.text-danger]="(alert.stockQuantity ?? 0) === 0" [class.fw-bold]="(alert.stockQuantity ?? 0) === 0">
+                    <span [class.text-danger]="(alert.stockQuantity ?? 0) <= 0"
+                          [class.fw-bold]="(alert.stockQuantity ?? 0) <= 0">
                       {{ alert.stockQuantity || 0 }}
                     </span>
                   </td>

@@ -27,9 +27,6 @@ public interface MvStockValuationRayonViewRepository extends JpaRepository<MvSto
     }
 
     default Specification<MvStockValuationByRayonView> filterByRayonId(Integer rayonId) {
-        if (rayonId == null) {
-            return null;
-        }
         return null;
         //  return (root, query, cb) -> cb.equal(root.get(MvStockValuationByRayonView_.rayonId), rayonId);
     }

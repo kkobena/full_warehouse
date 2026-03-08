@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.dto.DashboardAlertCountDTO;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
@@ -39,10 +40,10 @@ public class DashboardAlertService {
     @Cacheable(value = "dashboardAlertCounts", unless = "#result == null")
     public DashboardAlertCountDTO getAlertCounts() {
         // Get stock alerts counts (péremptions, ruptures)
-        Map<StockAlertDTO.StockAlertType, Long> stockAlertCounts = stockAlertReportService.getStockAlertsCount();
+        Map<StockAlertType, Long> stockAlertCounts = stockAlertReportService.getStockAlertsCount();
 
-        Long peremptionCount = stockAlertCounts.getOrDefault(StockAlertDTO.StockAlertType.PEREMPTION, 0L);
-        Long ruptureCount = stockAlertCounts.getOrDefault(StockAlertDTO.StockAlertType.RUPTURE, 0L);
+        Long peremptionCount = stockAlertCounts.getOrDefault(StockAlertType.PEREMPTION, 0L);
+        Long ruptureCount = stockAlertCounts.getOrDefault(StockAlertType.RUPTURE, 0L);
 
         // Get recent stock entries count (last 24 hours)
         Long entreeCount = getRecentStockEntriesCount();

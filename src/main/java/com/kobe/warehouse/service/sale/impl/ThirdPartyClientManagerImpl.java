@@ -212,7 +212,11 @@ public class ThirdPartyClientManagerImpl implements ThirdPartyClientManager {
 
         if (saleLineOpt.isPresent()) {
             ThirdPartySaleLine thirdPartySaleLine = saleLineOpt.get();
+            ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+            clientTiersPayant.setTaux(newTaux);
+            clientTiersPayantRepository.save(clientTiersPayant);
             thirdPartySaleLine.setTauxVente((short) newTaux);
+            thirdPartySaleLine.setTaux(thirdPartySaleLine.getTauxVente());
             thirdPartySaleLineService.save(thirdPartySaleLine);
             ThirdPartySales thirdPartySales = thirdPartySaleLine.getSale();
             String message = calculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);

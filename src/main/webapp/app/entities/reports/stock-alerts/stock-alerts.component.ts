@@ -3,7 +3,7 @@ import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { Tag } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -13,6 +13,8 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { IStockAlert, StockAlertType } from 'app/shared/model/report/stock-alert.model';
 import { StockAlertReportService } from '../services/stock-alert-report.service';
+
+const ITEMS_PER_PAGE = 15;
 
 @Component({
   selector: 'jhi-stock-alerts',
@@ -35,6 +37,8 @@ export default class StockAlertsComponent implements OnInit {
   alertCounts = signal<Record<string, number>>({});
   selectedAlertTypes = signal<StockAlertType[]>([]);
   isLoading = signal<boolean>(false);
+  totalItems = signal<number>(0);
+  rowsPerPage = ITEMS_PER_PAGE;
 
   // Expose StockAlertType enum to template
   readonly StockAlertType = StockAlertType;
@@ -48,23 +52,27 @@ export default class StockAlertsComponent implements OnInit {
   private readonly stockAlertService = inject(StockAlertReportService);
 
   ngOnInit(): void {
-    this.loadAlerts();
     this.loadAlertCounts();
   }
 
-  loadAlerts(): void {
+  loadAlerts(event?: TableLazyLoadEvent): void {
     this.isLoading.set(true);
+    const page = event ? event.first / event.rows : 0;
+    const size = event?.rows ?? this.rowsPerPage;
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
-    this.stockAlertService.getStockAlerts(types).subscribe({
-      next: (res: HttpResponse<IStockAlert[]>) => {
-        this.alerts.set(res.body ?? []);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      },
-    });
+    this.stockAlertService
+      .getStockAlerts({ page, size, sort: ['alertType,asc', 'libelle,asc'], types })
+      .subscribe({
+        next: (res: HttpResponse<IStockAlert[]>) => {
+          this.totalItems.set(Number(res.headers.get('X-Total-Count')));
+          this.alerts.set(res.body ?? []);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
   }
 
   loadAlertCounts(): void {

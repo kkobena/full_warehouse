@@ -6,15 +6,16 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.sales.R
@@ -22,6 +23,7 @@ import com.kobe.warehouse.sales.data.api.AuthApiService
 import com.kobe.warehouse.sales.data.api.CustomerApiService
 import com.kobe.warehouse.sales.data.api.PaymentApiService
 import com.kobe.warehouse.sales.data.api.ProductApiService
+import com.kobe.warehouse.sales.data.api.RemiseApiService
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.Product
@@ -32,7 +34,6 @@ import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
-import com.kobe.warehouse.sales.data.api.RemiseApiService
 import com.kobe.warehouse.sales.data.repository.RemiseRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.databinding.ActivityUnifiedSaleBinding
@@ -40,14 +41,14 @@ import com.kobe.warehouse.sales.printer.ReceiptPrinter
 import com.kobe.warehouse.sales.ui.adapter.CartAdapter
 import com.kobe.warehouse.sales.ui.adapter.ProductAdapter
 import com.kobe.warehouse.sales.ui.dialog.AuthorizationDialogFragment
+import com.kobe.warehouse.sales.ui.viewmodel.QuantityUpdateStockError
+import com.kobe.warehouse.sales.ui.viewmodel.StockActionRequired
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModel
 import com.kobe.warehouse.sales.ui.viewmodel.UnifiedSaleViewModelFactory
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
 import com.kobe.warehouse.sales.utils.observeOnce
 import com.kobe.warehouse.sales.utils.onTextChangedDebounced
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -678,7 +679,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
      * Show dialog when backend returns deconditionnement error (errorKey='stockChInsufisant')
      * Triggers deconditioning flow then retries the add
      */
-    private fun showBackendDeconditionnementDialog(event: com.kobe.warehouse.sales.ui.viewmodel.StockActionRequired) {
+    private fun showBackendDeconditionnementDialog(event: StockActionRequired) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Déconditionnement Nécessaire")
             .setMessage("${event.errorMessage}\n\nVoulez-vous déconditionner le produit parent pour obtenir du stock ?")
@@ -696,7 +697,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     /**
      * Show dialog when quantity update fails due to deconditionnement (backend errorKey='stockChInsufisant')
      */
-    private fun showQuantityUpdateDeconditionnementDialog(event: com.kobe.warehouse.sales.ui.viewmodel.QuantityUpdateStockError) {
+    private fun showQuantityUpdateDeconditionnementDialog(event: QuantityUpdateStockError) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Déconditionnement Nécessaire")
             .setMessage("${event.errorMessage}\n\nVoulez-vous déconditionner le produit parent pour obtenir du stock ?")
@@ -1662,14 +1663,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             // Matricule (visible for Carnet and Assurance)
             if (saleType is SaleType.Carnet || saleType is SaleType.Assurance) {
                 layoutMatricule.isVisible = true
-                // For Carnet: use customer.tiersPayants
-                // For Assurance: use clientTiersPayants from ViewModel
-                val matricule = if (saleType is SaleType.Assurance) {
-                    viewModel.clientTiersPayants.value?.firstOrNull()?.num
-                } else {
-                    customer.tiersPayants.firstOrNull()?.num
-                }
-                tvCustomerMatricule.text = matricule ?: "N/A"
+                tvCustomerMatricule.text = customer.num ?: "N/A"
             } else {
                 layoutMatricule.isGone = true
             }
@@ -1879,62 +1873,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    /**
-     * Show dialog to configure tiers payant details (taux and priorité)
-     */
-    private fun showAddTiersPayantDetailsDialog(
-        customer: Customer,
-        tiersPayant: com.kobe.warehouse.sales.data.model.TiersPayant
-    ) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_tiers_payant_details, null)
-        val etTaux = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTaux)
-        val spinnerPriorite = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerPriorite)
-
-        // Setup priorité spinner
-        val priorites = listOf("R0 (Principal)", "C1 (Complémentaire 1)", "C2 (Complémentaire 2)", "C3 (Complémentaire 3)")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, priorites)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerPriorite.adapter = adapter
-
-        // Set default values
-        etTaux.setText("100")
-        spinnerPriorite.setSelection(0) // Default to R0
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Configurer ${tiersPayant.getDisplayName()}")
-            .setView(dialogView)
-            .setPositiveButton("Ajouter") { _, _ ->
-                val taux = etTaux.text.toString().toIntOrNull()
-                if (taux == null || taux !in 0..100) {
-                    Toast.makeText(this, "Taux invalide (0-100)", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
-                val priorite = when (spinnerPriorite.selectedItemPosition) {
-                    0 -> com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R0
-                    1 -> com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R1
-                    2 -> com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R2
-                    3 -> com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R3
-                    else -> com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R0
-                }
-
-                // Create ClientTiersPayant
-                val clientTiersPayant = com.kobe.warehouse.sales.data.model.ClientTiersPayant(
-                    customerId = customer.id,
-                    tiersPayantId = tiersPayant.id ?: 0L,
-                    tiersPayantName = tiersPayant.getDisplayName(),
-                    num = "", // Will be filled in the main form
-                    taux = taux,
-                    priorite = priorite,
-                    typeTiersPayant = if (priorite.isPrincipal()) "PRINCIPAL" else "COMPLEMENTAIRE"
-                )
-
-                viewModel.addTiersPayant(clientTiersPayant)
-                Toast.makeText(this, "Tiers payant ajouté", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Annuler", null)
-            .show()
-    }
 
     /**
      * Show dialog to select an ayant droit from customer's beneficiaries

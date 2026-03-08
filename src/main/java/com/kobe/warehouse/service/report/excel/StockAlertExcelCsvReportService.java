@@ -1,7 +1,9 @@
 package com.kobe.warehouse.service.report.excel;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +21,8 @@ public class StockAlertExcelCsvReportService {
         this.stockAlertReportService = stockAlertReportService;
     }
 
-    public byte[] exportToExcel(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
-        List<StockAlertDTO> data = stockAlertReportService.getStockAlerts(alertTypes);
+    public byte[] exportToExcel(List<StockAlertType> alertTypes) throws Exception {
+        List<StockAlertDTO> data = stockAlertReportService.getStockAlerts(alertTypes, Pageable.unpaged()).getContent();
 
         String title = "Alertes Stock";
         if (alertTypes != null && !alertTypes.isEmpty()) {
@@ -47,8 +49,8 @@ public class StockAlertExcelCsvReportService {
     }
 
 
-    public byte[] exportToCsv(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
-        List<StockAlertDTO> data = stockAlertReportService.getStockAlerts(alertTypes);
+    public byte[] exportToCsv(List<StockAlertType> alertTypes) throws Exception {
+        List<StockAlertDTO> data = stockAlertReportService.getStockAlerts(alertTypes, Pageable.unpaged()).getContent();
 
         String title = "Alertes Stock";
         if (alertTypes != null && !alertTypes.isEmpty()) {

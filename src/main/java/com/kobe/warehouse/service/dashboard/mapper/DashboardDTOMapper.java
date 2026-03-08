@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dashboard.mapper;
 
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.dto.dashboard.*;
 import com.kobe.warehouse.service.dto.report.*;
 import org.springframework.stereotype.Component;
@@ -22,15 +23,15 @@ public class DashboardDTOMapper {
      */
     public StockAlertsDTO toStockAlertsDTO(List<StockAlertDTO> alertsByType) {
         long rupture = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertDTO.StockAlertType.RUPTURE)
+            .filter(alert -> alert.alertType() == StockAlertType.RUPTURE)
             .count();
 
         long alerte = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertDTO.StockAlertType.ALERTE)
+            .filter(alert -> alert.alertType() == StockAlertType.ALERTE)
             .count();
 
         long peremption = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertDTO.StockAlertType.PEREMPTION)
+            .filter(alert -> alert.alertType() == StockAlertType.PEREMPTION)
             .count();
 
         // Pour bientôt en rupture, on compte les produits avec stock < seuil * 1.5

@@ -50,7 +50,7 @@
               <td>
                 <span
                   th:class="${'badge badge-' + alert.alertType.toString().toLowerCase()}"
-                  th:text="${alert.alertType == T(com.kobe.warehouse.service.dto.report.StockAlertDTO.StockAlertType).RUPTURE ? 'Rupture' : (alert.alertType == T(com.kobe.warehouse.service.dto.report.StockAlertDTO.StockAlertType).ALERTE ? 'Stock bas' : 'Péremption')}"
+                  th:text="${alert.alertType == T(com.kobe.warehouse.domain.enumeration.StockAlertType).RUPTURE ? 'Rupture' : (alert.alertType == T(com.kobe.warehouse.domain.enumeration.StockAlertType).ALERTE ? 'Stock bas' : 'Péremption')}"
                 ></span>
               </td>
               <td th:text="${alert.libelle}"></td>

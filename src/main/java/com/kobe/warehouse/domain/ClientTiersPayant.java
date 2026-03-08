@@ -15,6 +15,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -85,11 +88,63 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
 
     private transient double tauxValue;
 
+    /** Snapshot chargé depuis la DB pour détecter les changements. */
+    private transient int snapshotTaux;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "consommation_json")
     private Set<Consommation> consommations = new HashSet<>();
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "taux_historique")
+    private Set<ClientTiersPayantTauxHistorique> clientTiersPayantTauxHistoriques = new HashSet<>();
+
     public ClientTiersPayant() {}
+
+    /** Appelé après chargement depuis la DB : capture le taux actuel. */
+    @PostLoad
+    public void onPostLoad() {
+        this.snapshotTaux = this.taux;
+    }
+
+    /**
+     * Appelé avant un INSERT : initialise l'historique avec le taux initial.
+     * {@code snapshotNum} est null (nouvelle entité), donc on ajoute toujours une entrée.
+     */
+    @PrePersist
+    public void onPrePersist() {
+        if (this.created == null) {
+            this.created = LocalDateTime.now();
+        }
+        this.updated = LocalDateTime.now();
+        if (this.clientTiersPayantTauxHistoriques == null) {
+            this.clientTiersPayantTauxHistoriques = new HashSet<>();
+        }
+        // Enregistre l'état initial dans l'historique
+        this.clientTiersPayantTauxHistoriques.add(
+            new ClientTiersPayantTauxHistorique(this.updated, this.taux)
+        );
+    }
+
+
+    /**
+     * Appelé avant un UPDATE : ajoute une entrée dans l'historique
+     * uniquement si {@code num} ou {@code taux} ont changé.
+     */
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated = LocalDateTime.now();
+
+        boolean tauxChanged = snapshotTaux != this.taux;
+        if ( tauxChanged) {
+            if (this.clientTiersPayantTauxHistoriques == null) {
+                this.clientTiersPayantTauxHistoriques = new HashSet<>();
+            }
+            this.clientTiersPayantTauxHistoriques.add(
+                new ClientTiersPayantTauxHistorique(this.updated, this.taux)
+            );
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -200,4 +255,10 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
         tauxValue = (double) taux / 100;
         return tauxValue;
     }
+
+    public Set<ClientTiersPayantTauxHistorique> getClientTiersPayantTauxHistoriques() {
+        return clientTiersPayantTauxHistoriques;
+    }
+
+
 }

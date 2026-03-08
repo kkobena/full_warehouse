@@ -9,10 +9,9 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.TiersPayantApiService
-import com.kobe.warehouse.sales.data.repository.TiersPayantRepository
 import com.kobe.warehouse.sales.data.model.TiersPayant
+import com.kobe.warehouse.sales.data.repository.TiersPayantRepository
 import com.kobe.warehouse.sales.databinding.FragmentAssureStep1Binding
 import com.kobe.warehouse.sales.utils.ApiClient
 import com.kobe.warehouse.sales.utils.TokenManager
@@ -64,12 +63,12 @@ class AssureStep1Fragment : Fragment() {
      * Auto-focus on first required field (Nom) when fragment loads
      */
     private fun setupAutoFocus() {
-        binding.etLastName.post {
-            binding.etLastName.requestFocus()
+        binding.etFirstName.post {
+            binding.etFirstName.requestFocus()
             // Show keyboard
             val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
                 as android.view.inputmethod.InputMethodManager
-            imm.showSoftInput(binding.etLastName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+            imm.showSoftInput(binding.etFirstName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
@@ -93,7 +92,7 @@ class AssureStep1Fragment : Fragment() {
         // Tiers Payant search with debounce
         binding.actvTiersPayant.addTextChangedListener { text ->
             searchJob?.cancel()
-            if ((text?.length ?: 0) >= 2) {
+            if ((text?.length ?: 0) > 2) {
                 searchJob = lifecycleScope.launch {
                     delay(300)  // Debounce
                     searchTiersPayants(text.toString())
@@ -103,8 +102,9 @@ class AssureStep1Fragment : Fragment() {
 
         binding.actvTiersPayant.setOnItemClickListener { _, _, position, _ ->
             selectedTiersPayant = tiersPayants.getOrNull(position)
-            if (selectedTiersPayant?.id == null) {
+            if (selectedTiersPayant?.id == null || selectedTiersPayant?.id == -1L) {
                 // "Create new tiers payant" option selected
+                selectedTiersPayant = null
                 openCreateTiersPayantDialog()
             } else {
                 binding.tilTiersPayant.error = null
@@ -116,12 +116,11 @@ class AssureStep1Fragment : Fragment() {
             openCreateTiersPayantDialog()
         }
     }
-
     private fun searchTiersPayants(query: String) {
         binding.progressBarTiersPayant.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            tiersPayantRepository.searchTiersPayants(query).fold(
+            tiersPayantRepository.searchTiersPayants(search = query, type = "ASSURANCE").fold(
                 onSuccess = { results ->
                     binding.progressBarTiersPayant.visibility = View.GONE
 

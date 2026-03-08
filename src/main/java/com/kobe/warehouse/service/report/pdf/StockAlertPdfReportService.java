@@ -1,9 +1,11 @@
 package com.kobe.warehouse.service.report.pdf;
 
 import com.kobe.warehouse.config.FileStorageProperties;
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -48,15 +50,15 @@ public class StockAlertPdfReportService extends AbstractStatistiqueReportService
     }
 
 
-    public byte[] export(List<StockAlertDTO.StockAlertType> alertTypes) {
+    public byte[] export(List<StockAlertType> alertTypes) {
 
-        List<StockAlertDTO> alerts = stockAlertReportService.getStockAlerts(alertTypes);
-        Map<StockAlertDTO.StockAlertType, Long> alertCounts = stockAlertReportService.getStockAlertsCount();
+        List<StockAlertDTO> alerts = stockAlertReportService.getStockAlerts(alertTypes, Pageable.unpaged()).getContent();
+        Map<StockAlertType, Long> alertCounts = stockAlertReportService.getStockAlertsCount();
 
         this.getParameters().put("alerts", alerts);
-        this.getParameters().put("ruptureCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.RUPTURE, 0L));
-        this.getParameters().put("alerteCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.ALERTE, 0L));
-        this.getParameters().put("peremptionCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.PEREMPTION, 0L));
+        this.getParameters().put("ruptureCount", alertCounts.getOrDefault(StockAlertType.RUPTURE, 0L));
+        this.getParameters().put("alerteCount", alertCounts.getOrDefault(StockAlertType.ALERTE, 0L));
+        this.getParameters().put("peremptionCount", alertCounts.getOrDefault(StockAlertType.PEREMPTION, 0L));
         this.getParameters().put("reportTitle", "Rapport d'Alertes Stock");
         super.getCommonParameters();
 

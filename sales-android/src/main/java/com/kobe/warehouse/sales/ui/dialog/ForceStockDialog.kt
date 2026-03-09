@@ -1,5 +1,6 @@
 package com.kobe.warehouse.sales.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -74,8 +75,12 @@ class ForceStockDialog : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { args ->
-            product = args.getParcelable(ARG_PRODUCT)
-                ?: throw IllegalArgumentException("Product is required")
+            product = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    args.getParcelable(ARG_PRODUCT, Product::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    args.getParcelable(ARG_PRODUCT)
+                } ?: throw IllegalArgumentException("Product is required")
             requestedQuantity = args.getInt(ARG_REQUESTED_QUANTITY, 0)
             availableStock = args.getInt(ARG_AVAILABLE_STOCK, 0)
         }

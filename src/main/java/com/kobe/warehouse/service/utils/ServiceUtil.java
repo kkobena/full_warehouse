@@ -73,6 +73,46 @@ public class ServiceUtil {
         }
         return sb.toString();
     }
+    /**
+     * Calcule le montant effectivement payé par le client en CFA (sans centime).
+     *
+     * <p>Règles appliquées :
+     * <ol>
+     *   <li>Si {@code montantVerse >= montantAttendu}, le client couvre la totalité → on retourne
+     *       {@code montantAttendu} tel quel (pas de rendu de monnaie à gérer côté vente).</li>
+     *   <li>Sinon, on arrondit {@code montantVerse} au multiple de 5 le plus proche, car le CFA ne
+     *       possède pas de coupure inférieure à 5.</li>
+     * </ol>
+     *
+     * @param montantVerse   montant remis par le client (en CFA, entier)
+     * @param montantAttendu montant total de la vente (en CFA, entier)
+     * @return montant retenu comme paiement effectif, arrondi au multiple de 5 le plus proche
+     */
+    public static int resoudreMontantPaye(int montantVerse, int montantAttendu) {
+        if (montantVerse >= montantAttendu) {
+            return montantAttendu;
+        }
+        return arrondirAuMultipleDe5(montantVerse);
+    }
+
+
+    /**
+     * Arrondit {@code valeur} au multiple de 5 le plus proche (0, 5, 10, 15, …).
+     *
+     * <p>Exemples : 7 → 5 · 8 → 10 · 12 → 10 · 13 → 15</p>
+     *
+     * @param valeur montant CFA à arrondir
+     * @return multiple de 5 le plus proche de {@code valeur}
+     */
+    public static int arrondirAuMultipleDe5(int valeur) {
+        return (int) Math.round(valeur / 5.0) * 5;
+    }
+
+    /** Surcharge {@code long} de {@link #arrondirAuMultipleDe5(int)}. */
+    public static long arrondirAuMultipleDe5(long valeur) {
+        return Math.round(valeur / 5.0) * 5L;
+    }
+
     public static PeremptionStatut buildPeremptionStatut(LocalDate datePeremption) {
         if (datePeremption == null) {
             return null;

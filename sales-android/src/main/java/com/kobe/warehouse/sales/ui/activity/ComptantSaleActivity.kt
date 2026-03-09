@@ -485,7 +485,7 @@ class ComptantSaleActivity : BaseActivity() {
             .setNegativeButton("Non") { _, _ ->
                 // User declined to print - reset cart and stay on screen
                 viewModel.resetAfterSale()
-                Toast.makeText(this, "Prêt pour une nouvelle vente", Toast.LENGTH_SHORT).show()
+
             }
             .setCancelable(false)
             .show()
@@ -522,11 +522,7 @@ class ComptantSaleActivity : BaseActivity() {
             if (success) {
                 // Reset cart after successful printing and stay on screen
                 viewModel.resetAfterSale()
-                Toast.makeText(
-                    this@ComptantSaleActivity,
-                    "Reçu imprimé avec succès. Prêt pour une nouvelle vente",
-                    Toast.LENGTH_LONG
-                ).show()
+
             } else {
                 MaterialAlertDialogBuilder(this@ComptantSaleActivity)
                     .setTitle("Erreur d'impression")
@@ -534,11 +530,7 @@ class ComptantSaleActivity : BaseActivity() {
                     .setPositiveButton("OK") { _, _ ->
                         // Reset cart even if printing failed and stay on screen
                         viewModel.resetAfterSale()
-                        Toast.makeText(
-                            this@ComptantSaleActivity,
-                            "Prêt pour une nouvelle vente",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
                     }
                     .show()
             }

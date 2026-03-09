@@ -36,7 +36,26 @@
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:textColor="?attr/colorPrimary"
                 android:layout_marginBottom="4dp" />
+          <!-- First Name -->
+          <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFirstName"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:hint="Nom *"
+            app:startIconDrawable="@drawable/ic_person"
+            app:errorEnabled="true">
 
+            <com.google.android.material.textfield.TextInputEditText
+              android:id="@+id/etFirstName"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:inputType="textPersonName|textCapWords"
+              android:maxLines="1"
+              android:imeOptions="actionNext" />
+
+          </com.google.android.material.textfield.TextInputLayout>
             <!-- Last Name (en premier) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilLastName"
@@ -44,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
-                android:hint="Nom *"
+                android:hint="Prénom(s) *"
                 app:startIconDrawable="@drawable/ic_person"
                 app:errorEnabled="true">
 
@@ -58,26 +77,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- First Name -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilFirstName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:hint="Prénom *"
-                app:startIconDrawable="@drawable/ic_person"
-                app:errorEnabled="true">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etFirstName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName|textCapWords"
-                    android:maxLines="1"
-                    android:imeOptions="actionNext" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Phone -->
             <com.google.android.material.textfield.TextInputLayout

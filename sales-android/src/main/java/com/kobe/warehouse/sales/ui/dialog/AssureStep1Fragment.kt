@@ -32,6 +32,7 @@ class AssureStep1Fragment : Fragment() {
     private var tiersPayants: List<TiersPayant> = emptyList()
     private var selectedTiersPayant: TiersPayant? = null
     private var searchJob: Job? = null
+    private var isSettingTiersPayant = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +93,7 @@ class AssureStep1Fragment : Fragment() {
         // Tiers Payant search with debounce
         binding.actvTiersPayant.addTextChangedListener { text ->
             searchJob?.cancel()
+            if (isSettingTiersPayant) return@addTextChangedListener
             val query = text?.toString()?.trim().orEmpty()
             if (query.length > 2) {
                 searchJob = lifecycleScope.launch {
@@ -160,7 +162,10 @@ class AssureStep1Fragment : Fragment() {
             // Tiers payant created, select it
             searchJob?.cancel()
             selectedTiersPayant = createdTiersPayant
+            isSettingTiersPayant = true
             binding.actvTiersPayant.setText(createdTiersPayant.getDisplayName(), false)
+            binding.actvTiersPayant.dismissDropDown()
+            isSettingTiersPayant = false
             binding.tilTiersPayant.error = null
             binding.etNum.requestFocus()
         }
@@ -277,8 +282,8 @@ class AssureStep1Fragment : Fragment() {
         }
 
         val taux = tauxText.toIntOrNull()
-        return if (taux == null || taux < 0 || taux > 100) {
-            binding.tilTaux.error = "Taux doit être entre 0 et 100"
+        return if (taux == null || taux < 5 || taux > 100) {
+            binding.tilTaux.error = "Taux doit être entre 5 et 100"
             false
         } else {
             binding.tilTaux.error = null

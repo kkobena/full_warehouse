@@ -55,7 +55,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
                 android:hint="Nom court *"
-                app:helperText="Ex: MUGEF-CI"
                 app:startIconDrawable="@drawable/ic_business"
                 app:errorEnabled="true">
 
@@ -77,7 +76,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:hint="Nom complet *"
-                app:helperText="Ex: Mutuelle Générale..."
                 app:startIconDrawable="@drawable/ic_business"
                 app:errorEnabled="true">
 

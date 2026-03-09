@@ -3,6 +3,9 @@ package com.kobe.warehouse.sales.utils
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 /**
  * TextWatcher that auto-formats date input as dd/mm/yyyy.
@@ -60,6 +63,20 @@ class DateInputFormatter : TextWatcher {
             val parts = displayDate.trim().split("/")
             if (parts.size != 3 || parts[2].length != 4) return null
             return "${parts[2]}-${parts[1]}-${parts[0]}"
+        }
+
+        /**
+         * Returns true if the given dd/mm/yyyy date is in the future.
+         * Returns false if empty, incomplete, or not in the future.
+         */
+        fun isFutureDate(displayDate: String?): Boolean {
+            if (displayDate.isNullOrBlank()) return false
+            return try {
+                val parsed = LocalDate.parse(displayDate.trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                parsed.isAfter(LocalDate.now())
+            } catch (_: DateTimeParseException) {
+                false
+            }
         }
     }
 }

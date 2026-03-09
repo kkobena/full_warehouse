@@ -1,5 +1,6 @@
 package com.kobe.warehouse.sales.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -58,8 +59,12 @@ class DeconditionnementDialog : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { args ->
-            product = args.getParcelable(ARG_PRODUCT)
-                ?: throw IllegalArgumentException("Product is required")
+            product = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    args.getParcelable(ARG_PRODUCT, Product::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    args.getParcelable(ARG_PRODUCT)
+                } ?: throw IllegalArgumentException("Product is required")
         }
     }
 
@@ -92,11 +97,7 @@ class DeconditionnementDialog : DialogFragment() {
         updateResultPreview()
 
         // Custom explanation based on product
-        val itemQty = product.itemQty ?: 1
-        val explanation = getString(
-            R.string.deconditionnement_explanation
-        )
-        binding.tvExplanation.text = explanation
+        binding.tvExplanation.text = getString(R.string.deconditionnement_explanation)
     }
 
     private fun setupListeners() {

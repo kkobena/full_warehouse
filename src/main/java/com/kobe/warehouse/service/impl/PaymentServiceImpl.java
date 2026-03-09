@@ -15,6 +15,7 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import com.kobe.warehouse.service.utils.ServiceUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -94,18 +95,6 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    @Override
-    public Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user) {
-        Set<SalePayment> payments = new HashSet<>();
-        saleDTO
-            .getPayments()
-            .forEach(paymentDTO -> {
-                SalePayment payment = buildPaymentFromFromPaymentDTO(sales, paymentDTO);
-                paymentRepository.save(payment);
-                payments.add(payment);
-            });
-        return payments;
-    }
 
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
@@ -149,7 +138,7 @@ public class PaymentServiceImpl implements PaymentService {
             ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
 
             if (modePaimentCode == ModePaimentCode.CASH) {
-                applyCashPaymentAmounts(payment, sales, paymentDTO, netAmount, paidAmount);
+                applyCashPaymentAmounts(payment, sales, paymentDTO, netAmount);
             } else {
                 payment.setReelAmount(netAmount);
                 payment.setPaidAmount(paidAmount);
@@ -176,7 +165,7 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO, int netAmount, int paidAmount) {
+    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO, int netAmount) {
         int montantVerse = Objects.requireNonNullElse(paymentDTO.getMontantVerse(), 0);
         payment.setMontantVerse(montantVerse);
 
@@ -184,10 +173,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (montantVerse <= montantAttendu) {
             payment.setReelAmount(montantVerse);
-            payment.setPaidAmount(montantVerse);
+            payment.setPaidAmount(ServiceUtil.arrondirAuMultipleDe5(montantVerse));
         } else {
+            // Le client couvre la totalité : reelAmount = montant net attendu, paidAmount = montant arrondi au multiple de 5
             payment.setReelAmount(netAmount);
-            payment.setPaidAmount(paidAmount);
+            payment.setPaidAmount(ServiceUtil.resoudreMontantPaye(montantVerse, montantAttendu));
         }
     }
 }

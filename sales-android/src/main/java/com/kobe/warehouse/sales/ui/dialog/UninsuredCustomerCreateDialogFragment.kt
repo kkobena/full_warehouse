@@ -1,6 +1,5 @@
 package com.kobe.warehouse.sales.ui.dialog
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,6 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.CustomerApiService
 import com.kobe.warehouse.sales.data.model.Customer
@@ -88,12 +86,12 @@ class UninsuredCustomerCreateDialogFragment : DialogFragment() {
      * Auto-focus on first required field (Nom) when dialog opens
      */
     private fun setupAutoFocus() {
-        binding.etLastName.post {
-            binding.etLastName.requestFocus()
+        binding.etFirstName.post {
+            binding.etFirstName.requestFocus()
             // Show keyboard
             val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
                 as android.view.inputmethod.InputMethodManager
-            imm.showSoftInput(binding.etLastName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+            imm.showSoftInput(binding.etFirstName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
@@ -216,13 +214,6 @@ class UninsuredCustomerCreateDialogFragment : DialogFragment() {
                     isSaving = false
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.isEnabled = true
-
-                    Toast.makeText(
-                        requireContext(),
-                        "Client créé avec succès",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
                     onCustomerCreated?.invoke(createdCustomer)
                     dismiss()
                 },

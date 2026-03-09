@@ -81,20 +81,13 @@ class PaymentDialogFragment : DialogFragment() {
 
         // Get amount to pay from currentSale
         val currentSale = saleViewModel.currentSale.value
-        android.util.Log.d("PaymentDialog", "=== PAYMENT DIALOG INIT ===")
-        android.util.Log.d("PaymentDialog", "currentSale = $currentSale")
-        android.util.Log.d("PaymentDialog", "currentSale.id = ${currentSale?.id}")
-        android.util.Log.d("PaymentDialog", "currentSale.salesAmount = ${currentSale?.salesAmount}")
-        android.util.Log.d("PaymentDialog", "currentSale.payrollAmount = ${currentSale?.payrollAmount}")
-        android.util.Log.d("PaymentDialog", "currentSale.discountAmount = ${currentSale?.discountAmount}")
-        android.util.Log.d("PaymentDialog", "currentSale.partAssure = ${currentSale?.partAssure}")
-        android.util.Log.d("PaymentDialog", "currentSale.natureVente = ${currentSale?.natureVente}")
+
 
         // Calculate payrollAmount with fallback
         payrollAmount = when {
             // For ASSURANCE/CARNET: use partAssure (client's part to pay)
             currentSale?.natureVente == "ASSURANCE" || currentSale?.natureVente == "CARNET" -> {
-                currentSale.partAssure ?: (currentSale.salesAmount - (currentSale.discountAmount ?: 0))
+                currentSale.partAssure ?: (currentSale.salesAmount - currentSale.discountAmount)
             }
             // For COMPTANT: use payrollAmount if available, else calculate from salesAmount
             currentSale?.payrollAmount != null && currentSale.payrollAmount > 0 -> {

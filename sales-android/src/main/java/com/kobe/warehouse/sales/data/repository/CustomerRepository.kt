@@ -34,10 +34,29 @@ class CustomerRepository(
 
 
     /**
+     * Search uninsured customers only
+     * Backend: GET /customers/uninsured?search=...
+     */
+    suspend fun searchUninsuredCustomers(search: String, size: Int = 20): Result<List<Customer>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = customerApiService.searchUninsuredCustomers(search, size)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Failed to search uninsured customers: ${response.message()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Search assured customers only
      * Backend: GET /customers/assured?search=...
      */
-    suspend fun searchAssuredCustomers(search: String, typeTiersPayant: String? = null, size: Int = 5): Result<List<Customer>> {
+    suspend fun searchAssuredCustomers(search: String, typeTiersPayant: String? = null, size: Int = 20): Result<List<Customer>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = customerApiService.searchAssuredCustomers(search, typeTiersPayant, size)

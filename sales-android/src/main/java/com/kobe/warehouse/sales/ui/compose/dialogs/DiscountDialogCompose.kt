@@ -233,7 +233,7 @@ fun DiscountDialog(
                             )
                         }
 
-                        Divider(
+                        HorizontalDivider(
                             modifier = Modifier.padding(vertical = 8.dp),
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
                         )

@@ -14,7 +14,7 @@
         android:layout_marginBottom="16dp"
         android:hint="Taux de couverture (%)"
         app:endIconMode="clear_text"
-        app:helperText="Entre 0 et 100"
+        app:helperText="Entre 5 et 100"
         app:helperTextEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText

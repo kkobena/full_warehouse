@@ -143,8 +143,8 @@ class LoginActivity : AppCompatActivity() {
 
         // Observe login success
         viewModel.loginSuccess.observe(this) { account ->
-            // Navigate to Sale Menu Selection (choose between Simple or Full menu)
-            val intent = Intent(this, SaleMenuSelectionActivity::class.java)
+            // Navigate directly to Full Sale Home (sales list)
+            val intent = Intent(this, FullSaleHomeActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()

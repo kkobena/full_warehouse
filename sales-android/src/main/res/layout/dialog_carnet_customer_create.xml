@@ -116,7 +116,8 @@
                     android:inputType="text"
                     android:imeOptions="actionNext"
                     android:maxLines="1"
-                    android:completionThreshold="3" />
+                    android:completionThreshold="3"
+                    android:popupBackground="@color/white" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

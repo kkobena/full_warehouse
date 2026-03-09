@@ -3,11 +3,9 @@ package com.kobe.warehouse.sales.data.api
 import com.kobe.warehouse.sales.data.model.TiersPayant
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -40,7 +38,7 @@ interface TiersPayantApiService {
     @POST("api/tiers-payants")
     suspend fun createTiersPayant(
         @Body tiersPayant: TiersPayant
-    ): Response<com.kobe.warehouse.sales.data.model.TiersPayant>
+    ): Response<TiersPayant>
 
     /**
      * Update existing tiers payant
@@ -49,24 +47,7 @@ interface TiersPayantApiService {
      */
     @PUT("api/tiers-payants")
     suspend fun updateTiersPayant(
-        @Body tiersPayant: com.kobe.warehouse.sales.data.model.TiersPayant
-    ): Response<com.kobe.warehouse.sales.data.model.TiersPayant>
+        @Body tiersPayant: TiersPayant
+    ): Response<TiersPayant>
 
-    /**
-     * Delete tiers payant
-     * Backend: DELETE /tiers-payants/{id}
-     */
-    @DELETE("api/tiers-payants/{id}")
-    suspend fun deleteTiersPayant(
-        @Path("id") id: Int
-    ): Response<Void>
-
-    /**
-     * Disable tiers payant (soft delete)
-     * Backend: DELETE /tiers-payants/desable/{id}
-     */
-    @DELETE("api/tiers-payants/desable/{id}")
-    suspend fun disableTiersPayant(
-        @Path("id") id: Int
-    ): Response<Void>
 }

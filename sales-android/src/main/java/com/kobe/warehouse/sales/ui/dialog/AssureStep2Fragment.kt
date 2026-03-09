@@ -93,6 +93,15 @@ class AssureStep2Fragment : Fragment() {
             binding.tilNumAyantDroit.error = null
         }
 
+        // Validate date not in the future
+        val datNaissText = binding.etDatNaiss.text.toString().trim()
+        if (DateInputFormatter.isFutureDate(datNaissText)) {
+            binding.tilDatNaiss.error = "La date ne peut pas être dans le futur"
+            hasError = true
+        } else {
+            binding.tilDatNaiss.error = null
+        }
+
         return !hasError
     }
 

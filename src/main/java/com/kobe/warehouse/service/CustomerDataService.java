@@ -78,6 +78,8 @@ public class CustomerDataService {
         }
         if (categorie.equalsIgnoreCase(EntityConstant.ASSURE) || EntityConstant.CARNET.equalsIgnoreCase(categorie)) {
             return loadAllAsuredCustomers(search, status, pageable);
+        } else if (EntityConstant.STANDARD.equals(categorie)) {
+            return loadAllUninsuredCustomers(search, status, pageable);
         }
         return loadAllUninsuredCustomers(search, status, pageable);
     }

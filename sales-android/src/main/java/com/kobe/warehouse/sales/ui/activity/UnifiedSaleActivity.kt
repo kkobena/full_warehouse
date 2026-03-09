@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.AuthApiService
 import com.kobe.warehouse.sales.data.api.CustomerApiService
@@ -468,6 +470,8 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.isVisible = true
                 binding.includeCustomerInfoDisplay.tvAyantDroitName.text =
                     "${ayantDroit.firstName} ${ayantDroit.lastName}"
+                binding.includeCustomerInfoDisplay.tvAyantDroitNum.text =
+                    if (!ayantDroit.numAyantDroit.isNullOrEmpty()) "N° ${ayantDroit.numAyantDroit}" else ""
             } else {
                 binding.includeCustomerInfoDisplay.layoutSelectedAyantDroit.isGone = true
             }
@@ -571,7 +575,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
         // Sale saved (put on hold) - stay on screen, switch to Comptant tab
         viewModel.saleSaved.observe(this) { sale ->
             sale?.let {
-                Toast.makeText(this, "Vente mise en attente", Toast.LENGTH_SHORT).show()
                 switchToComptantTab()
                 viewModel.changeSaleType(SaleType.Comptant)
                 viewModel.clearSaleSaved()
@@ -1085,6 +1088,13 @@ class UnifiedSaleActivity : AppCompatActivity() {
         isChangingChipProgrammatically = true
         binding.includeSaleTypeSelector.chipGroupSaleType.check(initialChipId)
         isChangingChipProgrammatically = false
+
+        // Auto-focus product search for new Comptant sale (no customer required)
+        if (saleId == 0L && initialChipId == R.id.chipComptant) {
+            binding.includeProductCart.etProductSearch.post {
+                binding.includeProductCart.etProductSearch.requestFocus()
+            }
+        }
     }
 
     private fun finalizeSale() {
@@ -1167,7 +1177,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 viewModel.resetAfterSale()
                 switchToComptantTab()
                 focusProductSearch()
-                Toast.makeText(this, "Prêt pour une nouvelle vente", Toast.LENGTH_SHORT).show()
+
             }
             .setCancelable(false)
             .show()
@@ -1203,11 +1213,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 viewModel.resetAfterSale()
                 switchToComptantTab()
                 focusProductSearch()
-                Toast.makeText(
-                    this@UnifiedSaleActivity,
-                    "Reçu imprimé avec succès. Prêt pour une nouvelle vente",
-                    Toast.LENGTH_LONG
-                ).show()
+
             } else {
                 MaterialAlertDialogBuilder(this@UnifiedSaleActivity)
                     .setTitle("Erreur d'impression")
@@ -1216,11 +1222,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                         viewModel.resetAfterSale()
                         switchToComptantTab()
                         focusProductSearch()
-                        Toast.makeText(
-                            this@UnifiedSaleActivity,
-                            "Prêt pour une nouvelle vente",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
                     }
                     .show()
             }
@@ -1667,6 +1669,14 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 layoutMatricule.isGone = true
             }
 
+            // Phone (visible for Comptant when available)
+            if (!customer.phone.isNullOrEmpty()) {
+                layoutPhone.isVisible = true
+                tvCustomerPhone.text = customer.phone
+            } else {
+                layoutPhone.isGone = true
+            }
+
             // Tiers Payants section
             if (saleType is SaleType.Carnet || saleType is SaleType.Assurance) {
                 android.util.Log.d("UnifiedSale", "Showing tiers payants section for: $saleType")
@@ -1726,11 +1736,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             viewModel.initClientTiersPayantsFromCustomer(customer.tiersPayants)
         }
 
-        val tiersPayantsList = if (isAssuranceMode) {
-            viewModel.clientTiersPayants.value ?: emptyList()
-        } else {
-            customer.tiersPayants
-        }
+        val tiersPayantsList = viewModel.clientTiersPayants.value ?: emptyList()
 
         android.util.Log.d("UnifiedSale", "Submitting list - size: ${tiersPayantsList.size}")
         tiersPayantsAdapter.submitList(tiersPayantsList)
@@ -1900,11 +1906,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 .setItems(ayantDroitNames) { _, which ->
                     val selectedAyantDroit = ayantDroits[which]
                     viewModel.selectAyantDroit(selectedAyantDroit)
-                    Toast.makeText(
-                        this,
-                        "Ayant droit sélectionné : ${selectedAyantDroit.firstName} ${selectedAyantDroit.lastName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
                 }
                 .setNegativeButton("Annuler", null)
                 .show()
@@ -1916,46 +1918,74 @@ class UnifiedSaleActivity : AppCompatActivity() {
      */
     private fun showCreateAyantDroitDialog(customer: Customer) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_ayant_droit, null)
-        val etFirstName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etFirstName)
-        val etLastName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etLastName)
-        val etPhone = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etPhone)
+        val tilFirstName = dialogView.findViewById<TextInputLayout>(R.id.tilFirstName)
+        val etFirstName = dialogView.findViewById<TextInputEditText>(R.id.etFirstName)
+        val tilLastName = dialogView.findViewById<TextInputLayout>(R.id.tilLastName)
+        val etLastName = dialogView.findViewById<TextInputEditText>(R.id.etLastName)
+        val tilNumAyantDroit = dialogView.findViewById<TextInputLayout>(R.id.tilNumAyantDroit)
+        val etNumAyantDroit = dialogView.findViewById<TextInputEditText>(R.id.etNumAyantDroit)
+        val etPhone = dialogView.findViewById<TextInputEditText>(R.id.etPhone)
 
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Créer un ayant droit")
             .setView(dialogView)
-            .setPositiveButton("Créer") { _, _ ->
+            .setPositiveButton("Créer", null)
+            .setNegativeButton("Annuler", null)
+            .create()
+
+        dialog.setOnShowListener {
+            // Auto-focus first field
+            etFirstName.requestFocus()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.showSoftInput(etFirstName, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+
+            // Override positive button to prevent dismiss on validation error
+            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val firstName = etFirstName.text.toString().trim()
                 val lastName = etLastName.text.toString().trim()
+                val numAyantDroit = etNumAyantDroit.text.toString().trim()
                 val phone = etPhone.text.toString().trim()
 
                 // Validate
+                var hasError = false
                 if (firstName.isEmpty()) {
-                    Toast.makeText(this, "Le prénom est requis", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    tilFirstName.error = "Nom requis"
+                    hasError = true
+                } else {
+                    tilFirstName.error = null
                 }
                 if (lastName.isEmpty()) {
-                    Toast.makeText(this, "Le nom est requis", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    tilLastName.error = "Prénom(s) requis"
+                    hasError = true
+                } else {
+                    tilLastName.error = null
+                }
+                if (numAyantDroit.isEmpty()) {
+                    tilNumAyantDroit.error = "Numéro assuré requis"
+                    hasError = true
+                } else {
+                    tilNumAyantDroit.error = null
                 }
 
-                // Create ayant droit object
-                val ayantDroit = Customer(
+                if (hasError) return@setOnClickListener
+
+                val assureId = customer.id ?: run {
+                    Toast.makeText(this, "Erreur: ID client invalide", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                viewModel.createAyantDroit(
+                    assureId = assureId,
                     firstName = firstName,
                     lastName = lastName,
-                    phone = phone.ifEmpty { null },
-                    // Copy tiers payants from parent customer
-                    tiersPayants = customer.tiersPayants
+                    numAyantDroit = numAyantDroit,
+                    phone = phone.ifEmpty { null }
                 )
-
-                // For now, just select it locally (backend integration needed)
-                viewModel.selectAyantDroit(ayantDroit)
-                Toast.makeText(this, "Ayant droit créé : $firstName $lastName", Toast.LENGTH_SHORT).show()
-
-                // TODO: Send to backend when API is ready
-                // viewModel.createAyantDroit(customer.id, ayantDroit)
+                dialog.dismiss()
             }
-            .setNegativeButton("Annuler", null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     // ========================================

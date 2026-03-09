@@ -52,6 +52,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
     private var searchJob: Job? = null
     private var selectedTiersPayant: TiersPayant? = null
     private val tiersPayantsList = mutableListOf<TiersPayant>()
+    private var isSettingTiersPayant = false
 
     companion object {
         const val TAG = "CarnetCustomerCreateDialog"
@@ -93,6 +94,9 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         setupListeners()
         setupAutoFocus()
         DateInputFormatter.attach(binding.etDateNaiss)
+
+        // Default taux to 100 for CARNET
+        binding.etTaux.setText("100")
     }
 
     /**
@@ -120,6 +124,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         // Auto-complete for tiers payant search
         binding.actvTiersPayant.addTextChangedListener { text ->
             searchJob?.cancel()
+            if (isSettingTiersPayant) return@addTextChangedListener
             val query = text.toString().trim()
 
             if (query.length > 2) {
@@ -190,7 +195,10 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         ) { createdTiersPayant ->
             searchJob?.cancel()
             selectedTiersPayant = createdTiersPayant
+            isSettingTiersPayant = true
             binding.actvTiersPayant.setText(createdTiersPayant.name, false)
+            binding.actvTiersPayant.dismissDropDown()
+            isSettingTiersPayant = false
             binding.tilTiersPayant.error = null
             binding.etNum.requestFocus()
         }
@@ -236,11 +244,20 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         }
 
         val taux = tauxText.toIntOrNull()
-        if (taux == null || taux < 0 || taux > 100) {
-            binding.tilTaux.error = "Taux invalide (0-100)"
+        if (taux == null || taux < 5 || taux > 100) {
+            binding.tilTaux.error =  "Taux doit être entre 5 et 100"
             hasError = true
         } else {
             binding.tilTaux.error = null
+        }
+
+        // Validate date not in the future
+        val dateNaissText = binding.etDateNaiss.text.toString().trim()
+        if (DateInputFormatter.isFutureDate(dateNaissText)) {
+            binding.tilDateNaiss.error = "La date ne peut pas être dans le futur"
+            hasError = true
+        } else {
+            binding.tilDateNaiss.error = null
         }
 
         if (hasError) {
@@ -249,7 +266,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
 
         // Optional fields
         val phone = binding.etPhone.text.toString().trim().ifEmpty { null }
-        val dateNaiss = DateInputFormatter.toIsoDate(binding.etDateNaiss.text.toString())
+        val dateNaiss = DateInputFormatter.toIsoDate(dateNaissText)
 
         // Create customer
         val tiersPayantId = selectedTiersPayant!!.id ?: run {
@@ -293,11 +310,6 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
                 onSuccess = { customer ->
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.isEnabled = true
-                    Toast.makeText(
-                        requireContext(),
-                        "Client Carnet créé avec succès",
-                        Toast.LENGTH_SHORT
-                    ).show()
                     onCustomerCreated?.invoke(customer)
                     dismiss()
                 },

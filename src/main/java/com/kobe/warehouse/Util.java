@@ -38,18 +38,6 @@ public final class Util {
         return Collections.emptyList();
     }
 
-    public static String transformTvaEmbededToString(List<TvaEmbeded> tvaEmbededs) {
-        if (!tvaEmbededs.isEmpty()) {
-            try {
-                return new ObjectMapper().writeValueAsString(tvaEmbededs);
-            } catch (JsonProcessingException e) {
-                log.debug("{0}", e);
-                return null;
-            }
-        }
-
-        return null;
-    }
 
     public static boolean isValidPhoneNumber(String phoneNumberInput) {
         try {

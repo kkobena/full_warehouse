@@ -14,7 +14,6 @@ public interface PaymentService {
 
     Set<SalePayment> clonePayments(Set<SalePayment> salePayments, Sales copy);
 
-    Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user);
 
     void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO);
 

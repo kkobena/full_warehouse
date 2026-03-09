@@ -9,6 +9,7 @@ import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.PrioriteTiersPayant
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
+import com.kobe.warehouse.sales.data.model.SaleId
 import com.kobe.warehouse.sales.data.model.SaleLine
 import com.kobe.warehouse.sales.data.model.SaleLineId
 import com.kobe.warehouse.sales.data.model.Decondition
@@ -188,13 +189,13 @@ class UnifiedSaleViewModel(
         }
 
         _isSearchingCustomer.value = true
-        val typeTiersPayant = when (_currentSaleType.value) {
-            is SaleType.Assurance -> "ASSURANCE"
-            is SaleType.Carnet -> "CARNET"
-            else -> null
-        }
         viewModelScope.launch {
-            customerRepository.searchAssuredCustomers(query, typeTiersPayant).fold(
+            val result = when (_currentSaleType.value) {
+                is SaleType.Assurance -> customerRepository.searchAssuredCustomers(query, "ASSURANCE")
+                is SaleType.Carnet -> customerRepository.searchAssuredCustomers(query, "CARNET")
+                else -> customerRepository.searchUninsuredCustomers(query)
+            }
+            result.fold(
                 onSuccess = { customers ->
                     _customerSearchResults.value = customers
                     _isSearchingCustomer.value = false
@@ -247,7 +248,7 @@ class UnifiedSaleViewModel(
     fun replaceCustomer(newCustomer: Customer) {
         // Reset customer-related data
         _clientTiersPayants.value = emptyList()
-        // TODO: Reset ayant droits when implemented
+        _selectedAyantDroit.value = null
 
         // Select new customer
         selectCustomer(newCustomer)
@@ -259,6 +260,7 @@ class UnifiedSaleViewModel(
             return
         }
         _selectedCustomer.value = null
+        _selectedAyantDroit.value = null
         _currentSale.value?.copy(customer = null)?.let {
             _currentSale.value = it
         }
@@ -269,6 +271,7 @@ class UnifiedSaleViewModel(
      */
     fun resetCustomerForTypeChange() {
         _selectedCustomer.value = null
+        _selectedAyantDroit.value = null
         _clientTiersPayants.value = emptyList()
         _customerSearchResults.value = emptyList()
         _customerValidationError.value = null
@@ -444,12 +447,22 @@ class UnifiedSaleViewModel(
                     addLineToExistingSale(currentSale, newLine, saleType)
                 }
 
+                val isNewSale = currentSale.id == null
                 result.fold(
                     onSuccess = { updatedSale ->
                         _currentRemise.value = updatedSale.remise
                         _currentSale.value = updatedSale
                         _products.value = emptyList() // Clear search
                         _errorMessage.value = "Produit ajouté"
+
+                        // If a new sale was just created and an ayant droit was pre-selected, sync it
+                        if (isNewSale) {
+                            val pendingAyantDroit = _selectedAyantDroit.value
+                            val newSaleId = updatedSale.saleId
+                            if (pendingAyantDroit != null && newSaleId != null) {
+                                syncAyantDroitToSale(pendingAyantDroit, newSaleId)
+                            }
+                        }
                     },
                     onFailure = { error ->
                         handleAddProductError(error, product, quantity, forceStock)
@@ -960,13 +973,18 @@ class UnifiedSaleViewModel(
                     // Detect if it's a prevente (statut PENDING or PROCESSING)
                     _isPrevente.value = sale.statut == SalesStatut.PENDING || sale.statut == SalesStatut.PROCESSING
 
-                    _selectedCustomer.value = sale.customer
+                    // Restore tiers payants BEFORE customer — setting customer triggers
+                    // displayTiersPayants which would overwrite sale data (with numBon)
+                    // with customer data (without numBon) if clientTiersPayants is empty
+                    _clientTiersPayants.value = sale.tiersPayants.toList()
 
-                    // Restore tiers payants from sale
-                    _clientTiersPayants.value = sale.tiersPayants?.toList() ?: emptyList()
+                    // Restore ayant droit from sale (Assurance only)
+                    _selectedAyantDroit.value = sale.ayantDroit
 
                     // Restore remise from sale
                     _currentRemise.value = sale.remise
+
+                    _selectedCustomer.value = sale.customer
 
                     // Set currentSale last — its observer uses currentSaleType for TP display
                     _currentSale.value = sale
@@ -1121,6 +1139,7 @@ class UnifiedSaleViewModel(
         val statut = if (_isPrevente.value == true) SalesStatut.PROCESSING else SalesStatut.ACTIVE
         _currentSale.value = Sale(statut = statut)
         _selectedCustomer.value = null
+        _selectedAyantDroit.value = null
         _clientTiersPayants.value = emptyList()
         _currentSaleType.value = SaleType.Comptant
         _isEditMode.value = false
@@ -1351,9 +1370,20 @@ class UnifiedSaleViewModel(
     val selectedAyantDroit: LiveData<Customer?> = _selectedAyantDroit
 
     fun selectAyantDroit(ayantDroit: Customer) {
+        // Always update UI immediately
+        _selectedAyantDroit.value = ayantDroit
+
+        // If a sale already exists on the backend, sync the ayant droit
         val currentSale = _currentSale.value ?: return
         val saleId = currentSale.saleId ?: return
+        syncAyantDroitToSale(ayantDroit, saleId)
+    }
 
+    /**
+     * Sync the selected ayant droit to the backend sale.
+     * Called when selecting an ayant droit (if sale exists) and after first product is added.
+     */
+    private fun syncAyantDroitToSale(ayantDroit: Customer, saleId: SaleId) {
         viewModelScope.launch {
             val ayantDroitId = ayantDroit.id ?: run {
                 _errorMessage.value = "ID ayant droit invalide"
@@ -1365,11 +1395,37 @@ class UnifiedSaleViewModel(
             )
             salesRepository.addAyantDroitToSale(updateSaleInfo).fold(
                 onSuccess = {
-                    _selectedAyantDroit.value = ayantDroit
                     reloadCurrentSale()
                 },
                 onFailure = { error ->
                     postServerError(error, "Erreur ajout ayant droit")
+                }
+            )
+        }
+    }
+
+    fun createAyantDroit(
+        assureId: Int,
+        firstName: String,
+        lastName: String,
+        numAyantDroit: String,
+        phone: String?
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            customerRepository.createAyantDroit(
+                assureId = assureId,
+                firstName = firstName,
+                lastName = lastName,
+                numAyantDroit = numAyantDroit
+            ).fold(
+                onSuccess = { createdAyantDroit ->
+                    _isLoading.value = false
+                    selectAyantDroit(createdAyantDroit)
+                },
+                onFailure = { error ->
+                    _isLoading.value = false
+                    postServerError(error, "Erreur création ayant droit")
                 }
             )
         }
@@ -1872,7 +1928,7 @@ class UnifiedSaleViewModel(
             try {
                 val saleLineId = SaleLineId(
                     id = saleLine.id ?: 0L,
-                    saleDate = sale.saleId!!.saleDate
+                    saleDate = sale.saleId.saleDate
                 )
                 val saleCompositeId = sale.saleId
 

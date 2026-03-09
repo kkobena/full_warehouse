@@ -490,3 +490,4 @@ create schema pharma_smart;
 alter schema pharma_smart owner to pharma_smart;
 ## reparation de la base de données pharma_smart
 mvn -Dflyway.url="jdbc:postgresql://localhost:5432/pharma_smart" -Dflyway.user=pharma_smart -Dflyway.password="2802_pharma_smart" -Dflyway.schemas=pharma_smart -Dflyway.table=pharma_smart_history   flyway:repair
+"Get users to their primary task as fast as possible"

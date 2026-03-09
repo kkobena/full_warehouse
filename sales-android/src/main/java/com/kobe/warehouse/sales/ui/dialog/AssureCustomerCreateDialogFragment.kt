@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.CustomerApiService
@@ -104,6 +105,25 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
                 else -> "Step ${position + 1}"
             }
         }.attach()
+
+        // Prevent switching to step 2 via tab click if step 1 is invalid
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                if (tab.position == 1 && binding.viewPager.currentItem == 0) {
+                    if (!validateStep1()) {
+                        // Revert to step 1
+                        binding.tabLayout.post {
+                            binding.viewPager.currentItem = 0
+                        }
+                        return
+                    }
+                }
+                binding.viewPager.currentItem = tab.position
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
 
         // Listen to page changes
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -236,13 +256,6 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
                     isSaving = false
                     binding.progressBar.visibility = View.GONE
                     binding.btnNext.isEnabled = true
-
-                    Toast.makeText(
-                        requireContext(),
-                        "Client assuré créé avec succès",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
                     onCustomerCreated?.invoke(createdCustomer)
                     dismiss()
                 },

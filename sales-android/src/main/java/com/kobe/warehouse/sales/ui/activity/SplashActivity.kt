@@ -26,8 +26,8 @@ class SplashActivity : AppCompatActivity() {
         val hasToken = tokenManager.getAccessToken() != null
 
         val intent = if (hasToken) {
-            // Go directly to Sale Menu Selection (choose between Simple or Full menu)
-            Intent(this, SaleMenuSelectionActivity::class.java)
+            // Go directly to Full Sale Home (sales list)
+            Intent(this, FullSaleHomeActivity::class.java)
         } else {
             Intent(this, LoginActivity::class.java)
         }

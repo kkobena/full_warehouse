@@ -1,6 +1,6 @@
 package com.kobe.warehouse.sales.ui.dialog
 
-import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.databinding.DialogDiscountBinding
 import com.kobe.warehouse.sales.data.model.Discount
@@ -79,9 +78,15 @@ class DiscountDialog : DialogFragment() {
             originalAmount = args.getInt(ARG_ORIGINAL_AMOUNT, 0)
 
             // Load existing discount if editing
-            args.getParcelable<Discount>(ARG_EXISTING_DISCOUNT)?.let { discount ->
-                currentDiscountType = discount.type
-                currentDiscountValue = discount.value
+            val discount = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                args.getParcelable(ARG_EXISTING_DISCOUNT, Discount::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                args.getParcelable(ARG_EXISTING_DISCOUNT)
+            }
+            discount?.let {
+                currentDiscountType = it.type
+                currentDiscountValue = it.value
             }
         }
     }
@@ -121,8 +126,8 @@ class DiscountDialog : DialogFragment() {
 
     private fun setupListeners() {
         // Discount type selection
-        binding.chipGroupDiscountType.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
+        binding.chipGroupDiscountType.setOnCheckedStateChangeListener { _, checkedIds ->
+            when (checkedIds.firstOrNull()) {
                 R.id.chip_percentage -> {
                     currentDiscountType = DiscountType.PERCENTAGE
                     updateDiscountTypeUI(DiscountType.PERCENTAGE)
@@ -148,16 +153,16 @@ class DiscountDialog : DialogFragment() {
 
         // Quick amount buttons (for fixed discount)
         binding.chipAmount100.setOnClickListener {
-            binding.etDiscountValue.setText("100")
+            binding.etDiscountValue.text?.apply { clear(); append("100") }
         }
         binding.chipAmount500.setOnClickListener {
-            binding.etDiscountValue.setText("500")
+            binding.etDiscountValue.text?.apply { clear(); append("500") }
         }
         binding.chipAmount1000.setOnClickListener {
-            binding.etDiscountValue.setText("1000")
+            binding.etDiscountValue.text?.apply { clear(); append("1000") }
         }
         binding.chipAmount5000.setOnClickListener {
-            binding.etDiscountValue.setText("5000")
+            binding.etDiscountValue.text?.apply { clear(); append("5000") }
         }
 
         // Action buttons

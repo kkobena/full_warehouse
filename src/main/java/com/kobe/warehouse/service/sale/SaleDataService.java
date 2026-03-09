@@ -103,7 +103,7 @@ public class SaleDataService {
     private final ReceiptPrinterService receiptPrinterService;
     private final SalesRepository salesRepository;
     private final StorageService storageService;
-    private final SalePaymentRepository salePaymentRepository;
+
 
     public SaleDataService(
         EntityManager em,
@@ -111,8 +111,8 @@ public class SaleDataService {
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ReceiptPrinterService receiptPrinterService,
-        SalesRepository salesRepository, StorageService storageService,
-        SalePaymentRepository salePaymentRepository
+        SalesRepository salesRepository, StorageService storageService
+
     ) {
         this.em = em;
 
@@ -124,7 +124,7 @@ public class SaleDataService {
         this.receiptPrinterService = receiptPrinterService;
         this.salesRepository = salesRepository;
         this.storageService = storageService;
-        this.salePaymentRepository = salePaymentRepository;
+
     }
 
     private static SaleDTO mapRowToSaleDTO(Object[] row) {

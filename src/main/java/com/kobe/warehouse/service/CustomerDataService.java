@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CustomerDataService {
 
-    private final Logger LOG = LoggerFactory.getLogger(CustomerDataService.class);
+
     private final CustomerRepository customerRepository;
     private final AssuredCustomerRepository assuredCustomerRepository;
     private final EntityManager entityManager;

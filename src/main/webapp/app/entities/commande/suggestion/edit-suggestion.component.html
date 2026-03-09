@@ -84,47 +84,66 @@
     </div>
     <div class="row">
       <div class="col-sm-12 col-sm-4 col-lg-3 col-xl-3 col-md-4">
-        <div class="card">
-          <div class="card-header">
-            <h5>Suggestion</h5>
+        <div class="suggestion-summary-card">
+          <div class="summary-header">
+            <i class="pi pi-lightbulb"></i>
+            <span>Détails de la suggestion</span>
           </div>
-          <div class="card-body">
-            <ul class="list-group">
-              @let sug = writableSignal();
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Référence
-                <span class="badge text-bg-secondary fw-bold">{{ sug.suggessionReference }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Fournisseur
-                <span class="badge text-bg-secondary fw-bold">{{ sug.fournisseurLibelle }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Date
-                <span class="badge text-bg-secondary fw-bold">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Type de suggestion
-                <span class="badge text-bg-secondary fw-bold">{{ sug.typeSuggession }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Nombre de produits
-                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount | number }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Valeur achat
-                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat | number }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Valeur vente
-                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente | number }}</span>
-              </li>
-            </ul>
+          <div class="summary-content">
+            @let sug = writableSignal();
+            <div class="summary-item">
+              <div class="summary-label">
+                <i class="pi pi-hashtag"></i>
+                <span>Référence</span>
+              </div>
+              <div class="summary-value">{{ sug.suggessionReference }}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">
+                <i class="pi pi-building"></i>
+                <span>Fournisseur</span>
+              </div>
+              <div class="summary-value">{{ sug.fournisseurLibelle }}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">
+                <i class="pi pi-calendar"></i>
+                <span>Date</span>
+              </div>
+              <div class="summary-value">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">
+                <i class="pi pi-tag"></i>
+                <span>Type</span>
+              </div>
+              <div class="summary-value">{{ sug.typeSuggession }}</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">
+                <i class="pi pi-box"></i>
+                <span>Nombre de produits</span>
+              </div>
+              <div class="summary-value amount">{{ sug.suggestionAggregator?.itemsCount | number }}</div>
+            </div>
+            <div class="summary-item highlight">
+              <div class="summary-label">
+                <i class="pi pi-shopping-cart"></i>
+                <span>Valeur achat</span>
+              </div>
+              <div class="summary-value amount">{{ sug.suggestionAggregator?.montantAchat | number }}</div>
+            </div>
+            <div class="summary-item highlight">
+              <div class="summary-label">
+                <i class="pi pi-money-bill"></i>
+                <span>Valeur vente</span>
+              </div>
+              <div class="summary-value amount">{{ sug.suggestionAggregator?.montantVente | number }}</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="col-sm-12 col-sm-8 col-lg-9 col-xl-9 col-md-8">
-        @if (suggestions && suggestions.length > 0) {
           <p-table
             class="pharma-table"
             (onLazyLoad)="lazyLoading($event)"
@@ -158,7 +177,7 @@
                     label="Commander"
                     severity="primary"
                     type="button"
-                  ></p-button>
+                  />
                   <p-button class="mr-1" [raised]="true" label="Exporter" severity="help" icon="pi pi-file-excel" (onClick)="exportCSV()" />
                   <p-splitbutton
                     [hidden]="true"
@@ -177,7 +196,8 @@
                     label="Purger"
                     severity="info"
                     type="button"
-                  ></p-button>
+                  />
+
                   @if (selections?.length) {
                     <p-button
                       (click)="deleteAll()"
@@ -186,7 +206,7 @@
                       label="Supprimer"
                       severity="danger"
                       type="button"
-                    ></p-button>
+                    />
                   }
                 </div>
               </div>
@@ -200,7 +220,9 @@
                 <th>Quantité</th>
                 <th>Prix.A</th>
                 <th>Prix.U</th>
-
+                @for (mois of moisColumns; track mois) {
+                  <th class="text-center" style="min-width: 60px">{{ MOIS_LABELS[mois] || mois }}</th>
+                }
                 <th class="table-all-checkbos">
                   <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
@@ -212,21 +234,14 @@
                 <td>
                   <jhi-eta-produit [isSuggestion]="true" [etatProduit]="suggestion.etatProduit"></jhi-eta-produit>
                 </td>
-                <td class="pharma-code">{{ suggestion.fournisseurProduitCip }}</td>
+                <td>{{ suggestion.fournisseurProduitCip }}</td>
                 <td class="pharma-product-name">{{ suggestion.fournisseurProduitLibelle }}</td>
-                @if (suggestion.currentStock < 0) {
-                  <td style="text-align: right" class="amount-column red-400">
-                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
-                  </td>
-                } @else if (suggestion.currentStock === 0) {
-                  <td style="text-align: right" class="amount-column orange-400">
-                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
-                  </td>
-                } @else {
-                  <td style="text-align: right" class="amount-column">
-                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
-                  </td>
-                }
+                <td style="text-align: right"
+                    class="amount-column"
+                    [class.stock-negatif]="suggestion.currentStock <= 0"
+                    [class.stock-positif]="suggestion.currentStock > 0">
+                  <span class="pharma-stock-value">{{ suggestion.currentStock | number }}</span>
+                </td>
                 <td pEditableColumn style="text-align: right" class="amount-column">
                   <p-cellEditor>
                     <ng-template #input>
@@ -250,6 +265,11 @@
                 <td style="text-align: right" class="amount-column">
                   <span class="pharma-price">{{ suggestion.prixVente | number }}</span>
                 </td>
+                @for (mois of moisColumns; track mois) {
+                  <td style="text-align: right" class="amount-column">
+                    <span class="pharma-qty-value">{{ suggestion.consommationMensuelle?.[mois] ?? 0 | number }}</span>
+                  </td>
+                }
                 <td class="text-center">
                   <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
                 </td>
@@ -277,12 +297,14 @@
                 </td>
               </tr>
             </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td [attr.colspan]="7 + moisColumns.length + 2" class="text-center">
+                  <span class="alert alert-warning d-inline-block mt-2">Aucune donnée trouvée</span>
+                </td>
+              </tr>
+            </ng-template>
           </p-table>
-        } @else {
-          <div class="alert alert-warning" id="no-result">
-            <span>Aucune donnée trouvée</span>
-          </div>
-        }
       </div>
     </div>
   </div>

@@ -1355,9 +1355,13 @@ class UnifiedSaleViewModel(
         val saleId = currentSale.saleId ?: return
 
         viewModelScope.launch {
+            val ayantDroitId = ayantDroit.id ?: run {
+                _errorMessage.value = "ID ayant droit invalide"
+                return@launch
+            }
             val updateSaleInfo = UpdateSaleInfo(
                 id = saleId,
-                value = ayantDroit.id
+                value = ayantDroitId
             )
             salesRepository.addAyantDroitToSale(updateSaleInfo).fold(
                 onSuccess = {

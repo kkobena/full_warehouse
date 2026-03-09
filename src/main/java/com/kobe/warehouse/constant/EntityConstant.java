@@ -61,5 +61,7 @@ public final class EntityConstant {
     public static final String APP_CUSTOMER_DISPLAY = "APP_CUSTOMER_DISPLAY"; // Est-ce que le afficheur client est actif
     public static final String APP_POST_CONFIG = "APP_POST_CONFIG";
     public static final String APP_SCANNER_MODE = "APP_SCANNER_MODE";
+    public static final String APP_NTH_MOIS_CONSOMMATION = "APP_NTH_MOIS_CONSOMMATION"; // Nombre de mois de consommation pour les suggestions
+    public static final String APP_NTH_MOIS_CONSOMMATION_CACHE = "APP_NTH_MOIS_CONSOMMATION_CACHE";
 
 }

@@ -1,33 +1,102 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { EtatProduit } from '../model/etat-produit.model';
-import { MeterGroup } from 'primeng/metergroup';
-/*
- template: ` <p-metergroup [value]="values" [max]="120" />`,
- */
+import { Tooltip } from 'primeng/tooltip';
+
+interface EtatBadge {
+  icon: string;
+  label: string;
+  tooltip: string;
+  cssClass: string;
+}
+
 @Component({
   selector: 'jhi-eta-produit',
-  imports: [MeterGroup],
-  template: ` <p-metergroup [value]="values" [max]="120" labelOrientation="horizontal">
-    <ng-template #meter let-value let-class="class" let-width="size">
-      <span [class]="class" [style]="{ background: value.color, width: width }"></span>
-    </ng-template>
-
-    <ng-template #label>
-      @if (showLabel()) {
-        <ng-container>
-          <ol class="p-metergroup-label-list p-component p-metergroup-label-list-horizontal">
-            @for (l of values; track $index) {
-              <li class="p-metergroup-label">
-                <span [style]="{ backgroundColor: l.color }" class="p-metergroup-label-marker"></span>
-                <span class="p-metergroup-label-text">{{ l.label }}</span>
-              </li>
-            }
-          </ol>
-        </ng-container>
+  imports: [Tooltip],
+  template: `
+    <div class="etat-produit-bar">
+      @for (badge of badges(); track badge.label) {
+        <span [class]="'etat-badge ' + badge.cssClass" [pTooltip]="badge.tooltip" tooltipPosition="top">
+          <i [class]="badge.icon"></i>
+          @if (showLabel()) {
+            <span class="etat-badge-label">{{ badge.label }}</span>
+          }
+        </span>
       }
-    </ng-template>
-  </p-metergroup>`,
-  styles: ``,
+    </div>
+  `,
+  styles: `
+    .etat-produit-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-wrap: nowrap;
+    }
+
+    .etat-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: default;
+      transition: opacity 0.2s ease;
+    }
+
+    .etat-badge:hover {
+      opacity: 0.85;
+    }
+
+    .etat-badge i {
+      font-size: 0.65rem;
+    }
+
+    .etat-badge-label {
+      font-size: 0.65rem;
+    }
+
+    /* ── Stock ── */
+    .etat-stock-positif {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .etat-stock-zero {
+      background-color: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde68a;
+    }
+
+    .etat-stock-negatif {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* ── Workflow ── */
+    .etat-suggestion {
+      background-color: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .etat-commande {
+      background-color: #f3e8ff;
+      color: #6b21a8;
+      border: 1px solid #e9d5ff;
+    }
+
+    .etat-entree {
+      background-color: #ede9fe;
+      color: #5b21b6;
+      border: 1px solid #ddd6fe;
+    }
+  `,
 })
 export class EtaProduitComponent {
   readonly etatProduit = input.required<EtatProduit>();
@@ -35,127 +104,68 @@ export class EtaProduitComponent {
   readonly isSuggestion = input<boolean>(false);
   readonly isCommande = input<boolean>(false);
 
-  private getStockPositif(etat: EtatProduit): number {
-    if (etat.stockPositif) {
-      return 120 - (etat.enSuggestion ? 20 : 0) - (etat.enCommande ? 20 : 0) - (etat.entree ? 20 : 0);
-    }
-    return 0;
-  }
-  private getSockZero(etat: EtatProduit): number {
-    if (etat.sockZero) {
-      return 120 - (etat.enSuggestion ? 20 : 0) - (etat.enCommande ? 20 : 0) - (etat.entree ? 20 : 0);
-    }
-    return 0;
-  }
-  private getStockNegatif(etat: EtatProduit): number {
-    if (etat.stockNegatif) {
-      return 120 - (etat.enSuggestion ? 20 : 0) - (etat.enCommande ? 20 : 0) - (etat.entree ? 20 : 0);
-    }
-    return 0;
-  }
-  private getEnSuggestion(etat: EtatProduit): number {
-    if (etat.enSuggestion || etat.otherSuggestion) {
-      return (
-        120 -
-        (etat.stockPositif ? 20 : 0) -
-        (etat.enCommande ? 20 : 0) -
-        (etat.entree ? 20 : 0) -
-        (etat.stockNegatif ? 20 : 0) -
-        (etat.sockZero ? 20 : 0)
-      );
-    }
-    return 0;
-  }
-
-  private getEnCommande(etat: EtatProduit): number {
-    if (etat.enCommande || etat.otherCommande) {
-      return (
-        120 -
-        (etat.stockPositif ? 20 : 0) -
-        (etat.enSuggestion ? 20 : 0) -
-        (etat.entree ? 20 : 0) -
-        (etat.stockNegatif ? 20 : 0) -
-        (etat.sockZero ? 20 : 0)
-      );
-    }
-    return 0;
-  }
-  private getEntree(etat: EtatProduit): number {
-    if (etat.entree) {
-      return (
-        120 -
-        (etat.stockPositif ? 20 : 0) -
-        (etat.enSuggestion ? 20 : 0) -
-        (etat.enCommande ? 20 : 0) -
-        (etat.stockNegatif ? 20 : 0) -
-        (etat.sockZero ? 20 : 0)
-      );
-    }
-    return 0;
-  }
-
-  protected get values(): any[] {
-    const values = [];
+  protected readonly badges = computed<EtatBadge[]>(() => {
     const etat = this.etatProduit();
-
-    if (etat) {
-      if (etat.stockPositif) {
-        values.push({
-          value: this.getStockPositif(etat),
-          color: '#34d399',
-          label: 'P',
-        });
-      }
-      if (etat.sockZero) {
-        values.push({
-          value: this.getSockZero(etat),
-          color: '#fbbf24',
-          label: 'Z',
-        });
-      }
-
-      if (etat.stockNegatif) {
-        values.push({
-          value: this.getStockNegatif(etat),
-          color: '#f44336',
-          label: 'N',
-        });
-      }
-      if (!this.isSuggestion()) {
-        if (etat.enSuggestion) {
-          values.push({
-            value: this.getEnSuggestion(etat),
-            color: '#60a5fa',
-            label: 'S',
-          });
-        }
-      } else {
-        if (etat.otherSuggestion) {
-          values.push({
-            value: this.getEnSuggestion(etat),
-            color: '#60a5fa',
-            label: 'S',
-          });
-        }
-      }
-      if (!this.isCommande()) {
-        if (etat.enCommande) {
-          values.push({
-            value: this.getEnCommande(etat),
-            color: '#c084fc',
-            label: 'C',
-          });
-        }
-      }
-
-      if (etat.entree) {
-        values.push({
-          value: this.getEntree(etat),
-          color: '#9c27b0',
-          label: 'E',
-        });
-      }
+    if (!etat) {
+      return [];
     }
-    return values;
-  }
+    const result: EtatBadge[] = [];
+
+    // ── Stock (mutuellement exclusif) ──
+    if (etat.stockPositif) {
+      result.push({
+        icon: 'pi pi-check-circle',
+        label: 'En stock',
+        tooltip: 'Produit disponible en stock',
+        cssClass: 'etat-stock-positif',
+      });
+    } else if (etat.sockZero) {
+      result.push({
+        icon: 'pi pi-minus-circle',
+        label: 'Rupture',
+        tooltip: 'Stock épuisé',
+        cssClass: 'etat-stock-negatif',
+      });
+    } else if (etat.stockNegatif) {
+      result.push({
+        icon: 'pi pi-exclamation-circle',
+        label: 'Stock négatif',
+        tooltip: 'Quantité en stock inférieure à zéro',
+        cssClass: 'etat-stock-negatif',
+      });
+    }
+
+    // ── Suggestion ──
+    const showSuggestion = this.isSuggestion() ? etat.otherSuggestion : etat.enSuggestion;
+    if (showSuggestion) {
+      result.push({
+        icon: 'pi pi-lightbulb',
+        label: this.isSuggestion() ? 'Autre sugg.' : 'En sugg.',
+        tooltip: this.isSuggestion() ? 'Déjà présent dans une autre suggestion' : 'Produit inscrit dans une suggestion',
+        cssClass: 'etat-suggestion',
+      });
+    }
+
+    // ── Commande ──
+    if (!this.isCommande() && etat.enCommande) {
+      result.push({
+        icon: 'pi pi-shopping-cart',
+        label: 'En commande',
+        tooltip: 'Une commande en cours contient ce produit',
+        cssClass: 'etat-commande',
+      });
+    }
+
+    // ── Entrée ──
+    if (etat.entree) {
+      result.push({
+        icon: 'pi pi-download',
+        label: 'Reçu',
+        tooltip: 'Produit réceptionné récemment',
+        cssClass: 'etat-entree',
+      });
+    }
+
+    return result;
+  });
 }

@@ -35,7 +35,8 @@ public class TiersPayantDataService implements TiersPayantMapper {
     ) {
         Specification<TiersPayant> specification = this.tiersPayantRepository.specialisationStatut(statut);
         if (StringUtils.hasLength(search)) {
-            specification = specification.and(this.tiersPayantRepository.specialisationQueryString(search + "%"));
+            var searchUpper = search.toUpperCase() + "%";
+            specification = specification.and(this.tiersPayantRepository.specialisationQueryString(searchUpper));
         }
         if (groupeTiersPayantId != null) {
             specification = specification.and(this.tiersPayantRepository.specialisationByGroup(groupeTiersPayantId));

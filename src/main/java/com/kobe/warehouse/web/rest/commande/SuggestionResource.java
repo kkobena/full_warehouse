@@ -6,16 +6,17 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
-import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,13 +48,15 @@ public class SuggestionResource {
         return ResponseUtil.wrapOrNotFound(suggestionProduitService.getSuggestionById(id));
     }
 
+
+
     @GetMapping("/items")
-    public ResponseEntity<List<SuggestionLineDTO>> getItems(
+    public ResponseEntity<List<SuggestionLineDTO>> getItemsWithConsommation(
         @RequestParam(name = "suggestionId") Integer suggestionId,
         @RequestParam(required = false, name = "search") String search,
         Pageable pageable
     ) {
-        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesById(suggestionId, search, pageable);
+        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesByIdWithConsommation(suggestionId, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -94,10 +97,20 @@ public class SuggestionResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/csv/{id}")
-    public ResponseEntity<Resource> exportToCsv(@PathVariable Integer id, HttpServletRequest request) throws IOException {
-        final Resource resource = suggestionProduitService.exportToCsv(id);
-        return Utils.exportCsv(resource, request);
+    @GetMapping(value = "/csv/{id}", produces = "text/csv")
+    public ResponseEntity<byte[]> exportToCsv(@PathVariable Integer id) {
+        try {
+            byte[] csvData = suggestionProduitService.exportToCsv(id);
+            String filename = "suggestion_" + id + "_"
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss"))
+                + ".csv";
+            return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/commander/{id}")

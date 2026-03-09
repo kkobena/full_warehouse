@@ -11,7 +11,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Customer(
   @SerializedName("id")
-  val id: Int = 0,
+  val id: Int? = null,
 
   @SerializedName("firstName")
   val firstName: String = "",
@@ -53,7 +53,16 @@ data class Customer(
   val taux: Int? = null,
 
   @SerializedName("tiersPayantId")
-  val tiersPayantId: Long? = null
+  val tiersPayantId: Long? = null,
+
+  @SerializedName("numAyantDroit")
+  val numAyantDroit: String? = null,
+
+  @SerializedName("assureId")
+  val assureId: Int? = null,
+
+  @SerializedName("ayantDroits")
+  val ayantDroits: List<Customer> = emptyList()
 
 ) : Parcelable {
 

@@ -23,7 +23,7 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from '../../../shared/model';
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { saveAs } from 'file-saver';
 import { ProduitService } from '../../produit/produit.service';
@@ -69,13 +69,31 @@ export class EditSuggestionComponent implements OnInit {
   protected searchProduit = '';
   protected page = 0;
   protected selections: SuggestionLine[] = [];
-  protected index = 0;
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected loading!: boolean;
   protected suggestions: SuggestionLine[] = [];
   protected ngbPaginationPage = 1;
   protected splitbuttons: MenuItem[];
+  protected readonly APPEND_TO = APPEND_TO;
+  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
+  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
+
+  protected moisColumns: string[] = [];
+  protected readonly MOIS_LABELS: Record<string, string> = {
+    JANVIER: 'Jan',
+    FEVRIER: 'Fév',
+    MARS: 'Mar',
+    AVRIL: 'Avr',
+    MAI: 'Mai',
+    JUIN: 'Juin',
+    JUILLET: 'Juil',
+    AOUT: 'Aoû',
+    SEPTEMBRE: 'Sep',
+    OCTOBRE: 'Oct',
+    NOVEMBRE: 'Nov',
+    DECEMBRE: 'Déc',
+  };
   produitSelected?: IProduit | null = null;
   fournisseurs: IFournisseur[] = [];
   produits: IProduit[] = [];
@@ -186,7 +204,6 @@ export class EditSuggestionComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ suggestion }) => {
       this.writableSignal.set(suggestion);
-      this.onSearch();
     });
   }
 
@@ -208,23 +225,22 @@ export class EditSuggestionComponent implements OnInit {
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
     this.loading = true;
-    this.suggestionService
-      .queryItems({
-        page: pageToLoad,
-        size: this.itemsPerPage,
-        ...this.buildParameters(),
-      })
-      .subscribe({
-        next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
+    const params = {
+      page: pageToLoad,
+      size: this.itemsPerPage,
+      ...this.buildParameters(),
+    };
+    this.suggestionService.queryItems(params).subscribe({
+      next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+      error: () => this.onError(),
+    });
   }
+
+
 
   onSearch(search = ''): void {
     this.search = search;
-    if (this.index == 0) {
-      this.loadPage(0);
-    }
+    this.loadPage(0);
   }
 
   onQuantityBoxAction(event: any): void {
@@ -329,16 +345,15 @@ export class EditSuggestionComponent implements OnInit {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
-      this.suggestionService
-        .queryItems({
-          page: this.page,
-          size: event.rows,
-          ...this.buildParameters(),
-        })
-        .subscribe({
-          next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
+      const params = {
+        page: this.page,
+        size: event.rows,
+        ...this.buildParameters(),
+      };
+      this.suggestionService.queryItems(params).subscribe({
+        next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, this.page),
+        error: () => this.onError(),
+      });
     }
   }
 
@@ -347,13 +362,17 @@ export class EditSuggestionComponent implements OnInit {
     this.page = page;
     this.suggestions = data || [];
     this.loading = false;
+    if (this.suggestions.length > 0) {
+      const first = this.suggestions.find(s => s.consommationMensuelle);
+      this.moisColumns = first?.consommationMensuelle ? Object.keys(first.consommationMensuelle) : [];
+    } else {
+      this.moisColumns = [];
+    }
   }
 
   private onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
 
-  protected readonly APPEND_TO = APPEND_TO;
-  protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
+
 }

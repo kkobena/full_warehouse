@@ -169,6 +169,22 @@ public class AppConfigurationService {
             .orElse(false);
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NTH_MOIS_CONSOMMATION_CACHE)
+    public int getNthMoisConsommation() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NTH_MOIS_CONSOMMATION)
+            .map(AppConfiguration::getValue)
+            .map(value -> {
+                try {
+                    return Integer.parseInt(value.trim());
+                } catch (NumberFormatException _) {
+                    return 3;
+                }
+            })
+            .orElse(3);
+    }
+
     /**
      * Récupère la configuration du modèle de réapprovisionnement et les options disponibles.
      *

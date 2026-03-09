@@ -134,6 +134,16 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
             }
         }
 
+        // Save: validates current step then saves
+        binding.btnSave.setOnClickListener {
+            val currentItem = binding.viewPager.currentItem
+            if (currentItem == 0) {
+                if (validateStep1()) saveCustomer()
+            } else {
+                if (validateStep2()) saveCustomer()
+            }
+        }
+
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
@@ -144,11 +154,13 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
         binding.btnPrevious.visibility = if (position > 0) View.VISIBLE else View.GONE
 
         if (position == stepAdapter.itemCount - 1) {
-            binding.btnNext.text = "Créer"
-            binding.btnNext.setIconResource(R.drawable.ic_save)
+            // On step 2: hide btnNext (Suivant) and btnSave, show only btnPrevious + btnSave as "Créer"
+            binding.btnNext.visibility = View.GONE
+            binding.btnSave.visibility = View.VISIBLE
         } else {
-            binding.btnNext.text = "Suivant"
-            binding.btnNext.setIconResource(R.drawable.ic_arrow_forward)
+            // On step 1: show both btnNext (Suivant) and btnSave (Créer)
+            binding.btnNext.visibility = View.VISIBLE
+            binding.btnSave.visibility = View.VISIBLE
         }
     }
 
@@ -167,8 +179,8 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
     }
 
     private fun validateStep2(): Boolean {
-        // Ayants droit is optional, so always valid
-        return true
+        val fragment = childFragmentManager.findFragmentByTag("f1") as? AssureStep2Fragment
+        return fragment?.validateForm() ?: true
     }
 
     private fun saveCustomer() {
@@ -184,7 +196,26 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
         binding.progressBar.visibility = View.VISIBLE
         binding.btnNext.isEnabled = false
 
-        // Build customer object
+        // Collect ayant droit data from step 2
+        val step2Fragment = childFragmentManager.findFragmentByTag("f1") as? AssureStep2Fragment
+        val ayantDroitData = step2Fragment?.getAyantDroitData()
+
+        val ayantDroits = if (ayantDroitData != null) {
+            listOf(
+                Customer(
+                    firstName = ayantDroitData.firstName,
+                    lastName = ayantDroitData.lastName,
+                    numAyantDroit = ayantDroitData.numAyantDroit,
+                    datNaiss = ayantDroitData.datNaiss,
+                    sexe = ayantDroitData.sexe,
+                    type = "ASSURE"
+                )
+            )
+        } else {
+            emptyList()
+        }
+
+        // Build customer object matching AssuredCustomerDTO
         val customer = Customer(
             firstName = customerData!!.firstName,
             lastName = customerData!!.lastName,
@@ -193,10 +224,10 @@ class AssureCustomerCreateDialogFragment : DialogFragment() {
             sexe = customerData!!.sexe,
             datNaiss = customerData!!.datNaiss,
             type = "ASSURE",
-            // Principal tiers payant
             tiersPayantId = principalTiersPayantData!!.tiersPayantId,
             num = principalTiersPayantData!!.num,
-            taux = principalTiersPayantData!!.taux
+            taux = principalTiersPayantData!!.taux,
+            ayantDroits = ayantDroits
         )
 
         lifecycleScope.launch {

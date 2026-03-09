@@ -25,6 +25,7 @@ import com.kobe.warehouse.sales.data.api.PaymentApiService
 import com.kobe.warehouse.sales.data.api.ProductApiService
 import com.kobe.warehouse.sales.data.api.RemiseApiService
 import com.kobe.warehouse.sales.data.api.SalesApiService
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Customer
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
@@ -1643,8 +1644,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
     // ========================================
 
     private fun displayCustomerInfo(customer: Customer) {
-        android.util.Log.d("UnifiedSale", "displayCustomerInfo called for customer: ${customer.lastName}")
-
         binding.includeCustomerInfoDisplay.apply {
             root.isVisible = true
 
@@ -1768,7 +1767,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         }
     }
 
-    private fun showModifyTauxDialog(tiersPayant: com.kobe.warehouse.sales.data.model.ClientTiersPayant) {
+    private fun showModifyTauxDialog(tiersPayant: ClientTiersPayant) {
         val input = android.widget.EditText(this)
         input.setText(tiersPayant.taux.toString())
         input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
@@ -1882,7 +1881,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         binding.progressBar.isVisible = true
 
         // Fetch ayants droits from backend
-        viewModel.loadAyantDroits(customer.id)
+        viewModel.loadAyantDroits(customer.id ?: return)
 
         // Observe the result ONCE (prevents observer leak on repeated clicks)
         viewModel.ayantDroitsList.observeOnce(this) { ayantDroits ->
@@ -1941,7 +1940,6 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
                 // Create ayant droit object
                 val ayantDroit = Customer(
-                    id = 0, // Will be assigned by backend
                     firstName = firstName,
                     lastName = lastName,
                     phone = phone.ifEmpty { null },

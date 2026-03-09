@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -21,19 +20,30 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
+import com.kobe.warehouse.service.dto.enumeration.Mois;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
-import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,23 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -73,7 +66,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     private final AppConfigurationService appConfigurationService;
     private final EtatProduitService etatProduitService;
     private final CommandService commandService;
-    private final Path fileStorageLocation;
+    private final CsvExportService csvExportService;
+
 
     public SuggestionProduitServiceImpl(
         SuggestionRepository suggestionRepository,
@@ -84,7 +78,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         AppConfigurationService appConfigurationService,
         EtatProduitService etatProduitService,
         CommandService commandService,
-        FileStorageProperties fileStorageProperties
+        CsvExportService csvExportService
+
     ) {
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
@@ -94,13 +89,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         this.appConfigurationService = appConfigurationService;
         this.etatProduitService = etatProduitService;
         this.commandService = commandService;
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
+        this.csvExportService = csvExportService;
 
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (IOException ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
-        }
     }
 
     // @Async
@@ -116,7 +106,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 .forEach((four, values) -> {
                     Suggestion suggestion = getSuggestion(four, suggestionExist);
                     values.forEach(quantitySuggestion -> {
-                       // StockProduit stockProduit = quantitySuggestion.stockProduit();
+                        // StockProduit stockProduit = quantitySuggestion.stockProduit();
                         Produit produit = quantitySuggestion.produit();
                         if (etatProduitService.canSuggere(produit.getId())) {
                             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
@@ -180,47 +170,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             );
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public Page<SuggestionLineDTO> getSuggestionLinesById(Integer suggestionId, String search, Pageable pageable) {
-        Storage storage = storageService.getDefaultMagasinMainStorage();
-        Specification<SuggestionLine> specification = suggestionLineRepository.filterBySuggestionId(suggestionId);
-        if (StringUtils.hasLength(search)) {
-            specification = specification.and(suggestionLineRepository.filterByProduit(search));
-        }
-        return suggestionLineRepository
-            .findAll(specification, pageable)
-            .map(e -> {
-                FournisseurProduit fournisseurProduit = e.getFournisseurProduit();
-                Produit produit = fournisseurProduit.getProduit();
-
-                StockProduit stockProduit = produit
-                    .getStockProduits()
-                    .stream()
-                    .filter(stock -> Objects.equals(stock.getStorage().getId(), storage.getId()))
-                    .findFirst()
-                    .orElse(new StockProduit());
-                int currentstock = 0;
-                if (stockProduit != null) {
-                    currentstock = stockProduit.getTotalStockQuantity();
-                }
-
-                return new SuggestionLineDTO(
-                    e.getId(),
-                    e.getQuantity(),
-                    e.getCreatedAt(),
-                    e.getUpdatedAt(),
-                    produit.getLibelle(),
-                    fournisseurProduit.getCodeCip(),
-                    fournisseurProduit.getCodeEan(),
-                    produit.getId(),
-                    fournisseurProduit.getId(),
-                    currentstock,
-                    this.etatProduitService.getEtatProduit(produit.getId(), currentstock),
-                    fournisseurProduit.getPrixAchat(),
-                    fournisseurProduit.getPrixUni()
-                );
-            });
+    public Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, Pageable pageable) {
+        Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
+        LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+        int nthMois = appConfigurationService.getNthMoisConsommation();
+        return suggestionLineRepository.fetchSuggestionLinesWithConsommation(suggestionId, search, storageId, dateRetention, nthMois, pageable);
     }
 
     @Override
@@ -340,8 +297,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public Resource exportToCsv(Integer id) throws IOException {
-        return new UrlResource(Paths.get(exportToCsv(this.suggestionRepository.getReferenceById(id))).toUri());
+    @Transactional(readOnly = true)
+    public byte[] exportToCsv(Integer id) throws IOException {
+        return exportToCsvBytes(this.suggestionRepository.findById(id).orElseThrow(()-> new GenericError("Suggestion non trouvée")));
     }
 
     @Override
@@ -379,8 +337,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return suggestion;
     }
 
-
-
     private void saveSuggestionLine(
         Produit produit,
         int produitTotalStockQuantity,
@@ -412,7 +368,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         if (suggestionExist) {
             this.suggestionLineRepository.save(line);
         }
-
         suggestion.getSuggestionLines().add(line);
     }
 
@@ -426,39 +381,59 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return (produit.getQtySeuilMini() - produitTotalStockQuantity) + qtyReappro;
     }
 
-    private String exportToCsv(Suggestion suggestion) {
-        String filename =
-            this.fileStorageLocation.resolve(
-                    "suggestion_" +
-                        suggestion.getSuggessionReference() +
-                        "_" +
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                        ".csv"
-                )
-                .toFile()
-                .getAbsolutePath();
-        try (final FileWriter writer = new FileWriter(filename); final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL)) {
-            suggestion
-                .getSuggestionLines()
-                .forEach(item -> {
-                    FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
-                    Produit produit = fournisseurProduit.getProduit();
-                    try {
-                        printer.printRecord(
-                            org.apache.commons.lang3.StringUtils.isNotEmpty(produit.getCodeEanLaboratoire())
-                                ? produit.getCodeEanLaboratoire()
-                                : fournisseurProduit.getCodeCip(),
-                            item.getQuantity()
-                        );
-                    } catch (IOException e) {
-                        LOG.error("Error writing data to the csv printer", e);
-                    }
-                });
+    private byte[] exportToCsvBytes(Suggestion suggestion) throws IOException {
+        Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
+        LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+        int nthMois = appConfigurationService.getNthMoisConsommation();
 
-            printer.flush();
-        } catch (final IOException e) {
-            throw new GenericError("Csv writing error: " + e.getMessage());
-        }
-        return filename;
+        List<SuggestionLineDTO> lines = suggestionLineRepository
+            .fetchSuggestionLinesWithConsommation(
+                suggestion.getId(), null, storageId, dateRetention, nthMois, Pageable.unpaged()
+            )
+            .getContent();
+
+        // Colonnes de mois présentes sur la première ligne ayant des données de conso
+        List<Mois> moisColonnes = lines.stream()
+            .map(SuggestionLineDTO::consommationMensuelle)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .map(m -> m.keySet().stream().toList())
+            .orElse(List.of());
+
+        // Headers : colonnes fixes + une colonne par mois
+        List<String> headerList = new ArrayList<>(Arrays.asList(
+            "Code CIP", "Code EAN", "Désignation", "Stock", "Qté suggérée", "Prix achat", "Prix vente"
+        ));
+        moisColonnes.forEach(m -> headerList.add("Conso. " + m.getLibelle()));
+        String[] headers = headerList.toArray(new String[0]);
+
+        // Titre
+        String title = "Suggestion " + suggestion.getSuggessionReference()
+            + " - " + suggestion.getFournisseur().getLibelle()
+            + " - " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        // Lignes de données
+        List<String[]> rows = lines.stream()
+            .map(line -> {
+                List<String> row = new ArrayList<>(Arrays.asList(
+                    Objects.toString(line.fournisseurProduitCip(), ""),
+                    Objects.toString(line.fournisseurProduitCodeEan(), ""),
+                    Objects.toString(line.fournisseurProduitLibelle(), ""),
+                    String.valueOf(line.currentStock()),
+                    String.valueOf(line.quantity()),
+                    String.valueOf(line.prixAchat()),
+                    String.valueOf(line.prixVente())
+                ));
+                Map<Mois, Integer> conso = line.consommationMensuelle();
+                moisColonnes.forEach(m ->
+                    row.add(conso != null ? String.valueOf(conso.getOrDefault(m, 0)) : "0")
+                );
+                return row.toArray(new String[0]);
+            })
+            .toList();
+
+        return csvExportService.addUtf8Bom(
+            csvExportService.createSimpleCsvReport(title, headers, rows)
+        );
     }
 }

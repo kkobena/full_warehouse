@@ -45,9 +45,6 @@ public class CsvExportService {
             // Ligne de date d'export
             csvPrinter.printComment("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
 
-            // Ligne vide (commentaire vide)
-            csvPrinter.println();
-
             // Données
             for (T item : data) {
                 String[] row = rowMapper.apply(item);

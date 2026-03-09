@@ -271,7 +271,7 @@ public class SaleDataService {
     }
 
     @Transactional(readOnly = true)
-    public Resource printInvoice(SaleId saleId) throws MalformedURLException {
+    public byte[] printInvoice(SaleId saleId) throws MalformedURLException {
         return this.saleInvoiceService.printInvoice(new SaleDTO(this.fetchById(saleId, false)));
     }
 

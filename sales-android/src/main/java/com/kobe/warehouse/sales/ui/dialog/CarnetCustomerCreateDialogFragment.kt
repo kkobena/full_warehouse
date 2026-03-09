@@ -18,6 +18,7 @@ import com.kobe.warehouse.sales.data.repository.CustomerRepository
 import com.kobe.warehouse.sales.data.repository.TiersPayantRepository
 import com.kobe.warehouse.sales.databinding.DialogCarnetCustomerCreateBinding
 import com.kobe.warehouse.sales.utils.ApiClient
+import com.kobe.warehouse.sales.utils.DateInputFormatter
 import com.kobe.warehouse.sales.utils.TokenManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -91,6 +92,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         setupTiersPayantAutoComplete()
         setupListeners()
         setupAutoFocus()
+        DateInputFormatter.attach(binding.etDateNaiss)
     }
 
     /**
@@ -129,13 +131,16 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
         }
 
         binding.actvTiersPayant.setOnItemClickListener { _, _, position, _ ->
+            searchJob?.cancel()
             val selected = tiersPayantsList.getOrNull(position)
             if (selected?.id == null || selected.id == -1L) {
                 selectedTiersPayant = null
+                binding.actvTiersPayant.setText("", false)
                 openTiersPayantCreateDialog()
             } else {
                 selectedTiersPayant = selected
                 binding.tilTiersPayant.error = null
+                binding.etNum.requestFocus()
             }
         }
     }
@@ -154,40 +159,40 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
             openTiersPayantCreateDialog()
         }
     }
-    private fun searchTiersPayants(query: String) {
-        lifecycleScope.launch {
-            tiersPayantRepository.searchTiersPayants(search = query, type = "CARNET").fold(
-                onSuccess = { results ->
-                    tiersPayantsList.clear()
-                    tiersPayantsList.addAll(results)
-                    tiersPayantsList.add(TiersPayant(id = -1L, name = "Créer un nouveau tiers payant..."))
+    private suspend fun searchTiersPayants(query: String) {
+        tiersPayantRepository.searchTiersPayants(search = query, type = "CARNET").fold(
+            onSuccess = { results ->
+                tiersPayantsList.clear()
+                tiersPayantsList.addAll(results)
+                tiersPayantsList.add(TiersPayant(id = -1L, name = "Créer un nouveau tiers payant..."))
 
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        tiersPayantsList.map { it.name }
-                    )
-                    binding.actvTiersPayant.setAdapter(adapter)
-                    binding.actvTiersPayant.showDropDown()
-                },
-                onFailure = { error ->
-                    Toast.makeText(
-                        requireContext(),
-                        "Erreur recherche tiers payant: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
-        }
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    tiersPayantsList.map { it.name }
+                )
+                binding.actvTiersPayant.setAdapter(adapter)
+                binding.actvTiersPayant.showDropDown()
+            },
+            onFailure = { error ->
+                Toast.makeText(
+                    requireContext(),
+                    "Erreur recherche tiers payant: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
     }
 
     private fun openTiersPayantCreateDialog() {
         val dialog = TiersPayantCreateDialogFragment.newInstance(
             categorie = "CARNET"
         ) { createdTiersPayant ->
+            searchJob?.cancel()
             selectedTiersPayant = createdTiersPayant
             binding.actvTiersPayant.setText(createdTiersPayant.name, false)
             binding.tilTiersPayant.error = null
+            binding.etNum.requestFocus()
         }
         dialog.show(parentFragmentManager, TiersPayantCreateDialogFragment.TAG)
     }
@@ -244,7 +249,7 @@ class CarnetCustomerCreateDialogFragment : DialogFragment() {
 
         // Optional fields
         val phone = binding.etPhone.text.toString().trim().ifEmpty { null }
-        val dateNaiss = binding.etDateNaiss.text.toString().trim().ifEmpty { null }
+        val dateNaiss = DateInputFormatter.toIsoDate(binding.etDateNaiss.text.toString())
 
         // Create customer
         val tiersPayantId = selectedTiersPayant!!.id ?: run {

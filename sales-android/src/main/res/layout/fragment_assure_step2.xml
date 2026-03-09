@@ -1,69 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:fillViewport="true">
 
-    <!-- Icon -->
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_people"
-        android:contentDescription="Ayants droit"
-        app:tint="?attr/colorPrimary"
-        android:layout_marginBottom="24dp" />
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:padding="8dp">
 
-    <!-- Title -->
+    <!-- Info -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ayants droit"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textColor="?attr/colorOnSurface"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Description -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cette fonctionnalité permet d'ajouter des ayants droit (bénéficiaires) pour le client assuré."
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textAlignment="center"
-        android:layout_marginBottom="16dp"
-        android:paddingHorizontal="32dp" />
-
-    <!-- Info Badge -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardBackgroundColor="?attr/colorPrimaryContainer"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="0dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Étape optionnelle - Vous pouvez continuer sans ajouter d'ayants droit"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?attr/colorOnPrimaryContainer"
-            android:padding="12dp" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Note -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Les ayants droit pourront être ajoutés ultérieurement depuis la fiche client"
+        android:layout_marginBottom="8dp"
+        android:text="Étape optionnelle - Vous pouvez continuer sans ajouter d'ayant droit"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textAlignment="center"
-        android:layout_marginTop="24dp"
-        android:paddingHorizontal="48dp" />
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
-</LinearLayout>
+    <!-- SECTION 1: Champs obligatoires -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Identité de l'ayant droit *"
+        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+        android:textColor="?attr/colorPrimary" />
+
+    <!-- Nom -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilFirstName"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:hint="Nom *"
+        app:errorEnabled="true"
+        app:startIconDrawable="@drawable/ic_person">
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/etFirstName"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:imeOptions="actionNext"
+          android:inputType="textPersonName|textCapWords"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Prénom -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilLastName"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:hint="Prénom(s) *"
+        app:errorEnabled="true"
+        app:startIconDrawable="@drawable/ic_person">
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/etLastName"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:imeOptions="actionNext"
+          android:inputType="textPersonName|textCapWords"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Numéro assuré -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilNumAyantDroit"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:hint="Numéro assuré *"
+        app:errorEnabled="true"
+        app:startIconDrawable="@drawable/ic_code">
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/etNumAyantDroit"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:imeOptions="actionNext"
+          android:inputType="text|textCapCharacters"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="4dp"
+        android:background="?attr/colorOutlineVariant" />
+
+    <!-- SECTION 2: Informations complémentaires -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Informations complémentaires (optionnel)"
+        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <!-- Date de naissance -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilDatNaiss"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:hint="Date de naissance (jj/mm/aaaa)"
+        app:errorEnabled="true">
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/etDatNaiss"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:imeOptions="actionNext"
+          android:inputType="date"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Sexe -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSexe"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Sexe"
+        app:startIconDrawable="@drawable/ic_person">
+
+      <AutoCompleteTextView
+          android:id="@+id/actvSexe"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:inputType="none"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+  </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

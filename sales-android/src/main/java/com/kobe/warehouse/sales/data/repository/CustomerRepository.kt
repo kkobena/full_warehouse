@@ -1,7 +1,9 @@
 package com.kobe.warehouse.sales.data.repository
 
+import com.google.gson.Gson
 import com.kobe.warehouse.sales.data.api.CreateCustomerRequest
 import com.kobe.warehouse.sales.data.api.CustomerApiService
+import com.kobe.warehouse.sales.data.model.ClientTiersPayant
 import com.kobe.warehouse.sales.data.model.Customer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,25 +15,23 @@ import kotlinx.coroutines.withContext
 class CustomerRepository(
     private val customerApiService: CustomerApiService
 ) {
+    private val gson = Gson()
 
-    /**
-     * Search uninsured customers only
-     * Backend: GET /customers/uninsured?search=...
-     */
-    suspend fun searchUninsuredCustomers(search: String): Result<List<Customer>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = customerApiService.searchUninsuredCustomers(search)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to search uninsured customers: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
+    private fun parseErrorResponse(errorBody: String?): String {
+        if (errorBody.isNullOrEmpty()) return "Erreur inconnue"
+        return try {
+            val errorResponse = gson.fromJson(errorBody, ApiErrorResponse::class.java)
+            when {
+                !errorResponse.detail.isNullOrEmpty() -> errorResponse.detail
+                !errorResponse.message.isNullOrEmpty() -> errorResponse.message
+                !errorResponse.title.isNullOrEmpty() -> errorResponse.title
+                else -> "Erreur inconnue"
             }
+        } catch (e: Exception) {
+            errorBody
         }
     }
+
 
     /**
      * Search assured customers only
@@ -92,7 +92,8 @@ class CustomerRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Failed to create customer: ${response.message()}"))
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -122,7 +123,8 @@ class CustomerRepository(
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Failed to create assure customer: ${response.message()}"))
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -134,7 +136,7 @@ class CustomerRepository(
      * Get customer tiers payants
      * Backend: GET /customers/tiers-payants/{id}
      */
-    suspend fun getCustomerTiersPayants(customerId: Int): Result<List<com.kobe.warehouse.sales.data.model.ClientTiersPayant>> {
+    suspend fun getCustomerTiersPayants(customerId: Int): Result<List<ClientTiersPayant>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = customerApiService.getCustomerTiersPayants(customerId)
@@ -169,6 +171,42 @@ class CustomerRepository(
     }
 
     /**
+     * Create ayant-droit (beneficiary) for an assured customer
+     * Backend: POST /customers/ayant-droit
+     */
+    suspend fun createAyantDroit(
+        assureId: Int,
+        firstName: String,
+        lastName: String,
+        numAyantDroit: String,
+        sexe: String? = null,
+        datNaiss: String? = null
+    ): Result<Customer> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ayantDroit = Customer(
+                    firstName = firstName,
+                    lastName = lastName,
+                    numAyantDroit = numAyantDroit,
+                    sexe = sexe,
+                    datNaiss = datNaiss,
+                    type = "ASSURE",
+                    assureId = assureId
+                )
+                val response = customerApiService.createAyantDroit(ayantDroit)
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
      * Create Carnet customer with tiers payant
      *
      * @param firstName Customer first name
@@ -191,32 +229,24 @@ class CustomerRepository(
     ): Result<Customer> {
         return withContext(Dispatchers.IO) {
             try {
-                // Build Customer object with tiers payant information
+                // Build Customer object matching AssuredCustomerDTO structure
                 val customer = Customer(
-                    id = 0, // Will be assigned by backend
                     firstName = firstName,
                     lastName = lastName,
                     phone = phone,
-                    // Note: Backend API should handle the tiers payant association
-                    // This might need adjustment based on actual backend API structure
-                    tiersPayants = listOf(
-                        com.kobe.warehouse.sales.data.model.ClientTiersPayant(
-                            customerId = 0,
-                            tiersPayantId = tiersPayantId,
-                            tiersPayantName = "", // Will be filled by backend
-                            num = num,
-                            taux = taux,
-                            priorite = com.kobe.warehouse.sales.data.model.PrioriteTiersPayant.R0,
-                            typeTiersPayant = "PRINCIPAL"
-                        )
-                    )
+                    datNaiss = dateNaiss,
+                    type = "ASSURE",
+                    tiersPayantId = tiersPayantId,
+                    num = num,
+                    taux = taux
                 )
 
                 val response = customerApiService.createAssureCustomer(customer)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
-                    Result.failure(Exception("Erreur création client Carnet: ${response.message()}"))
+                    val errorMessage = parseErrorResponse(response.errorBody()?.string())
+                    Result.failure(Exception(errorMessage))
                 }
             } catch (e: Exception) {
                 Result.failure(e)

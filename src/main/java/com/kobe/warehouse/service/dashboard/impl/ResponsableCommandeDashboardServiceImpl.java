@@ -92,58 +92,33 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
         LocalDate troisMoisPlus = now.plusMonths(3);
         LocalDate sixMoisPlus = now.plusMonths(6);
 
-        String queryUnMois = """
-            SELECT COUNT(DISTINCT p.id)
-            FROM produit p
-            JOIN stock_produit sp ON sp.produit_id = p.id
-            WHERE p.peremption_date IS NOT NULL
-            AND p.peremption_date BETWEEN :now AND :unMoisPlus
+        String query = """
+            SELECT
+                COUNT(DISTINCT CASE WHEN l.expiry_date >= :now AND l.expiry_date < :unMoisPlus THEN l.produit_id END) AS un_mois,
+                COUNT(DISTINCT CASE WHEN l.expiry_date >= :unMoisPlus AND l.expiry_date < :troisMoisPlus THEN l.produit_id END) AS un_a_trois_mois,
+                COUNT(DISTINCT CASE WHEN l.expiry_date >= :troisMoisPlus AND l.expiry_date <= :sixMoisPlus THEN l.produit_id END) AS trois_a_six_mois,
+                COALESCE(SUM(l.current_quantity * p.regular_unit_price), 0) AS valeur_totale
+            FROM lot l
+            JOIN produit p ON p.id = l.produit_id
+            WHERE l.statut = 'AVAILABLE'
+              AND l.current_quantity > 0
+              AND l.expiry_date IS NOT NULL
+              AND l.expiry_date <= :sixMoisPlus
         """;
 
-        String queryUnATroisMois = """
-            SELECT COUNT(DISTINCT p.id)
-            FROM produit p
-            JOIN stock_produit sp ON sp.produit_id = p.id
-            WHERE p.peremption_date IS NOT NULL
-            AND p.peremption_date BETWEEN :unMoisPlus AND :troisMoisPlus
-        """;
-
-        String queryTroisASixMois = """
-            SELECT COUNT(DISTINCT p.id)
-            FROM produit p
-            JOIN stock_produit sp ON sp.produit_id = p.id
-            WHERE p.peremption_date IS NOT NULL
-            AND p.peremption_date BETWEEN :troisMoisPlus AND :sixMoisPlus
-        """;
-
-        String queryValeur = """
-            SELECT COALESCE(SUM((sp.qty_stock + sp.qty_ug) * p.regular_unit_price), 0)
-            FROM produit p
-            JOIN stock_produit sp ON sp.produit_id = p.id
-            WHERE p.peremption_date IS NOT NULL
-            AND p.peremption_date <= :sixMoisPlus
-        """;
-
-        Integer unMois = ((Number) entityManager.createNativeQuery(queryUnMois)
+        Object[] result = (Object[]) entityManager.createNativeQuery(query)
             .setParameter("now", now)
             .setParameter("unMoisPlus", unMoisPlus)
-            .getSingleResult()).intValue();
-
-        Integer unATroisMois = ((Number) entityManager.createNativeQuery(queryUnATroisMois)
-            .setParameter("unMoisPlus", unMoisPlus)
-            .setParameter("troisMoisPlus", troisMoisPlus)
-            .getSingleResult()).intValue();
-
-        Integer troisASixMois = ((Number) entityManager.createNativeQuery(queryTroisASixMois)
             .setParameter("troisMoisPlus", troisMoisPlus)
             .setParameter("sixMoisPlus", sixMoisPlus)
-            .getSingleResult()).intValue();
+            .getSingleResult();
 
-        Long valeurTotale = ((Number) entityManager.createNativeQuery(queryValeur)
-            .setParameter("sixMoisPlus", sixMoisPlus)
-            .getSingleResult()).longValue();
-
-        return new PeremptionsDTO(unMois, unATroisMois, troisASixMois, valeurTotale);
+        return new PeremptionsDTO(
+            ((Number) result[0]).intValue(),
+            ((Number) result[1]).intValue(),
+            ((Number) result[2]).intValue(),
+            ((Number) result[3]).longValue()
+        );
     }
 
     @Override
@@ -153,7 +128,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
             SELECT
                 COALESCE(
                     ROUND(
-                        SUM(sl.quantity_sold) /
+                        SUM(sl.quantity_requested) /
                         NULLIF(AVG(sp.qty_stock + sp.qty_ug), 0)
                     , 2)
                 , 0) as rotation_moyenne
@@ -173,7 +148,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
                     AND sl.created_at >= CURRENT_DATE - INTERVAL '30 days'
                 WHERE (sp.qty_stock + sp.qty_ug) > 0
                 GROUP BY p.id, sp.qty_stock, sp.qty_ug
-                HAVING COALESCE(SUM(sl.quantity_sold), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) >= 4
+                HAVING COALESCE(SUM(sl.quantity_requested), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) >= 4
             ) AS rapide_products
         """;
 
@@ -188,8 +163,8 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
                     AND sl.created_at >= CURRENT_DATE - INTERVAL '30 days'
                 WHERE (sp.qty_stock + sp.qty_ug) > 0
                 GROUP BY p.id, sp.qty_stock, sp.qty_ug
-                HAVING COALESCE(SUM(sl.quantity_sold), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) >= 2
-                AND COALESCE(SUM(sl.quantity_sold), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) < 4
+                HAVING COALESCE(SUM(sl.quantity_requested), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) >= 2
+                AND COALESCE(SUM(sl.quantity_requested), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) < 4
             ) AS normal_products
         """;
 
@@ -204,7 +179,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
                     AND sl.created_at >= CURRENT_DATE - INTERVAL '30 days'
                 WHERE (sp.qty_stock + sp.qty_ug) > 0
                 GROUP BY p.id, sp.qty_stock, sp.qty_ug
-                HAVING COALESCE(SUM(sl.quantity_sold), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) < 2
+                HAVING COALESCE(SUM(sl.quantity_requested), 0) / NULLIF((sp.qty_stock + sp.qty_ug), 0) < 2
             ) AS lent_products
         """;
 
@@ -231,10 +206,10 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
                 p.libelle as produit_libelle,
                 p.code_cip,
                 (sp.qty_stock + sp.qty_ug) as stock_actuel,
-                COALESCE(ROUND(SUM(sl.quantity_sold) / 90.0), 0) as consommation_moyenne,
+                COALESCE(ROUND(SUM(sl.quantity_requested) / 90.0), 0) as consommation_moyenne,
                 GREATEST(
                     p.qty_seuil_mini * 2,
-                    COALESCE(ROUND(SUM(sl.quantity_sold) / 90.0 * 30), 0)
+                    COALESCE(ROUND(SUM(sl.quantity_requested) / 90.0 * 30), 0)
                 ) as quantite_suggeree,
                 f.id as fournisseur_id,
                 f.libelle as fournisseur_name,

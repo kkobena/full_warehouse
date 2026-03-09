@@ -75,6 +75,15 @@ interface CustomerApiService {
     suspend fun getAyantDroits(
         @Path("id") customerId: Int
     ): Response<List<Customer>>
+
+    /**
+     * Create ayant-droit (beneficiary) for an assured customer
+     * Backend: POST /customers/ayant-droit
+     */
+    @POST("api/customers/ayant-droit")
+    suspend fun createAyantDroit(
+        @Body ayantDroit: Customer
+    ): Response<Customer>
 }
 
 /**

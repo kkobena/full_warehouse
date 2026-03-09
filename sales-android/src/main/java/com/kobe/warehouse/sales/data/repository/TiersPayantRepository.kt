@@ -44,25 +44,18 @@ class TiersPayantRepository(
      * Get all active tiers payants (no filter)
      * Backend: GET /tiers-payants
      */
-    suspend fun getAllTiersPayants(): Result<List<com.kobe.warehouse.sales.data.model.TiersPayant>> =
+    suspend fun getAllTiersPayants(): Result<List<TiersPayant>> =
         searchTiersPayants(search = "", type = "")
 
-    /**
-     * Search tiers payants by type
-     * Backend: GET /tiers-payants?type=...
-     *
-     * @param type "CARNET" or "ASSURANCE"
-     */
-    suspend fun getTiersPayantsByType(type: String): Result<List<com.kobe.warehouse.sales.data.model.TiersPayant>> =
-        searchTiersPayants(search = "", type = type)
+
 
     /**
      * Create new tiers payant
      * Backend: POST /tiers-payants
      */
     suspend fun createTiersPayant(
-        tiersPayant: com.kobe.warehouse.sales.data.model.TiersPayant
-    ): Result<com.kobe.warehouse.sales.data.model.TiersPayant> = withContext(Dispatchers.IO) {
+        tiersPayant: TiersPayant
+    ): Result<TiersPayant> = withContext(Dispatchers.IO) {
         try {
             val response = tiersPayantApi.createTiersPayant(tiersPayant)
             if (response.isSuccessful && response.body() != null) {
@@ -81,8 +74,8 @@ class TiersPayantRepository(
      * Note: ID is in the body, not passed separately
      */
     suspend fun updateTiersPayant(
-        tiersPayant: com.kobe.warehouse.sales.data.model.TiersPayant
-    ): Result<com.kobe.warehouse.sales.data.model.TiersPayant> = withContext(Dispatchers.IO) {
+        tiersPayant: TiersPayant
+    ): Result<TiersPayant> = withContext(Dispatchers.IO) {
         try {
             val response = tiersPayantApi.updateTiersPayant(tiersPayant)
             if (response.isSuccessful && response.body() != null) {
@@ -95,37 +88,4 @@ class TiersPayantRepository(
         }
     }
 
-    /**
-     * Delete tiers payant (hard delete)
-     * Backend: DELETE /tiers-payants/{id}
-     */
-    suspend fun deleteTiersPayant(id: Int): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val response = tiersPayantApi.deleteTiersPayant(id)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Erreur lors de la suppression: ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
-     * Disable tiers payant (soft delete)
-     * Backend: DELETE /tiers-payants/desable/{id}
-     */
-    suspend fun disableTiersPayant(id: Int): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val response = tiersPayantApi.disableTiersPayant(id)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Erreur lors de la désactivation: ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 }

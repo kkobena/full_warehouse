@@ -6,13 +6,11 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,7 +21,8 @@ public interface SuggestionProduitService {
 
     Optional<SuggestionDTO> getSuggestionById(Integer id);
 
-    Page<SuggestionLineDTO> getSuggestionLinesById(Integer suggestionId, String search, Pageable pageable);
+
+    Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, Pageable pageable);
 
     void fusionnerSuggestion(Set<Integer> ids) throws GenericError;
 
@@ -39,7 +38,7 @@ public interface SuggestionProduitService {
 
     void updateSuggestionLinQuantity(SuggestionLineDTO suggestionLine);
 
-    Resource exportToCsv(Integer id) throws IOException;
+    byte[] exportToCsv(Integer id) throws IOException;
 
     int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus, Boolean suggerQuantitySold);
 }

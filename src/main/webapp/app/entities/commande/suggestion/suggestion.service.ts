@@ -33,6 +33,8 @@ export class SuggestionService {
     });
   }
 
+
+
   find(id: number): Observable<HttpResponse<Suggestion>> {
     return this.http.get<Suggestion>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

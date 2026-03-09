@@ -7,10 +7,8 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -63,12 +62,13 @@ public class SalesDataResource {
     }
 
     @GetMapping("/sales/print/invoice/{id}/{saleDate}")
-    public ResponseEntity<Resource> printInvoice(
+    public ResponseEntity<byte[]> printInvoice(
         @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        HttpServletRequest request
+        @PathVariable("saleDate") LocalDate saleDate
+
     ) throws IOException {
-        return Utils.printPDF(saleDataService.printInvoice(new SaleId(id, saleDate)), request);
+
+        return Utils.printPDF(saleDataService.printInvoice(new SaleId(id, saleDate)), String.format("fature_client_%d_%s.pdf", id, saleDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))));
     }
 
     @GetMapping("/sales/prevente")

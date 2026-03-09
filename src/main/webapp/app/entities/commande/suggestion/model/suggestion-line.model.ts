@@ -13,4 +13,5 @@ export class SuggestionLine {
   etatProduit?: EtatProduit;
   prixAchat?: number;
   prixVente?: number;
+  consommationMensuelle?: Record<string, number>;
 }

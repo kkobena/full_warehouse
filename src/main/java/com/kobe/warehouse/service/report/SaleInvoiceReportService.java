@@ -3,21 +3,15 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.openpdf.text.DocumentException;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,24 +40,6 @@ public class SaleInvoiceReportService extends CommonReportService {
         getParameters().put(SALE, dto);
     }
 
-    private String buildInvoice() {
-        String destFilePath = this.getDestFilePath();
-        try {
-            try (OutputStream outputStream = new FileOutputStream(destFilePath)) {
-                ITextRenderer renderer = new ITextRenderer();
-                SharedContext sharedContext = renderer.getSharedContext();
-                sharedContext.getTextRenderer().setSmoothingThreshold(0);
-                sharedContext.setPrint(true);
-                renderer.setDocumentFromString(this.getTemplateAsHtml());
-                renderer.layout();
-                renderer.createPDF(outputStream);
-            }
-        } catch (IOException | DocumentException e) {
-            log.debug("{0}", e);
-        }
-
-        return destFilePath;
-    }
 
     @Override
     protected List<?> getItems() {
@@ -96,8 +72,11 @@ public class SaleInvoiceReportService extends CommonReportService {
         return "customerInvoice";
     }
 
-    public Resource printInvoice(SaleDTO dto) throws MalformedURLException {
+    public byte[] printInvoice(SaleDTO dto) throws MalformedURLException {
         setVariables(dto);
-        return this.getResource(buildInvoice());
+        super.getCommonParameters();
+
+        return super.exportReportToPdf();
+
     }
 }

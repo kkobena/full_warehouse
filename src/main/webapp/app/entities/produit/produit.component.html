@@ -133,13 +133,13 @@
               <td>
                 <div class="pharma-product-name">{{ produit.libelle }}</div>
               </td>
-              @if (produit.totalQuantity < 0) {
-                <td class="amount-column red-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
-              } @else if (produit.totalQuantity === 0) {
-                <td class="amount-column orange-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
-              } @else {
-                <td class="amount-column" style="text-align: right">{{ produit.totalQuantity | number }}</td>
-              }
+              <td style="text-align: right"
+                  class="amount-column"
+                  [class.stock-negatif]="produit.totalQuantity <= 0"
+                  [class.stock-warning]="produit.totalQuantity > 0 && produit.totalQuantity < produit.qtySeuilMini"
+                  [class.stock-positif]="produit.totalQuantity >= produit.qtySeuilMini">
+                <span class="pharma-stock-value">{{ produit.totalQuantity | number }}</span>
+              </td>
 
               <td style="text-align: right">
                 <span class="pharma-price">{{ produit.costAmount | number }}</span>
@@ -157,7 +157,7 @@
                 <span class="pharma-qty-value">{{ produit.stockReassort | number }}</span>
               </td>
               <td>
-                <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false"></jhi-eta-produit>
+                <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="true"></jhi-eta-produit>
               </td>
               <td class="text-right">
                 <p-buttonGroup>

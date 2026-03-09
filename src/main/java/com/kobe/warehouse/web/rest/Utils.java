@@ -17,11 +17,7 @@ public final class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
-    public static ResponseEntity<Resource> printPDF(String gereratefilePath, HttpServletRequest request) throws MalformedURLException {
-        Path filePath = Paths.get(gereratefilePath);
-        Resource resource = new UrlResource(filePath.toUri());
-        return getDocument(resource, "application/pdf", request);
-    }
+
 
     public static ResponseEntity<Resource> printPDF(Resource resource, HttpServletRequest request) {
         return getDocument(resource, "application/pdf", request);
@@ -54,10 +50,6 @@ public final class Utils {
             .body(resource);
     }
 
-    public static ResponseEntity<Resource> exportExcel(Resource resource, HttpServletRequest request) {
-        return getDocument(resource, "application/vnd.ms-excel", request);
-        // @org.springdoc.core.annotations.ParameterObject
-    }
 
     public static ResponseEntity<byte[]> exportExcel(byte[] excelContent, String fileName) {
         return ResponseEntity.ok()

@@ -92,22 +92,26 @@ class AssureStep1Fragment : Fragment() {
         // Tiers Payant search with debounce
         binding.actvTiersPayant.addTextChangedListener { text ->
             searchJob?.cancel()
-            if ((text?.length ?: 0) > 2) {
+            val query = text?.toString()?.trim().orEmpty()
+            if (query.length > 2) {
                 searchJob = lifecycleScope.launch {
                     delay(300)  // Debounce
-                    searchTiersPayants(text.toString())
+                    searchTiersPayants(query)
                 }
             }
         }
 
         binding.actvTiersPayant.setOnItemClickListener { _, _, position, _ ->
+            searchJob?.cancel()
             selectedTiersPayant = tiersPayants.getOrNull(position)
             if (selectedTiersPayant?.id == null || selectedTiersPayant?.id == -1L) {
                 // "Create new tiers payant" option selected
                 selectedTiersPayant = null
+                binding.actvTiersPayant.setText("", false)
                 openCreateTiersPayantDialog()
             } else {
                 binding.tilTiersPayant.error = null
+                binding.etNum.requestFocus()
             }
         }
 
@@ -116,38 +120,37 @@ class AssureStep1Fragment : Fragment() {
             openCreateTiersPayantDialog()
         }
     }
-    private fun searchTiersPayants(query: String) {
+
+    private suspend fun searchTiersPayants(query: String) {
         binding.progressBarTiersPayant.visibility = View.VISIBLE
 
-        lifecycleScope.launch {
-            tiersPayantRepository.searchTiersPayants(search = query, type = "ASSURANCE").fold(
-                onSuccess = { results ->
-                    binding.progressBarTiersPayant.visibility = View.GONE
+        tiersPayantRepository.searchTiersPayants(search = query, type = "ASSURANCE").fold(
+            onSuccess = { results ->
+                binding.progressBarTiersPayant.visibility = View.GONE
 
-                    // Add "Create new" option
-                    tiersPayants = results + TiersPayant(
-                        id = -1L,
-                        name = "Créer un nouveau tiers payant..."
-                    )
+                // Add "Create new" option
+                tiersPayants = results + TiersPayant(
+                    id = -1L,
+                    name = "Créer un nouveau tiers payant..."
+                )
 
-                    val adapter = ArrayAdapter(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        tiersPayants.map { it.name }
-                    )
-                    binding.actvTiersPayant.setAdapter(adapter)
-                    binding.actvTiersPayant.showDropDown()
-                },
-                onFailure = { error ->
-                    binding.progressBarTiersPayant.visibility = View.GONE
-                    Toast.makeText(
-                        requireContext(),
-                        "Erreur de recherche: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
-        }
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    tiersPayants.map { it.name }
+                )
+                binding.actvTiersPayant.setAdapter(adapter)
+                binding.actvTiersPayant.showDropDown()
+            },
+            onFailure = { error ->
+                binding.progressBarTiersPayant.visibility = View.GONE
+                Toast.makeText(
+                    requireContext(),
+                    "Erreur de recherche: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
     }
 
     private fun openCreateTiersPayantDialog() {
@@ -155,9 +158,11 @@ class AssureStep1Fragment : Fragment() {
             categorie = "ASSURANCE"
         ) { createdTiersPayant ->
             // Tiers payant created, select it
+            searchJob?.cancel()
             selectedTiersPayant = createdTiersPayant
-            binding.actvTiersPayant.setText(createdTiersPayant.getDisplayName())
+            binding.actvTiersPayant.setText(createdTiersPayant.getDisplayName(), false)
             binding.tilTiersPayant.error = null
+            binding.etNum.requestFocus()
         }
         dialog.show(parentFragmentManager, TiersPayantCreateDialogFragment.TAG)
     }

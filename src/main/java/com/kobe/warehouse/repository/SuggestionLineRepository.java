@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, Integer>, JpaSpecificationExecutor<SuggestionLine> {
+public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, Integer>, JpaSpecificationExecutor<SuggestionLine>, SuggestionLineRepositoryCustom {
     Optional<SuggestionLine> findBySuggestionTypeSuggessionAndFournisseurProduitId(
         TypeSuggession typeSuggession,
         Integer fournisseurProduitId

@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.service.dto.enumeration.Mois;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public record SuggestionLineDTO(
     Integer id,
@@ -15,5 +17,8 @@ public record SuggestionLineDTO(
     int currentStock,
     EtatProduit etatProduit,
     int prixAchat,
-    int prixVente
-) {}
+    int prixVente,
+    Map<Mois, Integer> consommationMensuelle
+) {
+
+}

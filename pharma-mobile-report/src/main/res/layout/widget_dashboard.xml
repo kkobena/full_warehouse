@@ -1,196 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/widget_container"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/widget_container"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/widget_background"
+  android:padding="8dp">
+
+  <!-- Loading State -->
+  <LinearLayout
+    android:id="@+id/widget_loading"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:padding="8dp">
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
 
-    <!-- Loading State -->
+    <ProgressBar
+      android:layout_width="24dp"
+      android:layout_height="24dp"
+      android:indeterminateTint="@color/primary" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:text="@string/widget_loading"
+      android:textColor="@color/text_secondary"
+      android:textSize="12sp" />
+  </LinearLayout>
+
+  <!-- Error State -->
+  <LinearLayout
+    android:id="@+id/widget_error"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <ImageView
+      android:layout_width="32dp"
+      android:layout_height="32dp"
+      android:contentDescription="@string/error"
+      android:src="@drawable/ic_error"
+      app:tint="@color/text_secondary" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:text="@string/widget_error_message"
+      android:textColor="@color/text_secondary"
+      android:textSize="11sp"
+      android:textAlignment="center" />
+
+    <Button
+      android:id="@+id/btn_widget_retry"
+      style="@style/Widget.Material3.Button.TextButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:text="@string/retry"
+      android:textSize="11sp" />
+  </LinearLayout>
+
+  <!-- Content State -->
+  <LinearLayout
+    android:id="@+id/widget_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <!-- Header -->
     <LinearLayout
-        android:id="@+id/widget_loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
 
-        <ProgressBar
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:indeterminateTint="@color/primary" />
+      <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/widget_title"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/widget_loading"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+      <ImageButton
+        android:id="@+id/btn_widget_refresh"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/refresh"
+        android:padding="4dp"
+        android:src="@drawable/ic_refresh"
+        app:tint="@color/text_secondary" />
     </LinearLayout>
 
-    <!-- Error State -->
+    <!-- CA Amount -->
+    <TextView
+      android:id="@+id/tv_widget_ca"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:textColor="@color/text_primary"
+      android:textSize="20sp"
+      android:textStyle="bold"
+      tools:text="2,450,000 FCFA" />
+
+    <!-- Variation -->
     <LinearLayout
-        android:id="@+id/widget_error"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="@string/error"
-            android:src="@drawable/ic_error"
-            android:tint="@color/error" />
+      <ImageView
+        android:id="@+id/iv_widget_variation_icon"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:contentDescription="@string/variation"
+        android:src="@drawable/ic_trending_up"
+        tools:tint="@color/success" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/widget_error_message"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            android:textAlignment="center" />
-
-        <Button
-            android:id="@+id/btn_widget_retry"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/retry"
-            android:textSize="11sp" />
+      <TextView
+        android:id="@+id/tv_widget_variation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        tools:text="+12.5%"
+        tools:textColor="@color/success" />
     </LinearLayout>
 
-    <!-- Content State -->
+    <!-- Tendance vs moyenne 30 derniers jours -->
     <LinearLayout
-        android:id="@+id/widget_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="visible">
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
 
-        <!-- Header -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+      <ImageView
+        android:id="@+id/iv_widget_trend_icon"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:contentDescription="@string/trend"
+        android:src="@drawable/ic_trending_up"
+        tools:tint="@color/success" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_title"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+      <TextView
+        android:id="@+id/tv_widget_trend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        tools:text="+12,3% vs moy. 30j"
+        tools:textColor="@color/success" />
+    </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/btn_widget_refresh"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/refresh"
-                android:padding="4dp"
-                android:src="@drawable/ic_refresh"
-                android:tint="@color/text_secondary" />
-        </LinearLayout>
+    <!-- Moyenne CA 30 jours -->
+    <TextView
+      android:id="@+id/tv_widget_average_ca"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="2dp"
+      android:textColor="@color/text_secondary"
+      android:textSize="10sp"
+      tools:text="Moy. 30j : 1 250 000 F" />
 
-        <!-- CA Amount -->
-        <TextView
-            android:id="@+id/tv_widget_ca"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:text="2,450,000 FCFA" />
+    <!-- Alerts Badge -->
+    <LinearLayout
+      android:id="@+id/ll_widget_alerts"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:background="@drawable/bg_alert_badge"
+      android:gravity="center"
+      android:orientation="horizontal"
+      android:paddingHorizontal="8dp"
+      android:paddingVertical="4dp"
+      android:visibility="visible">
 
-        <!-- Variation -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/iv_widget_variation_icon"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:contentDescription="@string/variation"
-                android:src="@drawable/ic_trending_up"
-                tools:tint="@color/success" />
-
-            <TextView
-                android:id="@+id/tv_widget_variation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:text="+12.5%"
-                tools:textColor="@color/success" />
-        </LinearLayout>
-
-        <!-- Target Progress -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ProgressBar
-                android:id="@+id/progress_widget_target"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="4dp"
-                android:layout_weight="1"
-                android:max="100"
-                android:progressTint="@color/primary"
-                tools:progress="87" />
-
-            <TextView
-                android:id="@+id/tv_widget_target_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                tools:text="87%" />
-        </LinearLayout>
-
-        <!-- Alerts Badge -->
-        <LinearLayout
-            android:id="@+id/ll_widget_alerts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_alert_badge"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:visibility="visible">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:contentDescription="@string/alerts"
-                android:src="@drawable/ic_alert"
-                android:tint="@color/error" />
+      <ImageView
+        android:id="@+id/iv_widget_alert_icon"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:contentDescription="@string/alerts"
+        android:src="@drawable/ic_alert" />
 
             <TextView
                 android:id="@+id/tv_widget_alerts_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:textColor="@color/error"
+                android:textColor="@color/warning_dark"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 tools:text="3" />
@@ -200,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/widget_alerts"
-                android:textColor="@color/error"
+                android:textColor="@color/warning_dark"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>

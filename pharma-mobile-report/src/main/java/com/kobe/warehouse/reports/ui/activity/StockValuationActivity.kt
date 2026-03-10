@@ -1,12 +1,15 @@
 package com.kobe.warehouse.reports.ui.activity
 
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.kobe.warehouse.reports.PharmaReportApplication
 import com.kobe.warehouse.reports.R
+import com.kobe.warehouse.reports.data.model.FamilleProduit
+import com.kobe.warehouse.reports.data.model.Rayon
 import com.kobe.warehouse.reports.databinding.ActivityStockValuationBinding
 import com.kobe.warehouse.reports.ui.adapter.PaginationScrollListener
 import com.kobe.warehouse.reports.ui.adapter.StockValuationAdapter
@@ -57,39 +60,42 @@ class StockValuationActivity : BaseActivity() {
             adapter = this@StockValuationActivity.adapter
             isNestedScrollingEnabled = false
 
-            // Add pagination scroll listener
             addOnScrollListener(object : PaginationScrollListener(this@StockValuationActivity.layoutManager) {
-                override fun loadMoreItems() {
-                    viewModel.loadMore()
-                }
-
-                override fun isLoading(): Boolean {
-                    return viewModel.isLoadingMore.value == true
-                }
-
-                override fun isLastPage(): Boolean {
-                    return viewModel.canLoadMore.value == false
-                }
+                override fun loadMoreItems() { viewModel.loadMore() }
+                override fun isLoading() = viewModel.isLoadingMore.value == true
+                override fun isLastPage() = viewModel.canLoadMore.value == false
             })
         }
     }
 
     private fun setupListeners() {
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshData()
-        }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshData() }
         binding.swipeRefresh.setColorSchemeResources(R.color.primary)
 
-        binding.headerSummary.setOnClickListener {
-            viewModel.toggleSummary()
+        binding.headerSummary.setOnClickListener { viewModel.toggleSummary() }
+    }
+
+    private fun setupFamilleDropdown(familles: List<FamilleProduit>) {
+        val items = mutableListOf(getString(R.string.filter_all)) + familles.map { it.libelle }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
+        binding.actvFamille.setAdapter(adapter)
+        binding.actvFamille.setOnItemClickListener { _, _, position, _ ->
+            viewModel.applyFamilleFilter(if (position == 0) null else familles[position - 1])
+        }
+    }
+
+    private fun setupRayonDropdown(rayons: List<Rayon>) {
+        val items = mutableListOf(getString(R.string.filter_all)) + rayons.map { it.libelle }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
+        binding.actvRayon.setAdapter(adapter)
+        binding.actvRayon.setOnItemClickListener { _, _, position, _ ->
+            viewModel.applyRayonFilter(if (position == 0) null else rayons[position - 1])
         }
     }
 
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { isLoading ->
-            if (isLoading) {
-                binding.viewFlipper.displayedChild = 0
-            }
+            if (isLoading) binding.viewFlipper.displayedChild = 0
         }
 
         viewModel.isRefreshing.observe(this) { isRefreshing ->
@@ -135,8 +141,22 @@ class StockValuationActivity : BaseActivity() {
             )
         }
 
-        viewModel.pagination.observe(this) { _ ->
-            // Pagination info available if needed for UI updates
+        viewModel.familleProduits.observe(this) { familles ->
+            if (familles.isNotEmpty()) setupFamilleDropdown(familles)
         }
+
+        viewModel.rayons.observe(this) { rayons ->
+            if (rayons.isNotEmpty()) setupRayonDropdown(rayons)
+        }
+
+        viewModel.selectedFamilleProduit.observe(this) { famille ->
+            binding.actvFamille.setText(famille?.libelle ?: getString(R.string.filter_all), false)
+        }
+
+        viewModel.selectedRayon.observe(this) { rayon ->
+            binding.actvRayon.setText(rayon?.libelle ?: getString(R.string.filter_all), false)
+        }
+
+        viewModel.pagination.observe(this) { _ -> }
     }
 }

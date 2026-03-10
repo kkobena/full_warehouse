@@ -493,20 +493,61 @@ class ReportRepository(
     }
 
     // -------------------------------------------------------------------------
+    // Récap Produits Vendus
+    // -------------------------------------------------------------------------
+
+    suspend fun getSoldProducts(
+        startDate: String,
+        endDate: String? = null,
+        search: String? = null,
+        page: Int = 0,
+        size: Int = 50
+    ): Result<PaginatedResult<RecapProduitVendu>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getSoldProducts(startDate, endDate, search, page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    suspend fun getSoldProductsSummary(
+        startDate: String,
+        endDate: String? = null,
+        search: String? = null
+    ): Result<RecapProduitVenduSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getSoldProductsSummary(startDate, endDate, search)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Valorisation Stock (Stock Valuation)
     // -------------------------------------------------------------------------
 
     /**
-     * Get all stock valuation data with pagination.
-     * @param page Page number (0-indexed)
-     * @param size Page size (default 50)
+     * Get all stock valuation data with pagination and optional filters.
      */
     suspend fun getAllStockValuation(
         page: Int = 0,
-        size: Int = 50
+        size: Int = 50,
+        familleProduitId: Int? = null,
+        rayonId: Int? = null
     ): Result<PaginatedResult<StockValuation>> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getAllStockValuation(page, size)
+            val response = apiService.getAllStockValuation(page, size, familleProduitId, rayonId)
             if (response.isSuccessful && response.body() != null) {
                 val pagination = PaginationInfo.fromResponse(response)
                 Result.success(PaginatedResult(response.body()!!, pagination))
@@ -519,11 +560,46 @@ class ReportRepository(
     }
 
     /**
+     * Get all famille produits for filter.
+     */
+    suspend fun getFamilleProduits(): Result<List<FamilleProduit>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getFamilleProduits()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
+     * Get all rayons for filter.
+     */
+    suspend fun getRayons(): Result<List<Rayon>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getRayons()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    /**
      * Get stock valuation summary.
      */
-    suspend fun getStockValuationSummary(): Result<StockValuationSummary> = withContext(Dispatchers.IO) {
+    suspend fun getStockValuationSummary(
+        familleProduitId: Int? = null,
+        rayonId: Int? = null
+    ): Result<StockValuationSummary> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getStockValuationSummary()
+            val response = apiService.getStockValuationSummary(familleProduitId, rayonId)
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
@@ -538,12 +614,36 @@ class ReportRepository(
     // Rentabilité (Profitability)
     // -------------------------------------------------------------------------
 
-    /**
-     * Get all product profitability data.
-     */
-    suspend fun getAllProductProfitability(): Result<List<ProductProfitability>> = withContext(Dispatchers.IO) {
+    // -------------------------------------------------------------------------
+    // Rentabilité / Marges (sans BCG)
+    // -------------------------------------------------------------------------
+
+    suspend fun getAllProductProfitability(
+        familleProduitId: Int? = null,
+        search: String? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Result<PaginatedResult<MargeDTO>> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getAllProductProfitability()
+            val response = apiService.getAllProductProfitability(familleProduitId, search, page, size)
+            if (response.isSuccessful && response.body() != null) {
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
+            } else {
+                Result.failure(Exception(getErrorMessage(response.code())))
+            }
+        } catch (e: Exception) {
+            Result.failure(handleException(e))
+        }
+    }
+
+    suspend fun getProfitabilitySummary(
+        familleProduitId: Int? = null,
+        seuilBas: Int = 10,
+        seuilHaut: Int = 20
+    ): Result<MargeSummary> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getProfitabilitySummary(familleProduitId, seuilBas, seuilHaut)
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
@@ -554,30 +654,16 @@ class ReportRepository(
         }
     }
 
-    /**
-     * Get profitability summary.
-     */
-    suspend fun getProfitabilitySummary(): Result<ProfitabilitySummary> = withContext(Dispatchers.IO) {
+    suspend fun getLowMarginProducts(
+        seuil: Int = 10,
+        page: Int = 0,
+        size: Int = 20
+    ): Result<PaginatedResult<MargeDTO>> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.getProfitabilitySummary()
+            val response = apiService.getLowMarginProducts(seuil, page, size)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception(getErrorMessage(response.code())))
-            }
-        } catch (e: Exception) {
-            Result.failure(handleException(e))
-        }
-    }
-
-    /**
-     * Get products by BCG category.
-     */
-    suspend fun getByBCGCategory(category: String): Result<List<ProductProfitability>> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getByBCGCategory(category)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val pagination = PaginationInfo.fromResponse(response)
+                Result.success(PaginatedResult(response.body()!!, pagination))
             } else {
                 Result.failure(Exception(getErrorMessage(response.code())))
             }
@@ -857,7 +943,7 @@ class ReportRepository(
 
         fun getInstance(context: android.content.Context): ReportRepository {
             return INSTANCE ?: synchronized(this) {
-                val tokenManager = com.kobe.warehouse.reports.utils.TokenManager(context)
+                val tokenManager = TokenManager(context)
                 val apiService = ApiClient.create(tokenManager = tokenManager)
                     .create(ReportApiService::class.java)
                 val instance = ReportRepository(apiService, tokenManager)

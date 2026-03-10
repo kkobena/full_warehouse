@@ -118,7 +118,7 @@
     <string name="offline_data_cached">Données en cache affichées</string>
 
     <!-- Dashboard Additional -->
-    <string name="dashboard_target_format">Objectif: %s</string>
+    <string name="dashboard_average_ca_format">Moy. 30j : %s</string>
 
     <!-- Alerts Filters -->
     <string name="alerts_filter_all">Toutes</string>
@@ -190,6 +190,7 @@
     <string name="widget_loading">Chargement…</string>
     <string name="widget_error_message">Impossible de charger les données</string>
     <string name="widget_alerts">alertes</string>
+    <string name="trend">Tendance vs moyenne 30 jours</string>
     <string name="variation">Variation</string>
     <string name="refresh">Actualiser</string>
     <string name="alerts">Alertes</string>
@@ -344,6 +345,16 @@
     <string name="filter_by_category">Par catégorie</string>
     <string name="filter_by_storage">Par emplacement</string>
     <string name="stock_empty">Aucun produit en stock</string>
+    <string name="sold_products_title">Produits Vendus</string>
+    <string name="sold_products_count">Produits</string>
+    <string name="sold_products_empty">Aucun produit vendu sur cette période</string>
+    <string name="sold_qty">Qté vendue</string>
+    <string name="stock_current">Stock actuel</string>
+    <string name="total_sales">CA</string>
+    <string name="search_product_hint">Rechercher par libellé ou code…</string>
+    <string name="filter_famille">Famille</string>
+    <string name="filter_rayon">Rayon</string>
+    <string name="filter_all">Tous</string>
 
     <!-- Profitability -->
     <string name="profitability_title">Analyse de Rentabilité</string>

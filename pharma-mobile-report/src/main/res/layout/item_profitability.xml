@@ -48,14 +48,6 @@
 
             </LinearLayout>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipBcg"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                app:chipMinHeight="24dp"
-                tools:text="Star" />
 
         </LinearLayout>
 

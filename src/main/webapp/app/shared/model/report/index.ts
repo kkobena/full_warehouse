@@ -18,6 +18,7 @@ export * from './product-profitability.model';
 export * from './profitability-summary.model';
 export * from './abc-pareto.model';
 export * from './abc-pareto-summary.model';
+export * from './marge.model';
 export * from './comparative-report.model';
 
 // Phase 4 Models

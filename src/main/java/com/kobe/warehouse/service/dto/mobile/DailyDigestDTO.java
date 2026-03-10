@@ -10,8 +10,10 @@ public class DailyDigestDTO {
     private Double variation;
     private Integer transactionCount;
     private Integer alertsCount;
-    private Long targetCA;
-    private Double targetProgress;
+    /** CA moyen journalier sur les 30 derniers jours — référence glissante. */
+    private Long averageCA30j;
+    /** Écart en % entre le CA du jour et la moyenne des 30 derniers jours. */
+    private Double trendVs30j;
     private Integer customersCount;
     private Long averageBasket;
 
@@ -22,8 +24,8 @@ public class DailyDigestDTO {
         Double variation,
         Integer transactionCount,
         Integer alertsCount,
-        Long targetCA,
-        Double targetProgress,
+        Long averageCA30j,
+        Double trendVs30j,
         Integer customersCount,
         Long averageBasket
     ) {
@@ -31,8 +33,8 @@ public class DailyDigestDTO {
         this.variation = variation;
         this.transactionCount = transactionCount;
         this.alertsCount = alertsCount;
-        this.targetCA = targetCA;
-        this.targetProgress = targetProgress;
+        this.averageCA30j = averageCA30j;
+        this.trendVs30j = trendVs30j;
         this.customersCount = customersCount;
         this.averageBasket = averageBasket;
     }
@@ -71,20 +73,20 @@ public class DailyDigestDTO {
         this.alertsCount = alertsCount;
     }
 
-    public Long getTargetCA() {
-        return targetCA;
+    public Long getAverageCA30j() {
+        return averageCA30j;
     }
 
-    public void setTargetCA(Long targetCA) {
-        this.targetCA = targetCA;
+    public void setAverageCA30j(Long averageCA30j) {
+        this.averageCA30j = averageCA30j;
     }
 
-    public Double getTargetProgress() {
-        return targetProgress;
+    public Double getTrendVs30j() {
+        return trendVs30j;
     }
 
-    public void setTargetProgress(Double targetProgress) {
-        this.targetProgress = targetProgress;
+    public void setTrendVs30j(Double trendVs30j) {
+        this.trendVs30j = trendVs30j;
     }
 
     public Integer getCustomersCount() {
@@ -110,8 +112,8 @@ public class DailyDigestDTO {
             ", variation=" + variation +
             ", transactionCount=" + transactionCount +
             ", alertsCount=" + alertsCount +
-            ", targetCA=" + targetCA +
-            ", targetProgress=" + targetProgress +
+            ", averageCA30j=" + averageCA30j +
+            ", trendVs30j=" + trendVs30j +
             ", customersCount=" + customersCount +
             ", averageBasket=" + averageBasket +
             '}';

@@ -9,22 +9,21 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-select
-            [(ngModel)]="selectedCategorie"
-            [options]="categorieOptions()"
-            placeholder="Catégorie"
+            [(ngModel)]="selectedFamilleProduit"
+            [options]="familleProduitOptions()"
+            placeholder="Famille de Produit"
             appendTo="body"
             size="large"
-            optionLabel="label"
-            optionValue="value"
+            optionLabel="libelle"
+
             [showClear]="true"
             (onChange)="onFilterChange()"
           />
           <p-select
-            [(ngModel)]="selectedStorage"
-            [options]="storageOptions()"
-            placeholder="Emplacement"
-            optionLabel="label"
-            optionValue="value"
+            [(ngModel)]="selectedRayon"
+            [options]="rayonOptions()"
+            placeholder="Rayons"
+            optionLabel="libelle"
             appendTo="body"
             size="large"
             [showClear]="true"
@@ -35,9 +34,9 @@
 
       <ng-template #end>
         <div class="flex gap-2">
-          <p-button label="Effacer les filtres" icon="pi pi-filter-slash" severity="secondary" (onClick)="onClearFilters()" />
-          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
-          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadValuations()" />
+
+          <p-button class="mr-1" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
+          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadData()" />
         </div>
       </ng-template>
     </p-toolbar>

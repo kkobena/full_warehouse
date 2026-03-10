@@ -1,10 +1,13 @@
 package com.kobe.warehouse.web.rest.report;
 
-import com.kobe.warehouse.domain.enumeration.BCGCategory;
-import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
-import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
-import com.kobe.warehouse.service.report.ProfitabilityReportService;
+import com.kobe.warehouse.service.dto.report.MargeDTO;
+import com.kobe.warehouse.service.dto.report.MargeSummaryDTO;
+import com.kobe.warehouse.service.report.MargeReportService;
 import com.kobe.warehouse.service.report.pdf.ProfitabilityPdfReportService;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -19,95 +23,101 @@ import java.util.List;
 @RequestMapping("/api")
 public class ProfitabilityReportResource {
 
-    private final ProfitabilityReportService profitabilityReportService;
-    private final ProfitabilityPdfReportService profitabilityPdfReportService;
 
-    public ProfitabilityReportResource(ProfitabilityReportService profitabilityReportService, ProfitabilityPdfReportService profitabilityPdfReportService) {
-        this.profitabilityReportService = profitabilityReportService;
-        this.profitabilityPdfReportService = profitabilityPdfReportService;
-    }
 
-    /**
-     * GET /profitability : Get all product profitability data
-     *
-     * @return List of product profitability records
-     */
-    @GetMapping("/profitability")
-    public ResponseEntity<List<ProductProfitabilityDTO>> getAllProductProfitability() {
-        List<ProductProfitabilityDTO> profitability = profitabilityReportService.getAllProductProfitability();
-        return ResponseEntity.ok().body(profitability);
-    }
+    private final MargeReportService margeReportService;
 
-    /**
-     * GET /profitability/category : Get product profitability by category
-     *
-     * @param categorie The category name to filter by
-     * @return List of product profitability records for the category
-     */
-    @GetMapping("/profitability/category")
-    public ResponseEntity<List<ProductProfitabilityDTO>> getProductProfitabilityByCategory(@RequestParam String categorie) {
-        List<ProductProfitabilityDTO> profitability = profitabilityReportService.getProductProfitabilityByCategory(categorie);
-        return ResponseEntity.ok().body(profitability);
-    }
+    public ProfitabilityReportResource(
 
-    /**
-     * GET /profitability/bcg : Get product profitability by BCG classification
-     *
-     * @param bcgCategory The BCG classification to filter by (STAR, CASH_COW, QUESTION_MARK, DOG)
-     * @return List of product profitability records for the BCG category
-     */
-    @GetMapping("/profitability/bcg")
-    public ResponseEntity<List<ProductProfitabilityDTO>> getProductProfitabilityByBCGCategory(@RequestParam BCGCategory bcgCategory) {
-        List<ProductProfitabilityDTO> profitability = profitabilityReportService.getProductProfitabilityByBCGCategory(bcgCategory);
-        return ResponseEntity.ok().body(profitability);
-    }
 
-    /**
-     * GET /profitability/top : Get top N most profitable products
-     *
-     * @param limit Number of products to return (default: 20)
-     * @return List of top profitable products
-     */
-    @GetMapping("/profitability/top")
-    public ResponseEntity<List<ProductProfitabilityDTO>> getTopProfitableProducts(
-        @RequestParam(defaultValue = "20") int limit
+        MargeReportService margeReportService
     ) {
-        List<ProductProfitabilityDTO> topProducts = profitabilityReportService.getTopProfitableProducts(limit);
-        return ResponseEntity.ok().body(topProducts);
+
+
+        this.margeReportService = margeReportService;
     }
 
-    /**
-     * GET /profitability/low-margin : Get low margin products (< 10%)
-     *
-     * @return List of products with margin below 10%
-     */
-    @GetMapping("/profitability/low-margin")
-    public ResponseEntity<List<ProductProfitabilityDTO>> getLowMarginProducts() {
-        List<ProductProfitabilityDTO> lowMargin = profitabilityReportService.getLowMarginProducts();
-        return ResponseEntity.ok().body(lowMargin);
-    }
 
-    /**
-     * GET /profitability/summary : Get aggregated profitability summary
-     *
-     * @return Profitability summary with BCG distribution
-     */
-    @GetMapping("/profitability/summary")
-    public ResponseEntity<ProfitabilitySummaryDTO> getProfitabilitySummary() {
-        ProfitabilitySummaryDTO summary = profitabilityReportService.getProfitabilitySummary();
-        return ResponseEntity.ok().body(summary);
-    }
-
-    /**
-     * GET /profitability/export : Export profitability report as PDF
-     *
-     * @return PDF file
-     */
     @GetMapping(value = "/profitability/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> exportProfitabilityToPdf() {
-
+    public ResponseEntity<byte[]> exportProfitabilityToPdf(  @RequestParam(required = false) Integer familleProduitId,
+                                                             @RequestParam(required = false) String search) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=profitability-report.pdf");
-        return ResponseEntity.ok().headers(headers).body(profitabilityPdfReportService.export());
+        return ResponseEntity.ok().headers(headers).body(margeReportService.export(familleProduitId, search));
+    }
+
+    // =========================================================================
+    // Nouveaux endpoints Marges — paginés, sans BCG, basés sur mv_marge_produit
+    // =========================================================================
+
+    /**
+     * GET /api/marges-profitability
+     * Liste paginée des marges avec filtres optionnels famille et recherche textuelle.
+     *
+     * @param familleProduitId filtre optionnel sur la famille produit
+     * @param search           filtre textuel sur libellé ou code CIP
+     * @param pageable         pagination + tri (défaut : marge_brute DESC, 20 par page)
+     */
+    @GetMapping("/marges-profitability")
+    public ResponseEntity<List<MargeDTO>> getMarges(
+        @RequestParam(required = false) Integer familleProduitId,
+        @RequestParam(required = false) String search,
+        @PageableDefault(size = 20, sort = "margeBrute") Pageable pageable
+    ) {
+        Page<MargeDTO> page = margeReportService.getMarges(familleProduitId, search, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * GET /api/marges-profitability/faible-marge
+     * Produits dont le taux de marge est inférieur au seuil.
+     *
+     * @param seuil seuil en % (défaut 10)
+     */
+    @GetMapping("/marges-profitability/faible-marge")
+    public ResponseEntity<List<MargeDTO>> getFaibleMarge(
+        @RequestParam(defaultValue = "10") int seuil,
+        @PageableDefault(size = 20) Pageable pageable
+    ) {
+
+        Page<MargeDTO> page = margeReportService.getProduitsMargeInsuffisante(seuil, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * GET /api/marges-profitability/top
+     * Top N produits par marge brute décroissante.
+     *
+     * @param limit nombre de produits (défaut 20)
+     */
+    @GetMapping("/marges-profitability/top")
+    public ResponseEntity<List<MargeDTO>> getTopMarges(
+        @RequestParam(defaultValue = "20") int limit,
+        @PageableDefault(size = 20) Pageable pageable
+    ) {
+
+        Page<MargeDTO> page = margeReportService.getTopProduitsParMarge(limit, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * GET /api/marges-profitability/summary
+     * Résumé global des marges avec seuils configurables, sans distribution BCG.
+     *
+     * @param familleProduitId filtre optionnel famille produit
+     * @param seuilBas         seuil bas en % (défaut 10)
+     * @param seuilHaut        seuil haut en % (défaut 20)
+     */
+    @GetMapping("/marges-profitability/summary")
+    public ResponseEntity<MargeSummaryDTO> getMargeSummary(
+        @RequestParam(required = false) Integer familleProduitId,
+        @RequestParam(defaultValue = "10") int seuilBas,
+        @RequestParam(defaultValue = "20") int seuilHaut
+    ) {
+        return ResponseEntity.ok(margeReportService.getMargeSummary(familleProduitId, seuilBas, seuilHaut));
     }
 }
+

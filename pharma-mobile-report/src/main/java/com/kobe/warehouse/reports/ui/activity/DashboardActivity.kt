@@ -24,6 +24,7 @@ import com.kobe.warehouse.reports.ui.adapter.AlertSummaryAdapter
 import com.kobe.warehouse.reports.ui.adapter.TopProductAdapter
 import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModel
 import com.kobe.warehouse.reports.ui.viewmodel.DashboardViewModelFactory
+import com.kobe.warehouse.reports.ui.activity.SoldProductsActivity
 
 /**
  * Dashboard activity - main screen showing KPIs and summaries.
@@ -313,10 +314,15 @@ class DashboardActivity : BaseActivity() {
         }
         binding.llVariation.setBackgroundResource(variationBackground)
 
-        // Target progress
-        binding.tvTarget.text = getString(R.string.dashboard_target_format, Dashboard.formatAmount(dashboard.dailyTarget))
-        binding.progressTarget.progress = dashboard.progressPercent
-        binding.tvProgressPercent.text = "${dashboard.progressPercent}%"
+        // Tendance vs moyenne 30 derniers jours
+        val trendColor = if (dashboard.isTrendPositive()) R.color.success else R.color.error
+        binding.tvTrendLabel.text = dashboard.getTrendLabel()
+        binding.tvTrendLabel.setTextColor(ContextCompat.getColor(this, trendColor))
+        binding.ivTrendIcon.setImageResource(
+            if (dashboard.isTrendPositive()) R.drawable.ic_trending_up else R.drawable.ic_trending_down
+        )
+        binding.ivTrendIcon.setColorFilter(ContextCompat.getColor(this, trendColor))
+        binding.tvAverageCA.text = getString(R.string.dashboard_average_ca_format, dashboard.getFormattedAverageCA30j())
 
         // Stats cards
         binding.tvTransactions.text = dashboard.transactionsCount.toString()
@@ -414,8 +420,7 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun navigateToProducts() {
-        val intent = Intent(this, ProductSearchActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, SoldProductsActivity::class.java))
     }
 
     private fun navigateToProductDetail(productId: Long) {

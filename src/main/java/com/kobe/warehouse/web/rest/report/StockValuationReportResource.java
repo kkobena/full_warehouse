@@ -18,6 +18,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
+import static java.util.Objects.isNull;
+
 @RestController
 @RequestMapping("/api")
 public class StockValuationReportResource {
@@ -55,9 +57,13 @@ public class StockValuationReportResource {
      * @return Summary with total values and averages
      */
     @GetMapping("/stock/valuation/summary")
-    public ResponseEntity<StockValuationSummaryDTO> getStockValuationSummary() {
-        StockValuationSummaryDTO summary = stockValuationReportService.getStockValuationSummary();
-        return ResponseEntity.ok().body(summary);
+    public ResponseEntity<StockValuationSummaryDTO> getStockValuationSummary(@RequestParam(value = "familleProduitId", required = false) Integer familleProduitId,
+                                                                             @RequestParam(value = "rayonId", required = false) Integer rayonId) {
+        if (isNull(familleProduitId) && isNull(rayonId)) {
+            return ResponseEntity.ok(stockValuationReportService.getStockValuationSummary());
+        } else {
+            return ResponseEntity.ok(stockValuationReportService.getStockValuationSummary(familleProduitId, rayonId));
+        }
     }
 
     /**

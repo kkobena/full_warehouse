@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.report.pdf;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.report.MargeDTO;
+import com.kobe.warehouse.service.dto.report.MargeSummaryDTO;
 import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
 import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
 import com.kobe.warehouse.service.report.ProfitabilityReportService;
@@ -17,12 +19,12 @@ import java.util.Map;
 public class ProfitabilityPdfReportService extends AbstractStatistiqueReportService {
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
-    private final ProfitabilityReportService profitabilityReportService;
 
-    public ProfitabilityPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, ProfitabilityReportService profitabilityReportService) {
+
+    public ProfitabilityPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
-        this.profitabilityReportService = profitabilityReportService;
+
     }
 
 
@@ -48,13 +50,12 @@ public class ProfitabilityPdfReportService extends AbstractStatistiqueReportServ
     }
 
 
-    public byte[] export() {
+    public byte[] export(MargeSummaryDTO margeSummary, List<MargeDTO> marges) {
 
-        List<ProductProfitabilityDTO> products = profitabilityReportService.getAllProductProfitability();
-        ProfitabilitySummaryDTO summary = profitabilityReportService.getProfitabilitySummary();
-        this.getParameters().put("products", products);
-        this.getParameters().put("summary", summary);
-        this.getParameters().put("reportTitle", "Rapport de Rentabilité (Analyse BCG)");
+
+        this.getParameters().put("marges", marges);
+        this.getParameters().put("summary", margeSummary);
+        this.getParameters().put("reportTitle", "Rapport de Rentabilité");
         this.getParameters().put("page_count", "1/1");
 
         super.getCommonParameters();

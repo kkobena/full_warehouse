@@ -10,9 +10,11 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Dashboard(
     @SerializedName("dailyCA") val dailyCA: Long,
-    @SerializedName("dailyTarget") val dailyTarget: Long,
+    /** CA moyen journalier des 30 derniers jours — référence glissante */
+    @SerializedName("averageCA30j") val averageCA30j: Long,
     @SerializedName("variationPercent") val variationPercent: Double,
-    @SerializedName("progressPercent") val progressPercent: Int,
+    /** Écart % entre le CA du jour et la moyenne des 30 derniers jours */
+    @SerializedName("trendVs30j") val trendVs30j: Double,
     @SerializedName("transactionsCount") val transactionsCount: Int,
     @SerializedName("averageBasket") val averageBasket: Long,
     @SerializedName("customersCount") val customersCount: Int,
@@ -28,33 +30,24 @@ data class Dashboard(
     @SerializedName("lastUpdate") val lastUpdate: String
 ) : Parcelable {
 
-    /**
-     * Format CA amount for display.
-     */
-    fun getFormattedDailyCA(): String {
-        return formatAmount(dailyCA)
-    }
+    fun getFormattedDailyCA(): String = formatAmount(dailyCA)
+
+    fun getFormattedAverageBasket(): String = formatAmount(averageBasket)
+
+    fun getFormattedAverageCA30j(): String = formatAmount(averageCA30j)
+
+    fun getVariationIndicator(): String = if (variationPercent >= 0) "↗" else "↘"
+
+    fun isVariationPositive(): Boolean = variationPercent >= 0
+
+    /** Vrai si le CA du jour dépasse la moyenne des 30 derniers jours. */
+    fun isTrendPositive(): Boolean = trendVs30j >= 0
 
     /**
-     * Format average basket for display.
+     * Texte d'interprétation de la tendance pour l'affichage mobile.
+     * Ex : "+12,3% vs moy. 30j" ou "-5,1% vs moy. 30j"
      */
-    fun getFormattedAverageBasket(): String {
-        return formatAmount(averageBasket)
-    }
-
-    /**
-     * Get variation indicator (up/down arrow).
-     */
-    fun getVariationIndicator(): String {
-        return if (variationPercent >= 0) "↗" else "↘"
-    }
-
-    /**
-     * Get variation color resource name.
-     */
-    fun isVariationPositive(): Boolean {
-        return variationPercent >= 0
-    }
+    fun getTrendLabel(): String = String.format("%+.1f%% vs moy. 30j", trendVs30j)
 
     companion object {
         fun formatAmount(amount: Long): String {

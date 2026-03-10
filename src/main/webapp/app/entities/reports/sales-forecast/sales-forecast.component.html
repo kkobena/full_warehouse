@@ -9,24 +9,25 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
+          <!-- Signal : [ngModel] + (ngModelChange) au lieu de [(ngModel)] -->
           <p-select
-            [(ngModel)]="selectedMethod"
+            [ngModel]="selectedMethod()"
+            (ngModelChange)="selectedMethod.set($event); onMethodChange()"
             [options]="methodOptions"
             optionLabel="label"
             optionValue="value"
             appendTo="body"
-            (onChange)="onMethodChange()"
             [style]="{ 'min-width': '200px' }"
             placeholder="Méthode de prévision"
           />
 
           <p-select
-            [(ngModel)]="selectedPeriod"
+            [ngModel]="selectedPeriod()"
+            (ngModelChange)="selectedPeriod.set($event); onPeriodChange()"
             [options]="periodOptions"
             optionLabel="label"
             optionValue="value"
             appendTo="body"
-            (onChange)="onPeriodChange()"
             [style]="{ 'min-width': '120px' }"
             placeholder="Période"
           />
@@ -57,7 +58,47 @@
   } @else {
     <!-- Summary Cards -->
     @if (summary(); as sum) {
+      <!-- Bannière qualité données — visible si INSUFFICIENT ou LOW -->
+      @if (sum.dataQuality === 'INSUFFICIENT' || sum.dataQuality === 'LOW') {
+        <div class="row mb-2">
+          <div class="col-12">
+            <div
+              class="card data-card"
+              [style.border-left]="sum.dataQuality === 'INSUFFICIENT' ? '4px solid #f44336' : '4px solid #ff9800'"
+            >
+              <div class="card-body py-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i
+                    class="pi"
+                    [class.pi-exclamation-triangle]="sum.dataQuality === 'INSUFFICIENT'"
+                    [class.pi-info-circle]="sum.dataQuality === 'LOW'"
+                    [class.text-danger]="sum.dataQuality === 'INSUFFICIENT'"
+                    [class.text-warning]="sum.dataQuality === 'LOW'"
+                  ></i>
+                  <div>
+                    @if (sum.dataQuality === 'INSUFFICIENT') {
+                      <strong class="text-danger">Données insuffisantes ({{ sum.dataPointsUsed }} mois)</strong>
+                      <p class="m-0 text-sm text-muted">
+                        Les prévisions et indicateurs statistiques ne sont pas fiables avec moins de 4 mois d'historique.
+                        Les résultats affichés sont indicatifs uniquement. La fiabilité s'améliorera automatiquement au fur et à mesure
+                        de l'accumulation des données.
+                      </p>
+                    } @else {
+                      <strong class="text-warning">Données limitées ({{ sum.dataPointsUsed }} mois)</strong>
+                      <p class="m-0 text-sm text-muted">
+                        La fiabilité des prévisions est limitée. Un historique de 12 mois minimum est recommandé.
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
       <div class="row">
+        <!-- Prévision 3 Mois -->
         <div class="col-xl-3 col-md-6 mb-2">
           <div class="card h-100 kpi-card primary-accent">
             <div class="card-body">
@@ -69,17 +110,22 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-primary-subtle text-primary">{{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois</span>
+                    @if (sum.averageMonthlyGrowthPct != null) {
+                      <span class="badge bg-primary-subtle text-primary">
+                        {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
+                      </span>
+                    } @else {
+                      <span class="badge bg-secondary-subtle text-secondary">Tendance non calculable</span>
+                    }
                   </div>
                 </div>
-                <div class="kpi-icon text-primary">
-                  <i class="pi pi-calendar"></i>
-                </div>
+                <div class="kpi-icon text-primary"><i class="pi pi-calendar"></i></div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Prévision 6 Mois -->
         <div class="col-xl-3 col-md-6 mb-2">
           <div class="card h-100 kpi-card success-accent">
             <div class="card-body">
@@ -91,19 +137,18 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-success-subtle text-success">{{
-                      getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
-                    }}</span>
+                    <span class="badge bg-success-subtle text-success">
+                      {{ getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION') }}
+                    </span>
                   </div>
                 </div>
-                <div class="kpi-icon text-success">
-                  <i class="pi pi-chart-bar"></i>
-                </div>
+                <div class="kpi-icon text-success"><i class="pi pi-chart-bar"></i></div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Prévision 12 Mois -->
         <div class="col-xl-3 col-md-6 mb-2">
           <div class="card h-100 kpi-card warning-accent">
             <div class="card-body">
@@ -115,17 +160,22 @@
                     <span class="value-suffix">FCFA</span>
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-warning-subtle text-warning">Croissance: {{ formatPercent(sum.predictedYearlyGrowthPct) }}%</span>
+                    @if (sum.predictedYearlyGrowthPct != null) {
+                      <span class="badge bg-warning-subtle text-warning">
+                        Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
+                      </span>
+                    } @else {
+                      <span class="badge bg-secondary-subtle text-secondary">Croissance non calculable</span>
+                    }
                   </div>
                 </div>
-                <div class="kpi-icon text-warning">
-                  <i class="pi pi-chart-line"></i>
-                </div>
+                <div class="kpi-icon text-warning"><i class="pi pi-chart-line"></i></div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Précision + Qualité données -->
         <div class="col-xl-3 col-md-6 mb-2">
           <div class="card h-100 kpi-card danger-accent">
             <div class="card-body">
@@ -133,24 +183,36 @@
                 <div class="kpi-content">
                   <p class="kpi-label">Précision du Modèle</p>
                   <h4 class="kpi-value">
-                    <span>{{ formatPercent(sum.modelAccuracyPct) }}</span>
-                    <span class="value-suffix">%</span>
+                    @if (sum.modelAccuracyPct != null) {
+                      <span>{{ formatPercent(sum.modelAccuracyPct) }}</span>
+                      <span class="value-suffix">%</span>
+                    } @else {
+                      <span class="text-muted" style="font-size: 1rem">Non calculable</span>
+                    }
                   </h4>
                   <div class="kpi-badges">
-                    <span class="badge bg-danger-subtle text-danger">{{ sum.dataPointsUsed }} points de données</span>
+                    <!-- Badge dataQuality -->
+                    <p-tag
+                      [value]="sum.dataPointsUsed + ' mois de données'"
+                      [severity]="sum.dataQuality === 'HIGH' ? 'success' : sum.dataQuality === 'MEDIUM' ? 'info' : sum.dataQuality === 'LOW' ? 'warn' : 'danger'"
+                    />
+                    <!-- MAE si disponible -->
+                    @if (sum.meanAbsoluteError) {
+                      <span class="badge bg-secondary-subtle text-secondary ms-1">
+                        MAE : {{ formatCurrency(sum.meanAbsoluteError) }} FCFA
+                      </span>
+                    }
                   </div>
                 </div>
-                <div class="kpi-icon text-danger">
-                  <i class="pi pi-check-circle"></i>
-                </div>
+                <div class="kpi-icon text-danger"><i class="pi pi-check-circle"></i></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Seasonality Alert -->
-      @if (seasonalityDetected()) {
+      <!-- Alerte saisonnalité -->
+      @if (sum.seasonalityDetected) {
         <div class="row mt-2">
           <div class="col-12 mb-2">
             <div class="card data-card" style="border-left: 4px solid #ff9800">
@@ -160,11 +222,30 @@
                   <div>
                     <strong class="text-warning">Saisonnalité détectée !</strong>
                     <p class="m-0 mt-1 text-sm text-muted">
-                      Mois pic: <strong>{{ sum.peakMonth }}</strong> | Mois creux: <strong>{{ sum.lowMonth }}</strong>
+                      Mois pic : <strong>{{ sum.peakMonth }}</strong> | Mois creux : <strong>{{ sum.lowMonth }}</strong>
                       <br />
                       Utilisez la méthode "Saisonnier" pour de meilleures prévisions.
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Alerte horizon > 6 mois -->
+      @if (selectedPeriod() > 6) {
+        <div class="row mt-1">
+          <div class="col-12 mb-2">
+            <div class="card data-card" style="border-left: 4px solid #f44336">
+              <div class="card-body py-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="pi pi-exclamation-triangle text-danger"></i>
+                  <p class="m-0 text-sm text-muted">
+                    <strong class="text-danger">Fiabilité réduite</strong> — Au-delà de 6 mois, le niveau de confiance des prévisions
+                    est dégradé automatiquement. Utilisez ces valeurs à titre indicatif uniquement.
+                  </p>
                 </div>
               </div>
             </div>
@@ -194,7 +275,7 @@
           <div class="card-header">
             <h5 class="card-title">
               <i class="pi pi-chart-bar text-success"></i>
-              Intervalles de Confiance
+              Intervalles de Confiance (95%)
             </h5>
           </div>
           <div class="card-body">
@@ -241,7 +322,11 @@
                         <td class="text-end text-muted">{{ formatCurrency(forecast.lowerBound || 0) }}</td>
                         <td class="text-end text-muted">{{ formatCurrency(forecast.upperBound || 0) }}</td>
                         <td class="text-center">
-                          <p-tag [value]="formatPercent(forecast.confidenceLevel || 0) + '%'" severity="info" />
+                          <!-- Sévérité contextuelle : confiance < 80 → warn, < 65 → danger -->
+                          <p-tag
+                            [value]="formatPercent(forecast.confidenceLevel || 0) + '%'"
+                            [severity]="(forecast.confidenceLevel || 0) >= 80 ? 'success' : (forecast.confidenceLevel || 0) >= 65 ? 'warn' : 'danger'"
+                          />
                         </td>
                         <td>{{ getMethodLabel(forecast.forecastMethod || 'LINEAR_REGRESSION') }}</td>
                       </tr>
@@ -250,9 +335,7 @@
                   <tfoot>
                     <tr>
                       <td class="fw-bold">Total ({{ selectedPeriod() }} mois)</td>
-                      <td class="text-end fw-bold">
-                        {{ formatCurrency(getTotalForecastedCA()) }}
-                      </td>
+                      <td class="text-end fw-bold">{{ formatCurrency(getTotalForecastedCA()) }}</td>
                       <td colspan="4"></td>
                     </tr>
                   </tfoot>
@@ -265,8 +348,13 @@
     </div>
   }
 
-  <!-- Help Drawer -->
-  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+  <!-- Help Drawer — signal : [visible] + (visibleChange) au lieu de [(visible)] -->
+  <p-drawer
+    [visible]="helpDrawerVisible()"
+    (visibleChange)="helpDrawerVisible.set($event)"
+    position="right"
+    [style]="{ width: '600px' }"
+  >
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
@@ -275,7 +363,6 @@
     </ng-template>
 
     <div class="p-3">
-      <!-- Introduction -->
       <div class="mb-4">
         <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la prévision de ventes ?</h6>
         <p class="text-sm text-muted">
@@ -287,7 +374,6 @@
 
       <hr />
 
-      <!-- Méthodes de prévision -->
       <div class="mb-4">
         <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-line me-2"></i>Méthodes de prévision disponibles</h6>
 
@@ -303,10 +389,10 @@
         </div>
 
         <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
-          <p class="fw-bold mb-2">2. Moyenne Mobile</p>
+          <p class="fw-bold mb-2">2. Moyenne Mobile (Rolling)</p>
           <p class="text-sm mb-2">
-            <strong>Principe :</strong> Fait la moyenne des N derniers mois pour lisser les variations<br />
-            <strong>Formule :</strong> CA prévu = Moyenne (CA des N derniers mois)
+            <strong>Principe :</strong> Fenêtre glissante sur les 6 derniers mois — intègre les prévisions précédentes<br />
+            <strong>Formule :</strong> CA prévu = Moyenne des N derniers mois (mise à jour à chaque étape)
           </p>
           <p class="text-sm mb-0"><strong>Utilisez-la si :</strong> Vos ventes sont relativement stables sans tendance marquée</p>
         </div>
@@ -314,116 +400,98 @@
         <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <p class="fw-bold mb-2">3. Saisonnier (Recommandé si saisonnalité détectée)</p>
           <p class="text-sm mb-2">
-            <strong>Principe :</strong> Intègre les variations saisonnières (grippes en hiver, allergies au printemps, etc.)<br />
-            <strong>Formule :</strong> CA prévu = Tendance × Coefficient saisonnier du mois
+            <strong>Principe :</strong> Moyenne historique par mois (janvier de n-1, n-2…)<br />
+            <strong>Formule :</strong> CA prévu = Moyenne des CA du même mois les années précédentes
           </p>
           <p class="text-sm mb-0">
-            <strong>Utilisez-la si :</strong> L'alerte "Saisonnalité détectée" s'affiche (variations importantes selon les mois)
+            <strong>Utilisez-la si :</strong> L'alerte "Saisonnalité détectée" s'affiche (η² &gt; 0.5)
           </p>
         </div>
       </div>
 
       <hr />
 
-      <!-- Métriques clés -->
       <div class="mb-4">
         <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">CA Prévu (Forecasted CA)</p>
-          <p class="text-sm text-muted mb-2">Estimation du chiffre d'affaires pour la période future selon la méthode sélectionnée.</p>
-        </div>
-
-        <div class="mb-3">
-          <p class="fw-semibold mb-1">Intervalle de Confiance (95%)</p>
-          <p class="text-sm text-muted mb-2">
-            <strong>Limite Basse :</strong> CA minimum probable (scénario pessimiste)<br />
-            <strong>Limite Haute :</strong> CA maximum probable (scénario optimiste)<br />
-            <strong>Interprétation :</strong> Vous avez 95% de chances que le CA réel soit dans cet intervalle
-          </p>
-        </div>
-
-        <div class="mb-3">
-          <p class="fw-semibold mb-1">Précision du Modèle (Model Accuracy)</p>
+          <p class="fw-semibold mb-1">Précision du Modèle (MAPE)</p>
           <p class="text-sm text-muted mb-1">
             <strong>Formule :</strong> 100% - MAPE (Mean Absolute Percentage Error)<br />
-            <strong>Interprétation :</strong>
+            Calculé sur les 6 derniers mois réels vs prévisions (train/test split).
           </p>
           <ul class="text-sm text-muted mb-2 ps-3">
-            <li>≥ 80% : Excellent (prévisions très fiables)</li>
-            <li>60-80% : Bon (prévisions fiables)</li>
-            <li>< 60% : Faible (utiliser avec prudence)</li>
+            <li>≥ 80% : Excellent</li>
+            <li>60–80% : Bon</li>
+            <li>&lt; 60% : Faible — utilisez l'intervalle de confiance</li>
           </ul>
         </div>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">Croissance Mensuelle Moyenne</p>
+          <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (FCFA)</p>
           <p class="text-sm text-muted mb-2">
-            <strong>Formule :</strong> ((CA mois N / CA mois N-1) - 1) × 100<br />
-            Indique si votre pharmacie est en croissance (+) ou en déclin (-)
+            Écart moyen en FCFA entre la prévision et le réel. Plus parlant pour un pharmacien : un MAE de 500 000 FCFA signifie que la
+            prévision se trompe en moyenne de 500 000 FCFA par mois.
           </p>
         </div>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">Points de Données Utilisés</p>
+          <p class="fw-semibold mb-1">Croissance Annuelle Composée</p>
           <p class="text-sm text-muted mb-2">
-            Nombre de mois d'historique utilisés pour calculer les prévisions. Plus ce nombre est élevé, plus la prévision est robuste.
+            <strong>Formule :</strong> ((1 + r_mensuel)^12 - 1) × 100<br />
+            Taux annuel réel tenant compte de la capitalisation mensuelle.
+          </p>
+        </div>
+
+        <div class="mb-3">
+          <p class="fw-semibold mb-1">Niveau de Confiance</p>
+          <p class="text-sm text-muted mb-2">
+            <strong>95%</strong> pour les 6 premiers mois, <strong>réduit progressivement</strong> au-delà (90%, 85%…).<br />
+            L'intervalle borne les valeurs avec 1,96 × erreur standard de régression (n-2 degrés de liberté).
           </p>
         </div>
       </div>
 
       <hr />
 
-      <!-- Saisonnalité -->
       <div class="mb-4">
         <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calendar me-2"></i>Comprendre la saisonnalité</h6>
-
         <div class="alert alert-warning">
-          <strong><i class="pi pi-info-circle me-2"></i>Saisonnalité détectée :</strong>
+          <strong><i class="pi pi-info-circle me-2"></i>Détection automatique (η²)</strong>
           <p class="text-sm mb-0 mt-2">
-            Le système détecte automatiquement si vos ventes varient significativement selon les mois. Par exemple, une pharmacie peut avoir
-            :
+            Le système calcule le ratio variance inter-mois / variance totale (η²). Si η² &gt; 0.5, la variation mensuelle explique plus
+            de 50% de la variance totale → saisonnalité significative.
           </p>
           <ul class="text-sm mb-0 mt-2 ps-3">
-            <li><strong>Mois pic :</strong> Décembre-Janvier (grippes, virus hivernaux)</li>
-            <li><strong>Mois creux :</strong> Juillet-Août (départs en vacances)</li>
+            <li><strong>Mois pic :</strong> mois historiquement le plus fort</li>
+            <li><strong>Mois creux :</strong> mois historiquement le plus faible</li>
           </ul>
-          <p class="text-sm mb-0 mt-2">Si l'alerte s'affiche, utilisez la méthode "Saisonnier" pour des prévisions plus précises.</p>
         </div>
       </div>
 
       <hr />
 
-      <!-- Exploitation -->
       <div class="mb-4">
         <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter ces prévisions</h6>
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Planification des stocks</p>
-            <p class="text-xs text-muted mb-0">
-              Utilisez les prévisions 3-6 mois pour anticiper les besoins en produits. Augmentez les stocks avant les mois de forte demande
-              prévue.
-            </p>
+            <p class="fw-semibold text-sm mb-1">✓ Planification des stocks (prévision 3M)</p>
+            <p class="text-xs text-muted mb-0">Anticipez les besoins en produits. Augmentez les stocks avant les mois de forte demande.</p>
           </div>
         </div>
 
         <div class="card mb-2" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Gestion de la trésorerie</p>
-            <p class="text-xs text-muted mb-0">
-              Les prévisions 6-12 mois permettent d'anticiper les besoins de financement et de planifier les investissements (rénovation,
-              nouveau matériel, etc.).
-            </p>
+            <p class="fw-semibold text-sm mb-1">✓ Gestion de la trésorerie (prévision 6M)</p>
+            <p class="text-xs text-muted mb-0">Anticipez les besoins de financement et planifiez les investissements.</p>
           </div>
         </div>
 
         <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Négociation avec les fournisseurs</p>
-            <p class="text-xs text-muted mb-0">
-              Si une forte croissance est prévue, négociez des contrats-cadres ou des remises sur volumes avec vos fournisseurs principaux.
-            </p>
+            <p class="fw-semibold text-sm mb-1">✓ Négociation fournisseurs</p>
+            <p class="text-xs text-muted mb-0">Si forte croissance prévue, négociez des contrats-cadres ou des remises sur volumes.</p>
           </div>
         </div>
 
@@ -431,8 +499,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Détection d'anomalies</p>
             <p class="text-xs text-muted mb-0">
-              Si le CA réel s'écarte fortement de la prévision (hors intervalle de confiance), analysez les causes : nouvelle concurrence,
-              changement réglementaire, etc.
+              Si le CA réel s'écarte de l'intervalle de confiance → analysez les causes : concurrence, rupture de stock, etc.
             </p>
           </div>
         </div>
@@ -440,51 +507,14 @@
 
       <hr />
 
-      <!-- Exemples pratiques -->
-      <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples pratiques</h6>
-
-        <div class="card mb-2" style="border-left: 3px solid #4caf50">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 1 : Prévision 3M = 15M FCFA, Précision 85%</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Planifiez vos commandes pour maintenir un stock de 3 mois. Fiabilité élevée, vous pouvez vous baser
-              sur cette prévision en toute confiance.
-            </p>
-          </div>
-        </div>
-
-        <div class="card mb-2" style="border-left: 3px solid #ff9800">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 2 : Saisonnalité détectée, mois pic = Décembre</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Augmentez vos stocks en novembre. Prévoyez du personnel supplémentaire en décembre. Utilisez la
-              méthode "Saisonnier" pour affiner.
-            </p>
-          </div>
-        </div>
-
-        <div class="card" style="border-left: 3px solid #f44336">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 3 : Précision du modèle < 60%</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Prévisions peu fiables. Vos ventes sont probablement trop erratiques. Basez-vous sur l'intervalle de
-              confiance et préparez un plan B.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Conseils -->
       <div class="mb-3">
         <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Conseils d'utilisation</h6>
-
         <ul class="text-sm text-muted ps-3">
-          <li>Comparez les prévisions des 3 méthodes pour identifier la plus pertinente</li>
-          <li>Mettez à jour les prévisions mensuellement pour intégrer les dernières données</li>
-          <li>En cas de changement majeur (rénovation, concurrence), recalculez les prévisions</li>
-          <li>Utilisez la prévision 3M pour les stocks, 6M pour la trésorerie, 12M pour la stratégie</li>
-          <li>L'intervalle de confiance est votre marge de sécurité : prévoyez le scénario pessimiste</li>
+          <li>Comparez les 3 méthodes — choisissez celle avec la meilleure précision</li>
+          <li>Horizon recommandé : <strong>3 mois</strong> (fiabilité maximale)</li>
+          <li>Au-delà de 6 mois, basez-vous sur l'intervalle de confiance (scénario pessimiste)</li>
+          <li>Recalculez après tout changement majeur (concurrence, rénovation)</li>
+          <li>Utilisez le MAE pour calibrer votre marge de sécurité en FCFA</li>
         </ul>
       </div>
     </div>

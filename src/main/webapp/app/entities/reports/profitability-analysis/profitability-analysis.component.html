@@ -1,36 +1,38 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
+
+  <!-- Toolbar -->
   <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-line"></i>
-      <span class="pharma-toolbar-title">Analyse de Rentabilité (Matrice BCG)</span>
+      <span class="pharma-toolbar-title">Analyse de Rentabilité des Produits</span>
     </div>
 
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
+          <!-- Filtre famille produit -->
           <p-select
-            [(ngModel)]="selectedCategorie"
-            [options]="categorieOptions()"
-            placeholder="Catégorie"
+            [ngModel]="selectedFamilleId()"
+            (ngModelChange)="selectedFamilleId.set($event); onFilterChange()"
+            [options]="familleOptions()"
+            placeholder="Famille de produit"
             optionLabel="label"
             optionValue="value"
             appendTo="body"
             size="large"
             [showClear]="true"
-            (onChange)="onFilterChange()"
           />
-          <p-select
-            [(ngModel)]="selectedBCGCategory"
-            [options]="bcgCategoryOptions()"
-            placeholder="Classification BCG"
-            optionLabel="label"
-            optionValue="value"
-            [showClear]="true"
-            appendTo="body"
-            size="large"
-            (onChange)="onFilterChange()"
-          />
+          <!-- Recherche texte -->
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              placeholder="Rechercher"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearchChange($event)"
+            />
+          </p-iconfield>
         </div>
       </ng-template>
 
@@ -46,20 +48,32 @@
           />
           <p-button
             size="small"
-            label="Marges faibles (<10%)"
+            [label]="'Faible marge (< ' + seuilFaibleMarge + '%)'"
             icon="pi pi-exclamation-triangle"
             severity="warn"
+            [outlined]="showFaibleMarge()"
             (onClick)="showLowMarginProducts()"
           />
-          <p-button size="small" label="Effacer les filtres" icon="pi pi-filter-slash" severity="secondary" (onClick)="onClearFilters()" />
-          <p-button label="Exporter PDF" size="small" icon="pi pi-file-pdf" severity="danger" (onClick)="exportToPdf()" />
-          <p-button size="small" label="Rafraîchir" icon="pi pi-refresh" severity="secondary" (onClick)="loadProfitability()" />
+          <p-button
+            size="small"
+            label="Effacer les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="onClearFilters()"
+          />
+          <p-button
+            size="small"
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="info"
+            (onClick)="loadProducts()"
+          />
         </div>
       </ng-template>
     </p-toolbar>
   </div>
 
-  <!-- Summary Cards -->
+  <!-- KPI Cards -->
   @if (summary()) {
     <div class="row mt-3">
       <div class="col-xl-3 col-md-6 mb-2">
@@ -69,13 +83,11 @@
               <div class="kpi-content">
                 <p class="kpi-label">CA Total</p>
                 <h4 class="kpi-value">
-                  <span>{{ summary()!.caTotalGlobal | number: '1.0-0' }}</span>
+                  {{ summary()!.caTotalGlobal | number: '1.0-0' }}
                   <span class="value-suffix">F CFA</span>
                 </h4>
               </div>
-              <div class="kpi-icon text-primary">
-                <i class="pi pi-chart-bar"></i>
-              </div>
+              <div class="kpi-icon text-primary"><i class="pi pi-chart-bar"></i></div>
             </div>
           </div>
         </div>
@@ -88,13 +100,11 @@
               <div class="kpi-content">
                 <p class="kpi-label">Marge Brute Globale</p>
                 <h4 class="kpi-value">
-                  <span>{{ summary()!.margeBruteGlobale | number: '1.0-0' }}</span>
+                  {{ summary()!.margeBruteGlobale | number: '1.0-0' }}
                   <span class="value-suffix">F CFA</span>
                 </h4>
               </div>
-              <div class="kpi-icon text-success">
-                <i class="pi pi-money-bill"></i>
-              </div>
+              <div class="kpi-icon text-success"><i class="pi pi-money-bill"></i></div>
             </div>
           </div>
         </div>
@@ -107,13 +117,11 @@
               <div class="kpi-content">
                 <p class="kpi-label">Taux de Marge Moyen</p>
                 <h4 class="kpi-value">
-                  <span>{{ summary()!.tauxMargeMoyen | number: '1.2-2' }}</span>
+                  {{ summary()!.tauxMargeMoyen | number: '1.2-2' }}
                   <span class="value-suffix">%</span>
                 </h4>
               </div>
-              <div class="kpi-icon text-warning">
-                <i class="pi pi-percentage"></i>
-              </div>
+              <div class="kpi-icon text-warning"><i class="pi pi-percentage"></i></div>
             </div>
           </div>
         </div>
@@ -124,105 +132,55 @@
           <div class="card-body">
             <div class="kpi-header">
               <div class="kpi-content">
-                <p class="kpi-label">Total Produits</p>
-                <h4 class="kpi-value">
-                  <span>{{ summary()!.totalProduits | number }}</span>
-                </h4>
+                <p class="kpi-label">Total Produits analysés</p>
+                <h4 class="kpi-value">{{ summary()!.totalProduits | number }}</h4>
               </div>
-              <div class="kpi-icon text-danger">
-                <i class="pi pi-box"></i>
-              </div>
+              <div class="kpi-icon text-danger"><i class="pi pi-box"></i></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- BCG Matrix Distribution -->
+    <!-- Cartes marge insuffisante / bonne marge -->
     <div class="row mt-2">
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 data-card">
-          <div class="card-header">
-            <h5 class="card-title text-success">
-              <i class="pi pi-star text-success"></i>
-              Stars
-            </h5>
-          </div>
-          <div class="card-body text-center">
-            <div class="text-2xl fw-bold text-success mb-2">{{ summary()!.nbStars }}</div>
-            <div class="text-sm text-muted">Produits</div>
-            <hr class="my-3" />
-            <div class="text-lg fw-semibold">{{ summary()!.caStars | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">CA Total</div>
-            <div class="text-md fw-semibold mt-2">{{ summary()!.margeStars | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">Marge</div>
+      <div class="col-xl-6 col-md-6 mb-2">
+        <div class="card h-100 data-card" style="border-left: 4px solid #f44336">
+          <div class="card-body d-flex align-items-center gap-3">
+            <i class="pi pi-exclamation-triangle text-danger" style="font-size: 2rem"></i>
+            <div>
+              <p class="kpi-label mb-0">Produits à marge insuffisante (&lt; {{ seuilFaibleMarge }}%)</p>
+              <h4 class="kpi-value mb-0">
+                {{ summary()!.nbProduitsMargeInsuffisante | number }}
+                <span class="value-suffix text-muted">produits —</span>
+                {{ summary()!.caProduitsFaibleMarge | number: '1.0-0' }}
+                <span class="value-suffix">F CFA de CA</span>
+              </h4>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 data-card">
-          <div class="card-header">
-            <h5 class="card-title text-primary">
-              <i class="pi pi-briefcase text-primary"></i>
-              Cash Cows
-            </h5>
-          </div>
-          <div class="card-body text-center">
-            <div class="text-2xl fw-bold text-primary mb-2">{{ summary()!.nbCashCows }}</div>
-            <div class="text-sm text-muted">Produits</div>
-            <hr class="my-3" />
-            <div class="text-lg fw-semibold">{{ summary()!.caCashCows | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">CA Total</div>
-            <div class="text-md fw-semibold mt-2">{{ summary()!.margeCashCows | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">Marge</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 data-card">
-          <div class="card-header">
-            <h5 class="card-title text-warning">
-              <i class="pi pi-question-circle text-warning"></i>
-              Question Marks
-            </h5>
-          </div>
-          <div class="card-body text-center">
-            <div class="text-2xl fw-bold text-warning mb-2">{{ summary()!.nbQuestionMarks }}</div>
-            <div class="text-sm text-muted">Produits</div>
-            <hr class="my-3" />
-            <div class="text-lg fw-semibold">{{ summary()!.caQuestionMarks | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">CA Total</div>
-            <div class="text-md fw-semibold mt-2">{{ summary()!.margeQuestionMarks | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">Marge</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-xl-3 col-md-6 mb-2">
-        <div class="card h-100 data-card">
-          <div class="card-header">
-            <h5 class="card-title text-danger">
-              <i class="pi pi-times-circle text-danger"></i>
-              Dogs
-            </h5>
-          </div>
-          <div class="card-body text-center">
-            <div class="text-2xl fw-bold text-danger mb-2">{{ summary()!.nbDogs }}</div>
-            <div class="text-sm text-muted">Produits</div>
-            <hr class="my-3" />
-            <div class="text-lg fw-semibold">{{ summary()!.caDogs | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">CA Total</div>
-            <div class="text-md fw-semibold mt-2">{{ summary()!.margeDogs | number: '1.0-0' }}</div>
-            <div class="text-xs text-muted">Marge</div>
+      <div class="col-xl-6 col-md-6 mb-2">
+        <div class="card h-100 data-card" style="border-left: 4px solid #4caf50">
+          <div class="card-body d-flex align-items-center gap-3">
+            <i class="pi pi-check-circle text-success" style="font-size: 2rem"></i>
+            <div>
+              <p class="kpi-label mb-0">Produits à bonne marge (≥ 20%)</p>
+              <h4 class="kpi-value mb-0">
+                {{ summary()!.nbProduitsMargeConfortable | number }}
+                <span class="value-suffix text-muted">produits —</span>
+                {{ summary()!.caProduitsBonneMarge | number: '1.0-0' }}
+                <span class="value-suffix">F CFA de CA</span>
+              </h4>
+            </div>
           </div>
         </div>
       </div>
     </div>
   }
 
-  <!-- Products Table -->
+  <!-- Table produits -->
   <div class="row mt-2">
     <div class="col-12 mb-2">
       <div class="card h-100 data-card">
@@ -230,61 +188,65 @@
           <h5 class="card-title">
             <i class="pi pi-table text-info"></i>
             Rentabilité des Produits
+            @if (showFaibleMarge()) {
+              <p-tag value="Filtre : marge faible" severity="warn" styleClass="ms-2" />
+            }
           </h5>
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input pInputText type="text" placeholder="Rechercher..." #globalFilter (input)="$any($event.target).value" />
-          </p-iconfield>
         </div>
         <div class="card-body p-0">
           <p-table
             [value]="products()"
             [loading]="isLoading()"
             [paginator]="true"
-            [rows]="25"
-            [rowsPerPageOptions]="[10, 25, 50, 100]"
+            [rows]="pageSize"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [totalRecords]="totalRecords()"
+            [lazy]="true"
+            [first]="first"
+            (onPage)="onPageChange($event)"
+            (onSort)="onSort($event)"
             [showCurrentPageReport]="true"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-            [globalFilterFields]="['libelle', 'codeCip', 'categorie']"
+            currentPageReportTemplate="{first} - {last} sur {totalRecords} produits"
             class="p-datatable-sm pharma-table"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
-                <th>Produit</th>
+                <th >Produit <p-sortIcon field="libelle" /></th>
                 <th>Code CIP</th>
                 <th>Famille</th>
-                <th class="text-end">Nb Ventes</th>
-                <th class="text-end">CA Total</th>
-                <th class="text-end">Marge Brute</th>
-                <th class="text-end">Taux Marge %</th>
-                <th class="text-end">Rotation/An</th>
-                <th>Classification BCG</th>
+                <th class="text-end" >Nb Ventes </th>
+                <th class="text-end" >CA Total </th>
+                <th class="text-end" >Marge Brute </th>
+                <th class="text-end" >Taux Marge % </th>
+                <th class="text-end" >Rotation/An</th>
+                <th class="text-end">Stock</th>
               </tr>
             </ng-template>
 
-            <ng-template #body let-product>
+            <ng-template #body let-p>
               <tr>
-                <td>{{ product.libelle }}</td>
-                <td>
-                  <span class="pharma-code">{{ product.codeCip }}</span>
-                </td>
-                <td>{{ product.categorie }}</td>
-                <td class="text-end pharma-qty-value">{{ product.nbVentes | number }}</td>
-                <td class="text-end pharma-total">{{ product.caTotal | number: '1.0-0' }}</td>
-                <td class="text-end pharma-price">{{ product.margeBrute | number: '1.0-0' }}</td>
+                <td>{{ p.libelle }}</td>
+                <td><span class="pharma-code">{{ p.codeCip }}</span></td>
+                <td>{{ p.categorie }}</td>
+                <td class="text-end pharma-qty-value">{{ p.nbVentes | number }}</td>
+                <td class="text-end pharma-total">{{ p.caTotal | number: '1.0-0' }}</td>
+                <td class="text-end pharma-price">{{ p.margeBrute | number: '1.0-0' }}</td>
                 <td class="text-end">
-                  <p-chip [label]="(product.tauxMargePct | number: '1.2-2') + '%'" [severity]="getMarginSeverity(product.tauxMargePct)" />
+                  <p-tag
+                    [value]="(p.tauxMargePct | number: '1.2-2') + '%'"
+                    [severity]="getMarginSeverity(p.tauxMargePct)"
+                  />
                 </td>
-                <td class="text-end">{{ product.tauxRotationAnnuel | number: '1.2-2' }}x</td>
-                <td>
-                  <p-chip [label]="getBCGCategoryLabel(product.bcgCategory)" [severity]="getBCGCategorySeverity(product.bcgCategory)" />
-                </td>
+                <td class="text-end">{{ p.tauxRotationAnnuel | number: '1.2-2' }}x</td>
+                <td class="text-end pharma-qty-value">{{ p.stockQuantity | number }}</td>
               </tr>
             </ng-template>
 
             <ng-template #emptymessage>
               <tr>
-                <td colspan="9" class="text-center">Aucun produit trouvé</td>
+                <td colspan="9" class="text-center py-4 text-muted">
+                  <i class="pi pi-inbox me-2"></i>Aucun produit trouvé
+                </td>
               </tr>
             </ng-template>
           </p-table>
@@ -293,267 +255,106 @@
     </div>
   </div>
 
-  <!-- Help Drawer -->
-  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+  <!-- Drawer Aide -->
+  <p-drawer
+    [visible]="helpDrawerVisible()"
+    (visibleChange)="helpDrawerVisible.set($event)"
+    position="right"
+    [style]="{ width: '560px' }"
+  >
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
-        <span class="fw-bold fs-5">Guide - Analyse de Rentabilité (Matrice BCG)</span>
+        <span class="fw-bold fs-5">Guide — Analyse de Rentabilité</span>
       </div>
     </ng-template>
 
     <div class="p-3">
-      <!-- Introduction -->
+
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la Matrice BCG ?</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>À quoi sert ce rapport ?</h6>
         <p class="text-sm text-muted">
-          La <strong>Matrice BCG</strong> (Boston Consulting Group) est un outil stratégique qui classe vos produits selon
-          <strong>deux critères</strong> : la <strong>rentabilité (taux de marge)</strong> et la
-          <strong>dynamique commerciale (rotation)</strong>. Elle permet d'<strong>optimiser votre portefeuille produits</strong> et de
-          <strong>prendre des décisions stratégiques</strong> sur chaque catégorie.
+          Ce rapport analyse la <strong>rentabilité réelle de chaque produit</strong> sur les 12 derniers mois,
+          en croisant <strong>chiffre d'affaires</strong>, <strong>coût d'achat</strong> et <strong>rotation de stock</strong>.
+          Il vous aide à identifier les produits qui génèrent de la marge et ceux qui pèsent sur votre résultat.
         </p>
       </div>
 
       <hr />
 
-      <!-- Les 4 catégories BCG -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-th-large me-2"></i>Les 4 catégories de la Matrice BCG</h6>
-
-        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="pi pi-star text-success" style="font-size: 1.2rem"></i>
-            <span class="fw-bold text-success">STARS (Vedettes)</span>
-          </div>
-          <p class="text-sm mb-2">
-            <strong>Caractéristiques :</strong> Marge élevée (≥ 20%) + Rotation élevée (≥ 4x/an)<br />
-            <strong>Interprétation :</strong> Produits très rentables qui se vendent bien
-          </p>
-          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li><strong>Maximiser :</strong> Ces produits sont vos champions, investissez dans leur promotion</li>
-            <li>Maintenir des stocks élevés pour éviter les ruptures</li>
-            <li>Fidéliser les clients sur ces produits (conseils, disponibilité)</li>
-            <li>Surveiller la concurrence et ajuster les prix si nécessaire</li>
-          </ul>
-        </div>
-
-        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="pi pi-briefcase text-primary" style="font-size: 1.2rem"></i>
-            <span class="fw-bold text-primary">CASH COWS (Vaches à lait)</span>
-          </div>
-          <p class="text-sm mb-2">
-            <strong>Caractéristiques :</strong> Marge élevée (≥ 20%) + Rotation faible (< 4x/an)<br />
-            <strong>Interprétation :</strong> Produits très rentables mais se vendent lentement
-          </p>
-          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li><strong>Optimiser :</strong> Produits rentables mais à faible rotation</li>
-            <li>Réduire les stocks (immobilisation de trésorerie)</li>
-            <li>Vendre sur commande ou en petites quantités</li>
-            <li>Maintenir les prix (bonne marge) mais sans sur-stocker</li>
-            <li>Envisager des promotions ciblées pour accélérer la vente</li>
-          </ul>
-        </div>
-
-        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="pi pi-question-circle text-warning" style="font-size: 1.2rem"></i>
-            <span class="fw-bold text-warning">QUESTION MARKS (Dilemmes)</span>
-          </div>
-          <p class="text-sm mb-2">
-            <strong>Caractéristiques :</strong> Marge faible (< 20%) + Rotation élevée (≥ 4x/an)<br />
-            <strong>Interprétation :</strong> Produits qui se vendent bien mais peu rentables
-          </p>
-          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li><strong>Améliorer :</strong> Volume élevé mais faible rentabilité</li>
-            <li>Négocier de meilleurs prix d'achat avec les fournisseurs</li>
-            <li>Ajuster les prix de vente (si possible) pour augmenter la marge</li>
-            <li>Analyser les coûts cachés (transport, stockage, casse)</li>
-            <li>Décision stratégique : transformer en Star ou abandonner ?</li>
-          </ul>
-        </div>
-
-        <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #f44336">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="pi pi-times-circle text-danger" style="font-size: 1.2rem"></i>
-            <span class="fw-bold text-danger">DOGS (Poids morts)</span>
-          </div>
-          <p class="text-sm mb-2">
-            <strong>Caractéristiques :</strong> Marge faible (< 20%) + Rotation faible (< 4x/an)<br />
-            <strong>Interprétation :</strong> Produits peu rentables et qui se vendent mal
-          </p>
-          <p class="text-sm mb-0"><strong>Actions stratégiques :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li><strong>Éliminer ou transformer :</strong> Ces produits coûtent plus qu'ils ne rapportent</li>
-            <li>Déréférencer progressivement (sauf obligation réglementaire)</li>
-            <li>Liquider les stocks (promotions agressives)</li>
-            <li>Commander uniquement à la demande client</li>
-            <li>Libérer de l'espace de stockage et de la trésorerie</li>
-          </ul>
-        </div>
-      </div>
-
-      <hr />
-
-      <!-- Métriques clés -->
-      <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Indicateurs clés</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Taux de Marge (%)</p>
           <p class="text-sm text-muted mb-1">
-            <strong>Formule :</strong> ((Prix de vente HT - Prix d'achat HT) / Prix de vente HT) × 100<br />
-            <strong>Seuils BCG :</strong>
+            <strong>Formule :</strong> (Marge brute / CA) × 100<br/>
+            <strong>Niveaux :</strong>
           </p>
-          <ul class="text-sm text-muted mb-2 ps-3">
-            <li>≥ 30% : Excellente marge (vert)</li>
-            <li>20-30% : Bonne marge (bleu)</li>
-            <li>10-20% : Marge faible (orange)</li>
-            <li>< 10% : Marge très faible (rouge) - Alerte !</li>
+          <ul class="text-sm text-muted ps-3 mb-2">
+            <li><span style="color:#4caf50">≥ 30 %</span> — Excellente marge</li>
+            <li><span style="color:#2196f3">20 – 30 %</span> — Bonne marge</li>
+            <li><span style="color:#ff9800">10 – 20 %</span> — Marge à surveiller</li>
+            <li><span style="color:#f44336">&lt; 10 %</span> — Marge insuffisante ⚠️</li>
           </ul>
         </div>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Taux de Rotation Annuel</p>
-          <p class="text-sm text-muted mb-1">
-            <strong>Formule :</strong> Quantité vendue (12 mois) / Stock moyen<br />
-            <strong>Seuils BCG :</strong>
+          <p class="text-sm text-muted mb-0">
+            Nombre de fois que le stock a été renouvelé sur 12 mois.<br/>
+            <strong>Un taux faible</strong> signale un risque de péremption ou une immobilisation de trésorerie.
           </p>
-          <ul class="text-sm text-muted mb-2 ps-3">
-            <li>≥ 4x/an : Rotation élevée (dynamique commerciale forte)</li>
-            <li>< 4x/an : Rotation faible (vente lente)</li>
-          </ul>
         </div>
 
         <div class="mb-3">
-          <p class="fw-semibold mb-1">Marge Brute</p>
-          <p class="text-sm text-muted mb-1">
-            <strong>Formule :</strong> CA - Coût d'achat<br />
-            <strong>Utilité :</strong> Montre le profit réel généré par le produit en FCFA
+          <p class="fw-semibold mb-1">Marge Brute (F CFA)</p>
+          <p class="text-sm text-muted mb-0">
+            CA – Coût d'achat. C'est le profit brut réel généré par le produit sur la période.
           </p>
         </div>
       </div>
 
       <hr />
 
-      <!-- Exploitation -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Décisions pratiques</h6>
 
-        <div class="alert alert-success">
-          <strong><i class="pi pi-check-circle me-2"></i>Stratégies par catégorie :</strong>
-          <ul class="mb-0 mt-2 ps-3 text-sm">
-            <li><strong>Stars :</strong> Investir et promouvoir - Ce sont vos produits d'or</li>
-            <li><strong>Cash Cows :</strong> Optimiser les stocks - Rentables mais lents</li>
-            <li><strong>Question Marks :</strong> Améliorer la marge ou abandonner - Décision stratégique</li>
-            <li><strong>Dogs :</strong> Déréférencer - Libérer trésorerie et espace</li>
-          </ul>
+        <div class="mb-2 p-2 rounded" style="background:#e8f5e9; border-left:3px solid #4caf50">
+          <p class="fw-semibold text-sm mb-1">Marge élevée + Rotation élevée</p>
+          <p class="text-xs text-muted mb-0">Produits champions. Sécurisez le stock et favorisez leur conseil actif.</p>
+        </div>
+        <div class="mb-2 p-2 rounded" style="background:#e3f2fd; border-left:3px solid #2196f3">
+          <p class="fw-semibold text-sm mb-1">Marge élevée + Rotation faible</p>
+          <p class="text-xs text-muted mb-0">Rentables mais lents. Réduisez le stock de sécurité, commandez à la demande.</p>
+        </div>
+        <div class="mb-2 p-2 rounded" style="background:#fff3e0; border-left:3px solid #ff9800">
+          <p class="fw-semibold text-sm mb-1">Marge faible + Rotation élevée</p>
+          <p class="text-xs text-muted mb-0">Volume fort mais peu rentable. Négociez le prix d'achat fournisseur.</p>
+        </div>
+        <div class="mb-2 p-2 rounded" style="background:#ffebee; border-left:3px solid #f44336">
+          <p class="fw-semibold text-sm mb-1">Marge faible + Rotation faible</p>
+          <p class="text-xs text-muted mb-0">Produits à risque. Liquidez le stock et envisagez le déréférencement.</p>
         </div>
       </div>
 
-      <!-- Exemples pratiques -->
+      <hr />
+
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples de décisions concrètes</h6>
-
-        <div class="card mb-2" style="border-left: 3px solid #4caf50">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Star avec marge 35%, rotation 8x/an</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Produit champion. Augmentez le stock de sécurité, mettez-le en avant dans la pharmacie, formez votre
-              équipe pour le conseiller activement.
-            </p>
-          </div>
-        </div>
-
-        <div class="card mb-2" style="border-left: 3px solid #2196f3">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Cash Cow avec marge 28%, rotation 2x/an</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Réduisez le stock (commandez 1x/trimestre au lieu de mensuel), maintenez le prix (bonne marge),
-              surveillez la date de péremption.
-            </p>
-          </div>
-        </div>
-
-        <div class="card mb-2" style="border-left: 3px solid #ff9800">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Question Mark avec marge 12%, rotation 6x/an</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Volume important mais marge faible. Négociez avec le fournisseur pour baisser le prix d'achat de
-              5-10%. Si refus, augmentez légèrement le prix de vente.
-            </p>
-          </div>
-        </div>
-
-        <div class="card" style="border-left: 3px solid #f44336">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 4 : Dog avec marge 8%, rotation 0.5x/an</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Produit non rentable. Promotion pour liquider le stock existant, puis arrêt du référencement (sauf
-              si obligatoire). Récupérez votre trésorerie.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Objectif de portefeuille -->
-      <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Portefeuille idéal</h6>
-
-        <p class="text-sm text-muted mb-2">Un portefeuille équilibré devrait viser :</p>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-filter me-2"></i>Utiliser les filtres</h6>
         <ul class="text-sm text-muted ps-3">
-          <li><strong>40-50% de Stars :</strong> Moteurs de croissance et de profit</li>
-          <li><strong>20-30% de Cash Cows :</strong> Générateurs de marge stable</li>
-          <li><strong>10-20% de Question Marks :</strong> Potentiel d'amélioration</li>
-          <li><strong>< 10% de Dogs :</strong> À éliminer progressivement</li>
-        </ul>
-
-        <div class="alert alert-warning mt-2">
-          <strong><i class="pi pi-exclamation-triangle me-2"></i>Signal d'alerte :</strong>
-          <p class="text-sm mb-0 mt-2">
-            Si vous avez > 30% de Dogs dans votre portefeuille, votre rentabilité globale est menacée. Priorisez le déréférencement et
-            concentrez-vous sur les Stars et Cash Cows.
-          </p>
-        </div>
-      </div>
-
-      <!-- Utilisation du filtre -->
-      <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement</h6>
-
-        <ul class="text-sm text-muted ps-3">
-          <li><strong>Marges faibles (< 10%) :</strong> Identifiez rapidement les produits problématiques</li>
-          <li><strong>Par catégorie BCG :</strong> Analysez chaque quadrant séparément</li>
-          <li><strong>Par famille :</strong> Comparez la rentabilité entre catégories de produits</li>
+          <li><strong>Famille de produit :</strong> comparez la rentabilité par rayon ou catégorie.</li>
+          <li><strong>Recherche :</strong> retrouvez un produit précis par nom ou code CIP.</li>
+          <li><strong>Faible marge :</strong> liste immédiate des produits sous le seuil de {{ seuilFaibleMarge }}%.</li>
         </ul>
       </div>
 
-      <!-- Révision périodique -->
-      <div class="mb-3">
-        <div class="alert alert-info">
-          <strong><i class="pi pi-calendar me-2"></i>Fréquence de révision :</strong>
-          <p class="text-sm mb-0 mt-2">
-            Analysez cette matrice <strong>trimestriellement</strong>. Les produits peuvent migrer d'une catégorie à l'autre selon les
-            saisons, la concurrence ou les changements de marché. Une Star peut devenir Question Mark si la marge baisse (nouvelle
-            concurrence par exemple).
-          </p>
-        </div>
+      <div class="alert alert-info text-sm">
+        <i class="pi pi-calendar me-2"></i>
+        <strong>Fréquence conseillée :</strong> analysez ce rapport <strong>trimestriellement</strong>
+        pour adapter vos commandes et détecter les dérives de marge à temps.
       </div>
 
-      <!-- Actions immédiates -->
-      <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-bolt me-2"></i>Actions immédiates recommandées</h6>
-
-        <ol class="text-sm text-muted ps-3">
-          <li>Cliquez sur "Marges faibles" pour voir tous les produits à < 10% de marge</li>
-          <li>Filtrez par "Dogs" et établissez un plan de déréférencement sur 3-6 mois</li>
-          <li>Filtrez par "Stars" et assurez-vous qu'ils ne sont jamais en rupture de stock</li>
-          <li>Exportez le PDF et partagez-le avec votre équipe pour définir les priorités</li>
-        </ol>
-      </div>
     </div>
   </p-drawer>
 </div>

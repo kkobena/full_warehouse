@@ -4,7 +4,7 @@ package com.kobe.warehouse.service.dto.mobile;
  * Alert severity enumeration for mobile alerts.
  */
 public enum AlertSeverity {
-    CRITICAL("CRITICAL", "Critique", "#DC3545"),
+    CRITICAL("CRITICAL", "Critique", "#991B1B"),
     WARNING("WARNING", "Attention", "#FFC107"),
     INFO("INFO", "Information", "#17A2B8");
 

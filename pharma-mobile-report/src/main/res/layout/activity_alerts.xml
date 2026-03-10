@@ -54,11 +54,12 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp"
-                    app:singleSelection="true">
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipAll"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -66,28 +67,28 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipStockRupture"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/alerts_filter_stock_rupture" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipExpiry"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/alerts_filter_expiry" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCash"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/alerts_filter_cash" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipInvoice"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/alerts_filter_invoice" />

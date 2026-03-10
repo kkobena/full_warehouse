@@ -3,17 +3,17 @@ package com.kobe.warehouse.service.report.pdf;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import com.kobe.warehouse.service.report.StockValuationReportService;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Objects.isNull;
 
 @Service
 public class StockValuationPdfReportService extends AbstractStatistiqueReportService {
@@ -53,7 +53,7 @@ public class StockValuationPdfReportService extends AbstractStatistiqueReportSer
 
     public byte[] export(Integer familleProduitId, Integer rayonId) {
         List<StockValuationView> valuations = stockValuationReportService.getStockValuation(familleProduitId, rayonId);
-        StockValuationSummaryDTO summary = stockValuationReportService.getStockValuationSummary();
+        StockValuationSummaryDTO summary = isNull(familleProduitId) && isNull(rayonId) ? stockValuationReportService.getStockValuationSummary() : stockValuationReportService.getStockValuationSummary(familleProduitId, rayonId);
 
         this.getParameters().put("valuations", valuations);
         this.getParameters().put("summary", summary);

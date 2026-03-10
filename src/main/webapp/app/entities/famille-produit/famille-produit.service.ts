@@ -15,7 +15,7 @@ type EntityArrayResponseType = HttpResponse<IFamilleProduit[]>;
   providedIn: 'root',
 })
 export class FamilleProduitService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   private readonly resourceUrl = SERVER_API_URL + 'api/famille-produits';
 

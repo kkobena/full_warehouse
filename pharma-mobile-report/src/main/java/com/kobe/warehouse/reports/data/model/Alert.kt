@@ -26,7 +26,7 @@ enum class AlertTypeEnum(val code: String, val libelle: String, val icon: String
  * Alert severity enumeration.
  */
 enum class AlertSeverityEnum(val code: String, val libelle: String, val color: String) {
-    CRITICAL("CRITICAL", "Critique", "#DC3545"),
+    CRITICAL("CRITICAL", "Critique", "#991B1B"),
     WARNING("WARNING", "Attention", "#FFC107"),
     INFO("INFO", "Information", "#17A2B8");
 

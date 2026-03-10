@@ -4,11 +4,17 @@ import com.kobe.warehouse.reports.data.model.AbcPareto
 import com.kobe.warehouse.reports.data.model.AbcParetoSummary
 import com.kobe.warehouse.reports.data.model.ActivityReport
 import com.kobe.warehouse.reports.data.model.Alert
+import com.kobe.warehouse.reports.data.model.FamilleProduit
+import com.kobe.warehouse.reports.data.model.Rayon
+import com.kobe.warehouse.reports.data.model.RecapProduitVendu
+import com.kobe.warehouse.reports.data.model.RecapProduitVenduSummary
 import com.kobe.warehouse.reports.data.model.CashBalance
 import com.kobe.warehouse.reports.data.model.CashSummary
 import com.kobe.warehouse.reports.data.model.DailyCASummary
 import com.kobe.warehouse.reports.data.model.DailySales
 import com.kobe.warehouse.reports.data.model.Dashboard
+import com.kobe.warehouse.reports.data.model.MargeDTO
+import com.kobe.warehouse.reports.data.model.MargeSummary
 import com.kobe.warehouse.reports.data.model.Performance
 import com.kobe.warehouse.reports.data.model.PharmacistDashboard
 import com.kobe.warehouse.reports.data.model.ProductProfitability
@@ -325,77 +331,100 @@ interface ReportApiService {
     // -------------------------------------------------------------------------
 
     /**
-     * Get all stock valuation data with pagination.
+     * Get all stock valuation data with pagination and optional filters.
      * @param page Page number (0-indexed)
      * @param size Page size (default 50)
+     * @param familleProduitId Optional famille produit filter
+     * @param rayonId Optional rayon filter
      */
-    @GET("api/mobile/reports/stock-valuation/all")
+    @GET("api/mobile/reports/stock-valuation")
     suspend fun getAllStockValuation(
         @Query("page") page: Int = 0,
-        @Query("size") size: Int = 50
+        @Query("size") size: Int = 50,
+        @Query("familleProduitId") familleProduitId: Int? = null,
+        @Query("rayonId") rayonId: Int? = null
     ): Response<List<StockValuation>>
+
+    /**
+     * Get all famille produits (reference data for filter).
+     */
+    @GET("api/famille-produits")
+    suspend fun getFamilleProduits(
+        @Query("size") size: Int = 200
+    ): Response<List<FamilleProduit>>
+
+    /**
+     * Get all rayons (reference data for filter).
+     */
+    @GET("api/rayons")
+    suspend fun getRayons(
+        @Query("size") size: Int = 200
+    ): Response<List<Rayon>>
+
+    // -------------------------------------------------------------------------
+    // Récap Produits Vendus
+    // -------------------------------------------------------------------------
+
+    @GET("api/mobile/reports/sold-products")
+    suspend fun getSoldProducts(
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String? = null,
+        @Query("search") search: String? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<List<RecapProduitVendu>>
+
+    @GET("api/mobile/reports/sold-products/summary")
+    suspend fun getSoldProductsSummary(
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String? = null,
+        @Query("search") search: String? = null
+    ): Response<RecapProduitVenduSummary>
 
     /**
      * Get aggregated stock valuation summary.
      */
     @GET("api/mobile/reports/stock-valuation/summary")
-    suspend fun getStockValuationSummary(): Response<StockValuationSummary>
+    suspend fun getStockValuationSummary(
+      @Query("familleProduitId") familleProduitId: Int? = null,
+      @Query("rayonId") rayonId: Int? = null
+    ): Response<StockValuationSummary>
 
-    /**
-     * Get stock valuation filtered by category.
-     */
-    @GET("api/mobile/reports/stock-valuation/by-category")
-    suspend fun getStockValuationByCategory(
-        @Query("category") category: String
-    ): Response<List<StockValuation>>
 
-    /**
-     * Get stock valuation filtered by storage location.
-     */
-    @GET("api/mobile/reports/stock-valuation/by-storage")
-    suspend fun getStockValuationByStorage(
-        @Query("storage") storage: String
-    ): Response<List<StockValuation>>
 
     // -------------------------------------------------------------------------
-    // Rentabilité (Profitability)
+    // Rentabilité / Marges (sans BCG — basé sur mv_marge_produit)
     // -------------------------------------------------------------------------
 
-    /**
-     * Get all product profitability data.
-     */
     @GET("api/mobile/reports/profitability/all")
-    suspend fun getAllProductProfitability(): Response<List<ProductProfitability>>
+    suspend fun getAllProductProfitability(
+        @Query("familleProduitId") familleProduitId: Int? = null,
+        @Query("search")          search: String? = null,
+        @Query("page")            page: Int = 0,
+        @Query("size")            size: Int = 20,
+        @Query("sort")            sort: String = "margeBrute,desc"
+    ): Response<List<MargeDTO>>
 
-    /**
-     * Get aggregated profitability summary.
-     */
     @GET("api/mobile/reports/profitability/summary")
-    suspend fun getProfitabilitySummary(): Response<ProfitabilitySummary>
+    suspend fun getProfitabilitySummary(
+        @Query("familleProduitId") familleProduitId: Int? = null,
+        @Query("seuilBas")         seuilBas: Int = 10,
+        @Query("seuilHaut")        seuilHaut: Int = 20
+    ): Response<MargeSummary>
 
-    /**
-     * Get products filtered by BCG category.
-     * @param category BCG category (STAR, CASH_COW, QUESTION_MARK, DOG)
-     */
-    @GET("api/mobile/reports/profitability/by-bcg")
-    suspend fun getByBCGCategory(
-        @Query("category") category: String
-    ): Response<List<ProductProfitability>>
-
-    /**
-     * Get top N most profitable products.
-     * @param limit Number of products to return (default 20)
-     */
     @GET("api/mobile/reports/profitability/top")
     suspend fun getTopProfitableProducts(
-        @Query("limit") limit: Int = 20
-    ): Response<List<ProductProfitability>>
+        @Query("limit") limit: Int = 20,
+        @Query("page")  page: Int = 0,
+        @Query("size")  size: Int = 20
+    ): Response<List<MargeDTO>>
 
-    /**
-     * Get products with low margin (< 10%).
-     */
     @GET("api/mobile/reports/profitability/low-margin")
-    suspend fun getLowMarginProducts(): Response<List<ProductProfitability>>
+    suspend fun getLowMarginProducts(
+        @Query("seuil") seuil: Int = 10,
+        @Query("page")  page: Int = 0,
+        @Query("size")  size: Int = 20
+    ): Response<List<MargeDTO>>
 
     // -------------------------------------------------------------------------
     // Rotation Stock (Stock Rotation)

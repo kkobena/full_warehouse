@@ -48,12 +48,16 @@ public class CacheConfiguration {
                 buildCache("dashboardAlertCounts", 5, TimeUnit.MINUTES, 100),
                 buildCache("dashboardCA", 15, TimeUnit.MINUTES, 100),
                 buildCache("profitability", 15, TimeUnit.MINUTES, 100),
+                buildCache("margeReport", 30, TimeUnit.MINUTES, 100),
                 buildCache("comparativeReports", 15, TimeUnit.MINUTES, 100),
                 buildCache("marketBasketCache", 15, TimeUnit.MINUTES, 100),
                 buildCache("stockAlerts", 30, TimeUnit.MINUTES, 100),
                 buildCache("topProducts", 30, TimeUnit.MINUTES, 100),
                 buildCache("abcPareto", 30, TimeUnit.MINUTES, 100),
-                buildCache("salesForecast", 30, TimeUnit.MINUTES, 100),
+                // salesForecast : TTL 24h — les prévisions sont recalculées une fois par jour.
+                // maxSize 50 couvre toutes les combinaisons clés :
+                //   forecast_{monthsAhead}_{method} (ex: 3×3 méthodes = 9 entrées) + summary
+                buildCache("salesForecast", 24, TimeUnit.HOURS, 50),
                 buildCache("cashRegisterReport", 15, TimeUnit.MINUTES, 50),
                 buildCache("tiersPayantCreances", 60, TimeUnit.MINUTES, 100),
                 // Phase 2 report caches

@@ -27,12 +27,5 @@ public record CategoryBalanceDTO(
     long montantDiffere,
     long montantTiersPayant
 ) {
-    public static String getLabelForCategory(String code) {
-        return switch (code) {
-            case "VO" -> "Vente Ordonnance";
-            case "VNO" -> "Vente Non Ordonnance";
-            case "COMPTOIR" -> "Vente Comptoir";
-            default -> code;
-        };
-    }
+
 }

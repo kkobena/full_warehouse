@@ -64,14 +64,14 @@ public interface MobileSalesRepository {
     List<DailyCATrendProjection> getCATrend(LocalDate startDate, LocalDate endDate);
 
     /**
-     * Get daily target based on historical average.
+     * Calcule le CA moyen journalier sur les {@code lookbackDays} jours précédant {@code date}.
+     * Référence glissante pertinente pour détecter les tendances dans une officine.
      *
-     * @param date Reference date
-     * @param lookbackDays Number of days to look back
-     * @param growthFactor Growth factor (e.g., 1.1 for 10% growth)
-     * @return Daily target
+     * @param date        Date de référence (exclue du calcul)
+     * @param lookbackDays Nombre de jours d'historique (ex : 30)
+     * @return CA moyen journalier en FCFA
      */
-    long getDailyTarget(LocalDate date, int lookbackDays, double growthFactor);
+    long getAverageCA(LocalDate date, int lookbackDays);
 
     /**
      * Get payment methods summary for a date range.

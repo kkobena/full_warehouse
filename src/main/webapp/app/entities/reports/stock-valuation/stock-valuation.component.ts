@@ -1,18 +1,25 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {forkJoin} from 'rxjs';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { IStockValuation, IStockValuationSummary } from 'app/shared/model/report/stock-valuation.model';
-import { StockValuationReportService } from '../services/stock-valuation-report.service';
-import { formatCurrency, formatDecimal } from 'app/shared/utils/format-utils';
+import {IStockValuation, IStockValuationSummary} from 'app/shared/model/report/stock-valuation.model';
+import {StockValuationReportService} from '../services/stock-valuation-report.service';
+import {formatCurrency, formatDecimal} from 'app/shared/utils/format-utils';
+import {FamilleProduitService} from "../../famille-produit/famille-produit.service";
+import {RayonService} from "../../rayon/rayon.service";
+import {IFamilleProduit} from "../../../shared/model/famille-produit.model";
+import {IRayon} from "../../../shared/model/rayon.model";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 @Component({
   selector: 'jhi-stock-valuation',
@@ -24,94 +31,80 @@ export default class StockValuationComponent implements OnInit {
   valuations = signal<IStockValuation[]>([]);
   summary = signal<IStockValuationSummary | null>(null);
   isLoading = signal<boolean>(false);
-  selectedCategorie = signal<string | null>(null);
-  selectedStorage = signal<string | null>(null);
+  selectedFamilleProduit = signal<IFamilleProduit | null>(null);
+  selectedRayon = signal<IRayon | null>(null);
 
-  categorieOptions = signal<{ label: string; value: string }[]>([]);
-  storageOptions = signal<{ label: string; value: string }[]>([]);
+  familleProduitOptions = signal<IFamilleProduit[]>([]);
+  rayonOptions = signal<IRayon[]>([]);
 
   private readonly stockValuationService = inject(StockValuationReportService);
+  private readonly familleProduitService = inject(FamilleProduitService);
+  private readonly rayonService = inject(RayonService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.loadValuations();
-    this.loadSummary();
+    this.loadReferentielData();
+    this.loadData();
   }
 
-  loadValuations(): void {
+  /** Charge familles et rayons en parallèle — une seule fois au démarrage */
+  private loadReferentielData(): void {
+    forkJoin({
+      familles: this.familleProduitService.query({page: 0, size: 9999}),
+      rayons: this.rayonService.query({page: 0, size: 9999}),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({familles, rayons}) => {
+          this.familleProduitOptions.set(familles.body ?? []);
+          this.rayonOptions.set(rayons.body ?? []);
+        },
+      });
+  }
+
+  /** Charge valuations + summary en parallèle avec les filtres courants */
+  protected loadData(): void {
     this.isLoading.set(true);
-    const categorie = this.selectedCategorie();
-    const storage = this.selectedStorage();
+    const params = this.buildRequestParams();
 
-    let request;
-    if (categorie) {
-      request = this.stockValuationService.getStockValuationByCategory(categorie);
-    } else if (storage) {
-      request = this.stockValuationService.getStockValuationByStorage(storage);
-    } else {
-      request = this.stockValuationService.getAllStockValuation();
-    }
-
-    request.subscribe({
-      next: (res: HttpResponse<IStockValuation[]>) => {
-        this.valuations.set(res.body ?? []);
-        this.extractFilterOptions(res.body ?? []);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      },
-    });
+    forkJoin({
+      valuations: this.stockValuationService.getAllStockValuation(params),
+      summary: this.stockValuationService.getStockValuationSummary(params),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({valuations, summary}) => {
+          this.valuations.set(valuations.body ?? []);
+          this.summary.set(summary.body ?? null);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
 
-  loadSummary(): void {
-    this.stockValuationService.getStockValuationSummary().subscribe({
-      next: (res: HttpResponse<IStockValuationSummary>) => {
-        this.summary.set(res.body ?? null);
-      },
-      error() {
-        console.error('Error loading summary');
-      },
-    });
+  protected onFilterChange(): void {
+    this.loadData();
   }
 
-  onFilterChange(): void {
-    this.loadValuations();
+  protected onClearFilters(): void {
+    this.selectedFamilleProduit.set(null);
+    this.selectedRayon.set(null);
+    this.loadData();
   }
 
-  onClearFilters(): void {
-    this.selectedCategorie.set(null);
-    this.selectedStorage.set(null);
-    this.loadValuations();
-  }
-
-  exportToPdf(): void {
-    this.stockValuationService.exportStockValuationToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `valorisation-stock-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+  protected exportToPdf(): void {
+    this.stockValuationService.exportStockValuationToPdf(this.buildRequestParams())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `stock-valuation`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
+      });
   }
 
-  private extractFilterOptions(valuations: IStockValuation[]): void {
-    // Extract unique categories
-    const categories = [...new Set(valuations.map(v => v.categorie).filter(c => c))];
-    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
-
-    // Extract unique storage locations
-    const storages = [...new Set(valuations.map(v => v.storageLocation).filter(s => s))];
-    this.storageOptions.set([{ label: 'Tous les emplacements', value: '' }, ...storages.map(s => ({ label: s, value: s }))]);
-  }
 
   getTotalStockValue(): number {
     return this.valuations().reduce((sum, item) => sum + (item.totalPurchaseValue || 0), 0);
@@ -143,4 +136,16 @@ export default class StockValuationComponent implements OnInit {
   // Format methods using shared utilities
   formatCurrency = formatCurrency;
   formatDecimal = formatDecimal;
+
+  private buildRequestParams(): any {
+    const params: any = {};
+    if (this.selectedFamilleProduit()) {
+      params['familleProduitId'] = this.selectedFamilleProduit()!.id;
+    }
+    if (this.selectedRayon()) {
+      params['rayonId'] = this.selectedRayon()!.id;
+    }
+
+    return params;
+  }
 }

@@ -27,7 +27,7 @@ class ProfitabilityActivity : BaseActivity() {
 
         setupViewModel()
         setupToolbar()
-        setupFilterChips()
+        setupFilters()
         setupRecyclerView()
         setupListeners()
         observeViewModel()
@@ -48,17 +48,10 @@ class ProfitabilityActivity : BaseActivity() {
         }
     }
 
-    private fun setupFilterChips() {
+    private fun setupFilters() {
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
-            when (checkedIds.first()) {
-                R.id.chipFilterAll -> viewModel.setFilter(ProfitabilityViewModel.FilterType.ALL)
-                R.id.chipFilterStar -> viewModel.setFilter(ProfitabilityViewModel.FilterType.STAR)
-                R.id.chipFilterCashCow -> viewModel.setFilter(ProfitabilityViewModel.FilterType.CASH_COW)
-                R.id.chipFilterQuestion -> viewModel.setFilter(ProfitabilityViewModel.FilterType.QUESTION_MARK)
-                R.id.chipFilterDog -> viewModel.setFilter(ProfitabilityViewModel.FilterType.DOG)
-                R.id.chipFilterLowMargin -> viewModel.setFilter(ProfitabilityViewModel.FilterType.LOW_MARGIN)
-            }
+            viewModel.setLowMarginFilter(checkedIds.first() == R.id.chipFilterLowMargin)
         }
     }
 
@@ -72,14 +65,9 @@ class ProfitabilityActivity : BaseActivity() {
     }
 
     private fun setupListeners() {
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshData()
-        }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshData() }
         binding.swipeRefresh.setColorSchemeResources(R.color.primary)
-
-        binding.headerSummary.setOnClickListener {
-            viewModel.toggleSummary()
-        }
+        binding.headerSummary.setOnClickListener { viewModel.toggleSummary() }
     }
 
     @SuppressLint("DefaultLocale")
@@ -109,13 +97,11 @@ class ProfitabilityActivity : BaseActivity() {
 
         viewModel.summary.observe(this) { summary ->
             summary?.let {
-                binding.tvTotalRevenue.text = NumberFormatUtils.formatCompact(it.totalRevenue)
-                binding.tvTotalMargin.text = NumberFormatUtils.formatCompact(it.totalMargin)
-                binding.tvAvgMargin.text = String.format("%.1f%%", it.avgMarginPercentage?.toFloat() ?: 0f)
-                binding.tvStarCount.text = it.starCount.toString()
-                binding.tvCashCowCount.text = it.cashCowCount.toString()
-                binding.tvQuestionCount.text = it.questionMarkCount.toString()
-                binding.tvDogCount.text = it.dogCount.toString()
+                binding.tvTotalRevenue.text = NumberFormatUtils.formatCompact(it.caTotalGlobal)
+                binding.tvTotalMargin.text  = NumberFormatUtils.formatCompact(it.margeBruteGlobale)
+                binding.tvAvgMargin.text    = String.format("%.1f%%", it.tauxMargeMoyen?.toFloat() ?: 0f)
+                binding.tvLowMarginCount.text   = it.nbProduitsMargeInsuffisante.toString()
+                binding.tvGoodMarginCount.text  = it.nbProduitsMargeConfortable.toString()
             }
         }
 

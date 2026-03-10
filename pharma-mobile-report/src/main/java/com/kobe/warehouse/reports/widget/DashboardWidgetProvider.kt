@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
 import com.kobe.warehouse.reports.R
@@ -141,16 +140,32 @@ class DashboardWidgetProvider : AppWidgetProvider() {
             views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_down)
         }
 
-        // Target progress
-        val progress = ((dashboard.dailyCA.toFloat() / dashboard.dailyTarget.toFloat()) * 100).toInt()
-        views.setProgressBar(R.id.progress_widget_target, 100, progress.coerceIn(0, 100), false)
-        views.setTextViewText(R.id.tv_widget_target_progress, "$progress%")
+        // Tendance vs moyenne 30 derniers jours
+        val trendText = dashboard.getTrendLabel()
+        views.setTextViewText(R.id.tv_widget_trend, trendText)
+
+        if (dashboard.isTrendPositive()) {
+            views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.success))
+            views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_up)
+        } else {
+            views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.error))
+            views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_down)
+        }
+
+        // Moyenne 30j en sous-titre
+        views.setTextViewText(
+            R.id.tv_widget_average_ca,
+            "Moy. 30j : ${dashboard.getFormattedAverageCA30j()}"
+        )
 
         // Alerts count
         val alertCount = dashboard.alerts.size
         if (alertCount > 0) {
             views.setViewVisibility(R.id.ll_widget_alerts, View.VISIBLE)
             views.setTextViewText(R.id.tv_widget_alerts_count, alertCount.toString())
+            val alertColor = context.getColor(R.color.warning_dark)
+            views.setTextColor(R.id.tv_widget_alerts_count, alertColor)
+            views.setInt(R.id.iv_widget_alert_icon, "setColorFilter", alertColor)
         } else {
             views.setViewVisibility(R.id.ll_widget_alerts, View.GONE)
         }

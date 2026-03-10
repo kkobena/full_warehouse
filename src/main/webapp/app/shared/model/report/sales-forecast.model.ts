@@ -19,15 +19,17 @@ export interface IForecastSummary {
   totalForecastedCA3M?: number;
   totalForecastedCA6M?: number;
   totalForecastedCA12M?: number;
-  averageMonthlyGrowthPct?: number;
-  predictedYearlyGrowthPct?: number;
-  modelAccuracyPct?: number;
-  meanAbsoluteError?: number;
+  averageMonthlyGrowthPct?: number | null;
+  predictedYearlyGrowthPct?: number | null;
+  modelAccuracyPct?: number | null;
+  meanAbsoluteError?: number | null;
   seasonalityDetected?: boolean;
-  peakMonth?: string;
-  lowMonth?: string;
+  peakMonth?: string | null;
+  lowMonth?: string | null;
   forecastMethod?: string;
   dataPointsUsed?: number;
+  /** INSUFFICIENT | LOW | MEDIUM | HIGH */
+  dataQuality?: string;
 }
 
 export enum ForecastMethod {

@@ -589,7 +589,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:gravity="center"
-                            android:text="Marges, BCG"
+                            android:text="Taux de marge, CA, coût achat"
                             android:textAlignment="center"
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />

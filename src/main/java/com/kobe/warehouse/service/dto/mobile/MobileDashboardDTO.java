@@ -11,9 +11,11 @@ import java.util.List;
 public record MobileDashboardDTO(
     // CA du jour
     long dailyCA,
-    long dailyTarget,
+    // CA moyen journalier des 30 derniers jours — référence glissante
+    long averageCA30j,
     double variationPercent,
-    int progressPercent,
+    // Écart % entre le CA du jour et la moyenne des 30 derniers jours
+    double trendVs30j,
 
     // Statistiques des ventes
     int transactionsCount,

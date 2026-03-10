@@ -52,6 +52,18 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         "Quantité Avoir"
     };
 
+    /**
+     * Sous-requête corrélée pour agréger le stock d'un produit (p.id)
+     * en se limitant au magasin principal (magasin_id = 1).
+     * Évite le produit cartésien issu du JOIN direct sur stock_produit
+     * quand plusieurs entrepôts (storage) existent pour le même produit.
+     */
+    private static final String STOCK_SUBQUERY =
+        "(SELECT COALESCE(SUM(st2.qty_stock + st2.qty_ug), 0)" +
+        " FROM stock_produit st2" +
+        " JOIN storage stg2 ON stg2.id = st2.storage_id" +
+        " WHERE st2.produit_id = p.id AND stg2.magasin_id = 1)";
+
     private final EntityManager entityManager;
     private final ReportExcelExportService excelExportService;
     private final CsvExportService csvExportService;
@@ -114,7 +126,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
                 // Pour les produits invendus, on cherche les produits sans ventes
                 // Cette condition sera gérée dans la requête HAVING
             } else {
-                where.append(" AND sl.quantity_sold = :quantitySold");
+                where.append(" AND sl.quantity_requested = :quantitySold");
                 params.put("quantitySold", requestParam.quantitySold());
             }
         }
@@ -136,12 +148,12 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         }
         if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
             switch (requestParam.stockFilterType()) {
-                case EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) = :stockValue");
-                case GREATER_THAN -> where.append(" AND (st.qty_stock + st.qty_ug) > :stockValue");
-                case LESS_THAN -> where.append(" AND (st.qty_stock + st.qty_ug) < :stockValue");
-                case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) >= :stockValue");
-                case LESS_THAN_OR_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) <= :stockValue");
-                case NOT_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) <> :stockValue");
+                case EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" = :stockValue");
+                case GREATER_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" > :stockValue");
+                case LESS_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" < :stockValue");
+                case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" >= :stockValue");
+                case LESS_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <= :stockValue");
+                case NOT_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <> :stockValue");
             }
             params.put("stockValue", requestParam.stockValue());
 
@@ -151,14 +163,25 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     }
 
     private String buildCountSql(QuerySpec spec, RecapProduitVenduRequestParam requestParam) {
-        return "SELECT COUNT(DISTINCT p.id) FROM sales_line sl " +
+        String having = buildHavingClause(requestParam);
+        String baseFrom =
+            " FROM sales_line sl " +
             " JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date " +
             " JOIN produit p ON p.id = sl.produit_id " +
             " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id " +
-            " JOIN stock_produit st ON st.produit_id = p.id  " +
             " LEFT JOIN rayon_produit rp ON rp.produit_id = p.id " +
-            " LEFT JOIN rayon r ON r.id = rp.rayon_id " +
-            spec.where + buildHavingClause(requestParam);
+            " LEFT JOIN rayon r ON r.id = rp.rayon_id ";
+
+        if (!having.isEmpty()) {
+            // Lorsqu'un HAVING avec une sous-requête corrélée (STOCK_SUBQUERY sur p.id) est présent,
+            // PostgreSQL exige que p.id soit groupé. On encapsule dans une sous-requête avec GROUP BY.
+            return "SELECT COUNT(*) FROM (" +
+                "SELECT p.id" + baseFrom + spec.where +
+                " GROUP BY p.id, p.qty_seuil_mini" +
+                having +
+                ") sub";
+        }
+        return "SELECT COUNT(DISTINCT p.id)" + baseFrom + spec.where;
     }
 
     private long getCountTotalPages(QuerySpec spec, RecapProduitVenduRequestParam requestParam) {
@@ -177,19 +200,18 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClause(requestParam);
 
-        // Base joins (using explicit joins in FROM for better control)
+        // Base joins — stock agrégé via sous-requête corrélée pour éviter le produit cartésien
         sb.append("SELECT p.id, p.libelle, p.code_ean_labo, ")
             .append(" COALESCE(MIN(fp.code_cip), '') AS code_cip, ")
             .append(" COALESCE(MIN(r.libelle), '') AS rayon_name, ")
-            .append(" SUM(sl.quantity_sold) AS quantity_sold, ")
+            .append(" SUM(sl.quantity_requested) AS quantity_sold, ")
             .append(" SUM(sl.quantity_avoir) AS quantity_avoir, ")
             .append(" SUM(sl.sales_amount) AS total_sales_amount, ")
-            .append(" SUM(sl.cost_amount*sl.quantity_requested) AS total_purchase_amount, ")
-            .append(" SUM(st.qty_stock+st.qty_ug) AS total_total_stock ")
+            .append(" SUM(sl.cost_amount * sl.quantity_requested) AS total_purchase_amount, ")
+            .append(STOCK_SUBQUERY).append(" AS total_total_stock ")
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
             .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
@@ -242,11 +264,10 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" COALESCE(MIN(r.libelle), '') AS rayon_name, ")
             .append(" 0 AS quantity_sold, ")
             .append(" 0 AS quantity_avoir, ")
-            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.regular_unit_price), 0)  AS total_sales_amount, ")
-            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.cost_amount), 0) AS total_purchase_amount, ")
-            .append(" COALESCE(SUM(st.qty_stock + st.qty_ug), 0) AS total_stock ")
+            .append(" COALESCE(").append(STOCK_SUBQUERY).append(" * p.regular_unit_price, 0) AS total_sales_amount, ")
+            .append(" COALESCE(").append(STOCK_SUBQUERY).append(" * p.cost_amount, 0) AS total_purchase_amount, ")
+            .append(" COALESCE(").append(STOCK_SUBQUERY).append(", 0) AS total_stock ")
             .append(" FROM produit p ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ")
@@ -304,24 +325,37 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     @Override
     public RecapProduitVenduSummary getRecapProduitVenduSummary(RecapProduitVenduRequestParam requestParam) {
-        StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClause(requestParam);
 
-        sb.append("SELECT COUNT(DISTINCT p.id) AS total_products, ")
-            .append(" COALESCE(SUM(sl.quantity_sold),0) AS quantity_sold, ")
-            .append(" COALESCE(SUM(sl.quantity_avoir),0) AS quantity_avoir, ")
-            .append(" COALESCE(SUM(sl.sales_amount),0) AS total_sales_amount, ")
-            .append(" COALESCE(SUM(sl.cost_amount*sl.quantity_requested),0) AS total_purchase_amount, ")
-            .append(" COALESCE(SUM(st.qty_stock + st.qty_ug),0) AS total_stock ")
-            .append(" FROM sales_line sl ")
-            .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
+        // On agrège d'abord par produit (GROUP BY p.id) pour éviter les doublons
+        // causés par les JOINs 1→N (fournisseur_produit, rayon_produit).
+        // Le stock est calculé via STOCK_SUBQUERY corrélée sur p.id — valide ici
+        // car p.id est dans le GROUP BY de la sous-requête interne.
+        String innerSql =
+            "SELECT p.id," +
+            " SUM(sl.quantity_requested) AS qty_sold," +
+            " SUM(sl.quantity_avoir) AS qty_avoir," +
+            " SUM(sl.sales_amount) AS sales_amount," +
+            " SUM(sl.cost_amount * sl.quantity_requested) AS purchase_amount," +
+            " " + STOCK_SUBQUERY + " AS stock" +
+            " FROM sales_line sl" +
+            " JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date" +
+            " JOIN produit p ON p.id = sl.produit_id" +
+            " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id" +
+            " LEFT JOIN rayon_produit rp ON rp.produit_id = p.id" +
+            " LEFT JOIN rayon r ON r.id = rp.rayon_id" +
+            " " + spec.where +
+            " GROUP BY p.id";
 
-        String sql = sb + spec.where + buildHavingClause(requestParam);
+        String sql =
+            "SELECT COUNT(*) AS total_products," +
+            " COALESCE(SUM(inner_q.qty_sold), 0) AS quantity_sold," +
+            " COALESCE(SUM(inner_q.qty_avoir), 0) AS quantity_avoir," +
+            " COALESCE(SUM(inner_q.sales_amount), 0) AS total_sales_amount," +
+            " COALESCE(SUM(inner_q.purchase_amount), 0) AS total_purchase_amount," +
+            " COALESCE(SUM(inner_q.stock), 0) AS total_stock" +
+            " FROM (" + innerSql + ") inner_q";
+
         Query q = entityManager.createNativeQuery(sql);
         spec.params.forEach(q::setParameter);
         Object[] row = (Object[]) q.getSingleResult();
@@ -413,7 +447,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     private String buildHavingClause(RecapProduitVenduRequestParam requestParam) {
         // Having clause for seuil mini atteint
         if (requestParam.seuilFilterType() != null && requestParam.seuilFilterType() == SEUIL_MINI_ATTEINT) {
-            return " HAVING (st.qty_stock + st.qty_ug) >= p.qty_seuil_mini ";
+            return " HAVING " + STOCK_SUBQUERY + " >= p.qty_seuil_mini ";
         }
         return "";
     }
@@ -449,12 +483,12 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         }
         if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
             switch (requestParam.stockFilterType()) {
-                case EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) = :stockValue");
-                case GREATER_THAN -> where.append(" AND (st.qty_stock + st.qty_ug) > :stockValue");
-                case LESS_THAN -> where.append(" AND (st.qty_stock + st.qty_ug) < :stockValue");
-                case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) >= :stockValue");
-                case LESS_THAN_OR_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) <= :stockValue");
-                case NOT_EQUAL_TO -> where.append(" AND (st.qty_stock + st.qty_ug) <> :stockValue");
+                case EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" = :stockValue");
+                case GREATER_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" > :stockValue");
+                case LESS_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" < :stockValue");
+                case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" >= :stockValue");
+                case LESS_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <= :stockValue");
+                case NOT_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <> :stockValue");
             }
             params.put("stockValue", requestParam.stockValue());
         }
@@ -467,7 +501,6 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         QuerySpec spec = buildWhereClauseForUnsold(requestParam);
 
         sb.append("SELECT COUNT(DISTINCT p.id) FROM produit p ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ")
@@ -504,11 +537,10 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClause(requestParam);
 
-        sb.append("SELECT DISTINCT p.id, SUM(sl.quantity_requested) AS quantity_sold,p.qty_appro, p.qty_seuil_mini ")
+        sb.append("SELECT DISTINCT p.id, SUM(sl.quantity_requested) AS quantity_sold, p.qty_appro, p.qty_seuil_mini ")
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
             .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
@@ -537,7 +569,6 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
             .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
@@ -560,7 +591,6 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
 
         sb.append("SELECT DISTINCT p.id FROM produit p ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ")
@@ -597,7 +627,6 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             .append(" FROM sales_line sl ")
             .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
             .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
             .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
             .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
             .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
@@ -620,33 +649,41 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     @Override
     @Transactional(readOnly = true)
     public RecapProduitVenduSummary getRecapProduitInvenduSummary(RecapProduitVenduRequestParam requestParam) {
-        StringBuilder sb = new StringBuilder();
         QuerySpec spec = buildWhereClauseForUnsold(requestParam);
-
-        sb.append("SELECT ")
-            .append(" COUNT(DISTINCT p.id) AS total_products, ")
-            .append(" COALESCE(SUM(st.qty_stock + st.qty_ug), 0) AS total_stock, ")
-            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.cost_amount), 0) AS total_purchase_amount, ")
-            .append(" COALESCE(SUM((st.qty_stock + st.qty_ug)*p.regular_unit_price), 0) AS total_sales_amount ")
-            .append(" FROM produit p ")
-            .append(" JOIN stock_produit st ON st.produit_id = p.id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ")
-            .append(" WHERE p.id NOT IN (")
-            .append("   SELECT DISTINCT sl.produit_id FROM sales_line sl ")
-            .append("   JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append("   WHERE COALESCE(s.canceled, false) = false ");
-
         LocalDate startDate = requestParam.startDate();
         LocalDate endDate = requestParam.endDate();
-        if (startDate != null && endDate != null) {
-            sb.append(" AND s.sale_date BETWEEN :startDate AND :endDate ");
-        }
-        sb.append(" ) ");
-        sb.append(spec.where);
 
-        Query query = entityManager.createNativeQuery(sb.toString());
+        // Sous-requête interne : un seul enregistrement par produit (GROUP BY p.id)
+        // pour éviter les doublons liés aux JOINs 1→N (fournisseur_produit, rayon_produit).
+        // STOCK_SUBQUERY corrélée sur p.id est valide ici car p.id est dans le GROUP BY.
+        StringBuilder inner = new StringBuilder();
+        inner.append("SELECT p.id,")
+            .append(" ").append(STOCK_SUBQUERY).append(" AS stock,")
+            .append(" p.cost_amount,")
+            .append(" p.regular_unit_price")
+            .append(" FROM produit p")
+            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id")
+            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id")
+            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id")
+            .append(" WHERE p.id NOT IN (")
+            .append("   SELECT DISTINCT sl.produit_id FROM sales_line sl")
+            .append("   JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date")
+            .append("   WHERE COALESCE(s.canceled, false) = false");
+        if (startDate != null && endDate != null) {
+            inner.append(" AND s.sale_date BETWEEN :startDate AND :endDate");
+        }
+        inner.append(" )");
+        inner.append(spec.where);
+        inner.append(" GROUP BY p.id, p.cost_amount, p.regular_unit_price");
+
+        String sql =
+            "SELECT COUNT(*) AS total_products," +
+            " COALESCE(SUM(inner_q.stock), 0) AS total_stock," +
+            " COALESCE(SUM(inner_q.stock * inner_q.cost_amount), 0) AS total_purchase_amount," +
+            " COALESCE(SUM(inner_q.stock * inner_q.regular_unit_price), 0) AS total_sales_amount" +
+            " FROM (" + inner + ") inner_q";
+
+        Query query = entityManager.createNativeQuery(sql);
         if (startDate != null && endDate != null) {
             query.setParameter("startDate", startDate);
             query.setParameter("endDate", endDate);

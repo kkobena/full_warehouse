@@ -6,14 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.kobe.warehouse.reports.data.api.PaginationInfo
+import com.kobe.warehouse.reports.data.model.FamilleProduit
+import com.kobe.warehouse.reports.data.model.Rayon
 import com.kobe.warehouse.reports.data.model.StockValuation
 import com.kobe.warehouse.reports.data.model.StockValuationSummary
 import com.kobe.warehouse.reports.data.repository.ReportRepository
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for Stock Valuation screen with pagination support.
- */
 class StockValuationViewModel(
     private val repository: ReportRepository
 ) : ViewModel() {
@@ -53,6 +52,20 @@ class StockValuationViewModel(
     private val _canLoadMore = MutableLiveData(false)
     val canLoadMore: LiveData<Boolean> = _canLoadMore
 
+    // Filter reference data
+    private val _familleProduits = MutableLiveData<List<FamilleProduit>>(emptyList())
+    val familleProduits: LiveData<List<FamilleProduit>> = _familleProduits
+
+    private val _rayons = MutableLiveData<List<Rayon>>(emptyList())
+    val rayons: LiveData<List<Rayon>> = _rayons
+
+    // Active filters
+    private val _selectedFamilleProduit = MutableLiveData<FamilleProduit?>(null)
+    val selectedFamilleProduit: LiveData<FamilleProduit?> = _selectedFamilleProduit
+
+    private val _selectedRayon = MutableLiveData<Rayon?>(null)
+    val selectedRayon: LiveData<Rayon?> = _selectedRayon
+
     private var currentPage = 0
 
     fun loadData() {
@@ -61,25 +74,54 @@ class StockValuationViewModel(
             _errorMessage.value = null
             currentPage = 0
 
+            // Load filter reference data in parallel with first data load
+            launch { loadFamilleProduits() }
+            launch { loadRayons() }
+
             // Load summary
-            val summaryResult = repository.getStockValuationSummary()
-            summaryResult.onSuccess { s ->
-                _summary.value = s
-            }.onFailure { error ->
-                _errorMessage.value = error.message
-            }
+            repository.getStockValuationSummary(
+                familleProduitId = _selectedFamilleProduit.value?.id,
+                rayonId = _selectedRayon.value?.id
+            ).onSuccess { _summary.value = it }
+             .onFailure { _errorMessage.value = it.message }
 
-            // Load first page of products
-            val result = repository.getAllStockValuation(page = 0, size = PAGE_SIZE)
-            result.onSuccess { paginatedResult ->
-                _products.value = paginatedResult.items
-                _pagination.value = paginatedResult.pagination
-                _canLoadMore.value = paginatedResult.pagination.hasNext
-                _isEmpty.value = paginatedResult.items.isEmpty()
-            }.onFailure { error ->
-                _errorMessage.value = error.message
-            }
+            // Load first page
+            loadPage(0)
 
+            _isLoading.value = false
+        }
+    }
+
+    private suspend fun loadFamilleProduits() {
+        repository.getFamilleProduits()
+            .onSuccess { _familleProduits.value = it }
+    }
+
+    private suspend fun loadRayons() {
+        repository.getRayons()
+            .onSuccess { _rayons.value = it }
+    }
+
+    fun applyFamilleFilter(famille: FamilleProduit?) {
+        _selectedFamilleProduit.value = famille
+        resetAndReload()
+    }
+
+    fun applyRayonFilter(rayon: Rayon?) {
+        _selectedRayon.value = rayon
+        resetAndReload()
+    }
+
+    private fun resetAndReload() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            currentPage = 0
+            repository.getStockValuationSummary(
+                familleProduitId = _selectedFamilleProduit.value?.id,
+                rayonId = _selectedRayon.value?.id
+            ).onSuccess { _summary.value = it }
+            loadPage(0)
             _isLoading.value = false
         }
     }
@@ -89,20 +131,20 @@ class StockValuationViewModel(
 
         viewModelScope.launch {
             _isLoadingMore.value = true
-
             val nextPage = currentPage + 1
-            val result = repository.getAllStockValuation(page = nextPage, size = PAGE_SIZE)
-
-            result.onSuccess { paginatedResult ->
+            repository.getAllStockValuation(
+                page = nextPage,
+                size = PAGE_SIZE,
+                familleProduitId = _selectedFamilleProduit.value?.id,
+                rayonId = _selectedRayon.value?.id
+            ).onSuccess { result ->
                 currentPage = nextPage
-                val currentList = _products.value.orEmpty()
-                _products.value = currentList + paginatedResult.items
-                _pagination.value = paginatedResult.pagination
-                _canLoadMore.value = paginatedResult.pagination.hasNext
-            }.onFailure { error ->
-                _errorMessage.value = error.message
+                _products.value = _products.value.orEmpty() + result.items
+                _pagination.value = result.pagination
+                _canLoadMore.value = result.pagination.hasNext
+            }.onFailure {
+                _errorMessage.value = it.message
             }
-
             _isLoadingMore.value = false
         }
     }
@@ -111,25 +153,28 @@ class StockValuationViewModel(
         viewModelScope.launch {
             _isRefreshing.value = true
             currentPage = 0
-
-            // Load summary
-            val summaryResult = repository.getStockValuationSummary()
-            summaryResult.onSuccess { s ->
-                _summary.value = s
-            }
-
-            // Load first page of products
-            val result = repository.getAllStockValuation(page = 0, size = PAGE_SIZE)
-            result.onSuccess { paginatedResult ->
-                _products.value = paginatedResult.items
-                _pagination.value = paginatedResult.pagination
-                _canLoadMore.value = paginatedResult.pagination.hasNext
-                _isEmpty.value = paginatedResult.items.isEmpty()
-            }.onFailure { error ->
-                _errorMessage.value = error.message
-            }
-
+            repository.getStockValuationSummary(
+                familleProduitId = _selectedFamilleProduit.value?.id,
+                rayonId = _selectedRayon.value?.id
+            ).onSuccess { _summary.value = it }
+            loadPage(0)
             _isRefreshing.value = false
+        }
+    }
+
+    private suspend fun loadPage(page: Int) {
+        repository.getAllStockValuation(
+            page = page,
+            size = PAGE_SIZE,
+            familleProduitId = _selectedFamilleProduit.value?.id,
+            rayonId = _selectedRayon.value?.id
+        ).onSuccess { result ->
+            _products.value = result.items
+            _pagination.value = result.pagination
+            _canLoadMore.value = result.pagination.hasNext
+            _isEmpty.value = result.items.isEmpty()
+        }.onFailure {
+            _errorMessage.value = it.message
         }
     }
 

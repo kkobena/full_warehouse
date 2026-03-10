@@ -8,16 +8,16 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
-import { ChipModule } from 'primeng/chip';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-
-import { IProductProfitability, IProfitabilitySummary } from 'app/shared/model/report';
-import { BCGCategory } from 'app/shared/model/report/bcg-category.enum';
-import { ProfitabilityReportService } from '../services/profitability-report.service';
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Drawer } from 'primeng/drawer';
+import { Tag } from 'primeng/tag';
+
+import { IMargeDTO, IMargeSummary } from 'app/shared/model/report';
+import { MargeReportService } from '../services/marge-report.service';
+import { FamilleProduitService } from '../../famille-produit/famille-produit.service';
 
 @Component({
   selector: 'jhi-profitability-analysis',
@@ -31,168 +31,142 @@ import { Drawer } from 'primeng/drawer';
     SelectModule,
     ToolbarModule,
     DividerModule,
-    ChipModule,
     WarehouseCommonModule,
     InputText,
     IconField,
     InputIcon,
     Drawer,
+    Tag,
   ],
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
-  protected products = signal<IProductProfitability[]>([]);
-  protected summary = signal<IProfitabilitySummary | null>(null);
-  protected isLoading = signal<boolean>(false);
-  protected selectedCategorie = signal<string | null>(null);
-  protected selectedBCGCategory = signal<BCGCategory | null>(null);
-  protected showLowMarginOnly = signal<boolean>(false);
+  protected products      = signal<IMargeDTO[]>([]);
+  protected summary       = signal<IMargeSummary | null>(null);
+  protected isLoading     = signal<boolean>(false);
+  protected totalRecords  = signal<number>(0);
   protected helpDrawerVisible = signal<boolean>(false);
 
-  protected categorieOptions = signal<{ label: string; value: string }[]>([]);
-  protected bcgCategoryOptions = signal<{ label: string; value: BCGCategory }[]>([
-    { label: 'Toutes', value: '' as any },
-    { label: 'Stars (Marge élevée + Rotation élevée)', value: BCGCategory.STAR },
-    { label: 'Cash Cows (Marge élevée + Rotation faible)', value: BCGCategory.CASH_COW },
-    { label: 'Question Marks (Marge faible + Rotation élevée)', value: BCGCategory.QUESTION_MARK },
-    { label: 'Dogs (Marge faible + Rotation faible)', value: BCGCategory.DOG },
+  // Filtres
+  protected selectedFamilleId = signal<number | null>(null);
+  protected searchQuery        = signal<string>('');
+  protected showFaibleMarge    = signal<boolean>(false);
+  protected seuilFaibleMarge   = 10;
+
+  // Pagination
+  protected pageSize = 20;
+  protected first = 0;
+  protected sortField = 'margeBrute';
+  protected sortOrder = 'desc';
+
+  protected familleOptions = signal<{ label: string; value: number | null }[]>([
+    { label: 'Toutes les familles', value: null },
   ]);
 
-  BCGCategory = BCGCategory;
-
-  private readonly profitabilityService = inject(ProfitabilityReportService);
+  private readonly margeService       = inject(MargeReportService);
+  private readonly familleProduitService = inject(FamilleProduitService);
 
   ngOnInit(): void {
-    this.loadProfitability();
+    this.loadFamilles();
+    this.loadProducts();
     this.loadSummary();
   }
 
-  protected loadProfitability(): void {
+  private loadFamilles(): void {
+    this.familleProduitService.query({ page: 0, size: 200 }).subscribe({
+      next: res => {
+        const opts = (res.body ?? []).map((f: any) => ({ label: f.libelle, value: f.id }));
+        this.familleOptions.set([{ label: 'Toutes les familles', value: null }, ...opts]);
+      },
+    });
+  }
+
+  protected loadProducts(page = 0): void {
     this.isLoading.set(true);
-    const categorie = this.selectedCategorie();
-    const bcgCategory = this.selectedBCGCategory();
-    const lowMargin = this.showLowMarginOnly();
 
-    let request;
-    if (lowMargin) {
-      request = this.profitabilityService.getLowMarginProducts();
-    } else if (bcgCategory) {
-      request = this.profitabilityService.getProductProfitabilityByBCGCategory(bcgCategory);
-    } else if (categorie) {
-      request = this.profitabilityService.getProductProfitabilityByCategory(categorie);
-    } else {
-      request = this.profitabilityService.getAllProductProfitability();
-    }
+    const req = {
+      page,
+      size: this.pageSize,
+      familleProduitId: this.selectedFamilleId() ?? undefined,
+      search: this.searchQuery() || undefined,
+    };
 
-    request.subscribe({
-      next: (res: HttpResponse<IProductProfitability[]>) => {
-        console.error('res.body', res.body);
+    const obs = this.showFaibleMarge()
+      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize })
+      : this.margeService.getMarges(req);
+
+    obs.subscribe({
+      next: (res: HttpResponse<IMargeDTO[]>) => {
         this.products.set(res.body ?? []);
-        this.extractFilterOptions(res.body ?? []);
+        this.totalRecords.set(Number(res.headers.get('X-Total-Count') ?? 0));
         this.isLoading.set(false);
       },
-      error: () => {
-        this.isLoading.set(false);
-      },
+      error: () => this.isLoading.set(false),
     });
   }
 
   protected loadSummary(): void {
-    this.profitabilityService.getProfitabilitySummary().subscribe({
-      next: (res: HttpResponse<IProfitabilitySummary>) => {
-        this.summary.set(res.body ?? null);
-      },
-      error() {
-        console.error('Error loading summary');
-      },
-    });
+    this.margeService
+      .getMargeSummary({
+        familleProduitId: this.selectedFamilleId() ?? undefined,
+        seuilBas:  this.seuilFaibleMarge,
+        seuilHaut: 20,
+      })
+      .subscribe({
+        next: (res: HttpResponse<IMargeSummary>) => this.summary.set(res.body ?? null),
+      });
   }
 
   protected onFilterChange(): void {
-    this.loadProfitability();
+    this.showFaibleMarge.set(false);
+    this.first = 0;
+    this.loadProducts(0);
+    this.loadSummary();
+  }
+
+  protected onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+    this.showFaibleMarge.set(false);
+    this.first = 0;
+    this.loadProducts(0);
   }
 
   protected onClearFilters(): void {
-    this.selectedCategorie.set(null);
-    this.selectedBCGCategory.set(null);
-    this.showLowMarginOnly.set(false);
-    this.loadProfitability();
+    this.selectedFamilleId.set(null);
+    this.searchQuery.set('');
+    this.showFaibleMarge.set(false);
+    this.first = 0;
+    this.loadProducts(0);
+    this.loadSummary();
   }
 
   protected showLowMarginProducts(): void {
-    this.showLowMarginOnly.set(true);
-    this.selectedCategorie.set(null);
-    this.selectedBCGCategory.set(null);
-    this.loadProfitability();
+    this.showFaibleMarge.set(true);
+    this.selectedFamilleId.set(null);
+    this.searchQuery.set('');
+    this.first = 0;
+    this.loadProducts(0);
   }
 
-  protected exportToPdf(): void {
-    this.profitabilityService.exportProfitabilityToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `rentabilite-produits-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-        }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
+  protected onPageChange(event: any): void {
+    this.first = event.first;
+    this.pageSize = event.rows;
+    this.loadProducts(event.first / event.rows);
   }
 
-  private extractFilterOptions(products: IProductProfitability[]): void {
-    // Extract unique categories
-    const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
-    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
+  protected onSort(event: any): void {
+    this.first = 0;
+    this.loadProducts(0);
   }
 
-  protected getBCGCategoryLabel(bcgCategory: BCGCategory | undefined): string {
-    switch (bcgCategory) {
-      case BCGCategory.STAR:
-        return 'Star';
-      case BCGCategory.CASH_COW:
-        return 'Cash Cow';
-      case BCGCategory.QUESTION_MARK:
-        return 'Question Mark';
-      case BCGCategory.DOG:
-        return 'Dog';
-      default:
-        return 'Indéfini';
-    }
-  }
-
-  protected getBCGCategorySeverity(bcgCategory: BCGCategory | undefined): string {
-    switch (bcgCategory) {
-      case BCGCategory.STAR:
-        return 'success';
-      case BCGCategory.CASH_COW:
-        return 'info';
-      case BCGCategory.QUESTION_MARK:
-        return 'warn';
-      case BCGCategory.DOG:
-        return 'danger';
-      default:
-        return 'secondary';
-    }
-  }
-
-  protected getMarginSeverity(margin: number | undefined): string {
-    if (!margin) return 'secondary';
+  protected getMarginSeverity(margin: number | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    if (!margin && margin !== 0) return 'secondary';
     if (margin >= 30) return 'success';
     if (margin >= 20) return 'info';
     if (margin >= 10) return 'warn';
     return 'danger';
   }
 
-  protected calculateMarginPercentage(product: IProductProfitability): number {
-    return product.tauxMargePct || 0;
-  }
-
   protected toggleHelpDrawer(): void {
-    this.helpDrawerVisible.update(value => !value);
+    this.helpDrawerVisible.update(v => !v);
   }
 }

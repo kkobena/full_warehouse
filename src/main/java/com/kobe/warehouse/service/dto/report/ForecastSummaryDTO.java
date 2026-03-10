@@ -15,7 +15,7 @@ public record ForecastSummaryDTO(
     BigDecimal averageMonthlyGrowthPct,
     BigDecimal predictedYearlyGrowthPct,
 
-    // Historical accuracy
+    // Historical accuracy — null si non calculable (données insuffisantes)
     BigDecimal modelAccuracyPct,
     BigDecimal meanAbsoluteError,
 
@@ -26,5 +26,14 @@ public record ForecastSummaryDTO(
 
     // Method used
     String forecastMethod,
-    Integer dataPointsUsed
+    Integer dataPointsUsed,
+
+    /**
+     * Qualité des données :
+     *   INSUFFICIENT  → < 4 mois  : prévisions très peu fiables
+     *   LOW           → 4–11 mois : fiabilité limitée
+     *   MEDIUM        → 12–17 mois
+     *   HIGH          → >= 18 mois
+     */
+    String dataQuality
 ) {}

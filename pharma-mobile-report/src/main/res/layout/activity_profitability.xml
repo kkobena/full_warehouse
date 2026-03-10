@@ -46,11 +46,12 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Carte résumé -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:cardBackgroundColor="@color/warning"
+                        app:cardBackgroundColor="@color/primary_variant"
                         app:cardCornerRadius="12dp">
 
                         <LinearLayout
@@ -59,17 +60,32 @@
                             android:orientation="vertical"
                             android:padding="16dp">
 
+                            <!-- En-tête pliable -->
                             <LinearLayout
                                 android:id="@+id/headerSummary"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical">
 
-                                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/profitability_summary" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold" />
-                                <ImageView android:id="@+id/iconSummaryExpand" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_expand_less" app:tint="@color/white" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="@string/profitability_summary"
+                                    android:textColor="@color/white"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/iconSummaryExpand"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_expand_less"
+                                    app:tint="@color/white" />
 
                             </LinearLayout>
 
+                            <!-- Contenu résumé -->
                             <LinearLayout
                                 android:id="@+id/contentSummary"
                                 android:layout_width="match_parent"
@@ -77,6 +93,7 @@
                                 android:layout_marginTop="12dp"
                                 android:orientation="vertical">
 
+                                <!-- Ligne 1 : CA / Marge / Taux -->
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
@@ -99,30 +116,21 @@
 
                                 </LinearLayout>
 
+                                <!-- Ligne 2 : Faible marge / Bonne marge -->
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="12dp"
                                     android:orientation="horizontal">
 
-                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical" android:background="@drawable/bg_chip_small" android:padding="8dp">
-                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stars" android:textColor="@color/white" android:textSize="10sp" />
-                                        <TextView android:id="@+id/tvStarCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" tools:text="25" />
+                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical" android:background="@color/error_light" android:padding="8dp">
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Faible marge" android:textColor="@color/alert_critical_text" android:textSize="10sp" />
+                                        <TextView android:id="@+id/tvLowMarginCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/alert_critical_text" android:textSize="14sp" android:textStyle="bold" tools:text="25" />
                                     </LinearLayout>
 
-                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:gravity="center" android:orientation="vertical" android:background="@drawable/bg_chip_small" android:padding="8dp">
-                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V. lait" android:textColor="@color/white" android:textSize="10sp" />
-                                        <TextView android:id="@+id/tvCashCowCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" tools:text="45" />
-                                    </LinearLayout>
-
-                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:gravity="center" android:orientation="vertical" android:background="@drawable/bg_chip_small" android:padding="8dp">
-                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dilemmes" android:textColor="@color/white" android:textSize="10sp" />
-                                        <TextView android:id="@+id/tvQuestionCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" tools:text="30" />
-                                    </LinearLayout>
-
-                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:gravity="center" android:orientation="vertical" android:background="@drawable/bg_chip_small" android:padding="8dp">
-                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="P. morts" android:textColor="@color/white" android:textSize="10sp" />
-                                        <TextView android:id="@+id/tvDogCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" tools:text="15" />
+                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:gravity="center" android:orientation="vertical" android:background="@color/success_light" android:padding="8dp">
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bonne marge" android:textColor="@color/alert_success_text" android:textSize="10sp" />
+                                        <TextView android:id="@+id/tvGoodMarginCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/alert_success_text" android:textSize="14sp" android:textStyle="bold" tools:text="45" />
                                     </LinearLayout>
 
                                 </LinearLayout>
@@ -133,6 +141,7 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
+                    <!-- Chips filtres : Tous / Faible marge uniquement -->
                     <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -146,12 +155,20 @@
                             app:selectionRequired="true"
                             app:singleSelection="true">
 
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterAll" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/bcg_filter_all" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterStar" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/bcg_filter_star" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterCashCow" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/bcg_filter_cash_cow" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterQuestion" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/bcg_filter_question" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterDog" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/bcg_filter_dog" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chipFilterLowMargin" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/bcg_filter_low_margin" />
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipFilterAll"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="@string/bcg_filter_all" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipFilterLowMargin"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bcg_filter_low_margin" />
 
                         </com.google.android.material.chip.ChipGroup>
 
@@ -171,9 +188,30 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <LinearLayout android:id="@+id/emptyState" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="32dp" android:visibility="gone">
-        <ImageView android:layout_width="80dp" android:layout_height="80dp" android:alpha="0.5" android:src="@drawable/ic_analytics" app:tint="@color/gray_400" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/profitability_empty" android:textColor="@color/text_secondary" />
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:alpha="0.5"
+            android:src="@drawable/ic_analytics"
+            app:tint="@color/gray_400" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/profitability_empty"
+            android:textColor="@color/text_secondary" />
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

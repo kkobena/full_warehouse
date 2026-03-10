@@ -56,8 +56,7 @@ public class MaterializedViewRefreshService {
         "mv_abc_pareto_analysis",
         "mv_pareto_summary",
         "mv_supplier_performance",
-        "mv_product_profitability",
-        "mv_profitability_summary"
+        "mv_marge_produit"
 
     );
 
@@ -66,9 +65,8 @@ public class MaterializedViewRefreshService {
     // Single-row aggregate views don't have natural unique keys
     // =====================================================
     private static final List<String> NON_CONCURRENT_VIEWS = Arrays.asList(
-        "mv_pareto_summary",
-        "mv_profitability_summary",
-        "mv_product_profitability"
+        "mv_pareto_summary"
+
     );
 
     @PersistenceContext

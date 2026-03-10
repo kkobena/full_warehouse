@@ -6,12 +6,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class SalesForecastServiceImpl implements SalesForecastService {
+
+    /**
+     * Seuil d'horizon au-delà duquel la fiabilité de la prévision diminue fortement.
+     * Un avertissement est inclus dans le DTO retourné.
+     */
+    private static final int MAX_RELIABLE_MONTHS_AHEAD = 6;
 
     private final EntityManager entityManager;
 
@@ -29,64 +36,98 @@ public class SalesForecastServiceImpl implements SalesForecastService {
     @Override
     @Cacheable(value = "salesForecast", key = "'forecast_' + #monthsAhead + '_' + #method")
     public List<SalesForecastDTO> getForecast(Integer monthsAhead, String method) {
-        // Get historical data (last 24 months)
+        // P1 : données historiques triées explicitement par YearMonth
         Map<YearMonth, Long> historicalData = getHistoricalMonthlyCA(24);
 
-
-        List<SalesForecastDTO> forecasts = switch (method.toUpperCase()) {
+        return switch (method.toUpperCase()) {
             case "MOVING_AVERAGE" -> forecastMovingAverage(historicalData, monthsAhead);
-            case "SEASONAL" -> forecastSeasonal(historicalData, monthsAhead);
-            //  case "LINEAR_REGRESSION":
-            default -> forecastLinearRegression(historicalData, monthsAhead);
+            case "SEASONAL"       -> forecastSeasonal(historicalData, monthsAhead);
+            default               -> forecastLinearRegression(historicalData, monthsAhead);
         };
-
-        return forecasts;
     }
 
     @Override
     @Cacheable(value = "salesForecast", key = "'summary'")
     public ForecastSummaryDTO getForecastSummary() {
         Map<YearMonth, Long> historicalData = getHistoricalMonthlyCA(24);
+        int n = historicalData.size();
 
-        // Get forecasts for different periods
-        List<SalesForecastDTO> forecast3M = forecastLinearRegression(historicalData, 3);
-        List<SalesForecastDTO> forecast6M = forecastLinearRegression(historicalData, 6);
+        // Qualification de la qualité des données
+        String dataQuality = resolveDataQuality(n);
+
+        // Prévisions — retournent vide si n < 2 (confiance réduite si n < 6)
+        List<SalesForecastDTO> forecast3M  = forecastLinearRegression(historicalData, 3);
+        List<SalesForecastDTO> forecast6M  = forecastLinearRegression(historicalData, 6);
         List<SalesForecastDTO> forecast12M = forecastLinearRegression(historicalData, 12);
 
-        long totalForecast3M = forecast3M.stream().mapToLong(SalesForecastDTO::forecastedCA).sum();
-        long totalForecast6M = forecast6M.stream().mapToLong(SalesForecastDTO::forecastedCA).sum();
+        long totalForecast3M  = forecast3M.stream().mapToLong(SalesForecastDTO::forecastedCA).sum();
+        long totalForecast6M  = forecast6M.stream().mapToLong(SalesForecastDTO::forecastedCA).sum();
         long totalForecast12M = forecast12M.stream().mapToLong(SalesForecastDTO::forecastedCA).sum();
 
-        // Calculate growth trends
-        List<Long> monthlyValues = new ArrayList<>(historicalData.values());
-        BigDecimal avgMonthlyGrowth = calculateAverageGrowth(monthlyValues);
+        // Taux de croissance : null si INSUFFICIENT (n<4) — trop peu de points pour être fiable
+        // Le résultat serait mathématiquement calculable mais statistiquement trompeur
+        BigDecimal avgMonthlyGrowth;
+        BigDecimal annualGrowth;
+        if (n >= 4) {
+            avgMonthlyGrowth = calculateAverageGrowth(new ArrayList<>(historicalData.values()));
+            annualGrowth     = calculateCompoundAnnualGrowth(avgMonthlyGrowth);
+        } else {
+            avgMonthlyGrowth = null;
+            annualGrowth     = null;
+        }
 
-        // Model accuracy (based on last 6 months)
-        BigDecimal accuracy = calculateModelAccuracy(historicalData);
+        // Précision + MAE : null si non calculable (< 4 points)
+        BigDecimal accuracy = null;
+        BigDecimal mae      = null;
+        if (n >= 4) {
+            BigDecimal[] accuracyAndMae = calculateModelAccuracyAndMae(historicalData);
+            accuracy = accuracyAndMae[0];
+            mae      = accuracyAndMae[1];
+        }
 
-        // Seasonality detection
-        Boolean seasonalityDetected = detectSeasonality();
-        Map.Entry<YearMonth, Long> peakMonth = historicalData.entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .orElse(null);
-        Map.Entry<YearMonth, Long> lowMonth = historicalData.entrySet().stream()
-            .min(Map.Entry.comparingByValue())
-            .orElse(null);
+        // Saisonnalité : non significative si < 12 mois (déjà géré dans detectSeasonality)
+        Boolean seasonalityDetected = n >= 12 && detectSeasonality();
+
+        Map.Entry<YearMonth, Long> peakEntry = historicalData.entrySet().stream()
+            .max(Map.Entry.comparingByValue()).orElse(null);
+        Map.Entry<YearMonth, Long> lowEntry = historicalData.entrySet().stream()
+            .min(Map.Entry.comparingByValue()).orElse(null);
+
+        // peakMonth et lowMonth n'ont de sens que si on a au moins 2 mois différents
+        String peakMonth = (peakEntry != null && n >= 2)
+            ? peakEntry.getKey().getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH) : null;
+        String lowMonth  = (lowEntry  != null && n >= 2)
+            ? lowEntry.getKey().getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH)  : null;
 
         return new ForecastSummaryDTO(
             totalForecast3M,
             totalForecast6M,
             totalForecast12M,
             avgMonthlyGrowth,
-            avgMonthlyGrowth.multiply(BigDecimal.valueOf(12)),
+            annualGrowth,
             accuracy,
-            BigDecimal.ZERO, // MAE placeholder
+            mae,
             seasonalityDetected,
-            peakMonth != null ? peakMonth.getKey().getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH) : "",
-            lowMonth != null ? lowMonth.getKey().getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH) : "",
+            peakMonth,
+            lowMonth,
             "LINEAR_REGRESSION",
-            historicalData.size()
+            n,
+            dataQuality
         );
+    }
+
+    /**
+     * Qualifie la fiabilité des prévisions selon le nombre de mois historiques disponibles.
+     *   INSUFFICIENT → < 4  : résultats statistiquement non fiables
+     *   LOW          → 4–11 : tendance indicative uniquement
+     *   MEDIUM       → 12–17
+     *   HIGH         → ≥ 18 : modèle statistiquement exploitable
+     */
+    private String resolveDataQuality(int n) {
+        if (n < 4)  return "INSUFFICIENT";
+        if (n < 12) return "LOW";
+        if (n < 18) return "MEDIUM";
+        return "HIGH";
     }
 
     @Override
@@ -94,12 +135,10 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         Map<YearMonth, Long> historicalData = getHistoricalMonthlyCA(24);
         List<SalesForecastDTO> forecast = forecastLinearRegression(historicalData, monthsAhead);
 
-        // Combine historical and forecast
         List<SalesForecastDTO> combined = new ArrayList<>();
 
-        // Add historical data
-        YearMonth start = YearMonth.from(startDate);
-        YearMonth end = YearMonth.from(endDate);
+        YearMonth start   = YearMonth.from(startDate);
+        YearMonth end     = YearMonth.from(endDate);
         YearMonth current = start;
 
         while (!current.isAfter(end)) {
@@ -108,7 +147,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
                 combined.add(new SalesForecastDTO(
                     current.atDay(1),
                     current.toString(),
-                    ca, // forecast = actual for historical
+                    ca,
                     ca,
                     BigDecimal.valueOf(100),
                     ca,
@@ -119,9 +158,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
             current = current.plusMonths(1);
         }
 
-        // Add forecast
         combined.addAll(forecast);
-
         return combined;
     }
 
@@ -133,113 +170,143 @@ public class SalesForecastServiceImpl implements SalesForecastService {
             return false;
         }
 
-        // Group by month (across years)
+        // Grouper par numéro de mois (janvier=1 … décembre=12)
         Map<Integer, List<Long>> byMonth = new HashMap<>();
-        historicalData.forEach((yearMonth, ca) -> {
-            byMonth.computeIfAbsent(yearMonth.getMonthValue(), k -> new ArrayList<>()).add(ca);
-        });
+        historicalData.forEach((ym, ca) ->
+            byMonth.computeIfAbsent(ym.getMonthValue(), k -> new ArrayList<>()).add(ca));
 
-        // Calculate coefficient of variation for each month
-        double totalCV = 0;
-        int monthsWithData = 0;
+        // P2 : ratio variance inter-mois / variance totale (η² simplifié)
+        // Si η² > 0.5 → la variation mensuelle explique > 50% de la variance totale → saisonnalité confirmée
+        double grandMean = historicalData.values().stream()
+            .mapToLong(Long::longValue).average().orElse(0);
 
-        for (List<Long> monthData : byMonth.values()) {
-            if (monthData.size() >= 2) {
-                double avg = monthData.stream().mapToLong(Long::longValue).average().orElse(0);
-                double stdDev = calculateStdDev(monthData, avg);
-                double cv = avg > 0 ? (stdDev / avg) : 0;
-                totalCV += cv;
-                monthsWithData++;
+        double ssBetween = 0; // somme des carrés entre groupes
+        double ssTotal   = 0; // somme des carrés totale
+
+        for (Map.Entry<Integer, List<Long>> e : byMonth.entrySet()) {
+            List<Long> monthData = e.getValue();
+            double groupMean = monthData.stream().mapToLong(Long::longValue).average().orElse(0);
+            ssBetween += monthData.size() * Math.pow(groupMean - grandMean, 2);
+            for (Long v : monthData) {
+                ssTotal += Math.pow(v - grandMean, 2);
             }
         }
 
-        // If average CV is low, there's seasonality (similar patterns each year)
-        double avgCV = monthsWithData > 0 ? totalCV / monthsWithData : 1.0;
-        return avgCV < 0.3; // Threshold for seasonality
+        double etaSquared = ssTotal > 0 ? ssBetween / ssTotal : 0;
+        // Seuil : η² > 0.5 indique une saisonnalité significative
+        return etaSquared > 0.5;
     }
 
     // ========== PRIVATE HELPER METHODS ==========
 
+    /**
+     * Charge les données historiques mensuelles de CA.
+     * - endDate : dernier jour du mois courant → inclut les ventes du mois en cours
+     * - startDate : premier jour du mois, monthsBack mois en arrière
+     * - Agrégat : COALESCE(SUM(s.sales_amount), 0) — cohérent avec le reste du projet
+     * - COALESCE(s.canceled, false) pour gérer les NULL
+     * - TreeMap → tri garanti par YearMonth indépendamment du tri SQL
+     */
     private Map<YearMonth, Long> getHistoricalMonthlyCA(int monthsBack) {
-        LocalDate endDate = LocalDate.now().minusMonths(1); // Last complete month
-        LocalDate startDate = endDate.minusMonths(monthsBack);
-        String sql = """
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate endDate   = currentMonth.atEndOfMonth();
+        LocalDate startDate = currentMonth.minusMonths(monthsBack).atDay(1);
 
- SELECT
-     TO_CHAR(DATE_TRUNC('month', s.sale_date), 'YYYY-MM-DD') as month,
-      SUM(s.sales_amount - s.discount_amount) as ca
-    FROM sales s
-    WHERE s.statut = 'CLOSED'
-      AND s.canceled = false
-      AND s.ca = 'CA'
-      AND s.sale_date BETWEEN :startDate AND :endDate
-    GROUP BY TO_CHAR(DATE_TRUNC('month', s.sale_date), 'YYYY-MM-DD')
-    ORDER BY month
-""";
+        String sql = """
+            SELECT
+                DATE_TRUNC('month', s.sale_date)::date AS month,
+                COALESCE(SUM(s.sales_amount), 0)       AS ca
+            FROM sales s
+            WHERE s.statut                    = 'CLOSED'
+              AND COALESCE(s.canceled, false) = false
+              AND s.ca                        = 'CA'
+              AND s.sale_date BETWEEN :startDate AND :endDate
+            GROUP BY DATE_TRUNC('month', s.sale_date)
+            ORDER BY 1
+            """;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
+        query.setParameter("endDate",   endDate);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        Map<YearMonth, Long> data = new LinkedHashMap<>();
+        Map<YearMonth, Long> data = new TreeMap<>();
         for (Object[] row : results) {
-            LocalDate monthDate = LocalDate.parse((String) row[0]);
+            LocalDate monthDate;
+            if (row[0] instanceof LocalDate ld) {
+                monthDate = ld;
+            } else if (row[0] instanceof java.sql.Date sd) {
+                monthDate = sd.toLocalDate();
+            } else {
+                monthDate = LocalDate.parse(row[0].toString().substring(0, 10));
+            }
             Long ca = ((Number) row[1]).longValue();
             data.put(YearMonth.from(monthDate), ca);
         }
-
         return data;
     }
 
+    /**
+     * Régression linéaire simple y = mx + b.
+     * P3 : si monthsAhead > MAX_RELIABLE_MONTHS_AHEAD, le niveau de confiance
+     *      est réduit pour signaler la baisse de fiabilité.
+     */
     private List<SalesForecastDTO> forecastLinearRegression(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
         List<YearMonth> months = new ArrayList<>(historicalData.keySet());
-        List<Long> values = new ArrayList<>(historicalData.values());
+        List<Long>      values = new ArrayList<>(historicalData.values());
 
         int n = months.size();
-        if (n < 3) {
-            return Collections.emptyList(); // Not enough data
+        // Minimum 2 points pour une régression linéaire (pente définie)
+        // Avec moins de 6 points, la précision est faible → confiance plafonnée à 60%
+        if (n < 2) {
+            return Collections.emptyList();
         }
 
-        // Simple linear regression: y = mx + b
         double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-
         for (int i = 0; i < n; i++) {
             double x = i;
             double y = values.get(i);
-            sumX += x;
-            sumY += y;
+            sumX  += x;
+            sumY  += y;
             sumXY += x * y;
             sumX2 += x * x;
         }
 
-        double slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double slope     = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
         double intercept = (sumY - slope * sumX) / n;
 
-        // Calculate standard error for confidence intervals
+        // P2 : erreur standard avec n-2 degrés de liberté
         double stdError = calculateStandardError(values, slope, intercept);
 
-        // Generate forecasts
-        List<SalesForecastDTO> forecasts = new ArrayList<>();
+        List<SalesForecastDTO> forecasts  = new ArrayList<>();
         YearMonth lastMonth = months.get(n - 1);
 
         for (int i = 1; i <= monthsAhead; i++) {
             YearMonth forecastMonth = lastMonth.plusMonths(i);
-            double x = n + i - 1;
-            long forecast = Math.round(slope * x + intercept);
-            long lowerBound = Math.round(forecast - 1.96 * stdError); // 95% confidence
-            long upperBound = Math.round(forecast + 1.96 * stdError);
+            double x        = n + i - 1;
+            long   forecast = Math.round(slope * x + intercept);
+            long   lower    = Math.round(forecast - 1.96 * stdError);
+            long   upper    = Math.round(forecast + 1.96 * stdError);
+
+            // Niveau de confiance :
+            // - données insuffisantes (< 6 mois) → plafonné à 60%
+            // - horizon > MAX_RELIABLE → dégradé progressivement
+            // - sinon 95% (données suffisantes, horizon court)
+            int maxConfidence = n < 6 ? 60 : (n < 12 ? 80 : 95);
+            BigDecimal confidence = i > MAX_RELIABLE_MONTHS_AHEAD
+                ? BigDecimal.valueOf(Math.max(50, maxConfidence - (i - MAX_RELIABLE_MONTHS_AHEAD) * 5L))
+                : BigDecimal.valueOf(maxConfidence);
 
             forecasts.add(new SalesForecastDTO(
                 forecastMonth.atDay(1),
                 forecastMonth.toString(),
                 Math.max(0, forecast),
                 null,
-                BigDecimal.valueOf(95),
-                Math.max(0, lowerBound),
-                Math.max(0, upperBound),
+                confidence,
+                Math.max(0, lower),
+                Math.max(0, upper),
                 "LINEAR_REGRESSION"
             ));
         }
@@ -247,65 +314,66 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         return forecasts;
     }
 
+    /**
+     * Moyenne mobile.
+     * P2 : rolling — chaque prévision est calculée en intégrant les prévisions précédentes
+     *      dans la fenêtre glissante, au lieu d'une moyenne figée.
+     */
     private List<SalesForecastDTO> forecastMovingAverage(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
         List<YearMonth> months = new ArrayList<>(historicalData.keySet());
-        List<Long> values = new ArrayList<>(historicalData.values());
+        int windowSize = Math.min(6, historicalData.size());
 
-        int windowSize = Math.min(6, values.size()); // 6-month moving average
+        // Fenêtre glissante initialisée sur les derniers mois historiques
+        Deque<Long> window = new ArrayDeque<>(
+            new ArrayList<>(historicalData.values())
+                .subList(historicalData.size() - windowSize, historicalData.size())
+        );
 
-
-        // Calculate moving average of last N months
-        long sum = 0;
-        for (int i = values.size() - windowSize; i < values.size(); i++) {
-            sum += values.get(i);
-        }
-        long movingAvg = sum / windowSize;
-
-        // Use moving average as forecast
         List<SalesForecastDTO> forecasts = new ArrayList<>();
         YearMonth lastMonth = months.getLast();
 
         for (int i = 1; i <= monthsAhead; i++) {
             YearMonth forecastMonth = lastMonth.plusMonths(i);
-            long forecast = movingAvg;
-            long margin = Math.round(forecast * 0.1); // 10% margin
+            long movingAvg = window.stream().mapToLong(Long::longValue).sum() / window.size();
+            long margin    = Math.round(movingAvg * 0.10);
 
             forecasts.add(new SalesForecastDTO(
                 forecastMonth.atDay(1),
                 forecastMonth.toString(),
-                forecast,
+                movingAvg,
                 null,
                 BigDecimal.valueOf(80),
-                forecast - margin,
-                forecast + margin,
+                Math.max(0, movingAvg - margin),
+                movingAvg + margin,
                 "MOVING_AVERAGE"
             ));
+
+            // Rolling : intégrer la prévision dans la fenêtre pour le prochain tour
+            window.pollFirst();
+            window.addLast(movingAvg);
         }
 
         return forecasts;
     }
 
     private List<SalesForecastDTO> forecastSeasonal(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
-        // Group by month to find seasonal pattern
         Map<Integer, List<Long>> byMonth = new HashMap<>();
-        historicalData.forEach((yearMonth, ca) -> byMonth.computeIfAbsent(yearMonth.getMonthValue(), k -> new ArrayList<>()).add(ca));
+        historicalData.forEach((ym, ca) ->
+            byMonth.computeIfAbsent(ym.getMonthValue(), k -> new ArrayList<>()).add(ca));
 
-        // Calculate average for each month
         Map<Integer, Long> monthlyAverages = byMonth.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 e -> (long) e.getValue().stream().mapToLong(Long::longValue).average().orElse(0)
             ));
 
-        // Generate forecasts using seasonal averages
         List<SalesForecastDTO> forecasts = new ArrayList<>();
-        YearMonth lastMonth = new ArrayList<>(historicalData.keySet()).get(historicalData.size() - 1);
+        YearMonth lastMonth = new ArrayList<>(historicalData.keySet()).getLast();
 
         for (int i = 1; i <= monthsAhead; i++) {
             YearMonth forecastMonth = lastMonth.plusMonths(i);
-            int monthValue = forecastMonth.getMonthValue();
-            long forecast = monthlyAverages.getOrDefault(monthValue, 0L);
-            long margin = Math.round(forecast * 0.15);
+            long forecast = monthlyAverages.getOrDefault(forecastMonth.getMonthValue(), 0L);
+            long margin   = Math.round(forecast * 0.15);
 
             forecasts.add(new SalesForecastDTO(
                 forecastMonth.atDay(1),
@@ -313,7 +381,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
                 forecast,
                 null,
                 BigDecimal.valueOf(85),
-                forecast - margin,
+                Math.max(0, forecast - margin),
                 forecast + margin,
                 "SEASONAL"
             ));
@@ -326,65 +394,112 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         if (values.size() < 2) {
             return BigDecimal.ZERO;
         }
-
         double totalGrowth = 0;
-        int growthCount = 0;
-
+        int growthCount    = 0;
         for (int i = 1; i < values.size(); i++) {
             long prev = values.get(i - 1);
             long curr = values.get(i);
             if (prev > 0) {
-                double growth = ((curr - prev) * 100.0) / prev;
-                totalGrowth += growth;
+                double rawGrowth = ((curr - prev) * 100.0) / prev;
+                // Plafonner à ±50%/mois pour éviter les outliers sur petits échantillons
+                // (ex: janv creux → fév fort peut donner +200% non représentatif)
+                double clampedGrowth = Math.max(-50.0, Math.min(50.0, rawGrowth));
+                totalGrowth += clampedGrowth;
                 growthCount++;
             }
         }
-
         return growthCount > 0
             ? BigDecimal.valueOf(totalGrowth / growthCount).setScale(2, RoundingMode.HALF_UP)
             : BigDecimal.ZERO;
     }
 
-    private BigDecimal calculateModelAccuracy(Map<YearMonth, Long> historicalData) {
-        // Simple accuracy: compare last 6 months actual vs predicted
-        List<Long> values = new ArrayList<>(historicalData.values());
-        if (values.size() < 12) {
-            return BigDecimal.valueOf(70); // Default accuracy
+    /**
+     * Taux de croissance annuel composé : ((1 + r_mensuel/100)^12 - 1) * 100
+     * Plafonné à ±999% — au-delà la valeur n'est plus indicative
+     * (instabilité statistique sur petits échantillons).
+     */
+    private BigDecimal calculateCompoundAnnualGrowth(BigDecimal avgMonthlyGrowthPct) {
+        if (avgMonthlyGrowthPct.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
         }
-
-        // Use first 18 months to predict last 6 months
-        Map<YearMonth, Long> trainingData = historicalData.entrySet().stream()
-            .limit(historicalData.size() - 6)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-
-        List<SalesForecastDTO> predictions = forecastLinearRegression(trainingData, 6);
-
-        // Compare predictions with actual
-        double totalError = 0;
-        List<Long> actualLast6 = values.subList(values.size() - 6, values.size());
-
-        for (int i = 0; i < Math.min(6, predictions.size()); i++) {
-            long predicted = predictions.get(i).forecastedCA();
-            long actual = actualLast6.get(i);
-            double error = Math.abs(predicted - actual) / (double) actual;
-            totalError += error;
-        }
-
-        double avgError = totalError / 6;
-        double accuracy = Math.max(0, (1 - avgError) * 100);
-
-        return BigDecimal.valueOf(accuracy).setScale(2, RoundingMode.HALF_UP);
+        double r      = avgMonthlyGrowthPct.doubleValue() / 100.0;
+        double annual = (Math.pow(1 + r, 12) - 1) * 100;
+        // Plafonner à ±999% : au-delà le chiffre est trompeur
+        double capped = Math.max(-999.0, Math.min(999.0, annual));
+        return BigDecimal.valueOf(capped).setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Calcule simultanément la précision MAPE et le MAE en FCFA.
+     * - Si >= 12 points : split (n-6) entraînement / 6 test
+     * - Si >= 4 points  : split 50/50
+     * - Si < 4 points   : précision non calculable → 0%/0 FCFA avec flag
+     */
+    private BigDecimal[] calculateModelAccuracyAndMae(Map<YearMonth, Long> historicalData) {
+        List<Long> values = new ArrayList<>(historicalData.values());
+        int n = values.size();
+
+        if (n < 4) {
+            // Pas assez de données pour un split fiable
+            return new BigDecimal[]{ BigDecimal.ZERO, BigDecimal.ZERO };
+        }
+
+        // Taille de l'ensemble de test : 6 mois si n >= 12, sinon la moitié
+        int testSize = n >= 12 ? 6 : n / 2;
+        int trainSize = n - testSize;
+
+        Map<YearMonth, Long> trainingData = historicalData.entrySet().stream()
+            .limit(trainSize)
+            .collect(Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue,
+                (a, b) -> a, LinkedHashMap::new
+            ));
+
+        List<SalesForecastDTO> predictions = forecastLinearRegression(trainingData, testSize);
+        if (predictions.isEmpty()) {
+            return new BigDecimal[]{ BigDecimal.ZERO, BigDecimal.ZERO };
+        }
+
+        List<Long> actualTest = values.subList(trainSize, n);
+        double totalMape = 0;
+        double totalMae  = 0;
+        int    count     = Math.min(testSize, predictions.size());
+
+        for (int i = 0; i < count; i++) {
+            long predicted = predictions.get(i).forecastedCA();
+            long actual    = actualTest.get(i);
+            if (actual > 0) {
+                totalMape += Math.abs(predicted - actual) / (double) actual;
+            }
+            totalMae += Math.abs(predicted - actual);
+        }
+
+        double avgMape     = totalMape / count;
+        double avgMae      = totalMae  / count;
+        double accuracyPct = Math.max(0, (1 - avgMape) * 100);
+
+        return new BigDecimal[]{
+            BigDecimal.valueOf(accuracyPct).setScale(2, RoundingMode.HALF_UP),
+            BigDecimal.valueOf(avgMae).setScale(0, RoundingMode.HALF_UP)
+        };
+    }
+
+    /**
+     * P2 : erreur standard de régression avec n-2 degrés de liberté (correct statistiquement).
+     */
     private double calculateStandardError(List<Long> values, double slope, double intercept) {
+        int n = values.size();
+        if (n <= 2) {
+            return 0;
+        }
         double sumSquaredErrors = 0;
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < n; i++) {
             double predicted = slope * i + intercept;
-            double actual = values.get(i);
-            double error = actual - predicted;
+            double error     = values.get(i) - predicted;
             sumSquaredErrors += error * error;
         }
-        return Math.sqrt(sumSquaredErrors / values.size());
+        // n-2 : degrés de liberté d'une régression linéaire simple
+        return Math.sqrt(sumSquaredErrors / (n - 2));
     }
 
     private double calculateStdDev(List<Long> values, double mean) {
@@ -393,6 +508,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
             double diff = value - mean;
             sumSquaredDiff += diff * diff;
         }
-        return Math.sqrt(sumSquaredDiff / values.size());
+        // Population std dev (n) — utilisé pour le CV mensuel
+        return values.size() > 1 ? Math.sqrt(sumSquaredDiff / values.size()) : 0;
     }
 }

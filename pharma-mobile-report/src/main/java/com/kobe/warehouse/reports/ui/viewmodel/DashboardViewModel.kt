@@ -105,10 +105,17 @@ class DashboardViewModel(
     }
 
     /**
-     * Get progress percent towards daily target.
+     * Écart % entre le CA du jour et la moyenne des 30 derniers jours.
      */
-    fun getProgressPercent(): Int {
-        return _dashboard.value?.progressPercent ?: 0
+    fun getTrendVs30j(): Double {
+        return _dashboard.value?.trendVs30j ?: 0.0
+    }
+
+    /**
+     * CA moyen journalier des 30 derniers jours.
+     */
+    fun getAverageCA30j(): String {
+        return _dashboard.value?.getFormattedAverageCA30j() ?: "0 F"
     }
 
     /**

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -33,79 +34,99 @@ interface PeriodOption {
   styleUrl: './sales-forecast.component.scss',
   imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule, Tag, Drawer],
 })
-export default class SalesForecastComponent implements OnInit {
+export default class SalesForecastComponent implements OnInit, OnDestroy {
   @ViewChild('forecastChartCanvas') forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('confidenceChartCanvas') confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   // Data signals
   protected summary = signal<IForecastSummary | null>(null);
   protected forecasts = signal<ISalesForecast[]>([]);
-  protected seasonalityDetected = signal<boolean>(false);
   protected isLoading = signal<boolean>(false);
   protected helpDrawerVisible = signal<boolean>(false);
 
-  // Charts
-
   // Filters
   protected selectedMethod = signal<string>('LINEAR_REGRESSION');
-  protected selectedPeriod = signal<number>(6);
+  protected selectedPeriod = signal<number>(3);
 
   protected methodOptions: MethodOption[] = [
     { label: 'Régression Linéaire', value: 'LINEAR_REGRESSION' },
-    { label: 'Moyenne Mobile', value: 'MOVING_AVERAGE' },
-    { label: 'Saisonnier', value: 'SEASONAL' },
+    { label: 'Moyenne Mobile',      value: 'MOVING_AVERAGE'    },
+    { label: 'Saisonnier',          value: 'SEASONAL'          },
   ];
 
   protected periodOptions: PeriodOption[] = [
-    { label: '3 mois', value: 3 },
-    { label: '6 mois', value: 6 },
+    { label: '3 mois',  value: 3  },
+    { label: '6 mois',  value: 6  },
     { label: '12 mois', value: 12 },
   ];
-  private salesForecastService = inject(SalesForecastService);
 
+  private salesForecastService = inject(SalesForecastService);
   private forecastChart?: Chart;
   private confidenceChart?: Chart;
 
+  /** Utilisé pour désabonner proprement tous les observables au destroy */
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.loadData();
+    this.loadAll();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.forecastChart?.destroy();
+    this.confidenceChart?.destroy();
+  }
+
+  /**
+   * Chargement initial complet : summary + forecast en parallèle.
+   * isLoading reste true jusqu'à la fin des DEUX appels.
+   */
+  loadAll(): void {
+    this.isLoading.set(true);
+
+    forkJoin({
+      summary:  this.salesForecastService.getSummary(),
+      forecast: this.salesForecastService.getForecast(this.selectedPeriod(), this.selectedMethod()),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ summary, forecast }) => {
+          this.summary.set(summary.body);
+          const forecastData = forecast.body ?? [];
+          this.forecasts.set(forecastData);
+          this.createForecastChart(forecastData);
+          this.createConfidenceChart(forecastData);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  /**
+   * Rechargement du forecast uniquement (méthode ou période changée).
+   * Le summary est indépendant des filtres — pas besoin de le recharger.
+   */
   loadData(): void {
     this.isLoading.set(true);
 
-    // Load summary
-    this.salesForecastService.getSummary().subscribe({
-      next: (res: HttpResponse<IForecastSummary>) => {
-        this.summary.set(res.body);
-      },
-      error() {
-        console.error('Error loading forecast summary');
-      },
-    });
-
-    // Load forecast
-    const method = this.selectedMethod();
-    const period = this.selectedPeriod();
-
-    this.salesForecastService.getForecast(period, method).subscribe({
-      next: (res: HttpResponse<ISalesForecast[]>) => {
-        this.forecasts.set(res.body ?? []);
-        this.createForecastChart(res.body ?? []);
-        this.createConfidenceChart(res.body ?? []);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        console.error('Error loading forecast');
-      },
-    });
-
-    // Check seasonality
-    this.salesForecastService.detectSeasonality().subscribe({
-      next: (res: HttpResponse<boolean>) => {
-        this.seasonalityDetected.set(res.body ?? false);
-      },
-    });
+    this.salesForecastService
+      .getForecast(this.selectedPeriod(), this.selectedMethod())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: HttpResponse<ISalesForecast[]>) => {
+          const data = res.body ?? [];
+          this.forecasts.set(data);
+          this.createForecastChart(data);
+          this.createConfidenceChart(data);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
   }
 
   protected onMethodChange(): void {
@@ -116,12 +137,10 @@ export default class SalesForecastComponent implements OnInit {
     this.loadData();
   }
 
-  // Chart creation
+  // ─── Charts ─────────────────────────────────────────────────────────────────
 
   private createForecastChart(data: ISalesForecast[]): void {
-    if (this.forecastChart) {
-      this.forecastChart.destroy();
-    }
+    this.forecastChart?.destroy();
 
     if (!this.forecastChartCanvas) {
       setTimeout(() => this.createForecastChart(data), 100);
@@ -152,27 +171,18 @@ export default class SalesForecastComponent implements OnInit {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: "Prévisions de Chiffre d'Affaires",
-          },
+          legend: { position: 'top' },
+          title: { display: true, text: "Prévisions de Chiffre d'Affaires" },
           tooltip: {
             callbacks: {
-              label: context => {
-                return `CA: ${this.formatCurrency(context.parsed.y)} FCFA`;
-              },
+              label: context => `CA: ${this.formatCurrency(context.parsed.y)} FCFA`,
             },
           },
         },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: {
-              callback: value => this.formatCurrency(Number(value)),
-            },
+            ticks: { callback: value => this.formatCurrency(Number(value)) },
           },
         },
       },
@@ -182,9 +192,7 @@ export default class SalesForecastComponent implements OnInit {
   }
 
   private createConfidenceChart(data: ISalesForecast[]): void {
-    if (this.confidenceChart) {
-      this.confidenceChart.destroy();
-    }
+    this.confidenceChart?.destroy();
 
     if (!this.confidenceChartCanvas) {
       setTimeout(() => this.createConfidenceChart(data), 100);
@@ -232,54 +240,38 @@ export default class SalesForecastComponent implements OnInit {
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: 'Intervalles de Confiance (95%)',
-          },
+          legend: { position: 'top' },
+          title: { display: true, text: 'Intervalles de Confiance (95%)' },
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
+        scales: { y: { beginAtZero: true } },
       },
     };
 
     this.confidenceChart = new Chart(ctx, config);
   }
 
-  // Helpers - using shared utilities
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   protected formatCurrency = formatCurrency;
-  protected formatPercent = formatPercent;
-  protected formatMonth = formatMonth;
-
-  protected formatMonthOld(period: string): string {
-    // Convert "2024-01" to "Janvier 2024" - OLD VERSION KEPT FOR REFERENCE
-    const [year, month] = period.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  }
+  protected formatPercent  = formatPercent;
+  protected formatMonth    = formatMonth;
 
   protected getMethodLabel(method: string): string {
-    return FORECAST_METHOD_LABELS[method as ForecastMethod] || method;
+    return FORECAST_METHOD_LABELS[method as ForecastMethod] ?? method;
   }
 
-  protected getAccuracySeverity(accuracy: number | undefined): 'success' | 'warn' | 'danger' {
-    if (!accuracy) return 'danger';
-    if (accuracy >= 80) return 'success';
-    if (accuracy >= 60) return 'warn';
+  protected getAccuracySeverity(accuracy: number | null | undefined): 'success' | 'warn' | 'danger' {
+    if (accuracy == null) return 'danger';
+    if (accuracy >= 80)   return 'success';
+    if (accuracy >= 60)   return 'warn';
     return 'danger';
   }
 
   protected getTotalForecastedCA(): number {
-    return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA || 0), 0);
+    return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA ?? 0), 0);
   }
 
   protected toggleHelpDrawer(): void {
-    this.helpDrawerVisible.update(value => !value);
+    this.helpDrawerVisible.update(v => !v);
   }
 }

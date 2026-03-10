@@ -244,11 +244,11 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
     }
 
     @Override
-    public long getDailyTarget(LocalDate date, int lookbackDays, double growthFactor) {
+    public long getAverageCA(LocalDate date, int lookbackDays) {
         String sql = """
-            SELECT COALESCE(AVG(daily_ca), 0) as avg_ca
+            SELECT COALESCE(AVG(daily_ca), 0)
             FROM (
-                SELECT SUM(s.sales_amount) as daily_ca
+                SELECT SUM(s.sales_amount) AS daily_ca
                 FROM sales s
                 WHERE s.sale_date BETWEEN :startDate AND :endDate
                   AND s.statut = :statut
@@ -264,8 +264,7 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
         query.setParameter("statut", SalesStatut.CLOSED.name());
         query.setParameter("caType", SALES_CA_TYPE);
 
-        Number avgCa = (Number) query.getSingleResult();
-        return (long) (avgCa.doubleValue() * growthFactor);
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MobileReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileReportService.class);
-    private static final long DEFAULT_DAILY_TARGET = 2_000_000L;
+    private static final int LOOKBACK_DAYS = 30;
 
     private final MobileAlertService alertService;
     private final MobileSalesRepository salesRepository;
@@ -50,13 +50,11 @@ public class MobileReportService {
         // Calculate variation
         double variation = calculateVariation(currentDay.caTotal(), previousDay.caTotal());
 
-        // Get daily target (could be from configuration)
-        long dailyTarget = getDailyTarget(date);
+        // Moyenne glissante des 30 derniers jours — référence contextuelle pour l'officine
+        long averageCA30j = salesRepository.getAverageCA(date, LOOKBACK_DAYS);
 
-        // Calculate target progress
-        double targetProgress = dailyTarget > 0
-            ? (currentDay.caTotal() * 100.0 / dailyTarget)
-            : 0.0;
+        // Écart entre le CA du jour et la moyenne glissante
+        double trendVs30j = calculateVariation(currentDay.caTotal(), averageCA30j);
 
         // Get alerts count
         int alertsCount = alertService.getAlertsSummary()
@@ -69,8 +67,8 @@ public class MobileReportService {
             variation,
             currentDay.transactionsCount(),
             alertsCount,
-            dailyTarget,
-            targetProgress,
+            averageCA30j,
+            trendVs30j,
             currentDay.customersCount(),
             currentDay.averageBasket()
         );
@@ -115,14 +113,6 @@ public class MobileReportService {
         return performance;
     }
 
-    /**
-     * Get daily target CA (could be from configuration).
-     * Default: 2,000,000 FCFA
-     */
-    private long getDailyTarget(LocalDate date) {
-        // TODO: Could be retrieved from configuration table
-        return DEFAULT_DAILY_TARGET;
-    }
 
     /**
      * Calculate variation percentage between current and previous value.

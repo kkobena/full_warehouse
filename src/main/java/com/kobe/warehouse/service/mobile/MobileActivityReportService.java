@@ -42,7 +42,7 @@ public class MobileActivityReportService {
      * @return Mobile activity report DTO
      */
     public MobileActivityReportDTO getActivityReport(LocalDate fromDate, LocalDate toDate) {
-        System.err.println("Generating activity report from " + fromDate + " to " + toDate);
+
         if (toDate == null) {
             toDate = fromDate;
         }
@@ -55,10 +55,8 @@ public class MobileActivityReportService {
 
         // Get mouvements caisse
         List<MouvementCaisse> mouvements = activitySummaryService.findMouvementsCaisse(fromDate, toDate);
-        System.err.println("Mouvements caisse: " + mouvements.size());
-        for (MouvementCaisse mouvement : mouvements) {
-            System.err.println("Movement: " + mouvement.getLibelle() + " - " + mouvement.getMontant());
-        }
+
+
 
         // Get achats fournisseurs (first 20)
         Page<GroupeFournisseurAchat> achatsPage = activitySummaryService.fetchAchats(
@@ -176,8 +174,8 @@ public class MobileActivityReportService {
                 long montant = r.realAmount();
                 double percent = total > 0 ? (montant * 100.0 / total) : 0.0;
                 return new RecetteMobileDTO(
-                    r.code(),
                     r.libelle(),
+                    r.code(),
                     montant,
                     Math.round(percent * 10.0) / 10.0,
                     RecetteMobileDTO.getColorForCode(r.code())

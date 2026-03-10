@@ -4,42 +4,35 @@ import com.kobe.warehouse.domain.enumeration.BCGCategory;
 import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
 import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+//Service à supprimer
 @Service
 @Transactional(readOnly = true)
 public class ProfitabilityReportServiceImpl implements ProfitabilityReportService {
-
-
-    private final  EntityManager entityManager;
+    private final EntityManager entityManager;
 
     public ProfitabilityReportServiceImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-
 
     @Override
     @Cacheable(value = "profitability", key = "'all'")
     public List<ProductProfitabilityDTO> getAllProductProfitability() {
         String sql =
             "SELECT " +
-            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
-            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
-            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
-            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
-            "FROM mv_product_profitability " +
-            "ORDER BY marge_brute DESC";
+                "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+                "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+                "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+                "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+                "FROM mv_product_profitability " +
+                "ORDER BY marge_brute DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -49,101 +42,16 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
         return mapResultsToDTO(results);
     }
 
-    @Override
-    @Cacheable(value = "profitability", key = "'category:' + #categorie")
-    public List<ProductProfitabilityDTO> getProductProfitabilityByCategory(String categorie) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
-            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
-            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
-            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
-            "FROM mv_product_profitability " +
-            "WHERE categorie = :categorie " +
-            "ORDER BY marge_brute DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorie", categorie);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
-
-    @Override
-    @Cacheable(value = "profitability", key = "'bcg:' + #bcgCategory")
-    public List<ProductProfitabilityDTO> getProductProfitabilityByBCGCategory(BCGCategory bcgCategory) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
-            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
-            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
-            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
-            "FROM mv_product_profitability " +
-            "WHERE bcg_category = :bcgCategory " +
-            "ORDER BY marge_brute DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("bcgCategory", bcgCategory.name());
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
-
-    @Override
-    @Cacheable(value = "profitability", key = "'top:' + #limit")
-    public List<ProductProfitabilityDTO> getTopProfitableProducts(int limit) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
-            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
-            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
-            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
-            "FROM mv_product_profitability " +
-            "ORDER BY marge_brute DESC " ;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setMaxResults(limit);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
-
-    @Override
-    @Cacheable(value = "profitability", key = "'lowMargin'")
-    public List<ProductProfitabilityDTO> getLowMarginProducts() {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
-            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
-            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
-            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
-            "FROM mv_product_profitability " +
-            "WHERE taux_marge_pct < 10 " +
-            "ORDER BY taux_marge_pct ";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
 
     @Override
     public ProfitabilitySummaryDTO getProfitabilitySummary() {
         String sql =
             "SELECT " +
-            "total_produits, ca_total_global, cout_achat_global, marge_brute_globale, taux_marge_moyen, " +
-            "nb_stars, nb_cash_cows, nb_question_marks, nb_dogs, " +
-            "ca_stars, ca_cash_cows, ca_question_marks, ca_dogs, " +
-            "marge_stars, marge_cash_cows, marge_question_marks, marge_dogs " +
-            "FROM mv_profitability_summary";
+                "total_produits, ca_total_global, cout_achat_global, marge_brute_globale, taux_marge_moyen, " +
+                "nb_stars, nb_cash_cows, nb_question_marks, nb_dogs, " +
+                "ca_stars, ca_cash_cows, ca_question_marks, ca_dogs, " +
+                "marge_stars, marge_cash_cows, marge_question_marks, marge_dogs " +
+                "FROM mv_profitability_summary";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -176,7 +84,6 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
             row[16] != null ? ((Number) row[16]).longValue() : 0L
         );
     }
-
 
 
     private List<ProductProfitabilityDTO> mapResultsToDTO(List<Object[]> results) {

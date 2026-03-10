@@ -16,17 +16,9 @@ public interface StockValuationReportService {
      */
     StockValuationSummaryDTO getStockValuationSummary();
 
-
-    /**
-     * Get total count of stock valuation records
-     *
-     * @return Total count
-     */
-    long getStockValuationCount();
-
     Page<StockValuationView> getStockValuationPaginated(Integer familleProduitId, Integer rayonId, Pageable pageable);
 
     List<StockValuationView> getStockValuation(Integer familleProduitId, Integer rayonId);
-
+    StockValuationSummaryDTO getStockValuationSummary(Integer familleProduitId, Integer rayonId);
 
 }

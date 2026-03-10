@@ -383,8 +383,8 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
 
     private String getSalesTypeLabel(String type) {
         return switch (type) {
-            case "VNO" -> "Vente au comptant";
-            case "VO" -> "Vente Ordonnance";
+            case "VNO" -> "VNO";
+            case "VO" -> "VO";
             default -> type;
         };
     }

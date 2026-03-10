@@ -11,13 +11,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,134 +41,11 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
 
     @Cacheable(value = "stockValuation", key = "'all'")
     public List<StockValuationView> getAllStockValuation() {
-        String sql =
-            "SELECT " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "categorie, " +
-                "stock_quantity, " +
-                "purchase_price, " +
-                "sales_price, " +
-                "total_purchase_value, " +
-                "total_sales_value, " +
-                "potential_margin, " +
-                "margin_percentage " +
-                "FROM mv_stock_valuation " +
-                "ORDER BY total_sales_value DESC";
+
         return mvStockValuationViewRepository.findAllByOrderByTotalSalesValueDesc().stream()
             .map(mv -> (StockValuationView) mv).toList();
     }
 
-
-    @Cacheable(value = "stockValuation", key = "'familleProduitId:' + #familleProduitId")
-    public List<StockValuationView> getStockValuationByCategory(Integer familleProduitId) {
-        String sql =
-            "SELECT " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "categorie, " +
-                "stock_quantity, " +
-                "purchase_price, " +
-                "sales_price, " +
-                "total_purchase_value, " +
-                "total_sales_value, " +
-                "potential_margin, " +
-                "margin_percentage " +
-                "FROM mv_stock_valuation " +
-                "WHERE categorie = :categorie " +
-                "ORDER BY total_sales_value DESC";
-
-
-        return mvStockValuationViewRepository.findAll(Specification.where(mvStockValuationViewRepository.filterByFamilleProduitId(familleProduitId)),
-                Sort.by(Sort.Direction.DESC, "totalSalesValue")).stream()
-            .map(mv -> (StockValuationView) mv).toList();
-    }
-
-
-    @Cacheable(value = "stockValuation", key = "'rayon:' + #rayonId")
-    public List<StockValuationView> getStockValuationByRayon(Integer rayonId) {
-        String sql =
-            "SELECT " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "categorie, " +
-                "rayon, " +
-                "stock_quantity, " +
-                "purchase_price, " +
-                "sales_price, " +
-                "total_purchase_value, " +
-                "total_sales_value, " +
-                "potential_margin, " +
-                "margin_percentage " +
-                "FROM mv_stock_valuation_by_rayon " +
-                "WHERE rayonId = :rayonId " +
-                "ORDER BY total_sales_value DESC";
-
-
-        return mvStockValuationRayonViewRepository.findAll(Specification.where(mvStockValuationRayonViewRepository.filterByRayonId(rayonId)),
-                Sort.by(Sort.Direction.DESC, "totalSalesValue")).stream()
-            .map(mv -> (StockValuationView) mv).toList();
-    }
-
-
-    public Page<StockValuationView> getStockValuationPaginated(Pageable pageable) {
-        String sql =
-            "SELECT " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "categorie, " +
-                "stock_quantity, " +
-                "purchase_price, " +
-                "sales_price, " +
-                "total_purchase_value, " +
-                "total_sales_value, " +
-                "potential_margin, " +
-                "margin_percentage " +
-                "FROM mv_stock_valuation " +
-                "ORDER BY total_sales_value DESC " +
-                "LIMIT :size OFFSET :offset";
-
-
-        return mvStockValuationViewRepository.findAllByOrderByTotalSalesValueDesc(pageable)
-            .map(mv -> (StockValuationView) mv);
-    }
-
-
-    public Page<StockValuationView> getStockValuationByRayonPaginated(Pageable pageable) {
-        String sql =
-            "SELECT " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "categorie, " +
-                "rayon, " +
-                "stock_quantity, " +
-                "purchase_price, " +
-                "sales_price, " +
-                "total_purchase_value, " +
-                "total_sales_value, " +
-                "potential_margin, " +
-                "margin_percentage " +
-                "FROM mv_stock_valuation_by_rayon " +
-                "ORDER BY total_sales_value DESC " +
-                "LIMIT :size OFFSET :offset";
-
-
-        return mvStockValuationRayonViewRepository.findAllByOrderByTotalSalesValueDesc(pageable)
-            .map(mv -> (StockValuationView) mv);
-    }
-
-    @Override
-    @Cacheable(value = "stockValuation", key = "'count'")
-    public long getStockValuationCount() {
-        String sql = "SELECT COUNT(distinct produit_id) FROM mv_stock_valuation";
-        Query query = entityManager.createNativeQuery(sql);
-        return ((Number) query.getSingleResult()).longValue();
-    }
 
     @Override
     public Page<StockValuationView> getStockValuationPaginated(Integer familleProduitId, Integer rayonId, Pageable pageable) {
@@ -191,10 +68,8 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     }
 
 
-
-
     @Override
-    public List<StockValuationView> getStockValuation(Integer familleProduitId, Integer rayonId){
+    public List<StockValuationView> getStockValuation(Integer familleProduitId, Integer rayonId) {
         boolean filterByFamille = Objects.nonNull(familleProduitId) && familleProduitId != 0;
         Sort sortBy = Sort.by(Sort.Direction.DESC, "totalSalesValue");
         if (Objects.nonNull(rayonId) && rayonId != 0) {
@@ -211,6 +86,58 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
         }
         return mvStockValuationViewRepository.findAll(
             sortBy).stream().map(mv -> (StockValuationView) mv).toList();
+    }
+
+    @Override
+    @Cacheable(value = "stockValuation", key = "'summary_' + #familleProduitId + '_' + #rayonId")
+    public StockValuationSummaryDTO getStockValuationSummary(Integer familleProduitId, Integer rayonId) {
+        boolean filterByFamille = Objects.nonNull(familleProduitId) && familleProduitId != 0;
+        boolean filterByRayon = Objects.nonNull(rayonId) && rayonId != 0;
+
+        String table = filterByRayon ? "mv_stock_valuation_by_rayon" : "mv_stock_valuation";
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT " +
+                "SUM(total_purchase_value), " +
+                "SUM(total_sales_value), " +
+                "SUM(potential_margin), " +
+                "AVG(margin_percentage), " +
+                "COUNT(*), " +
+                "SUM(stock_quantity) " +
+                "FROM " + table
+        );
+
+        if (filterByRayon || filterByFamille) {
+            sql.append(" WHERE");
+            boolean needAnd = false;
+            if (filterByRayon) {
+                sql.append(" rayon_id = :rayonId");
+                needAnd = true;
+            }
+            if (filterByFamille) {
+                if (needAnd) sql.append(" AND");
+                sql.append(" categorie_id = :familleProduitId");
+            }
+        }
+
+        Query query = entityManager.createNativeQuery(sql.toString());
+        if (filterByRayon) {
+            query.setParameter("rayonId", rayonId);
+        }
+        if (filterByFamille) {
+            query.setParameter("familleProduitId", familleProduitId);
+        }
+
+        Object[] result = (Object[]) query.getSingleResult();
+
+        return new StockValuationSummaryDTO(
+            result[0] != null ? ((Number) result[0]).longValue() : 0L,
+            result[1] != null ? ((Number) result[1]).longValue() : 0L,
+            result[2] != null ? ((Number) result[2]).longValue() : 0L,
+            result[3] != null ? new BigDecimal(result[3].toString()).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO,
+            result[4] != null ? ((Number) result[4]).intValue() : 0,
+            result[5] != null ? ((Number) result[5]).intValue() : 0
+        );
     }
 
     @Override

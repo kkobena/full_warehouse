@@ -69,6 +69,15 @@
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".ui.activity.DashboardActivity" />
 
+        <!-- Sold Products Activity -->
+        <activity
+            android:name=".ui.activity.SoldProductsActivity"
+            android:exported="false"
+            android:label="@string/sold_products_title"
+            android:screenOrientation="fullSensor"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.activity.DashboardActivity" />
+
         <!-- Product Detail Activity -->
         <activity
             android:name=".ui.activity.ProductDetailActivity"

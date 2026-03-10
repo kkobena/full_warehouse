@@ -64,7 +64,7 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     @Override
     @Transactional(readOnly = true)
     public Page<FamilleProduitDTO> findAll(String search, Pageable pageable) {
-        return familleProduitRepository.findAllByCodeOrLibelleContainingAllIgnoreCase(search, search, pageable).map(FamilleProduitDTO::new);
+        return familleProduitRepository.findAllByCodeOrLibelleContainingAllIgnoreCaseOrderByLibelleAsc(search, search, pageable).map(FamilleProduitDTO::new);
     }
 
     /**

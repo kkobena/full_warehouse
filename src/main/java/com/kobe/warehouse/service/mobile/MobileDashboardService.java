@@ -28,8 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MobileDashboardService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileDashboardService.class);
-    private static final int DAILY_TARGET_LOOKBACK_DAYS = 30;
-    private static final double DAILY_TARGET_GROWTH_FACTOR = 1.1;
+    private static final int LOOKBACK_DAYS = 30;
 
     private final MobileAlertService alertService;
     private final MobileSalesRepository salesRepository;
@@ -57,11 +56,11 @@ public class MobileDashboardService {
         // Calculate variation
         double variationPercent = calculateVariation(dailySummary.caTotal(), previousDaySummary.caTotal());
 
-        // Get daily target (calculated from historical average)
-        long dailyTarget = salesRepository.getDailyTarget(date, DAILY_TARGET_LOOKBACK_DAYS, DAILY_TARGET_GROWTH_FACTOR);
+        // Moyenne glissante des 30 derniers jours — référence contextuelle
+        long averageCA30j = salesRepository.getAverageCA(date, LOOKBACK_DAYS);
 
-        // Calculate progress percent
-        int progressPercent = dailyTarget > 0 ? (int) Math.min(100, (dailySummary.caTotal() * 100) / dailyTarget) : 0;
+        // Écart % entre le CA du jour et la moyenne glissante
+        double trendVs30j = calculateVariation(dailySummary.caTotal(), averageCA30j);
 
         // Get alerts summary
         List<MobileAlertDTO> alerts = alertService.getAlertsSummary();
@@ -74,9 +73,9 @@ public class MobileDashboardService {
 
         return new MobileDashboardDTO(
             dailySummary.caTotal(),
-            dailyTarget,
+            averageCA30j,
             variationPercent,
-            progressPercent,
+            trendVs30j,
             dailySummary.transactionsCount(),
             dailySummary.averageBasket(),
             dailySummary.customersCount(),

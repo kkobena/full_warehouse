@@ -2,7 +2,10 @@ package com.kobe.warehouse.service.mobile;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
-import com.kobe.warehouse.service.dto.mobile.*;
+import com.kobe.warehouse.service.dto.mobile.CashMovementDTO;
+import com.kobe.warehouse.service.dto.mobile.CategoryBalanceDTO;
+import com.kobe.warehouse.service.dto.mobile.MobileCashBalanceDTO;
+import com.kobe.warehouse.service.dto.mobile.PaymentModeBreakdownDTO;
 import com.kobe.warehouse.service.dto.records.Tuple;
 import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseService;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
@@ -63,9 +66,9 @@ public class MobileCashBalanceService {
     }
 
     private MobileCashBalanceDTO buildCashBalance(
-            LocalDate fromDate,
-            LocalDate toDate,
-            BalanceCaisseWrapper wrapper) {
+        LocalDate fromDate,
+        LocalDate toDate,
+        BalanceCaisseWrapper wrapper) {
 
         String periodLabel = buildPeriodLabel(fromDate, toDate);
 
@@ -137,7 +140,7 @@ public class MobileCashBalanceService {
         if (wrapper.getMontantMobileMoney() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
                 "MOBILE_MONEY",
-                "Mobile Money",
+                "Règlement mobile",
                 wrapper.getMontantMobileMoney(),
                 calculatePercent(wrapper.getMontantMobileMoney(), total),
                 PaymentModeBreakdownDTO.getColorForMode("MOBILE_MONEY")
@@ -166,8 +169,8 @@ public class MobileCashBalanceService {
             ));
         }
 
-        // Crédit
-        if (wrapper.getMontantCredit() > 0) {
+        long credit = wrapper.getMontantCredit() + wrapper.getMontantDiffere() + wrapper.getPartTiersPayant();
+        /*if (wrapper.getMontantCredit() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
                 "CREDIT",
                 "Crédit",
@@ -175,10 +178,10 @@ public class MobileCashBalanceService {
                 calculatePercent(wrapper.getMontantCredit(), total),
                 PaymentModeBreakdownDTO.getColorForMode("CREDIT")
             ));
-        }
+        }*/
 
         // Différé
-        if (wrapper.getMontantDiffere() > 0) {
+       /* if (wrapper.getMontantDiffere() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
                 "DIFFERE",
                 "Différé",
@@ -186,16 +189,16 @@ public class MobileCashBalanceService {
                 calculatePercent(wrapper.getMontantDiffere(), total),
                 PaymentModeBreakdownDTO.getColorForMode("DIFFERE")
             ));
-        }
+        }*/
 
         // Tiers payant
-        if (wrapper.getPartTiersPayant() > 0) {
+        if (credit > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "TIERS_PAYANT",
-                "Tiers payant",
-                wrapper.getPartTiersPayant(),
-                calculatePercent(wrapper.getPartTiersPayant(), total),
-                PaymentModeBreakdownDTO.getColorForMode("TIERS_PAYANT")
+                "CREDIT",
+                "Crédit",
+                credit,
+                calculatePercent(credit, total),
+                PaymentModeBreakdownDTO.getColorForMode("CREDIT")
             ));
         }
 
@@ -269,8 +272,8 @@ public class MobileCashBalanceService {
             return "Autre";
         }
         return switch (typeSale) {
-            case ThirdPartySales -> "Vente Ordonnance";
-            case CashSale -> "Vente Non Ordonnance";
+            case ThirdPartySales -> "VO";
+            case CashSale -> "VNO";
             case VenteDepot -> "Ventes Dépôts";
         };
     }

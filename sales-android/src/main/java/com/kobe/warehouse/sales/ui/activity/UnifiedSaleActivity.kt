@@ -72,6 +72,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
     private lateinit var customerSearchAdapter: com.kobe.warehouse.sales.ui.adapter.CustomerSearchAdapter
     private lateinit var tiersPayantsAdapter: com.kobe.warehouse.sales.ui.adapter.CustomerTiersPayantAdapter
     private var currentAdapterMode: Boolean? = null  // Track if adapter is in Assurance mode
+    private var isBottomBarExpanded = false
     private var tiersPayantsInitializedForCustomerId: Int? = null  // Guard against re-initialization loop
 
     companion object {
@@ -373,6 +374,11 @@ class UnifiedSaleActivity : AppCompatActivity() {
         binding.includeProductCart.headerCart.setOnClickListener {
             toggleCartExpansion()
         }
+
+        // Bottom bar expand/collapse
+        binding.headerBottomBar.setOnClickListener {
+            toggleBottomBarExpansion()
+        }
     }
 
     /**
@@ -409,6 +415,23 @@ class UnifiedSaleActivity : AppCompatActivity() {
             content.isVisible = true
             icon.setImageResource(R.drawable.ic_expand_less)
         }
+    }
+
+    /**
+     * Toggle Bottom Bar details expansion
+     */
+    private fun toggleBottomBarExpansion() {
+        val details = binding.bottomBarDetails
+        val icon = binding.ivExpandBottomBar
+
+        if (isBottomBarExpanded) {
+            details.isGone = true
+            icon.setImageResource(R.drawable.ic_expand_more)
+        } else {
+            details.isVisible = true
+            icon.setImageResource(R.drawable.ic_expand_less)
+        }
+        isBottomBarExpanded = !isBottomBarExpanded
     }
 
     private fun observeViewModel() {
@@ -511,6 +534,21 @@ class UnifiedSaleActivity : AppCompatActivity() {
         viewModel.products.observe(this) { products ->
             productAdapter.submitList(products)
             binding.includeProductCart.rvProductSearchResults.isVisible = products.isNotEmpty()
+            // Scroll so search results are visible above keyboard
+            if (products.isNotEmpty()) {
+                binding.includeProductCart.rvProductSearchResults.post {
+                    val scrollView = binding.nestedScrollView
+                    val targetView = binding.includeProductCart.rvProductSearchResults
+                    // Calculate absolute Y position of the results list within the scroll view
+                    val location = IntArray(2)
+                    targetView.getLocationInWindow(location)
+                    val scrollViewLocation = IntArray(2)
+                    scrollView.getLocationInWindow(scrollViewLocation)
+                    val relativeTop = location[1] - scrollViewLocation[1] + scrollView.scrollY
+                    // Scroll so the search field stays at the top of visible area
+                    scrollView.smoothScrollTo(0, relativeTop - scrollView.height / 3)
+                }
+            }
         }
 
         // Cart
@@ -518,7 +556,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
             cartAdapter.submitList(sale.salesLines)
 
             // Update totals and cart UI
-            binding.tvTotal.text = formatAmount(sale.salesAmount) + " FCFA"
+            binding.tvTotal.text = formatAmount(sale.salesAmount)
             updateTotalDetails(sale)
             binding.includeProductCart.tvCartItemCount.text = "${sale.salesLines.size}"
 
@@ -813,7 +851,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val hasTva = sale.taxAmount > 0
         binding.rowTva.isVisible = hasTva
         if (hasTva) {
-            binding.tvTva.text = "${formatAmount(sale.taxAmount)} FCFA"
+            binding.tvTva.text = "${formatAmount(sale.taxAmount)}"
         }
 
         // Remise is not available for assurance sales
@@ -823,7 +861,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val hasRemise = sale.discountAmount > 0 && !isAssurance
         binding.rowRemise.isVisible = hasRemise
         if (hasRemise) {
-            binding.tvRemise.text = "-${formatAmount(sale.discountAmount)} FCFA"
+            binding.tvRemise.text = "-${formatAmount(sale.discountAmount)}"
         }
 
         // Remise action row (add/edit/remove button)
@@ -866,7 +904,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                             android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
                             android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                         )
-                        text = "${formatAmount(tp.montant)} FCFA"
+                        text = "${formatAmount(tp.montant)}"
                         textSize = 13f
                         setTextColor(resources.getColor(R.color.text_secondary, theme))
                     }
@@ -900,7 +938,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                     )
-                    text = "${formatAmount(partTP)} FCFA"
+                    text = "${formatAmount(partTP)}"
                     textSize = 13f
                     setTextColor(resources.getColor(R.color.text_secondary, theme))
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
@@ -936,7 +974,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                     )
-                    text = "${formatAmount(partTP)} FCFA"
+                    text = "${formatAmount(partTP)}"
                     textSize = 13f
                     setTextColor(resources.getColor(R.color.text_secondary, theme))
                 }
@@ -946,13 +984,20 @@ class UnifiedSaleActivity : AppCompatActivity() {
                 binding.containerTiersPayantDetails.addView(row)
             }
 
-            // A payer row
-            binding.rowAmountToBePaid.isVisible = true
-            binding.tvAmountToBePaid.text = "${formatAmount(sale.amountToBePaid)} FCFA"
+            binding.tvAmountToBePaid.text = "${formatAmount(sale.amountToBePaid)}"
         } else {
             binding.containerTiersPayantDetails.isVisible = false
-            binding.rowAmountToBePaid.isVisible = false
         }
+
+        // A payer row — always visible (salesAmount for Comptant, amountToBePaid for Assurance/Carnet)
+        binding.rowAmountToBePaid.isVisible = true
+        val saleTypeForPay = viewModel.currentSaleType.value
+        val amountToPay = if (saleTypeForPay is SaleType.Assurance || saleTypeForPay is SaleType.Carnet) {
+            sale.amountToBePaid
+        } else {
+            sale.salesAmount
+        }
+        binding.tvAmountToBePaid.text = formatAmount(amountToPay)
     }
 
     private fun showAddToCartDialog(product: Product) {
@@ -984,7 +1029,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Ajouter au panier")
-            .setMessage("${product.libelle}\nPrix: ${formatAmount(product.regularUnitPrice)} FCFA")
+            .setMessage("${product.libelle}\nPrix: ${formatAmount(product.regularUnitPrice)}")
             .setView(inputLayout)
             .setPositiveButton("Ajouter") { dialog, which ->
                 val quantityText = etQuantity.text.toString()
@@ -2249,7 +2294,7 @@ class UnifiedSaleActivity : AppCompatActivity() {
         val dialogBinding = com.kobe.warehouse.sales.databinding.DialogProductPriceBinding.inflate(layoutInflater)
 
         dialogBinding.tvProductName.text = line.produitLibelle ?: "Produit"
-        dialogBinding.tvCurrentPrice.text = "Prix actuel : ${line.regularUnitPrice} FCFA"
+        dialogBinding.tvCurrentPrice.text = "Prix actuel : ${line.regularUnitPrice}"
         dialogBinding.etNewPrice.setText(line.regularUnitPrice.toString())
         dialogBinding.etNewPrice.selectAll()
 

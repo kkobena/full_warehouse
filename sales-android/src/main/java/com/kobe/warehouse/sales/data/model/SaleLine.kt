@@ -91,14 +91,14 @@ data class SaleLine(
    * Get formatted unit price
    */
   fun getFormattedUnitPrice(): String {
-    return "${formatAmount(regularUnitPrice)} FCFA"
+    return formatAmount(regularUnitPrice)
   }
 
   /**
    * Get formatted total amount
    */
   fun getFormattedTotal(): String {
-    return "${formatAmount(salesAmount)} FCFA"
+    return formatAmount(salesAmount)
   }
 
   /**

@@ -3,6 +3,8 @@ package com.kobe.warehouse.sales.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -46,6 +48,24 @@ class CustomerTiersPayantAdapter(
             binding.etNumeroBon.addTextChangedListener { text ->
                 if (!isUpdatingText && currentTiersPayant != null) {
                     onNumeroBonChanged(currentTiersPayant!!, text.toString())
+                }
+            }
+
+            // Auto-scroll when numBon gets focus so keyboard doesn't hide it
+            binding.etNumeroBon.setOnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) {
+                    // Delay to let keyboard appear first
+                    view.postDelayed({
+                        val scrollView = findParentScrollView(view)
+                        if (scrollView != null) {
+                            val offset = IntArray(2)
+                            view.getLocationInWindow(offset)
+                            val scrollOffset = IntArray(2)
+                            scrollView.getLocationInWindow(scrollOffset)
+                            val scrollTo = offset[1] - scrollOffset[1] + scrollView.scrollY - scrollView.height / 3
+                            scrollView.smoothScrollTo(0, scrollTo.coerceAtLeast(0))
+                        }
+                    }, 350)
                 }
             }
         }
@@ -93,6 +113,15 @@ class CustomerTiersPayantAdapter(
                 }
             }
         }
+    }
+
+    private fun findParentScrollView(view: View): NestedScrollView? {
+        var parent: ViewParent? = view.parent
+        while (parent != null) {
+            if (parent is NestedScrollView) return parent
+            parent = parent.parent
+        }
+        return null
     }
 
     private class TiersPayantDiffCallback : DiffUtil.ItemCallback<ClientTiersPayant>() {

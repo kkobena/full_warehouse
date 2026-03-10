@@ -1,33 +1,45 @@
 logging:
   level:
-    # === Logs applicatifs (métier) ===
+    root: WARN
+
+    # === Logs applicatifs (métier) : INFO pour les flux normaux, ERROR auto-inclus ===
     com.kobe.warehouse: INFO
 
-    # === Spring Framework ===
-    org.springframework: WARN
+    # === Spring : uniquement les erreurs critiques ===
+    org.springframework: ERROR
+    org.springframework.web: WARN                # 404, erreurs HTTP visibles
+    org.springframework.security: WARN           # tentatives d'accès refusées
+    org.springframework.boot.autoconfigure: ERROR
 
-    # === Hibernate / JPA ===
-    org.hibernate: TRACE
-    org.hibernate.SQL: TRACE
-    org.hibernate.type.descriptor.sql: TRACE
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    # === Hibernate / JPA : silencieux en prod ===
+    org.hibernate: ERROR
+    org.hibernate.SQL: OFF
+    org.hibernate.type: OFF
+    com.zaxxer.hikari: WARN                      # alertes pool de connexions (ex: timeout)
 
-    # === Transactions ===
-    org.springframework.transaction: TRACE
-    org.springframework.orm.jpa: TRACE
+    # === Serveur web ===
+    org.apache.catalina: ERROR
+    org.apache.coyote: ERROR
 
-    # === RMI / JMX (inutile en prod) ===
+    # === Utilitaires / bruit inutile ===
     javax.management.remote.rmi: OFF
+    org.reflections: OFF
+    springfox: OFF
+    io.swagger: OFF
 
-    # === Serveur web (Tomcat / Undertow) ===
-    org.apache.catalina: WARN
-
-
-
-
-  # Pattern de log avec timing
+  # --- Sortie console (prod : format compact lisible par un agrégateur de logs) ---
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} - %msg%n"
+
+  # --- Fichier de log rotatif (évite de saturer le disque) ---
+  file:
+    name: ./logs/pharma-smart.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: ./logs/pharma-smart.%d{yyyy-MM-dd}.%i.log.gz
+      max-file-size: 10MB      # rotation dès 10 Mo
+      max-history: 30          # 30 jours d'historique
+      total-size-cap: 500MB    # plafond global des archives
 
 spring:
   jmx:

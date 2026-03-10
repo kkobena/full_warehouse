@@ -4,64 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    app:cardElevation="1dp">
 
-    <LinearLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="6dp"
+        android:scrollbars="none">
 
-        <TextView
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSaleType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/type_vente"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="?attr/colorOnSurface" />
+            app:checkedChip="@id/chipComptant"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:scrollbars="none">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupSaleType"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipComptant"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:checkedChip="@id/chipComptant"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true">
+                android:text="@string/comptant"
+                app:chipIcon="@drawable/ic_cash" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipComptant"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/comptant"
-                    app:chipIcon="@drawable/ic_cash" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAssurance"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/assurance"
+                app:chipIcon="@drawable/ic_insurance" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAssurance"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/assurance"
-                    app:chipIcon="@drawable/ic_insurance" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCarnet"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/carnet"
+                app:chipIcon="@drawable/ic_credit_card" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipCarnet"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/carnet"
-                    app:chipIcon="@drawable/ic_credit_card" />
+        </com.google.android.material.chip.ChipGroup>
 
-            </com.google.android.material.chip.ChipGroup>
-
-        </HorizontalScrollView>
-
-    </LinearLayout>
+    </HorizontalScrollView>
 
 </com.google.android.material.card.MaterialCardView>

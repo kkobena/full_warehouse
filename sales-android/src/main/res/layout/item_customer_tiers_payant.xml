@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="6dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="2dp"
+    app:cardElevation="1dp"
     app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
@@ -14,9 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="8dp">
 
-        <!-- Header: Libellé + Rang (pour Assurance) + Bouton retirer (pour Assurance) -->
+        <!-- Line 1: Nom + Rang + Remove -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,51 +28,68 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="?attr/colorOnSurface"
                 tools:text="CNAM" />
 
-            <!-- Rang (visible uniquement pour Assurance) -->
+            <!-- Rang (Assurance only) -->
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipRang"
                 style="@style/Widget.Material3.Chip.Assist"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:textSize="11sp"
                 android:visibility="gone"
                 tools:text="R0"
                 tools:visibility="visible" />
 
-            <!-- Bouton retirer (visible uniquement pour Assurance) -->
+            <!-- Remove (Assurance only) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRemoveTiersPayant"
                 style="@style/Widget.Material3.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:minWidth="32dp"
+                android:minHeight="32dp"
                 android:visibility="gone"
                 app:icon="@drawable/ic_close"
+                app:iconSize="16dp"
                 app:iconTint="?attr/colorError"
                 tools:visibility="visible" />
 
         </LinearLayout>
 
-        <!-- Taux de couverture -->
+        <!-- Line 2: N° bon + Taux + Edit taux -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <TextView
+            <!-- Numéro de bon (takes remaining space) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNumeroBon"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Taux de couverture"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:layout_marginEnd="8dp"
+                android:hint="N° bon">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNumeroBon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textSize="13sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Taux -->
             <TextView
                 android:id="@+id/tvTauxCouverture"
                 android:layout_width="wrap_content"
@@ -82,37 +99,20 @@
                 android:textStyle="bold"
                 tools:text="80%" />
 
-            <!-- Bouton modifier taux (visible uniquement pour Assurance) -->
+            <!-- Modify taux (Assurance only) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnModifyTaux"
                 style="@style/Widget.Material3.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:minWidth="32dp"
+                android:minHeight="32dp"
                 android:visibility="gone"
                 app:icon="@drawable/ic_edit"
+                app:iconSize="16dp"
                 tools:visibility="visible" />
 
         </LinearLayout>
-
-        <!-- Numéro de bon -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilNumeroBon"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Numéro de bon">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etNumeroBon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionNext"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 

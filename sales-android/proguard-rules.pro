@@ -1,17 +1,23 @@
 # ===============================
-# Keep generic info (fix ParameterizedType crash)
+# Attributes (merged)
 # ===============================
--keepattributes Signature, InnerClasses, EnclosingMethod
+-keepattributes Signature, InnerClasses, EnclosingMethod, *Annotation*
 
-# Keep ALL app classes (prevents broken generics / reflection issues)
--keep class com.kobe.warehouse.sales.** { *; }
+# ===============================
+# Keep Parcelable implementations
+# ===============================
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
 
-# Keep all inner and anonymous classes
--keep class **$* { *; }
-
-# Keep all class members for reflection
--keepclassmembers class * {
-    *;
+# Keep Serializable classes
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
 }
 
 # ===============================
@@ -50,7 +56,6 @@
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
--keepattributes Signature, *Annotation*
 -dontwarn sun.misc.**
 
 # ===============================
@@ -58,25 +63,6 @@
 # ===============================
 -keep class com.kobe.warehouse.sales.data.model.** { *; }
 -keep class com.kobe.warehouse.sales.service.dto.** { *; }
--keep class com.kobe.warehouse.sales.data.model.auth.** { *; }
--keep class com.kobe.warehouse.sales.data.model.sales.** { *; }
-
--keepclassmembers class com.kobe.warehouse.sales.data.model.** {
-    <init>(...);
-    *;
-}
--keepclassmembers class com.kobe.warehouse.sales.service.dto.** {
-    <init>(...);
-    *;
-}
--keepclassmembers class com.kobe.warehouse.sales.data.model.auth.** {
-    <init>(...);
-    *;
-}
--keepclassmembers class com.kobe.warehouse.sales.data.model.sales.** {
-    <init>(...);
-    *;
-}
 
 # ===============================
 # Coroutines
@@ -132,3 +118,63 @@
 -dontwarn com.google.api.client.http.javanet.NetHttpTransport$Builder
 -dontwarn com.google.api.client.http.javanet.NetHttpTransport
 -dontwarn org.joda.time.Instant
+
+# ===============================
+# ZXing (QR Code)
+# ===============================
+-keep class com.google.zxing.** { *; }
+-keep class com.journeyapps.** { *; }
+-dontwarn com.google.zxing.**
+-dontwarn com.journeyapps.**
+
+# ===============================
+# Sunmi Printer
+# ===============================
+-keep class com.sunmi.** { *; }
+-keep class woyou.aidlservice.** { *; }
+-dontwarn com.sunmi.**
+-dontwarn woyou.aidlservice.**
+
+# ===============================
+# Coil (Image Loading)
+# ===============================
+-dontwarn coil.**
+-keep class coil.** { *; }
+
+# ===============================
+# Room Database
+# ===============================
+-keep class * extends androidx.room.RoomDatabase { *; }
+-keep @androidx.room.Entity class * { *; }
+-keep @androidx.room.Dao interface * { *; }
+-dontwarn androidx.room.**
+
+# ===============================
+# Navigation Component
+# ===============================
+-keep class androidx.navigation.** { *; }
+-dontwarn androidx.navigation.**
+
+# ===============================
+# Paging 3
+# ===============================
+-keep class androidx.paging.** { *; }
+-dontwarn androidx.paging.**
+
+# ===============================
+# DataBinding / ViewBinding
+# ===============================
+-keep class androidx.databinding.** { *; }
+-dontwarn androidx.databinding.**
+-keep class **databinding** { *; }
+-keep class **Binding { *; }
+-keep class **BR { *; }
+
+# ===============================
+# Kotlin (Reflection / Metadata)
+# ===============================
+-keep class kotlin.Metadata { *; }
+-keep class kotlin.reflect.** { *; }
+-dontwarn kotlin.**
+-dontwarn kotlinx.**
+

@@ -19,15 +19,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="12dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp"
             android:gravity="center_vertical"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_people"
                 android:contentDescription="Client"
                 app:tint="?attr/colorPrimary" />
@@ -36,15 +37,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="8dp"
                 android:text="Informations client"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="?attr/colorOnSurface" />
 
             <ImageView
                 android:id="@+id/ivExpandCustomerInfo"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_expand_less"
                 android:contentDescription="Replier/Déplier"
                 app:tint="?attr/colorOnSurfaceVariant" />
@@ -62,28 +63,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="8dp">
 
-            <!-- Informations client: Nom, Prénom, Matricule -->
+            <!-- Customer info compact -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="?attr/colorSurfaceVariant"
-                android:padding="12dp">
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="6dp">
 
+                <!-- Row 1: Nom Prénom -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Nom"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:id="@+id/tvCustomerLastName"
@@ -93,94 +89,96 @@
                         android:textStyle="bold"
                         tools:text="DUPONT" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal">
-
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Prénom"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
+                        android:text=" "
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                     <TextView
                         android:id="@+id/tvCustomerFirstName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textStyle="bold"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         tools:text="Jean" />
 
                 </LinearLayout>
 
+                <!-- Row 2: Matricule + Phone (inline) -->
                 <LinearLayout
-                    android:id="@+id/layoutMatricule"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:gravity="center_vertical">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Matricule"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
-
-                  <TextView
-                    android:id="@+id/tvCustomerMatricule"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textStyle="bold"
-                    tools:text="123456789" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layoutPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Téléphone"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
-
-                    <TextView
-                        android:id="@+id/tvCustomerPhone"
+                    <LinearLayout
+                        android:id="@+id/layoutMatricule"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textStyle="bold"
-                        tools:text="06 12 34 56 78" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mat: "
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvCustomerMatricule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="12dp"
+                            tools:text="123456789" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tél: "
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvCustomerPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textStyle="bold"
+                            tools:text="06 12 34 56 78" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
 
-            <!-- Section Ayant droit (visible uniquement pour Assurance) -->
+            <!-- Section Ayant droit (Assurance only) -->
             <LinearLayout
                 android:id="@+id/layoutAyantDroitSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -189,7 +187,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ayant droit (Bénéficiaire)"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textColor="?attr/colorPrimary" />
 
                 <!-- Ayant droit sélectionné -->
@@ -197,10 +195,11 @@
                     android:id="@+id/layoutSelectedAyantDroit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:background="?attr/colorSecondaryContainer"
                     android:orientation="horizontal"
-                    android:padding="8dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -214,8 +213,9 @@
                             android:id="@+id/tvAyantDroitName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                             android:textColor="?attr/colorOnSecondaryContainer"
+                            android:textStyle="bold"
                             tools:text="Marie DUPONT" />
 
                         <TextView
@@ -231,46 +231,50 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRemoveAyantDroit"
                         style="@style/Widget.Material3.Button.TextButton.Icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="40dp"
-                        android:minHeight="40dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:minWidth="32dp"
+                        android:minHeight="32dp"
                         app:icon="@drawable/ic_close"
-                        app:iconSize="18dp"
+                        app:iconSize="16dp"
                         app:iconTint="?attr/colorError" />
 
                 </LinearLayout>
 
-                <!-- Boutons pour gérer les ayants droits -->
+                <!-- Boutons ayants droits -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSelectAyantDroit"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="36dp"
                         android:layout_weight="1"
                         android:layout_marginEnd="4dp"
                         android:text="Sélectionner"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         app:icon="@drawable/ic_people"
-                        app:iconSize="18dp" />
+                        app:iconSize="16dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddAyantDroit"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="36dp"
                         android:layout_weight="1"
                         android:layout_marginStart="4dp"
                         android:text="Créer"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         app:icon="@drawable/ic_person_add"
-                        app:iconSize="18dp" />
+                        app:iconSize="16dp" />
 
                 </LinearLayout>
 
@@ -281,7 +285,7 @@
                 android:id="@+id/layoutTiersPayantsSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -297,30 +301,28 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Tiers Payants"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textColor="?attr/colorPrimary" />
 
-                    <!-- Bouton ajouter tiers payant (visible uniquement pour Assurance) -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddTiersPayant"
                         style="@style/Widget.Material3.Button.TextButton.Icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="40dp"
-                        android:minHeight="40dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:minWidth="32dp"
+                        android:minHeight="32dp"
                         android:visibility="gone"
                         app:icon="@drawable/ic_add"
-                        app:iconSize="18dp"
+                        app:iconSize="16dp"
                         tools:visibility="visible" />
 
                 </LinearLayout>
 
-                <!-- Liste des tiers payants -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvTiersPayants"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:nestedScrollingEnabled="false"
                     tools:itemCount="2"
                     tools:listitem="@layout/item_customer_tiers_payant" />

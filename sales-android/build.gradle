@@ -45,10 +45,20 @@ android {
 
   buildTypes {
     release {
-      minifyEnabled false
+      minifyEnabled true
+      shrinkResources true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.release
       debuggable false
+    }
+    staging {
+      initWith(buildTypes.debug)
+      minifyEnabled true
+      shrinkResources false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      signingConfig signingConfigs.debug
+      debuggable true
+      applicationIdSuffix ".staging"
     }
     internal {
       initWith(buildTypes.release)
@@ -76,9 +86,6 @@ android {
     compose = true
   }
 
-  composeOptions {
-    kotlinCompilerExtensionVersion = '1.5.15'
-  }
   buildToolsVersion '36.0.0'
   ndkVersion '26.3.11579264'
 }

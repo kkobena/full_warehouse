@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fragment WiX pour PharmaSmart.
+  Crée C:\ProgramData\PharmaSmart\ avec droits Modify pour Users,
+  et écrit config.json avec les chemins absolus résolus par Windows Installer.
+
+  Fonctionne quel que soit le dossier d'installation choisi par l'utilisateur :
+  les données (config, logs, rapports) sont toujours dans ProgramData,
+  indépendamment de l'emplacement des binaires.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Fragment>
+
+    <!-- ── Répertoires dans ProgramData ─────────────────────────────────── -->
+    <!--
+      On étend CommonAppDataFolder (= C:\ProgramData) qui est un ID standard
+      Windows Installer — pas besoin de re-déclarer TARGETDIR.
+    -->
+    <DirectoryRef Id="CommonAppDataFolder">
+      <Directory Id="PHARMASMARTDATA" Name="PharmaSmart">
+        <Directory Id="PS_LOGSDIR"     Name="logs"      />
+        <Directory Id="PS_REPORTSDIR"  Name="reports"   />
+        <Directory Id="PS_IMAGESDIR"   Name="images"    />
+        <Directory Id="PS_JSONDIR"     Name="json"      />
+        <Directory Id="PS_CSVDIR"      Name="csv"       />
+        <Directory Id="PS_EXCELDIR"    Name="excel"     />
+        <Directory Id="PS_PHARMAMLDIR" Name="pharmaml"  />
+      </Directory>
+    </DirectoryRef>
+
+    <!-- ── Composants : création des dossiers + droits Modify pour Users ── -->
+    <ComponentGroup Id="PharmaSmartDataDirs">
+
+      <Component Id="PS_C_DataRoot" Directory="PHARMASMARTDATA"
+                 Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes"
+                             ReadPermission="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Logs"     Directory="PS_LOGSDIR"
+                 Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Reports"  Directory="PS_REPORTSDIR"
+                 Guid="C3D4E5F6-A7B8-9012-CDEF-123456789012">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Images"   Directory="PS_IMAGESDIR"
+                 Guid="D4E5F6A7-B8C9-0123-DEF0-234567890123">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Json"     Directory="PS_JSONDIR"
+                 Guid="E5F6A7B8-C9D0-1234-EF01-345678901234">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Csv"      Directory="PS_CSVDIR"
+                 Guid="F6A7B8C9-D0E1-2345-F012-456789012345">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Excel"    Directory="PS_EXCELDIR"
+                 Guid="A7B8C9D0-E1F2-3456-0123-567890123456">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+      <Component Id="PS_C_Pharmaml" Directory="PS_PHARMAMLDIR"
+                 Guid="B8C9D0E1-F2A3-4567-1234-678901234567">
+        <CreateFolder>
+          <util:PermissionEx User="Users" Domain="[COMPUTERNAME]"
+                             GenericRead="yes" GenericWrite="yes"
+                             GenericExecute="yes" DeleteChild="yes" />
+        </CreateFolder>
+      </Component>
+
+    </ComponentGroup>
+
+    <!-- ── Action personnalisée : écriture de config.json ────────────────── -->
+    <!--
+      Type 34 (Exe depuis un répertoire) : plus simple et plus fiable que WixQuietExec.
+      [PHARMASMARTDATA] et [INSTALLDIR] sont résolus par Windows Installer
+      AVANT d'être passés à cmd.exe — quel que soit le dossier choisi par l'utilisateur.
+
+      [INSTALLDIR] peut se terminer par "\" ; on utilise des guillemets doubles
+      dans PowerShell pour les chemins (pas de problème avec les antislashs).
+
+      Return="ignore" : si PowerShell échoue (politique restrictive, etc.),
+      l'installation continue — le runtime Rust créera les dossiers et utilisera
+      ses valeurs par défaut.
+    -->
+    <CustomAction Id="PS_WriteConfigJson"
+                  Directory="PHARMASMARTDATA"
+                  ExeCommand="[SystemFolder]cmd.exe /C powershell.exe -NoProfile -ExecutionPolicy Bypass -Command &quot;$d=[System.Environment]::GetFolderPath('CommonApplicationData') + '\PharmaSmart'; $inst='[INSTALLDIR]'.TrimEnd('\'); $cfg = [ordered]@{ server=@{port=9080}; logging=@{directory=&quot;&quot;$d\logs&quot;&quot;;file=&quot;&quot;$d\logs\pharmasmart.log&quot;&quot;}; installation=@{directory=$inst}; jvm=@{heap_min='2g';heap_max='2g';metaspace_size='256m';metaspace_max='384m';direct_memory_size='384m';max_gc_pause_millis='200';additional_options=@()}; file=@{report=&quot;&quot;$d\reports&quot;&quot;;images=&quot;&quot;$d\images&quot;&quot;;import=@{json=&quot;&quot;$d\json&quot;&quot;;csv=&quot;&quot;$d\csv&quot;&quot;;excel=&quot;&quot;$d\excel&quot;&quot;};pharmaml=&quot;&quot;$d\pharmaml&quot;&quot;}; fne=@{url='';'api-key'='';'point-of-sale'=''}; mail=@{username='';email=''}; 'port-com'=''} | ConvertTo-Json -Depth 10 | Out-File -Encoding UTF8 &quot;&quot;$d\config.json&quot;&quot;&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <!-- Après InstallFiles : les dossiers existent, PHARMASMARTDATA est résolu -->
+      <Custom Action="PS_WriteConfigJson" After="InstallFiles">NOT Installed OR REINSTALL</Custom>
+    </InstallExecuteSequence>
+
+    <!-- ── Feature autonome pour les données PharmaSmart ─────────────────── -->
+    <!--
+      Feature séparée de la feature principale Tauri pour éviter les conflits d'ID.
+      Elle est toujours installée (Level="1") et non affichée dans l'UI (Display="hidden").
+    -->
+    <Feature Id="PS_DataFeature" Title="Données PharmaSmart" Level="1" Display="hidden">
+      <ComponentGroupRef Id="PharmaSmartDataDirs" />
+    </Feature>
+
+  </Fragment>
+
+</Wix>

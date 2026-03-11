@@ -122,10 +122,10 @@ fn default_pharmaml() -> String {
 
 // Default values for FNE configuration
 fn default_fne_url() -> String {
-    "http://54.247.95.108/ws/external/invoices/sign".to_string()
+    String::new()
 }
 fn default_fne_api_key() -> String {
-    "nSXimInFusKqICZaJ95QZvQT85FOZvHW".to_string()
+    String::new()
 }
 fn default_fne_point_of_sale() -> String {
     String::new()
@@ -133,10 +133,10 @@ fn default_fne_point_of_sale() -> String {
 
 // Default values for Mail configuration
 fn default_mail_username() -> String {
-    "easyshopws@gmail.com".to_string()
+    String::new()
 }
 fn default_mail_email() -> String {
-    "badoukobena@gmail.com".to_string()
+    String::new()
 }
 
 // Default value for Port-Com configuration
@@ -253,78 +253,91 @@ impl Default for AppConfig {
 }
 
 impl AppConfig {
-    /// Load configuration from file, falling back to default if file doesn't exist
-    pub fn load(app: &AppHandle) -> Self {
-        // Get the application installation directory (where the .exe is located)
-        let app_dir = std::env::current_exe()
-            .ok()
-            .and_then(|exe_path| {
-                let dir = exe_path.parent().map(|p| p.to_path_buf());
-                if let Some(ref d) = dir {
-                    println!("Using executable directory: {:?}", d);
-                }
-                dir
-            })
-            .or_else(|| {
-                app.path().resource_dir().ok().and_then(|resource_dir| {
-                    let dir = resource_dir.parent().map(|p| p.to_path_buf());
-                    if let Some(ref d) = dir {
-                        println!("Using resource directory parent: {:?}", d);
-                    }
-                    dir
-                })
-            })
-            .unwrap_or_else(|| {
-                let dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-                println!("Using current directory fallback: {:?}", dir);
-                dir
-            });
+    /// Return candidate directories for config.json, in priority order:
+    /// 1. $PROGRAMDATA\PharmaSmart  — written by the NSIS installer, writable by all users
+    ///    even when the app is installed in Program Files (no admin required at runtime).
+    /// 2. The directory containing the .exe — for dev builds and per-user installs.
+    fn config_search_dirs(app: &AppHandle) -> Vec<PathBuf> {
+        let mut dirs: Vec<PathBuf> = Vec::new();
 
-        // Try to load from installation directory first
-        let config_path = app_dir.join("config.json");
-
-        if config_path.exists() {
-            println!("Loading configuration from: {:?}", config_path);
-            if let Ok(config_str) = fs::read_to_string(&config_path) {
-                if let Ok(config) = serde_json::from_str::<AppConfig>(&config_str) {
-                    return config;
-                } else {
-                    eprintln!("Failed to parse config.json, using defaults");
-                }
-            } else {
-                eprintln!("Failed to read config.json, using defaults");
-            }
-        } else {
-            println!("config.json not found at {:?}", config_path);
-
-            // Try to copy default template from resources
-            if let Ok(resource_dir) = app.path().resource_dir() {
-                let default_config_path = resource_dir.join("config.default.json");
-
-                if default_config_path.exists() {
-                    // Create config with proper paths for this installation
-                    let default: AppConfig = Self::default_with_app_dir(&app_dir);
-
-                    // Save the default config to installation directory
-                    if let Ok(config_json) = serde_json::to_string_pretty(&default) {
-                        if fs::write(&config_path, config_json).is_ok() {
-                            return default;
-                        }
-                    }
-                }
-            }
-
-            println!("Using default configuration");
+        // Priority 1: $PROGRAMDATA\PharmaSmart (set by NSIS installer)
+        #[cfg(windows)]
+        if let Ok(program_data) = std::env::var("PROGRAMDATA") {
+            dirs.push(PathBuf::from(program_data).join("PharmaSmart"));
         }
 
-        // Fallback to default configuration with app directory
-        Self::default_with_app_dir(&app_dir)
+        // Priority 2: directory next to the executable (dev / per-user install)
+        if let Some(exe_dir) = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        {
+            dirs.push(exe_dir);
+        }
+
+        // Priority 3: resource directory parent (Tauri fallback)
+        if let Ok(resource_dir) = app.path().resource_dir() {
+            if let Some(parent) = resource_dir.parent() {
+                dirs.push(parent.to_path_buf());
+            }
+        }
+
+        dirs
     }
 
-    /// Create default configuration with custom app directory
-    fn default_with_app_dir(app_dir: &PathBuf) -> Self {
-        // Set log directory in the application installation directory
-        let log_dir = app_dir.join("logs");
+    /// Return the writable config directory: $PROGRAMDATA\PharmaSmart when available
+    /// (always writable, even for Program Files installs), otherwise the exe dir.
+    fn writable_config_dir(app: &AppHandle) -> PathBuf {
+        #[cfg(windows)]
+        {
+            if let Ok(program_data) = std::env::var("PROGRAMDATA") {
+                let dir = PathBuf::from(program_data).join("PharmaSmart");
+                // Try to create it if not present (first launch after manual install)
+                if fs::create_dir_all(&dir).is_ok() {
+                    return dir;
+                }
+            }
+        }
+
+        // Fallback: exe directory
+        std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+            .or_else(|| {
+                app.path()
+                    .resource_dir()
+                    .ok()
+                    .and_then(|r| r.parent().map(|p| p.to_path_buf()))
+            })
+            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
+    }
+
+    /// Load configuration from file, falling back to defaults if no file is found.
+    pub fn load(app: &AppHandle) -> Self {
+        let search_dirs = Self::config_search_dirs(app);
+
+        for dir in &search_dirs {
+            let config_path = dir.join("config.json");
+            if !config_path.exists() {
+                continue;
+            }
+            println!("Loading configuration from: {:?}", config_path);
+            match fs::read_to_string(&config_path) {
+                Ok(config_str) => match serde_json::from_str::<AppConfig>(&config_str) {
+                    Ok(config) => return config,
+                    Err(e) => eprintln!("Failed to parse {:?}: {} — trying next location", config_path, e),
+                },
+                Err(e) => eprintln!("Failed to read {:?}: {} — trying next location", config_path, e),
+            }
+        }
+
+        println!("No valid config.json found — using defaults");
+        let data_dir = Self::writable_config_dir(app);
+        Self::default_with_data_dir(&data_dir)
+    }
+
+    /// Create default configuration rooted at the given data directory.
+    fn default_with_data_dir(data_dir: &PathBuf) -> Self {
+        let log_dir = data_dir.join("logs");
         let log_file = log_dir.join("pharmasmart.log");
 
         Self {
@@ -334,7 +347,7 @@ impl AppConfig {
                 file: log_file.to_string_lossy().to_string(),
             },
             installation: InstallationConfig {
-                directory: app_dir.to_string_lossy().to_string(),
+                directory: data_dir.to_string_lossy().to_string(),
             },
             jvm: JvmConfig::default(),
             file: FileConfig::default(),
@@ -344,22 +357,21 @@ impl AppConfig {
         }
     }
 
-    /// Save configuration to file
+    /// Save configuration to the writable config directory.
+    /// Uses $PROGRAMDATA\PharmaSmart when available so the write never fails
+    /// due to Program Files write restrictions.
     pub fn save(&self, app: &AppHandle) -> Result<(), String> {
-        if let Ok(resource_dir) = app.path().resource_dir() {
-            let exe_dir = resource_dir.parent().unwrap_or(&resource_dir);
-            let config_path = exe_dir.join("config.json");
+        let config_dir = Self::writable_config_dir(app);
+        let config_path = config_dir.join("config.json");
 
-            let config_json = serde_json::to_string_pretty(self)
-                .map_err(|e| format!("Failed to serialize config: {}", e))?;
+        let config_json = serde_json::to_string_pretty(self)
+            .map_err(|e| format!("Failed to serialize config: {}", e))?;
 
-            fs::write(&config_path, config_json)
-                .map_err(|e| format!("Failed to write config to {:?}: {}", config_path, e))?;
+        fs::write(&config_path, config_json)
+            .map_err(|e| format!("Failed to write config to {:?}: {}", config_path, e))?;
 
-            Ok(())
-        } else {
-            Err("Failed to get resource directory".to_string())
-        }
+        println!("Configuration saved to {:?}", config_path);
+        Ok(())
     }
 
     /// Get the log file path as PathBuf

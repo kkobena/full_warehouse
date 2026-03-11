@@ -24,8 +24,8 @@ async fn restart_backend(app: tauri::AppHandle) -> Result<String, String> {
 
 /// Stop the Spring Boot backend
 #[tauri::command]
-fn stop_backend(app: tauri::AppHandle) -> Result<String, String> {
-    match backend_manager::stop_backend(&app) {
+async fn stop_backend(app: tauri::AppHandle) -> Result<String, String> {
+    match backend_manager::stop_backend(&app).await {
         Ok(_) => Ok("Backend stopped successfully".to_string()),
         Err(e) => Err(format!("Failed to stop backend: {}", e)),
     }

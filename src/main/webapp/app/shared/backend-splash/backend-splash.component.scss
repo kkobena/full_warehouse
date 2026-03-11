@@ -1,24 +1,25 @@
 .backend-splash-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 .backend-splash-container {
-  background: var(--surface-card);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  padding: 3rem;
-  max-width: 500px;
+  /* Couleurs explicites indépendantes du thème de l'app */
+  background: #ffffff;
+  border-radius: 16px;
+  border-top: 5px solid #2563eb;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding: 3rem 3.5rem;
+  max-width: 480px;
   width: 90%;
   text-align: center;
 }
@@ -26,98 +27,89 @@
 .backend-splash-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .backend-splash-icon {
-  color: var(--primary-color);
-  animation: pulse 2s ease-in-out infinite;
+  color: #2563eb;
 
-  .fa-spinner {
-    animation: spin 1s linear infinite;
+  /* fa-spin gère déjà la rotation ; on applique pulse uniquement aux icônes statiques */
+  &:not(:has(.fa-spin)) {
+    animation: pulse 2s ease-in-out infinite;
   }
 }
 
 .backend-splash-title {
-  color: var(--text-color);
+  color: #0f172a;
   margin: 0;
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .backend-splash-message {
-  color: var(--text-color-secondary);
+  color: #475569;
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-line; /* affiche les \n dans les messages d'erreur Java */
+  word-break: break-word;
+  max-height: 6rem;
+  overflow-y: auto;
 }
 
 .backend-splash-progress {
-  margin-top: 1rem;
-
   ::ng-deep .p-progressbar {
-    height: 1.5rem;
-    border-radius: 8px;
-    background: var(--surface-ground);
+    height: 1.375rem;
+    border-radius: 9999px;
+    background: #e2e8f0;
+    overflow: hidden;
 
     .p-progressbar-value {
-      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-400) 100%);
-      border-radius: 8px;
+      background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+      border-radius: 9999px;
+      transition: width 0.4s ease;
     }
 
     .p-progressbar-label {
-      color: white;
-      font-weight: 600;
-      line-height: 1.5rem;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1.375rem;
     }
   }
 }
 
 .backend-splash-error {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 1rem 1.25rem;
+  background: #fef2f2;
+  border-radius: 10px;
+  border: 1px solid #fca5a5;
 
   p {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     font-weight: 600;
+    color: #dc2626;
+    font-size: 0.95rem;
   }
 
   small {
     display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  button {
-    margin-top: 0.5rem;
+    color: #7f1d1d;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    white-space: pre-line;
+    word-break: break-all;
   }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
 }

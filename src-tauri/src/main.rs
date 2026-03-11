@@ -119,17 +119,14 @@ async fn restart_backend_main(app: tauri::AppHandle) -> Result<String, String> {
 
 #[cfg(feature = "bundled-backend")]
 #[tauri::command]
-fn stop_backend_main(app: tauri::AppHandle) -> Result<String, String> {
-    match backend_manager::stop_backend(&app) {
+async fn stop_backend_main(app: tauri::AppHandle) -> Result<String, String> {
+    match backend_manager::stop_backend(&app).await {
         Ok(_) => Ok("Backend stopped successfully".to_string()),
         Err(e) => Err(format!("Failed to stop backend: {}", e)),
     }
 }
 
 fn main() {
-    #[cfg(feature = "bundled-backend")]
-    const BACKEND_PORT: u16 = 9080;
-
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_http::init())
@@ -158,19 +155,15 @@ fn main() {
                 println!("Backend bundling is ENABLED");
 
                 // Initialize backend state
-                let backend_state = BackendState::new(BACKEND_PORT);
+                let backend_state = BackendState::new(9080);
                 app.manage(backend_state);
 
                 // Start the Spring Boot backend
                 let app_handle = app.handle().clone();
                 tauri::async_runtime::spawn(async move {
-                    match start_backend(&app_handle, BACKEND_PORT).await {
+                    match start_backend(&app_handle).await {
                         Ok(pid) => {
                             println!("Backend started successfully with PID: {}", pid);
-                            // Store the PID in state
-                            if let Some(state) = app_handle.try_state::<BackendState>() {
-                                *state.process_id.lock().unwrap() = Some(pid);
-                            }
                         }
                         Err(e) => {
                             eprintln!("Failed to start backend: {}", e);

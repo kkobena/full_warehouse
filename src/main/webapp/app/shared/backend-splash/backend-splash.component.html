@@ -2,33 +2,35 @@
   <div class="backend-splash-overlay">
     <div class="backend-splash-container">
       <div class="backend-splash-content">
-        <!-- Logo/Icon -->
+        <!-- Icône d'état -->
         <div class="backend-splash-icon">
           <i [ngClass]="getStatusIcon()" class="fa fa-3x"></i>
         </div>
 
-        <!-- Title -->
+        <!-- Titre -->
         <h2 class="backend-splash-title">{{ title }}</h2>
 
-        <!-- Status Message -->
+        <!-- Message d'état -->
         <p class="backend-splash-message">{{ status.message }}</p>
 
-        <!-- Progress Bar -->
+        <!-- Barre de progression -->
         @if (status.status !== 'error') {
           <div class="backend-splash-progress">
-            <p-progressBar [showValue]="true" [value]="status.progress" class="custom-progress-bar"></p-progressBar>
+            <p-progressBar [showValue]="true" [value]="status.progress" class="custom-progress-bar" />
           </div>
         }
 
-        <!-- Error Details -->
+        <!-- Détail en cas d'erreur -->
         @if (status.status === 'error') {
           <div class="backend-splash-error">
-            <p class="text-danger">
+            <p>
               <i class="fa fa-exclamation-triangle"></i>
-              Backend failed to start
+              Échec du démarrage du backend
             </p>
-            <small class="text-muted">{{ status.message }}</small>
-            <button type="button" class="btn btn-outline-danger btn-sm mt-3" (click)="close()"><i class="fa fa-times"></i> Close</button>
+            <small>{{ status.message }}</small>
+            <button type="button" class="btn btn-outline-light btn-sm mt-3" (click)="close()">
+              <i class="fa fa-times"></i> Fermer
+            </button>
           </div>
         }
       </div>

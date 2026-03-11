@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "PharmaSmart",
-  "version": "0.0.1",
-  "identifier": "com.kobe.warehouse",
+  "version": "0.2.3",
+ "identifier": "com.kobe.pharmasmart",
   "build": {
     "beforeDevCommand": "npm run start",
     "devUrl": "http://localhost:4200",
@@ -54,7 +54,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' tauri:; script-src 'self' 'unsafe-inline' 'unsafe-eval' tauri:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: tauri: asset: http://asset.localhost; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://localhost:* ws://localhost:* http://192.168.*:* ws://192.168.*:* http://10.*:* ws://10.*:*",
+      "csp": "default-src 'self' tauri:; script-src 'self' 'unsafe-inline' 'unsafe-eval' tauri:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: tauri: asset: http://asset.localhost; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://localhost:* ws://localhost:* http://*:* ws://*:*",
       "capabilities": ["default"]
     }
   }

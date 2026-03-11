@@ -58,11 +58,15 @@ fn get_backend_url() -> String {
     if let Ok(exe_dir) = std::env::current_exe() {
         if let Some(parent) = exe_dir.parent() {
             let config_path = parent.join("backend-url.txt");
-            if let Ok(url) = std::fs::read_to_string(&config_path) {
-                let trimmed = url.trim();
-                if !trimmed.is_empty() {
-                    println!("Using backend URL from config file: {}", trimmed);
-                    return trimmed.to_string();
+            if let Ok(content) = std::fs::read_to_string(&config_path) {
+                // Parse line by line: skip empty lines and comment lines (starting with '#')
+                let url = content
+                    .lines()
+                    .map(|l| l.trim())
+                    .find(|l| !l.is_empty() && !l.starts_with('#'));
+                if let Some(url) = url {
+                    println!("Using backend URL from config file: {}", url);
+                    return url.to_string();
                 }
             }
 

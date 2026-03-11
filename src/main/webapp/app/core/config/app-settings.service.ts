@@ -113,7 +113,6 @@ export class AppSettingsService {
       const tauriBackendUrl = await invoke<string>('get_backend_url_command');
 
       // Only update if not already set by user
-      const currentSettings = this.settingsSubject.value;
       const storedSettings = this.loadSettingsFromStorage();
 
       // If user hasn't manually set a different URL, use the Tauri backend URL

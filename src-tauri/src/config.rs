@@ -253,20 +253,26 @@ impl Default for AppConfig {
 }
 
 impl AppConfig {
+    /// Check whether a directory is actually writable by attempting to create a temp file.
+    fn is_dir_writable(dir: &PathBuf) -> bool {
+        let test = dir.join(".pharmasmart_write_test");
+        if fs::write(&test, b"").is_ok() {
+            let _ = fs::remove_file(&test);
+            true
+        } else {
+            false
+        }
+    }
+
     /// Return candidate directories for config.json, in priority order:
-    /// 1. $PROGRAMDATA\PharmaSmart  — written by the NSIS installer, writable by all users
-    ///    even when the app is installed in Program Files (no admin required at runtime).
-    /// 2. The directory containing the .exe — for dev builds and per-user installs.
+    /// 1. Exe directory             — original location, next to the sidecar JAR
+    /// 2. $PROGRAMDATA\PharmaSmart  — all-users Program Files installs (installer writes here)
+    /// 3. $APPDATA\PharmaSmart      — per-user installs without elevation
+    /// 4. resource_dir / its parent — Tauri fallback
     fn config_search_dirs(app: &AppHandle) -> Vec<PathBuf> {
         let mut dirs: Vec<PathBuf> = Vec::new();
 
-        // Priority 1: $PROGRAMDATA\PharmaSmart (set by NSIS installer)
-        #[cfg(windows)]
-        if let Ok(program_data) = std::env::var("PROGRAMDATA") {
-            dirs.push(PathBuf::from(program_data).join("PharmaSmart"));
-        }
-
-        // Priority 2: directory next to the executable (dev / per-user install)
+        // Priority 1: next to the exe (same level as the sidecar JAR — original behaviour)
         if let Some(exe_dir) = std::env::current_exe()
             .ok()
             .and_then(|p| p.parent().map(|p| p.to_path_buf()))
@@ -274,8 +280,21 @@ impl AppConfig {
             dirs.push(exe_dir);
         }
 
-        // Priority 3: resource directory parent (Tauri fallback)
+        // Priority 2: $PROGRAMDATA\PharmaSmart (all-users installer writes here when exe is read-only)
+        #[cfg(windows)]
+        if let Ok(program_data) = std::env::var("PROGRAMDATA") {
+            dirs.push(PathBuf::from(program_data).join("PharmaSmart"));
+        }
+
+        // Priority 3: $APPDATA\PharmaSmart (per-user NSIS install without elevation)
+        #[cfg(windows)]
+        if let Ok(app_data) = std::env::var("APPDATA") {
+            dirs.push(PathBuf::from(app_data).join("PharmaSmart"));
+        }
+
+        // Priority 4: resource_dir itself, then its parent (Tauri fallback)
         if let Ok(resource_dir) = app.path().resource_dir() {
+            dirs.push(resource_dir.clone());
             if let Some(parent) = resource_dir.parent() {
                 dirs.push(parent.to_path_buf());
             }
@@ -284,34 +303,59 @@ impl AppConfig {
         dirs
     }
 
-    /// Return the writable config directory: $PROGRAMDATA\PharmaSmart when available
-    /// (always writable, even for Program Files installs), otherwise the exe dir.
+    /// Return the first writable config directory, in priority order:
+    /// 1. Exe directory — original location, next to the sidecar JAR (most installs)
+    /// 2. $PROGRAMDATA\PharmaSmart — fallback for Program Files (read-only exe dir)
+    /// 3. $APPDATA\PharmaSmart     — fallback for per-user installs without elevation
+    ///
+    /// Each candidate is tested for actual write access (not just existence).
     fn writable_config_dir(app: &AppHandle) -> PathBuf {
+        // Candidate 1: next to the executable (same level as the sidecar JAR — original behaviour)
+        if let Some(exe_dir) = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        {
+            if Self::is_dir_writable(&exe_dir) {
+                return exe_dir;
+            }
+        }
+
+        // Candidates 2 & 3: Windows-only fallbacks when exe dir is read-only (Program Files)
         #[cfg(windows)]
         {
             if let Ok(program_data) = std::env::var("PROGRAMDATA") {
                 let dir = PathBuf::from(program_data).join("PharmaSmart");
-                // Try to create it if not present (first launch after manual install)
-                if fs::create_dir_all(&dir).is_ok() {
+                let _ = fs::create_dir_all(&dir);
+                if Self::is_dir_writable(&dir) {
+                    return dir;
+                }
+            }
+
+            if let Ok(app_data) = std::env::var("APPDATA") {
+                let dir = PathBuf::from(app_data).join("PharmaSmart");
+                if fs::create_dir_all(&dir).is_ok() && Self::is_dir_writable(&dir) {
                     return dir;
                 }
             }
         }
 
-        // Fallback: exe directory
-        std::env::current_exe()
+        // Last resort
+        app.path()
+            .resource_dir()
             .ok()
-            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
-            .or_else(|| {
-                app.path()
-                    .resource_dir()
-                    .ok()
-                    .and_then(|r| r.parent().map(|p| p.to_path_buf()))
-            })
+            .and_then(|r| r.parent().map(|p| p.to_path_buf()))
             .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
     }
 
     /// Load configuration from file, falling back to defaults if no file is found.
+    ///
+    /// On first launch (no config.json anywhere):
+    /// 1. Load `config.default.json` from the resource/exe directory if present —
+    ///    this preserves any user-tunable fields (server.port, jvm, fne, mail, port-com).
+    /// 2. Override path fields (logging, installation, file.*) with absolute paths
+    ///    resolved from `writable_config_dir()` so they are always valid.
+    /// 3. Save the resulting `config.json` to `writable_config_dir()` and also
+    ///    copy it next to the executable for easy discovery/editing.
     pub fn load(app: &AppHandle) -> Self {
         let search_dirs = Self::config_search_dirs(app);
 
@@ -330,27 +374,90 @@ impl AppConfig {
             }
         }
 
-        println!("No valid config.json found — using defaults");
+        println!("No config.json found — generating from config.default.json");
         let data_dir = Self::writable_config_dir(app);
-        Self::default_with_data_dir(&data_dir)
+        let config = Self::generate_from_default(app, &data_dir);
+
+        // Persist so the file is present on subsequent launches and for editing.
+        if let Ok(json) = serde_json::to_string_pretty(&config) {
+            let dest = data_dir.join("config.json");
+            if let Err(e) = fs::write(&dest, &json) {
+                eprintln!("Could not save config.json to {:?}: {}", dest, e);
+            } else {
+                println!("config.json generated at {:?}", dest);
+            }
+        }
+
+        config
+    }
+
+    /// Build a configuration by merging `config.default.json` (for user-tunable fields)
+    /// with absolute paths derived from `data_dir` (for path fields).
+    fn generate_from_default(app: &AppHandle, data_dir: &PathBuf) -> Self {
+        // Base: absolute paths from data_dir
+        let mut config = Self::default_with_data_dir(data_dir);
+
+        // Overlay: preserve user-tunable fields from config.default.json if present
+        let default_path = Self::find_default_config(app);
+        if let Some(path) = default_path {
+            if let Ok(text) = fs::read_to_string(&path) {
+                if let Ok(seed) = serde_json::from_str::<AppConfig>(&text) {
+                    config.server = seed.server;
+                    config.jvm    = seed.jvm;
+                    config.fne    = seed.fne;
+                    config.mail   = seed.mail;
+                    config.port_com = seed.port_com;
+                    println!("Merged user-tunable fields from {:?}", path);
+                }
+            }
+        }
+
+        config
+    }
+
+    /// Search for `config.default.json` in exe dir and resource dir.
+    fn find_default_config(app: &AppHandle) -> Option<PathBuf> {
+        let mut candidates: Vec<PathBuf> = Vec::new();
+
+        if let Some(exe_dir) = std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        {
+            candidates.push(exe_dir.join("config.default.json"));
+        }
+        if let Ok(res_dir) = app.path().resource_dir() {
+            candidates.push(res_dir.join("config.default.json"));
+        }
+
+        candidates.into_iter().find(|p| p.exists())
     }
 
     /// Create default configuration rooted at the given data directory.
+    /// All path fields are absolute so Spring Boot resolves them correctly
+    /// regardless of the working directory at launch time.
     fn default_with_data_dir(data_dir: &PathBuf) -> Self {
-        let log_dir = data_dir.join("logs");
-        let log_file = log_dir.join("pharmasmart.log");
+        let s = |p: PathBuf| p.to_string_lossy().to_string();
 
         Self {
             server: ServerConfig { port: 9080 },
             logging: LoggingConfig {
-                directory: log_dir.to_string_lossy().to_string(),
-                file: log_file.to_string_lossy().to_string(),
+                directory: s(data_dir.join("logs")),
+                file: s(data_dir.join("logs").join("pharmasmart.log")),
             },
             installation: InstallationConfig {
-                directory: data_dir.to_string_lossy().to_string(),
+                directory: s(data_dir.to_path_buf()),
             },
             jvm: JvmConfig::default(),
-            file: FileConfig::default(),
+            file: FileConfig {
+                report:  s(data_dir.join("reports")),
+                images:  s(data_dir.join("images")),
+                import: FileImportConfig {
+                    json:  s(data_dir.join("json")),
+                    csv:   s(data_dir.join("csv")),
+                    excel: s(data_dir.join("excel")),
+                },
+                pharmaml: s(data_dir.join("pharmaml")),
+            },
             fne: FneConfig::default(),
             mail: MailConfig::default(),
             port_com: default_port_com(),

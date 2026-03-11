@@ -128,9 +128,21 @@
                   Impersonate="no"
                   Return="ignore" />
 
+    <!-- Copy config.json to [INSTALLDIR] so it is visible next to the EXE
+         (config_search_dirs() Priority 2 = exe dir). Return="ignore" to not
+         block installation if the source does not exist yet (timing issue). -->
+    <CustomAction Id="PS_CopyConfigToInstDir"
+                  Directory="INSTALLDIR"
+                  ExeCommand="[SystemFolder]cmd.exe /C copy /Y &quot;[CommonAppDataFolder]PharmaSmart\config.json&quot; &quot;[INSTALLDIR]config.json&quot;"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
     <InstallExecuteSequence>
       <!-- Après InstallFiles : les dossiers existent, PHARMASMARTDATA est résolu -->
       <Custom Action="PS_WriteConfigJson" After="InstallFiles">NOT Installed OR REINSTALL</Custom>
+      <!-- Copie dans le dossier d'installation juste après la création dans ProgramData -->
+      <Custom Action="PS_CopyConfigToInstDir" After="PS_WriteConfigJson">NOT Installed OR REINSTALL</Custom>
     </InstallExecuteSequence>
 
     <!-- ── Feature autonome pour les données PharmaSmart ─────────────────── -->

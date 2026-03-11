@@ -4,15 +4,17 @@
 ; Default port — must match config.rs default (9080)
 !define DEFAULT_PORT "9080"
 
-; Shared data directory (writable by all users, survives app updates)
-!define PHARMASMART_DATA "$PROGRAMDATA\PharmaSmart"
+; Runtime variable: resolved at install time depending on install mode.
+; AllUsers  → $PROGRAMDATA\PharmaSmart  (requires icacls for runtime writes)
+; CurrentUser → $APPDATA\PharmaSmart     (always writable without elevation)
+Var PS_DataDir
 
 ; Initialize with default port
 !macro customInit
   StrCpy $BackendPort "${DEFAULT_PORT}"
 !macroend
 
-; Helper function to escape backslashes for JSON
+; Helper function to escape backslashes and quotes for JSON
 Function EscapeBackslashes
   Exch $0 ; Input string
   Push $1 ; Output string
@@ -49,72 +51,93 @@ Function EscapeBackslashes
   Exch $0
 FunctionEnd
 
-; Grant write access to Users on the PharmaSmart data directory.
-; Required so the app can write config.json at runtime without admin rights,
-; even when installed in C:\Program Files.
+; Grant Users modify rights on the all-users data directory.
+; Uses the well-known SID *S-1-5-32-545 instead of the localised "Users" name
+; so this works on French, English, and any other Windows locale.
 Function GrantDataDirPermissions
-  ; OI = Object Inherit, CI = Container Inherit, M = Modify
-  ExecWait 'icacls "${PHARMASMART_DATA}" /grant "Users:(OI)(CI)M" /T /Q'
-  DetailPrint "Permissions granted on ${PHARMASMART_DATA}"
+  ExecWait 'icacls "$PS_DataDir" /grant "*S-1-5-32-545:(OI)(CI)M" /T /Q'
+  DetailPrint "Permissions set on $PS_DataDir"
 FunctionEnd
 
-; Function to create config file and required directories
+; Resolve $PS_DataDir at runtime:
+;   - If $PROGRAMDATA\PharmaSmart is writable (all-users / admin install) → use it.
+;   - Otherwise (per-user install without elevation) → use $APPDATA\PharmaSmart.
+; This avoids relying on $MultiUser.InstallMode which may not be initialised yet.
+Function ResolveDataDir
+  CreateDirectory "$PROGRAMDATA\PharmaSmart"
+  ClearErrors
+  FileOpen $9 "$PROGRAMDATA\PharmaSmart\.write_test" w
+  ${If} ${Errors}
+    ; Cannot write to ProgramData — per-user install without elevation
+    StrCpy $PS_DataDir "$APPDATA\PharmaSmart"
+    DetailPrint "Per-user install detected: using $APPDATA\PharmaSmart"
+  ${Else}
+    FileClose $9
+    Delete "$PROGRAMDATA\PharmaSmart\.write_test"
+    StrCpy $PS_DataDir "$PROGRAMDATA\PharmaSmart"
+    DetailPrint "All-users install detected: using $PROGRAMDATA\PharmaSmart"
+  ${EndIf}
+FunctionEnd
+
+; Create all required subdirectories, config.json, and copy it to $INSTDIR.
 Function CreateConfigFile
-  DetailPrint "Creating data directory and configuration files..."
+  Call ResolveDataDir
+  DetailPrint "Creating data directory: $PS_DataDir"
 
-  ; Create shared data directory (ProgramData — accessible by all Windows users)
-  CreateDirectory "${PHARMASMART_DATA}"
-  CreateDirectory "${PHARMASMART_DATA}\logs"
-  CreateDirectory "${PHARMASMART_DATA}\reports"
-  CreateDirectory "${PHARMASMART_DATA}\images"
-  CreateDirectory "${PHARMASMART_DATA}\json"
-  CreateDirectory "${PHARMASMART_DATA}\csv"
-  CreateDirectory "${PHARMASMART_DATA}\excel"
-  CreateDirectory "${PHARMASMART_DATA}\pharmaml"
+  CreateDirectory "$PS_DataDir"
+  CreateDirectory "$PS_DataDir\logs"
+  CreateDirectory "$PS_DataDir\reports"
+  CreateDirectory "$PS_DataDir\images"
+  CreateDirectory "$PS_DataDir\json"
+  CreateDirectory "$PS_DataDir\csv"
+  CreateDirectory "$PS_DataDir\excel"
+  CreateDirectory "$PS_DataDir\pharmaml"
 
-  ; Grant Users modify rights so the app can write without admin
-  Call GrantDataDirPermissions
+  ; Grant Modify rights only when installed in ProgramData (protected location).
+  ${If} $PS_DataDir == "$PROGRAMDATA\PharmaSmart"
+    Call GrantDataDirPermissions
+  ${EndIf}
 
   ; Escape paths for JSON
-  Push "${PHARMASMART_DATA}\logs"
+  Push "$PS_DataDir\logs"
   Call EscapeBackslashes
-  Pop $0 ; logs dir
+  Pop $0 ; logs dir (JSON-safe)
 
-  Push "${PHARMASMART_DATA}\logs\pharmasmart.log"
+  Push "$PS_DataDir\logs\pharmasmart.log"
   Call EscapeBackslashes
-  Pop $1 ; log file
+  Pop $1 ; log file (JSON-safe)
 
   Push "$INSTDIR"
   Call EscapeBackslashes
-  Pop $2 ; install dir
+  Pop $2 ; install dir (JSON-safe)
 
-  Push "${PHARMASMART_DATA}\reports"
+  Push "$PS_DataDir\reports"
   Call EscapeBackslashes
   Pop $R0
 
-  Push "${PHARMASMART_DATA}\images"
+  Push "$PS_DataDir\images"
   Call EscapeBackslashes
   Pop $R1
 
-  Push "${PHARMASMART_DATA}\json"
+  Push "$PS_DataDir\json"
   Call EscapeBackslashes
   Pop $R2
 
-  Push "${PHARMASMART_DATA}\csv"
+  Push "$PS_DataDir\csv"
   Call EscapeBackslashes
   Pop $R3
 
-  Push "${PHARMASMART_DATA}\excel"
+  Push "$PS_DataDir\excel"
   Call EscapeBackslashes
   Pop $R4
 
-  Push "${PHARMASMART_DATA}\pharmaml"
+  Push "$PS_DataDir\pharmaml"
   Call EscapeBackslashes
   Pop $R5
 
-  ; Write config.json to the shared data dir (writable at runtime without admin)
-  DetailPrint "Writing config.json to ${PHARMASMART_DATA}..."
-  FileOpen $3 "${PHARMASMART_DATA}\config.json" w
+  ; Write config.json to the data directory
+  DetailPrint "Writing $PS_DataDir\config.json..."
+  FileOpen $3 "$PS_DataDir\config.json" w
   FileWrite $3 "{$\r$\n"
 
   ; server
@@ -174,31 +197,40 @@ Function CreateConfigFile
 
   FileWrite $3 "}$\r$\n"
   FileClose $3
+  DetailPrint "config.json written to $PS_DataDir"
 
-  DetailPrint "Configuration created at ${PHARMASMART_DATA}\config.json"
+  ; Copy config.json to $INSTDIR so it is visible next to the executable.
+  ; config_search_dirs() (config.rs) falls back to the exe dir when the
+  ; primary location is not readable.
+  DetailPrint "Copying config.json to $INSTDIR..."
+  CopyFiles /SILENT "$PS_DataDir\config.json" "$INSTDIR\config.json"
 FunctionEnd
 
 ; Custom install section — called after files are installed
 !macro customInstall
+  ; ResolveDataDir is called inside CreateConfigFile
   Call CreateConfigFile
 
   MessageBox MB_OK|MB_ICONINFORMATION \
-    "Installation terminee avec succes!$\r$\n$\r$\nDonnees de l'application:$\r$\n\
-${PHARMASMART_DATA}$\r$\n$\r$\nConfiguration par defaut:$\r$\n\
+    "Installation terminee avec succes!$\r$\n$\r$\nDossier de donnees:$\r$\n\
+$PS_DataDir$\r$\n$\r$\nConfiguration par defaut:$\r$\n\
 - Port du serveur: ${DEFAULT_PORT}$\r$\n\
-- Logs: ${PHARMASMART_DATA}\logs\pharmasmart.log$\r$\n$\r$\n\
+- Logs: $PS_DataDir\logs\pharmasmart.log$\r$\n$\r$\n\
 Pour personnaliser (port, FNE, mail, port serie):$\r$\n\
-Editez ${PHARMASMART_DATA}\config.json,$\r$\n\
+Editez $PS_DataDir\config.json,$\r$\n\
 puis redemarrez l'application."
 !macroend
 
 ; Clean up data directory on uninstall (optional — asks user)
 !macro customUninstall
+  ; Re-detect data directory (same write-test logic as install time)
+  Call ResolveDataDir
+
   MessageBox MB_YESNO|MB_ICONQUESTION \
     "Supprimer les donnees de l'application (config, logs, rapports) ?$\r$\n\
-${PHARMASMART_DATA}" \
+$PS_DataDir" \
     IDYES remove_data IDNO skip_data
   remove_data:
-    RMDir /r "${PHARMASMART_DATA}"
+    RMDir /r "$PS_DataDir"
   skip_data:
 !macroend

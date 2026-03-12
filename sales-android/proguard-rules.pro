@@ -1,180 +1,168 @@
-# ===============================
-# Attributes (merged)
-# ===============================
--keepattributes Signature, InnerClasses, EnclosingMethod, *Annotation*
+# ============================================================================
+# ProGuard rules for Pharma Smart Sales Android App
+# ============================================================================
 
-# ===============================
-# Keep Parcelable implementations
-# ===============================
--keep class * implements android.os.Parcelable {
-    public static final android.os.Parcelable$Creator *;
+# ----------------------------------------------------------------------------
+# Kotlin
+# ----------------------------------------------------------------------------
+-dontwarn kotlin.**
+-keep class kotlin.Metadata { *; }
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
 }
-
-# Keep Serializable classes
--keepclassmembers class * implements java.io.Serializable {
-    static final long serialVersionUID;
-    private static final java.io.ObjectStreamField[] serialPersistentFields;
-    private void writeObject(java.io.ObjectOutputStream);
-    private void readObject(java.io.ObjectInputStream);
-    java.lang.Object writeReplace();
-    java.lang.Object readResolve();
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
 }
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 
-# ===============================
-# Retrofit
-# ===============================
--dontwarn retrofit2.**
--dontwarn org.codehaus.mojo.**
--keep class retrofit2.** { *; }
+# ----------------------------------------------------------------------------
+# Gson / JSON Serialization
+# Keep all data classes used for API requests/responses
+# ----------------------------------------------------------------------------
 
--keepclasseswithmembers class * {
-    @retrofit2.http.* <methods>;
-}
+# Keep all data classes in the model package
+-keep class com.kobe.warehouse.sales.data.model.** { *; }
+-keepclassmembers class com.kobe.warehouse.sales.data.model.** { *; }
 
--keepclasseswithmembers interface * {
-    @retrofit2.* <methods>;
-}
+# Keep all data classes in the api package
+-keep class com.kobe.warehouse.sales.data.api.** { *; }
+-keepclassmembers class com.kobe.warehouse.sales.data.api.** { *; }
 
-# Keep the AuthApiService and its methods
--keep,allowobfuscation,allowshrinking class com.kobe.warehouse.sales.data.api.AuthApiService {
-    <methods>;
-}
+# Keep Gson annotations
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+-keepattributes Exceptions
 
-# ===============================
-# OkHttp
-# ===============================
--dontwarn okhttp3.**
--dontwarn okio.**
--dontwarn javax.annotation.**
--dontwarn org.conscrypt.**
--keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
-
-# ===============================
-# Gson
-# ===============================
+# Gson specific classes
+-dontwarn sun.misc.**
 -keep class com.google.gson.** { *; }
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
--dontwarn sun.misc.**
 
-# ===============================
-# Project Models / DTOs
-# ===============================
--keep class com.kobe.warehouse.sales.data.model.** { *; }
--keep class com.kobe.warehouse.sales.service.dto.** { *; }
-
-# ===============================
-# Coroutines
-# ===============================
--keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
--keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepclassmembernames class kotlinx.** {
-    volatile <fields>;
+# Prevent R8 from stripping interface information from TypeAdapter, TypeAdapterFactory,
+# JsonSerializer, JsonDeserializer instances, and classes with @SerializedName
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# ===============================
-# Lifecycle / LiveData
-# ===============================
--keep class * implements androidx.lifecycle.LifecycleObserver {
-    <init>(...);
-}
--keep class * implements androidx.lifecycle.GeneratedAdapter {
-    <init>(...);
-}
--keepclassmembers class ** {
-    @androidx.lifecycle.OnLifecycleEvent *;
+# ----------------------------------------------------------------------------
+# Retrofit
+# ----------------------------------------------------------------------------
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+
+# Keep Retrofit service interfaces
+-keep,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
 }
 
-# ===============================
-# ViewModels
-# ===============================
--keep class * extends androidx.lifecycle.ViewModel { *; }
+# ----------------------------------------------------------------------------
+# OkHttp
+# ----------------------------------------------------------------------------
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-keep class okio.** { *; }
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
-# ===============================
-# EncryptedSharedPreferences
-# ===============================
+# ----------------------------------------------------------------------------
+# Room Database
+# ----------------------------------------------------------------------------
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao interface *
+-dontwarn androidx.room.paging.**
+
+# ----------------------------------------------------------------------------
+# AndroidX / Jetpack
+# ----------------------------------------------------------------------------
+-keep class androidx.** { *; }
+-keep interface androidx.** { *; }
+-dontwarn androidx.**
+
+# ----------------------------------------------------------------------------
+# Security Crypto (EncryptedSharedPreferences)
+# ----------------------------------------------------------------------------
 -keep class androidx.security.crypto.** { *; }
 -keep class com.google.crypto.tink.** { *; }
+-dontwarn com.google.crypto.tink.**
 
-# ===============================
-# Remove logging in release builds
-# ===============================
--assumenosideeffects class android.util.Log {
-    public static *** d(...);
-    public static *** v(...);
-    public static *** i(...);
-}
-
-# ===============================
-# Google HTTP client / Joda
-# ===============================
--dontwarn com.google.api.client.http.GenericUrl
--dontwarn com.google.api.client.http.HttpHeaders
--dontwarn com.google.api.client.http.HttpRequest
--dontwarn com.google.api.client.http.HttpRequestFactory
--dontwarn com.google.api.client.http.HttpResponse
--dontwarn com.google.api.client.http.HttpTransport
--dontwarn com.google.api.client.http.javanet.NetHttpTransport$Builder
--dontwarn com.google.api.client.http.javanet.NetHttpTransport
--dontwarn org.joda.time.Instant
-
-# ===============================
-# ZXing (QR Code)
-# ===============================
--keep class com.google.zxing.** { *; }
--keep class com.journeyapps.** { *; }
--dontwarn com.google.zxing.**
--dontwarn com.journeyapps.**
-
-# ===============================
+# ----------------------------------------------------------------------------
 # Sunmi Printer
-# ===============================
+# ----------------------------------------------------------------------------
 -keep class com.sunmi.** { *; }
 -keep class woyou.aidlservice.** { *; }
 -dontwarn com.sunmi.**
 -dontwarn woyou.aidlservice.**
 
-# ===============================
+# ----------------------------------------------------------------------------
+# ZXing (QR Code / Barcode scanning)
+# ----------------------------------------------------------------------------
+-keep class com.google.zxing.** { *; }
+-keep class com.journeyapps.** { *; }
+-dontwarn com.google.zxing.**
+-dontwarn com.journeyapps.**
+
+# ----------------------------------------------------------------------------
 # Coil (Image Loading)
-# ===============================
--dontwarn coil.**
+# ----------------------------------------------------------------------------
 -keep class coil.** { *; }
+-dontwarn coil.**
 
-# ===============================
-# Room Database
-# ===============================
--keep class * extends androidx.room.RoomDatabase { *; }
--keep @androidx.room.Entity class * { *; }
--keep @androidx.room.Dao interface * { *; }
--dontwarn androidx.room.**
-
-# ===============================
+# ----------------------------------------------------------------------------
 # Navigation Component
-# ===============================
+# ----------------------------------------------------------------------------
 -keep class androidx.navigation.** { *; }
 -dontwarn androidx.navigation.**
 
-# ===============================
+# ----------------------------------------------------------------------------
 # Paging 3
-# ===============================
+# ----------------------------------------------------------------------------
 -keep class androidx.paging.** { *; }
 -dontwarn androidx.paging.**
 
-# ===============================
+# ----------------------------------------------------------------------------
 # DataBinding / ViewBinding
-# ===============================
+# ----------------------------------------------------------------------------
 -keep class androidx.databinding.** { *; }
 -dontwarn androidx.databinding.**
 -keep class **databinding** { *; }
 -keep class **Binding { *; }
 -keep class **BR { *; }
 
-# ===============================
-# Kotlin (Reflection / Metadata)
-# ===============================
--keep class kotlin.Metadata { *; }
--keep class kotlin.reflect.** { *; }
--dontwarn kotlin.**
--dontwarn kotlinx.**
+# ----------------------------------------------------------------------------
+# General Android
+# ----------------------------------------------------------------------------
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
 
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+# Keep enums
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Keep ViewModels
+-keep class * extends androidx.lifecycle.ViewModel { *; }
+
+# ----------------------------------------------------------------------------
+# Debugging - Keep line numbers for crash reports
+# ----------------------------------------------------------------------------
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

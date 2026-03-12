@@ -9,6 +9,7 @@ import com.kobe.warehouse.sales.data.repository.SalesRepository
 import com.kobe.warehouse.sales.data.repository.UserRepository
 import com.kobe.warehouse.sales.utils.TokenManager
 
+
 /**
  * ViewModelFactory for SalesHomeViewModel
  */

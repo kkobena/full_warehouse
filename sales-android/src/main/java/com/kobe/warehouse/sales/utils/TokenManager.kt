@@ -2,11 +2,13 @@ package com.kobe.warehouse.sales.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.kobe.warehouse.sales.data.model.ServerConfig
 import com.kobe.warehouse.sales.data.model.auth.JwtTokenResponse
 import androidx.core.content.edit
+import java.security.GeneralSecurityException
 
 /**
  * Token Manager for secure JWT token storage
@@ -16,6 +18,7 @@ import androidx.core.content.edit
 class TokenManager(context: Context) {
 
     companion object {
+        private const val TAG = "TokenManager"
         private const val PREFS_NAME = "pharma_smart_secure_prefs"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
@@ -36,16 +39,27 @@ class TokenManager(context: Context) {
         private const val AUTHORITY_DELIMITER = ","
     }
 
-    private val sharedPreferences: SharedPreferences
+    private var sharedPreferences: SharedPreferences
 
     init {
+        sharedPreferences = try {
+            createEncryptedSharedPreferences(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create EncryptedSharedPreferences, clearing and retrying", e)
+            // If creation fails (e.g., AEADBadTagException), clear the preferences and try again
+            clearEncryptedSharedPreferences(context)
+            createEncryptedSharedPreferences(context)
+        }
+    }
+
+    private fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
         // Create master key for encryption
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
         // Create encrypted shared preferences
-        sharedPreferences = EncryptedSharedPreferences.create(
+        return EncryptedSharedPreferences.create(
             context,
             PREFS_NAME,
             masterKey,
@@ -54,17 +68,37 @@ class TokenManager(context: Context) {
         )
     }
 
+    private fun clearEncryptedSharedPreferences(context: Context) {
+        try {
+            // Delete the shared preferences file
+            val sharedPrefsFile = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            sharedPrefsFile.edit().clear().apply()
+
+            // On some versions of Android, we might also need to delete the file manually
+            // or use context.deleteSharedPreferences(PREFS_NAME) if available (API 24+)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                context.deleteSharedPreferences(PREFS_NAME)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to clear corrupted SharedPreferences", e)
+        }
+    }
+
     /**
      * Store JWT tokens from login response
      */
     fun storeTokens(tokenResponse: JwtTokenResponse) {
-        sharedPreferences.edit().apply {
-            putString(KEY_ACCESS_TOKEN, tokenResponse.accessToken)
-            putString(KEY_REFRESH_TOKEN, tokenResponse.refreshToken)
-            putString(KEY_TOKEN_TYPE, tokenResponse.tokenType)
-            putLong(KEY_EXPIRES_IN, tokenResponse.expiresIn)
-            putLong(KEY_EXPIRATION_TIMESTAMP, tokenResponse.getExpirationTimestamp())
-            apply()
+        try {
+            sharedPreferences.edit().apply {
+                putString(KEY_ACCESS_TOKEN, tokenResponse.accessToken)
+                putString(KEY_REFRESH_TOKEN, tokenResponse.refreshToken)
+                putString(KEY_TOKEN_TYPE, tokenResponse.tokenType)
+                putLong(KEY_EXPIRES_IN, tokenResponse.expiresIn)
+                putLong(KEY_EXPIRATION_TIMESTAMP, tokenResponse.getExpirationTimestamp())
+                apply()
+            }
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -72,21 +106,36 @@ class TokenManager(context: Context) {
      * Get access token
      */
     fun getAccessToken(): String? {
-        return sharedPreferences.getString(KEY_ACCESS_TOKEN, null)
+        return try {
+            sharedPreferences.getString(KEY_ACCESS_TOKEN, null)
+        } catch (e: Exception) {
+            handleException(e)
+            null
+        }
     }
 
     /**
      * Get refresh token
      */
     fun getRefreshToken(): String? {
-        return sharedPreferences.getString(KEY_REFRESH_TOKEN, null)
+        return try {
+            sharedPreferences.getString(KEY_REFRESH_TOKEN, null)
+        } catch (e: Exception) {
+            handleException(e)
+            null
+        }
     }
 
     /**
      * Get token type (usually "Bearer")
      */
     fun getTokenType(): String {
-        return sharedPreferences.getString(KEY_TOKEN_TYPE, "Bearer") ?: "Bearer"
+        return try {
+            sharedPreferences.getString(KEY_TOKEN_TYPE, "Bearer") ?: "Bearer"
+        } catch (e: Exception) {
+            handleException(e)
+            "Bearer"
+        }
     }
 
     /**
@@ -102,8 +151,13 @@ class TokenManager(context: Context) {
      * Check if token is expired
      */
     fun isTokenExpired(): Boolean {
-        val expirationTimestamp = sharedPreferences.getLong(KEY_EXPIRATION_TIMESTAMP, 0)
-        return System.currentTimeMillis() >= expirationTimestamp
+        return try {
+            val expirationTimestamp = sharedPreferences.getLong(KEY_EXPIRATION_TIMESTAMP, 0)
+            System.currentTimeMillis() >= expirationTimestamp
+        } catch (e: Exception) {
+            handleException(e)
+            true
+        }
     }
 
     /**
@@ -118,13 +172,17 @@ class TokenManager(context: Context) {
      * Clear all tokens (logout)
      */
     fun clearTokens() {
-        sharedPreferences.edit().apply {
-            remove(KEY_ACCESS_TOKEN)
-            remove(KEY_REFRESH_TOKEN)
-            remove(KEY_TOKEN_TYPE)
-            remove(KEY_EXPIRES_IN)
-            remove(KEY_EXPIRATION_TIMESTAMP)
-            apply()
+        try {
+            sharedPreferences.edit().apply {
+                remove(KEY_ACCESS_TOKEN)
+                remove(KEY_REFRESH_TOKEN)
+                remove(KEY_TOKEN_TYPE)
+                remove(KEY_EXPIRES_IN)
+                remove(KEY_EXPIRATION_TIMESTAMP)
+                apply()
+            }
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -132,16 +190,20 @@ class TokenManager(context: Context) {
      * Store remember me preference and credentials
      */
     fun storeRememberMe(username: String, password: String, rememberMe: Boolean) {
-        sharedPreferences.edit().apply {
-            putBoolean(KEY_REMEMBER_ME, rememberMe)
-            if (rememberMe) {
-                putString(KEY_USERNAME, username)
-                putString(KEY_PASSWORD, password)
-            } else {
-                remove(KEY_USERNAME)
-                remove(KEY_PASSWORD)
+        try {
+            sharedPreferences.edit().apply {
+                putBoolean(KEY_REMEMBER_ME, rememberMe)
+                if (rememberMe) {
+                    putString(KEY_USERNAME, username)
+                    putString(KEY_PASSWORD, password)
+                } else {
+                    remove(KEY_USERNAME)
+                    remove(KEY_PASSWORD)
+                }
+                apply()
             }
-            apply()
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -149,90 +211,123 @@ class TokenManager(context: Context) {
      * Get remember me preference
      */
     fun getRememberMe(): Boolean {
-        return sharedPreferences.getBoolean(KEY_REMEMBER_ME, false)
+        return try {
+            sharedPreferences.getBoolean(KEY_REMEMBER_ME, false)
+        } catch (e: Exception) {
+            handleException(e)
+            false
+        }
     }
 
     /**
      * Get saved username
      */
     fun getSavedUsername(): String? {
-        return sharedPreferences.getString(KEY_USERNAME, null)
+        return try {
+            sharedPreferences.getString(KEY_USERNAME, null)
+        } catch (e: Exception) {
+            handleException(e)
+            null
+        }
     }
 
     /**
      * Get saved password
      */
     fun getSavedPassword(): String? {
-        return sharedPreferences.getString(KEY_PASSWORD, null)
+        return try {
+            sharedPreferences.getString(KEY_PASSWORD, null)
+        } catch (e: Exception) {
+            handleException(e)
+            null
+        }
     }
 
     /**
      * Clear all data (logout completely)
      */
     fun clearAll() {
-        sharedPreferences.edit { clear() }
+        try {
+            sharedPreferences.edit { clear() }
+        } catch (e: Exception) {
+            handleException(e)
+        }
     }
 
     /**
      * Save server configuration
      */
     fun saveServerConfig(config: ServerConfig) {
-        sharedPreferences.edit().apply {
-            putString(KEY_SERVER_URL, config.serverUrl)
-            putString(KEY_SERVER_PROTOCOL, config.protocol)
-            putString(KEY_SERVER_HOST, config.host)
-            putString(KEY_SERVER_PORT, config.port)
-            putInt(KEY_RECEIPT_ROLL_SIZE, config.receiptRollSize)
-            apply()
+        try {
+            sharedPreferences.edit().apply {
+                putString(KEY_SERVER_URL, config.serverUrl)
+                putString(KEY_SERVER_PROTOCOL, config.protocol)
+                putString(KEY_SERVER_HOST, config.host)
+                putString(KEY_SERVER_PORT, config.port)
+                putInt(KEY_RECEIPT_ROLL_SIZE, config.receiptRollSize)
+                apply()
+            }
+        } catch (e: Exception) {
+            handleException(e)
         }
-
     }
 
     /**
      * Get server configuration
      */
     fun getServerConfig(): ServerConfig {
-        val serverUrl = sharedPreferences.getString(KEY_SERVER_URL, null)
-        val rollSize = sharedPreferences.getInt(KEY_RECEIPT_ROLL_SIZE, 58)
+        return try {
+            val serverUrl = sharedPreferences.getString(KEY_SERVER_URL, null)
+            val rollSize = sharedPreferences.getInt(KEY_RECEIPT_ROLL_SIZE, 58)
 
-        val config = if (serverUrl != null) {
-            val protocol = sharedPreferences.getString(KEY_SERVER_PROTOCOL, "http") ?: "http"
-            val host = sharedPreferences.getString(KEY_SERVER_HOST, "10.0.2.2") ?: "10.0.2.2"
-            val port = sharedPreferences.getString(KEY_SERVER_PORT, "9080") ?: "9080"
-            ServerConfig(serverUrl, protocol, host, port, rollSize)
-        } else {
+            if (serverUrl != null) {
+                val protocol = sharedPreferences.getString(KEY_SERVER_PROTOCOL, "http") ?: "http"
+                val host = sharedPreferences.getString(KEY_SERVER_HOST, "10.0.2.2") ?: "10.0.2.2"
+                val port = sharedPreferences.getString(KEY_SERVER_PORT, "9080") ?: "9080"
+                ServerConfig(serverUrl, protocol, host, port, rollSize)
+            } else {
+                ServerConfig.default()
+            }
+        } catch (e: Exception) {
+            handleException(e)
             ServerConfig.default()
         }
-
-        return config
     }
 
     /**
      * Get receipt roll size
      */
     fun getReceiptRollSize(): Int {
-        return sharedPreferences.getInt(KEY_RECEIPT_ROLL_SIZE, 58)
+        return try {
+            sharedPreferences.getInt(KEY_RECEIPT_ROLL_SIZE, 58)
+        } catch (e: Exception) {
+            handleException(e)
+            58
+        }
     }
 
     /**
      * Get base URL for API
      */
     fun getBaseUrl(): String {
-        val baseUrl = getServerConfig().getBaseUrl()
-        return baseUrl
+        return getServerConfig().getBaseUrl()
     }
 
     /**
      * Store user authorities (permissions)
      */
     fun storeAuthorities(authorities: List<String>?) {
-        sharedPreferences.edit().apply {
-            if (authorities.isNullOrEmpty()) {
-                remove(KEY_USER_AUTHORITIES)
-            } else {
-                putString(KEY_USER_AUTHORITIES, authorities.joinToString(AUTHORITY_DELIMITER))
+        try {
+            sharedPreferences.edit().apply {
+                if (authorities.isNullOrEmpty()) {
+                    remove(KEY_USER_AUTHORITIES)
+                } else {
+                    putString(KEY_USER_AUTHORITIES, authorities.joinToString(AUTHORITY_DELIMITER))
+                }
+                apply()
             }
-            apply()
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -240,11 +335,16 @@ class TokenManager(context: Context) {
      * Get stored user authorities
      */
     fun getAuthorities(): List<String> {
-        val authoritiesString = sharedPreferences.getString(KEY_USER_AUTHORITIES, null)
-        return if (authoritiesString.isNullOrEmpty()) {
+        return try {
+            val authoritiesString = sharedPreferences.getString(KEY_USER_AUTHORITIES, null)
+            if (authoritiesString.isNullOrEmpty()) {
+                emptyList()
+            } else {
+                authoritiesString.split(AUTHORITY_DELIMITER)
+            }
+        } catch (e: Exception) {
+            handleException(e)
             emptyList()
-        } else {
-            authoritiesString.split(AUTHORITY_DELIMITER)
         }
     }
 
@@ -260,16 +360,19 @@ class TokenManager(context: Context) {
      * Note: Backend uses Integer for user IDs
      */
     fun storeUserId(userId: Int?) {
-
-        sharedPreferences.edit().apply {
-            if (userId != null) {
-                putInt(KEY_USER_ID, userId)
-                android.util.Log.d("TokenManager", "User ID stored successfully: $userId")
-            } else {
-                remove(KEY_USER_ID)
-                android.util.Log.d("TokenManager", "User ID removed (null)")
+        try {
+            sharedPreferences.edit().apply {
+                if (userId != null) {
+                    putInt(KEY_USER_ID, userId)
+                    Log.d(TAG, "User ID stored successfully: $userId")
+                } else {
+                    remove(KEY_USER_ID)
+                    Log.d(TAG, "User ID removed (null)")
+                }
+                apply()
             }
-            apply()
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -278,29 +381,34 @@ class TokenManager(context: Context) {
      * Returns null if not stored
      */
     fun getUserId(): Int? {
-        val containsKey = sharedPreferences.contains(KEY_USER_ID)
-        val userId = if (containsKey) {
-            sharedPreferences.getInt(KEY_USER_ID, 0)
-        } else {
+        return try {
+            val containsKey = sharedPreferences.contains(KEY_USER_ID)
+            if (containsKey) {
+                sharedPreferences.getInt(KEY_USER_ID, 0)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            handleException(e)
             null
         }
-        android.util.Log.d("TokenManager", "=== GET USER ID ===")
-        android.util.Log.d("TokenManager", "getUserId: contains KEY_USER_ID = $containsKey")
-        android.util.Log.d("TokenManager", "getUserId: returning = $userId")
-        return userId
     }
 
     /**
      * Store user full name
      */
     fun storeUserFullName(fullName: String?) {
-        sharedPreferences.edit().apply {
-            if (fullName != null) {
-                putString(KEY_USER_FULL_NAME, fullName)
-            } else {
-                remove(KEY_USER_FULL_NAME)
+        try {
+            sharedPreferences.edit().apply {
+                if (fullName != null) {
+                    putString(KEY_USER_FULL_NAME, fullName)
+                } else {
+                    remove(KEY_USER_FULL_NAME)
+                }
+                apply()
             }
-            apply()
+        } catch (e: Exception) {
+            handleException(e)
         }
     }
 
@@ -308,6 +416,23 @@ class TokenManager(context: Context) {
      * Get stored user full name
      */
     fun getUserFullName(): String? {
-        return sharedPreferences.getString(KEY_USER_FULL_NAME, null)
+        return try {
+            sharedPreferences.getString(KEY_USER_FULL_NAME, null)
+        } catch (e: Exception) {
+            handleException(e)
+            null
+        }
+    }
+
+    /**
+     * Handles exceptions that occur during SharedPreferences operations.
+     * If a GeneralSecurityException (like AEADBadTagException) occurs,
+     * it might mean the encryption keys are corrupted.
+     */
+    private fun handleException(e: Exception) {
+        Log.e(TAG, "Exception during SharedPreferences operation", e)
+        // We could potentially re-initialize here if needed, but for now just log it.
+        // If it's a security exception, it will likely keep failing until the app is restarted
+        // and init {} block runs again to clear the corrupted prefs.
     }
 }

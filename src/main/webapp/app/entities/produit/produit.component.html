@@ -67,8 +67,9 @@
 
             <div class="pharma-compact-search">
               <p-iconfield>
-                <p-inputicon class="pi pi-search"/>
-                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..." type="text"/>
+                <p-inputicon class="pi pi-search" />
+                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..."
+                       type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -77,11 +78,12 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <p-splitbutton [model]="splitbuttons" [raised]="true" icon="pi pi-upload" label="Importation"
-                             severity="help"/>
+              <p-splitbutton [model]="splitbuttons" [raised]="true" icon="pi pi-upload"
+                             label="Importation"
+                             severity="help" />
 
               <p-button [raised]="true" [routerLink]="['/produit/new']"
-                        icon="pi pi-plus" label="Nouveau" severity="success" type="button"/>
+                        icon="pi pi-plus" label="Nouveau" severity="success" type="button" />
 
             </div>
           </div>
@@ -91,13 +93,15 @@
 
     <div class="mt-2">
       @if (produits && produits.length > 0) {
-        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table" dataKey="id">
+        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table"
+                 dataKey="id">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width: 1.5rem"></th>
               <th style="width: 7%">Cip</th>
               <th style="width: 11%">Code EAN</th>
-              <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
+              <th style="width: 24%"><span
+                jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
               <th style="text-align: right; width: 5%"><span
                 jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
@@ -133,11 +137,11 @@
               <td>
                 <div class="pharma-product-name">{{ produit.libelle }}</div>
               </td>
-              <td style="text-align: right"
-                  class="amount-column"
-                  [class.stock-negatif]="produit.totalQuantity <= 0"
+              <td [class.stock-negatif]="produit.totalQuantity <= 0"
+                  [class.stock-positif]="produit.totalQuantity > 0 && produit.totalQuantity >= produit.qtySeuilMini"
                   [class.stock-warning]="produit.totalQuantity > 0 && produit.totalQuantity < produit.qtySeuilMini"
-                  [class.stock-positif]="produit.totalQuantity >= produit.qtySeuilMini">
+                  class="amount-column"
+                  style="text-align: right">
                 <span class="pharma-stock-value">{{ produit.totalQuantity | number }}</span>
               </td>
 
@@ -157,18 +161,19 @@
                 <span class="pharma-qty-value">{{ produit.stockReassort | number }}</span>
               </td>
               <td>
-                <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="true"></jhi-eta-produit>
+                <jhi-eta-produit [etatProduit]="produit.etatProduit"
+                                 [showLabel]="true"></jhi-eta-produit>
               </td>
               <td class="text-right">
                 <p-buttonGroup>
                   <p-button
-                    size="small"
                     [rounded]="true"
                     [routerLink]="['/produit', produit.id, 'view']"
                     [text]="true"
                     icon="pi pi-eye"
                     pTooltip="Voir détail"
                     severity="info"
+                    size="small"
                     tooltipPosition="left"
                     type="button"
                   />
@@ -180,9 +185,9 @@
                       [routerLink]="['/produit', produit.id, 'edit']"
                       [text]="true"
                       icon="pi pi-pencil"
-                      size="small"
                       pTooltip="Editer"
                       severity="success"
+                      size="small"
                       tooltipPosition="left"
                       type="button"
                     />
@@ -192,10 +197,10 @@
                       (click)="editDetail(produit)"
                       [rounded]="true"
                       [text]="true"
-                      size="small"
                       icon="pi pi-pencil"
                       pTooltip="Editer"
                       severity="primary"
+                      size="small"
                       tooltipPosition="left"
                       type="button"
                     />
@@ -206,10 +211,10 @@
                     (click)="addPrixReference(produit)"
                     [rounded]="true"
                     [text]="true"
-                    size="small"
                     icon="pi pi-cart-plus"
                     pTooltip="Ajouter des prix de référence"
                     severity="secondary"
+                    size="small"
                     tooltipPosition="left"
                     type="button"
                   />
@@ -222,11 +227,11 @@
                     <p-button
                       (click)="addDetail(produit)"
                       [rounded]="true"
-                      size="small"
                       [text]="true"
                       icon="pi pi-plus"
                       pTooltip="Ajouter un détail"
                       severity="help"
+                      size="small"
                       tooltipPosition="left"
                       type="button"
                     />
@@ -237,10 +242,10 @@
                       (click)="decondition(produit)"
                       [rounded]="true"
                       [text]="true"
-                      size="small"
                       icon="pi pi-wrench"
                       pTooltip="Déconditionner"
                       severity="secondary"
+                      size="small"
                       tooltipPosition="left"
                       type="button"
                     />
@@ -271,7 +276,8 @@
                     <div class="col-12 col-lg-4">
                       <div class="card data-card h-100">
                         <div class="card-header compact-header primary-header">
-                          <h6 class="card-title m-0"><i class="pi pi-info-circle me-2"></i>Infos Générales</h6>
+                          <h6 class="card-title m-0"><i class="pi pi-info-circle me-2"></i>Infos
+                            Générales</h6>
                         </div>
                         <div class="card-body p-2">
                           <div class="info-grid">
@@ -281,11 +287,13 @@
                             </div>
                             <div class="info-item">
                               <span class="info-label">Dern. vente</span>
-                              <span class="info-value">{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy' }}</span>
+                              <span
+                                class="info-value">{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy' }}</span>
                             </div>
                             <div class="info-item">
                               <span class="info-label">Création</span>
-                              <span class="info-value">{{ elRow?.createdAt | date: 'dd/MM/yyyy' }}</span>
+                              <span
+                                class="info-value">{{ elRow?.createdAt | date: 'dd/MM/yyyy' }}</span>
                             </div>
                             <div class="info-item">
                               <span class="info-label">Péremption</span>
@@ -294,11 +302,13 @@
 
                             <div class="info-item">
                               <span class="info-label">Entrée stock</span>
-                              <span class="info-value">{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy' }}</span>
+                              <span
+                                class="info-value">{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy' }}</span>
                             </div>
                             <div class="info-item">
                               <span class="info-label">Inventaire</span>
-                              <span class="info-value">{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy' }}</span>
+                              <span
+                                class="info-value">{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy' }}</span>
                             </div>
                             <div class="info-item">
                               <span class="info-label">TVA</span>
@@ -319,7 +329,8 @@
                             </div>
                             <div class="info-item">
                               <span class="info-label">Rayon</span>
-                              <span class="info-value">{{ elRow?.rayonProduits?.[0]?.libelleRayon }}</span>
+                              <span
+                                class="info-value">{{ elRow?.rayonProduits?.[0]?.libelleRayon }}</span>
                             </div>
 
                             <div class="info-item">
@@ -342,23 +353,25 @@
                       <div class="col-12 col-md-6 col-lg-4">
                         <div class="card data-card h-100">
                           <div class="card-header compact-header secondary-header">
-                            <h6 class="card-title m-0"><i class="pi pi-box me-2"></i>Répartition & Transfert de Stock
+                            <h6 class="card-title m-0"><i class="pi pi-box me-2"></i>Répartition &
+                              Transfert de Stock
                             </h6>
                             @if (elRow?.stockProduits?.length === 1) {
                               <p-button
-                                [rounded]="true"
-                                [outlined]="true"
                                 (click)="openFormStockProduit(elRow)"
+                                [outlined]="true"
+                                [rounded]="true"
                                 icon="pi pi-plus"
+                                pTooltip="Ajouter stock réserve"
                                 severity="help"
                                 size="small"
                                 tooltipPosition="left"
-                                pTooltip="Ajouter stock réserve"
                               />
                             }
                           </div>
                           <div class="card-body p-0">
-                            <p-table [value]="elRow?.stockProduits" class="pharma-table compact-table">
+                            <p-table [value]="elRow?.stockProduits"
+                                     class="pharma-table compact-table">
                               <ng-template #header>
                                 <tr class="pharma-table-head">
                                   <th>Stockage</th>
@@ -394,7 +407,8 @@
                                     </td>
                                   } @else {
                                     <td class="text-end">
-                                      <span class="pharma-qty-value">{{ stock.totalStockQuantity | number }}</span>
+                                      <span
+                                        class="pharma-qty-value">{{ stock.totalStockQuantity | number }}</span>
                                     </td>
                                   }
 
@@ -405,20 +419,20 @@
                                         [rounded]="true"
                                         [text]="true"
                                         icon="pi pi-sync"
-                                        severity="info"
-                                        tooltipPosition="left"
                                         pTooltip="Transfert de stock"
+                                        severity="info"
                                         size="small"
+                                        tooltipPosition="left"
                                       />
                                       <p-button
+                                        (click)="onEditStock(elRow, stock)"
                                         [rounded]="true"
                                         [text]="true"
-                                        (click)="onEditStock(elRow, stock)"
                                         icon="pi pi-pencil"
-                                        severity="success"
-                                        tooltipPosition="left"
                                         pTooltip="Modifier"
+                                        severity="success"
                                         size="small"
+                                        tooltipPosition="left"
                                       />
                                     </p-buttonGroup>
                                   </td>
@@ -433,20 +447,22 @@
                       <div class="col-12 col-md-6 col-lg-4">
                         <div class="card data-card h-100">
                           <div class="card-header compact-header info-header">
-                            <h6 class="card-title m-0"><i class="pi pi-truck me-2"></i>Fournisseurs</h6>
+                            <h6 class="card-title m-0"><i class="pi pi-truck me-2"></i>Fournisseurs
+                            </h6>
                             <p-button
                               (click)="addFournisseur(elRow)"
-                              [rounded]="true"
                               [outlined]="true"
+                              [rounded]="true"
                               icon="pi pi-plus"
+                              pTooltip="Ajouter un fournisseur"
                               severity="info"
                               size="small"
-                              pTooltip="Ajouter un fournisseur"
                               tooltipPosition="left"
                             />
                           </div>
                           <div class="card-body p-0">
-                            <p-table [value]="elRow?.fournisseurProduits" class="pharma-table compact-table">
+                            <p-table [value]="elRow?.fournisseurProduits"
+                                     class="pharma-table compact-table">
                               <ng-template #header>
                                 <tr class="pharma-table-head">
                                   <th>Grossiste</th>
@@ -456,19 +472,21 @@
                                 </tr>
                               </ng-template>
                               <ng-template #body let-four>
-                                <tr [class.fournisseur-principal]="four.id === elRow.fournisseurProduit?.id">
+                                <tr
+                                  [class.fournisseur-principal]="four.id === elRow.fournisseurProduit?.id">
                                   <td>
                                     <div class="d-flex align-items-center gap-1">
                                       <p-toggleswitch
                                         (onChange)="onChangeDefaultProduitFournisseur($event,elRow, four)"
-                                        [ngModel]="four.id === elRow.fournisseurProduit?.id"
                                         [disabled]="elRow.fournisseurProduits.length <= 1 || four.id === elRow.fournisseurProduit?.id"
+                                        [ngModel]="four.id === elRow.fournisseurProduit?.id"
                                         [pTooltip]="getToolTip(four)"
                                       ></p-toggleswitch>
                                       <span>{{ four.fournisseurLibelle }}</span>
                                     </div>
                                   </td>
-                                  <td class="text-end pharma-price">{{ four.prixAchat | number }}</td>
+                                  <td class="text-end pharma-price">{{ four.prixAchat | number }}
+                                  </td>
                                   <td class="text-end pharma-price">{{ four.prixUni | number }}</td>
                                   <td class="text-end">
                                     <p-button
@@ -492,7 +510,8 @@
                               </ng-template>
                               <ng-template #emptymessage>
                                 <tr>
-                                  <td colspan="4" class="text-center text-muted">Aucun fournisseur</td>
+                                  <td class="text-center text-muted" colspan="4">Aucun fournisseur
+                                  </td>
                                 </tr>
                               </ng-template>
                             </p-table>

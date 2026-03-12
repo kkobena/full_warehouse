@@ -109,11 +109,6 @@
 -keep class com.google.crypto.tink.** { *; }
 -dontwarn com.google.crypto.tink.**
 
-# Keep MasterKey and related classes
--keepclassmembers class * extends com.google.crypto.tink.shaded.protobuf.GeneratedMessageLite {
-    <fields>;
-}
-
 # ----------------------------------------------------------------------------
 # MPAndroidChart
 # ----------------------------------------------------------------------------

@@ -62,7 +62,7 @@ android {
             buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9080/\"")
 
             // Firebase can be disabled in debug for testing
-            buildConfigField("Boolean", "FIREBASE_ENABLED", "true")
+            buildConfigField("Boolean", "FIREBASE_ENABLED", "false")
         }
     }
 

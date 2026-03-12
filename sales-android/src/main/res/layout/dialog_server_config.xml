@@ -37,21 +37,39 @@
                 android:layout_marginBottom="24dp" />
 
             <!-- Protocol Selection -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/protocolInputLayout"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/protocol"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_marginBottom="16dp">
+                android:text="@string/protocol"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/protocolSpinner"
-                    android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/protocolToggleGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHttp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="56dp" />
+                    android:layout_weight="1"
+                    android:text="HTTP"
+                    style="@style/Widget.PharmaSmart.ToggleButton" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHttps"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="HTTPS"
+                    style="@style/Widget.PharmaSmart.ToggleButton" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <!-- Host Input -->
             <com.google.android.material.textfield.TextInputLayout
@@ -95,23 +113,48 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Receipt Roll Size Selection -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/receiptRollSizeLayout"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Taille du rouleau de reçu"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                app:helperText="Taille du papier pour l'imprimante thermique"
-                app:helperTextEnabled="true"
-                android:layout_marginBottom="16dp">
+                android:text="Taille du rouleau de reçu"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp" />
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/receiptRollSizeSpinner"
-                    android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/receiptRollSizeToggleGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn58mm"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="56dp" />
+                    android:layout_weight="1"
+                    android:text="58 mm"
+                    style="@style/Widget.PharmaSmart.ToggleButton" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn80mm"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="80 mm"
+                    style="@style/Widget.PharmaSmart.ToggleButton" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Taille du papier pour l'imprimante thermique"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="16dp"
+                android:paddingStart="4dp" />
 
             <!-- Test Connection Button -->
             <com.google.android.material.button.MaterialButton
@@ -172,43 +215,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- URL Preview Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/primary_light"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/url_preview"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/urlPreview"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="http://192.168.1.100:8080/"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="@color/primary"
-                        android:textStyle="bold"
-                        android:fontFamily="monospace" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
         </LinearLayout>
 
     </ScrollView>
@@ -223,7 +229,6 @@
         android:background="@android:color/white"
         android:elevation="4dp">
 
-        <!-- Cancel Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
@@ -232,7 +237,6 @@
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_marginEnd="8dp" />
 
-        <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             android:layout_width="wrap_content"

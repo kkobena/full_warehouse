@@ -31,8 +31,8 @@
     <string name="reset">Réinitialiser</string>
 
     <!-- Server Configuration -->
-    <string name="server_config_title">Configuration du serveur</string>
-    <string name="server_config_subtitle">Configurez l\'adresse du serveur backend</string>
+    <string name="server_config_title">Configuration</string>
+    <string name="server_config_subtitle">Configurez l\'adresse du serveur</string>
     <string name="protocol">Protocole</string>
     <string name="host">Hôte / Adresse IP</string>
     <string name="port">Port</string>

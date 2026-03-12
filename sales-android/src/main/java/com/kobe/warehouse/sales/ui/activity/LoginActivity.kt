@@ -98,14 +98,8 @@ class LoginActivity : AppCompatActivity() {
             // Save the new configuration
             tokenManager.saveServerConfig(newConfig)
 
-            // Show confirmation toast
-            Toast.makeText(
-                this,
-                "Configuration sauvegardée: ${newConfig.getBaseUrl()}",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            // Recreate the activity to apply new server URL
+            // Clear ViewModel store so it is rebuilt with the new URL on recreate
+            viewModelStore.clear()
             recreate()
         }
 
@@ -142,7 +136,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Observe login success
-        viewModel.loginSuccess.observe(this) { account ->
+        viewModel.loginSuccess.observe(this) { _ ->
             // Navigate directly to Full Sale Home (sales list)
             val intent = Intent(this, FullSaleHomeActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -181,20 +175,5 @@ class LoginActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
         binding.btnLogin.isEnabled = true
         binding.btnLogin.text = getString(R.string.login)
-    }
-}
-
-/**
- * ViewModelFactory for LoginViewModel
- */
-class LoginViewModelFactory(
-    private val authRepository: AuthRepository
-) : ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return LoginViewModel(authRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

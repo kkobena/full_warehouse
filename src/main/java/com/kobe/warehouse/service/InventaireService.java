@@ -15,27 +15,30 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 public interface InventaireService {
-    Page<StoreInventoryLineRecord> getInventoryItems(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
+
+    Page<StoreInventoryLineRecord> getInventoryItems(
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
 
     Resource printToPdf(StoreInventoryExportRecord filterRecord) throws MalformedURLException;
 
     ItemsCountRecord close(Long id) throws InventoryException;
 
-    List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord);
+    List<StoreInventoryGroupExport> getStoreInventoryToExport(
+        StoreInventoryExportRecord filterRecord);
 
-    Page<StoreInventoryLineRecord> getAllByInventory(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
+    Page<StoreInventoryLineRecord> getAllByInventory(
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
 
     void remove(Long id);
 
@@ -45,7 +48,8 @@ public interface InventaireService {
 
     StoreInventoryDTO create(StoreInventoryRecord storeInventoryRecord);
 
-    Page<StoreInventoryDTO> storeInventoryList(StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
+    Page<StoreInventoryDTO> storeInventoryList(
+        StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
 
     Optional<StoreInventoryDTO> getProccessingStoreInventory(Long id);
 
@@ -60,24 +64,31 @@ public interface InventaireService {
     List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId);
 
     void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
+
     InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord);
 
-    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException;
-    default String buildBaseQuery(String baseQuery, StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
+    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds)
+        throws InventoryException;
+
+    default String buildBaseQuery(String baseQuery,
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+        if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(
+            storeInventoryLineFilterRecord.rayonId())) {
             if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
                 return baseQuery
                     .replace("{join_statement}", StoreInventoryLineFilterBuilder.RAYON_STATEMENT)
                     .replace(
                         "{join_statement_where}",
-                        String.format(StoreInventoryLineFilterBuilder.RAYON_STATEMENT_WHERE, storeInventoryLineFilterRecord.rayonId())
+                        String.format(StoreInventoryLineFilterBuilder.RAYON_STATEMENT_WHERE,
+                            storeInventoryLineFilterRecord.rayonId())
                     );
             } else {
                 return baseQuery
                     .replace("{join_statement}", StoreInventoryLineFilterBuilder.RAYON_STATEMENT)
                     .replace(
                         "{join_statement_where}",
-                        String.format(StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT_WHERE, storeInventoryLineFilterRecord.storageId())
+                        String.format(StoreInventoryLineFilterBuilder.STOCKAGE_STATEMENT_WHERE,
+                            storeInventoryLineFilterRecord.storageId())
                     );
             }
         } else {
@@ -85,7 +96,8 @@ public interface InventaireService {
         }
     }
 
-    default String buildFetchDetailQuery(String baseQuery, StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    default String buildFetchDetailQuery(String baseQuery,
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
         String query = buildBaseQuery(baseQuery, storeInventoryLineFilterRecord);
         String q = buildFilter(storeInventoryLineFilterRecord.selectedFilter());
         if (StringUtils.hasLength(storeInventoryLineFilterRecord.search())) {
@@ -96,17 +108,23 @@ public interface InventaireService {
         return String.format(query, " ");
     }
 
-    default String buildFetchDetailQuery(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.BASE_QUERY, storeInventoryLineFilterRecord);
+    default String buildFetchDetailQuery(
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.BASE_QUERY,
+            storeInventoryLineFilterRecord);
     }
 
-    default String buildFetchDetailQueryCount(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
-        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.COUNT, storeInventoryLineFilterRecord);
+    default String buildFetchDetailQueryCount(
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+        return buildFetchDetailQuery(StoreInventoryLineFilterBuilder.COUNT,
+            storeInventoryLineFilterRecord);
     }
 
-    default String buildSearchSection(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
+    default String buildSearchSection(
+        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
         String search = storeInventoryLineFilterRecord.search() + "%";
-        return String.format(StoreInventoryLineFilterBuilder.LIKE_STATEMENT_WHERE, search, search, search);
+        return String.format(StoreInventoryLineFilterBuilder.LIKE_STATEMENT_WHERE, search, search,
+            search);
     }
 
     default String buildFilter(StoreInventoryLineEnum storeInventoryLineEnum) {
@@ -125,12 +143,14 @@ public interface InventaireService {
         String whereClose = "";
         if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
             whereClose = whereClose.concat(
-                String.format(StoreInventoryLineFilterBuilder.EXPORT_RAYON_CLOSE_QUERY, storeInventoryLineFilterRecord.rayonId())
+                String.format(StoreInventoryLineFilterBuilder.EXPORT_RAYON_CLOSE_QUERY,
+                    storeInventoryLineFilterRecord.rayonId())
             );
         }
         if (Objects.nonNull(storeInventoryLineFilterRecord.storageId())) {
             whereClose = whereClose.concat(
-                String.format(StoreInventoryLineFilterBuilder.EXPORT_STORAGE_CLOSE_QUERY, storeInventoryLineFilterRecord.storageId())
+                String.format(StoreInventoryLineFilterBuilder.EXPORT_STORAGE_CLOSE_QUERY,
+                    storeInventoryLineFilterRecord.storageId())
             );
         }
 

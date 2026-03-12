@@ -1,17 +1,19 @@
-import { Component, inject, input, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { IDelivery } from '../../../../shared/model/delevery.model';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { RouterModule } from '@angular/router';
-import { DeliveryService } from '../delivery.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { CommandeService } from '../../commande.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
+import {Component, inject, input, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {IDelivery} from '../../../../shared/model/delevery.model';
+import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
+import {RouterModule} from '@angular/router';
+import {DeliveryService} from '../delivery.service';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {CommandeService} from '../../commande.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {SpinnerComponent} from '../../../../shared/spinner/spinner.component';
+import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -36,6 +38,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly entityService = inject(DeliveryService);
   private destroy$ = new Subject<void>();
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.onSearch();
@@ -80,10 +83,15 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
       .exportToPdf(delivery.commandeId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: blod => {
+        next: blob => {
           this.spinner().hide();
-          const blobUrl = URL.createObjectURL(blod);
-          window.open(blobUrl);
+          if (this.tauriPrinter.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'commande_en_cours', 'csv');
+          } else {
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl);
+          }
+
         },
         error: () => this.spinner().hide(),
       });

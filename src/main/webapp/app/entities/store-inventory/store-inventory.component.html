@@ -9,15 +9,17 @@
         </div>
 
         <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+               orientation="vertical">
             <ng-container ngbNavItem="CREATE">
               <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-spin pi-cog"></i>
+                <i class="pi pi-database"></i>
                 <span>En cours</span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
+                <jhi-en-cours [inventoryCategories]="inventoryCategories"
+                              [user]="user"></jhi-en-cours>
               </ng-template>
             </ng-container>
 
@@ -28,7 +30,8 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
+                <jhi-clotures [inventoryCategories]="inventoryCategories"
+                              [user]="user"></jhi-clotures>
               </ng-template>
             </ng-container>
           </div>
@@ -49,29 +52,29 @@
         <p-toolbar>
           <ng-template #start>
             <div class="pharma-toolbar-filters">
-              <p-floatlabel variant="on" [hidden]="true" class="mr-2">
+              <p-floatlabel [hidden]="true" class="mr-2" variant="on">
                 <p-select
                   (onChange)="onSelectUser()"
                   [(ngModel)]="user"
                   [options]="users"
                   [showClear]="true"
-                  optionLabel="fullName"
                   appendTo="body"
                   id="userSelect"
+                  optionLabel="fullName"
                 />
                 <label for="userSelect">Opérateurs</label>
               </p-floatlabel>
 
-              <p-floatlabel variant="on" class="mr-2">
+              <p-floatlabel class="mr-2" variant="on">
                 <p-multiSelect
                   [(ngModel)]="inventoryCategories"
                   [filter]="false"
                   [options]="categories"
                   [showClear]="true"
                   [showToggleAll]="false"
-                  optionLabel="label"
                   appendTo="body"
                   id="typeSelect"
+                  optionLabel="label"
                 />
                 <label for="typeSelect">Types</label>
               </p-floatlabel>

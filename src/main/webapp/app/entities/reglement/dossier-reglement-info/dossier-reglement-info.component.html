@@ -1,6 +1,11 @@
 @if (dossierFactureProjection()) {
   @if (dossierFactureProjection().categorie) {
     <div class="info-grid">
+      <!-- Montant à payer (highlighted) -->
+      <div class="info-item info-highlight">
+        <label>Montant à payer</label>
+        <span class="info-value info-total">{{ montantApayer | number }}</span>
+      </div>
       <!-- Type tiers payant -->
       <div class="info-item">
         <label>Type tiers payant</label>
@@ -22,20 +27,23 @@
       <!-- Dossiers -->
       <div class="info-item">
         <label>Nombre de dossiers</label>
-        <span class="info-value info-count">{{ dossierFactureProjection().itemCount | number }}</span>
+        <span
+          class="info-value info-count">{{ dossierFactureProjection().itemCount | number }}</span>
       </div>
 
       <!-- Montant total -->
       <div class="info-item">
         <label>Montant total</label>
-        <span class="info-value info-amount">{{ dossierFactureProjection().montantTotal | number }}</span>
+        <span
+          class="info-value info-amount">{{ dossierFactureProjection().montantTotal | number }}</span>
       </div>
 
       <!-- Montant payé (conditional) -->
       @if (dossierFactureProjection().montantDetailRegle > 0) {
         <div class="info-item">
           <label>Montant payé</label>
-          <span class="info-value info-paid">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
+          <span
+            class="info-value info-paid">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
         </div>
       }
 
@@ -43,15 +51,11 @@
       <div class="info-item">
         <label>Montant restant</label>
         <span class="info-value info-amount">{{
-          dossierFactureProjection().montantTotal - dossierFactureProjection().montantDetailRegle | number
-        }}</span>
+            dossierFactureProjection().montantTotal
+            - dossierFactureProjection().montantDetailRegle | number
+          }}</span>
       </div>
 
-      <!-- Montant à payer (highlighted) -->
-      <div class="info-item info-highlight">
-        <label>Montant à payer</label>
-        <span class="info-value info-total">{{ montantApayer | number }}</span>
-      </div>
 
       <!-- Monnaie (conditional, success style) -->
       @if (monnaie() && monnaie() > 0) {

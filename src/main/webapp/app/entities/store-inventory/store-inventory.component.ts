@@ -1,30 +1,34 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, inject, OnInit} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { CATEGORY_INVENTORY, InventoryCategory, IStoreInventory } from 'app/shared/model/store-inventory.model';
+import {
+  CATEGORY_INVENTORY,
+  InventoryCategory,
+  IStoreInventory
+} from 'app/shared/model/store-inventory.model';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { StoreInventoryService } from './store-inventory.service';
-import { IUser, User } from '../../core/user/user.model';
-import { UserService } from '../../core/user/user.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { InventoryFormComponent } from './inventory-form/inventory-form.component';
-import { Router } from '@angular/router';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { CardModule } from 'primeng/card';
-import { ToolbarModule } from 'primeng/toolbar';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {StoreInventoryService} from './store-inventory.service';
+import {IUser, User} from '../../core/user/user.model';
+import {UserService} from '../../core/user/user.service';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {InventoryFormComponent} from './inventory-form/inventory-form.component';
+import {Router} from '@angular/router';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {CardModule} from 'primeng/card';
+import {ToolbarModule} from 'primeng/toolbar';
 
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { FormsModule } from '@angular/forms';
-import { EnCoursComponent } from './en-cours/en-cours.component';
-import { CloturesComponent } from './clotures/clotures.component';
-import { Select } from 'primeng/select';
-import { FloatLabel } from 'primeng/floatlabel';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {FormsModule} from '@angular/forms';
+import {EnCoursComponent} from './en-cours/en-cours.component';
+import {CloturesComponent} from './clotures/clotures.component';
+import {Select} from 'primeng/select';
+import {FloatLabel} from 'primeng/floatlabel';
+import {showCommonModal} from '../sales/selling-home/sale-helper';
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -43,6 +47,7 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     CloturesComponent,
     Select,
     FloatLabel,
+    Tooltip,
   ],
 })
 export class StoreInventoryComponent implements OnInit {
@@ -63,8 +68,8 @@ export class StoreInventoryComponent implements OnInit {
   protected user?: IUser | null;
   protected active = 'CREATE';
   protected readonly menuTileAndIcon = [
-    { title: 'Inventaires en cours', icon: 'pi pi-spin pi-cog', menuId: 'CREATE' },
-    { title: 'Inventaires clôturés', icon: 'pi pi-lock', menuId: 'CLOSED' },
+    {title: 'Inventaires en cours', icon: 'pi pi-database', menuId: 'CREATE'},
+    {title: 'Inventaires clôturés', icon: 'pi pi-lock', menuId: 'CLOSED'},
   ];
 
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
@@ -118,10 +123,18 @@ export class StoreInventoryComponent implements OnInit {
     ];
   }
 
+  protected get title(): string {
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';
+  }
+
+  protected get icon(): string {
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.icon || '';
+  }
+
   cellClass(params: any): any {
     if (params.data.updated) {
       const ecart = Number(params.data.quantityOnHand) - Number(params.data.quantityInit);
-      return ecart >= 0 ? { backgroundColor: 'lightgreen' } : { backgroundColor: 'lightcoral' };
+      return ecart >= 0 ? {backgroundColor: 'lightgreen'} : {backgroundColor: 'lightcoral'};
     }
     return {};
   }
@@ -185,23 +198,12 @@ export class StoreInventoryComponent implements OnInit {
     this.router.navigate(['/store-inventory', entity.id, 'edit']);
   }
 
-  clickRow(storeInventory: IStoreInventory): void {
-    this.selectedRowIndex = storeInventory.id;
-    this.rowData = storeInventory.storeInventoryLines;
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
-  }
-
   protected onSaveSuccess(): void {
     this.loadAll();
   }
 
-  protected onSaveError(): void {}
+  protected onSaveError(): void {
+  }
 
   protected onSuccess(data: IStoreInventory[] | null): void {
     if (data) {
@@ -211,25 +213,18 @@ export class StoreInventoryComponent implements OnInit {
 
   protected loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
-      this.users.push({ id: null, fullName: 'TOUT' });
+      this.users.push({id: null, fullName: 'TOUT'});
       if (res.body) {
         this.users.push(...res.body);
       }
-      this.user = { id: null, fullName: 'TOUT' };
+      this.user = {id: null, fullName: 'TOUT'};
     });
   }
 
-  protected onSearch(): void {}
+  protected onSearch(): void {
+  }
 
   protected onSelectUser(): void {
     this.onSearch();
-  }
-
-  protected get title(): string {
-    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';
-  }
-
-  protected get icon(): string {
-    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.icon || '';
   }
 }

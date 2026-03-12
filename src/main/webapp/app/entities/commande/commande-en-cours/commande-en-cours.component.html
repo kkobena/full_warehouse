@@ -2,7 +2,6 @@
 
 @if (commandes && commandes.length > 0) {
   <p-table
-    class="pharma-table"
     (onLazyLoad)="lazyLoading($event)"
     (onRowExpand)="onRowExpand($event)"
     (onRowSelect)="onRowSelected()"
@@ -15,11 +14,12 @@
     [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
     [rows]="itemsPerPage"
     [showCurrentPageReport]="false"
+    [stripedRows]="true"
     [totalRecords]="totalItems"
     [value]="commandes"
+    class="pharma-table"
     dataKey="id"
     selectionMode="multiple"
-    [stripedRows]="true"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -37,15 +37,15 @@
         <th style="width: 20%"></th>
       </tr>
     </ng-template>
-    <ng-template let-commande let-expanded="expanded" #body>
+    <ng-template #body let-commande let-expanded="expanded">
       <tr>
         <td>
           <p-button
-            type="button"
-            [pRowToggler]="commande"
-            [text]="true"
-            [rounded]="true"
             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            [pRowToggler]="commande"
+            [rounded]="true"
+            [text]="true"
+            type="button"
           />
         </td>
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
@@ -71,24 +71,26 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              [routerLink]="['/commande', commande.commandeId.id, commande.commandeId.orderDate, 'edit']"
-              severity="success"
-              icon="pi pi-pencil"
               [rounded]="true"
-              pTooltip="Editer"
+              [routerLink]="['/commande', commande.commandeId.id, commande.commandeId.orderDate, 'edit']"
               [text]="true"
-            >
-            </p-button>
+              icon="pi pi-pencil"
+              pTooltip="Editer"
+              severity="success"
+              size="small"
+            />
+
 
             <p-button
-              [text]="true"
               (click)="onShowFileDialog(commande)"
               [hidden]="true"
               [rounded]="true"
+              [text]="true"
               icon="pi pi-upload"
-              severity="help"
               pTooltip="Importer la reponse "
-            ></p-button>
+              severity="help"
+              size="small"
+            />
             <!--   <button *ngIf="commande.orderStatus!=='CLOSED'"
                        class="p-button-rounded p-button-primary p-button-sm ml-sm-1"
                        icon="pi pi-shopping-cart" pButton
@@ -96,106 +98,114 @@
                        pTooltip="Envoi par Pharma-ML"></button>-->
 
             <p-button
-              [text]="true"
               (click)="exportCSV(commande)"
-              icon="pi pi-file-excel"
               [rounded]="true"
-              severity="warn"
+              [text]="true"
+              icon="pi pi-file-excel"
               pTooltip="Exporter en CSV"
+              severity="warn"
+              size="small"
             />
 
             <p-button
-              [text]="true"
               (click)="exportPdf(commande)"
-              icon="pi pi-print"
-              severity="secondary"
               [rounded]="true"
+              [text]="true"
+              icon="pi pi-print"
               pTooltip="Imprimer"
+              severity="secondary"
+              size="small"
             />
             @if (commande.orderStatus === REQUESTED) {
               <p-button
                 (click)="confirmDelete(commande)"
                 [rounded]="true"
-                severity="danger"
+                [text]="true"
                 icon="pi pi-trash"
                 pTooltip="Supprimer"
-                [text]="true"
+                severity="danger"
+                size="small"
               />
             }
           </div>
         </td>
       </tr>
     </ng-template>
-    <ng-template let-elRow #expandedrow>
+    <ng-template #expandedrow let-elRow>
       <tr class="pharma-expanded-row">
         <td colspan="10">
-          <div class="pharma-sub-table-container">
-            <div class="pharma-sub-table-header">
-              Détails de la commande : {{ elRow.orderReference }} - Fournisseur : {{ elRow.fournisseur?.libelle }} - Date :
-              {{ elRow.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
-            </div>
-            <div class="pharma-sub-table-body">
-              <p-table
-                [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
-                [rows]="30"
-                [showCurrentPageReport]="false"
-                [value]="elRow.orderLines"
-                dataKey="id"
-                [stripedRows]="true"
-              >
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th style="width: 3%">#</th>
-                    <th style="width: 8%">CODE</th>
-                    <th style="width: 30%">LIBELLE</th>
-                    <th style="width: 6%">STOCK.INIT</th>
-                    <th style="width: 7%">P.ACHAT</th>
-                    <th style="width: 9%">P.ACHAT.MACHINE</th>
-                    <th style="width: 6%">P.U</th>
-                    <th style="width: 6%">P.U.MACHINE</th>
-                    <th style="width: 7%">QUANTITE</th>
-                    <th style="width: 7%">TOTAL.ACHAT</th>
-                  </tr>
-                </ng-template>
-                <ng-template let-orderLine let-rowIndex="rowIndex" #body>
-                  <tr [ngClass]="orderLineTableColor(orderLine)">
-                    <td>
-                      <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                    </td>
-                    <td>
-                      <span class="pharma-code">{{ orderLine.produitCip }}</span>
-                    </td>
-
-                    <td>
-                      <span class="pharma-product-name">{{ orderLine.produitLibelle }}</span>
-                    </td>
-                    <td style="text-align: right">
-                      <span class="pharma-qty-value">{{ orderLine.initStock | number }}</span>
-                    </td>
-
-                    <td style="text-align: right">
-                      <span class="pharma-price">{{ orderLine.orderCostAmount | number }}</span>
-                    </td>
-                    <td style="text-align: right">
-                      <span class="pharma-price">{{ orderLine.costAmount | number }}</span>
-                    </td>
-
-                    <td style="text-align: right">
-                      <span class="pharma-price">{{ orderLine.orderUnitPrice | number }}</span>
-                    </td>
-                    <td style="text-align: right">
-                      <span class="pharma-price">{{ orderLine.regularUnitPrice | number }}</span>
-                    </td>
-                    <td style="text-align: right">
-                      <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
-                    </td>
-                    <td style="text-align: right">
-                      <span class="pharma-total">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}</span>
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
+          <div class="expanded-row-container">
+            <div class="activity-card activity-card-products">
+              <div class="activity-card-header">
+                <div class="activity-card-icon activity-card-icon-small">
+                  <i class="pi pi-list"></i>
+                </div>
+                <div class="activity-card-header-content">
+                  <h3 class="activity-card-title">Détails de la commande</h3>
+                  <span class="activity-card-subtitle">
+                    {{ elRow.orderReference }} — {{ elRow.fournisseur?.libelle }}
+                    — {{ elRow.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                    ({{ elRow.orderLines?.length }} article(s))
+                  </span>
+                </div>
+              </div>
+              <div class="activity-card-table-body">
+                <p-table
+                  [paginator]="true"
+                  [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
+                  [rows]="30"
+                  [showCurrentPageReport]="true"
+                  [stripedRows]="true"
+                  [value]="elRow.orderLines"
+                  class="pharma-table rowexpansion-table"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} articles"
+                  dataKey="id"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th style="width: 3%">#</th>
+                      <th style="width: 8%">CODE</th>
+                      <th style="width: 30%">LIBELLE</th>
+                      <th class="text-right" style="width: 6%">STOCK.INIT</th>
+                      <th class="text-right" style="width: 7%">P.ACHAT</th>
+                      <th class="text-right" style="width: 9%">P.ACHAT.MACHINE</th>
+                      <th class="text-right" style="width: 6%">P.U</th>
+                      <th class="text-right" style="width: 6%">P.U.MACHINE</th>
+                      <th class="text-right" style="width: 7%">QUANTITE</th>
+                      <th class="text-right" style="width: 7%">TOTAL.ACHAT</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-orderLine let-rowIndex="rowIndex">
+                    <tr [ngClass]="orderLineTableColor(orderLine)" class="pharma-row-hover">
+                      <td>
+                        <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-code">{{ orderLine.produitCip }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-product-name">{{ orderLine.produitLibelle }}</span>
+                      </td>
+                      <td class="text-right pharma-qty-value">{{ orderLine.initStock | number }}
+                      </td>
+                      <td class="text-right pharma-price">{{ orderLine.orderCostAmount | number }}
+                      </td>
+                      <td class="text-right pharma-price">{{ orderLine.costAmount | number }}</td>
+                      <td class="text-right pharma-price">{{ orderLine.orderUnitPrice | number }}
+                      </td>
+                      <td
+                        class="text-right pharma-price">{{ orderLine.regularUnitPrice | number }}
+                      </td>
+                      <td
+                        class="text-right pharma-qty-value">{{ orderLine.quantityRequested | number }}
+                      </td>
+                      <td class="text-right pharma-total" style="font-weight: bold">
+                        {{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
             </div>
           </div>
         </td>

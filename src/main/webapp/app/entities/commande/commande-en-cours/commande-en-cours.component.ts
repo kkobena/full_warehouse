@@ -1,23 +1,28 @@
-import { Component, inject, input, OnInit, output, viewChild } from '@angular/core';
-import { ICommande } from '../../../shared/model/commande.model';
-import { IOrderLine } from '../../../shared/model/order-line.model';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { CommandeService } from '../commande.service';
-import { Router, RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ErrorService } from '../../../shared/error.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { saveAs } from 'file-saver';
-import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { OrderStatut } from '../../../shared/model/enumerations/order-statut.model';
-import { finalize } from 'rxjs/operators';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
-import { CommandeId } from '../../../shared/model/abstract-commande.model';
+import {Component, DestroyRef, inject, input, OnInit, output, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ICommande} from '../../../shared/model/commande.model';
+import {IOrderLine} from '../../../shared/model/order-line.model';
+import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
+import {CommandeService} from '../commande.service';
+import {Router, RouterModule} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ErrorService} from '../../../shared/error.service';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {saveAs} from 'file-saver';
+import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
+import {OrderStatut} from '../../../shared/model/enumerations/order-statut.model';
+import {finalize} from 'rxjs/operators';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {SpinnerComponent} from '../../../shared/spinner/spinner.component';
+import {CommandeId} from '../../../shared/model/abstract-commande.model';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -31,6 +36,8 @@ export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');
   readonly searchCommande = input('');
   readonly selectionLength = output<number>();
+  readonly itemsPerPage = ITEMS_PER_PAGE;
+  readonly rowExpandMode: ExpandMode;
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;
@@ -43,15 +50,15 @@ export class CommandeEnCoursComponent implements OnInit {
   protected selectedtypeSuggession = 'ALL';
   protected selections: ICommande[];
   protected readonly REQUESTED = OrderStatut.REQUESTED;
-  readonly itemsPerPage = ITEMS_PER_PAGE;
-  readonly rowExpandMode: ExpandMode;
-  private errorService = inject(ErrorService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly errorService = inject(ErrorService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly selectedFilters = ['REQUESTED'];
   private readonly commandeService = inject(CommandeService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -73,6 +80,10 @@ export class CommandeEnCoursComponent implements OnInit {
         orderStatuts: this.selectedFilters,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
+      .pipe(
+        finalize(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
@@ -83,14 +94,13 @@ export class CommandeEnCoursComponent implements OnInit {
     this.spinner().show();
     this.commandeService
       .delete(commandeId)
-      .pipe(finalize(() => this.spinner().hide()))
+      .pipe(
+        finalize(() => this.spinner().hide()),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => {
-          this.loadPage();
-        },
-        error: error => {
-          this.onCommonError(error);
-        },
+        next: () => this.loadPage(),
+        error: err => this.onCommonError(err),
       });
   }
 
@@ -104,21 +114,45 @@ export class CommandeEnCoursComponent implements OnInit {
 
   onRowExpand(event: any): void {
     if (!event.data.orderLines) {
-      this.commandeService.fetchOrderLinesByCommandeId(event.data.commandeId).subscribe(res => {
-        event.data.orderLines = res.body;
-      });
+      this.commandeService.fetchOrderLinesByCommandeId(event.data.commandeId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: res => {
+            event.data.orderLines = res.body;
+          },
+          error: err => this.onCommonError(err),
+        });
     }
   }
 
   exportCSV(commande: ICommande): void {
-    this.commandeService.exportToCsv(commande.commandeId).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(commande.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinter.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'commande_en_cours', 'csv');
+          } else {
+            saveAs(blob);
+          }
+        },
+        error: err => this.onCommonError(err),
+      });
   }
 
   exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.commandeId).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
-    });
+    this.commandeService.exportToPdf(commande.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinter.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'commande_en_cours');
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
+        },
+        error: err => this.onCommonError(err),
+      });
   }
 
   orderLineTableColor(orderLine: IOrderLine): string {
@@ -134,7 +168,7 @@ export class CommandeEnCoursComponent implements OnInit {
 
   fusionner(): void {
     const ids = this.selections.map(e => {
-      return { id: e.id, orderDate: e.orderDate };
+      return {id: e.id, orderDate: e.orderDate};
     });
     const fournisseursIdArray = this.selections.map(e => e.fournisseur.id);
     const firstId = fournisseursIdArray[0];
@@ -144,17 +178,18 @@ export class CommandeEnCoursComponent implements OnInit {
       this.openInfoDialog('Veillez sélectionner des commandes du même grossiste', 'alert alert-info');
     } else {
       this.spinner().show();
-      this.commandeService.fusionner(ids).subscribe({
-        next: () => {
-          this.selections = [];
-          this.loadPage();
-          this.spinner().hide();
-        },
-        error: error => {
-          this.onCommonError(error);
-          this.spinner().hide();
-        },
-      });
+      this.commandeService.fusionner(ids)
+        .pipe(
+          finalize(() => this.spinner().hide()),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe({
+          next: () => {
+            this.selections = [];
+            this.loadPage();
+          },
+          error: err => this.onCommonError(err),
+        });
     }
   }
 
@@ -164,14 +199,14 @@ export class CommandeEnCoursComponent implements OnInit {
 
   removeAll(): void {
     this.commandeService
-      .deleteSelectedCommandes(
-        this.selections.map(e => {
-          return { id: e.id, orderDate: e.orderDate };
-        }),
-      )
-      .subscribe(() => {
-        this.loadPage();
-        this.selections = [];
+      .deleteSelectedCommandes(this.selections.map(e => ({id: e.id, orderDate: e.orderDate})))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadPage();
+          this.selections = [];
+        },
+        error: err => this.onCommonError(err),
       });
   }
 
@@ -198,6 +233,10 @@ export class CommandeEnCoursComponent implements OnInit {
           orderStatuts: this.selectedFilters,
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
+        .pipe(
+          finalize(() => (this.loading = false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => this.onError(),
@@ -215,10 +254,6 @@ export class CommandeEnCoursComponent implements OnInit {
 
   protected onRowUnselect(): void {
     this.selectionLength.emit(this.selections.length);
-  }
-
-  private onCommonError(error: any): void {
-    this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 
   protected openInfoDialog(message: string, infoClass: string): void {
@@ -244,10 +279,13 @@ export class CommandeEnCoursComponent implements OnInit {
     });
 
     this.commandes = data || [];
-    this.loading = false;
   }
 
   protected onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
+  }
+
+  private onCommonError(error: any): void {
+    this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 }

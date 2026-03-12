@@ -1,27 +1,28 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
 
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { IUser, User } from '../../core/user/user.model';
-import { UserService } from '../../core/user/user.service';
-import { TranslateService } from '@ngx-translate/core';
-import { ListAjustementComponent } from './list-ajustement/list-ajustement.component';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { CardModule } from 'primeng/card';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { AjustementService } from './ajustement.service';
-import { Select } from 'primeng/select';
-import { APPEND_TO } from '../../shared/constants/pagination.constants';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
-import { FloatLabel } from 'primeng/floatlabel';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {IUser, User} from '../../core/user/user.model';
+import {UserService} from '../../core/user/user.service';
+import {TranslateService} from '@ngx-translate/core';
+import {ListAjustementComponent} from './list-ajustement/list-ajustement.component';
+import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {NgxSpinnerModule} from 'ngx-spinner';
+import {CardModule} from 'primeng/card';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {FormsModule} from '@angular/forms';
+import {InputTextModule} from 'primeng/inputtext';
+import {AjustementService} from './ajustement.service';
+import {Select} from 'primeng/select';
+import {APPEND_TO} from '../../shared/constants/pagination.constants';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {DatePickerComponent} from '../../shared/date-picker/date-picker.component';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'jhi-ajustement',
@@ -44,6 +45,7 @@ import { FloatLabel } from 'primeng/floatlabel';
     InputIcon,
     DatePickerComponent,
     FloatLabel,
+    Tooltip,
   ],
 })
 export class AjustementComponent implements OnInit {
@@ -62,14 +64,14 @@ export class AjustementComponent implements OnInit {
   protected readonly appendTo = APPEND_TO;
 
   ngOnInit(): void {
-    this.user = { id: null, abbrName: 'TOUT' };
+    this.user = {id: null, abbrName: 'TOUT'};
     this.loadAllUsers();
   }
 
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
       if (res.body) {
-        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [{id: null, abbrName: 'TOUT'}];
         this.users = [...this.users, ...res.body];
       }
     });

@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   CATEGORY_INVENTORY,
   InventoryCategory,
@@ -11,6 +12,7 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { StoreInventoryService } from '../store-inventory.service';
 import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { StorageService } from '../../storage/storage.service';
 import { Storage } from '../../storage/storage.model';
@@ -63,6 +65,7 @@ export class InventoryFormComponent implements OnInit, AfterViewInit {
   protected editForm: FormGroup;
   protected entity: IStoreInventory;
   protected fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly messageService = inject(MessageService);
   private readonly storeInventoryService = inject(StoreInventoryService);
   private readonly storageService = inject(StorageService);
@@ -118,11 +121,15 @@ export class InventoryFormComponent implements OnInit, AfterViewInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IStoreInventory>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
-      complete: () => this.spinner.hide(),
-    });
+    result
+      .pipe(
+        finalize(() => this.spinner.hide()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (res: HttpResponse<IStoreInventory>) => this.onSaveSuccess(res.body),
+        error: () => this.onSaveError(),
+      });
   }
 
   protected onSelectCategory(evt: any): void {
@@ -160,7 +167,6 @@ export class InventoryFormComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveError(): void {
-    this.spinner.hide();
     this.isSaving = false;
     this.messageService.add({
       severity: 'error',
@@ -170,7 +176,6 @@ export class InventoryFormComponent implements OnInit, AfterViewInit {
   }
 
   private onSaveSuccess(response: IStoreInventory | null): void {
-    this.spinner.hide();
     this.activeModal.close(response);
   }
 
@@ -205,20 +210,26 @@ export class InventoryFormComponent implements OnInit, AfterViewInit {
   }
 
   private populate(): void {
-    this.storageService.fetchUserStorages().subscribe((res: HttpResponse<Storage[]>) => {
-      this.storages = res.body || [];
-    });
+    this.storageService.fetchUserStorages()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<Storage[]>) => {
+          this.storages = res.body || [];
+        },
+        error: () => this.onSaveError(),
+      });
   }
 
   private loadRayons(storageId: number): void {
     if (storageId) {
       this.rayonService
-        .query({
-          storageId,
-          size: 9999,
-        })
-        .subscribe((res: HttpResponse<IRayon[]>) => {
-          this.rayons = res.body || [];
+        .query({storageId, size: 9999})
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res: HttpResponse<IRayon[]>) => {
+            this.rayons = res.body || [];
+          },
+          error: () => this.onSaveError(),
         });
     }
   }

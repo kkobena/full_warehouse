@@ -1,7 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { CustomerDisplayEscPosService, CustomerDisplayConnectionConfig } from '../customer-display/customer-display-escpos.service';
-import { PosteService } from '../../entities/poste/poste.service';
-import { firstValueFrom } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {
+  CustomerDisplayConnectionConfig,
+  CustomerDisplayEscPosService
+} from '../customer-display/customer-display-escpos.service';
+import {PosteService} from '../../entities/poste/poste.service';
+import {firstValueFrom} from 'rxjs';
 
 export interface PrinterInfo {
   name: string;
@@ -96,7 +99,6 @@ export class TauriPrinterService {
         printerName,
       });
 
-      console.log(`Image sent to printer: ${printerName}`);
     } catch (error) {
       console.error('Error printing image:', error);
       throw error;
@@ -189,171 +191,6 @@ export class TauriPrinterService {
   }
 
   /**
-   * Initialize Tauri invoke function
-   */
-  private async initializeTauri(): Promise<void> {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    // Try global API first (withGlobalTauri: true)
-    // @ts-ignore
-    if (window.__TAURI__?.core?.invoke) {
-      // @ts-ignore
-      this.tauriInvoke = window.__TAURI__.core.invoke;
-
-      return;
-    }
-
-    // Fallback to modern import method
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      this.tauriInvoke = invoke;
-    } catch (error) {
-      console.log('Tauri not available:', error);
-    }
-  }
-
-  /**
-   * Get the Tauri invoke function
-   */
-  private async getInvoke(): Promise<any> {
-    if (this.tauriInvoke) {
-      return this.tauriInvoke;
-    }
-
-    // Wait a bit for initialization
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await this.initializeTauri();
-
-    if (!this.tauriInvoke) {
-      throw new Error('Tauri is not available');
-    }
-
-    return this.tauriInvoke;
-  }
-
-  /**
-   * Utility function to add delay
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Convert ArrayBuffer to base64 string
-   * Used for converting binary ESC/POS data from backend
-   */
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
-  }
-
-  // ============================================
-  // Customer Display Methods
-  // ============================================
-
-  /**
-   * Initialize customer display configuration
-   * Fetches configuration from the current poste via API
-   */
-  private async initializeCustomerDisplay(): Promise<void> {
-    if (!this.isRunningInTauri()) {
-      return;
-    }
-
-    try {
-      // Fetch current poste configuration from API
-      const response = await firstValueFrom(this.posteService.getCurrentPoste());
-      const posteData = response.body;
-
-      if (posteData && posteData.customerDisplay) {
-        // Determine connection type based on port format
-        const connectionType = this.determineConnectionType(posteData.customerDisplayPort);
-
-        this.displayConfig = {
-          connectionType,
-          serialPort: connectionType === 'SERIAL' ? posteData.customerDisplayPort : undefined,
-          baudRate: 9600, // Default baud rate for serial
-          ipAddress: connectionType === 'NETWORK' ? posteData.address : undefined,
-          port: connectionType === 'NETWORK' ? 9100 : undefined, // Default ESC/POS network port
-        };
-        this.displayEnabled = true;
-
-        // Save to localStorage for offline fallback
-        this.saveDisplayConfig({
-          enabled: true,
-          connectionType,
-          serialPort: this.displayConfig.serialPort,
-          baudRate: this.displayConfig.baudRate,
-          ipAddress: this.displayConfig.ipAddress,
-          port: this.displayConfig.port,
-        });
-      } else {
-        // Customer display not enabled for this poste
-        this.displayEnabled = false;
-        this.displayConfig = null;
-      }
-    } catch (error) {
-      console.error('Failed to fetch poste configuration, falling back to localStorage:', error);
-
-      // Fallback to localStorage configuration
-      const savedConfig = this.loadDisplayConfig();
-      if (savedConfig && savedConfig.enabled) {
-        this.displayConfig = {
-          connectionType: savedConfig.connectionType,
-          serialPort: savedConfig.serialPort,
-          baudRate: savedConfig.baudRate || 9600,
-          ipAddress: savedConfig.ipAddress,
-          port: savedConfig.port || 9100,
-        };
-        this.displayEnabled = true;
-      } else {
-        // Default configuration (disabled)
-        this.displayConfig = null;
-        this.displayEnabled = false;
-      }
-    }
-  }
-
-  /**
-   * Determine connection type based on port/address format
-   * @param port Port identifier (e.g., "COM3", "/dev/ttyUSB0", or "USB")
-   */
-  private determineConnectionType(port?: string): 'SERIAL' | 'USB' | 'NETWORK' {
-    if (!port) {
-      return 'SERIAL'; // Default to serial
-    }
-
-    const portUpper = port.toUpperCase();
-
-    // Check for USB identifiers
-    if (portUpper.includes('USB') && !portUpper.includes('TTY')) {
-      return 'USB';
-    }
-
-    // Check for serial port identifiers
-    // Windows: COM1, COM2, etc.
-    // Linux/Mac: /dev/ttyUSB0, /dev/ttyS0, /dev/tty.usbserial, etc.
-    if (portUpper.startsWith('COM') || portUpper.includes('/DEV/TTY') || portUpper.includes('SERIAL')) {
-      return 'SERIAL';
-    }
-
-    // If it looks like an IP address or contains "NET", assume network
-    if (portUpper.includes('NET') || /^\d+\.\d+\.\d+\.\d+/.test(port)) {
-      return 'NETWORK';
-    }
-
-    // Default to SERIAL
-    return 'SERIAL';
-  }
-
-  /**
    * Check if customer display is enabled
    */
   isCustomerDisplayEnabled(): boolean {
@@ -391,6 +228,10 @@ export class TauriPrinterService {
     return this.loadDisplayConfig();
   }
 
+  // ============================================
+  // Customer Display Methods
+  // ============================================
+
   /**
    * List available serial ports for customer display
    */
@@ -418,7 +259,7 @@ export class TauriPrinterService {
 
     try {
       const invoke = await this.getInvoke();
-      await invoke('test_customer_display_connection', { config: this.displayConfig });
+      await invoke('test_customer_display_connection', {config: this.displayConfig});
       return true;
     } catch (error) {
       console.error('Customer display connection test failed:', error);
@@ -573,9 +414,194 @@ export class TauriPrinterService {
     }
   }
 
+  /**
+   * Enable customer display
+   */
+  enableCustomerDisplay(): void {
+    this.displayEnabled = true;
+    const config = this.loadDisplayConfig();
+    if (config) {
+      config.enabled = true;
+      this.saveDisplayConfig(config);
+    }
+  }
+
+  /**
+   * Disable customer display
+   */
+  disableCustomerDisplay(): void {
+    this.displayEnabled = false;
+    const config = this.loadDisplayConfig();
+    if (config) {
+      config.enabled = false;
+      this.saveDisplayConfig(config);
+    }
+  }
+
+  /**
+   * Initialize Tauri invoke function
+   */
+  private async initializeTauri(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // Try global API first (withGlobalTauri: true)
+    // @ts-ignore
+    if (window.__TAURI__?.core?.invoke) {
+      // @ts-ignore
+      this.tauriInvoke = window.__TAURI__.core.invoke;
+
+      return;
+    }
+
+    // Fallback to modern import method
+    try {
+      const {invoke} = await import('@tauri-apps/api/core');
+      this.tauriInvoke = invoke;
+    } catch (error) {
+      console.log('Tauri not available:', error);
+    }
+  }
+
+  /**
+   * Get the Tauri invoke function
+   */
+  private async getInvoke(): Promise<any> {
+    if (this.tauriInvoke) {
+      return this.tauriInvoke;
+    }
+
+    // Wait a bit for initialization
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await this.initializeTauri();
+
+    if (!this.tauriInvoke) {
+      throw new Error('Tauri is not available');
+    }
+
+    return this.tauriInvoke;
+  }
+
+  /**
+   * Utility function to add delay
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Convert ArrayBuffer to base64 string
+   * Used for converting binary ESC/POS data from backend
+   */
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
   // ============================================
   // Configuration Persistence
   // ============================================
+
+  /**
+   * Initialize customer display configuration
+   * Fetches configuration from the current poste via API
+   */
+  private async initializeCustomerDisplay(): Promise<void> {
+    if (!this.isRunningInTauri()) {
+      return;
+    }
+
+    try {
+      // Fetch current poste configuration from API
+      const response = await firstValueFrom(this.posteService.getCurrentPoste());
+      const posteData = response.body;
+
+      if (posteData && posteData.customerDisplay) {
+        // Determine connection type based on port format
+        const connectionType = this.determineConnectionType(posteData.customerDisplayPort);
+
+        this.displayConfig = {
+          connectionType,
+          serialPort: connectionType === 'SERIAL' ? posteData.customerDisplayPort : undefined,
+          baudRate: 9600, // Default baud rate for serial
+          ipAddress: connectionType === 'NETWORK' ? posteData.address : undefined,
+          port: connectionType === 'NETWORK' ? 9100 : undefined, // Default ESC/POS network port
+        };
+        this.displayEnabled = true;
+
+        // Save to localStorage for offline fallback
+        this.saveDisplayConfig({
+          enabled: true,
+          connectionType,
+          serialPort: this.displayConfig.serialPort,
+          baudRate: this.displayConfig.baudRate,
+          ipAddress: this.displayConfig.ipAddress,
+          port: this.displayConfig.port,
+        });
+      } else {
+        // Customer display not enabled for this poste
+        this.displayEnabled = false;
+        this.displayConfig = null;
+      }
+    } catch (error) {
+      console.error('Failed to fetch poste configuration, falling back to localStorage:', error);
+
+      // Fallback to localStorage configuration
+      const savedConfig = this.loadDisplayConfig();
+      if (savedConfig && savedConfig.enabled) {
+        this.displayConfig = {
+          connectionType: savedConfig.connectionType,
+          serialPort: savedConfig.serialPort,
+          baudRate: savedConfig.baudRate || 9600,
+          ipAddress: savedConfig.ipAddress,
+          port: savedConfig.port || 9100,
+        };
+        this.displayEnabled = true;
+      } else {
+        // Default configuration (disabled)
+        this.displayConfig = null;
+        this.displayEnabled = false;
+      }
+    }
+  }
+
+  /**
+   * Determine connection type based on port/address format
+   * @param port Port identifier (e.g., "COM3", "/dev/ttyUSB0", or "USB")
+   */
+  private determineConnectionType(port?: string): 'SERIAL' | 'USB' | 'NETWORK' {
+    if (!port) {
+      return 'SERIAL'; // Default to serial
+    }
+
+    const portUpper = port.toUpperCase();
+
+    // Check for USB identifiers
+    if (portUpper.includes('USB') && !portUpper.includes('TTY')) {
+      return 'USB';
+    }
+
+    // Check for serial port identifiers
+    // Windows: COM1, COM2, etc.
+    // Linux/Mac: /dev/ttyUSB0, /dev/ttyS0, /dev/tty.usbserial, etc.
+    if (portUpper.startsWith('COM') || portUpper.includes('/DEV/TTY') || portUpper.includes('SERIAL')) {
+      return 'SERIAL';
+    }
+
+    // If it looks like an IP address or contains "NET", assume network
+    if (portUpper.includes('NET') || /^\d+\.\d+\.\d+\.\d+/.test(port)) {
+      return 'NETWORK';
+    }
+
+    // Default to SERIAL
+    return 'SERIAL';
+  }
 
   /**
    * Save display configuration to localStorage
@@ -601,29 +627,5 @@ export class TauriPrinterService {
       }
     }
     return null;
-  }
-
-  /**
-   * Enable customer display
-   */
-  enableCustomerDisplay(): void {
-    this.displayEnabled = true;
-    const config = this.loadDisplayConfig();
-    if (config) {
-      config.enabled = true;
-      this.saveDisplayConfig(config);
-    }
-  }
-
-  /**
-   * Disable customer display
-   */
-  disableCustomerDisplay(): void {
-    this.displayEnabled = false;
-    const config = this.loadDisplayConfig();
-    if (config) {
-      config.enabled = false;
-      this.saveDisplayConfig(config);
-    }
   }
 }

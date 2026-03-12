@@ -1,4 +1,6 @@
-import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
@@ -73,6 +75,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
   protected isSaving = false;
+  private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly reglementService = inject(ReglementService);
@@ -151,15 +154,19 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   protected onSaveReglement(params: ReglementParams): void {
     this.isSaving = true;
-    this.reglementService.doReglement(this.buildReglementParams(params)).subscribe({
-      next: res => {
-        this.isSaving = false;
-        if (res.body) {
-          this.onPrintReceipt(res.body);
-        }
-      },
-      error: err => this.onError(err),
-    });
+    this.reglementService.doReglement(this.buildReglementParams(params))
+      .pipe(
+        finalize(() => (this.isSaving = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: res => {
+          if (res.body) {
+            this.onPrintReceipt(res.body);
+          }
+        },
+        error: err => this.onError(err),
+      });
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
@@ -173,7 +180,11 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
         if (this.tauriPrinterService.isRunningInTauri()) {
           this.printReceiptForTauri(response.id);
         } else {
-          this.reglementService.printReceipt(response.id).subscribe();
+          this.reglementService.printReceipt(response.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              error: err => this.onError(err),
+            });
         }
 
         this.reset(response);
@@ -183,14 +194,16 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   printReceiptForTauri(item: PaymentId): void {
-    this.reglementService.getEscPosReceiptForTauri(item).subscribe({
-      next: async (escposData: ArrayBuffer) => {
-        try {
-          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-        } catch (error) {}
-      },
-      error() {},
-    });
+    this.reglementService.getEscPosReceiptForTauri(item)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (escposData: ArrayBuffer) => {
+          try {
+            await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+          } catch (error) {}
+        },
+        error: err => this.onError(err),
+      });
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {
@@ -229,10 +242,8 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
 
   private reload(id: FactureId): void {
     this.factureService
-      .findDossierReglement(id, 'individuelle', {
-        page: 0,
-        size: 999999,
-      })
+      .findDossierReglement(id, 'individuelle', {page: 0, size: 999999})
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
           this.reglementFactureDossiersSignal.set(res.body);
@@ -248,11 +259,13 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   private fetchFacture(): void {
     const factureId = this.dossierFactureProjection().factureItemId;
     this.factureService
-      .findDossierFactureProjection(factureId, {
-        isGroup: false,
-      })
-      .subscribe(res => {
-        this.dossierFactureProjectionSignal.set(res.body);
+      .findDossierFactureProjection(factureId, {isGroup: false})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.dossierFactureProjectionSignal.set(res.body);
+        },
+        error: err => this.onError(err),
       });
   }
 }

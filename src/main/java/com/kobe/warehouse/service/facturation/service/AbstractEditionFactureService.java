@@ -9,12 +9,12 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,12 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import org.springframework.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -62,49 +61,61 @@ public abstract class AbstractEditionFactureService implements EditionService {
 
     @Override
     @Transactional
-    public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams) {
+    public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
+        throws InvoiceEmptyDataException {
         LocalDateTime dateCreation = LocalDateTime.now();
         int generationCode = getGenerationCode();
         saveAll(editionSearchParams, dateCreation, generationCode);
         return new FactureEditionResponse(generationCode, false);
     }
 
-    protected abstract Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams);
+    protected abstract Specification<ThirdPartySaleLine> buildCriteria(
+        EditionSearchParams editionSearchParams);
 
     protected List<ThirdPartySaleLine> getDatas(EditionSearchParams editionSearchParams) {
         return this.thirdPartySaleLineRepository.findAll(this.buildCriteria(editionSearchParams));
     }
 
-    protected Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
+    protected Specification<ThirdPartySaleLine> buildFetchSpecification(
+        EditionSearchParams editionSearchParams) {
         Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = this.thirdPartySaleLineRepository.canceledCriteria();
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
             this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
         );
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(), editionSearchParams.endDate())
+            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(),
+                editionSearchParams.endDate())
         );
         if (editionSearchParams.factureProvisoire()) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
                 this.thirdPartySaleLineRepository.factureProvisoireCriteria()
             );
         } else {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.notBilledCriteria());
+            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
+                this.thirdPartySaleLineRepository.notBilledCriteria());
         }
 
         return thirdPartySaleLineSpecification;
     }
 
-    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(List<ThirdPartySaleLine> thirdPartySaleLines) {
-        return thirdPartySaleLines.stream().collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
+    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(
+        List<ThirdPartySaleLine> thirdPartySaleLines) {
+        return thirdPartySaleLines.stream()
+            .collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
     }
 
-    private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation, int generationCode) {
+    private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation,
+        int generationCode) throws InvoiceEmptyDataException {
         var year = dateCreation.getYear();
         var lastFactureNumero = getLastFactureNumero();
         AtomicInteger numero = new AtomicInteger(lastFactureNumero);
         List<ThirdPartySaleLine> thirdPartySaleLines = getDatas(editionSearchParams);
+        if (CollectionUtils.isEmpty(thirdPartySaleLines)) {
+            throw new InvoiceEmptyDataException();
+        }
 
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = groupByTiersPayant(thirdPartySaleLines);
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = groupByTiersPayant(
+            thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) ->
             this.buildAndSaveFacture(
                 null,
@@ -125,7 +136,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
 
     protected int getGenerationCode() {
         return Integer.parseInt(
-            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")).concat(invoiceGenerationCodeGeneratorService.getNextIdAsString())
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"))
+                .concat(invoiceGenerationCodeGeneratorService.getNextIdAsString())
         );
     }
 
@@ -154,7 +166,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
             .setTiersPayant(tiersPayant)
             .setNumFacture(getFactureNumber(year, lastFactureNumero));
         if (factureGroup != null) {
-            factureTiersPayant.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
+            factureTiersPayant.setGroupeFactureTiersPayant(
+                this.facturationRepository.saveAndFlush(factureGroup));
         }
         factureTiersPayant = this.facturationRepository.saveAndFlush(factureTiersPayant);
         List<RepartitionTiersPayantParTva> facturesRepartitions = new ArrayList<>();
@@ -165,10 +178,14 @@ public abstract class AbstractEditionFactureService implements EditionService {
 
             if (!CollectionUtils.isEmpty(repartitions)) {
                 for (RepartitionTiersPayantParTva repartition : repartitions) {
-                    factureTiersPayant.setMontantTtc(factureTiersPayant.getMontantTtc().add(BigDecimal.valueOf(repartition.montantTtc())));
-                    factureTiersPayant.setMontantTva(factureTiersPayant.getMontantTva().add(BigDecimal.valueOf(repartition.montantTva())));
-                    factureTiersPayant.setMontantNet(factureTiersPayant.getMontantNet().add(BigDecimal.valueOf(repartition.montantNet())));
-                    factureTiersPayant.setMontantHt(factureTiersPayant.getMontantHt().add(BigDecimal.valueOf(repartition.montantHt())));
+                    factureTiersPayant.setMontantTtc(factureTiersPayant.getMontantTtc()
+                        .add(BigDecimal.valueOf(repartition.montantTtc())));
+                    factureTiersPayant.setMontantTva(factureTiersPayant.getMontantTva()
+                        .add(BigDecimal.valueOf(repartition.montantTva())));
+                    factureTiersPayant.setMontantNet(factureTiersPayant.getMontantNet()
+                        .add(BigDecimal.valueOf(repartition.montantNet())));
+                    factureTiersPayant.setMontantHt(factureTiersPayant.getMontantHt()
+                        .add(BigDecimal.valueOf(repartition.montantHt())));
                     facturesRepartitions.add(repartition);
                 }
             }
@@ -190,7 +207,9 @@ public abstract class AbstractEditionFactureService implements EditionService {
                 montantHt = montantHt.add(BigDecimal.valueOf(repartition.montantHt()));
             }
             //double montantTtc, double montantTva, double montantNet, double montantHt, int tva
-            finalFacturesRepartitions.add(new RepartitionTiersPayantParTva(montantTtc.doubleValue(), montantTva.doubleValue(), montantNet.doubleValue(), montantHt.doubleValue(), tva));
+            finalFacturesRepartitions.add(
+                new RepartitionTiersPayantParTva(montantTtc.doubleValue(), montantTva.doubleValue(),
+                    montantNet.doubleValue(), montantHt.doubleValue(), tva));
         });
         factureTiersPayant.setRepartitions(finalFacturesRepartitions);
     }
@@ -204,7 +223,8 @@ public abstract class AbstractEditionFactureService implements EditionService {
             index = Integer.parseInt(num.split("_")[1]);
         }
 
-        if (!lastFactureDate.equals(Year.now()) && this.appConfigurationService.findParamResetInvoiceNumberEveryYear()
+        if (!lastFactureDate.equals(Year.now())
+            && this.appConfigurationService.findParamResetInvoiceNumberEveryYear()
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
             .filter(v -> v == 1)

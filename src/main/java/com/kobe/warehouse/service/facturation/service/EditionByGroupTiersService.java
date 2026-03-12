@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
@@ -52,25 +53,30 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
     }
 
     @Override
-    public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams) {
+    public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
+        throws InvoiceEmptyDataException {
         return buildAndSaveFacturesGroupe(editionSearchParams);
     }
 
     @Override
-    protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
+    protected Specification<ThirdPartySaleLine> buildCriteria(
+        EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
             return super
                 .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
+                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(
+                    editionSearchParams.ids()));
         } else if (!CollectionUtils.isEmpty(editionSearchParams.groupIds())) {
             return super
                 .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds()));
+                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(
+                    editionSearchParams.groupIds()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }
 
-    private FactureEditionResponse buildAndSaveFacturesGroupe(EditionSearchParams editionSearchParams) {
+    private FactureEditionResponse buildAndSaveFacturesGroupe(
+        EditionSearchParams editionSearchParams) throws InvoiceEmptyDataException {
         int generationCode = getGenerationCode();
         Map<GroupeTiersPayant, FactureTiersPayant> groupeTiersPayantFactureTiersPayantMap = new HashMap<>();
         var dateCreation = LocalDateTime.now();
@@ -78,10 +84,15 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
         var lastFactureNumero = super.getLastFactureNumero();
         AtomicInteger numero = new AtomicInteger(lastFactureNumero);
         List<ThirdPartySaleLine> thirdPartySaleLines = this.getDatas(editionSearchParams);
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(thirdPartySaleLines);
+        if (CollectionUtils.isEmpty(thirdPartySaleLines)) {
+            throw new InvoiceEmptyDataException();
+        }
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(
+            thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) -> {
             GroupeTiersPayant groupeTiersPayant = tiersPayant.getGroupeTiersPayant();
-            FactureTiersPayant factGroupe = groupeTiersPayantFactureTiersPayantMap.get(groupeTiersPayant);
+            FactureTiersPayant factGroupe = groupeTiersPayantFactureTiersPayantMap.get(
+                groupeTiersPayant);
             if (factGroupe == null) {
                 factGroupe = buildGroupeFacture(
                     groupeTiersPayant,
@@ -94,15 +105,15 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
                 groupeTiersPayantFactureTiersPayantMap.put(groupeTiersPayant, factGroupe);
             }
             this.buildAndSaveFacture(
-                    factGroupe,
-                    tiersPayant,
-                    saleLines,
-                    dateCreation,
-                    year,
-                    numero.incrementAndGet(),
-                    generationCode,
-                    editionSearchParams
-                );
+                factGroupe,
+                tiersPayant,
+                saleLines,
+                dateCreation,
+                year,
+                numero.incrementAndGet(),
+                generationCode,
+                editionSearchParams
+            );
         });
 
         return new FactureEditionResponse(generationCode, true);

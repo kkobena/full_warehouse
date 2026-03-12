@@ -3,10 +3,10 @@
     [paginator]="true"
     [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
     [rows]="itemsPerPage"
-    [value]="rowData"
-    dataKey="id"
     [stripedRows]="true"
+    [value]="rowData"
     class="pharma-table"
+    dataKey="id"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -19,7 +19,7 @@
         <th style="width: 7%"></th>
       </tr>
     </ng-template>
-    <ng-template let-ajust let-expanded="expanded" #body>
+    <ng-template #body let-ajust let-expanded="expanded">
       <tr>
         <td>
           <p-button
@@ -49,66 +49,82 @@
           <div class="btn-group">
             <p-button
               (click)="exportPdf(ajust)"
-              class="ml-sm-1"
-              rounded="true"
               [text]="true"
+              class="ml-sm-1"
               icon="pi pi-file-pdf"
-              severity="secondary"
               pTooltip="Imprimer"
+              rounded="true"
+              severity="secondary"
             ></p-button>
           </div>
         </td>
       </tr>
     </ng-template>
-    <ng-template let-elRow #expandedrow>
+    <ng-template #expandedrow let-elRow>
       <tr class="pharma-expanded-row">
         <td colspan="7">
-          <div class="pharma-sub-table-container">
-            <div class="pharma-sub-table-header">
-              <i class="pi pi-list"></i>
-              <span>DETAILS</span>
-            </div>
-            <div class="pharma-sub-table-body">
-              <table class="table table-striped-columns table-bordered">
-                <thead>
-                  <tr class="pharma-table-head">
-                    <th style="width: 2%">#</th>
-                    <th>Code cip</th>
-                    <th>Libellé</th>
-                    <th>Quantité ajustée</th>
-                    <th>Stock avant</th>
-                    <th>Stock final</th>
-                    <th>Motif</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (ajustement of elRow.ajustements; track ajustement.id; let rowIndex = $index) {
-                    <tr>
-                      <td style="text-align: left">
+          <div class="expanded-row-container">
+            <div class="activity-card activity-card-products">
+              <div class="activity-card-header">
+                <div class="activity-card-icon activity-card-icon-small">
+                  <i class="pi pi-list"></i>
+                </div>
+                <div class="activity-card-header-content">
+                  <h3 class="activity-card-title">Détails de l'ajustement</h3>
+                  <span class="activity-card-subtitle">
+                    {{ elRow.userFullName }} — {{ elRow.dateMtv | date: 'dd/MM/yyyy HH:mm' }}
+                    ({{ elRow.ajustements?.length }} produit(s))
+                  </span>
+                </div>
+              </div>
+              <div class="activity-card-table-body">
+                <p-table
+                  [paginator]="true"
+                  [rowsPerPageOptions]="[10, 20, 50]"
+                  [rows]="10"
+                  [showCurrentPageReport]="true"
+                  [stripedRows]="true"
+                  [value]="elRow.ajustements"
+                  class="pharma-table rowexpansion-table"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                  dataKey="id"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th style="width: 4%">#</th>
+                      <th style="width: 10%">Code CIP</th>
+                      <th style="width: 36%">Libellé</th>
+                      <th class="text-right" style="width: 10%">Qté ajustée</th>
+                      <th class="text-right" style="width: 10%">Stock avant</th>
+                      <th class="text-right" style="width: 10%">Stock final</th>
+                      <th style="width: 20%">Motif</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-ajustement let-rowIndex="rowIndex">
+                    <tr class="pharma-row-hover">
+                      <td>
                         <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
                       </td>
                       <td>
                         <span class="pharma-code">{{ ajustement.codeCip }}</span>
                       </td>
                       <td>
-                        <span class="pharma-entity-name">{{ ajustement.produitLibelle }}</span>
+                        <span class="pharma-product-name">{{ ajustement.produitLibelle }}</span>
                       </td>
-                      <td class="text-right">
-                        <span class="pharma-qty-value">{{ ajustement.qtyMvt | number }}</span>
+                      <td class="text-right pharma-qty-value">{{ ajustement.qtyMvt | number }}</td>
+                      <td
+                        class="text-right pharma-qty-value">{{ ajustement.stockBefore | number }}
                       </td>
-                      <td class="text-right">
-                        <span class="pharma-qty-value">{{ ajustement.stockBefore | number }}</span>
+                      <td class="text-right pharma-qty-value"
+                          style="font-weight: bold">{{ ajustement.stockAfter | number }}
                       </td>
-                      <td class="text-right">
-                        <span class="pharma-qty-value">{{ ajustement.stockAfter | number }}</span>
-                      </td>
-                      <td>
-                        <span class="pharma-entity-name">{{ ajustement.motifAjustementLibelle }}</span>
+                      <td class="text-center">
+                        {{ ajustement.motifAjustementLibelle }}
                       </td>
                     </tr>
-                  }
-                </tbody>
-              </table>
+                  </ng-template>
+                </p-table>
+              </div>
             </div>
           </div>
         </td>

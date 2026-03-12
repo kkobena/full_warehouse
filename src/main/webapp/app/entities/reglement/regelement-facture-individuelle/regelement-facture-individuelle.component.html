@@ -6,7 +6,8 @@
     </div>
   </ng-template>
   <ng-template #content>
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"></jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"
+                       [factureGroup]="false"></jhi-factues-modal>
   </ng-template>
 </p-drawer>
 
@@ -16,7 +17,7 @@
     <div class="pharma-toolbar">
       <div class="pharma-toolbar-header">
         <i class="pi pi-money-bill"></i>
-        <span class="pharma-toolbar-title">Règlement de Factures Individuelles</span>
+        <span class="pharma-toolbar-title">Règlement des factures individuelles</span>
         <span class="pharma-toolbar-subtitle">Gestion des règlements par dossier</span>
       </div>
     </div>
@@ -95,7 +96,9 @@
                 <span class="pharma-price">{{ item.montantPaye | number }}</span>
               </td>
               <td class="amount-column">
-                <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
+                <span class="pharma-total">{{
+                    item.montantTotal - item.montantPaye | number
+                  }}</span>
               </td>
               @if (partialPayment) {
                 <td class="text-center">
@@ -149,7 +152,8 @@
             </div>
           </ng-template>
 
-          <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()" [totalApayer]="montantAPayer()">
+          <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()"
+                                      [totalApayer]="montantAPayer()">
           </jhi-dossier-reglement-info>
         </p-card>
       </aside>

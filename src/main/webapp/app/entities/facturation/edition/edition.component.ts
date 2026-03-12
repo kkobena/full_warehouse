@@ -1,38 +1,44 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { FactureService } from '../facture.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CATEGORIE_TIRERS_PAYANT, MODE_EDITIONS_FACTURE } from '../../../shared/constants/data-constants';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TiersPayantDossierFacture } from '../tiers-payant-dossier-facture.model';
-import { DossierFacture } from '../dossier-facture.model';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { EditionSearchParams } from '../edition-search-params.model';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ErrorService } from '../../../shared/error.service';
-import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { FactureEditionResponse } from '../facture-edition-response';
-import { ButtonModule } from 'primeng/button';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
-import { Subject } from 'rxjs';
-import { DatePicker } from 'primeng/datepicker';
-import { Card } from 'primeng/card';
-import { Select } from 'primeng/select';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {FactureService} from '../facture.service';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {
+  CATEGORIE_TIRERS_PAYANT,
+  MODE_EDITIONS_FACTURE
+} from '../../../shared/constants/data-constants';
+import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {GroupeTiersPayantService} from '../../groupe-tiers-payant/groupe-tierspayant.service';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {IGroupeTiersPayant} from '../../../shared/model/groupe-tierspayant.model';
+import {ITiersPayant} from '../../../shared/model';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {TiersPayantDossierFacture} from '../tiers-payant-dossier-facture.model';
+import {DossierFacture} from '../dossier-facture.model';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {EditionSearchParams} from '../edition-search-params.model';
+import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AutoCompleteModule} from 'primeng/autocomplete';
+import {ErrorService} from '../../../shared/error.service';
+import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
+import {FactureEditionResponse} from '../facture-edition-response';
+import {ButtonModule} from 'primeng/button';
+import {ToggleSwitch} from 'primeng/toggleswitch';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {TranslateService} from '@ngx-translate/core';
+import {PrimeNG} from 'primeng/config';
+import {DatePicker} from 'primeng/datepicker';
+import {Card} from 'primeng/card';
+import {Select} from 'primeng/select';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
+import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import {finalize} from "rxjs/operators";
 
 @Component({
   selector: 'jhi-edition',
@@ -57,7 +63,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
   styleUrls: ['./edition.component.scss'],
   providers: [ConfirmationService],
 })
-export class EditionComponent implements OnInit, OnDestroy {
+export class EditionComponent implements OnInit {
   protected minLength = 2;
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
@@ -85,7 +91,7 @@ export class EditionComponent implements OnInit, OnDestroy {
   protected editing = false;
   protected loading!: boolean;
   protected exporting = false;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly errorService = inject(ErrorService);
@@ -94,21 +100,20 @@ export class EditionComponent implements OnInit, OnDestroy {
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
+
   constructor() {
     this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+    this.translate.stream('primeng')
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: data => this.primeNGConfig.setTranslation(data),
+      });
   }
 
   ngOnInit(): void {
     this.loadGroupTiersPayant();
     this.loadTiersPayants();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   searchTiersPayant(event: any): void {
@@ -122,28 +127,26 @@ export class EditionComponent implements OnInit, OnDestroy {
   loadGroupTiersPayant(search?: string): void {
     const query: string = search || '';
     this.groupeTiersPayantService
-      .query({
-        page: 0,
-        search: query,
-        size: 10,
-      })
-      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
-        this.groupeTiersPayants = res.body || [];
+      .query({page: 0, search: query, size: 10})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IGroupeTiersPayant[]>) => {
+          this.groupeTiersPayants = res.body || [];
+        },
+        error: (err: any) => this.onError(err),
       });
   }
 
   loadTiersPayants(search?: string): void {
     const query: string = search || '';
     this.tiersPayantService
-      .query({
-        page: 0,
-        search: query,
-        size: 10,
-      })
+      .query({page: 0, search: query, size: 10})
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
         },
+        error: (err: any) => this.onError(err),
       });
   }
 
@@ -161,21 +164,23 @@ export class EditionComponent implements OnInit, OnDestroy {
 
   onEdit(): void {
     this.editing = true;
-    this.factureService.editInvoices(this.buildEditionParams()).subscribe({
-      next: (res: HttpResponse<FactureEditionResponse>) => {
-        this.editing = false;
-        if (res.body) {
-          this.onPrintAllInvoices(res.body);
-        }
-      },
-      complete: () => (this.editing = false),
-      error: (error: any) => this.onError(error),
-    });
+    this.factureService.editInvoices(this.buildEditionParams())
+      .pipe(
+        finalize(() => (this.editing = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (res: HttpResponse<FactureEditionResponse>) => {
+          if (res.body) {
+            this.onPrintAllInvoices(res.body);
+          }
+        },
+        error: (err: any) => this.onError(err),
+      });
   }
 
   onError(error: any): void {
     this.editing = false;
-
     this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 
@@ -197,10 +202,13 @@ export class EditionComponent implements OnInit, OnDestroy {
         size: this.itemsPerPage,
         ...this.buildSearchParams(),
       })
+      .pipe(
+        finalize(() => (this.searching = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (res: HttpResponse<DossierFacture[]>) => this.onSearchBonSuccess(res.body, res.headers, pageToLoad),
-        complete: () => (this.searching = false),
-        error: () => (this.searching = false),
+        error: (err: any) => this.onError(err),
       });
   }
 
@@ -214,16 +222,16 @@ export class EditionComponent implements OnInit, OnDestroy {
         size: this.itemsPerPage,
         ...this.buildSearchParams(),
       })
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.searching = false;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
-        complete: () => {
-          this.loading = false;
-          this.searching = false;
-        },
-        error: () => {
-          this.loading = false;
-          this.searching = false;
-        },
+        error: (err: any) => this.onError(err),
       });
   }
 
@@ -237,16 +245,13 @@ export class EditionComponent implements OnInit, OnDestroy {
           size: event.rows,
           ...this.buildSearchParams(),
         })
+        .pipe(
+          finalize(() => (this.loading = false)),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe({
           next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, this.pageTp),
-          error: () => {
-            this.loading = false;
-            this.searching = false;
-          },
-          complete: () => {
-            this.loading = false;
-            this.searching = false;
-          },
+          error: (err: any) => this.onError(err),
         });
     }
   }
@@ -309,18 +314,21 @@ export class EditionComponent implements OnInit, OnDestroy {
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
         this.exporting = true;
-        this.factureService.exportAllInvoices(response).subscribe({
-          next: (res: Blob) => {
-            this.exporting = false;
-            // const file = new Blob([res], { type: 'application/pdf' });
-            const fileURL = URL.createObjectURL(res);
-            window.open(fileURL);
-          },
-          error: (err: any) => {
-            this.exporting = false;
-            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          },
-        });
+        this.factureService.exportAllInvoices(response)
+          .pipe(
+            finalize(() => (this.exporting = false)),
+            takeUntilDestroyed(this.destroyRef),
+          )
+          .subscribe({
+            next: (res: Blob) => {
+              if (this.tauriPrinter.isRunningInTauri()) {
+                handleBlobForTauri(res, `factures_${new Date().getTime()}`);
+              } else {
+                window.open(URL.createObjectURL(res));
+              }
+            },
+            error: (err: any) => this.onError(err),
+          });
         this.resetForm();
       },
       reject: () => {

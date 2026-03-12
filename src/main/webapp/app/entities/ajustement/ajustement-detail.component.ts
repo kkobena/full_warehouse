@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { IProduit } from '../../shared/model/produit.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -85,6 +86,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly ajustementService = inject(AjustementService);
@@ -110,10 +112,15 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
 
   deleteSelectedItems(): void {
     const ids = this.selectedEl.map(e => e.id);
-    this.ajustementService.deleteItemsByIds(ids).subscribe(() => {
-      this.selectedEl = [];
-      this.onSuccess();
-    });
+    this.ajustementService.deleteItemsByIds(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.selectedEl = [];
+          this.onSuccess();
+        },
+        error: err => this.onSaveError(err),
+      });
   }
 
   confirmDeleteItem(item: IAjustement): void {
@@ -156,17 +163,22 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   protected loadAll(ajsut: number | null): void {
-    this.ajustementService.query({ ajustementId: ajsut }).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
+    this.ajustementService.query({ajustementId: ajsut})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IAjustement[]>) => (this.items = res.body || []),
+        error: err => this.onSaveError(err),
+      });
   }
 
   protected loadMotifs(query?: string): void {
     this.modifAjustementService
-      .query({
-        page: 0,
-        size: 9999,
-        search: query,
-      })
-      .subscribe((res: HttpResponse<IMotifAjustement[]>) => this.onMotifSuccess(res.body));
+      .query({page: 0, size: 9999, search: query})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IMotifAjustement[]>) => this.onMotifSuccess(res.body),
+        error: err => this.onSaveError(err),
+      });
   }
 
   protected onSave(): void {
@@ -200,17 +212,21 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   protected removeLine(ajustement: IAjustement): void {
-    this.ajustementService.deleteItem(ajustement.id).subscribe(() => {
-      this.loadAll(ajustement.id);
-    });
+    this.ajustementService.deleteItem(ajustement.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.loadAll(this.ajustement?.id),
+        error: err => this.onSaveError(err),
+      });
   }
 
   protected onFilterItems(): void {
-    const query = {
-      ajustementId: this.ajustement?.id,
-      search: this.search,
-    };
-    this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
+    this.ajustementService.query({ajustementId: this.ajustement?.id, search: this.search})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IAjustement[]>) => (this.items = res.body || []),
+        error: err => this.onSaveError(err),
+      });
   }
 
   protected onSaveFinalyseSuccess(success: any): void {
@@ -228,17 +244,21 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   protected subscribeCreateNewResponse(result: Observable<HttpResponse<IAjust>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IAjust>) => this.onSaveSuccess(res.body),
-      error: (err: HttpErrorResponse) => this.onSaveError(err),
-    });
+    result
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IAjust>) => this.onSaveSuccess(res.body),
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
+      });
   }
 
   protected subscribeAddItemResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err),
-    });
+    result
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
+      });
   }
 
   protected onSaveError(err: HttpErrorResponse): void {

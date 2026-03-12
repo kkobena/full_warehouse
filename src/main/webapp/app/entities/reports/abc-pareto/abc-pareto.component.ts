@@ -1,25 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { ChipModule } from 'primeng/chip';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {ChipModule} from 'primeng/chip';
+import {ProgressBarModule} from 'primeng/progressbar';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { IABCPareto, IABCParetoSummary } from 'app/shared/model/report';
-import { ClassePareto } from 'app/shared/model/report/classe-pareto.enum';
-import { ABCParetoReportService } from '../services/abc-pareto-report.service';
-import { InputText } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { Drawer } from 'primeng/drawer';
-import { formatCurrency } from 'app/shared/utils/format-utils';
+import {IABCPareto, IABCParetoSummary} from 'app/shared/model/report';
+import {ClassePareto} from 'app/shared/model/report/classe-pareto.enum';
+import {ABCParetoReportService} from '../services/abc-pareto-report.service';
+import {InputText} from 'primeng/inputtext';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {Drawer} from 'primeng/drawer';
+import {formatCurrency} from 'app/shared/utils/format-utils';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 @Component({
   selector: 'jhi-abc-pareto',
@@ -52,15 +54,17 @@ export default class ABCParetoComponent implements OnInit {
 
   categorieOptions = signal<{ label: string; value: string }[]>([]);
   classeParetoOptions = signal<{ label: string; value: ClassePareto }[]>([
-    { label: 'Toutes', value: '' as any },
-    { label: 'Classe A (80% du CA)', value: ClassePareto.A },
-    { label: 'Classe B (15% du CA)', value: ClassePareto.B },
-    { label: 'Classe C (5% du CA)', value: ClassePareto.C },
+    {label: 'Toutes', value: '' as any},
+    {label: 'Classe A (80% du CA)', value: ClassePareto.A},
+    {label: 'Classe B (15% du CA)', value: ClassePareto.B},
+    {label: 'Classe C (5% du CA)', value: ClassePareto.C},
   ]);
 
   ClassePareto = ClassePareto;
-
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
   private readonly abcParetoService = inject(ABCParetoReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.loadABCPareto();
@@ -128,28 +132,15 @@ export default class ABCParetoComponent implements OnInit {
   }
 
   exportToPdf(): void {
-    this.abcParetoService.exportABCParetoToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `abc-pareto-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.abcParetoService.exportABCParetoToPdf()
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `abc_pareto_${new Date().getTime()}`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
-  }
+      });
 
-  private extractFilterOptions(products: IABCPareto[]): void {
-    // Extract unique categories
-    const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
-    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
   }
 
   getClasseParetoLabel(classePareto: ClassePareto | undefined): string {
@@ -192,9 +183,15 @@ export default class ABCParetoComponent implements OnInit {
   }
 
   getCumulativePercentageColor(caCumulePct: number | undefined): string {
-    if (!caCumulePct) return 'secondary';
-    if (caCumulePct <= 80) return 'success';
-    if (caCumulePct <= 95) return 'info';
+    if (!caCumulePct) {
+      return 'secondary';
+    }
+    if (caCumulePct <= 80) {
+      return 'success';
+    }
+    if (caCumulePct <= 95) {
+      return 'info';
+    }
     return 'warn';
   }
 
@@ -202,6 +199,12 @@ export default class ABCParetoComponent implements OnInit {
     this.helpDrawerVisible.update(value => !value);
   }
 
-  // Format methods using shared utilities
-  formatCurrency = formatCurrency;
+  private extractFilterOptions(products: IABCPareto[]): void {
+    // Extract unique categories
+    const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
+    this.categorieOptions.set([{
+      label: 'Toutes les catégories',
+      value: ''
+    }, ...categories.map(c => ({label: c, value: c}))]);
+  }
 }

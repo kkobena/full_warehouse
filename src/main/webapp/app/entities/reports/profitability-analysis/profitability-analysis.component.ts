@@ -1,23 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { InputText } from 'primeng/inputtext';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { Drawer } from 'primeng/drawer';
-import { Tag } from 'primeng/tag';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {InputText} from 'primeng/inputtext';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {Drawer} from 'primeng/drawer';
+import {Tag} from 'primeng/tag';
 
-import { IMargeDTO, IMargeSummary } from 'app/shared/model/report';
-import { MargeReportService } from '../services/marge-report.service';
-import { FamilleProduitService } from '../../famille-produit/famille-produit.service';
+import {IMargeDTO, IMargeSummary} from 'app/shared/model/report';
+import {MargeReportService} from '../services/marge-report.service';
+import {FamilleProduitService} from '../../famille-produit/famille-produit.service';
 
 @Component({
   selector: 'jhi-profitability-analysis',
@@ -40,44 +40,34 @@ import { FamilleProduitService } from '../../famille-produit/famille-produit.ser
   ],
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
-  protected products      = signal<IMargeDTO[]>([]);
-  protected summary       = signal<IMargeSummary | null>(null);
-  protected isLoading     = signal<boolean>(false);
-  protected totalRecords  = signal<number>(0);
+  protected products = signal<IMargeDTO[]>([]);
+  protected summary = signal<IMargeSummary | null>(null);
+  protected isLoading = signal<boolean>(false);
+  protected totalRecords = signal<number>(0);
   protected helpDrawerVisible = signal<boolean>(false);
 
   // Filtres
   protected selectedFamilleId = signal<number | null>(null);
-  protected searchQuery        = signal<string>('');
-  protected showFaibleMarge    = signal<boolean>(false);
-  protected seuilFaibleMarge   = 10;
+  protected searchQuery = signal<string>('');
+  protected showFaibleMarge = signal<boolean>(false);
+  protected seuilFaibleMarge = 10;
 
   // Pagination
   protected pageSize = 20;
   protected first = 0;
-  protected sortField = 'margeBrute';
-  protected sortOrder = 'desc';
+
 
   protected familleOptions = signal<{ label: string; value: number | null }[]>([
-    { label: 'Toutes les familles', value: null },
+    {label: 'Toutes les familles', value: null},
   ]);
 
-  private readonly margeService       = inject(MargeReportService);
+  private readonly margeService = inject(MargeReportService);
   private readonly familleProduitService = inject(FamilleProduitService);
 
   ngOnInit(): void {
     this.loadFamilles();
     this.loadProducts();
     this.loadSummary();
-  }
-
-  private loadFamilles(): void {
-    this.familleProduitService.query({ page: 0, size: 200 }).subscribe({
-      next: res => {
-        const opts = (res.body ?? []).map((f: any) => ({ label: f.libelle, value: f.id }));
-        this.familleOptions.set([{ label: 'Toutes les familles', value: null }, ...opts]);
-      },
-    });
   }
 
   protected loadProducts(page = 0): void {
@@ -91,7 +81,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     };
 
     const obs = this.showFaibleMarge()
-      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, { page, size: this.pageSize })
+      ? this.margeService.getFaibleMarge(this.seuilFaibleMarge, {page, size: this.pageSize})
       : this.margeService.getMarges(req);
 
     obs.subscribe({
@@ -108,7 +98,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.margeService
       .getMargeSummary({
         familleProduitId: this.selectedFamilleId() ?? undefined,
-        seuilBas:  this.seuilFaibleMarge,
+        seuilBas: this.seuilFaibleMarge,
         seuilHaut: 20,
       })
       .subscribe({
@@ -159,14 +149,31 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   }
 
   protected getMarginSeverity(margin: number | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-    if (!margin && margin !== 0) return 'secondary';
-    if (margin >= 30) return 'success';
-    if (margin >= 20) return 'info';
-    if (margin >= 10) return 'warn';
+    if (!margin && margin !== 0) {
+      return 'secondary';
+    }
+    if (margin >= 30) {
+      return 'success';
+    }
+    if (margin >= 20) {
+      return 'info';
+    }
+    if (margin >= 10) {
+      return 'warn';
+    }
     return 'danger';
   }
 
   protected toggleHelpDrawer(): void {
     this.helpDrawerVisible.update(v => !v);
+  }
+
+  private loadFamilles(): void {
+    this.familleProduitService.query({page: 0, size: 200}).subscribe({
+      next: res => {
+        const opts = (res.body ?? []).map((f: any) => ({label: f.libelle, value: f.id}));
+        this.familleOptions.set([{label: 'Toutes les familles', value: null}, ...opts]);
+      },
+    });
   }
 }

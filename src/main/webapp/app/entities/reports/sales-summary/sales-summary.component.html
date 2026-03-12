@@ -9,40 +9,41 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-datePicker
-            [(ngModel)]="startDate"
-            placeholder="Date début"
-            dateFormat="dd/mm/yy"
-            appendTo="body"
-            [showIcon]="true"
             (onSelect)="onFilterChange()"
+            [(ngModel)]="startDate"
+            [showIcon]="true"
+            appendTo="body"
+            dateFormat="dd/mm/yy"
+            placeholder="Date début"
           />
           <p-datePicker
-            [(ngModel)]="endDate"
-            placeholder="Date fin"
-            dateFormat="dd/mm/yy"
-            appendTo="body"
-            [showIcon]="true"
             (onSelect)="onFilterChange()"
+            [(ngModel)]="endDate"
+            [showIcon]="true"
+            appendTo="body"
+            dateFormat="dd/mm/yy"
+            placeholder="Date fin"
           />
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedTypeVente"
-            [options]="typeVenteOptions"
-            placeholder="Type de vente"
-            appendTo="body"
             [fluid]="true"
-            size="large"
-            optionLabel="label"
-            optionValue="value"
+            [options]="typeVenteOptions"
             [showClear]="true"
             [style]="{ 'min-width': '150px' }"
-            (onChange)="onFilterChange()"
+            appendTo="body"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Type de vente"
+            size="large"
           />
         </div>
       </ng-template>
 
       <ng-template #end>
-        <div class="flex gap-2">
-          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="secondary" (onClick)="loadSummaries()" />
+        <div>
+          <p-button (onClick)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+                    size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -138,15 +139,15 @@
         </div>
         <div class="card-body p-0">
           <p-table
-            [value]="summaries()"
             [loading]="isLoading()"
             [paginator]="true"
-            class="pharma-table"
-            [rows]="20"
             [rowsPerPageOptions]="[10, 20, 50]"
+            [rows]="20"
             [showCurrentPageReport]="true"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             [tableStyle]="{ 'min-width': '50rem' }"
+            [value]="summaries()"
+            class="pharma-table"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -163,18 +164,25 @@
               <tr>
                 <td>{{ summary.saleDate | date: 'dd/MM/yyyy' }}</td>
                 <td>
-                  <p-tag [severity]="getSeverityForType(summary.typeVente)">{{ summary.typeVente || 'N/A' }}</p-tag>
+                  <p-tag [severity]="getSeverityForType(summary.typeVente)">{{
+                      summary.typeVente || 'N/A'
+                    }}
+                  </p-tag>
                 </td>
                 <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
                 <td class="text-end pharma-price">{{ summary.caTotal | number: '1.0-0' }} F CFA</td>
                 <td class="text-end pharma-price">{{ summary.caNet | number: '1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.totalRemises | number: '1.0-0' }} F CFA</td>
-                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.totalRemises | number: '1.0-0' }} F
+                  CFA
+                </td>
+                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }} F
+                  CFA
+                </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="7" class="text-center">Aucune donnée disponible</td>
+                <td class="text-center" colspan="7">Aucune donnée disponible</td>
               </tr>
             </ng-template>
           </p-table>

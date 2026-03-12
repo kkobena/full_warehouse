@@ -9,23 +9,24 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-multiSelect
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedAlertTypes"
+            [fluid]="true"
             [options]="alertTypeOptions"
             [showClear]="true"
-            display="chip"
-            [fluid]="true"
             appendTo="body"
-            placeholder="Filtrer par type d'alerte"
-            (onChange)="onFilterChange()"
+            display="chip"
             optionLabel="label"
             optionValue="value"
+            placeholder="Filtrer par type d'alerte"
           />
         </div>
       </ng-template>
 
       <ng-template #end>
-        <div class="flex gap-2">
-          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()"/>
+        <div>
+          <p-button (onClick)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn"
+                    size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -110,19 +111,19 @@
         <div class="card-body p-0">
           <div class="overflow-x-auto">
             <p-table
-              [value]="alerts()"
-              [loading]="isLoading()"
-              [rowHover]="true"
-              [scrollable]="true"
-              [lazy]="true"
-              [paginator]="true"
-              [rows]="rowsPerPage"
-              [totalRecords]="totalItems()"
-              [rowsPerPageOptions]="[10, 15, 20,30, 50]"
               (onLazyLoad)="loadAlerts($event)"
-              sortField="alertType"
-              class="pharma-table"
+              [lazy]="true"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rowHover]="true"
+              [rowsPerPageOptions]="[10, 15, 20,30, 50]"
+              [rows]="rowsPerPage"
+              [scrollable]="true"
               [sortOrder]="1"
+              [totalRecords]="totalItems()"
+              [value]="alerts()"
+              class="pharma-table"
+              sortField="alertType"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -137,7 +138,8 @@
               <ng-template #body let-alert>
                 <tr>
                   <td>
-                    <p-tag [value]="getAlertLabel(alert.alertType)" [severity]="getAlertSeverity(alert.alertType)"/>
+                    <p-tag [severity]="getAlertSeverity(alert.alertType)"
+                           [value]="getAlertLabel(alert.alertType)" />
                   </td>
                   <td>
                     <span class="fw-semibold">{{ alert.libelle }}</span>
@@ -146,8 +148,8 @@
                     <span class="text-muted">{{ alert.codeCip }}</span>
                   </td>
                   <td class="text-end">
-                    <span [class.text-danger]="(alert.stockQuantity ?? 0) <= 0"
-                          [class.fw-bold]="(alert.stockQuantity ?? 0) <= 0">
+                    <span [class.fw-bold]="(alert.stockQuantity ?? 0) <= 0"
+                          [class.text-danger]="(alert.stockQuantity ?? 0) <= 0">
                       {{ alert.stockQuantity || 0 }}
                     </span>
                   </td>
@@ -165,7 +167,7 @@
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td colspan="6" class="text-center p-4">
+                  <td class="text-center p-4" colspan="6">
                     <i class="pi pi-check-circle text-success" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucune alerte stock pour le moment</p>
                   </td>

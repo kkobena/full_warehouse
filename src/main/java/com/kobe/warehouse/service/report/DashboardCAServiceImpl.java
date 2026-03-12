@@ -8,11 +8,6 @@ import com.kobe.warehouse.service.dto.report.ProductFamilyCADTO;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -23,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for Dashboard Chiffre d'Affaires (CA)
@@ -142,14 +141,17 @@ public class DashboardCAServiceImpl implements DashboardCAService {
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'evolution_' + #period + '_' + #startDate + '_' + #endDate")
-    public DashboardCAEvolutionDTO getEvolutionData(String period, LocalDate startDate, LocalDate endDate) {
+    public DashboardCAEvolutionDTO getEvolutionData(String period, LocalDate startDate,
+        LocalDate endDate) {
         List<DailyCADTO> dailyData = getDailySummary(startDate, endDate);
 
         if ("monthly".equals(period)) {
             // Group by month
             Map<String, List<DailyCADTO>> byMonth = dailyData
                 .stream()
-                .collect(Collectors.groupingBy(d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
+                .collect(Collectors.groupingBy(
+                    d -> d.saleDate().getYear() + "-" + String.format("%02d",
+                        d.saleDate().getMonthValue())));
 
             List<String> labels = new ArrayList<>(byMonth.keySet());
             Collections.sort(labels);
@@ -161,16 +163,19 @@ public class DashboardCAServiceImpl implements DashboardCAService {
 
             List<Integer> transactionCounts = labels
                 .stream()
-                .map(month -> byMonth.get(month).stream().mapToInt(DailyCADTO::nbTransactions).sum())
+                .map(
+                    month -> byMonth.get(month).stream().mapToInt(DailyCADTO::nbTransactions).sum())
                 .toList();
 
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(), transactionCounts, "monthly");
+            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
+                transactionCounts, "monthly");
         } else if ("weekly".equals(period)) {
             // Group by week
             Map<String, List<DailyCADTO>> byWeek = dailyData
                 .stream()
                 .collect(
-                    Collectors.groupingBy(d -> d.saleDate().getYear() + "-W" + String.format("%02d", getWeekNumber(d.saleDate())))
+                    Collectors.groupingBy(d -> d.saleDate().getYear() + "-W" + String.format("%02d",
+                        getWeekNumber(d.saleDate())))
                 );
 
             List<String> labels = new ArrayList<>(byWeek.keySet());
@@ -186,22 +191,26 @@ public class DashboardCAServiceImpl implements DashboardCAService {
                 .map(week -> byWeek.get(week).stream().mapToInt(DailyCADTO::nbTransactions).sum())
                 .toList();
 
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(), transactionCounts, "weekly");
+            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
+                transactionCounts, "weekly");
         } else {
             // Daily
             List<String> labels = dailyData.stream().map(d -> d.saleDate().toString()).toList();
 
             List<Long> caValues = dailyData.stream().map(DailyCADTO::caNet).toList();
 
-            List<Integer> transactionCounts = dailyData.stream().map(DailyCADTO::nbTransactions).toList();
+            List<Integer> transactionCounts = dailyData.stream().map(DailyCADTO::nbTransactions)
+                .toList();
 
-            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(), transactionCounts, "daily");
+            return new DashboardCAEvolutionDTO(labels, caValues, Collections.emptyList(),
+                transactionCounts, "daily");
         }
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'payment_' + #startDate + '_' + #endDate")
-    public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate, LocalDate endDate) {
+    public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate,
+        LocalDate endDate) {
         String sql =
             "SELECT payment_date, payment_method, payment_code, nb_payments, " +
                 "montant_total,  montant_moyen " +
@@ -231,7 +240,8 @@ public class DashboardCAServiceImpl implements DashboardCAService {
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'families_' + #startDate + '_' + #endDate")
-    public List<ProductFamilyCADTO> getProductFamilyDistribution(LocalDate startDate, LocalDate endDate) {
+    public List<ProductFamilyCADTO> getProductFamilyDistribution(LocalDate startDate,
+        LocalDate endDate) {
         String sql =
             "SELECT sale_date, famille, quantite_vendue, ca_total, cout_total, " +
                 "marge_brute, taux_marge_pct, nb_lignes_vente " +
@@ -255,7 +265,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
                     ((Number) row[4]).longValue(),
                     ((Number) row[5]).longValue(),
                     (BigDecimal) row[6],
-                    ((Number)  row[7]).intValue()
+                    ((Number) row[7]).intValue()
                 )
             )
             .toList();
@@ -263,14 +273,15 @@ public class DashboardCAServiceImpl implements DashboardCAService {
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'top_products_' + #startDate + '_' + #endDate + '_' + #limit")
-    public List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate, Integer limit) {
+    public List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate,
+        Integer limit) {
         String sql =
             "SELECT :period as mois, p.id, p.libelle, " +
                 "COALESCE(fp.code_cip, '') as code_cip, " +
                 "COUNT(DISTINCT sl.sales_id) as nb_ventes, " +
-                "SUM(sl.quantity_sold) as qty_vendue, " +
+                "SUM(sl.quantity_requested) as qty_vendue, " +
                 "SUM(sl.sales_amount) as ca, " +
-                "AVG(sl.sales_amount / NULLIF(sl.quantity_sold, 0)) as prix_moyen " +
+                "AVG(sl.sales_amount / NULLIF(sl.quantity_requested, 0)) as prix_moyen " +
                 "FROM sales s " +
                 "INNER JOIN sales_line sl ON s.id = sl.sales_id " +
                 "INNER JOIN produit p ON sl.produit_id = p.id " +
@@ -282,13 +293,11 @@ public class DashboardCAServiceImpl implements DashboardCAService {
                 "GROUP BY p.id, p.libelle, fp.code_cip " +
                 "ORDER BY ca DESC ";
 
-
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("period", startDate);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
         query.setMaxResults(Objects.requireNonNullElse(limit, 10));
-
 
         List<Object[]> results = query.getResultList();
         return results
@@ -355,7 +364,6 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     }
 
     private int getWeekNumber(LocalDate date) {
-        // Simple week number calculation (ISO week)
         int dayOfYear = date.getDayOfYear();
         int dayOfWeek = date.getDayOfWeek().getValue();
         return (dayOfYear - dayOfWeek + 10) / 7;

@@ -1,34 +1,34 @@
-import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { Tag } from 'primeng/tag';
-import { DatePicker } from 'primeng/datepicker';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {DatePicker} from 'primeng/datepicker';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
 import {
-  IDailyCA,
-  IDashboardCASummary,
   IDashboardCAEvolution,
+  IDashboardCASummary,
   IPaymentMethodCA,
-  IProductFamilyCA,
   IPaymentMethodSummary,
+  IProductFamilyCA,
   IProductFamilySummary,
 } from 'app/shared/model/report';
-import { ITopProduct } from 'app/shared/model/report/top-product.model';
-import { DashboardCAService } from '../services/dashboard-ca.service';
-import { formatCurrency, formatPercent, formatDate } from 'app/shared/utils/format-utils';
+import {ITopProduct} from 'app/shared/model/report/top-product.model';
+import {DashboardCAService} from '../services/dashboard-ca.service';
+import {formatCurrency, formatDate, formatPercent} from 'app/shared/utils/format-utils';
 
-import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
-import { FloatLabel } from 'primeng/floatlabel';
-import { PrimeNG } from 'primeng/config';
-import { TranslateService } from '@ngx-translate/core';
+import {Chart, ChartConfiguration, ChartData, registerables} from 'chart.js';
+import {FloatLabel} from 'primeng/floatlabel';
+import {PrimeNG} from 'primeng/config';
+import {TranslateService} from '@ngx-translate/core';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+
 Chart.register(...registerables);
 
 interface PeriodOption {
@@ -65,24 +65,25 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   paymentMethodData = signal<IPaymentMethodSummary[]>([]);
   productFamilyData = signal<IProductFamilySummary[]>([]);
   isLoading = signal<boolean>(false);
-
+  periodOptions: PeriodOption[] = [
+    {label: "Aujourd'hui", value: 'today'},
+    {label: '7 derniers jours', value: 'week'},
+    {label: '30 derniers jours', value: 'month'},
+    {label: 'Cette année', value: 'year'},
+    {label: 'Période personnalisée', value: 'custom'},
+  ];
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatPercent = formatPercent;
   // Charts
   private evolutionChart?: Chart;
   private paymentChart?: Chart;
   private familyChart?: Chart;
-
   // Filters
   private dashboardCAService = inject(DashboardCAService);
-
+  private readonly tauriPrinter = inject(TauriPrinterService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
-  periodOptions: PeriodOption[] = [
-    { label: "Aujourd'hui", value: 'today' },
-    { label: '7 derniers jours', value: 'week' },
-    { label: '30 derniers jours', value: 'month' },
-    { label: 'Cette année', value: 'year' },
-    { label: 'Période personnalisée', value: 'custom' },
-  ];
 
   ngOnInit(): void {
     this.translate.use('fr');
@@ -110,7 +111,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     });
 
     // Calculate date range based on selected period
-    const { start, end } = this.getDateRange();
+    const {start, end} = this.getDateRange();
 
     // Load evolution data for chart
     this.dashboardCAService.getEvolutionData('daily', start, end).subscribe({
@@ -164,12 +165,14 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   onPeriodChange(): void {
     const period = this.selectedPeriod();
     if (period !== 'custom') {
-      const { start, end } = this.getDateRange();
+      const {start, end} = this.getDateRange();
       this.startDate.set(new Date(start));
       this.endDate.set(new Date(end));
     }
     this.loadDashboard();
   }
+
+  // Chart creation methods
 
   onRefresh(): void {
     this.dashboardCAService.refreshViews().subscribe({
@@ -183,26 +186,61 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   }
 
   exportToPdf(): void {
-    const { start, end } = this.getDateRange();
-    this.dashboardCAService.exportDashboardToPdf(start, end).subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `dashboard-ca-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    const {start, end} = this.getDateRange();
+    this.dashboardCAService.exportDashboardToPdf(start, end)
+
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `dashboard-ca-${new Date().getTime()}`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
+      });
+
   }
 
-  // Chart creation methods
+  getEvolutionClass(value: number | undefined): string {
+    if (!value) {
+      return '';
+    }
+    return value >= 0 ? 'evolution-positive' : 'evolution-negative';
+  }
+
+  // Export methods
+  exportDailySummaryToExcel(): void {
+    const startDate = this.formatDateForAPI(this.startDate());
+    const endDate = this.formatDateForAPI(this.endDate());
+
+    this.dashboardCAService.exportDailySummaryToExcel(startDate, endDate)
+
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `dashboard-ca-${new Date().getTime()}`, 'excel');
+        } else {
+          window.open(URL.createObjectURL(resp.body));
+        }
+      });
+
+  }
+
+  // Helper methods
+
+  exportDailySummaryToCsv(): void {
+    const startDate = this.formatDateForAPI(this.startDate());
+    const endDate = this.formatDateForAPI(this.endDate());
+
+    this.dashboardCAService.exportDailySummaryToCsv(startDate, endDate)
+
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `dashboard-ca-${new Date().getTime()}`, 'csv');
+        } else {
+          window.open(URL.createObjectURL(resp.body));
+        }
+      });
+
+  }
+
 
   private createEvolutionChart(data: IDashboardCAEvolution): void {
     if (this.evolutionChart) {
@@ -215,7 +253,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.evolutionChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<'line'> = {
       labels: data.labels ?? [],
@@ -289,7 +329,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.paymentChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<'pie'> = {
       labels: data.map(d => d.paymentMethod),
@@ -332,7 +374,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
 
     const ctx = this.familyChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<'bar'> = {
       labels: data.map(d => d.famille),
@@ -382,8 +426,6 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Helper methods
-
   private getDefaultStartDate(): Date {
     const date = new Date();
     date.setDate(date.getDate() - 7);
@@ -425,7 +467,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
     data.forEach(item => {
       const key = item.paymentMethod ?? 'Unknown';
-      const existing = map.get(key) || { total: 0, count: 0, code: item.paymentCode ?? '' };
+      const existing = map.get(key) || {total: 0, count: 0, code: item.paymentCode ?? ''};
       existing.total += item.montantTotal ?? 0;
       existing.count += item.nbPayments ?? 0;
       map.set(key, existing);
@@ -449,7 +491,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
     data.forEach(item => {
       const key = item.famille ?? 'Non classé';
-      const existing = map.get(key) || { ca: 0, marge: 0, tauxMarge: 0, count: 0 };
+      const existing = map.get(key) || {ca: 0, marge: 0, tauxMarge: 0, count: 0};
       existing.ca += item.caTotal ?? 0;
       existing.marge += item.margeBrute ?? 0;
       existing.count++;
@@ -470,90 +512,8 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       .slice(0, 10); // Top 10
   }
 
-  getEvolutionClass(value: number | undefined): string {
-    if (!value) return '';
-    return value >= 0 ? 'evolution-positive' : 'evolution-negative';
-  }
-
-  // Format methods using shared utilities
-  formatCurrency = formatCurrency;
-  formatPercent = formatPercent;
-
-  // Export methods
-  exportDailySummaryToExcel(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
-
-    this.dashboardCAService.exportDailySummaryToExcel(startDate, endDate).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          this.downloadFile(
-            res.body,
-            `dashboard_ca_${startDate}_${endDate}.xlsx`,
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          );
-        }
-      },
-      error() {
-        console.error('Error exporting to Excel');
-      },
-    });
-  }
-
-  exportDailySummaryToCsv(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
-
-    this.dashboardCAService.exportDailySummaryToCsv(startDate, endDate).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          this.downloadFile(res.body, `dashboard_ca_${startDate}_${endDate}.csv`, 'text/csv');
-        }
-      },
-      error() {
-        console.error('Error exporting to CSV');
-      },
-    });
-  }
-
-  exportTopProductsToExcel(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
-
-    this.dashboardCAService.exportTopProductsToExcel(startDate, endDate).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          this.downloadFile(
-            res.body,
-            `top_products_${startDate}_${endDate}.xlsx`,
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          );
-        }
-      },
-      error() {
-        console.error('Error exporting top products to Excel');
-      },
-    });
-  }
-
-  exportTopProductsToCsv(): void {
-    const startDate = this.formatDateForAPI(this.startDate());
-    const endDate = this.formatDateForAPI(this.endDate());
-
-    this.dashboardCAService.exportTopProductsToCsv(startDate, endDate).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          this.downloadFile(res.body, `top_products_${startDate}_${endDate}.csv`, 'text/csv');
-        }
-      },
-      error() {
-        console.error('Error exporting top products to CSV');
-      },
-    });
-  }
-
   private downloadFile(blob: Blob, filename: string, mimeType: string): void {
-    const url = window.URL.createObjectURL(new Blob([blob], { type: mimeType }));
+    const url = window.URL.createObjectURL(new Blob([blob], {type: mimeType}));
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;

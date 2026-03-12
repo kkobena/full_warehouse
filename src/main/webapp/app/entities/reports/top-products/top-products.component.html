@@ -10,30 +10,31 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters flex gap-2">
           <p-datePicker
-            [(ngModel)]="selectedMonth"
-            view="month"
-            dateFormat="mm/yy"
-            appendTo="body"
-            placeholder="Sélectionner un mois"
-            [showIcon]="true"
             (onSelect)="onFilterChange()"
+            [(ngModel)]="selectedMonth"
+            [showIcon]="true"
+            appendTo="body"
+            dateFormat="mm/yy"
+            placeholder="Sélectionner un mois"
+            view="month"
           />
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="limit"
             [options]="limitOptions"
-            placeholder="Limite"
-            optionLabel="label"
-            appendTo="body"
             [style]="{ 'max-width': '150px' }"
+            appendTo="body"
+            optionLabel="label"
             optionValue="value"
-            (onChange)="onFilterChange()"
+            placeholder="Limite"
           />
         </div>
       </ng-template>
 
       <ng-template #end>
-        <div class="flex gap-2">
-          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="secondary" (onClick)="loadTopProducts()" />
+        <div>
+          <p-button (onClick)="loadTopProducts()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+                    size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -121,20 +122,20 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <ul ngbNav #nav="ngbNav" class="nav-tabs px-3 pt-3" orientation="horizontal">
+          <ul #nav="ngbNav" class="nav-tabs px-3 pt-3" ngbNav orientation="horizontal">
             <li [ngbNavItem]="1">
               <button ngbNavLink>Par Chiffre d'Affaires</button>
               <ng-template ngbNavContent>
                 <p-table
-                  [value]="topProductsByRevenue()"
                   [loading]="isLoading()"
                   [paginator]="true"
-                  [rows]="20"
                   [rowsPerPageOptions]="[10, 20, 50]"
+                  [rows]="20"
                   [showCurrentPageReport]="true"
-                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-                  class="pharma-table"
                   [tableStyle]="{ 'min-width': '50rem' }"
+                  [value]="topProductsByRevenue()"
+                  class="pharma-table"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
@@ -147,7 +148,7 @@
                       <th class="text-end">Prix moyen</th>
                     </tr>
                   </ng-template>
-                  <ng-template #body let-product let-i="rowIndex">
+                  <ng-template #body let-i="rowIndex" let-product>
                     <tr>
                       <td>
                         @if (i < 3) {
@@ -165,13 +166,18 @@
                       <td>{{ product.libelle }}</td>
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
                       <td class="text-end pharma-qty-value">{{ product.qteVendue || 0 }}</td>
-                      <td class="text-end fw-bold text-success pharma-total">{{ product.caGenere | number: '1.0-0' }} F CFA</td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
+                      <td
+                        class="text-end fw-bold text-success pharma-total">{{ product.caGenere | number: '1.0-0' }}
+                        F CFA
+                      </td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
+                        CFA
+                      </td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
                     <tr>
-                      <td colspan="7" class="text-center">Aucune donnée disponible</td>
+                      <td class="text-center" colspan="7">Aucune donnée disponible</td>
                     </tr>
                   </ng-template>
                 </p-table>
@@ -182,15 +188,15 @@
               <button ngbNavLink>Par Quantité Vendue</button>
               <ng-template ngbNavContent>
                 <p-table
-                  class="pharma-table"
-                  [value]="topProductsByQuantity()"
                   [loading]="isLoading()"
                   [paginator]="true"
-                  [rows]="20"
                   [rowsPerPageOptions]="[10, 20, 50]"
+                  [rows]="20"
                   [showCurrentPageReport]="true"
-                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
                   [tableStyle]="{ 'min-width': '50rem' }"
+                  [value]="topProductsByQuantity()"
+                  class="pharma-table"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
@@ -203,7 +209,7 @@
                       <th class="text-end">Prix moyen</th>
                     </tr>
                   </ng-template>
-                  <ng-template #body let-product let-i="rowIndex">
+                  <ng-template #body let-i="rowIndex" let-product>
                     <tr>
                       <td>
                         @if (i < 3) {
@@ -220,14 +226,21 @@
                       </td>
                       <td>{{ product.libelle }}</td>
                       <td class="text-end pharma-qty-value">{{ product.nbVentes || 0 }}</td>
-                      <td class="text-end fw-bold text-primary pharma-qty-value">{{ product.qteVendue || 0 }}</td>
-                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F CFA</td>
-                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F CFA</td>
+                      <td class="text-end fw-bold text-primary pharma-qty-value">{{
+                          product.qteVendue || 0
+                        }}
+                      </td>
+                      <td class="text-end pharma-total">{{ product.caGenere | number: '1.0-0' }} F
+                        CFA
+                      </td>
+                      <td class="text-end pharma-price">{{ product.prixMoyen | number: '1.0-2' }} F
+                        CFA
+                      </td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
                     <tr>
-                      <td colspan="7" class="text-center">Aucune donnée disponible</td>
+                      <td class="text-center" colspan="7">Aucune donnée disponible</td>
                     </tr>
                   </ng-template>
                 </p-table>

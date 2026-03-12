@@ -1,5 +1,7 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -47,6 +49,11 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +64,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -110,7 +109,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     public void save(StockProduitDTO dto) throws Exception {
         StockProduit stockProduit = buildStockProduitFromStockProduitDTO(dto);
-        Produit produit = findProduitById(dto.getProduitId()).orElseThrow(() -> new Exception("Le produit n'existe pas " + dto.getProduitId()));
+        Produit produit = findProduitById(dto.getProduitId()).orElseThrow(
+            () -> new Exception("Le produit n'existe pas " + dto.getProduitId()));
         stockProduit.setProduit(produit);
         stockProduitRepository.save(stockProduit);
 
@@ -121,7 +121,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Transactional(readOnly = true)
     public LocalDateTime lastSale(ProduitCriteria produitCriteria) {
         return fromLastDateProjection(
-            salesLineRepository.findLastUpdatedAtByProduitIdAndSalesStatut(produitCriteria.getId(), SalesStatut.CLOSED.name())
+            salesLineRepository.findLastUpdatedAtByProduitIdAndSalesStatut(produitCriteria.getId(),
+                SalesStatut.CLOSED.name())
         );
     }
 
@@ -129,12 +130,14 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Transactional(readOnly = true)
     public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
         return fromLastDateProjection(
-            orderLineRepository.findLastUpdatedAtByFournisseurProduitProduitId(produitCriteria.getId(), OrderStatut.CLOSED.name())
+            orderLineRepository.findLastUpdatedAtByFournisseurProduitProduitId(
+                produitCriteria.getId(), OrderStatut.CLOSED.name())
         );
     }
 
     private LocalDateTime fromLastDateProjection(LastDateProjection lastDateProjection) {
-        return Optional.ofNullable(lastDateProjection).map(LastDateProjection::getUpdatedAt).orElse(null);
+        return Optional.ofNullable(lastDateProjection).map(LastDateProjection::getUpdatedAt)
+            .orElse(null);
     }
 
 
@@ -148,7 +151,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Produit> q = em.createQuery(cq);
 
-        return q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation).toList();
+        return q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation)
+            .toList();
     }
 
     @Override
@@ -182,7 +186,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
+    public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable)
+        throws Exception {
         Magasin magasin;
         if (nonNull(produitCriteria.getMagasinId())) {
             magasin = magasinRepository.getReferenceById(produitCriteria.getMagasinId());
@@ -193,16 +198,16 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
         Storage userStorage = magasin.getPrimaryStorage();
 
-        //  storageService.getDefaultConnectedUserMainStorage();
-
         long total = 0;
         if (pageable.isPaged()) {
             total = findAllCount(produitCriteria);
         }
 
-        return new PageImpl<>(getProduits(produitCriteria, magasin, userStorage, pageable), pageable, total);
+        return new PageImpl<>(getProduits(produitCriteria, magasin, userStorage, pageable),
+            pageable, total);
     }
 
+    //TODO: refactorise pour utiliser une requete sql native, pour plus de performance, eviter les requete multiples
     private List<ProduitDTO> getProduits(ProduitCriteria produitCriteria, Magasin magasin, Storage
         userStorage, Pageable pageable) {
         List<ProduitDTO> list = new ArrayList<>();
@@ -218,22 +223,24 @@ public class CustomizedProductRepository implements CustomizedProductService {
             q.setMaxResults(pageable.getPageSize());
         }
 
-        q
-            .getResultList()
+        q.getResultList()
             .forEach(p -> {
                 ProduitDTO dto = ProduitBuilder.buildFromProduit(
                     p,
                     magasin,
-                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                        .findFirst().orElse(null)
                 );
                 if (!produitCriteria.isDepot()) {
                     produitCriteria.setId(p.getId());
                     dto.setLastDateOfSale(lastSale(produitCriteria));
                     dto.setLastInventoryDate(
-                        inventoryTransactionService.fetchLastDateByTypeAndProduitId(MouvementProduit.INVENTAIRE, p.getId())
+                        inventoryTransactionService.fetchLastDateByTypeAndProduitId(
+                            MouvementProduit.INVENTAIRE, p.getId())
                     );
                     dto.setLastOrderDate(lastOrder(produitCriteria));
-                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
+                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(),
+                        dto.getTotalQuantity()));
                 }
 
                 list.add(dto);
@@ -251,7 +258,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 ProduitBuilder.buildFromProduit(
                     p,
                     magasin,
-                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                        .findFirst().orElse(null)
                 )
             );
     }
@@ -259,7 +267,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId) {
+    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria,
+        Integer fournisseurId) {
         try {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<FournisseurProduit> cq = cb.createQuery(FournisseurProduit.class);
@@ -270,18 +279,19 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 cb.or(
                     cb.like(root.get(FournisseurProduit_.codeCip), criteteria),
                     cb.like(root.get(FournisseurProduit_.codeEan), criteteria),
-                    cb.like(root.get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire), criteteria),
+                    cb.like(root.get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire),
+                        criteteria),
                     cb.like(root.get(FournisseurProduit_.produit).get(Produit_.libelle), criteteria)
                 )
             );
-            predicates.add(cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId));
+            predicates.add(cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
+                fournisseurId));
             predicates.add(cb.isNull(root.get(FournisseurProduit_.produit).get(Produit_.parent)));
             cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<FournisseurProduit> q = em.createQuery(cq);
             q.setMaxResults(1);
             return Optional.ofNullable(q.getSingleResult());
         } catch (Exception e) {
-            LOG.info("getFournisseurProduitByCriteria=====>>>> ", e);
             return Optional.empty();
         }
     }
@@ -292,7 +302,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(produitCriteria.getSearch())) {
             String search = produitCriteria.getSearch().toUpperCase() + "%";
-            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS,
+                JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
@@ -303,29 +314,38 @@ public class CustomizedProductRepository implements CustomizedProductService {
             );
         }
         if (produitCriteria.getMagasinId() != null) {
-            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
-            Join<StockProduit, Storage> storageJoin = st.join(StockProduit_.storage, JoinType.INNER);
+            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS,
+                JoinType.INNER);
+            Join<StockProduit, Storage> storageJoin = st.join(StockProduit_.storage,
+                JoinType.INNER);
             Join<Storage, Magasin> magasinJoin = storageJoin.join(Storage_.magasin, JoinType.INNER);
             predicates.add(cb.equal(magasinJoin.get(Magasin_.id), produitCriteria.getMagasinId()));
 
             if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
                 if (produitCriteria.getStorageId() != null) {
-                    predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getStorageId()));
+                    predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
+                        produitCriteria.getStorageId()));
                 }
                 if (produitCriteria.getRayonId() != null) {
-                    SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
-                    predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+                    SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS,
+                        JoinType.INNER);
+                    predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id),
+                        produitCriteria.getRayonId()));
                 }
             }
         } else {
             if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
-                SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
+                SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS,
+                    JoinType.INNER);
                 if (produitCriteria.getStorageId() != null) {
-                    predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getStorageId()));
+                    predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
+                        produitCriteria.getStorageId()));
                 }
                 if (produitCriteria.getRayonId() != null) {
-                    SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
-                    predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+                    SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS,
+                        JoinType.INNER);
+                    predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id),
+                        produitCriteria.getRayonId()));
                 }
             }
         }
@@ -335,11 +355,14 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
         if (produitCriteria.getFamilleId() != null) {
             Join<Produit, FamilleProduit> familleJoin = root.join(Produit_.FAMILLE, JoinType.INNER);
-            predicates.add(cb.equal(familleJoin.get(FamilleProduit_.id), produitCriteria.getFamilleId()));
+            predicates.add(
+                cb.equal(familleJoin.get(FamilleProduit_.id), produitCriteria.getFamilleId()));
         }
         if (produitCriteria.getLaboratoireId() != null) {
-            Join<Produit, Laboratoire> laboratoireIdJoin = root.join(Produit_.LABORATOIRE, JoinType.INNER);
-            predicates.add(cb.equal(laboratoireIdJoin.get(Laboratoire_.id), produitCriteria.getLaboratoireId()));
+            Join<Produit, Laboratoire> laboratoireIdJoin = root.join(Produit_.LABORATOIRE,
+                JoinType.INNER);
+            predicates.add(cb.equal(laboratoireIdJoin.get(Laboratoire_.id),
+                produitCriteria.getLaboratoireId()));
         }
         if (produitCriteria.getGammeId() != null) {
             Join<Produit, GammeProduit> gammeJoin = root.join(Produit_.GAMME, JoinType.INNER);
@@ -354,7 +377,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
             predicates.add(cb.equal(tvaJoin.get(Tva_.id), produitCriteria.getTvaId()));
         }
         if (produitCriteria.getTypeProduit() != null) {
-            predicates.add(cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
+            predicates.add(
+                cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
         }
         if (produitCriteria.getDeconditionne() != null) {
             if (produitCriteria.getDeconditionne()) {
@@ -376,13 +400,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
             }
         }
         if (produitCriteria.getTableauId() != null) {
-            predicates.add(cb.equal(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauId()));
+            predicates.add(cb.equal(root.get(Produit_.tableau).get(Tableau_.id),
+                produitCriteria.getTableauId()));
         }
         if (produitCriteria.getTableauNot() != null) {
             predicates.add(
                 cb.or(
                     cb.isNull(root.get(Produit_.tableau).get(Tableau_.id)),
-                    cb.notEqual(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauNot())
+                    cb.notEqual(root.get(Produit_.tableau).get(Tableau_.id),
+                        produitCriteria.getTableauNot())
                 )
             );
         }
@@ -404,13 +430,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
         return v != null ? v : 0;
     }
 
-    private List<Predicate> rechercheProduitPredicate(CriteriaBuilder cb, Root<Produit> root, ProduitCriteria
-        produitCriteria) {
+    private List<Predicate> rechercheProduitPredicate(CriteriaBuilder cb, Root<Produit> root,
+        ProduitCriteria
+            produitCriteria) {
         List<Predicate> predicates = new ArrayList<>();
 
         if (StringUtils.hasLength(produitCriteria.getSearch())) {
             String search = produitCriteria.getSearch().toUpperCase() + "%";
-            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS,
+                JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
@@ -424,14 +452,18 @@ public class CustomizedProductRepository implements CustomizedProductService {
             predicates.add(cb.equal(root.get(Produit_.status), produitCriteria.getStatus()));
         }
         if (produitCriteria.getStorageId() != null) {
-            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
+            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS,
+                JoinType.INNER);
             if (produitCriteria.getStorageId() != null) {
-                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getStorageId()));
+                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
+                    produitCriteria.getStorageId()));
             }
         }
         if (produitCriteria.getRayonId() != null) {
-            SetJoin<Produit, RayonProduit> st = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
-            predicates.add(cb.equal(st.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+            SetJoin<Produit, RayonProduit> st = root.joinSet(Produit_.RAYON_PRODUITS,
+                JoinType.INNER);
+            predicates.add(
+                cb.equal(st.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
         }
         return predicates;
     }
@@ -459,19 +491,22 @@ public class CustomizedProductRepository implements CustomizedProductService {
             .map(e ->
                 ProduitBuilder.fromProductLiteList(
                     e,
-                    e.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null),
+                    e.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage))
+                        .findFirst().orElse(null),
                     magasin
                 )
             )
             .toList();
     }
 
-    private List<Predicate> produitLitePredicate(CriteriaBuilder cb, Root<Produit> root, ProduitCriteria
-        produitCriteria) {
+    private List<Predicate> produitLitePredicate(CriteriaBuilder cb, Root<Produit> root,
+        ProduitCriteria
+            produitCriteria) {
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(produitCriteria.getSearch())) {
             String search = produitCriteria.getSearch().toUpperCase() + "%";
-            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS,
+                JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
@@ -485,27 +520,34 @@ public class CustomizedProductRepository implements CustomizedProductService {
             predicates.add(cb.equal(root.get(Produit_.status), produitCriteria.getStatus()));
         }
         if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
-            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
+            SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS,
+                JoinType.INNER);
             if (produitCriteria.getStorageId() != null) {
-                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getMagasinId()));
+                predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id),
+                    produitCriteria.getMagasinId()));
             }
             if (produitCriteria.getRayonId() != null) {
-                SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS, JoinType.INNER);
-                predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
+                SetJoin<Produit, RayonProduit> rp = root.joinSet(Produit_.RAYON_PRODUITS,
+                    JoinType.INNER);
+                predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id),
+                    produitCriteria.getRayonId()));
             }
         }
 
         if (produitCriteria.getTypeProduit() != null) {
-            predicates.add(cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
+            predicates.add(
+                cb.equal(root.get(Produit_.typeProduit), produitCriteria.getTypeProduit()));
         }
         if (produitCriteria.getTableauId() != null) {
-            predicates.add(cb.equal(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauId()));
+            predicates.add(cb.equal(root.get(Produit_.tableau).get(Tableau_.id),
+                produitCriteria.getTableauId()));
         }
         if (produitCriteria.getTableauNot() != null) {
             predicates.add(
                 cb.or(
                     cb.isNull(root.get(Produit_.tableau).get(Tableau_.id)),
-                    cb.notEqual(root.get(Produit_.tableau).get(Tableau_.id), produitCriteria.getTableauNot())
+                    cb.notEqual(root.get(Produit_.tableau).get(Tableau_.id),
+                        produitCriteria.getTableauNot())
                 )
             );
         }

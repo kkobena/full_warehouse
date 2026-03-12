@@ -1,21 +1,22 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { Tag } from 'primeng/tag';
-import { Drawer } from 'primeng/drawer';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {Tag} from 'primeng/tag';
+import {Drawer} from 'primeng/drawer';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { IStockRotation, CategorieABC } from 'app/shared/model/report/stock-rotation.model';
-import { StockRotationReportService } from '../services/stock-rotation-report.service';
-import { formatCurrency } from 'app/shared/utils/format-utils';
+import {CategorieABC, IStockRotation} from 'app/shared/model/report/stock-rotation.model';
+import {StockRotationReportService} from '../services/stock-rotation-report.service';
+import {formatCurrency} from 'app/shared/utils/format-utils';
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 
 @Component({
   selector: 'jhi-stock-rotation',
@@ -36,7 +37,7 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
 })
 export default class StockRotationComponent implements OnInit {
   rotations = signal<IStockRotation[]>([]);
-  abcCounts = signal<Record<CategorieABC, number>>({ A: 0, B: 0, C: 0 });
+  abcCounts = signal<Record<CategorieABC, number>>({A: 0, B: 0, C: 0});
   isLoading = signal<boolean>(false);
   selectedCategorie = signal<string | null>(null);
   selectedABC = signal<CategorieABC | null>(null);
@@ -45,13 +46,15 @@ export default class StockRotationComponent implements OnInit {
 
   categorieOptions = signal<{ label: string; value: string }[]>([]);
   abcOptions = [
-    { label: 'Toutes les classifications', value: null },
-    { label: 'A - Forte rotation (z ≥ 1.96)', value: CategorieABC.A },
-    { label: 'B - Rotation moyenne (z ≥ 1.65)', value: CategorieABC.B },
-    { label: 'C - Faible rotation (z < 1.65)', value: CategorieABC.C },
+    {label: 'Toutes les classifications', value: null},
+    {label: 'A - Forte rotation (z ≥ 1.96)', value: CategorieABC.A},
+    {label: 'B - Rotation moyenne (z ≥ 1.65)', value: CategorieABC.B},
+    {label: 'C - Faible rotation (z < 1.65)', value: CategorieABC.C},
   ];
-
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
   private readonly stockRotationService = inject(StockRotationReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.loadRotations();
@@ -90,7 +93,7 @@ export default class StockRotationComponent implements OnInit {
   loadABCCounts(): void {
     this.stockRotationService.getStockRotationCountByABCClassification().subscribe({
       next: (res: HttpResponse<Record<CategorieABC, number>>) => {
-        this.abcCounts.set(res.body ?? { A: 0, B: 0, C: 0 });
+        this.abcCounts.set(res.body ?? {A: 0, B: 0, C: 0});
       },
       error() {
         console.error('Error loading ABC counts');
@@ -119,46 +122,26 @@ export default class StockRotationComponent implements OnInit {
   }
 
   exportToPdf(): void {
-    this.stockRotationService.exportStockRotationToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `rotation-stock-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-        }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
+    this.stockRotationService.exportStockRotationToPdf().subscribe(resp => {
+      if (this.tauriPrinter.isRunningInTauri()) {
+        handleBlobForTauri(resp.body, `rotation-stock-${new Date().getTime()}`);
+      } else {
+        window.open(URL.createObjectURL(resp.body));
+      }
     });
-  }
 
-  private extractCategorieOptions(rotations: IStockRotation[]): void {
-    const categories = [...new Set(rotations.map(r => r.categorie).filter(c => c))];
-    this.categorieOptions.set([{ label: 'Toutes les catégories', value: '' }, ...categories.map(c => ({ label: c, value: c }))]);
+
   }
 
   getTotalStockValue(): number {
     return this.rotations().reduce((sum, item) => sum + (item.stockValue || 0), 0);
   }
 
-  getTotalCA12Months(): number {
-    return this.rotations().reduce((sum, item) => sum + (item.caLast12Months || 0), 0);
-  }
-
-  getAverageRotationRate(): number {
-    const rotations = this.rotations().filter(r => r.rotationRateAnnual);
-    if (rotations.length === 0) return 0;
-    const sum = rotations.reduce((acc, r) => acc + (r.rotationRateAnnual || 0), 0);
-    return sum / rotations.length;
-  }
 
   getABCSeverity(abc: CategorieABC | undefined): string {
-    if (!abc) return 'secondary';
+    if (!abc) {
+      return 'secondary';
+    }
     switch (abc) {
       case CategorieABC.A:
         return 'success';
@@ -172,7 +155,9 @@ export default class StockRotationComponent implements OnInit {
   }
 
   getABCLabel(abc: CategorieABC | undefined): string {
-    if (!abc) return 'N/A';
+    if (!abc) {
+      return 'N/A';
+    }
     switch (abc) {
       case CategorieABC.A:
         return 'A - Forte rotation';
@@ -186,10 +171,18 @@ export default class StockRotationComponent implements OnInit {
   }
 
   getRotationRateSeverity(rate: number | undefined): string {
-    if (!rate) return 'secondary';
-    if (rate >= 6) return 'success';
-    if (rate >= 3) return 'info';
-    if (rate >= 1) return 'warn';
+    if (!rate) {
+      return 'secondary';
+    }
+    if (rate >= 6) {
+      return 'success';
+    }
+    if (rate >= 3) {
+      return 'info';
+    }
+    if (rate >= 1) {
+      return 'warn';
+    }
     return 'danger';
   }
 
@@ -197,6 +190,11 @@ export default class StockRotationComponent implements OnInit {
     this.helpDrawerVisible.update(value => !value);
   }
 
-  // Format methods using shared utilities
-  formatCurrency = formatCurrency;
+  private extractCategorieOptions(rotations: IStockRotation[]): void {
+    const categories = [...new Set(rotations.map(r => r.categorie).filter(c => c))];
+    this.categorieOptions.set([{
+      label: 'Toutes les catégories',
+      value: ''
+    }, ...categories.map(c => ({label: c, value: c}))]);
+  }
 }

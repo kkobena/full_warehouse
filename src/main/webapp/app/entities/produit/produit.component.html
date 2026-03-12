@@ -137,6 +137,7 @@
               <td>
                 <div class="pharma-product-name">{{ produit.libelle }}</div>
               </td>
+          
               <td [class.stock-negatif]="produit.totalQuantity <= 0"
                   [class.stock-positif]="produit.totalQuantity > 0 && produit.totalQuantity >= produit.qtySeuilMini"
                   [class.stock-warning]="produit.totalQuantity > 0 && produit.totalQuantity < produit.qtySeuilMini"

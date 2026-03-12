@@ -9,25 +9,27 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters flex gap-2">
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedClassification"
+            [disabled]="showChampionsOnly() || showAtRiskOnly()"
             [options]="classificationOptions"
-            placeholder="Classification"
+            [showClear]="true"
+            appendTo="body"
             optionLabel="label"
             optionValue="value"
-            appendTo="body"
+            placeholder="Classification"
             size="large"
-            [showClear]="true"
-            [disabled]="showChampionsOnly() || showAtRiskOnly()"
-            (onChange)="onFilterChange()"
           />
         </div>
       </ng-template>
 
       <ng-template #end>
-        <div class="flex gap-2">
-          <p-button label="Effacer les filtres" icon="pi pi-filter-slash" severity="secondary" (onClick)="onClearFilters()" />
-          <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
-          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadCustomers()" />
+        <div>
+          <p-button (onClick)="onClearFilters()" class="mr-1" icon="pi pi-filter-slash" label="Effacer les filtres"
+                    severity="secondary" size="small" />
+          <!--   <p-button class="mr-1"  size="small" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />-->
+          <p-button (onClick)="loadCustomers()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
+                    severity="primary" size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -63,7 +65,9 @@
             <div class="kpi-content">
               <p class="kpi-label">Fidèles & Actifs</p>
               <h4 class="kpi-value">
-                <span>{{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}</span>
+                <span>{{
+                    (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)
+                  }}</span>
               </h4>
               <div class="kpi-badges">
                 <span class="badge bg-primary-subtle text-primary">Clients réguliers</span>
@@ -84,7 +88,10 @@
             <div class="kpi-content">
               <p class="kpi-label">À risque</p>
               <h4 class="kpi-value">
-                <span>{{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}</span>
+                <span>{{
+                    (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION
+                      || 0)
+                  }}</span>
               </h4>
               <div class="kpi-badges">
                 <span class="badge bg-warning-subtle text-warning">Besoin d'attention</span>
@@ -202,15 +209,15 @@
     <div class="card h-100 data-card">
       <div class="card-body">
         <p-table
-          [value]="customers()"
           [loading]="isLoading()"
           [paginator]="true"
-          [rows]="20"
-          class="pharma-table"
           [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [rows]="20"
           [showCurrentPageReport]="true"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           [tableStyle]="{ 'min-width': '100rem' }"
+          [value]="customers()"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -242,10 +249,14 @@
               </td>
               <td>{{ customer.lastPurchaseDate | date: 'dd/MM/yyyy' }}</td>
               <td class="text-end">
-                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{ customer.daysSinceLastPurchase || 0 }} j </p-tag>
+                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)"> {{
+                    customer.daysSinceLastPurchase || 0
+                  }} j
+                </p-tag>
               </td>
               <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
-              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number: '1.0-0' }} F</td>
+              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number: '1.0-0' }}F
+              </td>
               <td class="text-end">{{ customer.avgBasketValue | number: '1.0-0' }} F</td>
               <td class="text-center">
                 <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
@@ -265,7 +276,7 @@
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="12" class="text-center">Aucune donnée disponible</td>
+              <td class="text-center" colspan="12">Aucune donnée disponible</td>
             </tr>
           </ng-template>
         </p-table>
@@ -285,14 +296,22 @@
       <div class="card-body">
         <div class="rfm-explanation">
           <p class="mb-2">
-            <strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les clients en fonction de :
+            <strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui
+            segmente les clients en fonction de :
           </p>
           <ul>
-            <li><strong>Récence (R)</strong> : Nombre de jours depuis le dernier achat (1-5, 5 = très récent)</li>
-            <li><strong>Fréquence (F)</strong> : Nombre d'achats sur les 12 derniers mois (1-5, 5 = très fréquent)</li>
-            <li><strong>Montant (M)</strong> : Montant total dépensé sur les 12 derniers mois (1-5, 5 = très élevé)</li>
+            <li><strong>Récence (R)</strong> : Nombre de jours depuis le dernier achat (1-5, 5 =
+              très récent)
+            </li>
+            <li><strong>Fréquence (F)</strong> : Nombre d'achats sur les 12 derniers mois (1-5, 5 =
+              très fréquent)
+            </li>
+            <li><strong>Montant (M)</strong> : Montant total dépensé sur les 12 derniers mois (1-5,
+              5 = très élevé)
+            </li>
           </ul>
-          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en segments stratégiques.</p>
+          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer
+            les clients en segments stratégiques.</p>
         </div>
       </div>
     </div>

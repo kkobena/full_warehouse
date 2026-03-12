@@ -9,34 +9,36 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedFamilleProduit"
             [options]="familleProduitOptions()"
-            placeholder="Famille de Produit"
+            [showClear]="true"
             appendTo="body"
-            size="large"
             optionLabel="libelle"
 
-            [showClear]="true"
-            (onChange)="onFilterChange()"
+            placeholder="Famille de Produit"
+            size="large"
           />
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedRayon"
             [options]="rayonOptions()"
-            placeholder="Rayons"
-            optionLabel="libelle"
-            appendTo="body"
-            size="large"
             [showClear]="true"
-            (onChange)="onFilterChange()"
+            appendTo="body"
+            optionLabel="libelle"
+            placeholder="Rayons"
+            size="large"
           />
         </div>
       </ng-template>
 
       <ng-template #end>
-        <div class="flex gap-2">
+        <div>
 
-          <p-button class="mr-1" label="Exporter PDF" icon="pi pi-file-pdf" severity="warn" (onClick)="exportToPdf()" />
-          <p-button label="Rafraîchir" icon="pi pi-refresh" severity="primary" (onClick)="loadData()" />
+          <p-button (onClick)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf" label="Exporter PDF"
+                    severity="warn" size="small" />
+          <p-button (onClick)="loadData()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
+                    size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -122,7 +124,8 @@
                   <span class="value-suffix">%</span>
                 </h4>
                 <div class="kpi-badges">
-                  <span class="badge bg-danger-subtle text-danger">{{ summary()!.totalProducts }} produits</span>
+                  <span class="badge bg-danger-subtle text-danger">{{ summary()!.totalProducts }}
+                    produits</span>
                 </div>
               </div>
               <div class="kpi-icon text-danger">
@@ -148,15 +151,15 @@
         <div class="card-body p-0">
           <div class="overflow-x-auto">
             <p-table
-              class="pharma-table"
-              [value]="valuations()"
               [loading]="isLoading()"
               [paginator]="true"
-              [rows]="20"
               [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [rows]="20"
               [showCurrentPageReport]="true"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
               [tableStyle]="{ 'min-width': '80rem' }"
+              [value]="valuations()"
+              class="pharma-table"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -180,20 +183,32 @@
                   <td>{{ valuation.categorie }}</td>
                   <td>{{ valuation.storageLocation }}</td>
                   <td class="text-end pharma-qty-value">{{ valuation.stockQuantity || 0 }}</td>
-                  <td class="text-end pharma-price">{{ valuation.purchasePrice | number: '1.0-0' }} F</td>
-                  <td class="text-end pharma-price">{{ valuation.salesPrice | number: '1.0-0' }} F</td>
-                  <td class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number: '1.0-0' }} F</td>
-                  <td class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number: '1.0-0' }} F</td>
-                  <td class="text-end fw-bold text-success">{{ valuation.potentialMargin | number: '1.0-0' }} F</td>
+                  <td class="text-end pharma-price">{{ valuation.purchasePrice | number: '1.0-0' }}
+                    F
+                  </td>
+                  <td class="text-end pharma-price">{{ valuation.salesPrice | number: '1.0-0' }}F
+                  </td>
+                  <td
+                    class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number: '1.0-0' }}
+                    F
+                  </td>
+                  <td
+                    class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number: '1.0-0' }}
+                    F
+                  </td>
+                  <td
+                    class="text-end fw-bold text-success">{{ valuation.potentialMargin | number: '1.0-0' }}
+                    F
+                  </td>
                   <td class="text-end">
                     <span
-                      class="px-2 py-1 rounded fw-semibold"
                       [class]="{
                         'bg-success-subtle text-success': (valuation.marginPercentage || 0) >= 30,
                         'bg-info-subtle text-info': (valuation.marginPercentage || 0) >= 20 && (valuation.marginPercentage || 0) < 30,
                         'bg-warning-subtle text-warning': (valuation.marginPercentage || 0) >= 10 && (valuation.marginPercentage || 0) < 20,
                         'bg-danger-subtle text-danger': (valuation.marginPercentage || 0) < 10,
                       }"
+                      class="px-2 py-1 rounded fw-semibold"
                     >
                       {{ valuation.marginPercentage | number: '1.1-2' }}%
                     </span>
@@ -202,7 +217,7 @@
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td colspan="11" class="text-center p-4">
+                  <td class="text-center p-4" colspan="11">
                     <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucune donnée disponible</p>
                   </td>

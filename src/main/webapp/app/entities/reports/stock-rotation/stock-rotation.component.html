@@ -10,28 +10,28 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters flex gap-2">
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedCategorie"
+            [disabled]="showSlowMovingOnly()"
             [options]="categorieOptions()"
-            placeholder="Catégorie"
+            [showClear]="true"
+            appendTo="body"
             optionLabel="label"
             optionValue="value"
-            appendTo="body"
+            placeholder="Catégorie"
             size="large"
-            [showClear]="true"
-            [disabled]="showSlowMovingOnly()"
-            (onChange)="onFilterChange()"
           />
           <p-select
+            (onChange)="onFilterChange()"
             [(ngModel)]="selectedABC"
+            [disabled]="showSlowMovingOnly()"
             [options]="abcOptions"
-            placeholder="Classification ABC"
+            [showClear]="true"
+            appendTo="body"
             optionLabel="label"
             optionValue="value"
-            appendTo="body"
+            placeholder="Classification ABC"
             size="large"
-            [showClear]="true"
-            [disabled]="showSlowMovingOnly()"
-            (onChange)="onFilterChange()"
           />
         </div>
       </ng-template>
@@ -39,16 +39,22 @@
       <ng-template #end>
         <div class="flex gap-2">
           <p-button
-            size="small"
-            label="Aide"
-            icon="pi pi-question-circle"
-            severity="secondary"
-            [outlined]="true"
             (onClick)="toggleHelpDrawer()"
+            [outlined]="true"
+            icon="pi pi-question-circle"
+            label="Aide"
+            severity="secondary"
+            size="small"
           />
-          <p-button size="small" label="Effacer les filtres" icon="pi pi-filter-slash" severity="secondary" (onClick)="onClearFilters()" />
-          <p-button size="small" label="Exporter PDF" icon="pi pi-file-pdf" severity="danger" (onClick)="exportToPdf()" />
-          <p-button label="Rafraîchir" icon="pi pi-refresh" size="small" severity="primary" (onClick)="loadRotations()" />
+          <p-button (onClick)="onClearFilters()" class="mr-1"
+                    icon="pi pi-filter-slash"
+                    label="Effacer les filtres" severity="secondary" size="small" />
+          <p-button (onClick)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf"
+                    label="Exporter PDF"
+                    severity="danger" size="small" />
+          <p-button (onClick)="loadRotations()" icon="pi pi-refresh" label="Rafraîchir"
+                    severity="primary"
+                    size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -87,7 +93,8 @@
                 <span>{{ abcCounts().B || 0 }}</span>
               </h4>
               <div class="kpi-badges">
-                <span class="badge bg-primary-subtle text-primary">Rotation moyenne (z ≥ 1.65)</span>
+                <span
+                  class="badge bg-primary-subtle text-primary">Rotation moyenne (z ≥ 1.65)</span>
               </div>
             </div>
             <div class="kpi-icon text-primary">
@@ -130,7 +137,8 @@
                 <span class="value-suffix">FCFA</span>
               </h4>
               <div class="kpi-badges">
-                <span class="badge bg-danger-subtle text-danger">{{ rotations().length }} produits</span>
+                <span class="badge bg-danger-subtle text-danger">{{ rotations().length }}
+                  produits</span>
               </div>
             </div>
             <div class="kpi-icon text-danger">
@@ -155,15 +163,15 @@
         <div class="card-body p-0">
           <div class="overflow-x-auto">
             <p-table
-              [value]="rotations()"
               [loading]="isLoading()"
               [paginator]="true"
-              [rows]="20"
-              class="pharma-table"
               [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [rows]="20"
               [showCurrentPageReport]="true"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
               [tableStyle]="{ 'min-width': '100rem' }"
+              [value]="rotations()"
+              class="pharma-table"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
             >
               <ng-template #header>
                 <tr class="pharma-table-head">
@@ -192,10 +200,14 @@
                     </p-tag>
                   </td>
                   <td class="text-end pharma-qty-value">{{ rotation.stockQuantity || 0 }}</td>
-                  <td class="text-end fw-bold pharma-price">{{ rotation.stockValue | number: '1.0-0' }} F</td>
+                  <td
+                    class="text-end fw-bold pharma-price">{{ rotation.stockValue | number: '1.0-0' }}
+                    F
+                  </td>
                   <td class="text-end">{{ rotation.caLast30Days | number: '1.0-0' }} F</td>
                   <td class="text-end">{{ rotation.qtySoldLast30Days || 0 }}</td>
-                  <td class="text-end fw-bold">{{ rotation.caLast12Months | number: '1.0-0' }} F</td>
+                  <td class="text-end fw-bold">{{ rotation.caLast12Months | number: '1.0-0' }}F
+                  </td>
                   <td class="text-end fw-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
                   <td class="text-end">
                     <p-tag [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
@@ -204,13 +216,13 @@
                   </td>
                   <td class="text-end">
                     <span
-                      class="px-2 py-1 rounded fw-semibold"
                       [class]="{
                         'bg-success-subtle text-success': (rotation.avgDaysInStock || 0) <= 30,
                         'bg-info-subtle text-info': (rotation.avgDaysInStock || 0) > 30 && (rotation.avgDaysInStock || 0) <= 60,
                         'bg-warning-subtle text-warning': (rotation.avgDaysInStock || 0) > 60 && (rotation.avgDaysInStock || 0) <= 90,
                         'bg-danger-subtle text-danger': (rotation.avgDaysInStock || 0) > 90,
                       }"
+                      class="px-2 py-1 rounded fw-semibold"
                     >
                       {{ rotation.avgDaysInStock || 0 }} jours
                     </span>
@@ -219,7 +231,7 @@
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td colspan="12" class="text-center p-4">
+                  <td class="text-center p-4" colspan="12">
                     <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucune donnée disponible</p>
                   </td>
@@ -233,7 +245,7 @@
   </div>
 
   <!-- Help Drawer -->
-  <p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '600px' }">
+  <p-drawer [(visible)]="helpDrawerVisible" [style]="{ width: '600px' }" position="right">
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
@@ -244,12 +256,15 @@
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la rotation du stock ?</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la
+          rotation du stock ?</h6>
         <p class="text-sm text-muted">
-          La rotation du stock mesure la vitesse à laquelle un produit se vend et se renouvelle dans votre pharmacie. Une bonne gestion de
-          la rotation permet d'<strong>optimiser la trésorerie</strong>, de <strong>réduire les stocks dormants</strong> et d'<strong
-            >éviter les péremptions</strong
-          >.
+          La rotation du stock mesure la vitesse à laquelle un produit se vend et se renouvelle dans
+          votre pharmacie. Une bonne gestion de
+          la rotation permet d'<strong>optimiser la trésorerie</strong>, de <strong>réduire les
+          stocks dormants</strong> et d'<strong
+        >éviter les péremptions</strong
+        >.
         </p>
       </div>
 
@@ -257,14 +272,17 @@
 
       <!-- Classification ABC -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification ABC de rotation</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification ABC
+          de rotation</h6>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag value="A" severity="success" />
+            <p-tag severity="success" value="A" />
             <span class="fw-bold">Classe A - Forte rotation (z ≥ 1.96)</span>
           </div>
-          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits qui se vendent rapidement et régulièrement</p>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits qui se vendent
+            rapidement et régulièrement</p>
           <p class="text-sm mb-0"><strong>Actions :</strong></p>
           <ul class="text-sm mb-0 ps-3">
             <li>Maintenir un stock suffisant pour éviter les ruptures</li>
@@ -274,12 +292,14 @@
           </ul>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag value="B" severity="info" />
+            <p-tag severity="info" value="B" />
             <span class="fw-bold">Classe B - Rotation moyenne (1.65 ≤ z < 1.96)</span>
           </div>
-          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits avec une vente régulière mais modérée</p>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits avec une vente
+            régulière mais modérée</p>
           <p class="text-sm mb-0"><strong>Actions :</strong></p>
           <ul class="text-sm mb-0 ps-3">
             <li>Commandes hebdomadaires ou bimensuelles</li>
@@ -288,12 +308,14 @@
           </ul>
         </div>
 
-        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
+        <div class="mb-3 p-3 rounded"
+             style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <p-tag value="C" severity="warn" />
+            <p-tag severity="warn" value="C" />
             <span class="fw-bold">Classe C - Faible rotation (z < 1.65)</span>
           </div>
-          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits à vente lente ou occasionnelle</p>
+          <p class="text-sm mb-2"><strong>Caractéristiques :</strong> Produits à vente lente ou
+            occasionnelle</p>
           <p class="text-sm mb-0"><strong>Actions :</strong></p>
           <ul class="text-sm mb-0 ps-3">
             <li>Réduire les quantités en stock</li>
@@ -308,7 +330,8 @@
 
       <!-- Formules et métriques -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Formules et métriques clés</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Formules et
+          métriques clés</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Taux de rotation annuel</p>
@@ -327,7 +350,8 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">Jours en stock (Days of Supply)</p>
           <p class="text-sm text-muted mb-1">
-            <strong>Formule :</strong> (Stock actuel / Vente moyenne quotidienne) = Nombre de jours avant épuisement<br />
+            <strong>Formule :</strong> (Stock actuel / Vente moyenne quotidienne) = Nombre de jours
+            avant épuisement<br />
             <strong>Interprétation :</strong>
           </p>
           <ul class="text-sm text-muted mb-2 ps-3">
@@ -349,7 +373,8 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">Classification ABC (Score Z)</p>
           <p class="text-sm text-muted mb-1">
-            La classification utilise un <strong>score statistique (Z-score)</strong> basé sur la quantité vendue et sa variabilité pour
+            La classification utilise un <strong>score statistique (Z-score)</strong> basé sur la
+            quantité vendue et sa variabilité pour
             classer les produits de manière objective :
           </p>
           <ul class="text-sm text-muted mb-2 ps-3">
@@ -364,15 +389,24 @@
 
       <!-- Exploitation -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter cette analyse</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter
+          cette analyse</h6>
 
         <div class="alert alert-info">
           <strong><i class="pi pi-info-circle me-2"></i>Indicateurs d'alerte :</strong>
           <ul class="mb-0 mt-2 ps-3 text-sm">
-            <li><strong>Produit classe A avec > 60 jours en stock :</strong> Baisse de la demande ? Ajuster les commandes</li>
-            <li><strong>Produit classe C avec rotation < 1x/an :</strong> Envisager le déréférencement</li>
-            <li><strong>Stock élevé + faible CA 30j :</strong> Risque de péremption, organiser une promotion</li>
-            <li><strong>Taux rotation < 1 sur produits chers :</strong> Capital immobilisé inutilement</li>
+            <li><strong>Produit classe A avec > 60 jours en stock :</strong> Baisse de la demande ?
+              Ajuster les commandes
+            </li>
+            <li><strong>Produit classe C avec rotation < 1x/an :</strong> Envisager le
+              déréférencement
+            </li>
+            <li><strong>Stock élevé + faible CA 30j :</strong> Risque de péremption, organiser une
+              promotion
+            </li>
+            <li><strong>Taux rotation < 1 sur produits chers :</strong> Capital immobilisé
+              inutilement
+            </li>
           </ul>
         </div>
       </div>
@@ -383,9 +417,11 @@
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit rotation 8x/an, 25 jours en stock</p>
+            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit rotation 8x/an, 25 jours en
+              stock</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Analyse :</strong> Excellente rotation, stock optimal. Continuer la gestion actuelle. Maintenir un stock de sécurité
+              <strong>Analyse :</strong> Excellente rotation, stock optimal. Continuer la gestion
+              actuelle. Maintenir un stock de sécurité
               pour éviter les ruptures.
             </p>
           </div>
@@ -393,9 +429,11 @@
 
         <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit rotation 0.5x/an, 120 jours en stock</p>
+            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit rotation 0.5x/an, 120 jours en
+              stock</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Analyse :</strong> Stock dormant. Actions : Vérifier date de péremption, organiser une promotion, réduire
+              <strong>Analyse :</strong> Stock dormant. Actions : Vérifier date de péremption,
+              organiser une promotion, réduire
               drastiquement les commandes ou déréférencer.
             </p>
           </div>
@@ -405,7 +443,8 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Cas 3 : CA 12m élevé mais rotation faible</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Analyse :</strong> Produit cher mais à rotation lente. Optimiser les quantités commandées pour libérer de la
+              <strong>Analyse :</strong> Produit cher mais à rotation lente. Optimiser les quantités
+              commandées pour libérer de la
               trésorerie sans impacter les ventes.
             </p>
           </div>
@@ -414,14 +453,17 @@
 
       <!-- Best practices -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Bonnes pratiques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Bonnes
+          pratiques</h6>
 
         <ul class="text-sm text-muted ps-3">
           <li>Analyser ce rapport mensuellement pour détecter les tendances</li>
           <li>Croiser avec l'analyse ABC Pareto pour une vision globale</li>
           <li>Adapter les quantités de commande selon le taux de rotation</li>
-          <li>Utiliser le filtre "Produits à faible rotation" pour identifier les stocks dormants</li>
-          <li>Privilégier les commandes fréquentes en petites quantités pour les produits classe A</li>
+          <li>Utiliser le filtre "Produits à faible rotation" pour identifier les stocks dormants
+          </li>
+          <li>Privilégier les commandes fréquentes en petites quantités pour les produits classe A
+          </li>
         </ul>
       </div>
     </div>

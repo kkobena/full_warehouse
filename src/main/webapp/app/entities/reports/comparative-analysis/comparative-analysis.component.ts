@@ -1,18 +1,24 @@
-import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { IComparativeByType, IComparativeCA, IComparativeSummary } from 'app/shared/model/report/comparative-report.model';
-import { ComparativeReportService } from '../services/comparative-report.service';
-import { formatCurrency } from 'app/shared/utils/format-utils';
+import {
+  IComparativeByType,
+  IComparativeCA,
+  IComparativeSummary
+} from 'app/shared/model/report/comparative-report.model';
+import {ComparativeReportService} from '../services/comparative-report.service';
+import {formatCurrency} from 'app/shared/utils/format-utils';
 
-import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
+import {Chart, ChartConfiguration, ChartData, registerables} from 'chart.js';
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
 
 Chart.register(...registerables);
 
@@ -36,23 +42,22 @@ export default class ComparativeAnalysisComponent implements OnInit {
   protected comparisons = signal<IComparativeCA[]>([]);
   protected byType = signal<IComparativeByType[]>([]);
   protected isLoading = signal<boolean>(false);
-
-  // Charts
-  private evolutionChart?: Chart;
-  private typeChart?: Chart;
-
   // Filters
   protected selectedComparisonType = signal<string>('MONTHLY');
   protected selectedYear = signal<number>(new Date().getFullYear());
-
   protected comparisonTypeOptions: ComparisonTypeOption[] = [
-    { label: 'Mensuel', value: 'MONTHLY' },
-    { label: 'Trimestriel', value: 'QUARTERLY' },
-    { label: 'Annuel', value: 'YEARLY' },
+    {label: 'Mensuel', value: 'MONTHLY'},
+    {label: 'Trimestriel', value: 'QUARTERLY'},
+    {label: 'Annuel', value: 'YEARLY'},
   ];
-
   protected yearOptions: number[] = [];
+  // Format methods using shared utilities
+  protected formatCurrency = formatCurrency;
+  // Charts
+  private evolutionChart?: Chart;
+  private typeChart?: Chart;
   private comparativeReportService = inject(ComparativeReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     // Generate year options (current year + 5 years back)
@@ -141,29 +146,46 @@ export default class ComparativeAnalysisComponent implements OnInit {
     this.loadData();
   }
 
+  // Chart creation
+
   protected exportToPdf(): void {
     const comparisonType = this.selectedComparisonType();
     const year = this.selectedYear();
 
-    this.comparativeReportService.exportToPdf(comparisonType, year).subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `tableaux-comparatifs-${comparisonType.toLowerCase()}-${year}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.comparativeReportService.exportToPdf(comparisonType, year)
+
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `tableaux-comparatifs_${comparisonType.toLowerCase()}_${year}`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
+      });
+
   }
 
-  // Chart creation
+  protected getEvolutionClass(value: number | undefined): string {
+    if (!value) {
+      return '';
+    }
+    return value >= 0 ? 'evolution-positive' : 'evolution-negative';
+  }
+
+  // Helpers
+
+  protected formatPercent(value: number | undefined): string {
+    if (value === undefined || value === null) {
+      return '0';
+    }
+    const sign = value >= 0 ? '+' : '';
+    return (
+      sign +
+      new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value)
+    );
+  }
 
   private createEvolutionChart(data: IComparativeCA[]): void {
     if (this.evolutionChart) {
@@ -176,7 +198,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
     }
 
     const ctx = this.evolutionChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const chartData: ChartData<'bar'> = {
       labels: data.map(d => d.periodLabel ?? ''),
@@ -230,7 +254,9 @@ export default class ComparativeAnalysisComponent implements OnInit {
     }
 
     const ctx = this.typeChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     const year = this.selectedYear();
 
@@ -268,27 +294,5 @@ export default class ComparativeAnalysisComponent implements OnInit {
     };
 
     this.typeChart = new Chart(ctx, config);
-  }
-
-  // Helpers
-
-  protected getEvolutionClass(value: number | undefined): string {
-    if (!value) return '';
-    return value >= 0 ? 'evolution-positive' : 'evolution-negative';
-  }
-
-  // Format methods using shared utilities
-  protected formatCurrency = formatCurrency;
-
-  protected formatPercent(value: number | undefined): string {
-    if (value === undefined || value === null) return '0';
-    const sign = value >= 0 ? '+' : '';
-    return (
-      sign +
-      new Intl.NumberFormat('fr-FR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(value)
-    );
   }
 }

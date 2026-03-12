@@ -10,36 +10,36 @@
       <ng-template #start>
         <div class="pharma-toolbar-filters">
           <p-select
+            (onChange)="onPeriodChange()"
             [(ngModel)]="selectedPeriod"
             [options]="periodOptions"
+            [style]="{ 'min-width': '200px' }"
+            appendTo="body"
             optionLabel="label"
             optionValue="value"
-            size="large"
-            appendTo="body"
-            (onChange)="onPeriodChange()"
-            [style]="{ 'min-width': '200px' }"
             placeholder="Sélectionner une période"
+            size="large"
           />
 
           @if (selectedPeriod() === 'custom') {
             <p-floatlabel variant="on">
               <p-datePicker
                 [(ngModel)]="startDate"
-                dateFormat="dd/mm/yy"
                 [showIcon]="true"
-                appendTo="body"
-                id="fromDate"
                 [style]="{ 'max-width': '150px' }"
+                appendTo="body"
+                dateFormat="dd/mm/yy"
+                id="fromDate"
               />
               <label for="fromDate">Date début</label>
             </p-floatlabel>
             <p-floatlabel variant="on">
               <p-datePicker
                 [(ngModel)]="endDate"
-                dateFormat="dd/mm/yy"
-                [style]="{ 'max-width': '150px' }"
                 [showIcon]="true"
+                [style]="{ 'max-width': '150px' }"
                 appendTo="body"
+                dateFormat="dd/mm/yy"
                 id="toDate"
               />
               <label for="toDate">Date fin</label>
@@ -49,15 +49,22 @@
       </ng-template>
 
       <ng-template #end>
-        <div class="pharma-toolbar-actions flex gap-2">
+        <div class="pharma-toolbar-actions">
           @if (selectedPeriod() === 'custom') {
-            <p-button label="Appliquer" icon="pi pi-check" (onClick)="loadDashboard()" size="small" />
+            <p-button (onClick)="loadDashboard()" icon="pi pi-check" label="Appliquer"
+                      size="small" />
           }
 
-          <p-button label="Actualiser" icon="pi pi-refresh" (onClick)="onRefresh()" [outlined]="true" size="small" />
-          <p-button label="PDF" icon="pi pi-file-pdf" (onClick)="exportToPdf()" severity="danger" size="small" />
-          <p-button label="Excel" icon="pi pi-file-excel" (onClick)="exportDailySummaryToExcel()" severity="success" size="small" />
-          <p-button label="CSV" icon="pi pi-file" (onClick)="exportDailySummaryToCsv()" [outlined]="true" size="small" />
+          <p-button (onClick)="onRefresh()" icon="pi pi-refresh" label="Actualiser"
+                    severity="primary" size="small" />
+          <p-button (onClick)="exportToPdf()" icon="pi pi-file-pdf" label="PDF"
+                    severity="danger"
+                    size="small" />
+          <p-button (onClick)="exportDailySummaryToExcel()" icon="pi pi-file-excel"
+                    label="Excel"
+                    severity="info" size="small" />
+          <p-button (onClick)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV"
+                    severity="help" size="small" />
         </div>
       </ng-template>
     </p-toolbar>
@@ -89,7 +96,8 @@
                         'badge ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
                       "
                     >
-                      <i [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      <i
+                        [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.caTodayEvolutionPct) }}%
                     </span>
                     <span class="badge bg-info-subtle text-info">vs hier</span>
@@ -102,7 +110,8 @@
             </div>
             <div class="card-footer">
               <span class="footer-label">Transactions</span>
-              <span class="badge bg-primary-subtle text-primary">{{ sum.nbTransactionsToday | number }}</span>
+              <span
+                class="badge bg-primary-subtle text-primary">{{ sum.nbTransactionsToday | number }}</span>
             </div>
           </div>
         </div>
@@ -124,7 +133,8 @@
                         'badge ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
                       "
                     >
-                      <i [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      <i
+                        [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.caWeekEvolutionPct) }}%
                     </span>
                     <span class="badge bg-info-subtle text-info">vs semaine précédente</span>
@@ -137,7 +147,8 @@
             </div>
             <div class="card-footer">
               <span class="footer-label">Transactions</span>
-              <span class="badge bg-success-subtle text-success">{{ sum.nbTransactionsWeek | number }}</span>
+              <span
+                class="badge bg-success-subtle text-success">{{ sum.nbTransactionsWeek | number }}</span>
             </div>
           </div>
         </div>
@@ -159,7 +170,8 @@
                         'badge ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
                       "
                     >
-                      <i [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      <i
+                        [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.caMonthEvolutionPct) }}%
                     </span>
                     <span class="badge bg-info-subtle text-info">vs mois précédent</span>
@@ -173,7 +185,8 @@
             <div class="card-footer">
               <span class="footer-label">Transactions | Panier moyen</span>
               <span class="badge bg-warning-subtle text-warning">
-                {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }} FCFA
+                {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
+                FCFA
               </span>
             </div>
           </div>
@@ -196,7 +209,8 @@
                         'badge ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
                       "
                     >
-                      <i [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      <i
+                        [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                       {{ formatPercent(sum.caYearEvolutionPct) }}%
                     </span>
                     <span class="badge bg-info-subtle text-info">vs année précédente</span>
@@ -287,14 +301,14 @@
             } @else {
               <table class="pharma-table">
                 <thead class="pharma-table-head">
-                  <tr>
-                    <th>#</th>
-                    <th>Produit</th>
-                    <th>Code CIP</th>
-                    <th class="text-end">Quantité Vendue</th>
-                    <th class="text-end">CA (FCFA)</th>
-                    <th class="text-end">Prix Moyen</th>
-                  </tr>
+                <tr>
+                  <th>#</th>
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th class="text-end">Quantité Vendue</th>
+                  <th class="text-end">CA (FCFA)</th>
+                  <th class="text-end">Prix Moyen</th>
+                </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (product of topProducts(); track product.produitId; let i = $index) {
@@ -305,7 +319,10 @@
                         <span class="pharma-code">{{ product.codeCip }}</span>
                       </td>
                       <td class="text-end">{{ formatCurrency(product.qteVendue) }}</td>
-                      <td class="text-end fw-semibold text-primary">{{ formatCurrency(product.caGenere) }}</td>
+                      <td class="text-end fw-semibold text-primary">{{
+                          formatCurrency(product.caGenere)
+                        }}
+                      </td>
                       <td class="text-end">{{ formatCurrency(product.prixMoyen) }}</td>
                     </tr>
                   }

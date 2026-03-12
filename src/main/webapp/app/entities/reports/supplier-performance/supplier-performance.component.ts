@@ -1,19 +1,21 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
-import { HttpResponse } from '@angular/common/http';
+import {FormsModule} from '@angular/forms';
+import {HttpResponse} from '@angular/common/http';
 
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Drawer } from 'primeng/drawer';
+import {ButtonModule} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {SelectModule} from 'primeng/select';
+import {InputTextModule} from 'primeng/inputtext';
+import {TooltipModule} from 'primeng/tooltip';
+import {ToolbarModule} from 'primeng/toolbar';
+import {Drawer} from 'primeng/drawer';
 
-import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
-import { ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
-import { formatCurrency, formatNumber, formatDecimal } from 'app/shared/utils/format-utils';
+import {SupplierPerformanceReportService} from '../services/supplier-performance-report.service';
+import {ISupplierPerformance, ISupplierPerformanceSummary} from 'app/shared/model/report';
+import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 interface FilterOption {
   label: string;
@@ -27,8 +29,6 @@ interface FilterOption {
   styleUrl: './supplier-performance.component.scss',
 })
 export default class SupplierPerformanceComponent implements OnInit {
-  private supplierPerformanceService = inject(SupplierPerformanceReportService);
-
   // Signals for reactive state management
   suppliers = signal<ISupplierPerformance[]>([]);
   summary = signal<ISupplierPerformanceSummary | null>(null);
@@ -36,16 +36,21 @@ export default class SupplierPerformanceComponent implements OnInit {
   selectedFilter = signal<string>('all');
   searchText = signal<string>('');
   helpDrawerVisible = signal<boolean>(false);
-
   // Filter options
   filterOptions: FilterOption[] = [
-    { label: 'Tous les fournisseurs', value: 'all' },
-    { label: 'Top 10 par volume', value: 'top' },
-    { label: 'Performance excellente (e 70)', value: 'good' },
-    { label: 'Performance moyenne (50-70)', value: 'average' },
-    { label: 'Performance faible (< 50)', value: 'poor' },
-    { label: 'Problèmes de livraison', value: 'delivery-issues' },
+    {label: 'Tous les fournisseurs', value: 'all'},
+    {label: 'Top 10 par volume', value: 'top'},
+    {label: 'Performance excellente (e 70)', value: 'good'},
+    {label: 'Performance moyenne (50-70)', value: 'average'},
+    {label: 'Performance faible (< 50)', value: 'poor'},
+    {label: 'Problèmes de livraison', value: 'delivery-issues'},
   ];
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatNumber = formatNumber;
+  formatDecimal = formatDecimal;
+  private supplierPerformanceService = inject(SupplierPerformanceReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.loadData();
@@ -150,36 +155,28 @@ export default class SupplierPerformanceComponent implements OnInit {
 
   exportToPdf(): void {
     this.isLoading.set(true);
-    this.supplierPerformanceService.exportSupplierPerformanceToPdf().subscribe({
-      next: (response: HttpResponse<Blob>) => {
-        if (response.body) {
-          const blob = new Blob([response.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `supplier-performance-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.supplierPerformanceService.exportSupplierPerformanceToPdf()
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `supplier-performance_${new Date().getTime()}`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      },
-    });
+      });
   }
 
   getPerformanceScoreLabel(score: number | undefined): string {
-    if (!score) return 'N/A';
-    if (score >= 70) return 'Excellent';
-    if (score >= 50) return 'Moyen';
+    if (!score) {
+      return 'N/A';
+    }
+    if (score >= 70) {
+      return 'Excellent';
+    }
+    if (score >= 50) {
+      return 'Moyen';
+    }
     return 'Faible';
   }
-
-  // Format methods using shared utilities
-  formatCurrency = formatCurrency;
-  formatNumber = formatNumber;
-  formatDecimal = formatDecimal;
 
   getFilteredSuppliers(): ISupplierPerformance[] {
     const search = this.searchText().toLowerCase();

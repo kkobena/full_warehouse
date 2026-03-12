@@ -11,7 +11,10 @@ import {ToolbarModule} from 'primeng/toolbar';
 import {DividerModule} from 'primeng/divider';
 import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import {IStockValuation, IStockValuationSummary} from 'app/shared/model/report/stock-valuation.model';
+import {
+  IStockValuation,
+  IStockValuationSummary
+} from 'app/shared/model/report/stock-valuation.model';
 import {StockValuationReportService} from '../services/stock-valuation-report.service';
 import {formatCurrency, formatDecimal} from 'app/shared/utils/format-utils';
 import {FamilleProduitService} from "../../famille-produit/famille-produit.service";
@@ -36,7 +39,9 @@ export default class StockValuationComponent implements OnInit {
 
   familleProduitOptions = signal<IFamilleProduit[]>([]);
   rayonOptions = signal<IRayon[]>([]);
-
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatDecimal = formatDecimal;
   private readonly stockValuationService = inject(StockValuationReportService);
   private readonly familleProduitService = inject(FamilleProduitService);
   private readonly rayonService = inject(RayonService);
@@ -46,21 +51,6 @@ export default class StockValuationComponent implements OnInit {
   ngOnInit(): void {
     this.loadReferentielData();
     this.loadData();
-  }
-
-  /** Charge familles et rayons en parallèle — une seule fois au démarrage */
-  private loadReferentielData(): void {
-    forkJoin({
-      familles: this.familleProduitService.query({page: 0, size: 9999}),
-      rayons: this.rayonService.query({page: 0, size: 9999}),
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({familles, rayons}) => {
-          this.familleProduitOptions.set(familles.body ?? []);
-          this.rayonOptions.set(rayons.body ?? []);
-        },
-      });
   }
 
   /** Charge valuations + summary en parallèle avec les filtres courants */
@@ -105,37 +95,20 @@ export default class StockValuationComponent implements OnInit {
       });
   }
 
-
-  getTotalStockValue(): number {
-    return this.valuations().reduce((sum, item) => sum + (item.totalPurchaseValue || 0), 0);
+  /** Charge familles et rayons en parallèle — une seule fois au démarrage */
+  private loadReferentielData(): void {
+    forkJoin({
+      familles: this.familleProduitService.query({page: 0, size: 9999}),
+      rayons: this.rayonService.query({page: 0, size: 9999}),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({familles, rayons}) => {
+          this.familleProduitOptions.set(familles.body ?? []);
+          this.rayonOptions.set(rayons.body ?? []);
+        },
+      });
   }
-
-  getTotalSalesValue(): number {
-    return this.valuations().reduce((sum, item) => sum + (item.totalSalesValue || 0), 0);
-  }
-
-  getTotalPotentialMargin(): number {
-    return this.valuations().reduce((sum, item) => sum + (item.potentialMargin || 0), 0);
-  }
-
-  getAverageMarginPercentage(): number {
-    const valuations = this.valuations().filter(v => v.marginPercentage && v.marginPercentage > 0);
-    if (valuations.length === 0) return 0;
-    const sum = valuations.reduce((acc, v) => acc + (v.marginPercentage || 0), 0);
-    return sum / valuations.length;
-  }
-
-  getMarginSeverity(margin: number | undefined): string {
-    if (!margin) return 'secondary';
-    if (margin >= 30) return 'success';
-    if (margin >= 20) return 'info';
-    if (margin >= 10) return 'warn';
-    return 'danger';
-  }
-
-  // Format methods using shared utilities
-  formatCurrency = formatCurrency;
-  formatDecimal = formatDecimal;
 
   private buildRequestParams(): any {
     const params: any = {};

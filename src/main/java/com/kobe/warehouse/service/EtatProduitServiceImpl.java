@@ -36,30 +36,34 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     @Override
     public EtatProduit getEtatProduit(Produit produit) {
-        int currentStock = produit.getStockProduits().stream().map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+        int currentStock = produit.getStockProduits().stream()
+            .map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
         return buildEtatProduit(produit.getId(), currentStock);
     }
 
     @Override
     public boolean canSuggere(Integer idProduit) {
-        return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0 && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
+        return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0
+            && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
     }
 
     private EtatProduit buildEtatProduit(Integer idProduit, int currentStock) {
         boolean stockPositif = currentStock > 0;
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
-        int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
+        int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(
+            idProduit);
         int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
         boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
             idProduit,
             OrderStatut.RECEIVED,
             getDateRetentionCommande()
         );
+
         return new EtatProduit(
             stockPositif,
-            stockNegatif,
             stockZero,
+            stockNegatif,
             suggestionCount > 0,
             commandeCount > 0,
             entree,

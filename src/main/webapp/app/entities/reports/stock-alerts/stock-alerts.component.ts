@@ -1,18 +1,20 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { Tag } from 'primeng/tag';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {Tag} from 'primeng/tag';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { IStockAlert, StockAlertType } from 'app/shared/model/report/stock-alert.model';
-import { StockAlertReportService } from '../services/stock-alert-report.service';
+import {IStockAlert, StockAlertType} from 'app/shared/model/report/stock-alert.model';
+import {StockAlertReportService} from '../services/stock-alert-report.service';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -44,12 +46,13 @@ export default class StockAlertsComponent implements OnInit {
   readonly StockAlertType = StockAlertType;
 
   alertTypeOptions = [
-    { label: 'Rupture de stock', value: StockAlertType.RUPTURE },
-    { label: 'Alerte stock bas', value: StockAlertType.ALERTE },
-    { label: 'Proche péremption', value: StockAlertType.PEREMPTION },
+    {label: 'Rupture de stock', value: StockAlertType.RUPTURE},
+    {label: 'Alerte stock bas', value: StockAlertType.ALERTE},
+    {label: 'Proche péremption', value: StockAlertType.PEREMPTION},
   ];
 
   private readonly stockAlertService = inject(StockAlertReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.loadAlertCounts();
@@ -62,7 +65,7 @@ export default class StockAlertsComponent implements OnInit {
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
     this.stockAlertService
-      .getStockAlerts({ page, size, sort: ['alertType,asc', 'libelle,asc'], types })
+      .getStockAlerts({page, size, sort: ['alertType,asc', 'libelle,asc'], types})
       .subscribe({
         next: (res: HttpResponse<IStockAlert[]>) => {
           this.totalItems.set(Number(res.headers.get('X-Total-Count')));
@@ -90,19 +93,16 @@ export default class StockAlertsComponent implements OnInit {
   exportToPdf(): void {
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
-    this.stockAlertService.exportStockAlertsToPdf(types).subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `stock-alerts-${new Date().toISOString().split('T')[0]}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.stockAlertService.exportStockAlertsToPdf(types)
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `stock-alerts`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-    });
+      });
+
+
   }
 
   getAlertSeverity(alertType?: StockAlertType): 'danger' | 'warn' | 'info' {

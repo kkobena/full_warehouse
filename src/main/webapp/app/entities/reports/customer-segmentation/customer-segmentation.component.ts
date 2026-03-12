@@ -1,18 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
-import { Tag } from 'primeng/tag';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ToolbarModule} from 'primeng/toolbar';
+import {DividerModule} from 'primeng/divider';
+import {Tag} from 'primeng/tag';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
 
-import { ICustomerSegmentation, CustomerClassification } from 'app/shared/model/report/customer-segmentation.model';
-import { CustomerSegmentationReportService } from '../services/customer-segmentation-report.service';
+import {
+  CustomerClassification,
+  ICustomerSegmentation
+} from 'app/shared/model/report/customer-segmentation.model';
+import {CustomerSegmentationReportService} from '../services/customer-segmentation-report.service';
+import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../shared/util/tauri-util";
 
 @Component({
   selector: 'jhi-customer-segmentation',
@@ -29,17 +34,18 @@ export default class CustomerSegmentationComponent implements OnInit {
   showAtRiskOnly = signal<boolean>(false);
 
   classificationOptions = [
-    { label: 'Toutes les classifications', value: null },
-    { label: 'Champions', value: CustomerClassification.CHAMPION },
-    { label: 'Fidèles', value: CustomerClassification.LOYAL },
-    { label: 'Gros dépensiers', value: CustomerClassification.BIG_SPENDER },
-    { label: 'Actifs', value: CustomerClassification.ACTIVE },
-    { label: 'À risque', value: CustomerClassification.AT_RISK },
-    { label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION },
-    { label: 'Inactifs', value: CustomerClassification.INACTIVE },
+    {label: 'Toutes les classifications', value: null},
+    {label: 'Champions', value: CustomerClassification.CHAMPION},
+    {label: 'Fidèles', value: CustomerClassification.LOYAL},
+    {label: 'Gros dépensiers', value: CustomerClassification.BIG_SPENDER},
+    {label: 'Actifs', value: CustomerClassification.ACTIVE},
+    {label: 'À risque', value: CustomerClassification.AT_RISK},
+    {label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION},
+    {label: 'Inactifs', value: CustomerClassification.INACTIVE},
   ];
 
   private readonly customerSegmentationService = inject(CustomerSegmentationReportService);
+  private readonly tauriPrinter = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -116,22 +122,15 @@ export default class CustomerSegmentationComponent implements OnInit {
   }
 
   exportToPdf(): void {
-    this.customerSegmentationService.exportCustomerSegmentationToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `segmentation-clients-${new Date().getTime()}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.customerSegmentationService.exportCustomerSegmentationToPdf()
+      .subscribe(resp => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(resp.body, `segmentation-clients_${new Date().getTime()}`);
+        } else {
+          window.open(URL.createObjectURL(resp.body));
         }
-      },
-      error() {
-        console.error('Error exporting PDF');
-      },
-    });
+      });
+
   }
 
   getTotalCustomers(): number {
@@ -144,20 +143,26 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   getAverageBasket(): number {
     const customers = this.customers().filter(c => c.avgBasketValue && c.avgBasketValue > 0);
-    if (customers.length === 0) return 0;
+    if (customers.length === 0) {
+      return 0;
+    }
     const sum = customers.reduce((acc, c) => acc + (c.avgBasketValue || 0), 0);
     return sum / customers.length;
   }
 
   getAverageRFMScore(): number {
     const customers = this.customers().filter(c => c.rfmSegment);
-    if (customers.length === 0) return 0;
+    if (customers.length === 0) {
+      return 0;
+    }
     const sum = customers.reduce((acc, c) => acc + (c.rfmSegment || 0), 0);
     return sum / customers.length;
   }
 
   getClassificationSeverity(classification: CustomerClassification | undefined): string {
-    if (!classification) return 'secondary';
+    if (!classification) {
+      return 'secondary';
+    }
     switch (classification) {
       case CustomerClassification.CHAMPION:
         return 'success';
@@ -179,7 +184,9 @@ export default class CustomerSegmentationComponent implements OnInit {
   }
 
   getClassificationLabel(classification: CustomerClassification | undefined): string {
-    if (!classification) return 'N/A';
+    if (!classification) {
+      return 'N/A';
+    }
     switch (classification) {
       case CustomerClassification.CHAMPION:
         return 'Champion';
@@ -201,18 +208,34 @@ export default class CustomerSegmentationComponent implements OnInit {
   }
 
   getRFMScoreSeverity(score: number | undefined): string {
-    if (!score) return 'secondary';
-    if (score >= 9) return 'success';
-    if (score >= 6) return 'info';
-    if (score >= 3) return 'warn';
+    if (!score) {
+      return 'secondary';
+    }
+    if (score >= 9) {
+      return 'success';
+    }
+    if (score >= 6) {
+      return 'info';
+    }
+    if (score >= 3) {
+      return 'warn';
+    }
     return 'danger';
   }
 
   getRecencySeverity(days: number | undefined): string {
-    if (!days) return 'secondary';
-    if (days <= 30) return 'success';
-    if (days <= 90) return 'info';
-    if (days <= 180) return 'warn';
+    if (!days) {
+      return 'secondary';
+    }
+    if (days <= 30) {
+      return 'success';
+    }
+    if (days <= 90) {
+      return 'info';
+    }
+    if (days <= 180) {
+      return 'warn';
+    }
     return 'danger';
   }
 }

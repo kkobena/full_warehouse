@@ -1,0 +1,228 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-plus-circle me-2"></i>Nouvel inventaire
+  </h5>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form">
+    <!-- Catégorie -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="inventoryCategory">
+        Type d'inventaire <span class="text-danger">*</span>
+      </label>
+      <p-select
+        (onHide)="onDropdownHide($event)"
+        (onShow)="onDropdownShow($event)"
+        [fluid]="true"
+        [group]="true"
+        [options]="groupedCategories"
+        formControlName="inventoryCategory"
+        inputId="inventoryCategory"
+        optionGroupChildren="items"
+        optionGroupLabel="label"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Sélectionner un type"
+      >
+        <ng-template #optiongroup let-group>
+          <div class="category-group-header">
+            <span>{{ group.label }}</span>
+          </div>
+        </ng-template>
+        <ng-template #item let-cat>
+          <div class="category-option">
+            <i [class]="cat.icon"></i>
+            <span>{{ cat.label }}</span>
+          </div>
+        </ng-template>
+        <ng-template #selectedItem let-cat>
+          <div class="category-option">
+            <i [class]="cat.icon"></i>
+            <span>{{ cat.label }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+      @if (form.get('inventoryCategory')?.invalid && form.get('inventoryCategory')?.touched) {
+        <div class="text-danger small mt-1">Ce champ est requis.</div>
+      }
+    </div>
+
+
+    <!-- Storage (conditional) -->
+    @if (selectedCategory()?.needsStorage) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="storage">
+          Emplacement <span class="text-danger">*</span>
+        </label>
+        <p-select
+          (onHide)="onDropdownHide($event)"
+          (onShow)="onDropdownShow($event)"
+          [fluid]="true"
+          [options]="storages()"
+          formControlName="storage"
+          inputId="storage"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Sélectionner un emplacement"
+        />
+        @if (form.get('storage')?.invalid && form.get('storage')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis.</div>
+        }
+      </div>
+    }
+
+    <!-- Rayon (conditional) -->
+    @if (selectedCategory()?.needsRayon) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="rayon">
+          Rayon <span class="text-danger">*</span>
+        </label>
+        <p-select
+          (onHide)="onDropdownHide($event)"
+          (onShow)="onDropdownShow($event)"
+          [fluid]="true"
+          [options]="rayons()"
+          formControlName="rayon"
+          inputId="rayon"
+          optionLabel="libelle"
+          optionValue="id"
+          placeholder="Sélectionner un rayon"
+        />
+        @if (form.get('rayon')?.invalid && form.get('rayon')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis.</div>
+        }
+      </div>
+    }
+
+    <!-- Famille (conditional) -->
+    @if (selectedCategory()?.needsFamilly) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="famillyId">
+          Famille de produits <span class="text-danger">*</span>
+        </label>
+        <p-select
+          (onHide)="onDropdownHide($event)"
+          (onShow)="onDropdownShow($event)"
+          [fluid]="true"
+          [options]="familles()"
+          formControlName="famillyId"
+          inputId="famillyId"
+          optionLabel="libelle"
+          optionValue="id"
+          placeholder="Sélectionner une famille"
+        />
+        @if (form.get('famillyId')?.invalid && form.get('famillyId')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis.</div>
+        }
+      </div>
+    }
+
+    <!-- Date range (conditional) -->
+    @if (selectedCategory()?.needsDateRange) {
+      <div class="row mb-3">
+        <div class="col-6">
+          <label class="form-label fw-semibold" for="dateFrom">
+            Date début <span class="text-danger">*</span>
+          </label>
+          <p-datePicker
+            (onClose)="onDropdownHide($event)"
+            (onShow)="onDropdownShow($event)"
+            [fluid]="true"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            formControlName="dateFrom"
+            inputId="dateFrom"
+          />
+          @if (form.get('dateFrom')?.invalid && form.get('dateFrom')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis.</div>
+          }
+        </div>
+        <div class="col-6">
+          <label class="form-label fw-semibold" for="dateTo">
+            Date fin <span class="text-danger">*</span>
+          </label>
+          <p-datePicker
+            (onClose)="onDropdownHide($event)"
+            (onShow)="onDropdownShow($event)"
+            [fluid]="true"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            formControlName="dateTo"
+            inputId="dateTo"
+          />
+          @if (form.get('dateTo')?.invalid && form.get('dateTo')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis.</div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Alerte jours (conditional) -->
+    @if (selectedCategory()?.needsAlerteJours) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="alerteJours">
+          Alerte péremption (jours) <span class="text-danger">*</span>
+        </label>
+        <p-inputnumber
+          [min]="1"
+          [style]="{ width: '100%' }"
+          formControlName="alerteJours"
+          inputId="alerteJours"
+        />
+        @if (form.get('alerteJours')?.invalid && form.get('alerteJours')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis (minimum 1 jour).</div>
+        }
+      </div>
+    }
+
+    <!-- Description -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="description">Description<span
+        class="text-danger">*</span></label>
+      <input
+        autocomplete="off"
+        class="w-100"
+        formControlName="description"
+        id="description"
+        pInputText
+        placeholder="Description de l'inventaire"
+        type="text"
+      />
+      @if (form.get('description')?.invalid && form.get('description')?.touched) {
+        <div class="text-danger small mt-1">Ce champ est requis.</div>
+      }
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer flex-column align-items-stretch gap-2">
+  @if (errorMessage()) {
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-0 py-2 w-100">
+      <i class="pi pi-times-circle flex-shrink-0"></i>
+      <span class="small">{{ errorMessage() }}</span>
+    </div>
+  }
+  <div class="d-flex justify-content-end gap-2 w-100">
+    <p-button
+      (click)="cancel()"
+      [disabled]="loading()"
+      [raised]="true"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    />
+    <p-button
+      (click)="save()"
+      [disabled]="form.invalid || loading()"
+      [loading]="loading()"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Créer"
+      severity="primary"
+      type="button"
+    />
+  </div>
+</div>

@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
  * A InventoryLot.
  */
 @Entity
-@Table(name = "inventory_lot", uniqueConstraints = {@UniqueConstraint(columnNames = {"lot_id", "store_inventory_id"})})
+@Table(name = "inventory_lot", uniqueConstraints = {@UniqueConstraint(name = "uq_il_lot_line", columnNames = {"lot_id", "store_inventory_line_id"})})
 public class InventoryLot implements Serializable {
 
     @Serial
@@ -42,9 +43,9 @@ public class InventoryLot implements Serializable {
     @Column(name = "inventory_value_cost")
     private Integer inventoryValueCost;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "store_inventory_id", referencedColumnName = "id")
-    private StoreInventory storeInventory;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_inventory_line_id", nullable = false)
+    private StoreInventoryLine storeInventoryLine;
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
@@ -135,16 +136,16 @@ public class InventoryLot implements Serializable {
         return this;
     }
 
-    public StoreInventory getStoreInventory() {
-        return storeInventory;
+    public StoreInventoryLine getStoreInventoryLine() {
+        return storeInventoryLine;
     }
 
-    public void setStoreInventory(StoreInventory storeInventory) {
-        this.storeInventory = storeInventory;
+    public void setStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
+        this.storeInventoryLine = storeInventoryLine;
     }
 
-    public InventoryLot storeInventory(StoreInventory storeInventory) {
-        this.storeInventory = storeInventory;
+    public InventoryLot storeInventoryLine(StoreInventoryLine storeInventoryLine) {
+        this.storeInventoryLine = storeInventoryLine;
         return this;
     }
 

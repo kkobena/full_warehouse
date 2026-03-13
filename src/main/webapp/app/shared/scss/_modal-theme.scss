@@ -20,7 +20,8 @@
 
   // Modal header styling
   .modal-header {
-    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+    /*  background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);*/
+    background: linear-gradient(135deg, #2e7d97 0%, #1b5e75 100%) !important;
     color: white;
     border-bottom: none;
     padding: 1.25rem 1.5rem;

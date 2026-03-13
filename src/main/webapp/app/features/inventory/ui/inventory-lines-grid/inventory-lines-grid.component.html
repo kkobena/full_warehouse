@@ -1,0 +1,90 @@
+<div class="inventory-grid-wrapper">
+  <!-- Caption: filtres + recherche -->
+  <div class="grid-caption">
+    <div class="caption-filters">
+
+      <!-- Recherche rapide -->
+      <div class="caption-search">
+        <i class="pi pi-search"></i>
+        <input
+          (input)="onQuickFilterChange()"
+          [(ngModel)]="quickFilterText"
+          placeholder="Code CIP, libellé..."
+          type="text"
+        />
+        @if (quickFilterText) {
+          <i (click)="quickFilterText = ''; onQuickFilterChange()"
+             class="pi pi-times caption-clear"></i>
+        }
+      </div>
+
+      <!-- Filtre lignes -->
+      <p-select
+        (onChange)="onLineFilterChange()"
+        [(ngModel)]="selectedLineFilter"
+        [options]="lineFilters"
+        [style]="{ width: '150px' }"
+        appendTo="body"
+        optionLabel="label"
+        optionValue="value"
+        pTooltip="Filtre lignes"
+        placeholder="Tous"
+        size="small"
+        tooltipPosition="top"
+      />
+
+      <!-- Emplacement -->
+      <p-select
+        (onChange)="onStorageFilterChange()"
+        [(ngModel)]="selectedStorageId"
+        [options]="storages()"
+        [showClear]="true"
+        [style]="{ width: '160px' }"
+        appendTo="body"
+        optionLabel="name"
+        optionValue="id"
+        pTooltip="Emplacement"
+        placeholder="Emplacement"
+        size="small"
+        tooltipPosition="top"
+      />
+
+      <!-- Rayon -->
+      @if (rayons().length > 0) {
+        <p-select
+          (onChange)="onRayonFilterChange()"
+          [(ngModel)]="selectedRayonId"
+          [options]="rayons()"
+          [showClear]="true"
+          [style]="{ width: '140px' }"
+          appendTo="body"
+          optionLabel="libelle"
+          optionValue="id"
+          pTooltip="Rayon"
+          placeholder="Rayon"
+          size="small"
+          tooltipPosition="top"
+        />
+      }
+
+    </div>
+
+  </div>
+
+  <ag-grid-angular
+    (cellValueChanged)="onCellValueChanged($event)"
+    (gridReady)="onGridReady($event)"
+    [animateRows]="true"
+    [columnDefs]="columnDefs()"
+    [defaultColDef]="defaultColDef"
+    [enableCellEditingOnBackspace]="true"
+    [enterNavigatesVerticallyAfterEdit]="true"
+    [readOnlyEdit]="false"
+    [rowData]="rowData()"
+    [singleClickEdit]="true"
+    [stopEditingWhenCellsLoseFocus]="true"
+    [suppressScrollOnNewData]="true"
+    [theme]="theme"
+    style="width: 100%; height: 100%;"
+  />
+</div>

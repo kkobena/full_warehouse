@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,33 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     )
     Integer findPointVenteStock(@Param("produitId") Integer produitId, @Param("storageId") Integer storageId);
 
+
+    /**
+     * Chargement en masse par storage précis (rayon ou réserve).
+     * Usage : inventaires RAYON, STORAGE.
+     */
+    @Query("SELECT sp FROM StockProduit sp JOIN FETCH sp.produit WHERE sp.storage.id = :storageId AND sp.produit.id IN :produitIds")
+    List<StockProduit> findAllByStorageIdAndProduitIdIn(
+        @Param("storageId") Integer storageId,
+        @Param("produitIds") Collection<Integer> produitIds
+    );
+
+    /**
+     * Chargement en masse agrégé par magasin (rayon + réserve confondus).
+     * Retourne une projection [produitId, stockTotal] pour chaque produit demandé.
+     * Usage : inventaires MAGASIN, FAMILLY et types thématiques (PERIME, VENDU, etc.)
+     */
+    @Query("""
+        SELECT sp.produit.id, SUM(sp.qtyStock + sp.qtyUG)
+        FROM StockProduit sp
+        WHERE sp.storage.magasin.id = :magasinId
+          AND sp.produit.id IN :produitIds
+        GROUP BY sp.produit.id
+        """)
+    List<Object[]> findAggregatedStockByMagasinIdAndProduitIdIn(
+        @Param("magasinId") Integer magasinId,
+        @Param("produitIds") Collection<Integer> produitIds
+    );
 
     /**
      * Search stock produits by storage and product criteria

@@ -132,8 +132,13 @@ export class NavigationService {
           faIcon: faCalendarTimes,
         },
         {
-          label: this.translateLabel('entities.storeInventory'),
+          label: 'Gestion inventaire',
           routerLink: '/store-inventory',
+          faIcon: faClipboardList,
+          authorities: [Authority.STORE_INVENTORY, Authority.ADMIN],
+        }, {
+          label: this.translateLabel('entities.storeInventory'),
+          routerLink: '/inventaire',
           faIcon: faClipboardList,
           authorities: [Authority.STORE_INVENTORY, Authority.ADMIN],
         },

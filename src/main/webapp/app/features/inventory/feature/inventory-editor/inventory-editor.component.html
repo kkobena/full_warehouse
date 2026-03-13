@@ -1,0 +1,166 @@
+<p-toast />
+
+<div class="pharma-smart-content p-2">
+
+  <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-list-check"></i>
+      <span class="pharma-toolbar-title">
+        Inventaire
+      </span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+
+            <p-button
+              (click)="goBack()"
+              [raised]="true"
+              icon="pi pi-arrow-left"
+              label="Retour"
+              pTooltip="Retour à la liste"
+              severity="secondary"
+              tooltipPosition="top"
+            />
+
+            @if (!isInventoryClosed) {
+              <p-button
+                (click)="openImportModal()"
+                [raised]="true"
+                icon="pi pi-upload"
+                label="Importer CSV"
+                pTooltip="Importer depuis un fichier CSV"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (click)="closeInventory()"
+                [raised]="true"
+                icon="pi pi-lock"
+                label="Clôturer"
+                pTooltip="Clôturer cet inventaire"
+                severity="warn"
+                tooltipPosition="top"
+              />
+            }
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
+  <div class="row mt-2 g-3">
+
+    <!-- ── Colonne gauche : infos inventaire ──────────────────────────────── -->
+    <div class="col-xl-3 col-lg-4">
+      <div class="inventory-info-card">
+        <h6 class="info-card-title">
+          <i class="pi pi-info-circle"></i> Détails de l'inventaire
+        </h6>
+
+        @if (store.currentInventory(); as inv) {
+          <div class="info-items">
+
+            <div class="info-item">
+              <span class="info-label">Type</span>
+              <span class="info-value">{{ getCategoryLabel(inv.inventoryCategory) }}</span>
+            </div>
+
+            @if (inv.storage?.name) {
+              <div class="info-item">
+                <span class="info-label">Emplacement</span>
+                <span class="info-value">{{ inv.storage!.name }}</span>
+              </div>
+            }
+
+            @if (inv.rayon?.libelle) {
+              <div class="info-item">
+                <span class="info-label">Rayon</span>
+                <span class="info-value">{{ inv.rayon!.libelle }}</span>
+              </div>
+            }
+
+            @if (inv.description) {
+              <div class="info-item">
+                <span class="info-label">Description</span>
+                <span class="info-value">{{ inv.description }}</span>
+              </div>
+            }
+
+          </div>
+        } @else {
+          <div class="text-muted small p-2">Chargement...</div>
+        }
+
+        <!-- Progression -->
+        <div class="progress-section">
+          <app-inventory-progress-bar [progress]="store.progress()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Colonne droite : grille + pagination ──────────────────────────── -->
+    <div class="col-xl-9 col-lg-8">
+      <!-- Grille -->
+      <div class="grid-container">
+        @if (inventoryId() > 0) {
+          <app-inventory-lines-grid
+            (filterChange)="onGridFilterChange($event)"
+            (storageChange)="onGridStorageChange($event)"
+            (nextPage)="onNextPage()"
+            [blindMode]="blindMode()"
+            [inventoryId]="inventoryId()"
+            [pageSize]="size()"
+            [rayons]="rayons()"
+            [storages]="storages()"
+          />
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar">
+        <div class="page-size-selector">
+          <span class="page-size-label">Lignes/page</span>
+          <p-select
+            [ngModel]="size()"
+            (ngModelChange)="onPageSizeChange($event)"
+            [options]="pageSizeOptions"
+            size="small"
+          />
+        </div>
+        <div class="page-nav">
+          <p-button
+            (click)="onPageChange(-1)"
+            [disabled]="isFirstPage()"
+            [text]="true"
+            icon="pi pi-chevron-left"
+            pTooltip="Page précédente"
+            severity="secondary"
+            tooltipPosition="top"
+          />
+          <span class="page-info">
+            Page {{ page() + 1 }} / {{ totalPages() }}
+          </span>
+          <p-button
+            (click)="onPageChange(1)"
+            [disabled]="isLastPage()"
+            [text]="true"
+            icon="pi pi-chevron-right"
+            pTooltip="Page suivante"
+            severity="secondary"
+            tooltipPosition="top"
+          />
+        </div>
+        <span class="total-info">{{ store.totalLines() }} ligne(s)</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

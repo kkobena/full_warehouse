@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,30 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
 
     @Query(value = "SELECT o FROM StoreInventoryLine o JOIN o.produit p JOIN p.fournisseurProduits fp WHERE fp.codeCip IN :codeCips")
     List<StoreInventoryLine> findAllByCodeCip(Set<String> codeCips);
+
+    // ── Nouvelles méthodes (nouveaux services — sans impact sur l'existant) ────
+
+    long countByStoreInventoryId(Long storeInventoryId);
+
+    long countByStoreInventoryIdAndUpdatedIsTrue(Long storeInventoryId);
+
+    long countByStoreInventoryIdAndGapNot(Long storeInventoryId, Integer gap);
+
+    /**
+     * Recherche filtrée par inventaire + codes CIP pour l'import CSV.
+     * Évite de modifier des lignes appartenant à d'autres inventaires ouverts.
+     */
+    @Query("""
+        SELECT DISTINCT sil FROM StoreInventoryLine sil
+        JOIN FETCH sil.produit p
+        JOIN p.fournisseurProduits fp
+        WHERE sil.storeInventory.id = :storeInventoryId
+          AND fp.codeCip IN :codeCips
+        """)
+    List<StoreInventoryLine> findAllByStoreInventoryIdAndCodeCipIn(
+        @Param("storeInventoryId") Long storeInventoryId,
+        @Param("codeCips") Collection<String> codeCips
+    );
 
     @Query(
         "SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle"

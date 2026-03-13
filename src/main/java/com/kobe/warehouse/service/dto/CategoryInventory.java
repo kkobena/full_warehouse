@@ -14,6 +14,12 @@ public class CategoryInventory {
             case MAGASIN -> "Inventaire global";
             case STORAGE -> "Inventaire d'un emplacement";
             case FAMILLY -> "Inventaire d'une famille de produit";
+            case PERIME -> "Inventaire des produits périmés";
+            case ALERTE_PEREMPTION -> "Inventaire des produits en alerte péremption";
+            case VENDU -> "Inventaire des produits vendus";
+            case INVENDU -> "Inventaire des produits invendus";
+            case SOUS_SEUIL -> "Inventaire des produits sous seuil";
+            case EN_RUPTURE -> "Inventaire des produits en rupture";
         };
     }
 

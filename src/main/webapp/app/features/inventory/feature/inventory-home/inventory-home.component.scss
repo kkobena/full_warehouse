@@ -1,0 +1,110 @@
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as *;
+
+// ── Table inventaires ─────────────────────────────────────────────────────────
+.inventory-table {
+  thead tr th {
+    background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 0.625rem 0.75rem;
+    border: none;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background 0.15s ease;
+    cursor: pointer;
+
+    &:nth-child(even) td {
+      background: #f8f9fa;
+    }
+
+    &:hover td {
+      background: #e3f2fd !important;
+    }
+
+    td {
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+  }
+}
+
+// ── Badges statut ─────────────────────────────────────────────────────────────
+.badge-statut-create {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.badge-statut-processing {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.badge-statut-closed {
+  background-color: #d1e7dd;
+  color: #0a3622;
+}
+
+// ── Badge catégorie ───────────────────────────────────────────────────────────
+.badge-scope {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+// ── État vide ─────────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #adb5bd;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 1.25rem;
+  }
+}
+
+// ── Pied de tableau ───────────────────────────────────────────────────────────
+.table-footer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.82rem;
+  color: #6c757d;
+  border-top: 1px solid #e9ecef;
+  margin-top: 0.25rem;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .inventory-table {
+    thead th {
+      font-size: 0.7rem;
+      padding: 0.4rem 0.5rem;
+    }
+
+    tbody td {
+      font-size: 0.78rem;
+      padding: 0.375rem 0.5rem;
+    }
+  }
+}

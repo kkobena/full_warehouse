@@ -1,13 +1,16 @@
 package com.kobe.warehouse.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
@@ -16,6 +19,8 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A StoreInventoryLine.
@@ -30,7 +35,10 @@ import java.time.LocalDateTime;
     }
 )
 @Entity
-@Table(name = "store_inventory_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "store_inventory_id" }) })
+@Table(name = "store_inventory_line", uniqueConstraints = {
+    @UniqueConstraint(name = "uq_sil_produit_inventory_storage", columnNames = {"produit_id",
+        "store_inventory_id", "storage_id"})
+})
 public class StoreInventoryLine implements Serializable {
 
     @Serial
@@ -65,6 +73,13 @@ public class StoreInventoryLine implements Serializable {
 
     @ManyToOne(optional = false)
     private Produit produit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "storage_id")
+    private Storage storage;
+
+    @OneToMany(mappedBy = "storeInventoryLine", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InventoryLot> lots = new ArrayList<>();
 
     @NotNull
     @Column(name = "updated", nullable = false)
@@ -192,6 +207,23 @@ public class StoreInventoryLine implements Serializable {
         this.updated = updated;
     }
 
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public StoreInventoryLine setStorage(Storage storage) {
+        this.storage = storage;
+        return this;
+    }
+
+    public List<InventoryLot> getLots() {
+        return lots;
+    }
+
+    public void setLots(List<InventoryLot> lots) {
+        this.lots = lots;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -212,18 +244,18 @@ public class StoreInventoryLine implements Serializable {
     public String toString() {
         return (
             "StoreInventoryLine{" +
-            "id=" +
-            getId() +
-            ", quantityOnHand=" +
-            getQuantityOnHand() +
-            ", quantityInit=" +
-            getQuantityInit() +
-            ", quantitySold=" +
-            getQuantitySold() +
-            ", inventoryValueCost=" +
-            getInventoryValueCost() +
-            ", inventoryValueLatestSellingPrice=" +
-            "}"
+                "id=" +
+                getId() +
+                ", quantityOnHand=" +
+                getQuantityOnHand() +
+                ", quantityInit=" +
+                getQuantityInit() +
+                ", quantitySold=" +
+                getQuantitySold() +
+                ", inventoryValueCost=" +
+                getInventoryValueCost() +
+                ", inventoryValueLatestSellingPrice=" +
+                "}"
         );
     }
 }

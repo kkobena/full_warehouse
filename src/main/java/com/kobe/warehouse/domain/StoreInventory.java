@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
@@ -36,6 +37,10 @@ public class StoreInventory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Column(name = "description")
     private String description;
@@ -79,9 +84,6 @@ public class StoreInventory implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 20)
     private CategroryInventaire category = CategroryInventaire.STOCK_TOTAL;
-    @OneToMany(mappedBy = "storeInventory")
-    private List<InventoryLot> inventoryLots = new ArrayList<>();
-
     @ManyToOne
     private Storage storage;
 
@@ -104,20 +106,20 @@ public class StoreInventory implements Serializable {
     @Column(name = "gap_amount")
     private Integer gapAmount;
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     public CategroryInventaire getCategory() {
         return category;
     }
 
     public void setCategory(CategroryInventaire category) {
         this.category = category;
-    }
-
-    public List<InventoryLot> getInventoryLots() {
-        return inventoryLots;
-    }
-
-    public void setInventoryLots(List<InventoryLot> inventoryLots) {
-        this.inventoryLots = inventoryLots;
     }
 
     public String getDescription() {

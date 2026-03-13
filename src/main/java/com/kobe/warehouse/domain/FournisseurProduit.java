@@ -28,10 +28,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(
     name = "fournisseur_produit",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "produit_id", "fournisseur_id" }),
-        @UniqueConstraint(columnNames = { "code_cip", "fournisseur_id" }),
+        @UniqueConstraint(columnNames = {"produit_id", "fournisseur_id"}),
+        @UniqueConstraint(columnNames = {"code_cip", "fournisseur_id"}),
     },
-    indexes = { @Index(columnList = "code_cip ASC", name = "code_cip_index"), @Index(columnList = "code_ean", name = "code_ean_index") }
+    indexes = {@Index(columnList = "code_cip ASC", name = "code_cip_index"),
+        @Index(columnList = "code_ean", name = "code_ean_index")}
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FournisseurProduit implements Serializable {
@@ -43,10 +44,10 @@ public class FournisseurProduit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "code_cip", length = 10)
+    @Column(name = "code_cip", length = 20)
     private String codeCip;
 
-    @Column(name = "code_ean", length = 13)
+    @Column(name = "code_ean", length = 20)
     private String codeEan;
 
     @NotNull
@@ -197,20 +198,20 @@ public class FournisseurProduit implements Serializable {
     public String toString() {
         return (
             "FournisseurProduit{" +
-            "id=" +
-            getId() +
-            ", codeCip='" +
-            getCodeCip() +
-            "'" +
-            ", prixAchat=" +
-            getPrixAchat() +
-            ", prixUni=" +
-            getPrixUni() +
-            ", createdAt='" +
-            "'" +
-            ", principal='" +
-            "'" +
-            "}"
+                "id=" +
+                getId() +
+                ", codeCip='" +
+                getCodeCip() +
+                "'" +
+                ", prixAchat=" +
+                getPrixAchat() +
+                ", prixUni=" +
+                getPrixUni() +
+                ", createdAt='" +
+                "'" +
+                ", principal='" +
+                "'" +
+                "}"
         );
     }
 }

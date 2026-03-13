@@ -187,6 +187,11 @@ const routes: Routes = [
     data: { pageTitle: 'SEMOIS - Gestion Stock' },
     loadChildren: () => import('./semois/semois.route'),
   },
+  {
+    path: 'inventaire',
+    data: { pageTitle: 'Inventaires' },
+    loadChildren: () => import('../features/inventory/inventory.routes').then(m => m.INVENTORY_ROUTES),
+  },
 ];
 
 export default routes;

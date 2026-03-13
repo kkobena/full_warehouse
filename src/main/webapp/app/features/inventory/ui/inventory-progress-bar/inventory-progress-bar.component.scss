@@ -1,0 +1,124 @@
+// ── Conteneur principal ──────────────────────────────────────────────────────
+.inventory-progress-container {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  &.progress-complete {
+    border-color: #c3e6cb;
+    background: #f0fff4;
+  }
+
+  &.progress-started {
+    border-color: #bee5eb;
+    background: #f0fbfc;
+  }
+}
+
+// ── Ligne d'indicateurs textuels ─────────────────────────────────────────────
+.progress-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #495057;
+
+    i {
+      font-size: 0.85rem;
+      color: #5b89a6;
+    }
+
+    strong {
+      color: #212529;
+      font-weight: 700;
+    }
+
+    &.stat-gap {
+      i { color: #dc3545; }
+      strong { color: #dc3545; }
+    }
+
+    &.stat-complete {
+      i { color: #28a745; }
+      strong { color: #28a745; }
+    }
+  }
+
+  .stat-separator {
+    width: 1px;
+    height: 16px;
+    background: #dee2e6;
+  }
+
+  // Pourcentage mis en valeur à droite
+  .stat-percent {
+    margin-left: auto;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #2e7d97;
+    background: #e8f4f8;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+  }
+}
+
+// ── Barre de progression ─────────────────────────────────────────────────────
+.progress-bar-wrapper {
+  ::ng-deep {
+    .p-progressbar {
+      height: 10px;
+      border-radius: 5px;
+      background: #e9ecef;
+
+      .p-progressbar-value {
+        border-radius: 5px;
+        background: linear-gradient(90deg, #5b89a6 0%, #2e7d97 100%);
+        transition: width 0.4s ease;
+      }
+
+      // Barre verte quand 100%
+      &.progress-done .p-progressbar-value {
+        background: linear-gradient(90deg, #5cb85c 0%, #28a745 100%);
+      }
+
+      // Texte pourcentage masqué (affiché dans .stat-percent)
+      .p-progressbar-label {
+        display: none;
+      }
+    }
+  }
+}
+
+// ── État vide (pas de données) ────────────────────────────────────────────────
+.progress-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #adb5bd;
+  font-size: 0.85rem;
+  font-style: italic;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .progress-stats {
+    gap: 0.5rem;
+
+    .stat-percent {
+      margin-left: 0;
+    }
+  }
+}

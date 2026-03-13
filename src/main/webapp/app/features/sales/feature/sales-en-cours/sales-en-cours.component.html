@@ -112,19 +112,19 @@
               <p-buttonGroup>
                 <p-button
                   (click)="navigateToSale(sale)"
-                  [text]="true"
                   [rounded]="true"
+                  [text]="true"
                   icon="pi pi-file-edit"
                   pTooltip="Editer"
-                  rounded="true"
+
                   severity="success"
                 />
                 <p-button
                   (click)="confirmDelete(sale)"
+                  [rounded]="true"
                   [text]="true"
                   icon="pi pi-trash"
                   pTooltip="Supprimer"
-                  rounded="true"
                   severity="danger"
                 />
 
@@ -143,7 +143,8 @@
                     </div>
                     <div class="activity-card-header-content">
                       <h3 class="activity-card-title">Liste des produits</h3>
-                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
+                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
+                        article(s)</span>
                     </div>
                   </div>
                   <div class="activity-card-table-body">
@@ -186,9 +187,15 @@
                           <td>
                             <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                           </td>
-                          <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
-                          <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                          <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                          </td>
                           <td class="pharma-total" style="text-align: right; font-weight: bold">
                             {{ saleLine.salesAmount | number }}
                           </td>

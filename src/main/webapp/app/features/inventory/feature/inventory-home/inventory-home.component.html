@@ -1,0 +1,202 @@
+<p-toast />
+
+<div class="row m-0">
+  <!-- ── Sidebar navigation ──────────────────────────────────────────────── -->
+  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-list-check"></i>
+          <span>Inventaires</span>
+        </div>
+
+        <div class="pharma-nav-sidebar-content">
+          <div
+            #nav="ngbNav"
+            (navChange)="onNavChange($event)"
+            [(activeId)]="activeTab"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical"
+          >
+            <ng-container ngbNavItem="en-cours">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-refresh"></i>
+                <span>En cours</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <ng-container *ngTemplateOutlet="inventoryTable" />
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="clotures">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-lock"></i>
+                <span>Clôturés</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <ng-container *ngTemplateOutlet="inventoryTable" />
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Contenu principal ───────────────────────────────────────────────── -->
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
+    <div class="pharma-smart-content p-2">
+
+      <!-- Modern Pharma Toolbar -->
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-list-check"></i>
+          <span class="pharma-toolbar-title">Gestion des inventaires</span>
+        </div>
+
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  (click)="loadList()"
+                  [raised]="true"
+                  icon="pi pi-refresh"
+                  label="Actualiser"
+                  pTooltip="Actualiser la liste"
+                  severity="info"
+                  tooltipPosition="top"
+                />
+                <p-button
+                  (click)="openCreateModal()"
+                  [raised]="true"
+                  icon="pi pi-plus"
+                  label="Nouveau"
+                  pTooltip="Nouvel inventaire"
+                  severity="success"
+                  tooltipPosition="top"
+                />
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Template : liste des inventaires ──────────────────────────────────────── -->
+<ng-template #inventoryTable>
+  <!-- Chargement -->
+  @if (store.loadingList()) {
+    <div class="d-flex align-items-center gap-2 py-4 px-3 text-muted">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <span>Chargement des inventaires...</span>
+    </div>
+  }
+
+  <!-- État vide -->
+  @if (!store.loadingList() && !store.error() && store.inventories().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-inbox"></i>
+      <p>Aucun inventaire {{ activeTab() === 'en-cours' ? 'en cours' : 'clôturé' }}</p>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!store.loadingList() && store.inventories().length > 0) {
+    <div class="table-responsive">
+      <table class="table inventory-table mb-0">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th>Emplacement</th>
+          <th>Date création</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (inv of store.inventories(); track inv.id) {
+            <tr (click)="openEditor(inv)">
+              <td class="text-muted small">{{ inv.id }}</td>
+              <td>
+                <span class="badge badge-scope">
+                  {{ getCategoryLabel(inv.inventoryCategory?.name) }}
+                </span>
+              </td>
+              <td>{{ inv.description ?? '-' }}</td>
+              <td>
+                <span [class]="getStatutBadgeClass(inv.statut)" class="badge">
+                  {{ getStatutLabel(inv.statut) }}
+                </span>
+              </td>
+              <td class="small">{{ inv.storage?.name ?? '-' }}</td>
+              <td class="small text-muted">{{ inv.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td (click)="$event.stopPropagation()">
+                <div class="text-right">
+                  <p-buttonGroup>
+
+                    @if (inv.statut !== 'CLOSED') {
+                      <p-button
+                        (click)="openEditor(inv)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-pencil"
+                        pTooltip="Ouvrir"
+                        severity="primary"
+                        size="small"
+                        tooltipPosition="top"
+                      />
+                      <p-button
+                        (click)="closeInventory(inv)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-lock"
+                        pTooltip="Clôturer"
+                        severity="warn"
+                        size="small"
+                        tooltipPosition="top"
+                      />
+                      <p-button
+                        (click)="deleteInventory(inv)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-trash"
+                        pTooltip="Supprimer"
+                        severity="danger"
+                        size="small"
+                        tooltipPosition="top"
+                      />
+                    }
+                  </p-buttonGroup>
+
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer-info px-2">
+      <small class="text-muted">
+        Total : {{ store.totalInventories() }} inventaire(s)
+      </small>
+    </div>
+  }
+</ng-template>

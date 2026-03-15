@@ -11,6 +11,8 @@ export class InventoryEditorFacade {
   // Expose store state
   readonly lines = this.store.lines;
   readonly totalLines = this.store.totalLines;
+  readonly lotLines = this.store.lotLines;
+  readonly lotTotalLines = this.store.lotTotalLines;
   readonly loadingLines = this.store.loadingLines;
   readonly pendingEdits = this.store.pendingEdits;
   readonly hasPendingEdits = this.store.hasPendingEdits;
@@ -36,6 +38,23 @@ export class InventoryEditorFacade {
       },
       error: err => {
         this.store.setError(err?.message ?? 'Erreur lors du chargement des lignes');
+        this.store.setLoadingLines(false);
+      },
+    });
+  }
+
+  loadLotLines(inventoryId: number, params: any): void {
+    this.store.setLoadingLines(true);
+    this.store.setError(null);
+    const queryParams = { ...params, storeInventoryId: inventoryId };
+    this.api.getLotsPage(queryParams).subscribe({
+      next: resp => {
+        const total = parseInt(resp.headers.get('X-Total-Count') ?? '0', 10);
+        this.store.setLotLines(resp.body ?? [], total);
+        this.store.setLoadingLines(false);
+      },
+      error: err => {
+        this.store.setError(err?.message ?? 'Erreur lors du chargement des lots');
         this.store.setLoadingLines(false);
       },
     });

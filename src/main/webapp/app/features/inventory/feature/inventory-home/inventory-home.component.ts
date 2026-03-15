@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {
@@ -28,6 +28,20 @@ import {
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {Tooltip} from "primeng/tooltip";
 import {ButtonGroup} from "primeng/buttongroup";
+import {TableModule} from 'primeng/table';
+import {
+  PlanningTournantListComponent
+} from '../../ui/planning-tournant-list/planning-tournant-list.component';
+import {
+  PlanningTournantModalComponent
+} from '../../ui/planning-tournant-modal/planning-tournant-modal.component';
+import {GapSummaryComponent} from '../../ui/gap-summary/gap-summary.component';
+import {
+  InventoryValuationComponent
+} from '../../ui/inventory-valuation/inventory-valuation.component';
+import {
+  InventoryExportModalComponent
+} from '../../ui/inventory-export-modal/inventory-export-modal.component';
 
 @Component({
   selector: 'app-inventory-home',
@@ -43,12 +57,18 @@ import {ButtonGroup} from "primeng/buttongroup";
     NgbNavOutlet,
     Tooltip,
     ButtonGroup,
+    TableModule,
+    PlanningTournantListComponent,
+    GapSummaryComponent,
+    InventoryValuationComponent,
   ],
   providers: [MessageService],
   templateUrl: './inventory-home.component.html',
   styleUrl: './inventory-home.component.scss',
 })
 export class InventoryHomeComponent implements OnInit {
+  @ViewChild(PlanningTournantListComponent) planningList?: PlanningTournantListComponent;
+
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
   activeTab = signal<string>('en-cours');
@@ -84,20 +104,64 @@ export class InventoryHomeComponent implements OnInit {
   }
 
   protected loadList(): void {
+    if (this.activeTab() === 'tournant') {
+      return;
+    }
     const statuts = this.activeTab() === 'en-cours' ? ['CREATE', 'PROCESSING'] : ['CLOSED'];
     this.listFacade.loadList({page: this.page(), size: this.size(), statuts});
   }
 
+  protected isTournantTab(): boolean {
+    return this.activeTab() === 'tournant';
+  }
+
   protected openCreateModal(): void {
-    this.modal.open(InventoryCreateModalComponent, {
+    const ref = this.modal.open(InventoryCreateModalComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false,
+    });
+    ref.result.then(
+      (inventory: IStoreInventory) => {
+        if (inventory?.id) {
+          this.openExportModalFor(inventory, () =>
+            this.router.navigate(['/inventaire', inventory.id, 'edit'])
+          );
+        }
+      },
+      () => {},
+    );
+  }
+
+  protected openCreatePlanningModal(): void {
+    const ref = this.modal.open(PlanningTournantModalComponent, {size: 'lg', backdrop: 'static'});
+    ref.closed.subscribe(() => {
+      this.planningList?.loadAll();
+      this.planningList?.loadDashboard();
     });
   }
 
   protected openEditor(inventory: IStoreInventory): void {
     this.router.navigate(['/inventaire', inventory.id, 'edit']);
+  }
+
+  protected openReadOnly(inventory: IStoreInventory): void {
+    this.router.navigate(['/inventaire', inventory.id, 'edit']);
+  }
+
+  protected openGapAnalysisFor(inventory: IStoreInventory): void {
+    import('../../ui/gap-analysis-modal/gap-analysis-modal.component').then(m => {
+      const ref = this.modal.open(m.GapAnalysisModalComponent, {size: 'xl', backdrop: 'static'});
+      ref.componentInstance.inventoryId = inventory.id;
+    });
+  }
+
+  protected exportPdf(inventory: IStoreInventory): void {
+    this.openExportModalFor(inventory);
+  }
+
+  protected onRowExpand(_event: any): void {
+    // expansion handled by p-table dataKey
   }
 
   protected deleteInventory(inventory: IStoreInventory): void {
@@ -160,17 +224,27 @@ export class InventoryHomeComponent implements OnInit {
     return labels[cat ?? ''] ?? cat ?? '-';
   }
 
+  private openExportModalFor(inventory: IStoreInventory, onClose?: () => void): void {
+    const ref = this.modal.open(InventoryExportModalComponent, {
+      size: 'md',
+      backdrop: 'static',
+    });
+    ref.componentInstance.inventoryId = inventory.id;
+    ref.componentInstance.inventoryDescription = inventory.description ?? `#${inventory.id}`;
+    // always resolve (export or skip), then run optional callback
+    ref.result.then(
+      () => onClose?.(),
+      () => onClose?.(),
+    );
+  }
+
   private subscribeToEvents(): void {
     this.lastEvent$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event: InventoryEvent) => {
         switch (event.type) {
           case 'INVENTORY_CREATED':
-            if (event.payload?.id) {
-              this.router.navigate(['/inventaire', event.payload.id, 'edit']);
-            } else {
-              this.loadList();
-            }
+            // Navigation handled in openCreateModal after export modal
             break;
           case 'INVENTORY_DELETED':
             this.messageService.add({

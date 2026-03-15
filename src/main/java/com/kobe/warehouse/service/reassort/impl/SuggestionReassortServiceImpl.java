@@ -68,10 +68,14 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
      */
     @Override
     public void createLigneReassort(List<ReassortRecord> reassortRecords) {
+        createLigneReassort(reassortRecords, getCurrentUser());
+    }
+
+    @Override
+    public void createLigneReassort(List<ReassortRecord> reassortRecords, AppUser user) {
         if (CollectionUtils.isEmpty(reassortRecords)) {
             return;
         }
-        AppUser user = getCurrentUser();
         Magasin magasin = user.getMagasin();
 
         SuggestionReassortContext context = findOrCreateSuggestionReassort(magasin, user, TypeReassort.RESERVE);

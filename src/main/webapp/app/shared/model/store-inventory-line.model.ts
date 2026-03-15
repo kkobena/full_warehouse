@@ -18,6 +18,9 @@ export interface IStoreInventoryLine {
   storeInventoryId?: number;
   prixAchat?: number;
   prixUni?: number;
+  storageId?: number;
+  seuilMini?: number;
+  lotCount?: number;
 }
 
 export class StoreInventoryLine implements IStoreInventoryLine {

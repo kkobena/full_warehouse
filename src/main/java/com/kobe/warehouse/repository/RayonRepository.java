@@ -2,6 +2,7 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RayonRepository extends JpaRepository<Rayon, Integer> {
     Page<Rayon> findAllByStorageId(Long storageId, Pageable pageable);
+
+    List<Rayon> findAllByStorageIdOrderByLibelle(Integer storageId);
 
     Optional<Rayon> findFirstByLibelleEquals(String libelle);
 

@@ -1,0 +1,117 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-file-pdf me-2"></i>Export PDF
+    @if (inventoryDescription) {
+      <span class="modal-title-sub">— {{ inventoryDescription }}</span>
+    }
+  </h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+      <i class="pi pi-times-circle"></i>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Grouper par -->
+  <div class="export-field">
+    <label class="export-label">Grouper par</label>
+    <p-select
+      [(ngModel)]="exportGroupBy"
+      [options]="groupByOptions"
+      optionLabel="label"
+      optionValue="value"
+      [style]="{'width': '100%'}"
+    />
+  </div>
+
+  <!-- Filtre lignes -->
+  <div class="export-field">
+    <label class="export-label">Filtre lignes</label>
+    <p-select
+      [(ngModel)]="selectedFilter"
+      [options]="lineFilterOptions"
+      optionLabel="label"
+      optionValue="value"
+      [style]="{'width': '100%'}"
+    />
+  </div>
+
+  <!-- Emplacement -->
+  @if (storages().length) {
+    <div class="export-field">
+      <label class="export-label">Emplacement <span class="text-muted fw-normal">(optionnel)</span></label>
+      <p-select
+        [(ngModel)]="selectedStorageId"
+        (ngModelChange)="onStorageChange($event)"
+        [options]="storages()"
+        optionLabel="name"
+        optionValue="id"
+        [showClear]="true"
+        placeholder="Tous les emplacements"
+        [style]="{'width': '100%'}"
+      />
+    </div>
+  }
+
+  <!-- Rayon (conditionnel) -->
+  @if (rayons().length) {
+    <div class="export-field">
+      <label class="export-label">Rayon <span class="text-muted fw-normal">(optionnel)</span></label>
+      <p-select
+        [(ngModel)]="selectedRayonId"
+        [options]="rayons()"
+        optionLabel="libelle"
+        optionValue="id"
+        [showClear]="true"
+        placeholder="Tous les rayons"
+        [style]="{'width': '100%'}"
+      />
+    </div>
+  }
+
+  <!-- Recherche -->
+  <div class="export-field">
+    <label class="export-label">Recherche <span class="text-muted fw-normal">(optionnel)</span></label>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="search"
+      placeholder="Code CIP, libellé..."
+      class="w-100"
+    />
+  </div>
+
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (click)="cancel()"
+    [raised]="true"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    type="button"
+  />
+  <p-button
+    (click)="skip()"
+    [raised]="true"
+    icon="pi pi-forward"
+    label="Continuer sans exporter"
+    severity="info"
+    type="button"
+  />
+  <p-button
+    (click)="export()"
+    [loading]="exporting()"
+    [raised]="true"
+    icon="pi pi-file-pdf"
+    label="Exporter PDF"
+    severity="primary"
+    type="button"
+  />
+</div>

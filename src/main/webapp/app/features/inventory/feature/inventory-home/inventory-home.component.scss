@@ -1,6 +1,7 @@
 @use 'app/shared/scss/pharma-nav' as *;
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/expanded-row' as *;
 
 // ── Table inventaires ─────────────────────────────────────────────────────────
 .inventory-table {
@@ -92,6 +93,68 @@
   color: #6c757d;
   border-top: 1px solid #e9ecef;
   margin-top: 0.25rem;
+}
+
+// ── Grille 2 colonnes synthèse expanded row ───────────────────────────────────
+.inv-synthese-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Expanded row : cartes clôturés ────────────────────────────────────────────
+$primary-blue: #2e7d97;
+$primary-light: #5bc0de;
+$success-green: #43ac6a;
+$gray-light: #f8f9fa;
+$gray-border: #e2e8f0;
+$white: #fff;
+
+.expanded-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.activity-card {
+  &.activity-card-primary {
+    --accent-color-start: #{$primary-blue};
+    --accent-color-end: #{$primary-light};
+
+    .activity-card-header {
+      background: linear-gradient(135deg, $gray-light 0%, $white 100%);
+      border-bottom: 2px solid $gray-border;
+    }
+
+    .activity-card-icon {
+      background: linear-gradient(135deg, rgba($primary-blue, 0.1), rgba($primary-light, 0.1));
+      color: $primary-blue;
+    }
+  }
+}
+
+.activity-card-body {
+  padding: 0.75rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.activity-card-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.125rem 1rem;
+  border-top: 1px solid $gray-border;
+  flex-wrap: wrap;
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────

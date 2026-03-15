@@ -1,0 +1,93 @@
+<!-- ── Résumé global ─────────────────────────────────────────────────────── -->
+@let g = global();
+@if (g) {
+  <div class="val-global-grid">
+    <div class="val-kpi">
+      <span class="val-kpi-label">Valeur avant (achat)</span>
+      <span class="val-kpi-value">{{ g.costValueBegin | number: '1.0-0' }}</span>
+    </div>
+    <div class="val-kpi">
+      <span class="val-kpi-label">Valeur après (achat)</span>
+      <span class="val-kpi-value">{{ g.costValueAfter | number: '1.0-0' }}</span>
+    </div>
+    <div class="val-kpi val-kpi-gap" [class.val-negative]="g.gapCost < 0">
+      <span class="val-kpi-label">Écart coût</span>
+      <span class="val-kpi-value">{{ g.gapCost | number: '1.0-0' }}</span>
+    </div>
+    <div class="val-kpi">
+      <span class="val-kpi-label">Valeur avant (vente)</span>
+      <span class="val-kpi-value">{{ g.amountValueBegin | number: '1.0-0' }}</span>
+    </div>
+    <div class="val-kpi">
+      <span class="val-kpi-label">Valeur après (vente)</span>
+      <span class="val-kpi-value">{{ g.amountValueAfter | number: '1.0-0' }}</span>
+    </div>
+    <div class="val-kpi val-kpi-gap" [class.val-negative]="g.gapAmount < 0">
+      <span class="val-kpi-label">Écart vente</span>
+      <span class="val-kpi-value">{{ g.gapAmount | number: '1.0-0' }}</span>
+    </div>
+  </div>
+}
+
+<!-- ── Sélecteur de ventilation ──────────────────────────────────────────── -->
+<div class="val-group-selector">
+  <span class="val-group-label">Ventiler par</span>
+  <p-select
+    (ngModelChange)="onGroupByChange()"
+    [(ngModel)]="selectedGroupBy"
+    [options]="groupByOptions"
+    [fluid]="true"
+    optionLabel="label"
+    optionValue="value"
+    size="small"
+  />
+</div>
+
+<!-- ── Tableau de ventilation ────────────────────────────────────────────── -->
+<p-table
+  [loading]="loading()"
+  [value]="groups()"
+  class="pharma-table val-table"
+  stripedRows="true"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th>Groupe</th>
+      <th class="text-center">Lignes</th>
+      <th class="text-right">Val. avant (achat)</th>
+      <th class="text-right">Val. après (achat)</th>
+      <th class="text-right">Écart coût</th>
+      <th class="text-right">Val. avant (vente)</th>
+      <th class="text-right">Val. après (vente)</th>
+      <th class="text-right">Écart vente</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-row>
+    <tr>
+      <td class="val-group-name">{{ row.groupLabel }}</td>
+      <td class="text-center text-muted small">{{ row.lineCount }}</td>
+      <td class="text-right">{{ row.costBefore | number: '1.0-0' }}</td>
+      <td class="text-right">{{ row.costAfter | number: '1.0-0' }}</td>
+      <td class="text-right" [class]="getGapClass(row.gapCost)">
+        {{ row.gapCost | number: '1.0-0' }}
+      </td>
+      <td class="text-right">{{ row.amountBefore | number: '1.0-0' }}</td>
+      <td class="text-right">{{ row.amountAfter | number: '1.0-0' }}</td>
+      <td class="text-right" [class]="getGapClass(row.gapAmount)">
+        {{ row.gapAmount | number: '1.0-0' }}
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="8">
+        <div class="pharma-empty-content">
+          <i class="pi pi-chart-bar"></i>
+          <p>Aucune donnée de valorisation</p>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

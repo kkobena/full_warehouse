@@ -14,12 +14,12 @@ public class StoreInventoryLineExport {
     private Integer prixAchat;
     private Integer prixUni;
     private Integer lastUnitPrice;
-    private Long rayonId;
-    private Long storageId;
+    private Integer rayonId;
+    private Integer storageId;
     private String rayonCode;
     private String famillyCode;
     private String famillyLibelle;
-    private Long famillyId;
+    private Integer famillyId;
 
     public StoreInventoryLineExport(
         Integer gap,
@@ -34,12 +34,12 @@ public class StoreInventoryLineExport {
         Integer prixAchat,
         Integer prixUni,
         Integer lastUnitPrice,
-        Long rayonId,
-        Long storageId,
+        Integer rayonId,
+        Integer storageId,
         String rayonCode,
         String famillyCode,
         String famillyLibelle,
-        Long famillyId
+        Integer famillyId
     ) {
         this.gap = gap;
         this.inventoryValueCost = inventoryValueCost;
@@ -61,11 +61,11 @@ public class StoreInventoryLineExport {
         this.famillyId = famillyId;
     }
 
-    public Long getFamillyId() {
+    public Integer getFamillyId() {
         return famillyId;
     }
 
-    public StoreInventoryLineExport setFamillyId(Long famillyId) {
+    public StoreInventoryLineExport setFamillyId(Integer famillyId) {
         this.famillyId = famillyId;
         return this;
     }
@@ -184,19 +184,19 @@ public class StoreInventoryLineExport {
         this.lastUnitPrice = lastUnitPrice;
     }
 
-    public Long getRayonId() {
+    public Integer getRayonId() {
         return rayonId;
     }
 
-    public void setRayonId(Long rayonId) {
+    public void setRayonId(Integer rayonId) {
         this.rayonId = rayonId;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public void setStorageId(Long storageId) {
+    public void setStorageId(Integer storageId) {
         this.storageId = storageId;
     }
 

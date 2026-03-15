@@ -40,12 +40,13 @@ public interface InventoryTransactionRepository
 
     Optional<InventoryTransaction> findInventoryTransactionById(Long id);
 
-    @Query(value = "SELECT get_product_movements_by_period(:produitId,:magasinId,:startDate, :endDate)", nativeQuery = true)
+    @Query(value = "SELECT get_product_movements_by_period(:produitId,:magasinId,:startDate,:endDate,:storageId)", nativeQuery = true)
     String fetchMouvementProduit(
         @Param("produitId") Integer produitId,
         @Param("magasinId") Integer magasinId,
         @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate
+        @Param("endDate") LocalDate endDate,
+        @Param("storageId") Integer storageId
     );
 
     default Specification<InventoryTransaction> specialisationProduitId(Integer produitId) {
@@ -76,11 +77,25 @@ public interface InventoryTransactionRepository
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.magasin).get(Magasin_.id), magasinId);
     }
 
+    default Specification<InventoryTransaction> specialisationStorageId(Integer storageId) {
+        return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.storage).get("id"), storageId);
+    }
+
     default Specification<InventoryTransaction> combineSpecifications(
         Integer magasinId,
         Integer produitId,
         LocalDate startDate,
         LocalDate endDate
+    ) {
+        return combineSpecifications(magasinId, produitId, startDate, endDate, null);
+    }
+
+    default Specification<InventoryTransaction> combineSpecifications(
+        Integer magasinId,
+        Integer produitId,
+        LocalDate startDate,
+        LocalDate endDate,
+        Integer storageId
     ) {
         Specification<InventoryTransaction> specification = specialisationProduitId(produitId);
         if (startDate != null && endDate != null) {
@@ -93,7 +108,9 @@ public interface InventoryTransactionRepository
         if (magasinId != null) {
             specification = specification.and(specialisationMagasinId(magasinId));
         }
-
+        if (storageId != null) {
+            specification = specification.and(specialisationStorageId(storageId));
+        }
         return specification;
     }
 }

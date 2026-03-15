@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
@@ -28,7 +29,7 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "inventory_transaction",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id", "mouvement_type", "transaction_date" }) },
+    uniqueConstraints = { @UniqueConstraint(name = "uq_inv_tx_entity_produit_type_storage_ts", columnNames = { "entity_id", "produit_id", "mouvement_type", "storage_id", "created_at" }) },
     indexes = {
         @Index(columnList = "mouvement_type", name = "inventory_mouvement_type_type_index"),
         @Index(columnList = "transaction_date", name = "inventory_transaction_date_index"),
@@ -86,6 +87,10 @@ public class InventoryTransaction implements Persistable<ProductMvtId>, Serializ
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Magasin magasin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "storage_id")
+    private Storage storage;
 
     @NotNull
     @Column(name = "entity_id", nullable = false)
@@ -190,6 +195,15 @@ public class InventoryTransaction implements Persistable<ProductMvtId>, Serializ
 
     public InventoryTransaction setMagasin(Magasin magasin) {
         this.magasin = magasin;
+        return this;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public InventoryTransaction setStorage(Storage storage) {
+        this.storage = storage;
         return this;
     }
 

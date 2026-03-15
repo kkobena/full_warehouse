@@ -4,10 +4,13 @@ import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.BatchSyncResultRecord;
+import com.kobe.warehouse.service.dto.records.InventoryLotRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
+import com.kobe.warehouse.service.dto.records.StoreInventoryLotLineRecord;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.stock.InventaireQueryService;
 import com.kobe.warehouse.service.stock.InventaireSyncService;
+import com.kobe.warehouse.service.stock.InventoryLotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
@@ -19,7 +22,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,15 +45,18 @@ public class StoreInventoryLineResource {
     private final InventaireService inventaireService;
     private final InventaireSyncService inventaireSyncService;
     private final InventaireQueryService inventaireQueryService;
+    private final InventoryLotService inventoryLotService;
 
     public StoreInventoryLineResource(
         InventaireService inventaireService,
         InventaireSyncService inventaireSyncService,
-        InventaireQueryService inventaireQueryService
+        InventaireQueryService inventaireQueryService,
+        InventoryLotService inventoryLotService
     ) {
         this.inventaireService = inventaireService;
         this.inventaireSyncService = inventaireSyncService;
         this.inventaireQueryService = inventaireQueryService;
+        this.inventoryLotService = inventoryLotService;
     }
 
     @PutMapping("/store-inventory-lines")
@@ -109,5 +118,57 @@ public class StoreInventoryLineResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/store-inventory-lines/lots")
+    public ResponseEntity<List<StoreInventoryLotLineRecord>> getInventoryLotsPage(
+        StoreInventoryLineFilterRecord filter,
+        Pageable pageable
+    ) {
+        Page<StoreInventoryLotLineRecord> page = inventoryLotService.findLotFlatPage(filter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/store-inventory-lines/{lineId}/lots")
+    public ResponseEntity<List<InventoryLotRecord>> getInventoryLots(@PathVariable Long lineId) {
+        return ResponseEntity.ok(inventoryLotService.findByStoreInventoryLineId(lineId));
+    }
+
+    @PostMapping("/store-inventory-lines/{lineId}/lots")
+    public ResponseEntity<InventoryLotRecord> createInventoryLot(
+        @PathVariable Long lineId,
+        @RequestBody InventoryLotRecord record
+    ) {
+        InventoryLotRecord created = inventoryLotService.save(
+            new InventoryLotRecord(
+                null, lineId, record.lotId(), record.numLot(), record.expiryDate(),
+                record.quantityOnHand(), record.quantityInit(), record.gap(),
+                record.updated(), record.lastUnitPrice()
+            )
+        );
+        return ResponseEntity.ok(created);
+    }
+
+    @PutMapping("/store-inventory-lines/lots/{lotId}")
+    public ResponseEntity<InventoryLotRecord> updateInventoryLot(
+        @PathVariable Long lotId,
+        @RequestBody InventoryLotRecord record
+    ) {
+        InventoryLotRecord updated = inventoryLotService.update(
+            new InventoryLotRecord(
+                lotId, record.storeInventoryLineId(), record.lotId(), record.numLot(),
+                record.expiryDate(), record.quantityOnHand(), record.quantityInit(),
+                record.gap(), record.updated(), record.lastUnitPrice()
+            )
+        );
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/store-inventory-lines/lots/{lotId}")
+    public ResponseEntity<Void> deleteInventoryLot(@PathVariable Long lotId) {
+        inventoryLotService.delete(lotId);
+        return ResponseEntity.noContent().build();
     }
 }

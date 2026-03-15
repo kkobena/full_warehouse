@@ -44,6 +44,7 @@ export class ProduitAuditingParam {
   produitId?: number;
   fromDate?: string;
   toDate?: string;
+  storageId?: number;
   page?: number;
   size?: number;
 }

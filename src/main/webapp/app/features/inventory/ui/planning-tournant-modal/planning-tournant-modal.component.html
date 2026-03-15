@@ -1,0 +1,158 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-sync me-2"></i>
+    {{ planning ? 'Modifier le planning tournant' : 'Nouveau planning tournant' }}
+  </h5>
+  <button type="button" class="btn-close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="form">
+    <!-- Libellé -->
+    <div class="mb-3">
+      <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
+      <input pInputText id="libelle" formControlName="libelle" class="w-100"
+             placeholder="Ex: Inventaire hebdo rayon A..." />
+      @if (form.get('libelle')?.invalid && form.get('libelle')?.touched) {
+        <div class="text-danger small mt-1">Le libellé est obligatoire</div>
+      }
+    </div>
+
+    <!-- Fréquence -->
+    <div class="mb-3">
+      <label class="form-label" for="frequence">Fréquence <span class="text-danger">*</span></label>
+      <p-select
+        inputId="frequence"
+        [options]="frequences"
+        formControlName="frequence"
+        optionLabel="label"
+        optionValue="value"
+        [fluid]="true"
+        placeholder="Sélectionner une fréquence"
+      />
+    </div>
+
+    <!-- Critère de rotation -->
+    <div class="mb-3">
+      <label class="form-label" for="critere">Critère de rotation <span class="text-danger">*</span></label>
+      <p-select
+        inputId="critere"
+        [options]="criteres"
+        formControlName="critere"
+        optionLabel="label"
+        optionValue="value"
+        [fluid]="true"
+        placeholder="Sélectionner un critère"
+      />
+      @if (form.get('critere')?.value) {
+        <div class="field-hint mt-1">
+          <i class="pi pi-info-circle"></i>
+          @switch (form.get('critere')?.value) {
+            @case ('RAYON') { Chaque exécution inventorie le rayon suivant du storage. }
+            @case ('FAMILLE') { Chaque exécution inventorie la famille de produits suivante. }
+            @case ('CLASSIFICATION_ABC') { Rotation A → B → C → A sur la classification Pareto. }
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Storage de référence -->
+    <div class="mb-3">
+      <label class="form-label" for="storageId">Storage de référence</label>
+      <p-select
+        inputId="storageId"
+        [options]="storages()"
+        formControlName="storageId"
+        optionLabel="name"
+        optionValue="id"
+        [fluid]="true"
+        [showClear]="true"
+        placeholder="Tous les storages"
+      />
+    </div>
+
+    <!-- Employé affecté -->
+    <div class="mb-3">
+      <label class="form-label" for="userId">
+        Employé affecté
+        <i class="pi pi-info-circle ms-1 text-muted"
+           pTooltip="L'inventaire créé automatiquement sera assigné à cet employé."
+           tooltipPosition="top"></i>
+      </label>
+      <p-select
+        inputId="userId"
+        [options]="users()"
+        formControlName="userId"
+        optionValue="id"
+        [fluid]="true"
+        [showClear]="true"
+        [filter]="true"
+        filterBy="firstName,lastName,login"
+        placeholder="Non affecté (fallback système)"
+      >
+        <ng-template #selectedItem let-user>
+          @if (user) {
+            <span><i class="pi pi-user me-1"></i>{{ getUserLabel(user) }}</span>
+          }
+        </ng-template>
+        <ng-template #item let-user>
+          <span>{{ getUserLabel(user) }}</span>
+          <small class="text-muted ms-2">{{ user.login }}</small>
+        </ng-template>
+      </p-select>
+      <div class="field-hint mt-1">
+        <i class="pi pi-info-circle"></i>
+        Si non renseigné, le premier utilisateur actif du système sera utilisé.
+      </div>
+    </div>
+
+    <!-- Prochaine exécution -->
+    <div class="mb-3">
+      <label class="form-label" for="prochaineExecution">
+        Prochaine exécution
+        @if (!planning) {
+          <span class="text-muted fw-normal small ms-1">(calculée selon la fréquence)</span>
+        }
+      </label>
+      <p-datePicker
+        inputId="prochaineExecution"
+        formControlName="prochaineExecution"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [fluid]="true"
+      />
+      <div class="field-hint mt-1">
+        <i class="pi pi-info-circle"></i>
+        Vous pouvez ajuster cette date si nécessaire.
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer flex-column align-items-stretch gap-2">
+  @if (errorMessage()) {
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-0 py-2 w-100">
+      <i class="pi pi-times-circle flex-shrink-0"></i>
+      <span class="small">{{ errorMessage() }}</span>
+    </div>
+  }
+  <div class="d-flex justify-content-end gap-2 w-100">
+    <p-button
+      label="Annuler"
+      icon="pi pi-times"
+      severity="secondary"
+      [raised]="true"
+      [disabled]="loading()"
+      (onClick)="dismiss()"
+    />
+    <p-button
+      [label]="planning ? 'Modifier' : 'Créer'"
+      icon="pi pi-check"
+      severity="primary"
+      [raised]="true"
+      [loading]="loading()"
+      [disabled]="form.invalid || loading()"
+      (onClick)="save()"
+    />
+  </div>
+</div>

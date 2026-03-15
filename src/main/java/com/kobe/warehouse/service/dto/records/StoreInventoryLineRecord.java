@@ -11,5 +11,9 @@ public record StoreInventoryLineRecord(
     int quantityInit,
     boolean updated,
     Integer prixAchat,
-    Integer prixUni
+    Integer prixUni,
+    Integer storageId,
+    Integer seuilMini,
+    int lotCount,
+    String classePareto
 ) {}

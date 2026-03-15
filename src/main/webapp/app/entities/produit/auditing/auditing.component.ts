@@ -8,6 +8,7 @@ import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { DividerModule } from 'primeng/divider';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { SelectModule } from 'primeng/select';
 import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '../../../shared/model/produit-record.model';
 import { HttpResponse } from '@angular/common/http';
 import { ProduitStatService } from '../stat/produit-stat.service';
@@ -15,11 +16,13 @@ import { ProduitAuditingParamService } from '../transaction/produit-auditing-par
 import { ITEMS_PER_PAGE, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
 import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-produit.model';
 import { MagasinService } from '../../magasin/magasin.service';
+import { StorageService } from '../../storage/storage.service';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { IProduit } from '../../../shared/model/produit.model';
+import { IStorage } from '../../../shared/model/magasin.model';
 
 @Component({
   selector: 'jhi-auditing',
@@ -33,6 +36,7 @@ import { IProduit } from '../../../shared/model/produit.model';
     BadgeModule,
     DividerModule,
     NgxSpinnerModule,
+    SelectModule,
     DatePickerComponent,
     ProduitAutocompleteComponent,
     Toolbar,
@@ -52,6 +56,8 @@ export class AuditingComponent implements OnInit {
   protected deconPositifQuantity?: number;
   protected deconNegatifQuantity?: number;
   protected canceledQuantity?: number;
+  protected mouvementStockIn?: number;
+  protected mouvementStockOut?: number;
   protected storeInventoryQuantity?: number;
   protected entites: ProduitAuditingState[] = [];
   protected summaries: ProduitAuditingSum[] = [];
@@ -66,22 +72,16 @@ export class AuditingComponent implements OnInit {
   protected produits: IProduit[] = [];
   protected event: any;
   protected hasDepot = signal<boolean>(false);
+  protected storages: IStorage[] = [];
+  protected selectedStorage: IStorage | null = null;
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
   private readonly magasinService = inject(MagasinService);
+  private readonly storageService = inject(StorageService);
   private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
 
-  /*
-  protected get fromDate(): Date | null {
-    return this.dateDebut().value;
-  }
-
-  protected get toDate(): Date | null {
-    return this.dateFin().value;
-  }
-*/
   onSelect(event: any): void {
     this.event = event;
     this.load();
@@ -94,6 +94,9 @@ export class AuditingComponent implements OnInit {
   ngOnInit(): void {
     this.magasinService.hasDepot().subscribe(hasDepot => {
       this.hasDepot.set(hasDepot.body || false);
+    });
+    this.storageService.fetchUserStorages().subscribe((res: HttpResponse<IStorage[]>) => {
+      this.storages = res.body || [];
     });
     const param = this.produitAuditingParamService.produitAuditingParam;
     if (param && param.produitId) {
@@ -130,8 +133,6 @@ export class AuditingComponent implements OnInit {
   exportPdf(): void {
     this.produitStatService.exportToPdf(this.buildQuery()).subscribe({
       next(blod) {
-        // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-        // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
@@ -143,6 +144,7 @@ export class AuditingComponent implements OnInit {
       produitId: this.produit?.id,
       fromDate: this.dateDebut()?.submitValue,
       toDate: this.dateFin()?.submitValue,
+      storageId: this.selectedStorage?.id,
     };
     this.produitAuditingParamService.setParameter(params);
     return params;
@@ -154,11 +156,6 @@ export class AuditingComponent implements OnInit {
 
   private onError(): void {
     this.entites = [];
-  }
-
-  private onSuccessPage(data: ProduitAuditingState[] | null): void {
-    this.entites = data || [];
-    this.computeTotaux();
   }
 
   private onSuccess(data: ProduitAuditingState[] | null): void {
@@ -177,17 +174,6 @@ export class AuditingComponent implements OnInit {
       });
   }
 
-  private buidParamscc(): ProduitAuditingParam {
-    const param = this.buildQuery();
-    return {
-      produitId: param.produitId,
-      fromDate: param.fromDate,
-      toDate: param.toDate,
-      page: this.page,
-      size: this.itemsPerPage,
-    };
-  }
-
   private resetTotaux(): void {
     this.saleQuantity = null;
     this.deleveryQuantity = null;
@@ -198,6 +184,8 @@ export class AuditingComponent implements OnInit {
     this.deconPositifQuantity = null;
     this.deconNegatifQuantity = null;
     this.canceledQuantity = null;
+    this.mouvementStockIn = null;
+    this.mouvementStockOut = null;
     this.retourDepot = null;
     this.storeInventoryQuantity = null;
   }
@@ -217,10 +205,14 @@ export class AuditingComponent implements OnInit {
     this.ajustementNegatifQuantity = ajustementNegatifSum ? ajustementNegatifSum.quantity : null;
     const deconPositifSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.DECONDTION_IN);
     this.deconPositifQuantity = deconPositifSum ? deconPositifSum.quantity : null;
-    const deconNegatifSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.MOUVEMENT_STOCK_OUT);
+    const deconNegatifSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.DECONDTION_OUT);
     this.deconNegatifQuantity = deconNegatifSum ? deconNegatifSum.quantity : null;
     const canceledSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.CANCEL_SALE);
     this.canceledQuantity = canceledSum ? canceledSum.quantity : null;
+    const mouvementStockInSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.MOUVEMENT_STOCK_IN);
+    this.mouvementStockIn = mouvementStockInSum ? mouvementStockInSum.quantity : null;
+    const mouvementStockOutSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.MOUVEMENT_STOCK_OUT);
+    this.mouvementStockOut = mouvementStockOutSum ? mouvementStockOutSum.quantity : null;
     const retourDepotSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.RETOUR_DEPOT);
     this.retourDepot = retourDepotSum ? retourDepotSum.quantity : null;
     const storeInventorySum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.INVENTAIRE);

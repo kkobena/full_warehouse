@@ -9,7 +9,8 @@ export type InventoryCategoryType =
   | 'VENDU'
   | 'INVENDU'
   | 'SOUS_SEUIL'
-  | 'EN_RUPTURE';
+  | 'EN_RUPTURE'
+  | 'ABC';
 
 export interface InventoryProgressRecord {
   inventoryId: number;
@@ -55,6 +56,38 @@ export interface IInventoryLine {
   updated?: boolean;
   currentStock?: number;
   storeInventoryId?: number;
+  storageId?: number;
+  seuilMini?: number;
+  lotCount?: number;
+  classePareto?: string;
+}
+
+export interface IInventoryLot {
+  id?: number;
+  storeInventoryLineId?: number;
+  lotId?: number;
+  numLot?: string;
+  expiryDate?: string;
+  quantityOnHand?: number;
+  quantityInit?: number;
+  gap?: number;
+  updated?: boolean;
+  lastUnitPrice?: number;
+}
+
+export interface IInventoryLotLine {
+  id?: number;
+  storeInventoryLineId?: number;
+  produitId?: number;
+  produitCip?: string;
+  produitLibelle?: string;
+  numLot?: string;
+  expiryDate?: string;
+  quantityOnHand?: number;
+  quantityInit?: number;
+  gap?: number;
+  updated?: boolean;
+  classePareto?: string;
 }
 
 // Pending edit buffered locally before batch save
@@ -82,6 +115,7 @@ export interface StoreInventoryCreateRecord {
   dateFrom?: string;
   dateTo?: string;
   alerteJours?: number;
+  classePareto?: string;
 }
 
 export interface InventoryCategoryInfo {
@@ -94,6 +128,7 @@ export interface InventoryCategoryInfo {
   needsFamilly?: boolean;
   needsDateRange?: boolean;
   needsAlerteJours?: boolean;
+  needsClassePareto?: boolean;
 }
 
 export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
@@ -154,6 +189,13 @@ export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
     group: 'thematic'
   },
   {value: 'EN_RUPTURE', label: 'Rupture de stock', icon: 'pi pi-ban', group: 'thematic'},
+  {
+    value: 'ABC',
+    label: 'Classification ABC (Pareto)',
+    icon: 'pi pi-chart-bar',
+    group: 'thematic',
+    needsClassePareto: true
+  },
 ];
 
 export const LINE_FILTERS = [

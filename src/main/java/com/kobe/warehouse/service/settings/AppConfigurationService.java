@@ -61,6 +61,30 @@ public class AppConfigurationService {
             });
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_GESTION_LOT_INVENTAIRE_CACHE)
+    public boolean useGestionLotInventaire() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_GESTION_LOT_INVENTAIRE)
+            .map(configuration -> {
+                try {
+                    return Integer.parseInt(configuration.getValue().trim()) == 1;
+                } catch (NumberFormatException _) {
+                    return false;
+                }
+            })
+            .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE_CACHE)
+    public String getModeSaisieLotInventaire() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE)
+            .map(AppConfiguration::getValue)
+            .orElse("LOT_PLAT");
+    }
+
     @Transactional
     public void update(AppConfiguration appConfiguration) {
         appConfigurationRepository

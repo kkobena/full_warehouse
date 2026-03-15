@@ -7,6 +7,8 @@ import { createRequestOptions } from '../../../../shared/util/request-util';
 import {
   BatchSyncResultRecord,
   IInventoryLine,
+  IInventoryLot,
+  IInventoryLotLine,
   ImportResultRecord,
   InventoryProgressRecord,
   StoreInventoryCreateRecord,
@@ -62,8 +64,46 @@ export class InventoryApiService {
     return this.http.put<BatchSyncResultRecord>(`${this.linesUrl}/batch`, lines, { observe: 'response' });
   }
 
-  exportToPdf(params: any): Observable<Blob> {
+  /**
+   * Export PDF d'un inventaire.
+   * @param inventoryId  identifiant de l'inventaire
+   * @param groupBy      RAYON | STORAGE | FAMILLY | NONE  (défaut RAYON)
+   * @param filterParams paramètres optionnels supplémentaires (rayonId, storageId…)
+   * @param gestionLot   true pour générer le PDF en mode gestion de lot
+   */
+  exportToPdf(
+    inventoryId: number,
+    groupBy: 'RAYON' | 'STORAGE' | 'FAMILLY' | 'NONE' = 'RAYON',
+    filterParams: Record<string, any> = {},
+    gestionLot = false
+  ): Observable<Blob> {
+    const body = {
+      exportGroupBy: groupBy,
+      filterRecord: {storeInventoryId: inventoryId, ...filterParams},
+      gestionLot,
+    };
+    return this.http.post(`${this.resourceUrl}/pdf`, body, {responseType: 'blob'});
+  }
+
+  getLots(lineId: number, params?: any): Observable<IInventoryLot[]> {
+    const options = params ? createRequestOptions(params) : {};
+    return this.http.get<IInventoryLot[]>(`${this.linesUrl}/${lineId}/lots`, {params: options});
+  }
+
+  getLotsPage(params: any): Observable<HttpResponse<IInventoryLotLine[]>> {
     const options = createRequestOptions(params);
-    return this.http.get(`${this.resourceUrl}/export-pdf`, { params: options, responseType: 'blob' });
+    return this.http.get<IInventoryLotLine[]>(`${this.linesUrl}/lots`, {params: options, observe: 'response'});
+  }
+
+  createLot(lineId: number, lot: IInventoryLot): Observable<IInventoryLot> {
+    return this.http.post<IInventoryLot>(`${this.linesUrl}/${lineId}/lots`, lot);
+  }
+
+  updateLot(lotId: number, lot: IInventoryLot): Observable<IInventoryLot> {
+    return this.http.put<IInventoryLot>(`${this.linesUrl}/lots/${lotId}`, lot);
+  }
+
+  deleteLot(lotId: number): Observable<void> {
+    return this.http.delete<void>(`${this.linesUrl}/lots/${lotId}`);
   }
 }

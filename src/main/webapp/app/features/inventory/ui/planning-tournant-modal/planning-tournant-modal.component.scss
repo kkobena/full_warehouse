@@ -1,0 +1,11 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+
+::ng-deep .p-select-overlay,
+::ng-deep .p-select-list-container {
+  z-index: 10000 !important;
+}

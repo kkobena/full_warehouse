@@ -1,0 +1,138 @@
+<p-toast />
+
+<!-- KPI Dashboard -->
+@if (dashboard(); as d) {
+  <div class="tournant-kpi-grid">
+    <div class="tournant-kpi-card">
+      <div class="kpi-icon kpi-primary"><i class="pi pi-calendar"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ d.nbPlanningsActifs }}</div>
+        <div class="kpi-label">Plannings actifs</div>
+      </div>
+    </div>
+    <div class="tournant-kpi-card">
+      <div class="kpi-icon kpi-success"><i class="pi pi-check-circle"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ d.nbInventairesCeMois }}</div>
+        <div class="kpi-label">Inventaires ce mois</div>
+      </div>
+    </div>
+    <div class="tournant-kpi-card">
+      <div class="kpi-icon kpi-info"><i class="pi pi-chart-pie"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ d.tauxCouverturePct }}%</div>
+        <div class="kpi-label">Taux de couverture</div>
+      </div>
+    </div>
+    <div class="tournant-kpi-card">
+      <div class="kpi-icon kpi-warning"><i class="pi pi-clock"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ d.prochaineTournant ? (d.prochaineTournant | date:'dd/MM') : '—' }}</div>
+        <div class="kpi-label">Prochain tournant</div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Table -->
+<div class="pharma-table-wrapper">
+  <p-table
+    [value]="plannings()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} plannings"
+    dataKey="id"
+    class="pharma-table"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Libellé</th>
+        <th>Critère</th>
+        <th>Fréquence</th>
+        <th>Storage</th>
+        <th>Employé affecté</th>
+        <th>Prochaine exécution</th>
+        <th>Dernière exécution</th>
+        <th class="text-center">Exécutions</th>
+        <th class="text-center">Statut</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-p>
+      <tr [class.pharma-row-warning]="isOverdue(p)">
+        <td><span class="pharma-entity-name">{{ p.libelle }}</span></td>
+        <td>
+          <span class="pharma-badge pharma-badge-primary">
+            {{ getCritereLabel(p.critere) }}
+            @if (p.critere === 'CLASSIFICATION_ABC' && p.classeParetoCourante) {
+              — {{ p.classeParetoCourante }}
+            }
+          </span>
+        </td>
+        <td>{{ getFrequenceLabel(p.frequence) }}</td>
+        <td>{{ p.storageLibelle ?? '—' }}</td>
+        <td>
+          @if (p.userFullName) {
+            <span class="pharma-badge pharma-badge-info">
+              <i class="pi pi-user me-1"></i>{{ p.userFullName }}
+            </span>
+          } @else {
+            <span class="text-muted small">Système</span>
+          }
+        </td>
+        <td>
+          @if (isOverdue(p)) {
+            <span class="pharma-badge pharma-badge-danger">
+              <i class="pi pi-exclamation-triangle me-1"></i>{{ p.prochaineExecution | date:'dd/MM/yyyy' }}
+            </span>
+          } @else {
+            {{ p.prochaineExecution | date:'dd/MM/yyyy' }}
+          }
+        </td>
+        <td>{{ p.derniereExecution ? (p.derniereExecution | date:'dd/MM/yyyy') : '—' }}</td>
+        <td class="text-center">{{ p.nbExecutions ?? 0 }}</td>
+        <td class="text-center">
+          <p-tag [value]="p.actif ? 'Actif' : 'Inactif'"
+                 [severity]="p.actif ? 'success' : 'secondary'" />
+        </td>
+        <td class="text-center">
+          <div class="pharma-action-buttons">
+            <p-button icon="pi pi-play" [rounded]="true" [text]="true" severity="success"
+                      pTooltip="Exécuter maintenant" tooltipPosition="top"
+                      (onClick)="executerManuellement(p)" />
+            <p-button [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'" [rounded]="true" [text]="true"
+                      [severity]="p.actif ? 'warning' : 'info'"
+                      [pTooltip]="p.actif ? 'Désactiver' : 'Activer'" tooltipPosition="top"
+                      (onClick)="toggleActif(p)" />
+            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true"
+                      pTooltip="Modifier" tooltipPosition="top"
+                      (onClick)="openEditModal(p)" />
+            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                      pTooltip="Supprimer" tooltipPosition="top"
+                      (onClick)="delete(p)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="10">
+          <div class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-calendar-times"></i>
+              <p>Aucun planning tournant configuré</p>
+              <small>Créez votre premier planning pour automatiser les inventaires tournants.</small>
+              <p-button label="Créer le premier planning" icon="pi pi-plus"
+                        [outlined]="true" (onClick)="openCreateModal()" />
+            </div>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

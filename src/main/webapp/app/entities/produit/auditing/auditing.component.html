@@ -20,6 +20,15 @@
             />
           </div>
 
+          <p-select
+            [(ngModel)]="selectedStorage"
+            [options]="storages"
+            [showClear]="true"
+            optionLabel="name"
+            placeholder="Tous les emplacements"
+            [style]="{ 'min-width': '180px' }"
+          />
+
           <jhi-date-picker
             #dateDebut
             [disabled]="false"
@@ -79,13 +88,12 @@
       <tr class="pharma-table-head">
         <th rowspan="2">Date</th>
         <th rowspan="2">Qté.init</th>
-        <th class="text-center" colspan="5">Sortie</th>
+        <th class="text-center" colspan="6">Sortie</th>
         @if (hasDepot()) {
-          <th class="text-center" colspan="5">Entrée</th>
+          <th class="text-center" colspan="6">Entrée</th>
         } @else {
-          <th class="text-center" colspan="4">Entrée</th>
+          <th class="text-center" colspan="5">Entrée</th>
         }
-
         <th rowspan="2">Qté.inv</th>
         <th rowspan="2">Ecart.inv</th>
         <th rowspan="2">Stock</th>
@@ -96,10 +104,12 @@
         <th>Qté.périmée</th>
         <th>Qté.ajustée</th>
         <th>Qté.décon</th>
+        <th>Transf.réserve</th>
         <th>Qté.entrée</th>
         <th>Qté.ajustée</th>
         <th>Qté.décon</th>
         <th>Qté.annullée</th>
+        <th>Transf.rayon</th>
         @if (hasDepot()) {
           <th>Retour.dépôt</th>
         }
@@ -127,6 +137,9 @@
           <span class="pharma-qty-value">{{ elRow.deconNegatifQuantity | number }}</span>
         </td>
         <td class="text-right">
+          <span class="pharma-qty-value">{{ elRow.mouvementStockOut | number }}</span>
+        </td>
+        <td class="text-right">
           <span class="pharma-qty-value">{{ elRow.deleveryQuantity | number }}</span>
         </td>
         <td class="text-right">
@@ -138,12 +151,14 @@
         <td class="text-right text-danger">
           <span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span>
         </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ elRow.mouvementStockIn | number }}</span>
+        </td>
         @if (hasDepot()) {
           <td class="text-right">
             <span class="pharma-qty-value">{{ elRow.retourDepot | number }}</span>
           </td>
         }
-
         <td class="text-right">
           <span class="pharma-qty-value">{{ elRow.storeInventoryQuantity | number }}</span>
         </td>
@@ -175,6 +190,9 @@
             <span class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span>
           </td>
           <td class="text-right">
+            <span class="pharma-footer-value">{{ mouvementStockOut | number }}</span>
+          </td>
+          <td class="text-right">
             <span class="pharma-footer-value">{{ deleveryQuantity | number }}</span>
           </td>
           <td class="text-right">
@@ -185,6 +203,9 @@
           </td>
           <td class="text-right text-danger">
             <span class="pharma-footer-value">{{ canceledQuantity | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-footer-value">{{ mouvementStockIn | number }}</span>
           </td>
           @if (hasDepot()) {
             <td class="text-right text-danger">
@@ -198,9 +219,9 @@
     <ng-template #emptymessage let-columns>
       <tr>
         @if (hasDepot()) {
-          <td [attr.colspan]="15">Aucune donnée trouvée</td>
+          <td [attr.colspan]="17">Aucune donnée trouvée</td>
         } @else {
-          <td [attr.colspan]="14">Aucune donnée trouvée</td>
+          <td [attr.colspan]="16">Aucune donnée trouvée</td>
         }
       </tr>
     </ng-template>

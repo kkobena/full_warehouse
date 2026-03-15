@@ -156,6 +156,27 @@ pharma-smart:
 
     # Taille des batchs pour le traitement par lots
     batch-size: 100
+  stock:
+    snapshot:
+      # Snapshot quotidien du stock pour la reconstitution historique (fn_stock_at_time).
+      # Exécuté aussi au démarrage si le snapshot du jour n'existe pas encore
+      # (catch-up pour les machines éteintes la nuit).
+      # Format : secondes minutes heures jour mois jour-semaine
+      # Utiliser '-' pour désactiver le scheduler (le catch-up démarrage reste actif).
+      cron: '0 30 8 * * *'
+
+  inventaire:
+    tournant:
+      # Cron d'exécution automatique des plannings tournants échus.
+      # Format : secondes minutes heures jour mois jour-semaine
+      # Défaut : chaque matin à 8h00 (les officines ne sont pas forcément ouvertes à 7h
+      #          et les machines peuvent être éteintes la nuit).
+      # Exemple : '0 0 8 * * *'  → 8h00 tous les jours
+      #           '0 0 8 * * MON-SAT' → 8h00 du lundi au samedi
+      #           '-'           → désactiver le job (Spring ignore les expressions négatives,
+      #                           utiliser un placeholder qui ne déclenchera jamais)
+      cron: '0 0 8 * * *'
+
   clientApp:
     name: 'pharma-smart'
   # OAuth2 Authorization Server settings

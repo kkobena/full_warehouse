@@ -1,0 +1,84 @@
+@use 'app/shared/scss/table-common' as *;
+
+// ── KPIs globaux ──────────────────────────────────────────────────────────────
+.val-global-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.val-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+
+  &.val-kpi-gap {
+    background: #fff3cd;
+    border-color: #ffc107;
+  }
+
+  &.val-negative {
+    background: #f8d7da;
+    border-color: #dc3545;
+
+    .val-kpi-value { color: #dc3545; }
+  }
+}
+
+.val-kpi-label {
+  font-size: 0.7rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
+.val-kpi-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #333;
+}
+
+// ── Sélecteur de ventilation ──────────────────────────────────────────────────
+.val-group-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.val-group-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+// ── Tableau ───────────────────────────────────────────────────────────────────
+.val-table {
+  font-size: 0.8rem;
+}
+
+.val-group-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.val-negative {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.val-positive {
+  color: #28a745;
+  font-weight: 600;
+}

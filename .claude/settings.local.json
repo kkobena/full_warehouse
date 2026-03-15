@@ -68,7 +68,10 @@
       "WebFetch(domain:support.soopos.com)",
       "Bash(npx ng build:*)",
       "Bash(/tmp/query_analysis.txt:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git -C /d/projet/full_warehouse log --all --oneline --grep=\"lot\" -i | head -20)",
+      "Bash(git -C /d/projet/full_warehouse log --all --oneline | grep -i \"lot\\\\|inventory\" | head -20)",
+      "WebFetch(domain:primeng.org)"
     ],
     "deny": [],
     "ask": []

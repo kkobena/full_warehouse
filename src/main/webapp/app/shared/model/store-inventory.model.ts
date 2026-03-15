@@ -1,8 +1,8 @@
-import { Moment } from 'moment';
-import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
-import { IUser } from '../../core/user/user.model';
-import { IStorage } from './magasin.model';
-import { IRayon } from './rayon.model';
+import {Moment} from 'moment';
+import {IStoreInventoryLine} from 'app/shared/model/store-inventory-line.model';
+import {IUser} from '../../core/user/user.model';
+import {IStorage} from './magasin.model';
+import {IRayon} from './rayon.model';
 
 export interface IStoreInventory {
   id?: number;
@@ -44,7 +44,21 @@ export class StoreInventory implements IStoreInventory {
 
 export type InventoryStatut = 'CREATE' | 'CLOSED' | 'PROCESSING';
 export type InventoryType = 'MANUEL' | 'PROGRAMME';
-export type InventoryCategoryType = 'STORAGE' | 'RAYON' | 'MAGASIN' | 'FAMILLY' | 'NONE';
+export type InventoryCategoryType =
+  'STORAGE'
+  | 'RAYON'
+  | 'MAGASIN'
+  | 'FAMILLY'
+  | 'NONE'
+  | 'PERIME'
+  | 'ALERTE_PEREMPTION'
+  | 'VENDU'
+  | 'INVENDU'
+  | 'SOUS_SEUIL'
+  | 'EN_RUPTURE'
+  | 'SELECTION_PRODUIT'
+  | 'ABC'
+  | 'GROSSISTE';
 
 export class InventoryCategory {
   name: InventoryCategoryType;

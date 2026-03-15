@@ -50,6 +50,10 @@ public final class EntityConstant {
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
     public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
+    public static final String APP_GESTION_LOT_INVENTAIRE = "APP_GESTION_LOT_INVENTAIRE";
+    public static final String APP_GESTION_LOT_INVENTAIRE_CACHE = "APP_GESTION_LOT_INVENTAIRE_CACHE";
+    public static final String APP_MODE_SAISIE_LOT_INVENTAIRE = "APP_MODE_SAISIE_LOT_INVENTAIRE";
+    public static final String APP_MODE_SAISIE_LOT_INVENTAIRE_CACHE = "APP_MODE_SAISIE_LOT_INVENTAIRE_CACHE";
 
     public static final String EXCLUDE_FREE_UNIT = "EXCLUDE_FREE_UNIT";
     public static final String USER_STORAGE_CACHE = "USER_STORAGE_CACHE";

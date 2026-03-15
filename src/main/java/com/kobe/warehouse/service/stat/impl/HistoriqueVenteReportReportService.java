@@ -222,7 +222,7 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
                     printHistoriquesAchatsMensuel(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode)
                 );
         } catch (Exception e) {
-            log.error("exportHistoriqueVenteMensuelleToPdf", e);
+            log.error("exportHistoriqueAchatsMensuelToPdf", e);
             throw new ReportFileExportException();
         }
     }

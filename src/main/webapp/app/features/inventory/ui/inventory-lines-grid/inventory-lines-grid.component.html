@@ -74,6 +74,7 @@
   <ag-grid-angular
     (cellValueChanged)="onCellValueChanged($event)"
     (gridReady)="onGridReady($event)"
+    (rowClicked)="onRowClicked($event)"
     [animateRows]="true"
     [columnDefs]="columnDefs()"
     [defaultColDef]="defaultColDef"

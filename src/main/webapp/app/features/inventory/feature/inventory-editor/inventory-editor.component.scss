@@ -216,4 +216,26 @@
       color: #9ca3af;
     }
   }
+
+  // ── Section valorisation ventilée ─────────────────────────────────────────
+  .valuation-section {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+
+    .info-card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      i { color: #2e7d97; }
+    }
+  }
 }

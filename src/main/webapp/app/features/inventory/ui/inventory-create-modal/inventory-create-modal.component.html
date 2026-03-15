@@ -177,6 +177,26 @@
       </div>
     }
 
+    <!-- Classe Pareto ABC (conditional) -->
+    @if (selectedCategory()?.needsClassePareto) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="classePareto">
+          Classe Pareto
+        </label>
+        <p-select
+          (onHide)="onDropdownHide($event)"
+          (onShow)="onDropdownShow($event)"
+          [fluid]="true"
+          [options]="classesParetoOptions"
+          formControlName="classePareto"
+          inputId="classePareto"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Toutes les classes (A + B + C)"
+        />
+      </div>
+    }
+
     <!-- Description -->
     <div class="mb-3">
       <label class="form-label fw-semibold" for="description">Description<span

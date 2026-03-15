@@ -17,6 +17,7 @@ import com.kobe.warehouse.repository.projection.RepartitionStockProduitProjectio
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
@@ -42,12 +43,20 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
     private final RepartitionStockProduitRepository repartitionStockProduitRepository;
     private final StockProduitRepository stockProduitRepository;
     private final RepartitionStockPdfReportService repartitionStockPdfReportService;
+    private final InventoryTransactionService inventoryTransactionService;
 
-    public RepartitionStockServiceImpl(StorageService storageService, RepartitionStockProduitRepository repartitionStockProduitRepository, StockProduitRepository stockProduitRepository, RepartitionStockPdfReportService repartitionStockPdfReportService) {
+    public RepartitionStockServiceImpl(
+        StorageService storageService,
+        RepartitionStockProduitRepository repartitionStockProduitRepository,
+        StockProduitRepository stockProduitRepository,
+        RepartitionStockPdfReportService repartitionStockPdfReportService,
+        InventoryTransactionService inventoryTransactionService
+    ) {
         this.storageService = storageService;
         this.repartitionStockProduitRepository = repartitionStockProduitRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.repartitionStockPdfReportService = repartitionStockPdfReportService;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     @Override
@@ -84,6 +93,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             updateStockQuantity(stockProduitDest, stockDesFinal);
 
             repartitionStockProduitRepository.save(repartitionStockProduit);
+            inventoryTransactionService.saveRepartition(repartitionStockProduit);
         }
     }
 
@@ -118,6 +128,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             updateStockQuantity(stockProduitSrc, stockSrcFinal);
 
             repartitionStockProduitRepository.save(repartitionStockProduit);
+            inventoryTransactionService.saveRepartition(repartitionStockProduit);
         }
     }
 
@@ -151,6 +162,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockSrc, stockSrcFinal);
             setDestinationStockInfo(repartitionStockProduit, stockProduitDest, queryDto.quantity(), destInitStock, stockDestFinal);
             repartitionStockProduitRepository.save(repartitionStockProduit);
+            inventoryTransactionService.saveRepartition(repartitionStockProduit);
 
             updateStockQuantity(stockProduitSrc, stockSrcFinal);
             updateStockQuantity(stockProduitDest, stockDestFinal);
@@ -198,6 +210,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             stockProduitDest.getQtyStock(), 0, stockProduitDest.getQtyStock());
         setSourceStockInfo(repartitionStockProduit, stockProduitSrc, stockSrcInitial, stockSrcFinal);
         repartitionStockProduitRepository.save(repartitionStockProduit);
+        inventoryTransactionService.saveRepartition(repartitionStockProduit);
         updateStockQuantity(stockProduitSrc, stockSrcFinal);
     }
 

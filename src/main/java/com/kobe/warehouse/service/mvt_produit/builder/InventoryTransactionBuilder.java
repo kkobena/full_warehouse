@@ -5,7 +5,6 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
-import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
@@ -16,13 +15,8 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import org.springframework.data.util.Pair;
-
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Set;
 
 public class InventoryTransactionBuilder {
 
@@ -33,8 +27,10 @@ public class InventoryTransactionBuilder {
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(salesLine.getUpdatedAt())
                 .setProduit(salesLine.getProduit())
-                .setMouvementType(salesLine.getQuantitySold() < 0 ? MouvementProduit.CANCEL_SALE : MouvementProduit.SALE)
-                .setQuantity(salesLine.getQuantitySold())
+                .setMouvementType(
+                    salesLine.getQuantityRequested() < 0 ? MouvementProduit.CANCEL_SALE
+                        : MouvementProduit.SALE)
+                .setQuantity(salesLine.getQuantityRequested())
                 .setQuantityBefor(salesLine.getInitStock())
                 .setQuantityAfter(salesLine.getAfterStock())
                 .setCostAmount(salesLine.getCostAmount())
@@ -60,18 +56,19 @@ public class InventoryTransactionBuilder {
             StockProduit stockProduit = ajustement.getStockProduit();
             Produit produit = stockProduit.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            Pair<Integer, Integer> socktPair = determineBeforeAfterStock(stockProduit.getStorage().getMagasin(), produit, ajustement.getStockBefore(), ajustement.getStockAfter(), stockProduit);
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(ajustement.getDateMtv())
                 .setProduit(produit)
-                .setMouvementType(ajustement.getQtyMvt() > 0 ? MouvementProduit.AJUSTEMENT_IN : MouvementProduit.AJUSTEMENT_OUT)
+                .setMouvementType(ajustement.getQtyMvt() > 0 ? MouvementProduit.AJUSTEMENT_IN
+                    : MouvementProduit.AJUSTEMENT_OUT)
                 .setQuantity(ajustement.getQtyMvt())
-                .setQuantityBefor(socktPair.getFirst())
-                .setQuantityAfter(socktPair.getSecond())
+                .setQuantityBefor(ajustement.getStockBefore())
+                .setQuantityAfter(ajustement.getStockAfter())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
                 .setEntityId(Long.parseLong(ajustement.getId() + ""))
                 .setUser(ajustement.getAjust().getUser())
                 .setMagasin(ajustement.getAjust().getUser().getMagasin())
+                .setStorage(stockProduit.getStorage())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
         } else if (entity instanceof Decondition decondition) {
             Produit produit = decondition.getProduit();
@@ -101,7 +98,8 @@ public class InventoryTransactionBuilder {
                 .setMouvementType(MouvementProduit.RETRAIT_PERIME)
                 .setQuantity(productsToDestroy.getQuantity())
                 .setQuantityBefor(productsToDestroy.getStockInitial())
-                .setQuantityAfter(productsToDestroy.getStockInitial() - productsToDestroy.getQuantity())
+                .setQuantityAfter(
+                    productsToDestroy.getStockInitial() - productsToDestroy.getQuantity())
                 .setCostAmount(productsToDestroy.getPrixAchat())
                 .setEntityId(Long.parseLong(productsToDestroy.getId() + ""))
                 .setUser(productsToDestroy.getUser())
@@ -122,21 +120,27 @@ public class InventoryTransactionBuilder {
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
-        } else if (entity instanceof StoreInventoryLine storeInventoryLine) { //TODO: adapter la gestion des stocks multi emplacements
+        } else if (entity instanceof StoreInventoryLine storeInventoryLine) {
             Produit produit = storeInventoryLine.getProduit();
             StoreInventory storeInventory = storeInventoryLine.getStoreInventory();
             AppUser user = storeInventory.getUser();
+            int qtyAfter = storeInventoryLine.getQuantityOnHand() != null
+                ? storeInventoryLine.getQuantityOnHand()
+                : storeInventoryLine.getQuantityInit();
+            int qtyBefore = storeInventoryLine.getQuantityInit() != null
+                ? storeInventoryLine.getQuantityInit() : 0;
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(storeInventoryLine.getUpdatedAt())
                 .setProduit(produit)
                 .setMouvementType(MouvementProduit.INVENTAIRE)
-                .setQuantity(storeInventoryLine.getQuantityOnHand())
-                .setQuantityBefor(storeInventoryLine.getQuantityInit())
-                .setQuantityAfter(storeInventoryLine.getQuantityOnHand())
+                .setQuantity(qtyAfter - qtyBefore)                // delta signé
+                .setQuantityBefor(qtyBefore)
+                .setQuantityAfter(qtyAfter)
                 .setCostAmount(storeInventoryLine.getInventoryValueCost())
                 .setEntityId(storeInventoryLine.getId())
                 .setUser(user)
                 .setMagasin(user.getMagasin())
+                .setStorage(storeInventoryLine.getStorage())       // storage précis
                 .setRegularUnitPrice(storeInventoryLine.getLastUnitPrice());
         } else if (entity instanceof RetourDepotItem retourDepotItem) {
             Produit produit = retourDepotItem.getProduit();
@@ -161,25 +165,4 @@ public class InventoryTransactionBuilder {
     }
 
 
-    private Pair<Integer, Integer> determineBeforeAfterStock(Magasin magasin, Produit produit, Integer before, Integer after, StockProduit usedStockProduit) {
-        Set<StockProduit> stockProduits = produit.getStockProduits();
-        if (stockProduits.size() == 1) {
-            return Pair.of(before, after);
-        }
-
-
-        int otherStock = stockProduits.stream().filter(stockProduit -> !Objects.equals(stockProduit, usedStockProduit) && Objects.equals(stockProduit.getStorage().getMagasin(), magasin))
-            .mapToInt(StockProduit::getQtyStock)
-            .sum();
-        return Pair.of(before + otherStock, after + otherStock);
-    }
-
-    private Pair<Integer, Integer> calculerStockAvantApresVente(AppUser user, Produit produit, Integer before, Integer after) {
-        Set<StockProduit> stockProduits = produit.getStockProduits();
-        if (stockProduits.size() == 1) {
-            return Pair.of(before, after);
-        }
-        Magasin magasin = user.getMagasin();
-        return determineBeforeAfterStock(magasin, produit, before, after, stockProduits.stream().filter(stockProduit -> (stockProduit.getStorage().getStorageType() == StorageType.PRINCIPAL) && Objects.equals(stockProduit.getStorage().getMagasin(), magasin)).findFirst().orElse(null));
-    }
 }

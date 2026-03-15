@@ -1,0 +1,90 @@
+<div class="inventory-grid-wrapper">
+  <div class="grid-caption">
+    <div class="caption-filters">
+
+      <div class="caption-search">
+        <i class="pi pi-search"></i>
+        <input
+          (input)="onQuickFilterChange()"
+          [(ngModel)]="quickFilterText"
+          placeholder="Code CIP, N° lot..."
+          type="text"
+        />
+        @if (quickFilterText) {
+          <i (click)="quickFilterText = ''; onQuickFilterChange()"
+             class="pi pi-times caption-clear"></i>
+        }
+      </div>
+
+      <p-select
+        (onChange)="onLotFilterChange()"
+        [(ngModel)]="selectedLotFilter"
+        [options]="lotFilters"
+        [style]="{ width: '150px' }"
+        appendTo="body"
+        optionLabel="label"
+        optionValue="value"
+        pTooltip="Filtre lots"
+        placeholder="Tous"
+        size="small"
+        tooltipPosition="top"
+      />
+
+      <p-select
+        (onChange)="onStorageFilterChange()"
+        [(ngModel)]="selectedStorageId"
+        [options]="storages()"
+        [showClear]="true"
+        [style]="{ width: '160px' }"
+        appendTo="body"
+        optionLabel="name"
+        optionValue="id"
+        pTooltip="Emplacement"
+        placeholder="Emplacement"
+        size="small"
+        tooltipPosition="top"
+      />
+
+      @if (rayons().length > 0) {
+        <p-select
+          (onChange)="onRayonFilterChange()"
+          [(ngModel)]="selectedRayonId"
+          [options]="rayons()"
+          [showClear]="true"
+          [style]="{ width: '140px' }"
+          appendTo="body"
+          optionLabel="libelle"
+          optionValue="id"
+          pTooltip="Rayon"
+          placeholder="Rayon"
+          size="small"
+          tooltipPosition="top"
+        />
+      }
+
+    </div>
+  </div>
+
+  <ag-grid-angular
+    (cellValueChanged)="onCellValueChanged($event)"
+    (gridReady)="onGridReady($event)"
+    [animateRows]="true"
+    [columnDefs]="columnDefs()"
+    [defaultColDef]="defaultColDef"
+    [enableCellEditingOnBackspace]="true"
+    [enterNavigatesVerticallyAfterEdit]="true"
+    [readOnlyEdit]="false"
+    [rowData]="lots()"
+    [singleClickEdit]="true"
+    [stopEditingWhenCellsLoseFocus]="true"
+    [suppressScrollOnNewData]="true"
+    [theme]="theme"
+    style="width: 100%; height: 100%;"
+  />
+
+  @if (loading()) {
+    <div class="lot-loading">
+      <i class="pi pi-spin pi-spinner"></i> Chargement...
+    </div>
+  }
+</div>

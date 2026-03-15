@@ -53,6 +53,12 @@ export class InventoryCreateModalComponent implements OnInit {
   selectedCategory = signal<InventoryCategoryInfo | null>(null);
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+  readonly classesParetoOptions = [
+    {value: null, label: 'Toutes (A + B + C)'},
+    {value: 'A', label: 'Classe A — top 20% CA'},
+    {value: 'B', label: 'Classe B — 30% suivants'},
+    {value: 'C', label: 'Classe C — 50% restants'},
+  ];
   private readonly api = inject(InventoryApiService);
   private readonly store = inject(InventoryStore);
   private readonly spinner = inject(NgxSpinnerService);
@@ -115,6 +121,7 @@ export class InventoryCreateModalComponent implements OnInit {
       dateFrom: this.datePipe.transform(value.dateFrom, 'yyyy-MM-dd'),
       dateTo: this.datePipe.transform(value.dateTo, 'yyyy-MM-dd'),
       alerteJours: value.alerteJours ?? undefined,
+      classePareto: value.classePareto ?? undefined,
     };
     this.loading.set(true);
     this.errorMessage.set(null);
@@ -126,7 +133,7 @@ export class InventoryCreateModalComponent implements OnInit {
           this.spinner.hide();
           this.loading.set(false);
           this.store.emitEvent('INVENTORY_CREATED', resp.body);
-          this.activeModal.close();
+          this.activeModal.close(resp.body);
         },
         error: err => {
           this.spinner.hide();
@@ -168,6 +175,7 @@ export class InventoryCreateModalComponent implements OnInit {
       dateFrom: [null],
       dateTo: [null],
       alerteJours: [90],
+      classePareto: [null],
     });
   }
 
@@ -178,7 +186,8 @@ export class InventoryCreateModalComponent implements OnInit {
       famillyId: null,
       dateFrom: null,
       dateTo: null,
-      alerteJours: 90
+      alerteJours: 90,
+      classePareto: null,
     });
     this.rayons.set([]);
 

@@ -21,6 +21,8 @@ public class ProduitAuditingState {
     private int inventoryGap;
     private int afterStock;
     private String transactionDate;
+    private int mouvementStockIn;
+    private int mouvementStockOut;
 
     public ProduitAuditingState() {}
 
@@ -202,6 +204,24 @@ public class ProduitAuditingState {
 
     public ProduitAuditingState setAfterStock(int afterStock) {
         this.afterStock = afterStock;
+        return this;
+    }
+
+    public int getMouvementStockIn() {
+        return mouvementStockIn;
+    }
+
+    public ProduitAuditingState setMouvementStockIn(int mouvementStockIn) {
+        this.mouvementStockIn = mouvementStockIn;
+        return this;
+    }
+
+    public int getMouvementStockOut() {
+        return mouvementStockOut;
+    }
+
+    public ProduitAuditingState setMouvementStockOut(int mouvementStockOut) {
+        this.mouvementStockOut = mouvementStockOut;
         return this;
     }
 }

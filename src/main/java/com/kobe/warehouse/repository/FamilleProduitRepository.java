@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FamilleProduit;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,6 @@ public interface FamilleProduitRepository extends JpaRepository<FamilleProduit, 
     Optional<FamilleProduit> findFirstByLibelleEquals(String libelle);
 
     FamilleProduit findByCodeEquals(String code);
+
+    List<FamilleProduit> findAllByOrderByLibelleAsc();
 }

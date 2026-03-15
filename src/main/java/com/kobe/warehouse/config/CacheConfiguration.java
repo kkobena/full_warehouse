@@ -36,6 +36,8 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_SUGGESTION_RETENTION, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_RESET_INVOICE_NUMBER, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_GESTION_LOT, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_GESTION_LOT_INVENTAIRE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_GESTION_STOCK, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.DEFAULT_MAIN_STORAGE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_MODE_PAYMENTS, defaultTtl, TimeUnit.HOURS, defaultMaxSize),

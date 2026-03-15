@@ -26,6 +26,17 @@
               tooltipPosition="top"
             />
 
+            <p-button
+              (click)="exportPdf()"
+              [loading]="exporting()"
+              [raised]="true"
+              icon="pi pi-file-pdf"
+              label="Exporter PDF"
+              pTooltip="Exporter l'inventaire en PDF"
+              severity="secondary"
+              tooltipPosition="top"
+            />
+
             @if (!isInventoryClosed) {
               <p-button
                 (click)="openImportModal()"
@@ -47,6 +58,18 @@
                 tooltipPosition="top"
               />
             }
+
+            @if (isInventoryClosed) {
+              <p-button
+                (click)="openGapAnalysis()"
+                [raised]="true"
+                icon="pi pi-chart-bar"
+                label="Analyser les écarts"
+                pTooltip="Qualifier les causes d'écart (optionnel)"
+                severity="danger"
+                tooltipPosition="top"
+              />
+            }
           </div>
         </div>
       </ng-template>
@@ -62,8 +85,8 @@
         <h6 class="info-card-title">
           <i class="pi pi-info-circle"></i> Détails de l'inventaire
         </h6>
-
-        @if (store.currentInventory(); as inv) {
+        @let inv = store.currentInventory();
+        @if (inv) {
           <div class="info-items">
 
             <div class="info-item">
@@ -101,6 +124,16 @@
         <div class="progress-section">
           <app-inventory-progress-bar [progress]="store.progress()" />
         </div>
+
+        <!-- Analyse des écarts (clôturé uniquement) -->
+        @if (isInventoryClosed && inventoryId() > 0) {
+          <div class="gap-section">
+            <h6 class="info-card-title mt-3">
+              <i class="pi pi-chart-bar"></i> Démarque
+            </h6>
+            <app-gap-summary [inventoryId]="inventoryId()" />
+          </div>
+        }
       </div>
     </div>
 
@@ -109,26 +142,57 @@
       <!-- Grille -->
       <div class="grid-container">
         @if (inventoryId() > 0) {
-          <app-inventory-lines-grid
-            (filterChange)="onGridFilterChange($event)"
-            (storageChange)="onGridStorageChange($event)"
-            (nextPage)="onNextPage()"
-            [blindMode]="blindMode()"
-            [inventoryId]="inventoryId()"
-            [pageSize]="size()"
-            [rayons]="rayons()"
-            [storages]="storages()"
-          />
+          @if (gestionLot()) {
+            <!-- Mode LOT_PLAT : grille par lot -->
+            <app-inventory-lot-grid
+              (filterChange)="onGridFilterChange($event)"
+              (nextPage)="onNextPage()"
+              (storageChange)="onGridStorageChange($event)"
+              [blindMode]="blindMode()"
+              [inventoryId]="inventoryId()"
+              [pageSize]="size()"
+              [rayons]="rayons()"
+              [readOnly]="isInventoryClosed"
+              [storages]="storages()"
+            />
+          } @else {
+            <!-- Mode standard : grille par produit -->
+            <app-inventory-lines-grid
+              (filterChange)="onGridFilterChange($event)"
+              (lineSelected)="onLineSelected($event)"
+              (nextPage)="onNextPage()"
+              (storageChange)="onGridStorageChange($event)"
+              [blindMode]="blindMode()"
+              [gestionLot]="false"
+              [inventoryCategoryType]="getInventoryCategoryType"
+              [inventoryId]="inventoryId()"
+              [pageSize]="size()"
+              [rayons]="rayons()"
+              [showSeuilMini]="showSeuilMini()"
+              [storages]="storages()"
+            />
+
+          }
         }
       </div>
+
+      <!-- Synthèse valorisation (clôturé uniquement) -->
+      @if (isInventoryClosed && inventoryId() > 0) {
+        <div class="valuation-section mt-3">
+          <h6 class="info-card-title">
+            <i class="pi pi-calculator"></i> Valorisation ventilée
+          </h6>
+          <app-inventory-valuation [inventoryId]="inventoryId()" />
+        </div>
+      }
 
       <!-- Pagination -->
       <div class="pagination-bar">
         <div class="page-size-selector">
           <span class="page-size-label">Lignes/page</span>
           <p-select
-            [ngModel]="size()"
             (ngModelChange)="onPageSizeChange($event)"
+            [ngModel]="size()"
             [options]="pageSizeOptions"
             size="small"
           />
@@ -156,7 +220,10 @@
             tooltipPosition="top"
           />
         </div>
-        <span class="total-info">{{ store.totalLines() }} ligne(s)</span>
+        <span class="total-info">
+          {{ gestionLot() ? store.lotTotalLines() : store.totalLines() }}
+          {{ gestionLot() ? 'lot(s)' : 'ligne(s)' }}
+        </span>
       </div>
 
     </div>

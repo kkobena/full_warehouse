@@ -1,0 +1,67 @@
+<table class="main-table">
+  <thead>
+  <tr>
+    <th class="text-left" style="width: 12%">Code</th>
+    <th class="text-left" style="width: 30%">Libellé</th>
+    <th class="text-center" style="width: 14%">N° Lot</th>
+    <th class="text-center" style="width: 10%">Péremption</th>
+    <th class="text-right" style="width: 8%">Stock.Init</th>
+    <th class="text-right" style="width: 8%">Qté</th>
+    <th class="text-right" style="width: 8%">Écart</th>
+  </tr>
+  </thead>
+  <tbody class="group-table-tbody">
+  <tr class="group-table-tr" th:each="group : ${items}">
+    <td class="group-table-td" colspan="7">
+      <table class="group-table">
+        <thead>
+        <tr>
+          <td class="text-left group-td-title" colspan="2"
+              th:text="${group.codeCip + ' — ' + group.produitLibelle}"></td>
+          <td colspan="5"></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:class="${lotStat.last} ? 'last-inner-item' : ''"
+            th:each="lot, lotStat : ${group.lots}">
+
+          <td class="text-left" style="width: 12%" th:text="${lot.codeCip}"></td>
+          <td class="text-left" style="width: 30%" th:text="${lot.produitLibelle}"></td>
+
+          <td class="text-center" style="width: 14%"
+              th:text="${lot.numLot != null ? lot.numLot : '-'}"></td>
+
+          <td class="text-center" style="width: 10%"
+              th:text="${lot.expiryDate != null ? #temporals.format(lot.expiryDate,'dd/MM/yyyy') : '-'}"></td>
+
+          <td class="qty" style="width: 8%"
+              th:text="${lot.quantityInit ge 1000 ? #numbers.formatInteger(lot.quantityInit,3,'WHITESPACE') : lot.quantityInit}"></td>
+
+          <td class="qty" style="width: 8%"
+              th:text="${lot.quantityOnHand ge 1000 ? #numbers.formatInteger(lot.quantityOnHand,3,'WHITESPACE') : lot.quantityOnHand}"></td>
+
+          <td class="qty" style="width: 8%"
+              th:text="${lot.gap ge 1000 ? #numbers.formatInteger(lot.gap,3,'WHITESPACE') : lot.gap}"></td>
+        </tr>
+        </tbody>
+        <tfoot class="group-summary" th:if="${entity.statut eq 'CLOSED'}">
+        <tr>
+          <td class="text-left" colspan="2" rowspan="2"
+              th:text="'Total ' + ${group.produitLibelle}"></td>
+          <td class="text-center" colspan="2">Val. achat avant / après</td>
+          <td class="unit" colspan="3"
+              th:text="${#numbers.formatInteger(group.valeurAvantAchat,3,'WHITESPACE') + ' / ' + #numbers.formatInteger(group.valeurApresAchat,3,'WHITESPACE')}"></td>
+        </tr>
+        <tr>
+          <td class="text-center" colspan="2">Val. vente avant / après</td>
+          <td class="unit" colspan="3"
+              th:text="${#numbers.formatInteger(group.valeurAvantVente,3,'WHITESPACE') + ' / ' + #numbers.formatInteger(group.valeurApresVente,3,'WHITESPACE')}"></td>
+        </tr>
+        </tfoot>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<table th:if="${entity.statut eq 'CLOSED'}" th:replace="~{inventaire/table-footer}"></table>
+<div th:replace="~{inventaire/valuation-recap}"></div>

@@ -1,0 +1,59 @@
+@use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/table-common' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #c0392b 0%, #96281b 100%) !important;
+}
+
+// ── Bannière résumé ──────────────────────────────────────────────────────────
+.gap-summary-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff8f8;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+
+  .gap-banner-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+
+    .gap-banner-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .gap-banner-label {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-top: 0.2rem;
+    }
+  }
+
+  .gap-banner-sep {
+    width: 1px;
+    height: 36px;
+    background: #dee2e6;
+  }
+
+  .gap-banner-hint {
+    flex: 1;
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-style: italic;
+  }
+}
+
+::ng-deep .p-select-overlay,
+::ng-deep .p-select-list-container {
+  z-index: 10000 !important;
+}

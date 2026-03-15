@@ -1,7 +1,12 @@
 package com.kobe.warehouse.service.stock;
 
+import com.kobe.warehouse.service.dto.InventoryExportWrapper;
+import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
+import com.kobe.warehouse.service.dto.StoreInventoryLotGroupExport;
+import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +29,20 @@ public interface InventaireQueryService {
         Pageable pageable,
         boolean excludeIfClosed
     );
+
+    /**
+     * Construit le wrapper d'export (groupes + totaux) pour un inventaire.
+     * Retourne {@code null} si aucun article trouvé.
+     */
+    InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord);
+
+    /**
+     * Retourne les groupes d'articles ventilés pour l'export.
+     */
+    List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord);
+
+    /**
+     * Retourne les groupes de lots pour l'export PDF en mode gestion de lot.
+     */
+    List<StoreInventoryLotGroupExport> getLotGroupsForExport(Long inventoryId);
 }

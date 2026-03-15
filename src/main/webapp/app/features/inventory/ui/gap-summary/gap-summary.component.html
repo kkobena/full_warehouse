@@ -1,0 +1,29 @@
+@if (loading()) {
+  <div class="d-flex align-items-center gap-2 text-muted small py-2">
+    <i class="pi pi-spin pi-spinner"></i> Chargement…
+  </div>
+} @else if (summary().length === 0) {
+  <div class="gap-no-analysis">
+    <i class="pi pi-info-circle me-1"></i>
+    Écarts non qualifiés
+  </div>
+} @else {
+  <div class="gap-summary-table">
+    @for (row of summary(); track row.cause) {
+      <div class="gap-row">
+        <span [class]="'gap-cause-dot ' + getCauseClass(row.cause)"></span>
+        <span class="gap-cause-label">{{ row.causeLabel }}</span>
+        <span class="gap-cause-count">{{ row.nbProduits }} prod.</span>
+        <span class="gap-cause-qty">{{ row.quantiteTotale }} u.</span>
+        <div class="gap-progress-bar">
+          <div class="gap-progress-fill" [style.width.%]="pct(row.quantiteTotale)"></div>
+        </div>
+        <span class="gap-pct">{{ pct(row.quantiteTotale) }}%</span>
+      </div>
+    }
+    <div class="gap-total">
+      <span>Total démarque</span>
+      <span class="gap-total-value">{{ totalQuantite }} u.</span>
+    </div>
+  </div>
+}

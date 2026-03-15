@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.service.dto.enumeration.StoreInventoryExportGroupBy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ public class InventoryExportWrapper {
     private Map<String, InventoryExportSummary> inventoryExportSummaries = new HashMap<>();
     private List<StoreInventoryGroupExport> inventoryGroups;
     private StoreInventoryDTO storeInventory;
+    private StoreInventoryExportGroupBy exportGroupBy = StoreInventoryExportGroupBy.RAYON;
 
     public StoreInventoryDTO getStoreInventory() {
         return storeInventory;
@@ -32,5 +34,13 @@ public class InventoryExportWrapper {
 
     public void setInventoryExportSummaries(Map<String, InventoryExportSummary> inventoryExportSummaries) {
         this.inventoryExportSummaries = inventoryExportSummaries;
+    }
+
+    public StoreInventoryExportGroupBy getExportGroupBy() {
+        return exportGroupBy;
+    }
+
+    public void setExportGroupBy(StoreInventoryExportGroupBy exportGroupBy) {
+        this.exportGroupBy = exportGroupBy != null ? exportGroupBy : StoreInventoryExportGroupBy.RAYON;
     }
 }

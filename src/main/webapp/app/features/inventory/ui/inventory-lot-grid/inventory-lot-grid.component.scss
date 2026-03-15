@@ -1,0 +1,179 @@
+@use 'app/shared/scss/table-common' as *;
+
+// ── Wrapper global ────────────────────────────────────────────────────────────
+.inventory-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: #fafbfc;
+  margin-top: 0.5rem;
+  overflow: hidden;
+
+  ag-grid-angular {
+    width: 100%;
+  }
+}
+
+// ── Caption ───────────────────────────────────────────────────────────────────
+.grid-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  background: linear-gradient(to bottom, #f8f9fb, #f0f2f5);
+  border-bottom: 1px solid #dfe3e8;
+  gap: 0.5rem;
+
+  .caption-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .lot-grid-title {
+    font-size: 0.8rem;
+    color: #495057;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    strong {
+      color: #1f2937;
+    }
+
+    i {
+      color: #5b89a6;
+      margin-right: 0.25rem;
+    }
+  }
+
+  .caption-search {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 120px;
+    max-width: 240px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0.28rem 0.5rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus-within {
+      border-color: #5b89a6;
+      box-shadow: 0 0 0 2px rgba(91, 137, 166, 0.12);
+    }
+
+    i.pi-search {
+      color: #9ca3af;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.8rem;
+      color: #1f2937;
+      flex: 1;
+      min-width: 0;
+      padding: 0;
+
+      &::placeholder {
+        color: #9ca3af;
+        font-style: italic;
+      }
+    }
+
+    .caption-clear {
+      color: #9ca3af;
+      font-size: 0.7rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.15s;
+
+      &:hover {
+        color: #dc3545;
+      }
+    }
+  }
+
+  // PrimeNG selects compacts dans le caption
+  ::ng-deep {
+    .p-select {
+      flex-shrink: 0;
+
+      .p-select-label {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+
+// ── Chargement ────────────────────────────────────────────────────────────────
+.lot-loading {
+  text-align: center;
+  padding: 1rem;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+// ── Personnalisation AG Grid (thème Alpine) ───────────────────────────────────
+::ng-deep {
+  .inventory-grid-wrapper {
+    .ag-header-cell {
+      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+      color: #fff;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .ag-header-cell-text {
+      color: #fff;
+    }
+
+    .ag-header-cell-center .ag-header-cell-label {
+      justify-content: center;
+    }
+
+    .ag-row-even {
+      background-color: #fafbfc;
+    }
+
+    .ag-row:hover {
+      background-color: #e3f2fd !important;
+    }
+
+    .ag-row.row-updated {
+      background-color: #f0fff4;
+      border-left: 3px solid #28a745;
+    }
+
+    .ag-cell-inline-editing {
+      background: #e8f5e9 !important;
+      border: 2px solid #5b89a6 !important;
+      border-radius: 4px;
+    }
+
+    // Cellule écart négatif (manque)
+    .cell-gap-negative {
+      color: #dc3545;
+      font-weight: 700;
+    }
+
+    // Cellule écart positif (surplus)
+    .cell-gap-positive {
+      color: #fd7e14;
+      font-weight: 700;
+    }
+  }
+}

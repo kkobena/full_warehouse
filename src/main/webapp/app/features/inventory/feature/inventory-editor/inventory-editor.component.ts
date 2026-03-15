@@ -9,6 +9,7 @@ import {MessageService} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs';
+import {InventoryApiService} from '../../data-access/services/inventory-api.service';
 import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
 import {InventoryListFacade} from '../../data-access/facades/inventory-list.facade';
 import {InventoryStore} from '../../data-access/store/inventory.store';
@@ -21,9 +22,19 @@ import {
 import {
   InventoryImportModalComponent
 } from '../../ui/inventory-import-modal/inventory-import-modal.component';
+import {InventoryLotGridComponent} from '../../ui/inventory-lot-grid/inventory-lot-grid.component';
+import {GapSummaryComponent} from '../../ui/gap-summary/gap-summary.component';
+import {
+  InventoryValuationComponent
+} from '../../ui/inventory-valuation/inventory-valuation.component';
 import {FormsModule} from '@angular/forms';
 import {Select} from 'primeng/select';
-import {INVENTORY_CATEGORIES, InventoryEvent, InventoryLineFilter,} from '../../models';
+import {
+  IInventoryLine,
+  INVENTORY_CATEGORIES,
+  InventoryEvent,
+  InventoryLineFilter,
+} from '../../models';
 import {StorageService} from '../../../../entities/storage/storage.service';
 import {RayonService} from '../../../../entities/rayon/rayon.service';
 import {IStorage} from '../../../../shared/model/magasin.model';
@@ -33,6 +44,10 @@ import {
 } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {HasAuthorityService} from '../../../../entities/sales/service/has-authority.service';
 import {Authority} from '../../../../shared/constants/authority.constants';
+import {ConfigurationService} from '../../../../shared/configuration.service';
+import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
+import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
+import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
 
 @Component({
   selector: 'app-inventory-editor',
@@ -46,6 +61,9 @@ import {Authority} from '../../../../shared/constants/authority.constants';
     Select,
     InventoryProgressBarComponent,
     InventoryLinesGridComponent,
+    InventoryLotGridComponent,
+    GapSummaryComponent,
+    InventoryValuationComponent,
   ],
   providers: [MessageService],
   templateUrl: './inventory-editor.component.html',
@@ -59,15 +77,28 @@ export class InventoryEditorComponent implements OnInit {
   inventoryId = signal<number>(0);
   storages = signal<IStorage[]>([]);
   rayons = signal<IRayon[]>([]);
+  gestionLot = signal(false);
+  selectedLine = signal<IInventoryLine | null>(null);
   page = signal(0);
   size = signal(20);
   readonly pageSizeOptions = [10, 20, 50, 100];
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.store.totalLines() / this.size())));
+  readonly totalPages = computed(() => {
+    const total = this.gestionLot() ? this.store.lotTotalLines() : this.store.totalLines();
+    return Math.max(1, Math.ceil(total / this.size()));
+  });
   readonly isFirstPage = computed(() => this.page() === 0);
   readonly isLastPage = computed(() => this.page() >= this.totalPages() - 1);
+  /** Afficher la colonne seuil mini pour SOUS_SEUIL et EN_RUPTURE */
+  readonly showSeuilMini = computed(() => {
+    const cat = this.store.currentInventory()?.inventoryCategory;
+    const name: string | undefined = typeof cat === 'string' ? cat : cat?.name;
+    return name === 'SOUS_SEUIL' || name === 'EN_RUPTURE';
+  });
+  exporting = signal(false);
   private selectedLineFilter: InventoryLineFilter = 'NONE';
   private selectedStorageId: number | null = null;
   private selectedRayonId: number | null = null;
+  private selectedSearch = '';
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly modal = inject(NgbModal);
@@ -80,6 +111,9 @@ export class InventoryEditorComponent implements OnInit {
   readonly blindMode = computed(() =>
     !this.hasAuthority.hasAuthorities([Authority.PR_VOIR_STOCK_INVENTAIRE])
   );
+  private readonly configService = inject(ConfigurationService);
+  private readonly inventoryApi = inject(InventoryApiService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
   private lastEvent$ = toObservable(this.store.lastEvent).pipe(
     filter((e): e is InventoryEvent => e !== null),
@@ -98,6 +132,10 @@ export class InventoryEditorComponent implements OnInit {
     return this.store.currentInventory()?.statut === 'CLOSED';
   }
 
+  protected get getInventoryCategoryType(): InventoryCategoryType {
+    return this.store.currentInventory()?.inventoryCategory?.name;
+  }
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
@@ -106,10 +144,12 @@ export class InventoryEditorComponent implements OnInit {
     }
     this.inventoryId.set(id);
     this.store.resetEditor();
+    this.loadGestionLot();
     this.listFacade.loadInventory(id);
     this.loadLines();
     this.editorFacade.refreshProgress(id);
     this.loadStorages();
+
     this.subscribeToEvents();
   }
 
@@ -128,17 +168,26 @@ export class InventoryEditorComponent implements OnInit {
     if (this.selectedRayonId) {
       params.rayonId = this.selectedRayonId;
     }
-    this.editorFacade.loadLines(this.inventoryId(), params);
+    if (this.selectedSearch) {
+      params.search = this.selectedSearch;
+    }
+    if (this.gestionLot()) {
+      this.editorFacade.loadLotLines(this.inventoryId(), params);
+    } else {
+      this.editorFacade.loadLines(this.inventoryId(), params);
+    }
   }
 
   protected onGridFilterChange(event: {
     lineFilter: InventoryLineFilter;
     storageId: number | null;
-    rayonId: number | null
+    rayonId: number | null;
+    search: string;
   }): void {
     this.selectedLineFilter = event.lineFilter;
     this.selectedStorageId = event.storageId;
     this.selectedRayonId = event.rayonId;
+    this.selectedSearch = event.search ?? '';
     this.page.set(0);
     this.loadLines();
   }
@@ -194,6 +243,43 @@ export class InventoryEditorComponent implements OnInit {
     );
   }
 
+  protected exportPdf(): void {
+    this.exporting.set(true);
+    const filterParams: Record<string, any> = {};
+    if (this.selectedSearch) { filterParams['search'] = this.selectedSearch; }
+    if (this.selectedStorageId) { filterParams['storageId'] = this.selectedStorageId; }
+    if (this.selectedRayonId) { filterParams['rayonId'] = this.selectedRayonId; }
+    if (this.selectedLineFilter !== 'NONE') { filterParams['selectedFilter'] = this.selectedLineFilter; }
+    this.inventoryApi.exportToPdf(this.inventoryId(), 'RAYON', filterParams, this.gestionLot()).subscribe({
+      next: blob => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, `inventaire-${this.inventoryId()}`);
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
+        this.exporting.set(false);
+      },
+      error: () => {
+        this.exporting.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: "Échec de l'export PDF"
+        });
+      },
+    });
+  }
+
+  protected openGapAnalysis(): void {
+    import('../../ui/gap-analysis-modal/gap-analysis-modal.component').then(m => {
+      const ref = this.modal.open(m.GapAnalysisModalComponent, {
+        size: 'xl',
+        backdrop: 'static',
+      });
+      ref.componentInstance.inventoryId = this.inventoryId();
+    });
+  }
+
   protected goBack(): void {
     this.router.navigate(['/inventaire']);
   }
@@ -203,30 +289,33 @@ export class InventoryEditorComponent implements OnInit {
     return INVENTORY_CATEGORIES.find(c => c.value === name)?.label ?? name ?? '-';
   }
 
-  protected getStatutBadgeClass(statut?: string): string {
-    switch (statut) {
-      case 'CREATE':
-        return 'badge-statut-create';
-      case 'PROCESSING':
-        return 'badge-statut-processing';
-      case 'CLOSED':
-        return 'badge-statut-closed';
-      default:
-        return 'bg-secondary';
-    }
+
+  protected onLineSelected(line: IInventoryLine | null): void {
+    this.selectedLine.set(line);
   }
 
-  protected getStatutLabel(statut?: string): string {
-    switch (statut) {
-      case 'CREATE':
-        return 'Créé';
-      case 'PROCESSING':
-        return 'En cours';
-      case 'CLOSED':
-        return 'Clôturé';
-      default:
-        return statut ?? '-';
-    }
+  protected onLotGridClose(): void {
+    this.selectedLine.set(null);
+  }
+
+  protected onLotUpdated(): void {
+    this.editorFacade.refreshProgress(this.inventoryId());
+  }
+
+  private loadGestionLot(): void {
+    this.configService.find('APP_GESTION_LOT_INVENTAIRE')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: resp => {
+          const val = resp.body?.value;
+          const isLot = val === '1';
+          this.gestionLot.set(isLot);
+          if (isLot) {
+            this.page.set(0);
+            this.loadLines();
+          }
+        },
+      });
   }
 
   private loadStorages(): void {

@@ -1,0 +1,99 @@
+<div th:if="${entity.statut eq 'CLOSED' and valuationGlobal != null}" style="margin-top: 24px; page-break-inside: avoid;">
+
+  <!-- ── Titre section ──────────────────────────────────────────────────────── -->
+  <table style="width:100%; border-collapse:collapse; margin-bottom:6px;">
+    <thead>
+      <tr>
+        <th colspan="6" style="background:#2c3e50; color:#fff; font-size:11px; font-weight:700;
+                               text-align:left; padding:4px 8px; letter-spacing:0.5px;">
+          Valorisation ventilée
+        </th>
+      </tr>
+    </thead>
+  </table>
+
+  <!-- ── Résumé global (6 KPIs en 2 lignes × 3 colonnes) ───────────────────── -->
+  <table th:with="g=${valuationGlobal}"
+         style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:10px;">
+    <tbody>
+      <tr>
+        <!-- Achat avant -->
+        <td style="width:33%; border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Val. achat avant</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.costValueBegin, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+        <!-- Achat après -->
+        <td style="width:33%; border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Val. achat après</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.costValueAfter, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+        <!-- Écart coût -->
+        <td style="width:33%; border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Écart coût</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.gapCost, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+      </tr>
+      <tr>
+        <!-- Vente avant -->
+        <td style="border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Val. vente avant</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.amountValueBegin, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+        <!-- Vente après -->
+        <td style="border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Val. vente après</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.amountValueAfter, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+        <!-- Écart vente -->
+        <td style="border:0.5px solid #4d4d4d; padding:4px 6px;">
+          <div style="font-size:8px; color:#666; text-transform:uppercase;">Écart vente</div>
+          <div style="font-weight:700; text-align:right;"
+               th:text="${#numbers.formatDecimal(g.gapAmount, 1, 'WHITESPACE', 0, 'DEFAULT')}"></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── Ventilation par groupe ─────────────────────────────────────────────── -->
+  <table th:if="${valuationGroups != null and !#lists.isEmpty(valuationGroups)}"
+         style="width:100%; border-collapse:collapse; font-size:9px;">
+    <thead>
+      <tr style="background:#ecf0f1;">
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:left;">Groupe</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:center;">Lignes</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">V.achat avant</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">V.achat après</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">Écart achat</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">V.vente avant</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">V.vente après</th>
+        <th style="border:0.5px solid #4d4d4d; padding:3px 6px; text-align:right;">Écart vente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="row : ${valuationGroups}">
+        <td style="border:0.5px solid #4d4d4d; padding:2px 6px;"
+            th:text="${row.groupLabel}"></td>
+        <td style="border:0.5px solid #4d4d4d; padding:2px 6px; text-align:center;"
+            th:text="${row.lineCount}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.costBefore, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.costAfter, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.gapCost, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.amountBefore, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.amountAfter, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+        <td class="unit" style="border:0.5px solid #4d4d4d;"
+            th:text="${#numbers.formatDecimal(row.gapAmount, 1, 'WHITESPACE', 0, 'DEFAULT')}"></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

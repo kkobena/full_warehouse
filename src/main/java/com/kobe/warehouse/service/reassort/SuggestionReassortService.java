@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reassort;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
@@ -12,6 +13,12 @@ public interface SuggestionReassortService {
     void createLigneReassort(Produit p, int totalQty, int newQty);
 
     void createLigneReassort(List<ReassortRecord> reassortRecords);
+
+    /**
+     * Variante utilisable hors SecurityContext (ex : thread @Async).
+     * L'appelant fournit explicitement l'utilisateur.
+     */
+    void createLigneReassort(List<ReassortRecord> reassortRecords, AppUser user);
 
     void deleteLigneReassort(Integer id);
 

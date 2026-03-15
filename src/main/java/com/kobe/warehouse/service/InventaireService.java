@@ -5,21 +5,19 @@ import com.kobe.warehouse.service.dto.InventoryExportWrapper;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
+import com.kobe.warehouse.service.dto.StoreInventoryLotGroupExport;
 import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
 import com.kobe.warehouse.service.dto.enumeration.StoreInventoryLineEnum;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
-import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
@@ -30,9 +28,7 @@ public interface InventaireService {
     Page<StoreInventoryLineRecord> getInventoryItems(
         StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
 
-    Resource printToPdf(StoreInventoryExportRecord filterRecord) throws MalformedURLException;
-
-    ItemsCountRecord close(Long id) throws InventoryException;
+    byte[] printToPdf(StoreInventoryExportRecord filterRecord);
 
     List<StoreInventoryGroupExport> getStoreInventoryToExport(
         StoreInventoryExportRecord filterRecord);
@@ -66,6 +62,8 @@ public interface InventaireService {
     void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
 
     InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord);
+
+    List<StoreInventoryLotGroupExport> getLotGroupsForExport(Long inventoryId);
 
     int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds)
         throws InventoryException;
@@ -128,6 +126,9 @@ public interface InventaireService {
     }
 
     default String buildFilter(StoreInventoryLineEnum storeInventoryLineEnum) {
+        if (storeInventoryLineEnum == null) {
+            return "";
+        }
         return switch (storeInventoryLineEnum) {
             case NONE -> "";
             case NOT_UPDATED -> " AND a.updated IS false ";
@@ -137,35 +138,4 @@ public interface InventaireService {
             case GAP_POSITIF -> " AND a.updated  AND  a.quantity_on_hand >= a.quantity_init ";
         };
     }
-
-    default String buildExportQuery(StoreInventoryExportRecord inventoryExportRecord) {
-        StoreInventoryLineFilterRecord storeInventoryLineFilterRecord = inventoryExportRecord.filterRecord();
-        String whereClose = "";
-        if (Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {
-            whereClose = whereClose.concat(
-                String.format(StoreInventoryLineFilterBuilder.EXPORT_RAYON_CLOSE_QUERY,
-                    storeInventoryLineFilterRecord.rayonId())
-            );
-        }
-        if (Objects.nonNull(storeInventoryLineFilterRecord.storageId())) {
-            whereClose = whereClose.concat(
-                String.format(StoreInventoryLineFilterBuilder.EXPORT_STORAGE_CLOSE_QUERY,
-                    storeInventoryLineFilterRecord.storageId())
-            );
-        }
-
-        whereClose = String.format(
-            StoreInventoryLineFilterBuilder.EXPORT_QUERY,
-            whereClose.concat(buildFilter(storeInventoryLineFilterRecord.selectedFilter()))
-        );
-
-        return switch (inventoryExportRecord.exportGroupBy()) {
-            case RAYON -> whereClose.replace("{order_by}", "storage_name, rayon_libelle,");
-            case FAMILLY -> whereClose.replace("{order_by}", "storage_name, fm.code,fm.libelle,");
-            case STORAGE -> whereClose.replace("{order_by}", "storage_name,");
-            case NONE -> whereClose.replace("{order_by}", "");
-        };
-    }
-
-
 }

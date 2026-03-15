@@ -9,6 +9,7 @@ import {
   GridApi,
   GridReadyEvent,
   ModuleRegistry,
+  RowClickedEvent,
   themeAlpine,
 } from 'ag-grid-community';
 import {AgGridAngular} from 'ag-grid-angular';
@@ -19,6 +20,7 @@ import {InventoryStore} from '../../data-access/store/inventory.store';
 import {IInventoryLine, InventoryLineFilter, LINE_FILTERS} from '../../models';
 import {IStorage} from '../../../../shared/model/magasin.model';
 import {IRayon} from '../../../../shared/model/rayon.model';
+import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -30,7 +32,10 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 })
 export class InventoryLinesGridComponent {
   readonly inventoryId = input.required<number>();
+  readonly inventoryCategoryType = input<InventoryCategoryType>();
   readonly blindMode = input<boolean>(false);
+  readonly showSeuilMini = input<boolean>(false);
+  readonly gestionLot = input<boolean>(false);
   readonly storages = input<IStorage[]>([]);
   readonly rayons = input<IRayon[]>([]);
   readonly pageSize = input<number>(20);
@@ -38,10 +43,12 @@ export class InventoryLinesGridComponent {
   readonly filterChange = output<{
     lineFilter: InventoryLineFilter;
     storageId: number | null;
-    rayonId: number | null
+    rayonId: number | null;
+    search: string;
   }>();
   readonly storageChange = output<number | null>();
   readonly nextPage = output<void>();
+  readonly lineSelected = output<IInventoryLine | null>();
 
   readonly editorFacade = inject(InventoryEditorFacade);
   readonly store = inject(InventoryStore);
@@ -81,6 +88,23 @@ export class InventoryLinesGridComponent {
       valueFormatter: params => (params.value ?? '—'),
     },
     {
+      field: 'seuilMini',
+      headerName: 'Seuil mini',
+      width: 100,
+      editable: false,
+      type: ['rightAligned', 'numericColumn'],
+      hide: !this.showSeuilMini(),
+      valueFormatter: params => (params.value ?? '—'),
+      cellStyle: params => {
+        const seuil = params.value;
+        const stock = params.data?.quantityInit;
+        if (seuil != null && stock != null && stock <= seuil) {
+          return {color: '#dc3545', fontWeight: 'bold'};
+        }
+        return null;
+      },
+    },
+    {
       field: 'quantityOnHand',
       headerName: 'Qté inventoriée',
       width: 130,
@@ -114,6 +138,39 @@ export class InventoryLinesGridComponent {
           return {color: '#0d6efd', backgroundColor: '#e7f1ff', fontWeight: 'bold'};
         }
         return null;
+      },
+    },
+    {
+      field: 'lotCount',
+      headerName: 'Lots',
+      width: 70,
+      editable: false,
+      hide: !this.gestionLot(),
+      type: 'numericColumn',
+      cellStyle: params => {
+        if (params.value > 0) {
+          return {color: '#0d6efd', fontWeight: 'bold', cursor: 'pointer'};
+        }
+        return null;
+      },
+      valueFormatter: params => params.value > 0 ? `${params.value}` : '—',
+    },
+    {
+      field: 'classePareto',
+      headerName: 'ABC',
+      width: 70,
+      editable: false,
+      cellStyle: {textAlign: 'center'},
+      headerClass: 'ag-header-cell-center',
+      hide: this.inventoryCategoryType() !== 'ABC',
+      cellRenderer: (params: any) => {
+        const cls = params.value;
+        if (!cls) {
+          return '';
+        }
+        const colors: Record<string, string> = {A: '#198754', B: '#0d6efd', C: '#6c757d'};
+        const color = colors[cls] ?? '#6c757d';
+        return `<span style="display:inline-block;padding:1px 6px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;background:${color}">${cls}</span>`;
       },
     },
     {
@@ -161,6 +218,7 @@ export class InventoryLinesGridComponent {
 
   onQuickFilterChange(): void {
     this.gridApi?.setGridOption('quickFilterText', this.quickFilterText);
+    this.emitFilterChange();
   }
 
   onLineFilterChange(): void {
@@ -175,6 +233,16 @@ export class InventoryLinesGridComponent {
 
   onRayonFilterChange(): void {
     this.emitFilterChange();
+  }
+
+  onRowClicked(event: RowClickedEvent): void {
+    if (!this.gestionLot()) {
+      return;
+    }
+    const line = event.data as IInventoryLine;
+    if (line?.lotCount && line.lotCount > 0) {
+      this.lineSelected.emit(line);
+    }
   }
 
   onCellValueChanged(event: CellValueChangedEvent): void {
@@ -245,6 +313,7 @@ export class InventoryLinesGridComponent {
       lineFilter: this.selectedLineFilter,
       storageId: this.selectedStorageId,
       rayonId: this.selectedRayonId,
+      search: this.quickFilterText,
     });
   }
 }

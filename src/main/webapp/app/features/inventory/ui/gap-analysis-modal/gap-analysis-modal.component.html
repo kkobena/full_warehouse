@@ -1,0 +1,131 @@
+<p-toast />
+
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-chart-bar me-2"></i>Analyse des écarts
+  </h5>
+  <button type="button" class="btn-close" (click)="skip()"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Résumé compteur -->
+  @if (!loading() && lines().length > 0) {
+    <div class="gap-summary-banner mb-3">
+      <div class="gap-banner-item">
+        <span class="gap-banner-value text-danger">{{ totalGapLines }}</span>
+        <span class="gap-banner-label">produit(s) avec écart</span>
+      </div>
+      <div class="gap-banner-sep"></div>
+      <div class="gap-banner-item">
+        <span class="gap-banner-value text-success">{{ qualifiedCount }}</span>
+        <span class="gap-banner-label">cause(s) renseignée(s)</span>
+      </div>
+      <div class="gap-banner-hint">
+        <i class="pi pi-info-circle me-1"></i>
+        Cette étape est facultative. Vous pouvez enregistrer ou passer.
+      </div>
+    </div>
+  }
+
+  <!-- Table des écarts -->
+  <div class="pharma-table-wrapper">
+    <p-table
+      [value]="lines()"
+      [loading]="loading()"
+      [scrollable]="true"
+      scrollHeight="380px"
+      class="pharma-table"
+      dataKey="lineId"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Produit</th>
+          <th class="text-center" style="width:90px">Théorique</th>
+          <th class="text-center" style="width:90px">Compté</th>
+          <th class="text-center" style="width:80px">Écart</th>
+          <th style="width:200px">Cause</th>
+          <th>Commentaire</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-line>
+        <tr [class.pharma-row-danger]="line.gap < 0" [class.pharma-row-warning]="line.gap > 0">
+          <td><span class="pharma-entity-name">{{ line.produitLibelle }}</span></td>
+          <td class="text-center">{{ line.quantityInit }}</td>
+          <td class="text-center">{{ line.quantityOnHand }}</td>
+          <td class="text-center">
+            <span [class]="line.gap < 0 ? 'pharma-badge pharma-badge-danger' : 'pharma-badge pharma-badge-warning'">
+              {{ line.gap > 0 ? '+' : '' }}{{ line.gap }}
+            </span>
+          </td>
+          <td>
+            <p-select
+              [(ngModel)]="line.selectedCause"
+              [options]="causeOptions"
+              optionLabel="label"
+              optionValue="value"
+              [fluid]="true"
+              appendTo="body"
+              size="small"
+            >
+              <ng-template #item let-opt>
+                <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+              </ng-template>
+              <ng-template #selectedItem let-opt>
+                @if (opt) {
+                  <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+                }
+              </ng-template>
+            </p-select>
+          </td>
+          <td>
+            <input
+              [(ngModel)]="line.comment"
+              class="form-control form-control-sm"
+              placeholder="Commentaire optionnel…"
+              type="text"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">
+            <div class="pharma-empty-message">
+              <div class="pharma-empty-content">
+                <i class="pi pi-check-circle"></i>
+                <p>Aucun écart détecté</p>
+                <small>Toutes les lignes saisies correspondent au stock théorique.</small>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<div class="modal-footer flex-column align-items-stretch gap-2">
+  <div class="d-flex justify-content-end gap-2 w-100">
+    <p-button
+      label="Passer"
+      icon="pi pi-times"
+      severity="secondary"
+      [raised]="true"
+      [disabled]="saving()"
+      (onClick)="skip()"
+      pTooltip="Ignorer cette étape (les écarts ne seront pas qualifiés)"
+      tooltipPosition="top"
+    />
+    <p-button
+      label="Enregistrer"
+      icon="pi pi-check"
+      severity="primary"
+      [raised]="true"
+      [loading]="saving()"
+      [disabled]="lines().length === 0 || saving()"
+      (onClick)="save()"
+    />
+  </div>
+</div>

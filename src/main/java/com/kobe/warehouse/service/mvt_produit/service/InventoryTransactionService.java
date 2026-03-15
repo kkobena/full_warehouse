@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.mvt_produit.service;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.RepartitionStockProduit;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
@@ -39,4 +40,11 @@ public interface InventoryTransactionService {
 
     void saveAll(List<OrderLine> entities);
     void saveVenteDepotExtensionInventoryTransactions(Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords);
+
+    /**
+     * Crée deux entrées journal (MOUVEMENT_STOCK_OUT + MOUVEMENT_STOCK_IN)
+     * pour un transfert inter-storage déjà persisté.
+     * Doit être appelé après repartitionStockProduitRepository.save().
+     */
+    void saveRepartition(RepartitionStockProduit repartition);
 }

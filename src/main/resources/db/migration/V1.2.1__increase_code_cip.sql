@@ -571,3 +571,48 @@ create index idx_mv_stock_valuation_by_rayon_category
 create index idx_mv_stock_valuation_by_rayon_value
   on mv_stock_valuation_by_rayon (total_sales_value desc);
 
+
+
+create materialized view mv_pareto_summary as
+SELECT count(*)                                               AS total_produits,
+       sum(ca_total)                                          AS ca_global,
+       count(*) FILTER (WHERE classe_pareto = 'A'::text)      AS nb_produits_a,
+  sum(ca_total) FILTER (WHERE classe_pareto = 'A'::text) AS ca_classe_a,
+  round(sum(ca_total) FILTER (WHERE classe_pareto = 'A'::text) / sum(ca_total) * 100::numeric,
+        2)                                               AS pct_ca_classe_a,
+       count(*) FILTER (WHERE classe_pareto = 'B'::text)      AS nb_produits_b,
+  sum(ca_total) FILTER (WHERE classe_pareto = 'B'::text) AS ca_classe_b,
+  round(sum(ca_total) FILTER (WHERE classe_pareto = 'B'::text) / sum(ca_total) * 100::numeric,
+        2)                                               AS pct_ca_classe_b,
+       count(*) FILTER (WHERE classe_pareto = 'C'::text)      AS nb_produits_c,
+  sum(ca_total) FILTER (WHERE classe_pareto = 'C'::text) AS ca_classe_c,
+  round(sum(ca_total) FILTER (WHERE classe_pareto = 'C'::text) / sum(ca_total) * 100::numeric,
+        2)                                               AS pct_ca_classe_c
+FROM mv_abc_pareto_analysis;
+
+
+
+
+ALTER TABLE store_inventory
+  DROP CONSTRAINT store_inventory_inventory_category_check;
+
+ALTER TABLE store_inventory
+  ADD CONSTRAINT store_inventory_inventory_category_check
+    CHECK (
+      inventory_category IN (
+                 'MAGASIN',
+                 'STORAGE',
+                 'RAYON',
+                 'FAMILLY',
+                 'PERIME',
+                 'ALERTE_PEREMPTION',
+                 'VENDU',
+                 'INVENDU',
+                 'SOUS_SEUIL',
+                 'EN_RUPTURE',
+                 'GROSSISTE',
+                 'SELECTION_PRODUIT'
+        )
+      );
+
+

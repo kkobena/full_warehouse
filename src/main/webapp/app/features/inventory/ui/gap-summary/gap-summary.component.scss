@@ -1,0 +1,69 @@
+// ── Résumé des écarts (compact, dans la carte info de l'éditeur) ─────────────
+
+.gap-no-analysis {
+  font-size: 0.8rem;
+  color: #adb5bd;
+  padding: 0.25rem 0;
+}
+
+.gap-summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.gap-row {
+  display: grid;
+  grid-template-columns: 8px 1fr auto auto 60px auto;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.gap-cause-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.cause-danger    { background: #dc3545; }
+  &.cause-warning   { background: #f0ad4e; }
+  &.cause-info      { background: #5bc0de; }
+  &.cause-secondary { background: #adb5bd; }
+}
+
+.gap-cause-label { color: #333; font-weight: 500; }
+.gap-cause-count { color: #6c757d; white-space: nowrap; }
+.gap-cause-qty   { color: #333; font-weight: 600; white-space: nowrap; text-align: right; }
+
+.gap-progress-bar {
+  height: 5px;
+  background: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+
+  .gap-progress-fill {
+    height: 100%;
+    background: #5b89a6;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+}
+
+.gap-pct {
+  font-size: 0.72rem;
+  color: #6c757d;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.gap-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #333;
+  padding-top: 0.4rem;
+  border-top: 1px solid #dee2e6;
+  margin-top: 0.25rem;
+}

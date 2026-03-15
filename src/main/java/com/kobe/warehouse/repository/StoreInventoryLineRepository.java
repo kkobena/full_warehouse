@@ -69,4 +69,15 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
         @Param("storeInventoryId") Long storeInventoryId,
         @Param("rayonId") Long rayonId
     );
+
+    /** Lignes avec écart ≠ 0 et saisie effectuée (updated = true), triées par écart absolu décroissant. */
+    @Query("""
+        SELECT sil FROM StoreInventoryLine sil
+        JOIN FETCH sil.produit
+        WHERE sil.storeInventory.id = :inventoryId
+          AND sil.updated = true
+          AND sil.gap <> 0
+        ORDER BY ABS(sil.gap) DESC
+        """)
+    List<StoreInventoryLine> findLinesWithGap(@Param("inventoryId") Long inventoryId);
 }

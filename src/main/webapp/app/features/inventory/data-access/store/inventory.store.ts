@@ -3,6 +3,7 @@ import {patchState, signalStore, withComputed, withMethods, withState} from '@ng
 import {IStoreInventory} from '../../../../shared/model';
 import {
   IInventoryLine,
+  IInventoryLotLine,
   ImportResultRecord,
   InventoryEvent,
   InventoryEventType,
@@ -20,6 +21,10 @@ interface InventoryState {
   lines: IInventoryLine[];
   totalLines: number;
   loadingLines: boolean;
+
+  // Lot mode (LOT_PLAT)
+  lotLines: IInventoryLotLine[];
+  lotTotalLines: number;
 
   // Pending batch edits (buffered locally, not yet saved)
   pendingEdits: Record<number, number>; // lineId -> quantityOnHand
@@ -52,6 +57,9 @@ const initialState: InventoryState = {
   lines: [],
   totalLines: 0,
   loadingLines: false,
+
+  lotLines: [],
+  lotTotalLines: 0,
 
   pendingEdits: {},
 
@@ -95,6 +103,10 @@ export const InventoryStore = signalStore(
 
     setLines(lines: IInventoryLine[], total: number): void {
       patchState(store, {lines, totalLines: total});
+    },
+
+    setLotLines(lotLines: IInventoryLotLine[], total: number): void {
+      patchState(store, {lotLines, lotTotalLines: total});
     },
 
     updateLine(updated: IInventoryLine): void {
@@ -154,6 +166,8 @@ export const InventoryStore = signalStore(
         lines: [],
         totalLines: 0,
         loadingLines: false,
+        lotLines: [],
+        lotTotalLines: 0,
         pendingEdits: {},
         progress: null,
         lastImportResult: null,

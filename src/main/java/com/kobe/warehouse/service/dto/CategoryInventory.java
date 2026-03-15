@@ -20,6 +20,9 @@ public class CategoryInventory {
             case INVENDU -> "Inventaire des produits invendus";
             case SOUS_SEUIL -> "Inventaire des produits sous seuil";
             case EN_RUPTURE -> "Inventaire des produits en rupture";
+            case SELECTION_PRODUIT -> "Inventaire des produits ";
+            case GROSSISTE -> "Inventaire d'un grossite";
+            case ABC -> "Inventaire des produits de classe A/B/C (Pareto)";
         };
     }
 

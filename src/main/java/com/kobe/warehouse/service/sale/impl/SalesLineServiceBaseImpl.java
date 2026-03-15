@@ -6,13 +6,13 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
@@ -33,24 +33,25 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
-        LogsService logsService,
         SuggestionProduitService suggestionProduitService,
         LotService lotService,
         InventoryTransactionService inventoryTransactionService,
         SaleLineIdGeneratorService saleLineIdGeneratorService,
         StockUpdateService stockUpdateService,
-        StorageService storageService
+        StorageService storageService,
+        RepartitionStockService repartitionStockService
     ) {
         super(
             produitRepository,
             salesLineRepository,
             stockProduitRepository,
-            logsService,
             suggestionProduitService,
             lotService,
             inventoryTransactionService,
             saleLineIdGeneratorService,
-            stockUpdateService, storageService
+            stockUpdateService,
+            storageService,
+            repartitionStockService
         );
     }
 

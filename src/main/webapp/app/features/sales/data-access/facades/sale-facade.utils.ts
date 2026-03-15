@@ -11,6 +11,11 @@ export function extractApiError(error: any, defaultMessage: string): { errorMess
 
     if (errorKey === 'stock') {
       errorMessage = error.error.message || error.error.detail || 'Stock insuffisant';
+    } else if (errorKey === 'stock.reserve.available') {
+      const payload = error.error?.payload;
+      errorMessage = payload
+        ? `Stock rayon insuffisant (rayon\u00a0: ${payload.rayonStock}, réserve\u00a0: ${payload.reserveStock})`
+        : 'Stock insuffisant en rayon — réserve disponible';
     } else if (errorKey === 'stockChInsufisant') {
       errorMessage = 'Stock insuffisant - Déconditionnement nécessaire';
     } else if (errorKey === 'customerInsuranceCreditLimit') {

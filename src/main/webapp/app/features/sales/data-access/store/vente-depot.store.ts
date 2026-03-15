@@ -46,6 +46,7 @@ interface VenteDepotState {
     originalError: any;
     attemptedLine?: ISalesLine;
     isFromTableCellEdit?: boolean;
+    reserveInfo?: { rayonStock: number; reserveStock: number; totalAvailable: number };
   } | null;
 
   // Bus d'événements — remplace les Subjects
@@ -154,7 +155,7 @@ export const VenteDepotStore = signalStore(
       patchState(store, { error });
     },
 
-    setErrorDetails(errorDetails: { errorKey: string | null; originalError: any; attemptedLine?: any; isFromTableCellEdit?: boolean } | null): void {
+    setErrorDetails(errorDetails: { errorKey: string | null; originalError: any; attemptedLine?: any; isFromTableCellEdit?: boolean; reserveInfo?: { rayonStock: number; reserveStock: number; totalAvailable: number } } | null): void {
       patchState(store, { errorDetails });
     },
 

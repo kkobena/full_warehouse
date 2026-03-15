@@ -85,6 +85,7 @@ interface SalesState {
     originalError: any;
     attemptedLine?: any;
     isFromTableCellEdit?: boolean;
+    reserveInfo?: { rayonStock: number; reserveStock: number; totalAvailable: number };
   } | null;
   loading: boolean;
   pendingSalesLoading: boolean;
@@ -398,6 +399,7 @@ export const SalesStore = signalStore(
         originalError: any;
         attemptedLine?: any;
         isFromTableCellEdit?: boolean;
+        reserveInfo?: { rayonStock: number; reserveStock: number; totalAvailable: number };
       } | null,
     ): void {
       patchState(store, { errorDetails });

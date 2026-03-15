@@ -25,8 +25,18 @@
         <span [class.stockless]="item.totalQuantity <= 0">
           {{ item.libelle }}
         </span>
-        <span [class.stockless]="item.totalQuantity <= 0" class="float-right">
-          {{ item.fournisseurProduit?.prixUni | number }}
+        <span class="float-right" style="display: inline-flex; align-items: center; gap: 6px;">
+          <span [class.stockless]="item.totalQuantity <= 0" title="Stock rayon">
+            <i class="pi pi-database" style="font-size: 0.75rem"></i> {{ item.totalQuantity | number }}
+          </span>
+          @if ((item.reserveQuantity || 0) > 0) {
+            <span class="reserve-badge" title="Stock réserve">
+              <i class="pi pi-box" style="font-size: 0.75rem"></i> {{ item.reserveQuantity | number }}
+            </span>
+          }
+          <span [class.stockless]="item.totalQuantity <= 0">
+            {{ item.fournisseurProduit?.prixUni | number }}
+          </span>
         </span>
       </div>
     </ng-template>

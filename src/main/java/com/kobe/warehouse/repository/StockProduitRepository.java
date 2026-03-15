@@ -34,6 +34,11 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     )
     Integer findPointVenteStock(@Param("produitId") Integer produitId, @Param("storageId") Integer storageId);
 
+    @Query(
+        value = "SELECT COALESCE(SUM(sp.qtyStock + sp.qtyUG), 0) FROM StockProduit sp WHERE sp.produit.id = :produitId AND sp.storage.id = :reserveStorageId"
+    )
+    int findReserveStock(@Param("produitId") Integer produitId, @Param("reserveStorageId") Integer reserveStorageId);
+
 
     /**
      * Chargement en masse par storage précis (rayon ou réserve).

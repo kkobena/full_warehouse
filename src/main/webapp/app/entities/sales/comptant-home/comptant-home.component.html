@@ -177,10 +177,14 @@
               @if (showStock) {
                 <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">
                   <i class="pi pi-database"></i>
-                  <span
-                    >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
-                  >
+                  <span>Rayon: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
                 </div>
+                @if ((produitSelected?.reserveQuantity || 0) > 0) {
+                  <div class="meta-item">
+                    <i class="pi pi-box"></i>
+                    <span>Réserve: <strong>{{ produitSelected?.reserveQuantity | number }}</strong></span>
+                  </div>
+                }
               }
 
               @for (rayon of produitSelected?.rayons || []; track rayon.code) {

@@ -1,7 +1,9 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -15,6 +17,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,10 +55,13 @@ class SalesLineServiceBaseImplTest {
     @Mock
     private SaleLineIdGeneratorService saleLineIdGeneratorService;
     @Mock
-    private  StockUpdateService stockUpdateService;
+    private StockUpdateService stockUpdateService;
 
     private SalesLineServiceBaseImpl salesLineService;
+    @Mock
     private StorageService storageService;
+    @Mock
+    private RepartitionStockService repartitionStockService;
 
     @BeforeEach
     void setUp() {
@@ -63,13 +69,13 @@ class SalesLineServiceBaseImplTest {
             produitRepository,
             salesLineRepository,
             stockProduitRepository,
-            logsService,
             suggestionProduitService,
             lotService,
             inventoryTransactionService,
             saleLineIdGeneratorService,
             stockUpdateService,
-            storageService
+            storageService,
+            repartitionStockService
         );
     }
 
@@ -93,7 +99,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -101,15 +108,20 @@ class SalesLineServiceBaseImplTest {
 
         // Then
         assertNotNull(result, "Sales line should be created");
-        assertEquals(regularUnitPrice, result.getRegularUnitPrice(), "Regular unit price should match");
+        assertEquals(regularUnitPrice, result.getRegularUnitPrice(),
+            "Regular unit price should match");
         assertEquals(regularUnitPrice, result.getNetUnitPrice(), "Net unit price should match");
-        assertEquals(quantityRequested, result.getQuantityRequested(), "Quantity requested should match");
+        assertEquals(quantityRequested, result.getQuantityRequested(),
+            "Quantity requested should match");
         assertEquals(quantitySold, result.getQuantitySold(), "Quantity sold should match");
-        assertEquals(regularUnitPrice * quantityRequested, result.getSalesAmount(), "Sales amount should be calculated");
+        assertEquals(regularUnitPrice * quantityRequested, result.getSalesAmount(),
+            "Sales amount should be calculated");
         assertEquals(0, result.getDiscountAmount(), "Discount should be zero initially");
         assertEquals(produit, result.getProduit(), "Product should be set");
-        assertEquals(produit.getCostAmount(), result.getCostAmount(), "Cost amount should be set from product");
-        assertEquals(produit.getTva().getTaux(), result.getTaxValue(), "Tax value should be set from product");
+        assertEquals(produit.getCostAmount(), result.getCostAmount(),
+            "Cost amount should be set from product");
+        assertEquals(produit.getTva().getTaux(), result.getTaxValue(),
+            "Tax value should be set from product");
         assertNotNull(result.getCreatedAt(), "Created timestamp should be set");
         assertNotNull(result.getUpdatedAt(), "Updated timestamp should be set");
         assertNotNull(result.getEffectiveUpdateDate(), "Effective update date should be set");
@@ -133,14 +145,16 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
         SalesLine result = salesLineService.createSaleLineFromDTO(dto, storageId);
 
         // Then
-        assertEquals(10, result.getQuantityUg(), "UG quantity should be limited to available stock UG");
+        assertEquals(10, result.getQuantityUg(),
+            "UG quantity should be limited to available stock UG");
     }
 
     @Test
@@ -161,14 +175,16 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
         SalesLine result = salesLineService.createSaleLineFromDTO(dto, storageId);
 
         // Then
-        assertEquals(quantitySold, result.getQuantityUg(), "UG quantity should match quantity sold when less than stock UG");
+        assertEquals(quantitySold, result.getQuantityUg(),
+            "UG quantity should match quantity sold when less than stock UG");
     }
 
     @Test
@@ -188,7 +204,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0); // No UG
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -217,7 +234,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -225,7 +243,8 @@ class SalesLineServiceBaseImplTest {
 
         // Then
         int expectedSalesAmount = regularUnitPrice * quantityRequested; // 250 * 12 = 3000
-        assertEquals(expectedSalesAmount, result.getSalesAmount(), "Sales amount should be price * quantity");
+        assertEquals(expectedSalesAmount, result.getSalesAmount(),
+            "Sales amount should be price * quantity");
     }
 
     @Test
@@ -247,7 +266,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -274,7 +294,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 5);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
+            storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When

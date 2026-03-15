@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.errors;
 
 import static java.util.Objects.nonNull;
 
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -31,6 +33,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     public ExceptionTranslator(Environment env) {
         this.env = env;
+    }
+
+    @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<Object> handleOptimisticLock(Exception ex, NativeWebRequest request) {
+        Custom pd = new Custom(HttpStatus.CONFLICT.value());
+        pd.setDetail("Le stock a été modifié par une autre opération. Veuillez réessayer.");
+        pd.setMessage("stock.concurrent.modification");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
     }
 
     @ExceptionHandler

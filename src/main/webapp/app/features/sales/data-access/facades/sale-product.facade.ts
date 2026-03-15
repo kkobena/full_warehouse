@@ -47,7 +47,7 @@ export class SaleProductFacade {
           console.error('Error adding product:', error);
           const { errorMessage, errorKey } = extractApiError(error, "Erreur lors de l'ajout du produit");
           this.store.setError(errorMessage);
-          this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine });
+          this.store.setLastErrorDetails({ errorKey, originalError: error, attemptedLine: newLine, reserveInfo: error.error?.payload });
           this.notificationService.error(errorMessage);
           return EMPTY;
         }),
@@ -186,6 +186,7 @@ export class SaleProductFacade {
             originalError: error,
             attemptedLine: updatedLine,
             isFromTableCellEdit: true,
+            reserveInfo: error.error?.payload,
           });
           return EMPTY;
         }),
@@ -310,6 +311,7 @@ export class SaleProductFacade {
                   originalError: error,
                   attemptedLine: lineToAttempt,
                   isFromTableCellEdit: false,
+                  reserveInfo: error.error?.payload,
                 });
               }),
               catchError(reloadError => {
@@ -331,6 +333,7 @@ export class SaleProductFacade {
             originalError: error,
             attemptedLine: salesLine,
             isFromTableCellEdit: false,
+            reserveInfo: error.error?.payload,
           });
           if (errorKey !== 'stockChInsufisant') {
             this.notificationService.error(errorMessage);

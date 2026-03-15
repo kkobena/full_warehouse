@@ -10,6 +10,8 @@ export interface StockErrorDetails {
   errorKey: string | null;
   attemptedLine?: ISalesLine;
   isFromTableCellEdit?: boolean;
+  /** Informations de stock réserve — présent uniquement quand errorKey === 'stock.reserve.available' */
+  reserveInfo?: { rayonStock: number; reserveStock: number; totalAvailable: number };
 }
 
 /**
@@ -168,6 +170,29 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
   }
 
   /**
+   * Gère le cas où le stock rayon est insuffisant mais de la réserve est disponible.
+   * Propose un transfert implicite réserve → rayon (forceStock=true côté backend).
+   */
+  function handleReserveStockError(errorDetails: StockErrorDetails): void {
+    const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
+    const detectedContext: ForceStockContext = isFromTableEdit ? 'editCell' : 'addProduct';
+    forceStockContext.set(detectedContext);
+
+    const info = errorDetails.reserveInfo;
+    const message = info
+      ? `Stock rayon insuffisant (rayon\u00a0: ${info.rayonStock}, réserve\u00a0: ${info.reserveStock}, total\u00a0: ${info.totalAvailable}). Effectuer un transfert réserve → rayon et continuer\u00a0?`
+      : 'Stock insuffisant en rayon. De la réserve est disponible. Effectuer un transfert réserve → rayon et continuer\u00a0?';
+
+    context.getConfirmDialog().onConfirm(
+      () => onForceStockConfirmed(errorDetails, detectedContext),
+      'Stock en réserve',
+      message,
+      undefined,
+      () => onForceStockCancelled(),
+    );
+  }
+
+  /**
    * Crée l'effect pour observer les erreurs et gérer le forçage de stock
    * Note: Seules les erreurs de stock sont gérées ici. Les autres erreurs sont
    * gérées par le composant via son propre effet.
@@ -181,9 +206,12 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
       // Si on attend le résultat du forçage, ignorer pour éviter de montrer le dialog en double
       if (waiting) return;
 
-      // Seules les erreurs de stock avec permission de forçage sont gérées ici
-      if (errorMsg && errorDetails?.errorKey === 'stock' && authorizationService.canForceStock()) {
-        handleStockError(errorDetails);
+      if (errorMsg && errorDetails && authorizationService.canForceStock()) {
+        if (errorDetails.errorKey === 'stock') {
+          handleStockError(errorDetails);
+        } else if (errorDetails.errorKey === 'stock.reserve.available') {
+          handleReserveStockError(errorDetails);
+        }
       }
       // Les autres erreurs sont gérées par le composant
     });
@@ -225,6 +253,7 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
 
   return {
     handleStockError,
+    handleReserveStockError,
     onForceStockConfirmed,
     onForceStockCancelled,
     setupErrorHandlingEffect,

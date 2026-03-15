@@ -26,6 +26,8 @@ public interface LotService {
 
     void updateLots(List<LotSold> lots);
 
+    void restoreLots(List<LotSold> lots);
+
     Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable);
 
     LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam);

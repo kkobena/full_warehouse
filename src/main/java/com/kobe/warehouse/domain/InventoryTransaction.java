@@ -29,7 +29,9 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "inventory_transaction",
-    uniqueConstraints = { @UniqueConstraint(name = "uq_inv_tx_entity_produit_type_storage_ts", columnNames = { "entity_id", "produit_id", "mouvement_type", "storage_id", "created_at" }) },
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"entity_id", "produit_id", "mouvement_type",
+            "transaction_date"})},
     indexes = {
         @Index(columnList = "mouvement_type", name = "inventory_mouvement_type_type_index"),
         @Index(columnList = "transaction_date", name = "inventory_transaction_date_index"),

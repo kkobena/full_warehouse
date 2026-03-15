@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.stock.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.util.CollectionUtils;
-
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.util.CollectionUtils;
 
 public record ProduitSearch(
     Integer id,
@@ -22,14 +22,27 @@ public record ProduitSearch(
     List<ProduitRayonSearch> rayons,
     List<ProduitStockSearch> stocks
 ) {
+
+    /**
+     * Stock rayon (PRINCIPAL) uniquement : qty_stock + qty_ug. Cohérent avec
+     * {@code findPointVenteStock} et la validation backend à la vente. Ne jamais sommer rayon +
+     * réserve ici : le backend valide contre le rayon seul.
+     */
     @JsonProperty("totalQuantity")
     public int totalQuantity() {
-        return CollectionUtils.isEmpty(stocks) ? 0 : stocks.stream().mapToInt(ProduitStockSearch::quantite).sum();
+        if (CollectionUtils.isEmpty(stocks)) {
+            return 0;
+        }
+        return stocks.stream()
+            .filter(s -> s.storageType() == StorageType.PRINCIPAL)
+            .mapToInt(s -> s.quantite() + s.qteUg())
+            .sum();
     }
 
     @JsonProperty("fournisseurProduit")
     public ProduitFournisseurSearch fournisseurProduit() {
-        return fournisseurs.stream().filter(e -> Objects.equals(codecipprincipalid, e.id())).findFirst().orElse(fournisseurs.getFirst());
+        return fournisseurs.stream().filter(e -> Objects.equals(codecipprincipalid, e.id()))
+            .findFirst().orElse(fournisseurs.getFirst());
     }
 
     @JsonProperty("regularUnitPrice")
@@ -79,5 +92,30 @@ public record ProduitSearch(
     @JsonProperty("baseRegularUnitPrice")
     public Integer baseRegularUnitPrice() {
         return regularunitprice;
+    }
+
+    /**
+     * Alias de {@link #totalQuantity()} — stock rayon disponible à la vente. Exposé séparément pour
+     * la lisibilité côté frontend (badge "dispo vente").
+     */
+    @JsonProperty("stockDisponibleEnVente")
+    public int stockDisponibleEnVente() {
+        return totalQuantity();
+    }
+
+    /**
+     * Stock réserve (SAFETY_STOCK) : qty_stock + qty_ug. Informatif uniquement — la réserve n'est
+     * pas directement vendable sans transfert rayon. Retourne 0 si aucun stock réserve n'existe
+     * pour ce produit.
+     */
+    @JsonProperty("reserveQuantity")
+    public int reserveQuantity() {
+        if (CollectionUtils.isEmpty(stocks)) {
+            return 0;
+        }
+        return stocks.stream()
+            .filter(s -> s.storageType() == StorageType.SAFETY_STOCK)
+            .mapToInt(s -> s.quantite() + s.qteUg())
+            .sum();
     }
 }

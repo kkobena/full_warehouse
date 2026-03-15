@@ -115,7 +115,6 @@ public class LotServiceImpl implements LotService {
         return this.lotRepository.findByProduitId(produitId);
     }
 
-    //TODO: cas des annulations de ventes
     @Override
     public void updateLots(List<LotSold> lots) {
         if (!CollectionUtils.isEmpty(lots)) {
@@ -123,8 +122,22 @@ public class LotServiceImpl implements LotService {
                 Lot entity = this.lotRepository.getReferenceById(lot.id());
                 int currentQty = entity.getCurrentQuantity() - lot.quantity();
                 entity.setCurrentQuantity(Math.max(currentQty, 0));
-                if (entity.getCurrentQuantity() <= entity.getQuantity()) {
+                if (entity.getCurrentQuantity() <= 0) {
                     entity.setStatut(StatutLot.SOLD);
+                }
+                this.lotRepository.save(entity);
+            });
+        }
+    }
+
+    @Override
+    public void restoreLots(List<LotSold> lots) {
+        if (!CollectionUtils.isEmpty(lots)) {
+            lots.forEach(lot -> {
+                Lot entity = this.lotRepository.getReferenceById(lot.id());
+                entity.setCurrentQuantity(entity.getCurrentQuantity() + lot.quantity());
+                if (entity.getCurrentQuantity() > 0) {
+                    entity.setStatut(StatutLot.AVAILABLE);
                 }
                 this.lotRepository.save(entity);
             });

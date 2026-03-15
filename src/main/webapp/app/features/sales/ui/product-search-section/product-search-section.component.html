@@ -34,8 +34,14 @@
           @if (showStock()) {
             <div [class.low-stock]="(selectedProduct()?.totalQuantity || 0) < 10" class="meta-item">
               <i class="pi pi-database"></i>
-              <span>Stock: <strong>{{ selectedProduct()?.totalQuantity | number }}</strong></span>
+              <span>Rayon: <strong>{{ selectedProduct()?.totalQuantity | number }}</strong></span>
             </div>
+            @if ((selectedProduct()?.reserveQuantity || 0) > 0) {
+              <div class="meta-item">
+                <i class="pi pi-box"></i>
+                <span>Réserve: <strong>{{ selectedProduct()?.reserveQuantity | number }}</strong></span>
+              </div>
+            }
           }
           <div class="meta-item price-display">
             <i class="pi pi-tag"></i>

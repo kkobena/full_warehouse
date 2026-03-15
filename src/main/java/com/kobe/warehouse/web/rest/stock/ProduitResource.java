@@ -9,11 +9,13 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
-import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,16 +34,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
  */
 @RestController
 @RequestMapping("/api")
-public class ProduitResource extends ProduitResourceProxy {
+public class ProduitResource {
 
     private static final String ENTITY_NAME = "produit";
     private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
@@ -57,7 +55,7 @@ public class ProduitResource extends ProduitResourceProxy {
         ProduitService produitService,
         ProductActivityService productActivityService
     ) {
-        super(produitService);
+
         this.produitRepository = produitRepository;
         this.produitService = produitService;
         this.productActivityService = productActivityService;
@@ -74,7 +72,8 @@ public class ProduitResource extends ProduitResourceProxy {
     public ResponseEntity<Void> createProduit(@Valid @RequestBody ProduitDTO produitDTO) {
         log.debug("REST request to save Produit : {}", produitDTO);
         if (produitDTO.getId() != null) {
-            throw new BadRequestAlertException("A new produit cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new produit cannot already have an ID",
+                ENTITY_NAME, "idexists");
         }
         produitService.save(produitDTO);
         return ResponseEntity.ok().build();
@@ -132,7 +131,8 @@ public class ProduitResource extends ProduitResourceProxy {
                 .setStorageId(storageId),
             pageable
         );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -162,7 +162,8 @@ public class ProduitResource extends ProduitResourceProxy {
         log.debug("REST request to delete Produit : {}", id);
         produitRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
+                id.toString()))
             .build();
     }
 
@@ -190,27 +191,27 @@ public class ProduitResource extends ProduitResourceProxy {
         @RequestParam(required = false, name = "remisable") Boolean remisable,
         Pageable pageable
     ) {
-        return super.getAllLite(
-            new ProduitCriteria()
-                .setSearch(search)
-                .setStatus(status)
-                .setDeconditionnable(deconditionnable)
-                .setDeconditionne(deconditionne)
-                .setFamilleId(familleId)
-                .setTableauId(tableauId)
-                .setTableauNot(tableauNot)
-                .setRayonId(rayonId)
-                .setStorageId(storageId)
-                .setRemisable(remisable),
-            pageable
-        );
+        return ResponseEntity.ok().body(produitService.productsLiteList(new ProduitCriteria()
+            .setSearch(search)
+            .setStatus(status)
+            .setDeconditionnable(deconditionnable)
+            .setDeconditionne(deconditionne)
+            .setFamilleId(familleId)
+            .setTableauId(tableauId)
+            .setTableauNot(tableauNot)
+            .setRayonId(rayonId)
+            .setStorageId(storageId)
+            .setRemisable(remisable), pageable));
+
     }
 
     @GetMapping("/produits/code/{code}")
     public ResponseEntity<List<ProduitSearch>> findByCode(@PathVariable("code") String code
 
     ) {
-        return super.search(code, null, Pageable.ofSize(1));
+
+        return ResponseEntity.ok()
+            .body(produitService.searchProducts(code, null, Pageable.ofSize(1)));
     }
 
     @GetMapping("/produits/search")
@@ -219,7 +220,8 @@ public class ProduitResource extends ProduitResourceProxy {
         @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
-        return super.search(search, magasinId, pageable);
+
+        return ResponseEntity.ok().body(produitService.searchProducts(search, magasinId, pageable));
     }
 
     @GetMapping("/produits/activity")
@@ -228,7 +230,8 @@ public class ProduitResource extends ProduitResourceProxy {
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate
     ) {
-        return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
+        return ResponseEntity.ok()
+            .body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
     }
 
     @GetMapping("/produits/search-by-storage")
@@ -237,6 +240,7 @@ public class ProduitResource extends ProduitResourceProxy {
         @RequestParam(name = "storageId") Integer storageId,
         Pageable pageable
     ) {
-        return ResponseEntity.ok().body(produitService.searchProductsByStorage(storageId, search, pageable));
+        return ResponseEntity.ok()
+            .body(produitService.searchProductsByStorage(storageId, search, pageable));
     }
 }

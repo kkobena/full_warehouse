@@ -216,6 +216,7 @@ export class VenteDepotFacade {
             originalError: err,
             attemptedLine: updatedLine,
             isFromTableCellEdit: true,
+            reserveInfo: err.error?.payload,
           });
           this.store.emitEvent('PRODUCT_ADDED', { success: false, error: err, payload: updatedLine });
         },
@@ -374,6 +375,7 @@ export class VenteDepotFacade {
       errorKey,
       originalError: err,
       attemptedLine: attemptedLine ?? undefined,
+      reserveInfo: err.error?.payload,
     });
     this.store.emitEvent('PRODUCT_ADDED', { success: false, error: err, payload: attemptedLine });
   }

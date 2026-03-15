@@ -7,6 +7,12 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -19,13 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -47,17 +46,18 @@ public class SalesDataResource {
      */
     @GetMapping("/sales/{id}/{saleDate}")
     public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id,
-                                            @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
 
         return ResponseEntity.ok().body(saleDataService.fetchPurchaseBy(id, saleDate));
     }
 
     @GetMapping("/sales/edit/{id}/{saleDate}")
     public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id,
-                                                   @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to get Sales : {}", id);
 
-        return saleDataService.fetchPurchaseForEditBy(id, saleDate).map(dto -> ResponseEntity.ok().body(dto))
+        return saleDataService.fetchPurchaseForEditBy(id, saleDate)
+            .map(dto -> ResponseEntity.ok().body(dto))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
@@ -68,7 +68,9 @@ public class SalesDataResource {
 
     ) throws IOException {
 
-        return Utils.printPDF(saleDataService.printInvoice(new SaleId(id, saleDate)), String.format("fature_client_%d_%s.pdf", id, saleDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))));
+        return Utils.printPDF(saleDataService.printInvoice(new SaleId(id, saleDate)),
+            String.format("fature_client_%d_%s.pdf", id,
+                saleDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))));
     }
 
     @GetMapping("/sales/prevente")
@@ -80,8 +82,9 @@ public class SalesDataResource {
         @RequestParam(name = "excludeDepot", required = false, defaultValue = "true") boolean excludeDepot
     ) {
 
-        return ResponseEntity.ok().body(saleDataService.allPrevente(search, typeVente, userId, statuts,
-            LocalDate.now(), LocalDate.now(), excludeDepot));
+        return ResponseEntity.ok()
+            .body(saleDataService.allPrevente(search, typeVente, userId, statuts,
+                LocalDate.now(), LocalDate.now(), excludeDepot));
     }
 
     @GetMapping("/sales")
@@ -118,28 +121,28 @@ public class SalesDataResource {
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id,
-                                                 @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/re-print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> rePrintCashReceipt(@PathVariable("id") Long id,
-                                                   @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> printVoReceipt(@PathVariable("id") Long id,
-                                               @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/re-print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> rePrintVoReceipt(@PathVariable("id") Long id,
-                                                 @PathVariable("saleDate") LocalDate saleDate) {
+        @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }

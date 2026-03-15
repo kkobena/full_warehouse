@@ -228,7 +228,7 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         Rayon rayon = rayons.get(idx);
         String description = "Inventaire tournant — Rayon : " + rayon.getLibelle();
         return new StoreInventoryRecord(null, storageId, rayon.getId(), "RAYON", null, description,
-            null, null, null, null, userId);
+            null, null, null, null, userId, List.of());
     }
 
     private StoreInventoryRecord buildFamilleRecord(PlanningInventaireTournant planning,
@@ -242,7 +242,7 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         String description = "Inventaire tournant — Famille : " + famille.getLibelle();
         return new StoreInventoryRecord(null, storageId, null, "FAMILLY", famille.getId(),
             description,
-            null, null, null, null, userId);
+            null, null, null, null, userId, List.of());
     }
 
     private StoreInventoryRecord buildAbcRecord(PlanningInventaireTournant planning,
@@ -252,7 +252,7 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
             : ABC_CLASSES.get(planning.getCritereIndexCourant() % 3);
         String description = "Inventaire tournant — Classe Pareto : " + classePareto;
         return new StoreInventoryRecord(null, storageId, null, "ABC", null, description,
-            null, null, null, classePareto, userId);
+            null, null, null, classePareto, userId, List.of());
     }
 
     private void advanceRotation(PlanningInventaireTournant planning) {

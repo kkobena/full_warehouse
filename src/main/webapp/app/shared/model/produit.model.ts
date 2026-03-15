@@ -184,6 +184,9 @@ export class ProduitSearch {
   fournisseurProduit: ProduitFournisseurSearch;
   rayons: ProduitRayonSearch[];
   stocks: ProduitStockSearch[];
+  /** Stock rayon (PRINCIPAL) uniquement — c'est contre cette valeur que le backend valide la vente. */
   totalQuantity: number;
+  /** Stock réserve (SAFETY_STOCK) — informatif, non vendable directement. */
+  reserveQuantity: number;
   regularUnitPrice: number;
 }

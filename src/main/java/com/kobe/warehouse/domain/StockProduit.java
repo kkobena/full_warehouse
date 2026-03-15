@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -86,6 +87,11 @@ public class StockProduit implements Serializable {
     @NotAudited
     @Formula("qty_ug+qty_stock")
     private Integer totalStockQuantity;
+
+    @Version
+    @NotAudited
+    @Column(name = "version", nullable = false)
+    private Integer version = 0;
 
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)

@@ -184,6 +184,13 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "canceled", nullable = false)
     private boolean canceled = false;
 
+    @Column(name = "cancel_comment", length = 255)
+    private String cancelComment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cancelled_by_id", referencedColumnName = "id")
+    private AppUser cancelledBy;
+
     @Column(length = 100)
     private String tvaEmbeded;
 
@@ -536,6 +543,24 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     public Sales setCanceled(boolean canceled) {
         this.canceled = canceled;
+        return this;
+    }
+
+    public String getCancelComment() {
+        return cancelComment;
+    }
+
+    public Sales setCancelComment(String cancelComment) {
+        this.cancelComment = cancelComment;
+        return this;
+    }
+
+    public AppUser getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public Sales setCancelledBy(AppUser cancelledBy) {
+        this.cancelledBy = cancelledBy;
         return this;
     }
 

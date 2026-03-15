@@ -27,6 +27,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.CashRegisterException;
@@ -40,6 +41,7 @@ import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -59,6 +61,7 @@ public class SaleCommonService {
     private final CustomerDisplayService afficheurPosService;
     private final SaleIdGeneratorService idGeneratorService;
     private final ObjectMapper objectMapper;
+    private final AppConfigurationService appConfigurationService;
 
     public SaleCommonService(
         ReferenceService referenceService,
@@ -68,7 +71,9 @@ public class SaleCommonService {
         CashRegisterService cashRegisterService,
         PosteRepository posteRepository,
         CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper
+        SaleIdGeneratorService idGeneratorService,
+        ObjectMapper objectMapper,
+        AppConfigurationService appConfigurationService
     ) {
         this.referenceService = referenceService;
 
@@ -80,6 +85,24 @@ public class SaleCommonService {
         this.afficheurPosService = afficheurPosService;
         this.idGeneratorService = idGeneratorService;
         this.objectMapper = objectMapper;
+        this.appConfigurationService = appConfigurationService;
+    }
+
+    /**
+     * Vérifie que la vente n'est pas trop ancienne pour être annulée.
+     * Le délai maximum est configurable via APP_CANCEL_SALE_MAX_DAYS (défaut : 30 jours).
+     *
+     * @param saleDate date de la vente
+     * @throws GenericError si le délai est dépassé
+     */
+    protected void checkCancellationDelay(LocalDate saleDate) {
+        int maxDays = appConfigurationService.getCancelSaleMaxDays();
+        long daysSinceSale = ChronoUnit.DAYS.between(saleDate, LocalDate.now());
+        if (daysSinceSale > maxDays) {
+            throw new GenericError(
+                String.format("Annulation impossible : la vente date de %d jour(s). Délai maximum autorisé : %d jour(s).",
+                    daysSinceSale, maxDays));
+        }
     }
 
     public void computeSaleEagerAmount(Sales c) {

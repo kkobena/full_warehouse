@@ -86,6 +86,24 @@ public class StockUpdateService {
         }
     }
 
+    /**
+     * Restaure le stock rayon après annulation d'une vente (quantités négatives dans canceledLine)
+     * et crée une suggestion de réassort réserve si le rayon devient excédentaire (rayon > stockMaxi).
+     *
+     * @param canceledLine ligne d'annulation avec quantités négatives
+     * @param stockProduit StockProduit rayon à restaurer
+     */
+    public void updateStockOnCancellation(SalesLine canceledLine, StockProduit stockProduit) {
+        // canceledLine.quantityRequested est négatif → la soustraction restaure le stock
+        stockProduit.setQtyStock(stockProduit.getQtyStock() - canceledLine.getQuantityRequested());
+        stockProduit.setQtyUG(stockProduit.getQtyUG() - canceledLine.getQuantityUg());
+        stockProduit.setUpdatedAt(LocalDateTime.now());
+        stockProduitRepository.save(stockProduit);
+        // Si le rayon est maintenant en excédent par rapport à stockMaxi et que la réserve
+        // est sous seuilMini → suggérer un transfert rayon→réserve au pharmacien
+        suggestionReassortService.createReserveSuggestionReassort(stockProduit);
+    }
+
     public StockUpdateResult updateStockDepot(SalesLine salesLine, Storage storage) {
         Produit produit = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());

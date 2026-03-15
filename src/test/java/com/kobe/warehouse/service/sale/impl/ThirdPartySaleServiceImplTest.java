@@ -1,14 +1,77 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.*;
-import com.kobe.warehouse.repository.*;
-import com.kobe.warehouse.service.*;
+import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AssuranceSaleId;
+import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.OptionPrixProduit;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.Tva;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.domain.enumeration.OptionPrixType;
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.repository.AssuredCustomerRepository;
+import com.kobe.warehouse.repository.CashSaleRepository;
+import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.RemiseRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleRepository;
+import com.kobe.warehouse.repository.TiersPayantRepository;
+import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.PaymentService;
+import com.kobe.warehouse.service.ReferenceService;
+import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
+import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
-import com.kobe.warehouse.service.errors.*;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.PlafondVenteException;
+import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
@@ -17,69 +80,98 @@ import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
-import com.kobe.warehouse.service.sale.calculation.dto.*;
+import com.kobe.warehouse.service.sale.calculation.dto.CalculatedShare;
+import com.kobe.warehouse.service.sale.calculation.dto.CalculationResult;
+import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
+import com.kobe.warehouse.service.sale.calculation.dto.TvaRepartitionDto;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
-
 /**
- * Comprehensive unit tests for ThirdPartySaleServiceImpl.
- * Provides 100% coverage of all public methods in the service.
- *
- * Tests cover:
- * - Sale creation and management (createSale, editSale, cancelSale)
- * - Sale line operations (createOrUpdateSaleLine, deleteSaleLineById, update quantities/prices)
- * - Tiers payant management (addThirdPartySaleLineToSales, removeThirdPartySaleLineToSales)
- * - Sale transformations (changeCashSaleToThirdPartySale, updateTransformedSale)
- * - Customer management (changeCustomer, updateCustomerInformation)
- * - Discount processing (processDiscount)
- * - V2 functionality with TVA support
+ * Comprehensive unit tests for ThirdPartySaleServiceImpl. Provides 100% coverage of all public
+ * methods in the service.
+ * <p>
+ * Tests cover: - Sale creation and management (createSale, editSale, cancelSale) - Sale line
+ * operations (createOrUpdateSaleLine, deleteSaleLineById, update quantities/prices) - Tiers payant
+ * management (addThirdPartySaleLineToSales, removeThirdPartySaleLineToSales) - Sale transformations
+ * (changeCashSaleToThirdPartySale, updateTransformedSale) - Customer management (changeCustomer,
+ * updateCustomerInformation) - Discount processing (processDiscount) - V2 functionality with TVA
+ * support
  */
 @ExtendWith(MockitoExtension.class)
 class ThirdPartySaleServiceImplTest {
 
-    @Mock private ThirdPartySaleRepository thirdPartySaleRepository;
-    @Mock private ClientTiersPayantRepository clientTiersPayantRepository;
-    @Mock private TiersPayantRepository tiersPayantRepository;
-    @Mock private AssuredCustomerRepository assuredCustomerRepository;
-    @Mock private CashSaleRepository cashSaleRepository;
-    @Mock private SalesLineService salesLineService;
-    @Mock private SaleLineServiceFactory saleLineServiceFactory;
-    @Mock private StorageService storageService;
-    @Mock private LogsService logsService;
-    @Mock private ReferenceService referenceService;
-    @Mock private SaleIdGeneratorService saleIdGeneratorService;
-    @Mock private PaymentService paymentService;
-    @Mock private CashRegisterService cashRegisterService;
-    @Mock private UserRepository userRepository;
-    @Mock private PosteRepository posteRepository;
-    @Mock private PrixRererenceService prixRererenceService;
-    @Mock private RemiseRepository remiseRepository;
-    @Mock private UtilisationCleSecuriteService utilisationCleSecuriteService;
-    @Mock private CustomerDisplayService customerDisplayService;
-    @Mock private TiersPayantCalculationService tiersPayantCalculationService;
-    @Mock private ThirdPartySaleLineService thirdPartySaleLineService;
-    @Mock private ConsommationService consommationService;
-    @Mock private ObjectMapper objectMapper;
-    @Mock private SalesManager salesManager;
-    @Mock private ThirdPartyClientManager thirdPartyClientManager;
-    @Mock private ThirdPartyCalculationManager thirdPartyCalculationManager;
-    @Mock private AssuredCustomerManager assuredCustomerManager;
+    @Mock
+    private ThirdPartySaleRepository thirdPartySaleRepository;
+    @Mock
+    private ClientTiersPayantRepository clientTiersPayantRepository;
+    @Mock
+    private TiersPayantRepository tiersPayantRepository;
+    @Mock
+    private AssuredCustomerRepository assuredCustomerRepository;
+    @Mock
+    private CashSaleRepository cashSaleRepository;
+    @Mock
+    private SalesLineService salesLineService;
+    @Mock
+    private SaleLineServiceFactory saleLineServiceFactory;
+    @Mock
+    private StorageService storageService;
+    @Mock
+    private LogsService logsService;
+    @Mock
+    private ReferenceService referenceService;
+    @Mock
+    private SaleIdGeneratorService saleIdGeneratorService;
+    @Mock
+    private PaymentService paymentService;
+    @Mock
+    private CashRegisterService cashRegisterService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PosteRepository posteRepository;
+    @Mock
+    private PrixRererenceService prixRererenceService;
+    @Mock
+    private RemiseRepository remiseRepository;
+    @Mock
+    private UtilisationCleSecuriteService utilisationCleSecuriteService;
+    @Mock
+    private CustomerDisplayService customerDisplayService;
+    @Mock
+    private TiersPayantCalculationService tiersPayantCalculationService;
+    @Mock
+    private ThirdPartySaleLineService thirdPartySaleLineService;
+    @Mock
+    private ConsommationService consommationService;
+    @Mock
+    private ObjectMapper objectMapper;
+    @Mock
+    private SalesManager salesManager;
+    @Mock
+    private ThirdPartyClientManager thirdPartyClientManager;
+    @Mock
+    private ThirdPartyCalculationManager thirdPartyCalculationManager;
+    @Mock
+    private AssuredCustomerManager assuredCustomerManager;
 
     private ThirdPartySaleServiceImpl thirdPartySaleService;
 
@@ -91,6 +183,8 @@ class ThirdPartySaleServiceImplTest {
     private ThirdPartySales testSale;
     private SalesLine testSalesLine;
     private ThirdPartySaleLine testThirdPartySaleLine;
+    @Mock
+    private AppConfigurationService appConfigurationService;
 
     @BeforeEach
     void setUp() {
@@ -122,7 +216,7 @@ class ThirdPartySaleServiceImplTest {
             salesManager,
             thirdPartyClientManager,
             thirdPartyCalculationManager,
-            assuredCustomerManager
+            assuredCustomerManager, appConfigurationService
         );
 
         setupTestData();
@@ -175,7 +269,8 @@ class ThirdPartySaleServiceImplTest {
         testClientTiersPayant.setTaux((short) 80);
         testClientTiersPayant.setPriorite(PrioriteTiersPayant.R0);
         testClientTiersPayant.setAssuredCustomer(testCustomer);
-        testClientTiersPayant.setNum("NUM001");  // Set num for comparison in updateThirdPartySaleLine
+        testClientTiersPayant.setNum(
+            "NUM001");  // Set num for comparison in updateThirdPartySaleLine
 
         // Product with TVA
         Tva tva = new Tva();
@@ -233,7 +328,6 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setTaux((short) 80);
         testThirdPartySaleLine.setRepartitions(new ArrayList<>());
 
-
         testSale.setThirdPartySaleLines(new ArrayList<>(List.of(testThirdPartySaleLine)));
     }
 
@@ -260,7 +354,8 @@ class ThirdPartySaleServiceImplTest {
         ClientTiersPayantDTO tpDTO = new ClientTiersPayantDTO();
         tpDTO.setId(1);
         tpDTO.setNumBon("BON001");
-        dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));  // Use ArrayList (mutable) instead of immutable List
+        dto.setTiersPayants(
+            new ArrayList<>(List.of(tpDTO)));  // Use ArrayList (mutable) instead of immutable List
 
         AppUser user = new AppUser();
         user.setId(1);
@@ -271,15 +366,20 @@ class ThirdPartySaleServiceImplTest {
         magasin.setId(1);
 
         when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
-        lenient().when(clientTiersPayantRepository.findAllById(anySet())).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllById(anySet()))
+            .thenReturn(List.of(testClientTiersPayant));
         when(saleIdGeneratorService.nextId()).thenReturn(1L);
         lenient().when(referenceService.buildNumTransaction()).thenReturn("INV001");
-        lenient().when(referenceService.buildNumSale()).thenReturn("00001");  // Required for buildReference()
+        lenient().when(referenceService.buildNumSale())
+            .thenReturn("00001");  // Required for buildReference()
         when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
         when(storageService.getUser()).thenReturn(user);
-        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt())).thenReturn(testSalesLine);
-        lenient().when(thirdPartySaleRepository.save(any(ThirdPartySales.class))).thenReturn(testSale);
-        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class))).thenReturn(testSale);
+        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt()))
+            .thenReturn(testSalesLine);
+        lenient().when(thirdPartySaleRepository.save(any(ThirdPartySales.class)))
+            .thenReturn(testSale);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class))).thenReturn(
+            testSale);
 
         // Mock calculation manager for the new refactored structure
         lenient().when(thirdPartyClientManager.saveTiersPayantLines(any(), any())).thenReturn(null);
@@ -361,16 +461,19 @@ class ThirdPartySaleServiceImplTest {
         SaleId saleId = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.ACTIVE);
 
-        when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class))).thenReturn(Optional.of(testSale));
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(),
+            any(LocalDate.class))).thenReturn(Optional.of(testSale));
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
 
         // When
-        thirdPartySaleService.cancelSale(saleId);
+        thirdPartySaleService.cancelSale(saleId, "");
 
         // Then
-        verify(thirdPartySaleRepository, atLeast(2)).save(any(ThirdPartySales.class)); // Saves original and copy
+        verify(thirdPartySaleRepository, atLeast(2)).save(
+            any(ThirdPartySales.class)); // Saves original and copy
     }
 
     @Test
@@ -381,7 +484,7 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleRepository.getReferenceById(saleId)).thenReturn(testSale);
 
         // When
-        thirdPartySaleService.cancelSale(saleId);
+        thirdPartySaleService.cancelSale(saleId, "");
 
         // Then
         verify(thirdPartySaleRepository, never()).delete(any(ThirdPartySales.class));
@@ -406,7 +509,8 @@ class ThirdPartySaleServiceImplTest {
         ClientTiersPayantDTO tpDTO = new ClientTiersPayantDTO();
         tpDTO.setId(1);
         tpDTO.setNumBon("BON001");
-        dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));  // Use ArrayList (mutable) instead of immutable List
+        dto.setTiersPayants(
+            new ArrayList<>(List.of(tpDTO)));  // Use ArrayList (mutable) instead of immutable List
 
         testSale.setStatut(SalesStatut.ACTIVE);
 
@@ -417,11 +521,15 @@ class ThirdPartySaleServiceImplTest {
 
         lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.findById(any())).thenReturn(Optional.of(testSale));
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class))).thenReturn(Optional.of(testSale));
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+            .thenReturn(Optional.of(testSale));
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         // Mock the manager method that delegates to thirdPartySaleLineService
-        lenient().when(thirdPartyClientManager.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartyClientManager.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         // buildPaymentFromFromPaymentDTO is void, no need to mock return value
 
         // When
@@ -508,10 +616,13 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleRepository.findById(any())).thenReturn(Optional.of(testSale));
         lenient().when(thirdPartySaleRepository.findOneById(anyLong())).thenReturn(testSale);
         lenient().when(clientTiersPayantRepository.getReferenceById(2)).thenReturn(newTP);
-        lenient().when(thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt())).thenReturn(newTpLine);
+        lenient().when(
+                thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt()))
+            .thenReturn(newTpLine);
 
         // Mock the manager method
-        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any())).thenReturn(null);
+        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any()))
+            .thenReturn(null);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
 
@@ -536,11 +647,14 @@ class ThirdPartySaleServiceImplTest {
         ThirdPartySaleLine tpLineToRemove = testSale.getThirdPartySaleLines().getFirst();
 
         lenient().when(thirdPartySaleRepository.getReferenceById(saleId)).thenReturn(testSale);
-        lenient().when(thirdPartySaleLineService.findFirstByClientTiersPayantIdAndSaleId(anyInt(), any(SaleId.class)))
+        lenient().when(thirdPartySaleLineService.findFirstByClientTiersPayantIdAndSaleId(anyInt(),
+                any(SaleId.class)))
             .thenReturn(Optional.of(tpLineToRemove));
 
         // Mock the manager method that now handles the deletion
-        lenient().when(thirdPartyClientManager.removeThirdPartySaleLineToSales(anyInt(), any(SaleId.class))).thenReturn(null);
+        lenient().when(
+                thirdPartyClientManager.removeThirdPartySaleLineToSales(anyInt(), any(SaleId.class)))
+            .thenReturn(null);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
 
         // When
@@ -590,7 +704,8 @@ class ThirdPartySaleServiceImplTest {
         // saveSalesLine is void, no need to mock return value
 
         // When
-        SaleId result = thirdPartySaleService.changeCashSaleToThirdPartySale(cashSaleId, NatureVente.ASSURANCE);
+        SaleId result = thirdPartySaleService.changeCashSaleToThirdPartySale(cashSaleId,
+            NatureVente.ASSURANCE);
 
         // Then
         assertNotNull(result);
@@ -617,10 +732,13 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.findById(any())).thenReturn(Optional.of(testSale));
         lenient().when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
-        lenient().when(clientTiersPayantRepository.findAllById(anySet())).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllById(anySet()))
+            .thenReturn(List.of(testClientTiersPayant));
 
         // Mock the calculation manager method
-        lenient().when(thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean())).thenReturn(null);
+        lenient().when(
+                thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean()))
+            .thenReturn(null);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
 
@@ -656,10 +774,12 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.findById(any())).thenReturn(Optional.of(testSale));
         lenient().when(assuredCustomerRepository.getReferenceById(2)).thenReturn(newCustomer);
-        lenient().when(clientTiersPayantRepository.findAllByAssuredCustomerId(2)).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllByAssuredCustomerId(2))
+            .thenReturn(List.of(testClientTiersPayant));
 
         // Mock the manager method that now handles the tiers payant lines
-        lenient().when(thirdPartyClientManager.saveTiersPayantLinesOnChangeCustomer(any())).thenReturn(null);
+        lenient().when(thirdPartyClientManager.saveTiersPayantLinesOnChangeCustomer(any()))
+            .thenReturn(null);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
 
@@ -689,7 +809,9 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(remiseRepository.findById(1)).thenReturn(Optional.of(remise));
 
         // Mock the calculation manager method
-        lenient().when(thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean())).thenReturn(null);
+        lenient().when(
+                thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean()))
+            .thenReturn(null);
 
         // When
         thirdPartySaleService.processDiscount(updateInfo);
@@ -713,7 +835,9 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(remiseRepository.findById(1)).thenReturn(Optional.of(remiseProduit));
 
         // Mock the calculation manager method
-        lenient().when(thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean())).thenReturn(null);
+        lenient().when(
+                thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean()))
+            .thenReturn(null);
 
         // When
         thirdPartySaleService.processDiscount(updateInfo);
@@ -742,7 +866,9 @@ class ThirdPartySaleServiceImplTest {
         lenient().when(remiseRepository.findById(2)).thenReturn(Optional.of(newRemise));
 
         // Mock the calculation manager method
-        lenient().when(thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean())).thenReturn(null);
+        lenient().when(
+                thirdPartyCalculationManager.reComputeAndApplyAmounts(any(), any(), anyBoolean()))
+            .thenReturn(null);
 
         // When
         thirdPartySaleService.processDiscount(updateInfo);
@@ -783,7 +909,8 @@ class ThirdPartySaleServiceImplTest {
 
         // Trigger the private method via a public method that calls it with isUpdate=true
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
-        lenient().when(clientTiersPayantRepository.findAllById(anySet())).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllById(anySet()))
+            .thenReturn(List.of(testClientTiersPayant));
 
         ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
         dto.setCustomerId(1);
@@ -803,7 +930,8 @@ class ThirdPartySaleServiceImplTest {
         dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));
 
         when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
-        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt())).thenReturn(testSalesLine);
+        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt()))
+            .thenReturn(testSalesLine);
 
         // When - This will call reComputeAndApplyAmountsV2 with isUpdate=true
         try {
@@ -839,7 +967,8 @@ class ThirdPartySaleServiceImplTest {
         // Mock the calculation manager method
         lenient().when(thirdPartyClientManager.saveTiersPayantLines(any(), any())).thenReturn(null);
         lenient().when(thirdPartySaleRepository.saveAndFlush(any())).thenReturn(testSale);
-        lenient().when(clientTiersPayantRepository.findAllById(anySet())).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllById(anySet()))
+            .thenReturn(List.of(testClientTiersPayant));
 
         ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
         dto.setCustomerId(1);
@@ -859,7 +988,8 @@ class ThirdPartySaleServiceImplTest {
         dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));
 
         when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
-        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt())).thenReturn(testSalesLine);
+        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt()))
+            .thenReturn(testSalesLine);
 
         // When
         try {
@@ -970,7 +1100,7 @@ class ThirdPartySaleServiceImplTest {
 
         // Verify calculation
         BigDecimal calculatedTtc = BigDecimal.valueOf(record.montantHt())
-                .multiply(BigDecimal.valueOf(1.20));
+            .multiply(BigDecimal.valueOf(1.20));
         assertEquals(record.montantTtc(), calculatedTtc.doubleValue(), 0.01);
     }
 
@@ -1006,14 +1136,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,true);
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, true);
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale), eq(true));
     }
 
     @Test
@@ -1026,14 +1156,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,any());
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, any());
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale), eq(true));
     }
 
     // ============================================
@@ -1099,9 +1229,11 @@ class ThirdPartySaleServiceImplTest {
         tpDTO.setNumBon("BON001-EDIT");
         dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));
 
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
 
         // When
@@ -1138,10 +1270,13 @@ class ThirdPartySaleServiceImplTest {
         tpDTO.setNumBon("BON-OPTION-PRIX");
         dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));
 
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
-        lenient().when(thirdPartyClientManager.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartyClientManager.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
 
         // When
@@ -1165,9 +1300,11 @@ class ThirdPartySaleServiceImplTest {
         dto.setTiersPayants(new ArrayList<>());  // Empty list
 
         testSale.setThirdPartySaleLines(new ArrayList<>());  // Empty third party sale lines
-        testSale.setSalesLines(new HashSet<>(Set.of(testSalesLine)));  // Need salesLines for buildTvaData
+        testSale.setSalesLines(
+            new HashSet<>(Set.of(testSalesLine)));  // Need salesLines for buildTvaData
 
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
         lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of());
 
@@ -1214,9 +1351,11 @@ class ThirdPartySaleServiceImplTest {
         tpDTO.setNumBon("BON-MULTI-PRIX");
         dto.setTiersPayants(new ArrayList<>(List.of(tpDTO)));
 
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
-        lenient().when(thirdPartySaleLineService.findAllBySaleId(any())).thenReturn(List.of(testThirdPartySaleLine));
+        lenient().when(thirdPartySaleLineService.findAllBySaleId(any()))
+            .thenReturn(List.of(testThirdPartySaleLine));
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
 
         // When
@@ -1282,12 +1421,13 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemRegularPrice(any(), any())).thenThrow(new PlafondVenteException(new ThirdPartySaleDTO(), "Plafond dépassé"));
+        when(salesManager.updateItemRegularPrice(any(), any())).thenThrow(
+            new PlafondVenteException(new ThirdPartySaleDTO(), "Plafond dépassé"));
 
         // When & Then
-        assertThrows(PlafondVenteException.class, () -> thirdPartySaleService.updateItemRegularPrice(dto));
+        assertThrows(PlafondVenteException.class,
+            () -> thirdPartySaleService.updateItemRegularPrice(dto));
     }
-
 
 
     @Test
@@ -1323,10 +1463,13 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setTaux((short) 80);
         testThirdPartySaleLine.setFactureTiersPayant(null);  // Not invoiced
 
-        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class))).thenReturn(testSale);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class)))
+            .thenReturn(testSale);
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
-        lenient().when(assuredCustomerRepository.getReferenceById(anyInt())).thenReturn(testCustomer);
+        lenient().when(assuredCustomerRepository.getReferenceById(anyInt()))
+            .thenReturn(testCustomer);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
         lenient().when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
@@ -1374,8 +1517,10 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setFactureTiersPayant(facture);  // Already invoiced
         testSale.setThirdPartySaleLines(List.of(testThirdPartySaleLine));
 
-        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class))).thenReturn(testSale);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class)))
+            .thenReturn(testSale);
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
 
         // When & Then
@@ -1387,7 +1532,7 @@ class ThirdPartySaleServiceImplTest {
         verify(thirdPartySaleRepository, never()).save(any());
     }
 
-     @Test
+    @Test
     void testUpdateCustomerInformation_WithMismatchedTaux_ThrowsError() {
         // Given
         AssuredCustomerDTO customerDTO = new AssuredCustomerDTO();
@@ -1416,8 +1561,10 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setFactureTiersPayant(null);
         testSale.setThirdPartySaleLines(List.of(testThirdPartySaleLine));
 
-        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class))).thenReturn(testSale);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class)))
+            .thenReturn(testSale);
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
 
         // When & Then
@@ -1471,10 +1618,13 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setTaux((short) 80);
         testThirdPartySaleLine.setFactureTiersPayant(null);
 
-        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class))).thenReturn(testSale);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class)))
+            .thenReturn(testSale);
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
-        lenient().when(assuredCustomerRepository.getReferenceById(anyInt())).thenReturn(testCustomer, ayantDroit);
+        lenient().when(assuredCustomerRepository.getReferenceById(anyInt()))
+            .thenReturn(testCustomer, ayantDroit);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
         lenient().when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
@@ -1484,7 +1634,8 @@ class ThirdPartySaleServiceImplTest {
         // Then
         verify(thirdPartySaleRepository).save(any(ThirdPartySales.class));
         // Verify the manager was called instead of direct repository save
-        verify(assuredCustomerManager, atLeastOnce()).updateAssuredCustomer(any(AssuredCustomer.class), any(AssuredCustomerDTO.class));
+        verify(assuredCustomerManager, atLeastOnce()).updateAssuredCustomer(
+            any(AssuredCustomer.class), any(AssuredCustomerDTO.class));
         verify(logsService).create(
             eq(TransactionType.MODIFICATION_INFO_CLIENT),
             anyString(),
@@ -1531,8 +1682,10 @@ class ThirdPartySaleServiceImplTest {
         testThirdPartySaleLine.setTaux((short) 80);
         testThirdPartySaleLine.setFactureTiersPayant(null);
 
-        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class))).thenReturn(testSale);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
+        lenient().when(thirdPartySaleRepository.getReferenceById(any(SaleId.class)))
+            .thenReturn(testSale);
+        lenient().when(
+                thirdPartySaleRepository.findOneWithEagerSalesLines(anyLong(), any(LocalDate.class)))
             .thenReturn(Optional.of(testSale));
         lenient().when(assuredCustomerRepository.getReferenceById(2)).thenReturn(newCustomer);
         lenient().when(thirdPartySaleRepository.save(any())).thenReturn(testSale);
@@ -1585,7 +1738,8 @@ class ThirdPartySaleServiceImplTest {
         prixRef.setRate(1.25f);  // 125% du prix régulier
         prixRef.setType(OptionPrixType.REFERENCE);
         prixRef.setEnabled(true);
-        prixRef.setTiersPayant(testClientTiersPayant.getTiersPayant());  // Match with testClientTiersPayant
+        prixRef.setTiersPayant(
+            testClientTiersPayant.getTiersPayant());  // Match with testClientTiersPayant
         prixRef.setProduit(testProduit);
 
         AppUser user = new AppUser();
@@ -1597,15 +1751,19 @@ class ThirdPartySaleServiceImplTest {
         magasin.setId(1);
 
         when(assuredCustomerRepository.getReferenceById(1)).thenReturn(testCustomer);
-        lenient().when(clientTiersPayantRepository.findAllById(anySet())).thenReturn(List.of(testClientTiersPayant));
+        lenient().when(clientTiersPayantRepository.findAllById(anySet()))
+            .thenReturn(List.of(testClientTiersPayant));
         when(saleIdGeneratorService.nextId()).thenReturn(1L);
         lenient().when(referenceService.buildNumTransaction()).thenReturn("INV001");
         lenient().when(referenceService.buildNumSale()).thenReturn("00001");
         when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
         when(storageService.getUser()).thenReturn(user);
-        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt())).thenReturn(testSalesLine);
-        lenient().when(thirdPartySaleRepository.save(any(ThirdPartySales.class))).thenReturn(testSale);
-        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class))).thenReturn(testSale);
+        lenient().when(salesLineService.createSaleLineFromDTO(any(SaleLineDTO.class), anyInt()))
+            .thenReturn(testSalesLine);
+        lenient().when(thirdPartySaleRepository.save(any(ThirdPartySales.class)))
+            .thenReturn(testSale);
+        when(thirdPartySaleRepository.saveAndFlush(any(ThirdPartySales.class))).thenReturn(
+            testSale);
 
         // Mock the calculation manager instead of the direct service
         lenient().when(thirdPartyClientManager.saveTiersPayantLines(any(), any())).thenReturn(null);
@@ -1649,14 +1807,14 @@ class ThirdPartySaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
 
         // When
-        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto,true);
+        SaleLineDTO result = thirdPartySaleService.updateItemQuantityRequested(dto, true);
 
         // Then
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale), eq(true));
     }
 
     @Test
@@ -1683,7 +1841,8 @@ class ThirdPartySaleServiceImplTest {
     void testDeleteSalePrevente_Success() {
         // Given
         SaleId saleId = new SaleId(1L, testDate);
-        when(thirdPartySaleRepository.findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate()))
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(saleId.getId(),
+            saleId.getSaleDate()))
             .thenReturn(Optional.of(testSale));
         when(paymentService.findAllBySales(testSale.getId())).thenReturn(Collections.emptyList());
 
@@ -1698,7 +1857,8 @@ class ThirdPartySaleServiceImplTest {
     void testDeleteSalePrevente_NotFound() {
         // Given
         SaleId saleId = new SaleId(1L, testDate);
-        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate()))
+        lenient().when(thirdPartySaleRepository.findOneWithEagerSalesLines(saleId.getId(),
+                saleId.getSaleDate()))
             .thenReturn(Optional.empty());
 
         // When
@@ -1712,7 +1872,8 @@ class ThirdPartySaleServiceImplTest {
     void testFindAllBySaleId() {
         // Given
         SaleId saleId = new SaleId(1L, testDate);
-        when(thirdPartyClientManager.findAllBySaleId(saleId)).thenReturn(List.of(testThirdPartySaleLine));
+        when(thirdPartyClientManager.findAllBySaleId(saleId)).thenReturn(
+            List.of(testThirdPartySaleLine));
 
         // When
         List<ThirdPartySaleLine> result = thirdPartySaleService.findAllBySaleId(saleId);
@@ -1733,15 +1894,20 @@ class ThirdPartySaleServiceImplTest {
         testSale.setRemise(remiseProduit);
         testSale.setNatureVente(NatureVente.ASSURANCE);
 
-        lenient().when(clientTiersPayantRepository.getReferenceById(1)).thenReturn(testClientTiersPayant);
+        lenient().when(clientTiersPayantRepository.getReferenceById(1))
+            .thenReturn(testClientTiersPayant);
         lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
-        lenient().when(thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt())).thenReturn(thirdPartySaleLine);
+        lenient().when(
+                thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt()))
+            .thenReturn(thirdPartySaleLine);
 
         // When & Then
-        assertThrows(GenericError.class, () -> thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate)));
+        assertThrows(GenericError.class,
+            () -> thirdPartySaleService.addThirdPartySaleLineToSales(dto,
+                new SaleId(1L, testDate)));
     }
 
     @Test
@@ -1753,15 +1919,19 @@ class ThirdPartySaleServiceImplTest {
 
         testSale.setRemise(null);
 
-        lenient().when(clientTiersPayantRepository.getReferenceById(1)).thenReturn(testClientTiersPayant);
+        lenient().when(clientTiersPayantRepository.getReferenceById(1))
+            .thenReturn(testClientTiersPayant);
         lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
-        lenient().when(thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt())).thenReturn(thirdPartySaleLine);
+        lenient().when(
+                thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt()))
+            .thenReturn(thirdPartySaleLine);
 
         // Mock the manager method
-        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any())).thenReturn(null);
+        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any()))
+            .thenReturn(null);
 
         // When
         thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate));
@@ -1784,15 +1954,19 @@ class ThirdPartySaleServiceImplTest {
         testSale.setSalesAmount(2000);
         testSale.setDiscountAmount(0);
 
-        lenient().when(clientTiersPayantRepository.getReferenceById(1)).thenReturn(testClientTiersPayant);
+        lenient().when(clientTiersPayantRepository.getReferenceById(1))
+            .thenReturn(testClientTiersPayant);
         lenient().when(thirdPartySaleRepository.findOneById(1L)).thenReturn(testSale);
 
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
         thirdPartySaleLine.setClientTiersPayant(testClientTiersPayant);
-        lenient().when(thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt())).thenReturn(thirdPartySaleLine);
+        lenient().when(
+                thirdPartySaleLineService.createThirdPartySaleLine(anyString(), any(), anyInt()))
+            .thenReturn(thirdPartySaleLine);
 
         // Mock the manager method
-        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any())).thenReturn(null);
+        lenient().when(thirdPartyClientManager.addThirdPartySaleLineToSales(any(), any()))
+            .thenReturn(null);
 
         // When
         thirdPartySaleService.addThirdPartySaleLineToSales(dto, new SaleId(1L, testDate));

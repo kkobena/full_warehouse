@@ -409,7 +409,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineCopy.setDiscountAmount(salesLineCopy.getDiscountAmount() * (-1));
         salesLineCopy.setAmountToBeTakenIntoAccount(salesLineCopy.getAmountToBeTakenIntoAccount() * (-1));
 
-        //TODO: une gestion pour les reserve de stock
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(salesLine.getProduit().getId(), storageId);
         int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
         int quantityAfter = quantityBefor - (salesLineCopy.getQuantityRequested() - salesLineCopy.getQuantityUg());
@@ -417,16 +416,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineCopy.setAfterStock(quantityAfter);
         salesLineRepository.save(salesLineCopy);
         salesLineRepository.save(salesLine);
-        updateStock(stockProduit, salesLineCopy);
+        // Restaure le stock rayon et crée une suggestion réassort réserve si rayon > stockMaxi
+        stockUpdateService.updateStockOnCancellation(salesLineCopy, stockProduit);
         this.lotService.restoreLots(salesLine.getLots());
         this.inventoryTransactionService.save(salesLineCopy);
-    }
-
-    private void updateStock(StockProduit stockProduit, SalesLine salesLineCopy) {
-        stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLineCopy.getQuantityRequested()/*- salesLineCopy.getQuantityUg()*/));
-        stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLineCopy.getQuantityUg());
-        stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduitRepository.save(stockProduit);
     }
 
     private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {

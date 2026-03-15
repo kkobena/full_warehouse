@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -129,8 +131,9 @@ public class SalesResource {
 
     @DeleteMapping("/sales/cancel/comptant/{id}/{saleDate}")
     public ResponseEntity<Void> cancelCashSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
-        saleService.cancelCashSale(new SaleId(id, saleDate));
+        @PathVariable("saleDate") LocalDate saleDate,
+        @RequestParam(required = false) String cancelComment) throws CashRegisterException {
+        saleService.cancelCashSale(new SaleId(id, saleDate), cancelComment);
         return ResponseEntity.noContent()
             .build();
     }

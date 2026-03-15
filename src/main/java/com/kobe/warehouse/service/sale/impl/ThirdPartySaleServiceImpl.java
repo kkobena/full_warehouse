@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
@@ -63,11 +65,6 @@ import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -79,8 +76,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional(noRollbackFor = {PlafondVenteException.class})
@@ -101,29 +100,30 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final SalesManager salesManager;
     private final SalesLineService salesLineService;
 
-    // Nouveaux services dédiés (Phase 2)
+
     private final ThirdPartyClientManager thirdPartyClientManager;
     private final ThirdPartyCalculationManager thirdPartyCalculationManager;
     private final AssuredCustomerManager assuredCustomerManager;
 
     public ThirdPartySaleServiceImpl(ThirdPartySaleLineService thirdPartySaleLineService,
-                                     ClientTiersPayantRepository clientTiersPayantRepository,
-                                     SaleLineServiceFactory saleLineServiceFactory, StorageService storageService,
-                                     ThirdPartySaleRepository thirdPartySaleRepository,
-                                     AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
-                                     PaymentService paymentService, ReferenceService referenceService,
-                                     CashRegisterService cashRegisterService, PosteRepository posteRepository,
-                                     CashSaleRepository cashSaleRepository,
-                                     UtilisationCleSecuriteService utilisationCleSecuriteService,
-                                     RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
-                                     LogsService logService, SaleIdGeneratorService idGeneratorService,
-                                     ObjectMapper objectMapper, SalesManager salesManager,
-                                     ThirdPartyClientManager thirdPartyClientManager,
-                                     ThirdPartyCalculationManager thirdPartyCalculationManager,
-                                     AssuredCustomerManager assuredCustomerManager) {
+        ClientTiersPayantRepository clientTiersPayantRepository,
+        SaleLineServiceFactory saleLineServiceFactory, StorageService storageService,
+        ThirdPartySaleRepository thirdPartySaleRepository,
+        AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
+        PaymentService paymentService, ReferenceService referenceService,
+        CashRegisterService cashRegisterService, PosteRepository posteRepository,
+        CashSaleRepository cashSaleRepository,
+        UtilisationCleSecuriteService utilisationCleSecuriteService,
+        RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
+        LogsService logService, SaleIdGeneratorService idGeneratorService,
+        ObjectMapper objectMapper, SalesManager salesManager,
+        ThirdPartyClientManager thirdPartyClientManager,
+        ThirdPartyCalculationManager thirdPartyCalculationManager,
+        AssuredCustomerManager assuredCustomerManager,
+        com.kobe.warehouse.service.settings.AppConfigurationService appConfigurationService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
-            objectMapper);
+            objectMapper, appConfigurationService);
         this.thirdPartySaleLineService = thirdPartySaleLineService;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.ThirdPartySales);
@@ -199,7 +199,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId,
-                                              Long currentSaleId) {
+        Long currentSaleId) {
         return thirdPartyClientManager.checkIfNumBonIsAlReadyUse(numBon, clientTiersPayantId,
             currentSaleId);
     }
@@ -231,7 +231,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public void cancelSale(SaleId id) throws CashRegisterException {
+    public void cancelSale(SaleId id, String cancelComment) throws CashRegisterException {
         AppUser user = storageService.getUser();
         thirdPartySaleRepository.findByIdAndSaleDate(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
@@ -239,18 +239,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                     throw new GenericError("La vente est déjà annulée");
                 }
                 if (sales.getStatut() != SalesStatut.CLOSED) {
-                    throw new GenericError("La vente doit être clôturée pour être modifiée");
+                    throw new GenericError("La vente doit être clôturée pour être annulée");
                 }
-
+                boolean alreadyInvoiced = sales.getThirdPartySaleLines().stream()
+                    .anyMatch(l -> l.getFactureTiersPayant() != null);
+                if (alreadyInvoiced) {
+                    throw new GenericError(
+                        "La vente est déjà facturée au tiers payant et ne peut pas être annulée directement");
+                }
                 cancelSale(new ArrayList<>(new LinkedHashSet<>(sales.getThirdPartySaleLines())),
                     new HashSet<>(sales.getSalesLines()), new HashSet<>(sales.getPayments()), sales,
-                    user);
+                    user, cancelComment);
             });
     }
 
 
     private SaleId cloneSale(ThirdPartySales sales, boolean canceledOriginal,
-                             SalesStatut salesStatut) throws CashRegisterException {
+        SalesStatut salesStatut) throws CashRegisterException {
         List<ThirdPartySaleLine> originalThirdPartySaleLines = new ArrayList<>(new LinkedHashSet<>(
             sales.getThirdPartySaleLines()));// Utiliser LinkedHashSet pour préserver l'ordre des lignes et éviter les doublons
         Set<SalesLine> originalSalesLines = new HashSet<>(sales.getSalesLines());
@@ -282,16 +287,17 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository.flush();
         if (canceledOriginal) {
             cancelSale(originalThirdPartySaleLines, originalSalesLines, originalPayments, sales,
-                copy.getUser());
+                copy.getUser(), null);
         }
 
         return copy.getId();
     }
 
     private void cancelSale(List<ThirdPartySaleLine> originalThirdPartySaleLines,
-                            Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales,
-                            AppUser user) throws CashRegisterException {
+        Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales,
+        AppUser user, String cancelComment) throws CashRegisterException {
         checkOpenningCaisse();
+        checkCancellationDelay(sales.getSaleDate());
         ThirdPartySales copy = (ThirdPartySales) sales.clone();
         copy.setThirdPartySaleLines(new ArrayList<>());
         copy.setSalesLines(new HashSet<>());
@@ -300,8 +306,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         copySale(sales, copy);
         copy.setSaleDate(LocalDate.now());
         copyThirdPartySales(sales, copy);
-        sales.setEffectiveUpdateDate(sales.getUpdatedAt());
+        sales.setEffectiveUpdateDate(LocalDateTime.now());
         sales.setCanceled(true);
+        sales.setCancelComment(cancelComment);
+        sales.setCancelledBy(user);
         copy.setCanceled(true);
         thirdPartySaleRepository.save(sales);
         thirdPartySaleRepository.save(copy);
@@ -753,7 +761,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             return;
         }
         ThirdPartySales p = thirdPartySaleRepository.getReferenceById(updateSaleInfo.id());
-        AssuredCustomer ayantDroit = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
+        AssuredCustomer ayantDroit = assuredCustomerRepository.getReferenceById(
+            updateSaleInfo.value());
         p.setAyantDroit(ayantDroit);
         thirdPartySaleRepository.save(p);
     }
@@ -761,17 +770,19 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     public void updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux)
         throws PlafondVenteException {
-        var result = thirdPartyClientManager.updateTiersPayantTaux(clientTiersPayantId, saleId, newTaux);
+        var result = thirdPartyClientManager.updateTiersPayantTaux(clientTiersPayantId, saleId,
+            newTaux);
         if (result.sale() != null) {
             this.displayNet(result.sale().getPartAssure());
             if (StringUtils.hasLength(result.message())) {
-                throw new PlafondVenteException(new ThirdPartySaleDTO(result.sale()), result.message());
+                throw new PlafondVenteException(new ThirdPartySaleDTO(result.sale()),
+                    result.message());
             }
         }
     }
 
     private void updateThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
-                                          AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
+        AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
 
         if (clientTiersPayant.getId().compareTo(thirdPartySaleLineDTO.getClientTiersPayantId())

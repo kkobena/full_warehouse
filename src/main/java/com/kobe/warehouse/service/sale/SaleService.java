@@ -47,7 +47,7 @@ public interface SaleService {
 
     void deleteSalePrevente(SaleId id);
 
-    void cancelCashSale(SaleId id);
+    void cancelCashSale(SaleId id, String cancelComment) throws CashRegisterException;
 
     CashSale fromDTOOldCashSale(CashSaleDTO dto);
 

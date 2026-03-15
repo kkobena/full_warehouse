@@ -13,6 +13,7 @@ import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.dto.records.UpdateTiersPayantTauxInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -170,8 +171,9 @@ public class ThirdPartySaleResource {
 
     @DeleteMapping("/sales/cancel/assurance/{id}/{saleDate}")
     public ResponseEntity<Void> cancelSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
-        saleService.cancelSale(new SaleId(id, saleDate));
+        @PathVariable("saleDate") LocalDate saleDate,
+        @RequestParam(required = false) String cancelComment) throws CashRegisterException {
+        saleService.cancelSale(new SaleId(id, saleDate), cancelComment);
         return ResponseEntity.noContent()
             .build();
     }

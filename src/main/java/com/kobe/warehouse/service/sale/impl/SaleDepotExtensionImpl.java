@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -41,6 +40,7 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -78,7 +78,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         StockUpdateService stockUpdateService,
         InventoryTransactionService inventoryTransactionService,
         ObjectMapper objectMapper,
-        SalesManager salesManager
+        SalesManager salesManager, AppConfigurationService appConfigurationService
     ) {
         super(
             referenceService,
@@ -88,7 +88,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             cashRegisterService,
             posteRepository,
             afficheurPosService,
-            idGeneratorService,objectMapper
+            idGeneratorService, objectMapper, appConfigurationService
         );
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.VenteDepot);
         this.storageService = storageService;
@@ -126,20 +126,23 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     }
 
     @Override
-    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO,boolean increment) throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()),increment);
+    public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
+        throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(saleLineDTO,
+            findOne(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemQuantitySold(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantitySold(saleLineDTO,
+            findOne(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemRegularPrice(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemRegularPrice(saleLineDTO,
+            findOne(saleLineDTO.getSaleCompositeId()));
     }
-
 
 
     @Override
@@ -148,11 +151,9 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     }
 
 
-
     private VenteDepot findOne(SaleId id) {
         return this.venteDepotRepository.getReferenceById(id);
     }
-
 
 
     @Override
@@ -235,7 +236,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     }
 
 
-
     @Override
     public void changeDepot(SaleId saleId, Integer depotId) {
         venteDepotRepository
@@ -293,11 +293,14 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         List<VenteDepotTransactionRecord> venteDepotTransactionRecords = new ArrayList<>();
         Set<SalesLine> salesLines = venteDepot.getSalesLines();
         for (SalesLine salesLine : salesLines) {
-            StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(salesLine, storage);
+            StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(
+                salesLine, storage);
             venteDepotTransactionRecords.add(
-                new VenteDepotTransactionRecord(result.quantityBefore(), result.quantityAfter(), salesLine)
+                new VenteDepotTransactionRecord(result.quantityBefore(), result.quantityAfter(),
+                    salesLine)
             );
         }
-        inventoryTransactionService.saveVenteDepotExtensionInventoryTransactions(depot, venteDepotTransactionRecords);
+        inventoryTransactionService.saveVenteDepotExtensionInventoryTransactions(depot,
+            venteDepotTransactionRecords);
     }
 }

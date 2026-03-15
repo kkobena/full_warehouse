@@ -1,13 +1,47 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.domain.SalePayment;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
-import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.repository.CashSaleRepository;
+import com.kobe.warehouse.repository.PaymentModeRepository;
+import com.kobe.warehouse.repository.PosteRepository;
+import com.kobe.warehouse.repository.RemiseRepository;
+import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.repository.UninsuredCustomerRepository;
+import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -23,40 +57,57 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class SaleServiceImplTest {
 
-    @Mock private SalesRepository salesRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private UninsuredCustomerRepository uninsuredCustomerRepository;
-    @Mock private PaymentModeRepository paymentModeRepository;
-    @Mock private StorageService storageService;
-    @Mock private CashSaleRepository cashSaleRepository;
-    @Mock private SalesLineService salesLineService;
-    @Mock private SaleLineServiceFactory saleLineServiceFactory;
-    @Mock private PaymentService paymentService;
-    @Mock private ReferenceService referenceService;
-    @Mock private PosteRepository posteRepository;
-    @Mock private UtilisationCleSecuriteService utilisationCleSecuriteService;
-    @Mock private RemiseRepository remiseRepository;
-    @Mock private CustomerDisplayService customerDisplayService;
-    @Mock private SaleIdGeneratorService idGeneratorService;
-    @Mock private ObjectMapper objectMapper;
-    @Mock private SalesManager salesManager;
+    @Mock
+    private SalesRepository salesRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UninsuredCustomerRepository uninsuredCustomerRepository;
+    @Mock
+    private PaymentModeRepository paymentModeRepository;
+    @Mock
+    private StorageService storageService;
+    @Mock
+    private CashSaleRepository cashSaleRepository;
+    @Mock
+    private SalesLineService salesLineService;
+    @Mock
+    private SaleLineServiceFactory saleLineServiceFactory;
+    @Mock
+    private PaymentService paymentService;
+    @Mock
+    private ReferenceService referenceService;
+    @Mock
+    private PosteRepository posteRepository;
+    @Mock
+    private UtilisationCleSecuriteService utilisationCleSecuriteService;
+    @Mock
+    private RemiseRepository remiseRepository;
+    @Mock
+    private CustomerDisplayService customerDisplayService;
+    @Mock
+    private SaleIdGeneratorService idGeneratorService;
+    @Mock
+    private ObjectMapper objectMapper;
+    @Mock
+    private SalesManager salesManager;
+    @Mock
+    private AppConfigurationService appConfigurationService;
 
     private SaleServiceImpl saleService;
     private CashSale testSale;
@@ -79,7 +130,8 @@ class SaleServiceImplTest {
         testStorage = new Storage();
         testStorage.setId(1);
 
-        lenient().when(saleLineServiceFactory.getService(TypeVente.CashSale)).thenReturn(salesLineService);
+        lenient().when(saleLineServiceFactory.getService(TypeVente.CashSale))
+            .thenReturn(salesLineService);
         lenient().when(referenceService.buildNumSale()).thenReturn("NUM");
         lenient().when(referenceService.buildNumPreventeSale()).thenReturn("PRE");
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
@@ -96,7 +148,7 @@ class SaleServiceImplTest {
             paymentService, referenceService, posteRepository,
             utilisationCleSecuriteService, remiseRepository,
             customerDisplayService, idGeneratorService, objectMapper,
-            salesManager
+            salesManager, appConfigurationService
         );
 
         setupTestData();
@@ -138,7 +190,6 @@ class SaleServiceImplTest {
     }
 
 
-
     @Test
     void testFromDTOOldCashSale() {
         CashSaleDTO dto = new CashSaleDTO();
@@ -149,7 +200,8 @@ class SaleServiceImplTest {
         AppUser user = new AppUser();
         user.setMagasin(new Magasin());
         when(userRepository.findOneByLogin("userLogin")).thenReturn(Optional.of(user));
-        when(uninsuredCustomerRepository.findOneByCode("CUST001")).thenReturn(Optional.of(new UninsuredCustomer()));
+        when(uninsuredCustomerRepository.findOneByCode("CUST001")).thenReturn(
+            Optional.of(new UninsuredCustomer()));
 
         CashSale result = saleService.fromDTOOldCashSale(dto);
 
@@ -238,12 +290,12 @@ class SaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(cashSaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(),any())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), any())).thenReturn(dto);
 
-        SaleLineDTO result = saleService.updateItemQuantityRequested(dto,true);
+        SaleLineDTO result = saleService.updateItemQuantityRequested(dto, true);
 
         assertNotNull(result);
-        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale),eq(true));
+        verify(salesManager).updateItemQuantityRequested(eq(dto), eq(testSale), eq(true));
     }
 
     @Test
@@ -310,7 +362,8 @@ class SaleServiceImplTest {
         eagerSale.setSalesLines(new HashSet<>(List.of(testSalesLine)));
         eagerSale.setUser(testUser);
 
-        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(eagerSale));
+        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
+            Optional.of(eagerSale));
         when(uninsuredCustomerRepository.getReferenceById(1)).thenReturn(new UninsuredCustomer());
         lenient().when(storageService.getUser()).thenReturn(testUser);
 
@@ -347,7 +400,8 @@ class SaleServiceImplTest {
     @Test
     void testDeleteSalePrevente() {
         SaleId id = new SaleId(1L, testDate);
-        when(salesRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(testSale));
+        when(salesRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
+            Optional.of(testSale));
 
         saleService.deleteSalePrevente(id);
 
@@ -359,10 +413,11 @@ class SaleServiceImplTest {
         SaleId id = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.CLOSED);
         when(storageService.getUser()).thenReturn(testUser);
-        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(testSale));
+        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
+            Optional.of(testSale));
         when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
 
-        saleService.cancelCashSale(id);
+        saleService.cancelCashSale(id, null);
 
         assertTrue(testSale.isCanceled());
         verify(cashSaleRepository, times(2)).save(any());
@@ -404,7 +459,6 @@ class SaleServiceImplTest {
         verify(cashSaleRepository).save(testSale);
         assertInstanceOf(RemiseProduit.class, testSale.getRemise());
     }
-
 
 
     @Test

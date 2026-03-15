@@ -194,6 +194,22 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_CANCEL_SALE_MAX_DAYS_CACHE)
+    public int getCancelSaleMaxDays() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_CANCEL_SALE_MAX_DAYS)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 30;
+                }
+            })
+            .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NTH_MOIS_CONSOMMATION_CACHE)
     public int getNthMoisConsommation() {
         return appConfigurationRepository

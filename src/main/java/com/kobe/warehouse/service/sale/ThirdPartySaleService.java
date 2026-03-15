@@ -49,7 +49,7 @@ public interface ThirdPartySaleService {
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
-    void cancelSale(SaleId id) throws CashRegisterException;
+    void cancelSale(SaleId id, String cancelComment) throws CashRegisterException;
 
     ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) throws PlafondVenteException;
 

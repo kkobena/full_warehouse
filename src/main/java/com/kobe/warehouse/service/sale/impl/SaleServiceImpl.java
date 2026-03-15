@@ -87,10 +87,11 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
         SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
-        SalesManager salesManager) {
+        SalesManager salesManager,
+        com.kobe.warehouse.service.settings.AppConfigurationService appConfigurationService) {
         super(referenceService, storageService, userRepository, saleLineServiceFactory,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
-            objectMapper);
+            objectMapper, appConfigurationService);
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
@@ -307,19 +308,25 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public void cancelCashSale(SaleId id) {
+    public void cancelCashSale(SaleId id, String cancelComment) throws CashRegisterException {
+        checkOpenningCaisse();
         AppUser user = storageService.getUser();
         cashSaleRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 if (sales.isCanceled()) {
                     throw new GenericError("La vente est déjà annulée");
                 }
+                if (sales.getStatut() != SalesStatut.CLOSED) {
+                    throw new GenericError("La vente doit être clôturée pour être annulée");
+                }
+                checkCancellationDelay(sales.getSaleDate());
                 CashSale copy = (CashSale) sales.clone();
                 copySale(sales, copy);
-                setId(copy);
                 copy.setSaleDate(LocalDate.now());
                 sales.setEffectiveUpdateDate(LocalDateTime.now());
                 sales.setCanceled(true);
+                sales.setCancelComment(cancelComment);
+                sales.setCancelledBy(user);
                 copy.setCanceled(true);
 
                 cashSaleRepository.save(sales);

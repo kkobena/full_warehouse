@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from 'app/entities/customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -25,7 +24,6 @@ import { Card } from 'primeng/card';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     TableModule,
     ToolbarModule,
     Card,

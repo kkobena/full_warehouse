@@ -28,6 +28,7 @@ public class GroupeFournisseurDTO implements Serializable {
     private String codeRecepteurPharmaMl;
     private String codeOfficePharmaMl;
     private String urlPharmaMl;
+    private String idRecepteurPharmaMl;
 
     public GroupeFournisseurDTO() {}
 
@@ -42,6 +43,7 @@ public class GroupeFournisseurDTO implements Serializable {
         codeRecepteurPharmaMl = groupeFournisseur.getCodeRecepteurPharmaMl();
         codeOfficePharmaMl = groupeFournisseur.getCodeOfficePharmaMl();
         urlPharmaMl = groupeFournisseur.getUrlPharmaMl();
+        idRecepteurPharmaMl = groupeFournisseur.getIdRecepteurPharmaMl();
     }
 
     public String getUrlPharmaMl() {
@@ -77,6 +79,15 @@ public class GroupeFournisseurDTO implements Serializable {
 
     public GroupeFournisseurDTO setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) {
         this.codeRecepteurPharmaMl = codeRecepteurPharmaMl;
+        return this;
+    }
+
+    public String getIdRecepteurPharmaMl() {
+        return idRecepteurPharmaMl;
+    }
+
+    public GroupeFournisseurDTO setIdRecepteurPharmaMl(String idRecepteurPharmaMl) {
+        this.idRecepteurPharmaMl = idRecepteurPharmaMl;
         return this;
     }
 

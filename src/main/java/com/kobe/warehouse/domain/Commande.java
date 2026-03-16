@@ -68,12 +68,9 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "discount_amount", columnDefinition = "int default '0'")
     private int discountAmount;
 
-    //   @Formula("(SELECT SUM(oi.quantity_requested*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
 
     @Column(name = "order_amount")
     private Integer orderAmount; //montant vente de la commande en cours de traitement
-
-    //  @Formula("(SELECT SUM((oi.quantity_received+oi.free_qty)*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
 
     @Column(name = "final_amount")
     private Integer finalAmount;
@@ -126,6 +123,17 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "has_been_submitted_to_pharmaml")
     private boolean hasBeenSubmittedToPharmaML;
 
+    /**
+     * ID de la commande originale dont cette commande est le clone.
+     * Renseigné uniquement lors d'une finalisation hors-date (orderDate != today).
+     * Permet de retrouver l'historique complet même après archivage.
+     */
+    @Column(name = "original_commande_id")
+    private Integer originalCommandeId;
+
+    @Column(name = "reliquat_de_commande_id")
+    private Integer reliquatDeCommandeId;
+
     @Transient
     private boolean isNew = true;
 
@@ -135,6 +143,24 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     public void setHasBeenSubmittedToPharmaML(boolean hasBeenSubmittedToPharmaML) {
         this.hasBeenSubmittedToPharmaML = hasBeenSubmittedToPharmaML;
+    }
+
+    public Integer getOriginalCommandeId() {
+        return originalCommandeId;
+    }
+
+    public Commande setOriginalCommandeId(Integer originalCommandeId) {
+        this.originalCommandeId = originalCommandeId;
+        return this;
+    }
+
+    public Integer getReliquatDeCommandeId() {
+        return reliquatDeCommandeId;
+    }
+
+    public Commande setReliquatDeCommandeId(Integer reliquatDeCommandeId) {
+        this.reliquatDeCommandeId = reliquatDeCommandeId;
+        return this;
     }
 
     public Integer getFinalAmount() {

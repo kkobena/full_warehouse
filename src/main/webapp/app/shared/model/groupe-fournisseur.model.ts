@@ -9,6 +9,7 @@ export interface IGroupeFournisseur {
   codeRecepteurPharmaMl?: string;
   codeOfficePharmaMl?: string;
   urlPharmaMl?: string;
+  idRecepteurPharmaMl?: string;
 }
 
 export class GroupeFournisseur implements IGroupeFournisseur {

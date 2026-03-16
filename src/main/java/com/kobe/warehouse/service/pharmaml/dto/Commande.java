@@ -23,6 +23,9 @@ public class Commande {
     @XmlElement(name = "NORMALE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private Normale normale;
 
+    @XmlElement(name = "EXCEPTIONNELLE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    private Exceptionnelle exceptionnelle;
+
     public String getRefCdeClient() {
         return refCdeClient;
     }
@@ -53,5 +56,13 @@ public class Commande {
 
     public void setNormale(Normale normale) {
         this.normale = normale;
+    }
+
+    public Exceptionnelle getExceptionnelle() {
+        return exceptionnelle;
+    }
+
+    public void setExceptionnelle(Exceptionnelle exceptionnelle) {
+        this.exceptionnelle = exceptionnelle;
     }
 }

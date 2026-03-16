@@ -1,7 +1,6 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { RayonService } from '../rayon.service';
 import { IRayon, Rayon } from '../../../shared/model/rayon.model';
@@ -30,7 +29,6 @@ import { Storage } from '../../storage/storage.model';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     KeyFilter,
     ToastAlertComponent,
     Card,

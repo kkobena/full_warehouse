@@ -17,7 +17,6 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DialogService } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -44,7 +43,7 @@ import { handleBlobForTauri } from '../../../shared/util/tauri-util';
     TableModule,
     RouterModule,
   ],
-  providers: [ConfirmationService, DialogService, MessageService],
+  providers: [ConfirmationService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
   readonly inventoryCategories = input<InventoryCategory[]>();

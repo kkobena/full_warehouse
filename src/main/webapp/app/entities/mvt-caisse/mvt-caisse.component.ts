@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -22,7 +21,7 @@ import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/re
 
 @Component({
   selector: 'jhi-mvt-caisse',
-  providers: [ConfirmationService, DialogService],
+  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     RouterModule,

@@ -5,9 +5,7 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
-          </p-button>
-
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour"/>
           <div class="page-title">
             <h1>Saisie de commande</h1>
             <p class="subtitle">Création et modification de commande</p>
@@ -16,8 +14,8 @@
 
         <div class="header-actions">
           <!-- Save Button -->
-          <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon" severity="primary" size="small">
-          </p-button>
+          <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon" severity="primary" size="small"/>
+
 
           <!-- Import Response Button -->
           <p-button
@@ -28,13 +26,21 @@
             label="Importer"
             severity="info"
             size="small"
-          >
-          </p-button>
+          />
+
 
           @if (selectedEl!.length > 0) {
             <!-- Delete Button -->
-            <p-button (click)="confirmDeleteAll()" class="action-btn" icon="pi pi-times" label="Supprimer" severity="danger" size="small">
-            </p-button>
+            <p-button (click)="confirmDeleteAll()" class="action-btn" icon="pi pi-times" label="Supprimer" severity="danger" size="small"/>
+
+          }
+
+          @if (commande?.commandeId) {
+            <app-pharmaml-home
+              [commandeId]="commande.commandeId!"
+              [commandeRef]="commande.orderReference ?? ''"
+              [orderStatus]="commande.orderStatus"
+            />
           }
         </div>
       </div>
@@ -62,8 +68,8 @@
               optionValue="id"
               placeholder="Sélectionner un fournisseur..."
               size="large"
-            >
-            </p-select>
+            />
+
           </div>
 
           <!-- Product Search Autocomplete -->
@@ -127,7 +133,7 @@
                   icon="pi pi-plus"
                   severity="primary"
                   type="button"
-                ></p-button>
+                />
               </p-inputgroup-addon>
             </p-inputgroup>
           </div>
@@ -166,8 +172,8 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
-          </p-button>
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour"/>
+
 
           <div class="page-title">
             <h1>Réception de commande</h1>
@@ -186,8 +192,8 @@
               label="Créer le bon"
               severity="primary"
               size="small"
-            >
-            </p-button>
+            />
+
 
             <!-- Import Response Button -->
             <!-- <p-button
@@ -209,13 +215,13 @@
               label="Valider"
               severity="primary"
               size="small"
-            >
-            </p-button>
+            />
+
           }
 
           <!-- Export Splitbutton -->
-          <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small">
-          </p-splitbutton>
+          <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small"/>
+
 
           @if (!isReceiption && selectedEl!.length > 0) {
             <!-- Delete Button -->
@@ -227,8 +233,8 @@
               label="Supprimer"
               severity="danger"
               size="small"
-            >
-            </p-button>
+            />
+
           }
         </div>
       </div>

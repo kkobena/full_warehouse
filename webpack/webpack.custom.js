@@ -24,7 +24,7 @@ module.exports = async config => {
   if (!isProd) {
     config.plugins.push(
       new WebpackNotifierPlugin({
-        title: 'Warehouse',
+        title: 'PharmaSmart',
         contentImage: path.join(__dirname, 'logo.png'),
       }),
     );

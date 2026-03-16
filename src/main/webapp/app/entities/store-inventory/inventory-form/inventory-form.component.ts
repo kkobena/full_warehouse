@@ -8,7 +8,6 @@ import {
   StoreInventory,
 } from '../../../shared/model/store-inventory.model';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { StoreInventoryService } from '../store-inventory.service';
 import { Observable } from 'rxjs';
@@ -48,7 +47,6 @@ import { Card } from 'primeng/card';
     NgxSpinnerModule,
     TableModule,
     RouterModule,
-    DynamicDialogModule,
     ReactiveFormsModule,
     Select,
     InputText,

@@ -4,7 +4,6 @@ import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { RouterModule } from '@angular/router';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FormGroupeTiersPayantComponent } from 'app/entities/groupe-tiers-payant/form-groupe-tiers-payant/form-groupe-tiers-payant.component';
 import { ErrorService } from 'app/shared/error.service';
 import { Observable } from 'rxjs';
@@ -47,7 +46,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     RouterModule,
     InputTextModule,
     TooltipModule,
-    DynamicDialogModule,
     FormsModule,
     InputIconModule,
     IconFieldModule,

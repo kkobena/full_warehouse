@@ -6,7 +6,6 @@ import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink } from '@ng-bootstrap/ng-
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
-import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
@@ -16,7 +15,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-facturation',
-  providers: [ConfirmationService, DialogService, MessageService],
+  providers: [ConfirmationService, MessageService],
   imports: [
     WarehouseCommonModule,
     CardModule,
@@ -28,7 +27,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     ButtonModule,
     RouterModule,
     RippleModule,
-    DynamicDialogModule,
     ToolbarModule,
     FormsModule,
     PanelModule,

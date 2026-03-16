@@ -61,9 +61,11 @@ import {ToastAlertComponent} from '../../shared/toast-alert/toast-alert.componen
 import {FileResponseModalComponent} from './file-response-modal/file-response-modal.component';
 import {SpinnerComponent} from '../../shared/spinner/spinner.component';
 import {CommandeId} from '../../shared/model/abstract-commande.model';
+import {IStockEntryResult} from '../../shared/model/stock-entry-result.model';
 import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../shared/util/tauri-util';
 import {finalize} from 'rxjs/operators';
+import {PharmamlHomeComponent} from '../../features/commande/feature/pharmaml';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -93,6 +95,7 @@ import {finalize} from 'rxjs/operators';
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent,
+    PharmamlHomeComponent,
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
@@ -687,8 +690,15 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       .finalizeSaisieEntreeStock(this.commande)
       .pipe(finalize(() => this.hidePinner()))
       .subscribe({
-        next: (res: HttpResponse<CommandeId>) => {
-          this.confirmPrintTicket(res.body);
+        next: (res: HttpResponse<IStockEntryResult>) => {
+         /* if (res.body.pendingRetourBons?.length > 0) {
+            const count = res.body.pendingRetourBons.length;
+            this.alert().showWarn(
+              `${count} retour(s) fournisseur en attente de réponse du grossiste. Veuillez vérifier les retours.`,
+              'Retours fournisseur en attente',
+            );
+          }*/
+          this.confirmPrintTicket(res.body.commandeId);
         },
         error: error => {
           this.onCommonError(error);

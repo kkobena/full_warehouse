@@ -29,7 +29,6 @@ interface GapLineVM extends IGapLine {
   styleUrl: './gap-analysis-modal.component.scss',
 })
 export class GapAnalysisModalComponent implements OnInit {
-  /** Passé depuis le parent via componentInstance */
   inventoryId!: number;
 
   lines = signal<GapLineVM[]>([]);

@@ -4,7 +4,7 @@ logging:
       management:
         remote:
           rmi: OFF
-    com.kobe.warehouse.service: INFO
+    com.kobe.warehouse: WARN
 
     # Logs SQL (DEBUG pour voir les requêtes en détail)
     # ATTENTION: Très verbeux, à n'activer qu'en dev
@@ -17,7 +17,7 @@ logging:
     org.hibernate.type.descriptor.sql: WARN
     org.hibernate.stat: INFO
 
-    org.springframework: OFF
+    org.springframework: warn
 
 
 
@@ -25,7 +25,7 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
-
+spring:
   devtools:
     add-properties: false
     restart:
@@ -36,7 +36,6 @@ logging:
       max-request-size: 10MB
   jmx:
     enabled: false
-
   jackson:
     serialization:
       indent-output: true

@@ -69,5 +69,7 @@ public final class EntityConstant {
     public static final String APP_NTH_MOIS_CONSOMMATION_CACHE = "APP_NTH_MOIS_CONSOMMATION_CACHE";
     public static final String APP_CANCEL_SALE_MAX_DAYS = "APP_CANCEL_SALE_MAX_DAYS"; // Délai maximum (en jours) pour annuler une vente clôturée
     public static final String APP_CANCEL_SALE_MAX_DAYS_CACHE = "APP_CANCEL_SALE_MAX_DAYS_CACHE";
+    public static final String APP_RECEPTION_MIN_EXPIRY_DAYS = "APP_RECEPTION_MIN_EXPIRY_DAYS"; // Durée minimale (en jours) de validité d'un lot à la réception
+    public static final String APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE = "APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE";
 
 }

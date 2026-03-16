@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest.commande;
 
-import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
+import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
@@ -45,7 +45,7 @@ public class StockEntryResource {
     }
 
     @PutMapping("/commandes/entree-stock/finalize")
-    public ResponseEntity<CommandeId> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
+    public ResponseEntity<StockEntryResultDTO> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return ResponseEntity.accepted().body(stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite));
     }
 

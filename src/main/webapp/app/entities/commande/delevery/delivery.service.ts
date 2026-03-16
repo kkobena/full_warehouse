@@ -7,6 +7,7 @@ import { IDelivery } from '../../../shared/model/delevery.model';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
 import { CommandeId } from '../../../shared/model/abstract-commande.model';
+import { IStockEntryResult } from '../../../shared/model/stock-entry-result.model';
 
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
@@ -33,8 +34,8 @@ export class DeliveryService {
     return this.http.post<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
   }
 
-  finalizeSaisieEntreeStock(delivery: IDelivery): Observable<HttpResponse<CommandeId>> {
-    return this.http.put<CommandeId>(this.resourceFinalyse, delivery, { observe: 'response' });
+  finalizeSaisieEntreeStock(delivery: IDelivery): Observable<HttpResponse<IStockEntryResult>> {
+    return this.http.put<IStockEntryResult>(this.resourceFinalyse, delivery, { observe: 'response' });
   }
 
   update(entity: IDelivery): Observable<EntityResponseType> {

@@ -210,6 +210,22 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE)
+    public long getReceptionMinExpiryDays() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 90;
+                }
+            })
+            .orElse(90);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NTH_MOIS_CONSOMMATION_CACHE)
     public int getNthMoisConsommation() {
         return appConfigurationRepository

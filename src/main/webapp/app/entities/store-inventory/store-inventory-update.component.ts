@@ -19,7 +19,6 @@ import {
 import {RayonService} from '../rayon/rayon.service';
 import {IRayon} from '../../shared/model/rayon.model';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {DialogService} from 'primeng/dynamicdialog';
 import {Storage} from '../storage/storage.model';
 import {StorageService} from '../storage/storage.service';
 import {IStoreInventoryLine} from '../../shared/model';
@@ -66,7 +65,7 @@ provideGlobalGridOptions({theme: themeAlpine});
 @Component({
   selector: 'jhi-store-inventory-update',
   templateUrl: './store-inventory-update.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
+  providers: [ConfirmationService,  MessageService],
   imports: [
     WarehouseCommonModule,
     FormsModule,

@@ -45,6 +45,8 @@ public interface LotRepository
 
     Optional<Lot> findByNumLot(String numLot);
 
+    Optional<Lot> findByNumLotAndProduitId(String numLot, Integer produitId);
+
     @Query(
         "SELECT o FROM Lot o  WHERE o.produit.id =:produitId   AND o.quantity > 0  ORDER BY o.expiryDate ASC"
     )

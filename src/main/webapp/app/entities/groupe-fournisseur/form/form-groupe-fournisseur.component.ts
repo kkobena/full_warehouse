@@ -50,6 +50,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
     codeRecepteurPharmaMl: [],
     codeOfficePharmaMl: [],
     urlPharmaMl: [],
+    idRecepteurPharmaMl: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(GroupeFournisseurService);
@@ -108,6 +109,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       urlPharmaMl: entity.urlPharmaMl,
       codeRecepteurPharmaMl: entity.codeRecepteurPharmaMl,
       codeOfficePharmaMl: entity.codeOfficePharmaMl,
+      idRecepteurPharmaMl: entity.idRecepteurPharmaMl,
     });
   }
 
@@ -129,6 +131,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       codeRecepteurPharmaMl: this.editForm.get(['codeRecepteurPharmaMl']).value,
       codeOfficePharmaMl: this.editForm.get(['codeOfficePharmaMl']).value,
       urlPharmaMl: this.editForm.get(['urlPharmaMl']).value,
+      idRecepteurPharmaMl: this.editForm.get(['idRecepteurPharmaMl']).value,
     };
   }
 }

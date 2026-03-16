@@ -3,7 +3,6 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,12 +18,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.LastModifiedBy;
 
 import static java.util.Objects.isNull;
@@ -34,7 +28,6 @@ import static java.util.Objects.isNull;
  */
 @Entity
 @Table(name = "stock_produit", uniqueConstraints = @UniqueConstraint(columnNames = {"storage_id", "produit_id"}))
-@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class StockProduit implements Serializable {
 
     @Serial
@@ -73,23 +66,22 @@ public class StockProduit implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     private Storage storage;
-    @NotAudited
+
     @Min(value = 0)
     @Column(name = "stock_reassort", comment = "Quantite de reassort pour la reconstitution de stock")
     private Integer stockReassort = 0;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
     // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
-    @NotAudited
+
     @Min(value = 0)
     @Column(name = "seuil_mini", comment = "Seuil minimum de stock pour reassortiment automatique ou suggestion de commande")
     private Integer seuilMini;
 
 
-    @NotAudited
+
     @Formula("qty_ug+qty_stock")
     private Integer totalStockQuantity;
 
     @Version
-    @NotAudited
     @Column(name = "version", nullable = false)
     private Integer version = 0;
 
@@ -97,7 +89,7 @@ public class StockProduit implements Serializable {
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy;
 
-    @NotAudited
+
     @Column(name = "stock_maxi", comment = "Stock maximum en rayon pour la suggestion de reassort réserve")
     private Integer stockMaxi;
 

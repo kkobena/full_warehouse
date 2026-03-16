@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { MenuItem, MessageService } from 'primeng/api';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ITiersPayant } from '../../shared/model/tierspayant.model';
@@ -48,7 +47,6 @@ import {ButtonGroup} from "primeng/buttongroup";
     RouterModule,
     InputTextModule,
     TooltipModule,
-    DynamicDialogModule,
     FormsModule,
     DialogModule,
     SplitButtonModule,

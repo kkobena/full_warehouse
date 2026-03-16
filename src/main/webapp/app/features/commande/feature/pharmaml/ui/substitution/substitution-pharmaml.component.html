@@ -1,0 +1,74 @@
+<p-toast position="center" />
+
+<div class="modal-header">
+  <h5 class="modal-title">Substitutions proposées par le grossiste</h5>
+  <button type="button" class="btn-close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <p-table
+    [value]="substitutions()"
+    [loading]="loading()"
+    class="p-datatable-sm w-100 pharma-table"
+
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Produit original</th>
+        <th>CIP original</th>
+        <th>Substitut proposé</th>
+        <th>CIP proposé</th>
+        <th class="text-center">Qté</th>
+        <th class="text-center">Statut</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-sub>
+      <tr>
+        <td>{{ sub.designationOriginale }}</td>
+        <td><code>{{ sub.cipOriginal }}</code></td>
+        <td>{{ sub.designation ?? '—' }}</td>
+        <td><code>{{ sub.cipPropose }}</code></td>
+        <td class="text-center">{{ sub.quantite }}</td>
+        <td class="text-center">
+          @switch (sub.statut) {
+            @case ('EN_ATTENTE') { <p-tag value="En attente" severity="warn" /> }
+            @case ('ACCEPTEE')   { <p-tag value="Acceptée"   severity="success" /> }
+            @case ('REFUSEE')    { <p-tag value="Refusée"    severity="danger" /> }
+          }
+        </td>
+        <td class="text-center">
+          @if (sub.statut === 'EN_ATTENTE') {
+            <div class="d-flex gap-1 justify-content-center">
+              <p-button
+                icon="pi pi-check"
+                severity="success"
+                size="small"
+                [loading]="processing() === sub.id"
+                (onClick)="accepter(sub)"
+                pTooltip="Accepter — ajoute le produit à la commande"
+              />
+              <p-button
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                [loading]="processing() === sub.id"
+                (onClick)="refuser(sub)"
+                pTooltip="Refuser"
+              />
+            </div>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7" class="text-center text-muted">Aucune substitution en attente</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div class="modal-footer">
+  <p-button label="Fermer" severity="secondary" (onClick)="dismiss()" />
+</div>

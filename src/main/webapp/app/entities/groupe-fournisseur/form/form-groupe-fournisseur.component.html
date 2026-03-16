@@ -55,7 +55,7 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_codeRecepteurPharmaMl">Code recepteur PharmaMl</label>
+          <label for="field_codeRecepteurPharmaMl">Code récepteur PharmaMl</label>
 
           <input
             [pKeyFilter]="blockSpace"
@@ -68,8 +68,24 @@
             type="text"
           />
         </div>
+
         <div class="form-field form-field-full">
-          <label for="field_odre">Orde de priorité</label>
+          <label for="field_idRecepteurPharmaMl">ID client chez le grossiste (PharmaMl)</label>
+
+          <input
+            [pKeyFilter]="blockSpace"
+            autocomplete="off"
+            formControlName="idRecepteurPharmaMl"
+            id="field_idRecepteurPharmaMl"
+            name="idRecepteurPharmaMl"
+            pInputText
+            class="w-full"
+            type="text"
+          />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_odre">Ordre de priorité</label>
 
           <input
             autocomplete="off"

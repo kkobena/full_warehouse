@@ -64,6 +64,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
             .setCodeOfficePharmaMl(groupeFournisseurDTO.getCodeOfficePharmaMl())
             .setCodeRecepteurPharmaMl(groupeFournisseurDTO.getCodeRecepteurPharmaMl())
             .setUrlPharmaMl(groupeFournisseurDTO.getUrlPharmaMl())
+            .setIdRecepteurPharmaMl(groupeFournisseurDTO.getIdRecepteurPharmaMl())
             .libelle(groupeFournisseurDTO.getLibelle())
             .addresspostale(groupeFournisseurDTO.getAddresspostale())
             .email(groupeFournisseurDTO.getEmail())

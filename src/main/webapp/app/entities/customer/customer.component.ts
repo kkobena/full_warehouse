@@ -9,7 +9,6 @@ import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
 import { MenuItem, MessageService } from 'primeng/api';
 import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
-import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -42,7 +41,7 @@ import { FloatLabel } from 'primeng/floatlabel';
   selector: 'jhi-customer',
   templateUrl: './customer.component.html',
   styleUrl: './customer.component.scss',
-  providers: [DialogService, MessageService],
+  providers: [MessageService],
   imports: [
     WarehouseCommonModule,
     SelectModule,
@@ -95,7 +94,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
   protected router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private destroy$ = new Subject<void>();
-  private readonly dialogService = inject(DialogService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly messageService = inject(MessageService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -484,22 +482,5 @@ export class CustomerComponent implements OnInit, OnDestroy {
         });
       },
     });
-  }
-
-  private openCustomerModal(component: any, data: any, width?: string, header?: string): void {
-    this.dialogService
-      .open(component, {
-        data,
-        header,
-        width: width || '85%',
-        closeOnEscape: false,
-        maximizable: true,
-      })
-      .onClose.pipe(takeUntil(this.destroy$))
-      .subscribe((resp: ICustomer) => {
-        if (resp) {
-          this.loadPage();
-        }
-      });
   }
 }

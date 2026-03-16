@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {ErrorService} from 'app/shared/error.service';
-import {DynamicDialogModule} from 'primeng/dynamicdialog';
 import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
 import {
   GroupeTiersPayantService
@@ -35,7 +34,6 @@ import {Card} from 'primeng/card';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     KeyFilterModule,
     ToastModule,
     AutoCompleteModule,

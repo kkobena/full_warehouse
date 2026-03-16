@@ -9,6 +9,7 @@ import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -68,6 +69,8 @@ public interface CommandeRepository
         @Param("orderDateLimit") LocalDate orderDateLimit,
         Pageable pageable
     );
+
+    Optional<Commande> findByOrderReference(String orderReference);
 
     default Specification<Commande> hasOrderStatut(OrderStatut orderStatut) {
         return (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), orderStatut);

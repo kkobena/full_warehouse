@@ -1,0 +1,60 @@
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Button} from 'primeng/button';
+import {TableModule} from 'primeng/table';
+import {TagModule} from 'primeng/tag';
+import {Toast} from 'primeng/toast';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
+import {IVerificationItem, IVerificationResponse} from '../../../../../../shared/model/pharmaml.model';
+import {NotificationService} from "../../../../../../shared/services/notification.service";
+import {ErrorService} from "../../../../../../shared/error.service";
+
+@Component({
+  selector: 'app-reponse-pharmaml',
+  imports: [CommonModule, Button, TableModule, TagModule, Toast],
+  templateUrl: './reponse-pharmaml.component.html',
+  styleUrls: ['./reponse-pharmaml.scss'],
+})
+export class ReponsePharmamlComponent implements OnInit {
+  commandeRef!: string;
+  orderId!: string;
+
+  private readonly api = inject(PharmamlApiService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly errorService = inject(ErrorService);
+  readonly activeModal = inject(NgbActiveModal);
+
+  readonly loading = signal(false);
+  readonly response = signal<IVerificationResponse | null>(null);
+
+  get items(): IVerificationItem[] {
+    return this.response()?.items ?? [];
+  }
+
+  get extraItems(): IVerificationItem[] {
+    return this.response()?.extraItems ?? [];
+  }
+
+  ngOnInit(): void {
+    this.loadRetour();
+  }
+
+  loadRetour(): void {
+    this.loading.set(true);
+    this.api.lignesRetour(this.commandeRef, this.orderId).subscribe({
+      next: res => {
+        this.loading.set(false);
+        this.response.set(res.body);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
+      },
+    });
+  }
+
+  dismiss(): void {
+    this.activeModal.dismiss();
+  }
+}

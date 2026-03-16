@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DeliveryService } from '../../delivery.service';
-import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
@@ -26,6 +25,7 @@ import { PrimeNG } from 'primeng/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { DATE_FORMAT } from '../../../../../shared/constants/input.constants';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryReceipt: IDelivery };
 type ModelFichier = { label: string; value: string };
@@ -38,7 +38,6 @@ type ModelFichier = { label: string; value: string };
     ButtonModule,
     RouterModule,
     RippleModule,
-    DynamicDialogModule,
     FormsModule,
     ReactiveFormsModule,
     InputTextModule,
@@ -63,7 +62,7 @@ export class ImportDeliveryFormComponent implements OnInit {
   translate = inject(TranslateService);
   primngtranslate: Subscription;
   private entityService = inject(DeliveryService);
-  private ref = inject(DynamicDialogRef);
+  private readonly activeModal = inject(NgbActiveModal);
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
     model: new FormControl<ModelFichier | null>(null, {
@@ -125,7 +124,7 @@ export class ImportDeliveryFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   isValidForm(): boolean {
@@ -146,7 +145,7 @@ export class ImportDeliveryFormComponent implements OnInit {
     this.entityService.uploadNew(formData).subscribe({
       next: (res: HttpResponse<ICommandeResponse>) => {
         if (res) {
-          this.ref.close(res.body);
+          this.activeModal.close(res.body);
         }
       },
       error: () => this.onSaveError(),

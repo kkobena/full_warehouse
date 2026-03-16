@@ -170,12 +170,6 @@ export class CommandeService {
     return this.http.put(`${this.resourceUrl}/change-grossiste`, commande, { observe: 'response' });
   }
 
-  finalizeSaisieEntreeStock(commande: ICommande): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(commande);
-    return this.http
-      .put<ICommande>(`${this.resourceUrl}/entree-stock/finalize`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
 
   findSaisieEntreeStock(commandeId: CommandeId): Observable<EntityResponseType> {
     return this.http

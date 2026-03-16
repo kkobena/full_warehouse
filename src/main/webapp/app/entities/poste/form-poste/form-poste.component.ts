@@ -2,7 +2,6 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { PosteService } from '../poste.service';
 import { IPoste, Poste } from '../../../shared/model/poste.model';
@@ -27,7 +26,6 @@ import { Checkbox } from 'primeng/checkbox';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     ToastAlertComponent,
     Card,
     Checkbox,

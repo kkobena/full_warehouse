@@ -1,0 +1,50 @@
+<p-toast position="center"/>
+
+<div class="modal-header">
+  <h4 class="modal-title">Annulation de vente</h4>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="form" name="form" novalidate role="form">
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+
+        <div class="form-field form-field-full">
+          <label for="field_name">Raison d'annulation de la vente<span class="required">*</span></label>
+          <input #cancelComment autocomplete="off" class="w-full" formControlName="cancelComment" id="field_name" name="cancelComment" pInputText type="text" />
+          @if (form.get('cancelComment')!.invalid && (form.get('cancelComment')!.dirty || form.get('cancelComment')!.touched)) {
+            <div>
+              @if (form.get('cancelComment')?.errors?.required) {
+                <small class="form-text text-danger" > Le champ est obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      class="mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    ></p-button>
+    <p-button
+      [disabled]="form.invalid || isSaving"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
+  </div>
+</form>
+
+

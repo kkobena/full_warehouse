@@ -43,7 +43,7 @@ import { MessageService } from 'primeng/api';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductListComponent {
-  // ViewChild
+
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private remisePopover = viewChild<Popover>('remisePopover');
 

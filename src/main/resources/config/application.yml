@@ -163,7 +163,7 @@ pharma-smart:
       # (catch-up pour les machines éteintes la nuit).
       # Format : secondes minutes heures jour mois jour-semaine
       # Utiliser '-' pour désactiver le scheduler (le catch-up démarrage reste actif).
-      cron: '0 30 8 * * *'
+      cron: '0 30 9 * * *'
 
   inventaire:
     tournant:
@@ -175,7 +175,7 @@ pharma-smart:
       #           '0 0 8 * * MON-SAT' → 8h00 du lundi au samedi
       #           '-'           → désactiver le job (Spring ignore les expressions négatives,
       #                           utiliser un placeholder qui ne déclenchera jamais)
-      cron: '0 0 8 * * *'
+      cron: '0 30 12 * * *'
 
   clientApp:
     name: 'pharma-smart'

@@ -122,15 +122,22 @@ export class SalesApiService {
   /**
    * Cancel a comptant sale
    */
-  cancelComptant(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id.id}/${id.saleDate}`, {observe: 'response'});
+  cancelComptant(id: SaleId, cancelComment: string): Observable<HttpResponse<{}>> {
+
+    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id.id}/${id.saleDate}`, {
+      params: {cancelComment},
+      observe: 'response'
+    });
   }
 
   /**
    * Cancel an assurance sale
    */
-  cancelAssurance(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, {observe: 'response'});
+  cancelAssurance(id: SaleId, cancelComment: string): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, {
+      params: {cancelComment},
+      observe: 'response'
+    });
   }
 
   /**

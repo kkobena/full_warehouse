@@ -15,7 +15,7 @@
   <artifactId>pharmaSmart</artifactId>
   <version>0.2.3</version>
   <name>PharmaSmart</name>
-  <description>Description for Warehouse</description>
+  <description>Description for PharmaSmart</description>
   <packaging>jar</packaging>
 
   <properties>

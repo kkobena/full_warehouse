@@ -4,10 +4,7 @@
   @include modal-theme;
 }
 
-// ── Header gradient inventaire (couleur distincte du thème vente) ────────────
-.modal-header {
-  background: linear-gradient(135deg, #2e7d97 0%, #1b5e75 100%) !important;
-}
+
 
 // ── Groupes de champs conditionnels ─────────────────────────────────────────
 .field-group {

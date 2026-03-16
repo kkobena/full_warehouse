@@ -4,10 +4,7 @@
   @include modal-theme;
 }
 
-// ── Header gradient import ───────────────────────────────────────────────────
-.modal-header {
-  background: linear-gradient(135deg, #17a2b8 0%, #0d7c8f 100%) !important;
-}
+
 
 // ── Zone de dépôt de fichier ─────────────────────────────────────────────────
 .file-drop-zone {

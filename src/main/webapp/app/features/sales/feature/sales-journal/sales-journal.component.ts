@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -23,7 +23,6 @@ import {UserService} from '../../../../core/user/user.service';
 import {SalesApiService} from '../../data-access/services/sales-api.service';
 import {SaleToolbarService} from '../../data-access/services/sale-toolbar.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
-import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {HasAuthorityService} from "../../../../entities/sales/service/has-authority.service";
 import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
 import {ErrorService} from "../../../../shared/error.service";
@@ -44,6 +43,8 @@ import {
 import {PrimeNG} from "primeng/config";
 import {TranslateService} from "@ngx-translate/core";
 import {TIMES} from "../../../../shared/util/times";
+import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {AnnulationVenteMessageComponent} from "../../ui/annulation-vente-message/annulation-vente-message.component";
 
 
 @Component({
@@ -63,7 +64,6 @@ import {TIMES} from "../../../../shared/util/times";
     Checkbox,
     TooltipModule,
     ButtonGroup,
-    ConfirmDialogComponent,
     FloatLabel,
     InputGroup,
     InputGroupAddon,
@@ -85,7 +85,7 @@ export class SalesJournalComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly datePipe = inject(DatePipe);
   private readonly modalService = inject(NgbModal);
-  protected readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
 
@@ -111,7 +111,7 @@ export class SalesJournalComponent implements OnInit {
   // ── Permissions ───────────────────────────────────────
   protected canEdit = false;
   protected canCancel = false;
-
+  protected readonly SalesStatut = SalesStatut;
   private readonly searchSubject = new Subject<void>();
 
   ngOnInit(): void {
@@ -247,7 +247,7 @@ export class SalesJournalComponent implements OnInit {
   // ── Actions ───────────────────────────────────────────
 
   protected confirmCancel(sale: ISales): void {
-    this.confirmDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.cancelSale(sale),
       'Annulation de vente',
       'Voulez-vous vraiment annuler cette vente ?',
@@ -256,10 +256,18 @@ export class SalesJournalComponent implements OnInit {
 
   private cancelSale(sale: ISales): void {
     if (!sale.saleId) return;
-    const cancel$ = sale.categorie === 'VNO'
-      ? this.api.cancelComptant(sale.saleId)
-      : this.api.cancelAssurance(sale.saleId);
-    cancel$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadPage());
+    showCommonModal(
+      this.modalService,
+      AnnulationVenteMessageComponent,
+      {
+        sale,
+      },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+    );
+
   }
 
   protected printInvoice(sale: ISales): void {
@@ -294,7 +302,7 @@ export class SalesJournalComponent implements OnInit {
 
   protected confirmEdit(sale: ISales): void {
     if (!this.canEdit || !sale.saleId) return;
-    this.confirmDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.editSale(sale),
       'Modification de vente',
       'La vente sera annulée puis recréée. Voulez-vous continuer ?',
@@ -335,5 +343,4 @@ export class SalesJournalComponent implements OnInit {
   }
 
 
-  protected readonly SalesStatut = SalesStatut;
 }

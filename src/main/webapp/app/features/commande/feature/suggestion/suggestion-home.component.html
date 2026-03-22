@@ -1,44 +1,56 @@
-<div class="container-fluid">
-  <!-- HEADER -->
-  <div class="pharma-sales-header">
-    <div class="header-left">
-      <div class="page-title">
-        <h1>Suggestions de commande</h1>
-      </div>
-    </div>
-    <div class="header-actions d-flex align-items-center gap-2 flex-wrap">
-      @if (facade.nbUrgentsTotal() > 0) {
-        <p-tag
-          [value]="facade.nbUrgentsTotal() + ' urgents'"
-          severity="danger"
-          icon="pi pi-exclamation-triangle"
-        />
-      }
-      <p-tag
-        [value]="(facade.totalMontantEstime() | number : '1.0-0') + ' FCFA'"
-        severity="secondary"
-        icon="pi pi-wallet"
-      />
-      @if (facade.semoisFraicheur(); as f) {
-        <p-tag
-          [value]="semoisFraicheurLabel(f)"
-          [severity]="semoisFraicheurSeverity(f)"
-          icon="pi pi-clock"
-        />
-      }
-      <p-button
-        label="Recalculer"
-        icon="pi pi-sync"
-        severity="warn"
-        size="small"
-        [loading]="facade.recalculEnCours()"
-        pTooltip="Déclencher un recalcul immédiat"
-        tooltipPosition="bottom"
-        (onClick)="onRecalculer()"
-      />
 
+  <div class="pharma-toolbar ">
+    <div class="pharma-toolbar-header ">
+      <i class="pi pi-lightbulb"></i><span>Suggestions de commande</span>
     </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div class="header-actions d-flex align-items-center gap-2 flex-wrap">
+            @if (facade.nbUrgentsTotal() > 0) {
+              <p-tag
+                [value]="facade.nbUrgentsTotal() + ' urgents'"
+                severity="danger"
+                icon="pi pi-exclamation-triangle"
+              />
+            }
+            <p-tag
+              [value]="(facade.totalMontantEstime() | number : '1.0-0') + ' FCFA'"
+              severity="secondary"
+              icon="pi pi-wallet"
+            />
+            @if (facade.semoisFraicheur(); as f) {
+              <p-tag
+                [value]="semoisFraicheurLabel(f)"
+                [severity]="semoisFraicheurSeverity(f)"
+                icon="pi pi-clock"
+              />
+            }
+
+
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+
+            <p-button
+              label="Recalculer"
+              icon="pi pi-sync"
+              severity="warn"
+              size="small"
+              [loading]="facade.recalculEnCours()"
+              pTooltip="Déclencher un recalcul immédiat"
+              tooltipPosition="bottom"
+              (onClick)="onRecalculer()"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
   </div>
+
 
 
   <!-- BANDEAU DÉPASSEMENT BUDGET -->
@@ -112,6 +124,5 @@
       }
     </div>
   </div>
-</div>
 
 

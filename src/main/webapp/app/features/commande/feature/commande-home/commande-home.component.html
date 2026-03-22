@@ -109,6 +109,17 @@
                   ></jhi-retour-bon-list>
                 </ng-template>
               </ng-container>
+
+              <ng-container ngbNavItem="SEMOIS_CONFIG">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sliders-h"></i>
+                  <span>Config. SEMOIS</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-semois-classe-config />
+                </ng-template>
+              </ng-container>
             </div>
           </div>
         </div>
@@ -117,7 +128,7 @@
     <div class="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8">
       <div class="pharma-smart-content p-2">
         <!-- Modern Pharma Toolbar -->
-        @if (active !== 'SUGGESTIONS') {
+        @if (active !== 'SUGGESTIONS' && active !== 'SEMOIS_CONFIG') {
           <div class="pharma-toolbar">
             <div class="pharma-toolbar-header">
               <i [ngClass]="icon"></i>

@@ -16,12 +16,12 @@
       }
     </div>
   } @else {
-    <p-table [value]="configs()" [tableStyle]="{ 'min-width': '700px' }" class="p-datatable-sm pharma-table">
+    <p-table [value]="configs()"  class="pharma-table">
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width: 120px">Classe</th>
+          <th>Classe</th>
           <th>Description</th>
-          <th style="width: 180px">
+          <th>
             Coeff. sécurité
             <i
               class="pi pi-info-circle ml-1"
@@ -29,7 +29,7 @@
               tooltipPosition="top"
             ></i>
           </th>
-          <th style="width: 180px">
+          <th>
             Mois d'historique
             <i
               class="pi pi-info-circle ml-1"
@@ -37,7 +37,7 @@
               tooltipPosition="top"
             ></i>
           </th>
-          <th style="width: 160px">
+          <th>
             Limite péremption
             <i
               class="pi pi-info-circle ml-1"
@@ -45,7 +45,7 @@
               tooltipPosition="top"
             ></i>
           </th>
-          <th style="width: 100px"></th>
+          <th style="width: 80px"></th>
         </tr>
       </ng-template>
 
@@ -86,12 +86,13 @@
           </td>
           <td class="text-center">
             <p-button
-              icon="pi pi-save"
+              icon="pi pi-check"
+              [text]="true"
+              [rounded]="true"
               [loading]="isSaving(config.classeCriticite)"
               (click)="save(config)"
               pTooltip="Enregistrer"
               tooltipPosition="left"
-              size="small"
             />
           </td>
         </tr>

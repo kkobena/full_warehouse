@@ -36,6 +36,7 @@ import { RepartitionStockComponent } from '../../../../entities/repartition-stoc
 import { CommandeDashboardComponent } from '../commande-dashboard/commande-dashboard.component';
 import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component';
+import { SemoisClasseConfigComponent } from '../semois-classe-config/semois-classe-config.component';
 
 @Component({
   selector: 'app-commande-home',
@@ -71,6 +72,7 @@ import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component
     FloatLabel,
     RepartitionStockComponent,
     CommandeDashboardComponent,
+    SemoisClasseConfigComponent,
   ],
 })
 export class CommandeHomeComponent implements OnInit {

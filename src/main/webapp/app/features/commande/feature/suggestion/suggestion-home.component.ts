@@ -17,6 +17,7 @@ import {SemoisFraicheur} from 'app/entities/commande/suggestion/suggestion.servi
 import {NotificationService} from 'app/shared/services/notification.service';
 import {ErrorService} from 'app/shared/error.service';
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {Toolbar} from "primeng/toolbar";
 
 @Component({
   selector: 'app-suggestion-home',
@@ -31,6 +32,7 @@ import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dia
     TagModule,
     TooltipModule,
     DecimalPipe,
+    Toolbar,
   ],
 })
 export class SuggestionHomeComponent implements OnInit {

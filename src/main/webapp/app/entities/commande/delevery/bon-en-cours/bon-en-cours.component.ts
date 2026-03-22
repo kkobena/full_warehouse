@@ -86,10 +86,9 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
         next: blob => {
           this.spinner().hide();
           if (this.tauriPrinter.isRunningInTauri()) {
-            handleBlobForTauri(blob, 'commande_en_cours', 'csv');
+            handleBlobForTauri(blob, 'bon_en_cours');
           } else {
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl);
+            window.open(URL.createObjectURL(blob));
           }
 
         },

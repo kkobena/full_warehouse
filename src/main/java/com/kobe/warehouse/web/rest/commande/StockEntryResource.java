@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
+import com.kobe.warehouse.service.dto.PriceHistoryDTO;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
@@ -14,15 +15,20 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +53,25 @@ public class StockEntryResource {
     @PutMapping("/commandes/entree-stock/finalize")
     public ResponseEntity<StockEntryResultDTO> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return ResponseEntity.accepted().body(stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite));
+    }
+
+    /**
+     * Retourne les lignes dont la variation de prix dépasse le seuil configuré (APP_SEUIL_VARIATION_PRIX).
+     * À appeler avant finalisation pour alerter l'utilisateur côté frontend.
+     * Opère sur TOUTES les lignes (sans pagination).
+     */
+    @GetMapping("/commandes/entree-stock/prix-historique/{fournisseurProduitId}")
+    public ResponseEntity<List<PriceHistoryDTO>> getPriceHistory(@PathVariable Integer fournisseurProduitId) {
+        return ResponseEntity.ok(stockEntryService.getPriceHistory(fournisseurProduitId));
+    }
+
+    @GetMapping("/commandes/entree-stock/check-price-variation")
+    public ResponseEntity<List<OrderLineDTO>> checkPriceVariation(
+        @RequestParam Integer commandeId,
+        @RequestParam String orderDate
+    ) {
+        List<OrderLineDTO> lignes = stockEntryService.findLignesAvecEcartPrix(commandeId, LocalDate.parse(orderDate));
+        return ResponseEntity.ok(lignes);
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-cost-amount")

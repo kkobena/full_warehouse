@@ -67,6 +67,12 @@ export interface IInfoProduit {
   disponible: boolean;
 }
 
+export interface IDispoGrossisteResult {
+  grossisteId: number;
+  fournisseurLibelle: string | null;
+  produits: IInfoProduit[];
+}
+
 export type MotifRetour = 'AVARIE' | 'NON_CONFORME' | 'PERIME' | 'ERREUR_LIVRAISON' | 'EXCEDENT';
 
 export interface ILigneRetour {

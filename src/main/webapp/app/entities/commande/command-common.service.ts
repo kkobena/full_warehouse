@@ -6,7 +6,7 @@ import { ICommande } from '../../shared/model/commande.model';
 })
 export class CommandCommonService {
   currentCommand: WritableSignal<ICommande> = signal<ICommande>(null);
-  commandPreviousActiveNav: WritableSignal<string> = signal<string>('REQUESTED');
+  commandPreviousActiveNav: WritableSignal<string> = signal<string>('DASHBOARD');
 
   constructor() {}
 

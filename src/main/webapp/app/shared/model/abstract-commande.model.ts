@@ -28,6 +28,7 @@ export interface AbstractCommande {
   fournisseur?: IFournisseur;
   numberTransaction?: string;
   receiptReference?: string;
+  reliquatDeCommandeId?: number;
   fournisseurLibelle?: string;
   orderReference?: string;
   itemSize?: number;

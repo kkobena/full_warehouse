@@ -28,6 +28,12 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      */
     Optional<SemoisConfiguration> findByProduitId(Integer produitId);
 
+    @Query("SELECT MAX(c.dateDernierCalcul) FROM SemoisConfiguration c")
+    java.time.LocalDateTime findMaxDateDernierCalcul();
+
+    @Query("SELECT COUNT(c) FROM SemoisConfiguration c")
+    long countAll();
+
     /**
      * Vérifie si un produit a une configuration SEMOIS
      *
@@ -94,6 +100,14 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
     List<SemoisConfiguration> findByLimitePeremptionTrue();
 
     /**
+     * Charge les configurations SEMOIS pour un lot de produits (évite les N+1 dans suggerer()).
+     *
+     * @param produitIds IDs des produits
+     * @return Liste des configurations existantes (les produits sans config sont absents)
+     */
+    List<SemoisConfiguration> findByProduitIdIn(java.util.Collection<Integer> produitIds);
+
+    /**
      * Supprime la configuration d'un produit (usage admin uniquement)
      *
      * @param produitId ID du produit
@@ -145,6 +159,36 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
         SELECT COUNT(sc) FROM SemoisConfiguration sc
         """)
     Page<SemoisConfiguration> findAllWithProduit(Pageable pageable);
+
+    /**
+     * Compte les configurations d'une classe donnée.
+     *
+     * @param classeCriticite Classe à compter
+     * @return Nombre de configurations
+     */
+    long countByClasseCriticiteEquals(ClasseCriticite classeCriticite);
+
+    /**
+     * Charge les configurations d'une classe en eager fetch du Produit.
+     * Utilisé par le batch de recalcul piloté par SemoisClasseConfig.
+     *
+     * @param classeCriticite Classe de criticité cible
+     * @param pageable        Pagination
+     * @return Page de configurations avec produits chargés
+     */
+    @Query(value = """
+        SELECT sc FROM SemoisConfiguration sc
+        JOIN FETCH sc.produit p
+        WHERE sc.classeCriticite = :classeCriticite
+        """,
+        countQuery = """
+        SELECT COUNT(sc) FROM SemoisConfiguration sc
+        WHERE sc.classeCriticite = :classeCriticite
+        """)
+    Page<SemoisConfiguration> findByClasseCriticiteWithProduit(
+        @Param("classeCriticite") ClasseCriticite classeCriticite,
+        Pageable pageable
+    );
 
     /**
      * Recherche paginée de configurations SEMOIS avec filtres.

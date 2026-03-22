@@ -1,11 +1,21 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
-  <h4 class="modal-title">{{ header }}</h4>
+  <h4 class="modal-title"><i class="pi pi-tag me-2"></i>{{ header }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
+
+    <!-- Bannière réglementaire traçabilité lots -->
+    <div class="lot-regulatory-notice">
+      <i class="pi pi-shield"></i>
+      <div>
+        <strong>Traçabilité réglementaire</strong>
+        <span>La date de péremption est obligatoire pour tous les médicaments (CSP art. L.5121-1). Elle permet le suivi FIFO, les rappels de lots ANSM et la pharmacovigilance.</span>
+      </div>
+    </div>
+
     <p-card>
       <div class="form-grid-compact">
         <div [hidden]="true">
@@ -71,11 +81,15 @@
 
         <div class="row">
           <div class="col-md-6">
-            <div class="form-field form-field-full">
-              <label for="expiryDate">Date de péremption<span style="font-weight: 900; color: red">*</span></label>
+            <div class="form-field form-field-full" [class.expiry-field-critical]="expiryWarning() === 'critical'" [class.expiry-field-soon]="expiryWarning() === 'soon'">
+              <label for="expiryDate" class="expiry-label">
+                <i class="pi pi-calendar-times me-1"></i>
+                Date de péremption<span class="required ms-1">*</span>
+              </label>
               <p-datePicker
                 (onShow)="onDropdownShow($event)"
                 (onClose)="onDropdownHide($event)"
+                (onSelect)="onExpiryDateSelected($event)"
                 [minDate]="minDate"
                 [selectOtherMonths]="true"
                 [showButtonBar]="true"
@@ -86,10 +100,17 @@
                 name="expiryDate"
               />
               @if (editForm.get('expiryDate')!.invalid && (editForm.get('expiryDate')!.dirty || editForm.get('expiryDate')!.touched)) {
-                <div>
-                  @if (editForm.get('expiryDate')?.errors?.required) {
-                    <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-                  }
+                <small class="form-text text-danger"><i class="pi pi-exclamation-circle me-1"></i>Ce champ est obligatoire.</small>
+              }
+              @if (expiryWarning() === 'critical') {
+                <div class="expiry-alert expiry-alert-critical">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>Lot proche de la péremption — moins de 3 mois. Vérifiez la rotation des stocks (FIFO).</span>
+                </div>
+              } @else if (expiryWarning() === 'soon') {
+                <div class="expiry-alert expiry-alert-soon">
+                  <i class="pi pi-clock"></i>
+                  <span>Date de péremption dans moins de 6 mois. Anticipez la commande suivante.</span>
                 </div>
               }
             </div>

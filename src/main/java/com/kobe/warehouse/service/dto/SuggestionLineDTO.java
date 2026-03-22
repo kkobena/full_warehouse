@@ -18,7 +18,10 @@ public record SuggestionLineDTO(
     EtatProduit etatProduit,
     int prixAchat,
     int prixVente,
-    Map<Mois, Integer> consommationMensuelle
+    Map<Mois, Integer> consommationMensuelle,
+    String niveauUrgence,
+    Integer joursRestants,
+    String sourceCalcul
 ) {
 
 }

@@ -1,0 +1,360 @@
+<p-toast position="center"/>
+
+<div class="container-fluid">
+  <div class="pharma-smart-content p-1">
+    <!-- HEADER TOOLBAR -->
+    <div class="pharma-sales-header">
+      <div class="header-left">
+        <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour"/>
+        <div class="page-title">
+          <h1>Saisie de commande</h1>
+          <p class="subtitle">Création et modification de commande</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0) > seuilMontantCommande) {
+          <p-tag
+            severity="warn"
+            icon="pi pi-exclamation-triangle"
+            value="Montant élevé — validation titulaire"
+            pTooltip="Le montant dépasse le seuil configuré ({{ seuilMontantCommande | number }} F)"
+            tooltipPosition="bottom"
+          />
+        }
+        <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon" severity="primary" size="small" pTooltip="F9" tooltipPosition="bottom"/>
+
+        <p-button
+          [hidden]="true"
+          (click)="onImporterReponseCommande()"
+          class="action-btn"
+          icon="pi pi-download"
+          label="Importer"
+          severity="info"
+          size="small"
+        />
+
+        @if (currentCommande?.commandeId) {
+          <p-button
+            (click)="onImportSuggestion()"
+            class="action-btn"
+            icon="pi pi-lightbulb"
+            label="Depuis suggestion"
+            severity="help"
+            size="small"
+            pTooltip="Importer les lignes d'une suggestion dans cette commande"
+            tooltipPosition="bottom"
+          />
+        }
+
+        @if (selectedEl.length > 0) {
+          <p-button (click)="confirmDeleteAll()" class="action-btn" icon="pi pi-times" label="Supprimer" severity="danger" size="small"/>
+        }
+
+      </div>
+
+      <div class="header-status">
+        <app-commande-status-bar [commande]="currentCommande" />
+      </div>
+    </div>
+
+    <!-- BANDEAU RELIQUAT -->
+    @if (currentCommande?.reliquatDeCommandeId != null) {
+      <div class="reliquat-banner">
+        <i class="pi pi-arrow-right-arrow-left"></i>
+        <span>Cette commande est un <strong>reliquat</strong> créé automatiquement depuis la commande
+          <strong>#{{ currentCommande.reliquatDeCommandeId }}</strong>
+          suite à des ruptures fournisseur.
+        </span>
+      </div>
+    }
+
+    <!-- ORDER LINE SELECTION SECTION -->
+    <div class="order-search-section">
+      <div class="search-section-header">
+        <i class="pi pi-search"></i>
+        <span>Recherche de produits</span>
+      </div>
+
+      <div class="search-controls">
+        <div class="fournisseur-select-input">
+          <p-select
+            #fournisseurBox
+            (onChange)="onProviderSelect()"
+            [(ngModel)]="selectedProvider"
+            [appendTo]="'body'"
+            [filter]="true"
+            [options]="fournisseurs"
+            class="w-100"
+            inputId="fournisseur-select"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un fournisseur..."
+            size="large"
+          />
+        </div>
+
+        <div class="product-search-input">
+          <app-commande-product-search
+            #productSearch
+            (productSelected)="onProductSelected($event)"
+            (productScanned)="onProductScanned($event)"
+          />
+        </div>
+
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <input
+              #quantityBox
+              (keydown.enter)="onQuantityBoxAction($event)"
+              [(ngModel)]="quantiteSaisie"
+              class="form-control"
+              pInputText
+              placeholder="Quantité"
+              type="number"
+            />
+            <p-inputgroup-addon>
+              <p-button
+                (click)="onQuantity()"
+                [disabled]="!produitSelected"
+                icon="pi pi-plus"
+                severity="primary"
+                type="button"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+      </div>
+
+      @if (produitSelected) {
+        <div class="order-meta">
+          <div class="meta-item">
+            <i class="pi pi-barcode"></i>
+            <span>CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span>
+          </div>
+          <div class="meta-item">
+            <i class="pi pi-tag"></i>
+            <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span>
+          </div>
+          @if (produitSelected?.totalQuantity !== undefined) {
+            <div [class.low-stock]="produitSelected.totalQuantity < 10" class="meta-item">
+              <i class="pi pi-database"></i>
+              <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ORDER LINES TABLE -->
+    <div class="row g-2">
+      <div class="col-lg-8 col-12">
+        @if (currentCommande) {
+          <p-table
+            [(selection)]="selectedEl"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
+            [rows]="10"
+            [showGridlines]="true"
+            [value]="orderLines"
+            class="pharma-table"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th style="width: 2%">#</th>
+                <th style="width: 8%">Code</th>
+                <th style="width: 20%">Description</th>
+                <th class="text-right" style="width: 5%">Stock</th>
+                <th class="text-right" style="width: 8%">P.A</th>
+                <th style="width: 6%">P.A Machine</th>
+                <th class="text-right" style="width: 8%">P.U</th>
+                <th class="text-right" style="width: 6%">P.U Machine</th>
+                <th class="text-right" style="width: 8%">Qté</th>
+                <th class="text-right" style="width: 6%">Qté Ug</th>
+                @if (showLotColumn()) {
+                  <th style="width: 7%">Lots</th>
+                }
+                <th style="width: 6%"></th>
+                <th class="text-center" style="width: 2%">
+                  <p-tableHeaderCheckbox/>
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-orderLine let-rowIndex="rowIndex">
+              <tr [ngClass]="orderLineTableColor(orderLine)">
+                <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+
+                <td>
+                  <span class="pharma-code">{{ orderLine.produitCip }}</span>
+                </td>
+
+                <td>
+                  <span class="pharma-entity-name">{{ orderLine.produitLibelle }}</span>
+                </td>
+
+                <td style="text-align: right">{{ orderLine.initStock | number }}</td>
+
+                <td class="amount-td-column" pEditableColumn>
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
+                        [value]="orderLine.orderCostAmount"
+                        class="pharma-input-price"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-price">{{ orderLine.orderCostAmount | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
+                <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
+
+                <td class="amount-td-column" pEditableColumn>
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
+                        [value]="orderLine.orderUnitPrice"
+                        class="pharma-input-price"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-price">{{ orderLine.orderUnitPrice | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
+                <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
+
+                <td class="amount-td-column" pEditableColumn>
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
+                        [value]="orderLine.quantityRequested"
+                        class="pharma-input-qty"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
+                <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column" pEditableColumnField="freeQty">
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateFreeQtyRequested(orderLine, $event)"
+                        [value]="orderLine.freeQty"
+                        class="pharma-input-qty"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-qty-value">{{ orderLine.freeQty | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
+                @if (showLotColumn()) {
+                  <td>
+                    @for (lot of orderLine.lots; track lot.numLot) {
+                      <span>{{ lot.numLot }}</span>
+                    }
+                  </td>
+                }
+
+                <td  style="text-align: right">
+                  <p-buttonGroup>
+                    <p-button
+                      (click)="editLigneInfos(orderLine)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-pencil"
+                      pTooltip="Modifier le produit"
+                      severity="success"
+                      tooltipPosition="left"
+                    />
+                    @if (orderLine.lots.length > 0 || showLotBtn) {
+                      <p-button
+                        (click)="onAddLot(orderLine)"
+                        [text]="true"
+                        [rounded]="true"
+                        icon="pi pi-box"
+                        pTooltip="Gérer le lot"
+                        severity="info"
+                        tooltipPosition="left"
+                      />
+                    }
+                    <p-button
+                      (click)="confirmDeleteItem(orderLine)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-trash"
+                      pTooltip="Supprimer"
+                      severity="danger"
+                      tooltipPosition="left"
+                    />
+                  </p-buttonGroup>
+                </td>
+
+                <td class="text-center" style="width: 5px">
+                  <p-tableCheckbox [value]="orderLine"/>
+                </td>
+              </tr>
+            </ng-template>
+
+            @if (orderLines.length > 0) {
+              <ng-template #footer>
+                <tr class="pharma-table-footer">
+                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span></td>
+                  <td class="amount-column text-right red-400">
+                    <span class="pharma-footer-total">{{ currentCommande.grossAmount | number }}</span>
+                  </td>
+                  <td class="amount-column text-right red-400" colspan="2">
+                    <span class="pharma-footer-total">{{ currentCommande.orderAmount | number }}</span>
+                  </td>
+                  <td class="amount-column text-right" colspan="3"></td>
+                  <td colspan="5"></td>
+                </tr>
+              </ng-template>
+            }
+          </p-table>
+        }
+      </div>
+
+      <!-- PHARMAML PANEL : alertes + lastResult + dispo + historique -->
+      <div class="col-lg-4 col-12">
+        @if (currentCommande?.commandeId) {
+
+            <app-pharmaml-home
+              [commandeId]="currentCommande.commandeId!"
+              [commandeRef]="currentCommande.orderReference ?? ''"
+              [orderStatus]="currentCommande.orderStatus"
+            />
+
+        }
+      </div>
+    </div>
+  </div>
+</div>

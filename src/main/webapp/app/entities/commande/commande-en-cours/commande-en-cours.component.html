@@ -51,6 +51,16 @@
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>
           <span class="pharma-code">{{ commande.orderReference }}</span>
+          @if (commande.reliquatDeCommandeId != null) {
+            <p-tag
+              value="RELIQUAT"
+              severity="warn"
+              icon="pi pi-arrow-right-arrow-left"
+              [pTooltip]="'Reliquat de la commande #' + commande.reliquatDeCommandeId"
+              tooltipPosition="right"
+              class="ms-1"
+            />
+          }
         </td>
         <td class="text-right">
           <span class="pharma-qty-value">{{ commande.itemSize | number }}</span>

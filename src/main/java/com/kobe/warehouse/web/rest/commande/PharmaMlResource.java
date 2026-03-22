@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
+import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
+import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
@@ -113,6 +115,13 @@ public class PharmaMlResource {
         @RequestParam(required = false) Integer grossisteId
     ) {
         return ResponseEntity.ok(pharmaMlService.demanderDisponibilite(commandeId, LocalDate.parse(orderDate), grossisteId));
+    }
+
+    @PostMapping("/disponibilite-multi")
+    public ResponseEntity<List<DispoGrossisteResultDTO>> demanderDisponibiliteMulti(
+        @RequestBody DispoMultiRequestDTO request
+    ) {
+        return ResponseEntity.ok(pharmaMlService.demanderDisponibiliteMulti(request));
     }
 
     @PostMapping("/retour/{commandeId}/{orderDate}")

@@ -1,0 +1,28 @@
+@use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/table-common'  as *;
+:host {
+  @include modal-theme;
+}
+.ph-loading,
+.ph-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.875rem;
+
+  i { font-size: 1.25rem; }
+}
+
+
+
+.ph-date { white-space: nowrap; color: var(--p-text-muted-color, #6b7280); }
+.ph-amount { font-weight: 500; font-variant-numeric: tabular-nums; }
+.ph-ref { font-family: monospace; font-size: 0.75rem; }
+.ph-user { font-size: 0.75rem; color: var(--p-text-muted-color, #6b7280); }
+.ph-zero { color: var(--p-text-muted-color, #94a3b8); font-size: 0.85rem; }
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }

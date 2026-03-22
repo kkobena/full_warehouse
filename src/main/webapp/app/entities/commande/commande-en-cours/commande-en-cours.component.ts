@@ -14,6 +14,7 @@ import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-
 import {ButtonModule} from 'primeng/button';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
+import {TagModule} from 'primeng/tag';
 import {OrderStatut} from '../../../shared/model/enumerations/order-statut.model';
 import {finalize} from 'rxjs/operators';
 import {
@@ -30,7 +31,7 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-commande-en-cours',
   templateUrl: './commande-en-cours.component.html',
   styleUrl: './commande-en-cours.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, ConfirmDialogComponent, SpinnerComponent],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, TagModule, ConfirmDialogComponent, SpinnerComponent],
 })
 export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');

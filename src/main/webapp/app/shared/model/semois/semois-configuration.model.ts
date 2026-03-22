@@ -1,6 +1,16 @@
 import { ClasseCriticite } from './classe-criticite.model';
 
 /**
+ * Configuration SEMOIS par classe de criticité (5 lignes globales : A+, A, B, C, D)
+ */
+export interface ISemoisClasseConfig {
+  classeCriticite: ClasseCriticite;
+  coefficientSecurite: number;
+  nbMoisHistorique: number;
+  limitePeremption: boolean;
+}
+
+/**
  * Configuration SEMOIS pour un produit
  */
 export interface ISemoisConfiguration {

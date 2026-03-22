@@ -7,10 +7,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface SuggestionLineRepositoryCustom {
 
-
-
     Page<SuggestionLineDTO> fetchSuggestionLinesWithConsommation(
-        Integer suggestionId, String search, Integer storageId, LocalDate dateRetention, int nthMois, Pageable pageable
+        Integer suggestionId, String search, String niveauUrgence, Integer storageId, LocalDate dateRetention, int nthMois, Pageable pageable
     );
 }
 

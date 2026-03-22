@@ -1906,3 +1906,12 @@ jhi-recapitualtif-caisse {
 .p-button-icon-only {
   padding: 0 0.75rem !important;
 }
+
+
+/* Overlays PrimeNG téléportés sur body (appendTo="body") — z-index > NgbModal (1055) */
+.p-multiselect-overlay,
+.p-multiselect-list-container,
+.p-select-overlay,
+.p-select-list-container {
+  z-index: 1100 !important;
+}

@@ -12,6 +12,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -20,6 +21,7 @@ import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
@@ -31,21 +33,6 @@ import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
 import com.kobe.warehouse.service.stock.csv.ParsedCsvRecord;
 import com.kobe.warehouse.service.utils.FileUtil;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -62,6 +49,23 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -86,6 +90,7 @@ public class CommandServiceImpl implements CommandService {
     private final ImportationEchoueService importationEchoueService;
     private final CommandeIdGeneratorService commandeIdGeneratorService;
     private final SuggestionReassortService suggestionReassortService;
+    private final SuggestionRepository suggestionRepository;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -94,7 +99,9 @@ public class CommandServiceImpl implements CommandService {
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
         ImportationEchoueService importationEchoueService,
-        CommandeIdGeneratorService commandeIdGeneratorService, SuggestionReassortService suggestionReassortService
+        CommandeIdGeneratorService commandeIdGeneratorService,
+        SuggestionReassortService suggestionReassortService,
+        SuggestionRepository suggestionRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -104,6 +111,7 @@ public class CommandServiceImpl implements CommandService {
         this.importationEchoueService = importationEchoueService;
         this.commandeIdGeneratorService = commandeIdGeneratorService;
         this.suggestionReassortService = suggestionReassortService;
+        this.suggestionRepository = suggestionRepository;
     }
 
     private Commande createNewCommande(Commande commande) {
@@ -178,7 +186,9 @@ public class CommandServiceImpl implements CommandService {
             .findOneById(orderLineDTO.getOrderLineId())
             .ifPresentOrElse(
                 orderLine -> orderLineService.updateOrderLineQuantityReceived(orderLine, orderLineDTO.getQuantityReceived()),
-                () -> { throw new GenericError("Ligne de commande introuvable", "orderLineNotFound"); }
+                () -> {
+                    throw new GenericError("Ligne de commande introuvable", "orderLineNotFound");
+                }
             );
     }
 
@@ -188,7 +198,9 @@ public class CommandServiceImpl implements CommandService {
             .findOneById(orderLineDTO.getOrderLineId())
             .ifPresentOrElse(
                 orderLine -> orderLineService.updateOrderLineQuantityUG(orderLine.getId(), orderLineDTO.getFreeQty()),
-                () -> { throw new GenericError("Ligne de commande introuvable", "orderLineNotFound"); }
+                () -> {
+                    throw new GenericError("Ligne de commande introuvable", "orderLineNotFound");
+                }
             );
     }
 
@@ -320,6 +332,46 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void createCommandeFromSuggestion(Suggestion suggestion) {
         buildNew(suggestion);
+    }
+
+    @Override
+    public void createCommandeFromSelection(
+        Suggestion suggestion,
+       List<CommanderSelectionDTO.LigneSelection> lignes
+    ) {
+        Map<Integer, Integer> qteParLigne = lignes.stream()
+            .collect(Collectors.toMap(
+                CommanderSelectionDTO.LigneSelection::suggestionLineId,
+               CommanderSelectionDTO.LigneSelection::quantite
+            ));
+        AppUser user = storageService.getUser();
+        Commande commande = new Commande();
+        commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
+        Fournisseur fournisseur = suggestion.getFournisseur();
+        commande.setCreatedAt(LocalDateTime.now());
+        commande.setUpdatedAt(commande.getCreatedAt());
+        commande.setOrderStatus(OrderStatut.REQUESTED);
+        commande.setUser(user);
+        commande.setOrderReference(referenceService.buildNumCommande());
+        commande.setReceiptReference(commande.getOrderReference());
+        commande.setGrossAmount(0);
+        commande.setOrderAmount(0);
+        commande.setTaxAmount(0);
+        commande.setHtAmount(0);
+        commande.setDiscountAmount(0);
+        commande.setFournisseur(fournisseur);
+        suggestion.getSuggestionLines().stream()
+            .filter(sl -> qteParLigne.containsKey(sl.getId()))
+            .forEach(suggestionLine -> {
+                int qte = qteParLigne.get(suggestionLine.getId());
+                if (qte <= 0) return;
+                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, fournisseur.getId());
+                orderLine.setQuantityRequested(qte);
+                orderLine.setCommande(commande);
+                updateCommandeAmount(commande, orderLine);
+                commande.getOrderLines().add(orderLine);
+            });
+        commandeRepository.save(commande);
     }
 
     private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Integer commandeId) {
@@ -752,7 +804,8 @@ public class CommandServiceImpl implements CommandService {
                         case NUMERIC:
                             try {
                                 code = String.valueOf(codeCell.getNumericCellValue());
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                            }
                             break;
                         default:
                             break;
@@ -812,8 +865,8 @@ public class CommandServiceImpl implements CommandService {
             String codeEanLab = produit.getCodeEanLaboratoire();
             if (
                 Objects.equals(codeCipOrCodeEan, codeCip) ||
-                Objects.equals(codeCipOrCodeEan, codeEan) ||
-                Objects.equals(codeCipOrCodeEan, codeEanLab)
+                    Objects.equals(codeCipOrCodeEan, codeEan) ||
+                    Objects.equals(codeCipOrCodeEan, codeEanLab)
             ) {
                 return Optional.of(orderLine);
             }
@@ -829,13 +882,13 @@ public class CommandServiceImpl implements CommandService {
     ) {
         commande.setGrossAmount(
             commande.getGrossAmount() +
-            (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
-            (oldQuantityReceived * orderLine.getOrderCostAmount())
+                (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
+                (oldQuantityReceived * orderLine.getOrderCostAmount())
         );
         commande.setOrderAmount(
             commande.getOrderAmount() +
-            (orderLine.getQuantityReceived() * orderLine.getOrderUnitPrice()) -
-            (oldQuantityReceived * orderLine.getOrderUnitPrice())
+                (orderLine.getQuantityReceived() * orderLine.getOrderUnitPrice()) -
+                (oldQuantityReceived * orderLine.getOrderUnitPrice())
         );
         commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
     }
@@ -874,7 +927,8 @@ public class CommandServiceImpl implements CommandService {
     private void buildNew(Suggestion suggestion) {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
-
+        commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
+        Fournisseur fournisseur=suggestion.getFournisseur();
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -883,15 +937,49 @@ public class CommandServiceImpl implements CommandService {
         commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
-        commande.setFournisseur(suggestion.getFournisseur());
+        commande.setFournisseur(fournisseur);
         suggestion
             .getSuggestionLines()
             .forEach(suggestionLine -> {
-                OrderLine orderLine = this.orderLineService.buildOrderLine(suggestionLine);
+                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine,fournisseur.getId());
                 orderLine.setCommande(commande);
                 updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
+        commandeRepository.save(commande);
+    }
+
+    @Override
+    public void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId) {
+        Commande commande = findCommandeById(commandeId);
+        Integer  fournisseurId = commande.getFournisseur().getId();
+        Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
+        suggestion
+            .getSuggestionLines()
+            .forEach(suggestionLine -> {
+                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine,fournisseurId);
+                Optional<OrderLine> existing = findOrderLineInSetOrderLine(
+                    commande.getOrderLines(),
+                    orderLine
+                );
+                if (existing.isPresent()) {
+
+                    orderLine = existing.get();
+                    System.err.println("Duplicate order line " + orderLine.getFournisseurProduit().getCodeCip());
+                    int oldGross = orderLine.getQuantityRequested() * orderLine.getOrderCostAmount();
+                    int oldOrder = orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice();
+                    orderLine.setQuantityRequested(orderLine.getQuantityRequested() + suggestionLine.getQuantity());
+                    orderLineService.save(orderLine);
+                    updateCommandeAmount(commande, orderLine, oldGross, oldOrder);
+                } else {
+                    System.err.println("New order line " + orderLine.getFournisseurProduit().getCodeCip());
+                    orderLine.setCommande(commande);
+                    orderLineService.save(orderLine);
+                    updateCommandeAmount(commande, orderLine);
+                    commande.getOrderLines().add(orderLine);
+                }
+            });
+        commande.setUpdatedAt(LocalDateTime.now());
         commandeRepository.save(commande);
     }
 

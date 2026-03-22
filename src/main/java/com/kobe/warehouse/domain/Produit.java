@@ -188,6 +188,20 @@ public class Produit implements Serializable {
     @Column(name = "is_classification_overridden", columnDefinition = "boolean default false")
     private Boolean isClassificationOverridden = false;
 
+    /**
+     * Médicament essentiel (liste OMS/LGO) : protégé contre la descente sous la classe B.
+     * Si {@code activerClassificationOrdo} est actif, la classe peut monter via la CMM.
+     */
+    @Column(name = "est_medicament_essentiel", columnDefinition = "boolean default false")
+    private Boolean estMedicamentEssentiel = false;
+
+    /**
+     * Produit de garde officine : classé automatiquement A_PLUS,
+     * quelle que soit la performance de vente.
+     */
+    @Column(name = "est_produit_garde", columnDefinition = "boolean default false")
+    private Boolean estProduitGarde = false;
+
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -265,6 +279,24 @@ public class Produit implements Serializable {
 
     public Produit setIsClassificationOverridden(Boolean isClassificationOverridden) {
         this.isClassificationOverridden = isClassificationOverridden;
+        return this;
+    }
+
+    public Boolean getEstMedicamentEssentiel() {
+        return estMedicamentEssentiel;
+    }
+
+    public Produit setEstMedicamentEssentiel(Boolean estMedicamentEssentiel) {
+        this.estMedicamentEssentiel = estMedicamentEssentiel;
+        return this;
+    }
+
+    public Boolean getEstProduitGarde() {
+        return estProduitGarde;
+    }
+
+    public Produit setEstProduitGarde(Boolean estProduitGarde) {
+        this.estProduitGarde = estProduitGarde;
         return this;
     }
 

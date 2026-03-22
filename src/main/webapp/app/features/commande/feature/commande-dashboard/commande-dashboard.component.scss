@@ -1,0 +1,45 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.cursor-pointer { cursor: pointer; }
+
+.tag-xs {
+  font-size: 0.65rem !important;
+  padding: 0.1rem 0.3rem !important;
+}
+
+/* Variante compacte des KPI cards */
+.kpi-card-compact {
+  &.kpi-card {
+    border-radius: 10px;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  .card-body {
+    padding: 0.65rem 0.875rem !important;
+  }
+}
+
+.kpi-icon-sm {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+
+  i { font-size: 1.1rem; }
+}
+
+.kpi-value-sm {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  display: block;
+}

@@ -6,6 +6,7 @@ import { ApplicationConfigService } from 'app/core/config/application-config.ser
 import {
   ISemoisSuggestion,
   ISemoisConfiguration,
+  ISemoisClasseConfig,
   IInitConfigurationRequest,
   IImportHistoricalRequest,
   IAggregationStatus,
@@ -118,11 +119,22 @@ export class SemoisService {
 
   /**
    * Dégèle un mois pour corrections exceptionnelles (admin only)
-   * @param anneeMois Mois au format YYYY-MM
-   * @param reason Raison du dégel
-   * @returns Message de succès
    */
   unfreezeMonth(anneeMois: string, reason: string): Observable<HttpResponse<IMessageResponse>> {
     return this.http.post<IMessageResponse>(`${this.resourceUrl}/aggregation/unfreeze`, { anneeMois, reason }, { observe: 'response' });
+  }
+
+  /**
+   * Récupère les 5 configurations de classe de criticité SEMOIS
+   */
+  getClasseConfigs(): Observable<HttpResponse<ISemoisClasseConfig[]>> {
+    return this.http.get<ISemoisClasseConfig[]>(`${this.resourceUrl}/classe-configs`, { observe: 'response' });
+  }
+
+  /**
+   * Met à jour la configuration d'une classe de criticité
+   */
+  updateClasseConfig(classeCriticite: string, config: ISemoisClasseConfig): Observable<HttpResponse<ISemoisClasseConfig>> {
+    return this.http.put<ISemoisClasseConfig>(`${this.resourceUrl}/classe-configs/${classeCriticite}`, config, { observe: 'response' });
   }
 }

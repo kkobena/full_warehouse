@@ -12,10 +12,12 @@ import com.kobe.warehouse.domain.SubstitutionProposee;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
 import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.RuptureRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
+import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.FournisseurService;
 import com.kobe.warehouse.service.OrderLineService;
@@ -23,6 +25,8 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
+import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
+import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
@@ -64,6 +68,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     private final FournisseurProduitService fournisseurProduitService;
     private final OrderLineService orderLineService;
     private final FileStorageService fileStorageService;
+    private final SuggestionLineRepository suggestionLineRepository;
 
     // Services délégués
     private final PharmaMlPayloadBuilderService payloadBuilderService;
@@ -78,6 +83,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         FournisseurProduitService fournisseurProduitService,
         OrderLineService orderLineService,
         FileStorageService fileStorageService,
+        SuggestionLineRepository suggestionLineRepository,
         PharmaMlPayloadBuilderService payloadBuilderService,
         PharmaMlHttpClientService httpClientService
     ) {
@@ -89,6 +95,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         this.fournisseurProduitService = fournisseurProduitService;
         this.orderLineService = orderLineService;
         this.fileStorageService = fileStorageService;
+        this.suggestionLineRepository = suggestionLineRepository;
         this.payloadBuilderService = payloadBuilderService;
         this.httpClientService = httpClientService;
     }
@@ -137,7 +144,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                 pharmaMlEnvoiRepository.save(envoi);
             }
             LOG.error("Erreur lors de l'envoi de la commande à PharmaML", e);
-            throw new GenericError("Erreur lors de l'envoi de la commande à PharmaML", "pharmaMlError");
+            throw e;
         }
     }
 
@@ -364,7 +371,53 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         return httpClientService.sendInfoRequest(payload, fournisseur);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<DispoGrossisteResultDTO> demanderDisponibiliteMulti(DispoMultiRequestDTO request) {
+        List<DispoGrossisteResultDTO> results = new ArrayList<>();
 
+        if (request.suggestionId() != null) {
+            // Branche suggestion : charger les lignes de la suggestion
+            List<SuggestionLine> lignes = suggestionLineRepository.findAll(
+                suggestionLineRepository.filterBySuggestionId(request.suggestionId())
+            );
+            if (lignes.isEmpty()) {
+                return results;
+            }
+            for (Integer grossisteId : request.grossisteIds()) {
+                try {
+                    Fournisseur fournisseur = fournisseurService.findOneById(grossisteId);
+                    prevalidate(fournisseur);
+                    String refMessage = payloadBuilderService.generateRefMessage();
+                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayloadFromSuggestionLines(lignes, fournisseur, refMessage);
+                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload, fournisseur);
+                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(), produits));
+                } catch (Exception e) {
+                    LOG.warn("Echec disponibilité grossiste {} (suggestion {}) : {}", grossisteId, request.suggestionId(), e.getMessage());
+                    results.add(new DispoGrossisteResultDTO(grossisteId, null, List.of()));
+                }
+            }
+        } else {
+            // Branche commande classique
+            LocalDate orderDate = LocalDate.parse(request.orderDate());
+            Commande commande = commandeRepository.findById(new CommandeId(request.commandeId(), orderDate))
+                .orElseThrow(() -> new GenericError("La commande n'existe pas", "commandeNotFound"));
+            for (Integer grossisteId : request.grossisteIds()) {
+                try {
+                    Fournisseur fournisseur = fournisseurService.findOneById(grossisteId);
+                    prevalidate(fournisseur);
+                    String refMessage = payloadBuilderService.generateRefMessage();
+                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayload(commande, fournisseur, refMessage);
+                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload, fournisseur);
+                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(), produits));
+                } catch (Exception e) {
+                    LOG.warn("Echec disponibilité grossiste {} : {}", grossisteId, e.getMessage());
+                    results.add(new DispoGrossisteResultDTO(grossisteId, null, List.of()));
+                }
+            }
+        }
+        return results;
+    }
 
     private PharmaMlStatut determineStatut(PharmamlCommandeResponse result) {
         if (result.success()) {

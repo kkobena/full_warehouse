@@ -1,20 +1,25 @@
 package com.kobe.warehouse.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Configuration des paramètres de classification dynamique de criticité.
- * Table singleton contenant les poids et seuils utilisés pour la classification automatique.
+ * Configuration des paramètres de classification ABC Pareto de criticité.
+ * Table singleton — contient les seuils Pareto, les seuils CMM et les flags officine.
+ *
+ * <p>Schéma de classification :
+ * <ul>
+ *   <li>Seuils Pareto : ca_cumule_pct ≤ seuilParetoAPlus → A_PLUS, ≤ A → A, etc.</li>
+ *   <li>Override fréquence : si frequence_mois &lt; seuilFrequenceMinMois → D (même si Pareto dit mieux)</li>
+ *   <li>Override ordonnance : si estMedicamentEssentiel → jamais en dessous de B (ou CMM si activerClassificationOrdo)</li>
+ *   <li>Override garde : si estProduitGarde → toujours A_PLUS</li>
+ * </ul>
  */
 @Entity
 @Table(name = "classification_config")
@@ -27,106 +32,127 @@ public class ClassificationConfig implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // === Poids des critères (doivent sommer à 1.0) ===
+    // === Seuils Pareto (% CA cumulé) ===
+    // Interprétation : produit dont ca_cumule_pct ≤ seuil → classe correspondante.
+    // ca_cumule_pct faible = produit très vendeur (contribue aux premiers % du CA).
 
-    /**
-     * Poids du chiffre d'affaires dans le calcul du score (0.0 à 1.0)
-     */
+    /** Les produits représentant les premiers seuilParetoAPlus % du CA → A_PLUS */
     @NotNull
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    @Column(name = "poids_ca", precision = 3, scale = 2, nullable = false)
-    private BigDecimal poidsCa = new BigDecimal("0.50");
+    @Min(1)
+    @Max(99)
+    @Column(name = "seuil_pareto_a_plus", nullable = false)
+    private Integer seuilParetoAPlus = 60;
 
-    /**
-     * Poids de la rotation de stock dans le calcul du score (0.0 à 1.0)
-     */
+    /** Les produits dans l'intervalle ]seuilParetoAPlus, seuilParetoA] % du CA cumulé → A */
     @NotNull
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    @Column(name = "poids_rotation", precision = 3, scale = 2, nullable = false)
-    private BigDecimal poidsRotation = new BigDecimal("0.30");
+    @Min(1)
+    @Max(99)
+    @Column(name = "seuil_pareto_a", nullable = false)
+    private Integer seuilParetoA = 80;
 
-    /**
-     * Poids de la fréquence de vente dans le calcul du score (0.0 à 1.0)
-     */
+    /** Les produits dans l'intervalle ]seuilParetoA, seuilParetoB] → B */
     @NotNull
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    @Column(name = "poids_frequence", precision = 3, scale = 2, nullable = false)
-    private BigDecimal poidsFrequence = new BigDecimal("0.20");
+    @Min(1)
+    @Max(99)
+    @Column(name = "seuil_pareto_b", nullable = false)
+    private Integer seuilParetoB = 95;
 
-    // === Seuils de score pour chaque classe ===
+    /** Les produits dans l'intervalle ]seuilParetoB, seuilParetoC] → C ; au-delà → D */
+    @NotNull
+    @Min(1)
+    @Max(100)
+    @Column(name = "seuil_pareto_c", nullable = false)
+    private Integer seuilParetoC = 99;
+
+    // === Fréquence de vente ===
 
     /**
-     * Seuil minimum de score pour la classe A+ (0-100)
+     * Nombre minimum de mois distincts avec des ventes sur 12 mois.
+     * Si frequence_mois < seuilFrequenceMinMois → classe D, même si le Pareto est bon.
+     * Protège contre les ventes ponctuelles massives (ex. commande annuelle unique).
      */
     @NotNull
     @Min(0)
-    @Max(100)
-    @Column(name = "seuil_a_plus", nullable = false)
-    private Integer seuilAPlus = 90;
+    @Max(12)
+    @Column(name = "seuil_frequence_min_mois", nullable = false)
+    private Integer seuilFrequenceMinMois = 3;
+
+    // === Seuils CMM pour médicaments essentiels (activerClassificationOrdo requis) ===
+
+    /** CMM ≥ cmmSeuilAPlus → classe A_PLUS pour produit essentiel */
+    @NotNull
+    @Min(0)
+    @Column(name = "cmm_seuil_a_plus", nullable = false)
+    private Integer cmmSeuilAPlus = 50;
+
+    /** CMM ≥ cmmSeuilA → classe A pour produit essentiel */
+    @NotNull
+    @Min(0)
+    @Column(name = "cmm_seuil_a", nullable = false)
+    private Integer cmmSeuilA = 20;
+
+    /** CMM ≥ cmmSeuilB → classe B pour produit essentiel (plancher) */
+    @NotNull
+    @Min(0)
+    @Column(name = "cmm_seuil_b", nullable = false)
+    private Integer cmmSeuilB = 5;
+
+    /** CMM ≥ cmmSeuilC → classe C pour produit essentiel (sinon D) */
+    @NotNull
+    @Min(0)
+    @Column(name = "cmm_seuil_c", nullable = false)
+    private Integer cmmSeuilC = 1;
+
+    // === Stabilité (hysteresis) ===
 
     /**
-     * Seuil minimum de score pour la classe A (0-100)
+     * Écart minimum en points Pareto (ca_cumule_pct) entre la position actuelle
+     * et la frontière de la classe cible pour déclencher un reclassement.
+     * Évite les oscillations pour les produits proches des seuils.
      */
     @NotNull
     @Min(0)
-    @Max(100)
-    @Column(name = "seuil_a", nullable = false)
-    private Integer seuilA = 80;
+    @Max(20)
+    @Column(name = "changement_min_pourcentage", nullable = false)
+    private Integer changementMinPourcentage = 3;
+
+    // === Activation options ===
+
+    /** Active la classification CMM pour les produits sous ordonnance (estMedicamentEssentiel) */
+    @NotNull
+    @Column(name = "activer_classification_ordo", nullable = false)
+    private Boolean activerClassificationOrdo = true;
+
+    /** Active la correction saisonnière (phase future) */
+    @NotNull
+    @Column(name = "activer_correction_saisonniere", nullable = false)
+    private Boolean activerCorrectionSaisonniere = false;
 
     /**
-     * Seuil minimum de score pour la classe B (0-100)
+     * Ratio max_mensuel / VMM à partir duquel un produit est détecté comme saisonnier.
+     * Actif uniquement si {@code activerCorrectionSaisonniere = true}.
      */
     @NotNull
-    @Min(0)
-    @Max(100)
-    @Column(name = "seuil_b", nullable = false)
-    private Integer seuilB = 60;
+    @Min(2)
+    @Max(10)
+    @Column(name = "indice_saisonnalite_min", nullable = false)
+    private Integer indiceSaisonnaliteMin = 3;
 
     /**
-     * Seuil minimum de score pour la classe C (0-100)
-     * Tout score inférieur donne la classe D
+     * Fenêtre glissante en mois pour le recalcul du score sur le pic saisonnier.
+     * Actif uniquement si {@code activerCorrectionSaisonniere = true}.
      */
     @NotNull
-    @Min(0)
-    @Max(100)
-    @Column(name = "seuil_c", nullable = false)
-    private Integer seuilC = 40;
+    @Min(1)
+    @Max(6)
+    @Column(name = "nb_mois_saison_analyse", nullable = false)
+    private Integer nbMoisSaisonAnalyse = 3;
 
-    // === Seuils de rotation annuelle (pour affichage) ===
-
-    @NotNull
-    @Column(name = "rotation_a_plus", precision = 5, scale = 2, nullable = false)
-    private BigDecimal rotationAPlus = new BigDecimal("12.0");
-
-    @NotNull
-    @Column(name = "rotation_a", precision = 5, scale = 2, nullable = false)
-    private BigDecimal rotationA = new BigDecimal("8.0");
-
-    @NotNull
-    @Column(name = "rotation_b", precision = 5, scale = 2, nullable = false)
-    private BigDecimal rotationB = new BigDecimal("4.0");
-
-    @NotNull
-    @Column(name = "rotation_c", precision = 5, scale = 2, nullable = false)
-    private BigDecimal rotationC = new BigDecimal("2.0");
-
-    // === Périodes d'analyse ===
+    // === Période d'analyse ===
 
     /**
-     * Nombre de mois d'historique à analyser (6 à 24)
-     */
-    @NotNull
-    @Min(6)
-    @Max(24)
-    @Column(name = "nb_mois_analyse", nullable = false)
-    private Integer nbMoisAnalyse = 12;
-
-    /**
-     * Nombre minimum de mois pour considérer un produit comme "nouveau"
-     * Les produits nouveaux gardent leur classe par défaut (B)
+     * Nombre minimum de mois depuis la création pour traiter un produit comme "établi".
+     * Les produits plus jeunes gardent leur classe par défaut (B) sans reclassification.
      */
     @NotNull
     @Min(1)
@@ -134,23 +160,8 @@ public class ClassificationConfig implements Serializable {
     @Column(name = "nb_mois_min_nouveau_produit", nullable = false)
     private Integer nbMoisMinNouveauProduit = 6;
 
-    // === Stabilité ===
+    // === Activation globale ===
 
-    /**
-     * Écart minimum de score requis pour changer de classe (hysteresis)
-     * Évite les oscillations de classe pour les produits proches des seuils
-     */
-    @NotNull
-    @Min(0)
-    @Max(50)
-    @Column(name = "changement_min_score", nullable = false)
-    private Integer changementMinScore = 10;
-
-    // === Activation ===
-
-    /**
-     * Active ou désactive la classification automatique
-     */
     @Column(name = "auto_classification_enabled", nullable = false)
     private Boolean autoClassificationEnabled = true;
 
@@ -173,111 +184,129 @@ public class ClassificationConfig implements Serializable {
         this.id = id;
     }
 
-    public BigDecimal getPoidsCa() {
-        return poidsCa;
+    public Integer getSeuilParetoAPlus() {
+        return seuilParetoAPlus;
     }
 
-    public ClassificationConfig setPoidsCa(BigDecimal poidsCa) {
-        this.poidsCa = poidsCa;
+    public ClassificationConfig setSeuilParetoAPlus(Integer seuilParetoAPlus) {
+        this.seuilParetoAPlus = seuilParetoAPlus;
         return this;
     }
 
-    public BigDecimal getPoidsRotation() {
-        return poidsRotation;
+    public Integer getSeuilParetoA() {
+        return seuilParetoA;
     }
 
-    public ClassificationConfig setPoidsRotation(BigDecimal poidsRotation) {
-        this.poidsRotation = poidsRotation;
+    public ClassificationConfig setSeuilParetoA(Integer seuilParetoA) {
+        this.seuilParetoA = seuilParetoA;
         return this;
     }
 
-    public BigDecimal getPoidsFrequence() {
-        return poidsFrequence;
+    public Integer getSeuilParetoB() {
+        return seuilParetoB;
     }
 
-    public ClassificationConfig setPoidsFrequence(BigDecimal poidsFrequence) {
-        this.poidsFrequence = poidsFrequence;
+    public ClassificationConfig setSeuilParetoB(Integer seuilParetoB) {
+        this.seuilParetoB = seuilParetoB;
         return this;
     }
 
-    public Integer getSeuilAPlus() {
-        return seuilAPlus;
+    public Integer getSeuilParetoC() {
+        return seuilParetoC;
     }
 
-    public ClassificationConfig setSeuilAPlus(Integer seuilAPlus) {
-        this.seuilAPlus = seuilAPlus;
+    public ClassificationConfig setSeuilParetoC(Integer seuilParetoC) {
+        this.seuilParetoC = seuilParetoC;
         return this;
     }
 
-    public Integer getSeuilA() {
-        return seuilA;
+    public Integer getSeuilFrequenceMinMois() {
+        return seuilFrequenceMinMois;
     }
 
-    public ClassificationConfig setSeuilA(Integer seuilA) {
-        this.seuilA = seuilA;
+    public ClassificationConfig setSeuilFrequenceMinMois(Integer seuilFrequenceMinMois) {
+        this.seuilFrequenceMinMois = seuilFrequenceMinMois;
         return this;
     }
 
-    public Integer getSeuilB() {
-        return seuilB;
+    public Integer getCmmSeuilAPlus() {
+        return cmmSeuilAPlus;
     }
 
-    public ClassificationConfig setSeuilB(Integer seuilB) {
-        this.seuilB = seuilB;
+    public ClassificationConfig setCmmSeuilAPlus(Integer cmmSeuilAPlus) {
+        this.cmmSeuilAPlus = cmmSeuilAPlus;
         return this;
     }
 
-    public Integer getSeuilC() {
-        return seuilC;
+    public Integer getCmmSeuilA() {
+        return cmmSeuilA;
     }
 
-    public ClassificationConfig setSeuilC(Integer seuilC) {
-        this.seuilC = seuilC;
+    public ClassificationConfig setCmmSeuilA(Integer cmmSeuilA) {
+        this.cmmSeuilA = cmmSeuilA;
         return this;
     }
 
-    public BigDecimal getRotationAPlus() {
-        return rotationAPlus;
+    public Integer getCmmSeuilB() {
+        return cmmSeuilB;
     }
 
-    public ClassificationConfig setRotationAPlus(BigDecimal rotationAPlus) {
-        this.rotationAPlus = rotationAPlus;
+    public ClassificationConfig setCmmSeuilB(Integer cmmSeuilB) {
+        this.cmmSeuilB = cmmSeuilB;
         return this;
     }
 
-    public BigDecimal getRotationA() {
-        return rotationA;
+    public Integer getCmmSeuilC() {
+        return cmmSeuilC;
     }
 
-    public ClassificationConfig setRotationA(BigDecimal rotationA) {
-        this.rotationA = rotationA;
+    public ClassificationConfig setCmmSeuilC(Integer cmmSeuilC) {
+        this.cmmSeuilC = cmmSeuilC;
         return this;
     }
 
-    public BigDecimal getRotationB() {
-        return rotationB;
+    public Integer getChangementMinPourcentage() {
+        return changementMinPourcentage;
     }
 
-    public ClassificationConfig setRotationB(BigDecimal rotationB) {
-        this.rotationB = rotationB;
+    public ClassificationConfig setChangementMinPourcentage(Integer changementMinPourcentage) {
+        this.changementMinPourcentage = changementMinPourcentage;
         return this;
     }
 
-    public BigDecimal getRotationC() {
-        return rotationC;
+    public Boolean getActiverClassificationOrdo() {
+        return activerClassificationOrdo;
     }
 
-    public ClassificationConfig setRotationC(BigDecimal rotationC) {
-        this.rotationC = rotationC;
+    public ClassificationConfig setActiverClassificationOrdo(Boolean activerClassificationOrdo) {
+        this.activerClassificationOrdo = activerClassificationOrdo;
         return this;
     }
 
-    public Integer getNbMoisAnalyse() {
-        return nbMoisAnalyse;
+    public Boolean getActiverCorrectionSaisonniere() {
+        return activerCorrectionSaisonniere;
     }
 
-    public ClassificationConfig setNbMoisAnalyse(Integer nbMoisAnalyse) {
-        this.nbMoisAnalyse = nbMoisAnalyse;
+    public ClassificationConfig setActiverCorrectionSaisonniere(Boolean activerCorrectionSaisonniere) {
+        this.activerCorrectionSaisonniere = activerCorrectionSaisonniere;
+        return this;
+    }
+
+    public Integer getIndiceSaisonnaliteMin() {
+        return indiceSaisonnaliteMin;
+    }
+
+    public ClassificationConfig setIndiceSaisonnaliteMin(Integer indiceSaisonnaliteMin) {
+        this.indiceSaisonnaliteMin = indiceSaisonnaliteMin;
+        return this;
+    }
+
+    public Integer getNbMoisSaisonAnalyse() {
+        return nbMoisSaisonAnalyse;
+    }
+
+    public ClassificationConfig setNbMoisSaisonAnalyse(Integer nbMoisSaisonAnalyse) {
+        this.nbMoisSaisonAnalyse = nbMoisSaisonAnalyse;
         return this;
     }
 
@@ -287,15 +316,6 @@ public class ClassificationConfig implements Serializable {
 
     public ClassificationConfig setNbMoisMinNouveauProduit(Integer nbMoisMinNouveauProduit) {
         this.nbMoisMinNouveauProduit = nbMoisMinNouveauProduit;
-        return this;
-    }
-
-    public Integer getChangementMinScore() {
-        return changementMinScore;
-    }
-
-    public ClassificationConfig setChangementMinScore(Integer changementMinScore) {
-        this.changementMinScore = changementMinScore;
         return this;
     }
 
@@ -331,18 +351,13 @@ public class ClassificationConfig implements Serializable {
     }
 
     /**
-     * Vérifie que la somme des poids est égale à 1.0
-     */
-    public boolean isPoidsValide() {
-        BigDecimal somme = poidsCa.add(poidsRotation).add(poidsFrequence);
-        return somme.compareTo(BigDecimal.ONE) == 0;
-    }
-
-    /**
-     * Vérifie que les seuils sont cohérents (décroissants)
+     * Vérifie que les seuils Pareto sont cohérents (strictement croissants, ≤ 100).
      */
     public boolean isSeuilsValides() {
-        return seuilAPlus > seuilA && seuilA > seuilB && seuilB > seuilC;
+        return seuilParetoAPlus < seuilParetoA
+            && seuilParetoA < seuilParetoB
+            && seuilParetoB < seuilParetoC
+            && seuilParetoC <= 100;
     }
 
     @Override
@@ -361,13 +376,13 @@ public class ClassificationConfig implements Serializable {
     public String toString() {
         return "ClassificationConfig{" +
             "id=" + id +
-            ", poidsCa=" + poidsCa +
-            ", poidsRotation=" + poidsRotation +
-            ", poidsFrequence=" + poidsFrequence +
-            ", seuilAPlus=" + seuilAPlus +
-            ", seuilA=" + seuilA +
-            ", seuilB=" + seuilB +
-            ", seuilC=" + seuilC +
+            ", seuilParetoAPlus=" + seuilParetoAPlus +
+            ", seuilParetoA=" + seuilParetoA +
+            ", seuilParetoB=" + seuilParetoB +
+            ", seuilParetoC=" + seuilParetoC +
+            ", seuilFrequenceMinMois=" + seuilFrequenceMinMois +
+            ", changementMinPourcentage=" + changementMinPourcentage +
+            ", activerClassificationOrdo=" + activerClassificationOrdo +
             ", autoClassificationEnabled=" + autoClassificationEnabled +
             '}';
     }

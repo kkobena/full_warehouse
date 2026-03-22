@@ -1,0 +1,68 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-chart-bar me-2"></i>Comparaison fournisseurs
+  </h5>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <p class="text-muted mb-3">
+    <strong>{{ produitLibelle }}</strong> — {{ fournisseurs().length }} fournisseur(s) référencé(s)
+  </p>
+
+  @if (loading()) {
+    <div class="d-flex justify-content-center p-4">
+      <p-progressSpinner strokeWidth="4" [style]="{ width: '40px', height: '40px' }" />
+    </div>
+  } @else if (fournisseurs().length === 0) {
+    <div class="text-center text-muted p-4">
+      <i class="pi pi-inbox me-2"></i>Aucun fournisseur référencé pour ce produit.
+    </div>
+  } @else {
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Fournisseur</th>
+          <th>CIP</th>
+          <th class="text-end">Prix achat (FCFA)</th>
+          <th class="text-end">Prix vente (FCFA)</th>
+          <th class="text-center">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fp of fournisseurs(); track fp.id) {
+          <tr [class.table-primary]="isCurrent(fp)">
+            <td>
+              <span class="fw-semibold">{{ fp.fournisseurLibelle }}</span>
+              @if (isCurrent(fp)) {
+                <p-tag value="Actuel" severity="info" class="ms-2" />
+              }
+            </td>
+            <td><code>{{ fp.codeCip ?? '—' }}</code></td>
+            <td class="text-end">
+              <span [class.text-success]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1"
+                    [class.fw-bold]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1">
+                {{ fp.prixAchat | number: '1.0-0' }}
+              </span>
+              @if ((fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1) {
+                <i class="pi pi-star-fill text-warning ms-1" style="font-size:0.75rem" title="Meilleur prix"></i>
+              }
+            </td>
+            <td class="text-end">{{ fp.prixUni | number: '1.0-0' }}</td>
+            <td class="text-center">
+              @if (fp.principal) {
+                <p-tag value="Principal" severity="success" />
+              } @else {
+                <p-tag value="Alternatif" severity="secondary" />
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<div class="modal-footer">
+  <p-button label="Fermer" severity="secondary" (onClick)="close()" />
+</div>

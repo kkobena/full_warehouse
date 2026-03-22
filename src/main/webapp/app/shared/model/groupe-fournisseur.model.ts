@@ -10,6 +10,7 @@ export interface IGroupeFournisseur {
   codeOfficePharmaMl?: string;
   urlPharmaMl?: string;
   idRecepteurPharmaMl?: string;
+  delaiLivraisonJours?: number;
 }
 
 export class GroupeFournisseur implements IGroupeFournisseur {

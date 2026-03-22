@@ -149,7 +149,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
   // Corps du tableau
   .p-datatable-tbody {
     tr {
-      transition: all 0.2s ease;
+
 
       &:nth-child(even) {
         background: #f8f9fa;
@@ -432,7 +432,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
         height: 35px;
         border-radius: $pharma-radius;
         margin: 0 3px;
-        transition: all 0.2s ease;
+
 
         &.p-highlight {
           background: $pharma-primary;
@@ -531,7 +531,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
 
     .p-datatable-tbody {
       tr {
-        transition: all 0.2s ease;
+
 
         &:nth-child(even) {
           background: #f8f9fa;

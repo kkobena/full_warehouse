@@ -47,9 +47,9 @@ public class VentesAgregeesService {
      * Exécuté selon le cron configuré dans application.yml.
      * Par défaut: tous les jours à 2h du matin (heure creuse).
      */
-    @Scheduled(cron = "${pharma-smart.semois.aggregation-cron:0 /59 12-14 * * *'}")
+    @Scheduled(cron = "${pharma-smart.semois.aggregation-cron:0 0 2 * * *}")
     public void aggregateMonthlySalesDaily() {
-        LOG.info("🔄 Début agrégation quotidienne des ventes mensuelles SEMOIS");
+        LOG.info(" Début agrégation quotidienne des ventes mensuelles SEMOIS");
 
         boolean canContinue = getLastUpdateTime().map(lastUpdate ->
             lastUpdate.toLocalDate().isBefore(LocalDate.now())

@@ -26,6 +26,8 @@ public class FournisseurDTO implements Serializable {
     private Integer groupeFournisseurId;
 
     private String groupeFournisseurLibelle;
+    private Integer delaiLivraisonJours ;
+    private String identifiantRepartiteur;
 
     public FournisseurDTO() {}
 
@@ -39,6 +41,8 @@ public class FournisseurDTO implements Serializable {
         mobile = fournisseur.getMobile();
         site = fournisseur.getSite();
         code = fournisseur.getCode();
+        identifiantRepartiteur = fournisseur.getIdentifiantRepartiteur();
+        delaiLivraisonJours = fournisseur.getDelaiLivraisonJours();
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         if (groupeFournisseur != null) {
             groupeFournisseurId = groupeFournisseur.getId();
@@ -116,6 +120,22 @@ public class FournisseurDTO implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Integer getDelaiLivraisonJours() {
+        return delaiLivraisonJours;
+    }
+
+    public void setDelaiLivraisonJours(Integer delaiLivraisonJours) {
+        this.delaiLivraisonJours = delaiLivraisonJours;
+    }
+
+    public String getIdentifiantRepartiteur() {
+        return identifiantRepartiteur;
+    }
+
+    public void setIdentifiantRepartiteur(String identifiantRepartiteur) {
+        this.identifiantRepartiteur = identifiantRepartiteur;
     }
 
     public Integer getGroupeFournisseurId() {

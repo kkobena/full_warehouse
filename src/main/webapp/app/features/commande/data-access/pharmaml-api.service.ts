@@ -3,6 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../app.constants';
 import {
+  IDispoGrossisteResult,
   IEnvoiPharmaParams,
   IInfoProduit,
   ILigneRetour,
@@ -82,5 +83,28 @@ export class PharmamlApiService {
       observe: 'response',
       params,
     });
+  }
+
+  disponibiliteMulti(
+    commandeId: number,
+    orderDate: string,
+    grossisteIds: number[],
+  ): Observable<HttpResponse<IDispoGrossisteResult[]>> {
+    return this.http.post<IDispoGrossisteResult[]>(
+      `${this.resourceUrl}/disponibilite-multi`,
+      { commandeId, orderDate, grossisteIds },
+      { observe: 'response' },
+    );
+  }
+
+  disponibiliteMultiSuggestion(
+    suggestionId: number,
+    grossisteIds: number[],
+  ): Observable<HttpResponse<IDispoGrossisteResult[]>> {
+    return this.http.post<IDispoGrossisteResult[]>(
+      `${this.resourceUrl}/disponibilite-multi`,
+      { suggestionId, grossisteIds },
+      { observe: 'response' },
+    );
   }
 }

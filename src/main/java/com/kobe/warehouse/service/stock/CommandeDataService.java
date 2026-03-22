@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
@@ -33,4 +34,6 @@ public interface CommandeDataService {
     Resource getRuptureCsv(String reference);
 
     List<AchatDTO> fetchReportTableauPharmacienData(MvtParam mvtParam);
+
+    CommandeDashboardDTO getDashboard();
 }

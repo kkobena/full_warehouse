@@ -1,22 +1,22 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { FournisseurService } from './fournisseur.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Fournisseur, IFournisseur } from '../../shared/model/fournisseur.model';
-import { ButtonModule } from 'primeng/button';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { TooltipModule } from 'primeng/tooltip';
-import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { ErrorService } from '../../shared/error.service';
-import { Select } from 'primeng/select';
-import { Card } from 'primeng/card';
-import { CommonModule } from '@angular/common';
-import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisseur.service';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import {FournisseurService} from './fournisseur.service';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {Fournisseur, IFournisseur} from '../../shared/model/fournisseur.model';
+import {ButtonModule} from 'primeng/button';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputTextModule} from 'primeng/inputtext';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {TooltipModule} from 'primeng/tooltip';
+import {IGroupeFournisseur} from '../../shared/model/groupe-fournisseur.model';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastAlertComponent} from '../../shared/toast-alert/toast-alert.component';
+import {ErrorService} from '../../shared/error.service';
+import {Select} from 'primeng/select';
+import {Card} from 'primeng/card';
+import {CommonModule} from '@angular/common';
+import {GroupeFournisseurService} from '../groupe-fournisseur/groupe-fournisseur.service';
 
 @Component({
   selector: 'jhi-fournisseur-update',
@@ -50,6 +50,8 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
     phone: [],
     mobile: [],
     groupeFournisseurId: [],
+    delaiLivraisonJours: [],
+    identifiantRepartiteur: [],
   });
   private readonly entityService = inject(FournisseurService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -80,6 +82,8 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       addresspostale: entity.addressePostal,
       phone: entity.phone,
       mobile: entity.mobile,
+      identifiantRepartiteur: entity.identifiantRepartiteur,
+      delaiLivraisonJours: entity.delaiLivraisonJours,
     });
   }
 
@@ -124,6 +128,8 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       addressePostal: this.editForm.get(['addresspostale']).value,
       phone: this.editForm.get(['phone']).value,
       mobile: this.editForm.get(['mobile']).value,
+      delaiLivraisonJours: this.editForm.get(['delaiLivraisonJours']).value,
+      identifiantRepartiteur: this.editForm.get(['identifiantRepartiteur']).value,
     };
   }
 

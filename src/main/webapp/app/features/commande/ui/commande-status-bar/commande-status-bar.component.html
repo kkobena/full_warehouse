@@ -1,0 +1,26 @@
+<div class="status-bar">
+  @for (step of steps; track step.label; let i = $index) {
+    <!-- Connecteur (avant chaque étape sauf la première) -->
+    @if (i > 0) {
+      <div class="status-connector" [class.done]="currentStep() >= i"></div>
+    }
+
+    <!-- Étape -->
+    <div
+      class="status-step"
+      [class.active]="currentStep() === i"
+      [class.done]="currentStep() > i"
+      [pTooltip]="step.tooltip"
+      tooltipPosition="bottom"
+    >
+      <div class="step-circle">
+        @if (currentStep() > i) {
+          <i class="pi pi-check"></i>
+        } @else {
+          <i [class]="step.icon"></i>
+        }
+      </div>
+      <span class="step-label">{{ step.label }}</span>
+    </div>
+  }
+</div>

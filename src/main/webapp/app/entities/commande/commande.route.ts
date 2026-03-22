@@ -47,7 +47,8 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
 const commandeRoute: Routes = [
   {
     path: '',
-    loadComponent: () => import('./commande.component').then(m => m.CommandeComponent),
+    loadComponent: () =>
+      import('../../features/commande/feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       defaultSort: 'id,asc',
@@ -58,12 +59,8 @@ const commandeRoute: Routes = [
 
   {
     path: 'new',
-    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
-    /*
-    children: [{ path: ':id', component: ProductDetailComponent }],
-    <a [routerLink]="['./', product.id]">{{product.name}}</a>
-    this.router.navigate(['./', product.id], { relativeTo: this.route });
-    */
+    loadComponent: () =>
+      import('../../features/commande/feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -75,7 +72,8 @@ const commandeRoute: Routes = [
   },
   {
     path: ':id/:orderDate/edit',
-    loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
+    loadComponent: () =>
+      import('../../features/commande/feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -104,6 +102,28 @@ const commandeRoute: Routes = [
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Nouveau Retour Fournisseur',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'suggestions',
+    loadComponent: () =>
+      import('../../features/commande/feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Suggestions de commande',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'semois-classe-config',
+    loadComponent: () =>
+      import('../../features/commande/feature/semois-classe-config/semois-classe-config.component').then(
+        m => m.SemoisClasseConfigComponent,
+      ),
+    data: {
+      authorities: [Authority.ADMIN],
+      pageTitle: 'Configuration SEMOIS — Classes de criticité',
     },
     canActivate: [UserRouteAccessService],
   },

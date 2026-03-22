@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
  * @param produitId ID du produit
  * @param libelle Libellé du produit
  * @param codeCip Code CIP du produit
+ * @param fournisseurId ID du fournisseur principal
+ * @param fournisseurLibelle Libellé du fournisseur principal
  * @param classeCriticite Classe de criticité (A+, A, B, C, D)
  * @param vmm Ventes Mensuelles Moyennes (pondérées)
  * @param margeSecurite Marge de sécurité calculée
@@ -27,6 +29,8 @@ public record SemoisSuggestionDTO(
     Integer produitId,
     String libelle,
     String codeCip,
+    Integer fournisseurId,
+    String fournisseurLibelle,
     ClasseCriticite classeCriticite,
     Integer vmm,
     Integer margeSecurite,

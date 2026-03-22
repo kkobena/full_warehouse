@@ -4,21 +4,23 @@ import com.kobe.warehouse.domain.enumeration.ClassePareto;
 import java.math.BigDecimal;
 
 /**
- * DTO for ABC Pareto analysis from mv_abc_pareto_analysis materialized view
- * Classification based on 80/20 rule (cumulative revenue contribution)
+ * DTO pour l'analyse ABC Pareto depuis {@code v_abc_pareto_analysis}.
+ * Classification 5 classes basée sur le % du CA cumulé.
  */
 public record ABCParetoDTO(
     Integer produitId,
     String libelle,
     String codeCip,
-    String categorie,
+    String famille,
+    String classeActuelle,
     Integer caTotal,
     Integer qteVendue,
     Integer nbVentes,
+    Integer frequenceMois,
     Long caGlobal,
     Long caCumule,
     BigDecimal contributionPct,
     BigDecimal caCumulePct,
-    ClassePareto classePareto,
-    Integer rang
+    Integer rang,
+    ClassePareto classePareto
 ) {}

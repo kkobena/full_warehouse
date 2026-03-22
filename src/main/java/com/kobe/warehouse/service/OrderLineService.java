@@ -2,6 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
@@ -57,7 +58,7 @@ public interface OrderLineService {
 
     int produitTotalStockWithQantitUg(Produit produit);
 
-    OrderLine buildOrderLine(SuggestionLine suggestionLine);
+    OrderLine buildOrderLine(SuggestionLine suggestionLine, Integer fournisseurId);
 
     void changeFournisseurProduit(OrderLine orderLine, Integer fournisseurId);
 

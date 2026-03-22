@@ -29,14 +29,18 @@ import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServic
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -341,7 +345,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
             });
         }
-        this.suggestionProduitService.suggerer(quantitySuggestions);
+        Magasin magasin = user.getMagasin();
+        List<QuantitySuggestion> suggestions = Collections.unmodifiableList(quantitySuggestions);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                suggestionProduitService.suggerer(suggestions, magasin, user);
+            }
+        });
     }
 
     public Set<SalesLine> cloneSalesLine(Set<SalesLine> salesLines, Sales copy) {

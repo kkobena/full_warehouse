@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -174,6 +175,16 @@ public class CommandeResource {
     @PutMapping("/commandes/update-order-line-quantity-ug")
     public ResponseEntity<Void> updateQuantityUG(@Valid @RequestBody OrderLineDTO orderLineDTO) {
         commandService.updateOrderLineQuantityUg(orderLineDTO);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/commandes/{id}/{orderDate}/import-suggestion")
+    public ResponseEntity<Void> importSuggestionIntoCommande(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate,
+        @RequestParam Integer suggestionId
+    ) {
+        commandService.importSuggestionIntoCommande(new CommandeId(id, orderDate), suggestionId);
         return ResponseEntity.accepted().build();
     }
 }

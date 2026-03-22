@@ -1,0 +1,249 @@
+<div class="d-flex flex-column h-100">
+
+  <!-- HEADER -->
+  <div class="panel-header">
+
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+
+      @if (canValider()) {
+        <p-button
+          label="Valider"
+          icon="pi pi-check"
+          severity="success"
+          size="small"
+          pTooltip="Valider cette suggestion"
+          tooltipPosition="top"
+          (onClick)="validerRequest.emit()"
+        />
+      }
+
+      <p-button
+        icon="pi pi-file-pdf"
+        severity="warn"
+        label="PDF"
+        size="small"
+        pTooltip="Exporter en PDF"
+        tooltipPosition="top"
+        (onClick)="exportPdfRequest.emit()"
+      />
+      <p-button
+        icon="pi pi-file-excel"
+        severity="help"
+        label="CSV"
+        size="small"
+        pTooltip="Exporter en CSV"
+        tooltipPosition="top"
+        (onClick)="exportCsvRequest.emit()"
+      />
+      <p-button
+        icon="pi pi-search"
+        label="Dispo PharmaML"
+        severity="info"
+        size="small"
+        pTooltip="Vérifier la disponibilité chez les grossistes"
+        tooltipPosition="top"
+        (onClick)="dispoRequest.emit()"
+      />
+      <p-button
+        label="Nettoyer"
+        icon="pi pi-wrench"
+        severity="secondary"
+        size="small"
+        pTooltip="Supprimer les lignes invalides"
+        tooltipPosition="top"
+        (onClick)="sanitizeRequest.emit()"
+      />
+      <p-button
+        label="Commander tout"
+        icon="pi pi-shopping-cart"
+        severity="primary"
+        size="small"
+        pTooltip="Commander toutes les lignes de ce fournisseur"
+        tooltipPosition="top"
+        (onClick)="commander.emit()"
+      />
+    </div>
+  </div>
+
+  <!-- ADD PRODUCT BAR -->
+  @if (fournisseur()?.suggestionId) {
+    <div class="add-product-bar">
+      <div class="search-controls">
+        <div class="product-search-input">
+          <app-commande-product-search
+            #produitSearch
+            [autofocus]="false"
+            (productSelected)="onProduitSelected($event)"
+            (productScanned)="onProduitSelected($event)"
+          />
+        </div>
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <input
+              #quantityBox
+              [(ngModel)]="quantiteSaisie"
+              (keydown.enter)="onAjouter()"
+              pInputText
+              placeholder="Qté"
+              type="number"
+              min="1"
+            />
+            <p-inputgroup-addon>
+              <p-button
+                (click)="onAjouter()"
+                [disabled]="!produitEnCours()"
+                icon="pi pi-plus"
+                severity="primary"
+                pTooltip="Ajouter à la suggestion"
+                tooltipPosition="top"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+      </div>
+      @if (produitEnCours()) {
+        <div class="produit-meta">
+          <span class="meta-item">
+            <i class="pi pi-barcode"></i>
+            {{ produitEnCours()!.fournisseurProduit?.codeCip }}
+          </span>
+          <span class="meta-item">
+            <i class="pi pi-tag"></i>
+            {{ produitEnCours()!.regularUnitPrice | number }} F
+          </span>
+          <span class="meta-item" [class.low-stock]="produitEnCours()!.totalQuantity < 10">
+            <i class="pi pi-database"></i>
+            Stock : {{ produitEnCours()!.totalQuantity | number }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- SELECTION TOOLBAR -->
+  @if (lignesSelectionnees().length > 0) {
+    <div class="selection-toolbar">
+      <span class="selection-info">
+        <i class="pi pi-check-circle me-1"></i>
+        {{ lignesSelectionnees().length }} produit(s) sélectionné(s)
+        &nbsp;·&nbsp;
+        {{ montantSelection() | number : '1.0-0' }} FCFA
+      </span>
+      <div class="d-flex gap-2">
+        <p-button
+          label="Commander la sélection"
+          icon="pi pi-shopping-cart"
+          severity="success"
+          size="small"
+          (onClick)="commanderSelection.emit()"
+        />
+        <p-button
+          icon="pi pi-trash"
+          label="Supprimer"
+          severity="danger"
+          size="small"
+          pTooltip="Retirer les produits sélectionnés de la suggestion"
+          tooltipPosition="top"
+          (onClick)="onSupprimerSelection()"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- AG GRID -->
+  <div class="grid-wrapper flex-grow-1">
+
+    <!-- FILTER BAR — caption du tableau -->
+    <div class="grid-caption">
+      <input
+        pInputText
+        type="text"
+        placeholder="Rechercher (libellé, CIP)..."
+        [value]="searchText()"
+        (input)="onSearchInput($any($event.target).value)"
+        class="grid-caption__search"
+      />
+      <div class="d-flex gap-1">
+        <p-button
+          label="Tous"
+          size="small"
+          [severity]="urgenceFilter() === 'TOUS' ? 'primary' : 'secondary'"
+          (onClick)="setUrgenceFilter('TOUS')"
+        />
+        <p-button
+          label="Urgents"
+          size="small"
+          [severity]="urgenceFilter() === 'URGENT' ? 'danger' : 'secondary'"
+          (onClick)="setUrgenceFilter('URGENT')"
+        />
+        <p-button
+          label="Normaux"
+          size="small"
+          [severity]="urgenceFilter() === 'NORMAL' ? 'warn' : 'secondary'"
+          (onClick)="setUrgenceFilter('NORMAL')"
+        />
+        <p-button
+          label="OK"
+          size="small"
+          [severity]="urgenceFilter() === 'OK' ? 'success' : 'secondary'"
+          (onClick)="setUrgenceFilter('OK')"
+        />
+      </div>
+      <span class="grid-caption__total ms-auto">{{ total() }} ligne(s)</span>
+    </div>
+
+    <!-- GRILLE -->
+    <div class="grid-body">
+      <ag-grid-angular
+        [theme]="theme"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [rowSelection]="rowSelection"
+        [rowClassRules]="rowClassRules"
+        [getRowId]="getRowId"
+        [enableCellEditingOnBackspace]="true"
+        [enterNavigatesVerticallyAfterEdit]="true"
+        [animateRows]="true"
+        [singleClickEdit]="true"
+        [stopEditingWhenCellsLoseFocus]="true"
+        [suppressScrollOnNewData]="true"
+        (gridReady)="onGridReady($event)"
+        (selectionChanged)="onSelectionChanged()"
+        (cellValueChanged)="onCellValueChanged($event)"
+        (cellClicked)="onCellClicked($event)"
+        style="width: 100%; height: 100%;"
+      />
+      @if (loading()) {
+        <div class="grid-loading-overlay">
+          <i class="pi pi-spin pi-spinner me-2"></i> Chargement...
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- PAGINATION EXTERNE -->
+  @if (total() > rows()) {
+    <div class="pagination-bar">
+      <p-button
+        icon="pi pi-angle-left"
+        severity="secondary"
+        size="small"
+        [disabled]="page() === 0"
+        (onClick)="goToPage(page() - 1)"
+        pTooltip="Page précédente"
+      />
+      <span class="pagination-info">
+        Page {{ page() + 1 }} / {{ totalPages() }}
+        &nbsp;·&nbsp; {{ total() }} lignes
+      </span>
+      <p-button
+        icon="pi pi-angle-right"
+        severity="secondary"
+        size="small"
+        [disabled]="page() >= totalPages() - 1"
+        (onClick)="goToPage(page() + 1)"
+        pTooltip="Page suivante"
+      />
+    </div>
+  }
+</div>

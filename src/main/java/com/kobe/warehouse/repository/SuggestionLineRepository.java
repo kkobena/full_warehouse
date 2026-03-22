@@ -7,11 +7,14 @@ import com.kobe.warehouse.domain.SuggestionLine_;
 import com.kobe.warehouse.domain.Suggestion_;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.projection.SuggestionAggregator;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -28,6 +31,16 @@ public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, 
     boolean existsByFournisseurProduitProduitId(Integer produitId);
 
     int countByFournisseurProduitProduitId(Integer produitId);
+
+    /**
+     * Charge en une seule requête toutes les lignes AUTO existantes pour un ensemble
+     * de fournisseurProduitId. Utilisé par suggerer() pour éliminer le N+1.
+     */
+    @Query("SELECT l FROM SuggestionLine l WHERE l.suggestion.typeSuggession = :type AND l.fournisseurProduit.id IN :ids")
+    List<SuggestionLine> findAllByTypeSuggessionAndFournisseurProduitIdIn(
+        @Param("type") TypeSuggession type,
+        @Param("ids") Collection<Integer> ids
+    );
 
     default Specification<SuggestionLine> filterBySuggestionId(Integer suggestionId) {
         return (root, query, cb) -> cb.equal(root.get(SuggestionLine_.suggestion).get(Suggestion_.id), suggestionId);

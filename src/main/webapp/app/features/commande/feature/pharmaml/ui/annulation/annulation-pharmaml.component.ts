@@ -1,26 +1,25 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
-import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import {Component, inject, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {Button} from 'primeng/button';
+import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
+import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
 import {NotificationService} from "../../../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../../../shared/error.service";
-import {Toast} from "primeng/toast";
 
 @Component({
   selector: 'app-annulation-pharmaml',
-  imports: [FormsModule, Button, Toast],
+  imports: [FormsModule, Button],
   styleUrls: ['./annulation-pharmaml.scss'],
   template: `
-    <p-toast position="center"/>
     <div class="modal-header">
       <h5 class="modal-title">Annuler la commande PharmaML</h5>
       <button type="button" class="btn-close" (click)="cancel()"></button>
     </div>
     <div class="modal-body">
       <p class="text-muted mb-3">
-        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande sera archivée côté officine.
+        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande sera archivée côté
+        officine.
       </p>
       <div class="mb-3">
         <label class="form-label" for="motif">Motif (optionnel)</label>
@@ -37,7 +36,7 @@ import {Toast} from "primeng/toast";
       }
     </div>
     <div class="modal-footer gap-2">
-      <p-button label="Fermer" severity="secondary" [outlined]="true" (onClick)="cancel()" />
+      <p-button label="Fermer" severity="secondary" [outlined]="true" (onClick)="cancel()"/>
       <p-button
         label="Confirmer l'annulation"
         severity="danger"

@@ -27,6 +27,7 @@ public abstract class CommandeWrapperDTO {
     private String sequenceBon;
     private FournisseurDTO fournisseur;
     private boolean hasBeenSubmittedToPharmaML;
+    private Integer reliquatDeCommandeId;
 
     protected CommandeWrapperDTO() {}
 
@@ -47,6 +48,7 @@ public abstract class CommandeWrapperDTO {
         orderStatus = commande.getOrderStatus();
         receiptAmount = commande.getFinalAmount();
         hasBeenSubmittedToPharmaML = commande.isHasBeenSubmittedToPharmaML();
+        reliquatDeCommandeId = commande.getReliquatDeCommandeId();
     }
 
     public Integer getId() {
@@ -216,6 +218,15 @@ public abstract class CommandeWrapperDTO {
 
     public CommandeWrapperDTO setHasBeenSubmittedToPharmaML(boolean hasBeenSubmittedToPharmaML) {
         this.hasBeenSubmittedToPharmaML = hasBeenSubmittedToPharmaML;
+        return this;
+    }
+
+    public Integer getReliquatDeCommandeId() {
+        return reliquatDeCommandeId;
+    }
+
+    public CommandeWrapperDTO setReliquatDeCommandeId(Integer reliquatDeCommandeId) {
+        this.reliquatDeCommandeId = reliquatDeCommandeId;
         return this;
     }
 }

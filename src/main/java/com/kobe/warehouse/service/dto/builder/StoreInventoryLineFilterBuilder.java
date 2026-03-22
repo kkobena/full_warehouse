@@ -49,7 +49,7 @@ public class StoreInventoryLineFilterBuilder {
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
-            JOIN mv_abc_pareto_analysis abc ON abc.produit_id = p.id
+            JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
             WHERE p.status = 'ENABLE'
               AND (:classePareto IS NULL OR abc.classe_pareto = :classePareto)
             """;
@@ -208,7 +208,7 @@ public class StoreInventoryLineFilterBuilder {
                        FROM inventory_lot il
                        GROUP BY il.store_inventory_line_id) ilc
               ON ilc.store_inventory_line_id = a.id
-            LEFT JOIN mv_abc_pareto_analysis abc ON abc.produit_id = p.id
+            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
             {join_statement} WHERE a.store_inventory_id = ?1 {join_statement_where} %s
             ORDER BY fp.code_cip, p.libelle
             """;
@@ -265,7 +265,7 @@ public class StoreInventoryLineFilterBuilder {
             JOIN produit p               ON sil.produit_id = p.id
             JOIN fournisseur_produit fp  ON p.fournisseur_produit_principal_id = fp.id
             JOIN lot l                   ON il.lot_id = l.id
-            LEFT JOIN mv_abc_pareto_analysis abc ON abc.produit_id = p.id
+            LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id
             {join_statement} WHERE sil.store_inventory_id = ?1 {join_statement_where} %s
             ORDER BY fp.code_cip, p.libelle, l.num_lot
             """;
@@ -486,7 +486,7 @@ public class StoreInventoryLineFilterBuilder {
      * <p>Les joins optionnels ne sont ajoutés que si explicitement activés :
      * <ul>
      *   <li>{@link #withLotCount(boolean)} — sous-requête d'agrégation sur {@code inventory_lot}</li>
-     *   <li>{@link #withAbcPareto(boolean)} — LEFT JOIN sur {@code mv_abc_pareto_analysis}</li>
+     *   <li>{@link #withAbcPareto(boolean)} — LEFT JOIN sur {@code v_abc_pareto_analysis}</li>
      * </ul>
      *
      * <p>Les colonnes correspondantes sont toujours présentes dans le SELECT
@@ -513,7 +513,7 @@ public class StoreInventoryLineFilterBuilder {
         }
 
         /**
-         * Active le LEFT JOIN sur {@code mv_abc_pareto_analysis}. À utiliser uniquement pour les
+         * Active le LEFT JOIN sur {@code v_abc_pareto_analysis}. À utiliser uniquement pour les
          * inventaires de type {@code ABC}, ou quand l'affichage du badge Pareto est souhaité.
          */
         public LineQueryBuilder withAbcPareto(boolean include) {
@@ -585,7 +585,7 @@ public class StoreInventoryLineFilterBuilder {
                     ) ilc ON ilc.store_inventory_line_id = a.id""");
             }
             if (includeAbcPareto) {
-                sql.append(" LEFT JOIN mv_abc_pareto_analysis abc ON abc.produit_id = p.id");
+                sql.append(" LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id");
             }
             appendScopeJoin(sql);
         }
@@ -641,7 +641,7 @@ public class StoreInventoryLineFilterBuilder {
      *
      * <p>Join optionnel :
      * <ul>
-     *   <li>{@link #withAbcPareto(boolean)} — LEFT JOIN sur {@code mv_abc_pareto_analysis}</li>
+     *   <li>{@link #withAbcPareto(boolean)} — LEFT JOIN sur {@code v_abc_pareto_analysis}</li>
      * </ul>
      */
     public static final class LotQueryBuilder {
@@ -654,7 +654,7 @@ public class StoreInventoryLineFilterBuilder {
         }
 
         /**
-         * Active le LEFT JOIN sur {@code mv_abc_pareto_analysis}.
+         * Active le LEFT JOIN sur {@code v_abc_pareto_analysis}.
          */
         public LotQueryBuilder withAbcPareto(boolean include) {
             this.includeAbcPareto = include;
@@ -709,7 +709,7 @@ public class StoreInventoryLineFilterBuilder {
         private void appendFrom(StringBuilder sql) {
             appendCoreJoins(sql);
             if (includeAbcPareto) {
-                sql.append(" LEFT JOIN mv_abc_pareto_analysis abc ON abc.produit_id = p.id");
+                sql.append(" LEFT JOIN v_abc_pareto_analysis abc ON abc.produit_id = p.id");
             }
             appendScopeJoin(sql);
         }

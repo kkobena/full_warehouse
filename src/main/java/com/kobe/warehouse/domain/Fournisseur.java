@@ -62,6 +62,10 @@ public class Fournisseur implements Serializable {
     @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)
     private GroupeFournisseur groupeFournisseur;
 
+    /** Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur. */
+    @Column(name = "delai_livraison_jours")
+    private Integer delaiLivraisonJours;
+
     /*
     Id de agence grossiste, utliser dans pharamaml RECEPTEUR (Id) DESTINATAIRE(Id_Societe)
      */
@@ -203,12 +207,22 @@ public class Fournisseur implements Serializable {
         return 31;
     }
 
+    public Integer getDelaiLivraisonJours() {
+        return delaiLivraisonJours;
+    }
+
+    public Fournisseur setDelaiLivraisonJours(Integer delaiLivraisonJours) {
+        this.delaiLivraisonJours = delaiLivraisonJours;
+        return this;
+    }
+
     public String getIdentifiantRepartiteur() {
         return identifiantRepartiteur;
     }
 
-    public void setIdentifiantRepartiteur(String identifiantRepartiteur) {
+    public Fournisseur setIdentifiantRepartiteur(String identifiantRepartiteur) {
         this.identifiantRepartiteur = identifiantRepartiteur;
+        return this;
     }
 
     @Override

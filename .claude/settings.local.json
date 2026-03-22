@@ -75,7 +75,8 @@
       "Bash(grep -n \"originalCommandeId\\\\|reliquat\\\\|RELIQUAT\\\\|order_date\\\\|orderDate\\\\|hasBeenSubmitted\\\\|generateRef\\\\|orderReference\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/domain/Commande.java | head -20\ngrep -n \"buildOrderLine\\\\|save\\\\b\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/service/OrderLineService.java 2>/dev/null | head -10)",
       "Bash(grep -rn \"buildOrderLine\\\\|OrderLineService\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/service/OrderLineService.java | head -10\ngrep -n \"originalCommandeId\\\\|hasBeenSubmitted\\\\|order_reference\\\\|orderReference\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/domain/Commande.java | head -10)",
       "Bash(grep -n \"getNextIdAsInt\\\\|buildNumCommande\\\\|interface\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/service/CommandeIdGeneratorService.java 2>/dev/null\ngrep -n \"buildNumCommande\\\\|interface\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/service/referential/ReferenceService.java 2>/dev/null | head -5)",
-      "Bash(grep -rn \"original_commande_id\\\\|reliquat_de\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/resources/db/migration/ 2>/dev/null | head -5\ngrep -n \"original_commande_id\\\\|reliquat\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/domain/Commande.java | head -10)"
+      "Bash(grep -rn \"original_commande_id\\\\|reliquat_de\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/resources/db/migration/ 2>/dev/null | head -5\ngrep -n \"original_commande_id\\\\|reliquat\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/domain/Commande.java | head -10)",
+      "Bash(grep -E \"\\\\.\\(ts\\)$\")"
     ],
     "deny": [],
     "ask": []

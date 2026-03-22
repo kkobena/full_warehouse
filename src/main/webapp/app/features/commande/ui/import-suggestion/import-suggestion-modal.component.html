@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i class="pi pi-lightbulb me-2"></i>Importer depuis une suggestion</h5>
+  <button (click)="dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body p-1">
+  <p-table
+    [loading]="loading()"
+    [value]="suggestions()"
+    [scrollable]="true"
+    scrollHeight="400px"
+    class="p-datatable-sm p-datatable-striped pharma-table"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Référence</th>
+        <th>Fournisseur</th>
+        <th>Type</th>
+        <th>Statut</th>
+        <th class="text-end">Articles</th>
+        <th class="text-end">Montant achat</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-s>
+      <tr>
+        <td>{{ s.suggessionReference }}</td>
+        <td>{{ s.fournisseurLibelle }}</td>
+        <td>{{ s.typeSuggession }}</td>
+        <td>
+          <p-tag [severity]="statutSeverity(s.statut)" [value]="s.statutLibelle || s.statut" />
+        </td>
+        <td class="text-end">{{ s.suggestionAggregator?.itemsCount ?? 0 }}</td>
+        <td class="text-end">{{ (s.suggestionAggregator?.montantAchat ?? 0) | number : '1.0-0' : 'fr' }} F</td>
+        <td class="text-end">
+          <p-button
+            (click)="onImport(s)"
+            [disabled]="importing()"
+            [loading]="importing()"
+            icon="pi pi-download"
+            label="Importer"
+            severity="primary"
+            size="small"
+            pTooltip="Fusionner les lignes de cette suggestion dans la commande en cours"
+            tooltipPosition="left"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7" class="text-center text-muted py-4">
+          <i class="pi pi-info-circle me-2"></i>Aucune suggestion active disponible
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div class="modal-footer">
+  <p-button (click)="dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" />
+</div>

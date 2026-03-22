@@ -1,6 +1,9 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
+import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
+import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
@@ -43,6 +46,11 @@ public class SuggestionResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/par-fournisseur")
+    public ResponseEntity<List<FournisseurSuggestionSummaryDTO>> getParFournisseur() {
+        return ResponseEntity.ok(suggestionProduitService.getSuggestionsParFournisseur());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SuggestionDTO> getCommande(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(suggestionProduitService.getSuggestionById(id));
@@ -54,9 +62,10 @@ public class SuggestionResource {
     public ResponseEntity<List<SuggestionLineDTO>> getItemsWithConsommation(
         @RequestParam(name = "suggestionId") Integer suggestionId,
         @RequestParam(required = false, name = "search") String search,
+        @RequestParam(required = false, name = "niveauUrgence") String niveauUrgence,
         Pageable pageable
     ) {
-        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesByIdWithConsommation(suggestionId, search, pageable);
+        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesByIdWithConsommation(suggestionId, search, niveauUrgence, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -97,6 +106,18 @@ public class SuggestionResource {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(value = "/pdf/{id}", produces = "application/pdf")
+    public ResponseEntity<byte[]> exportToPdf(@PathVariable Integer id) {
+        byte[] pdfData = suggestionProduitService.exportToPdf(id);
+        String filename = "suggestion_" + id + "_"
+            + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss"))
+            + ".pdf";
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdfData);
+    }
+
     @GetMapping(value = "/csv/{id}", produces = "text/csv")
     public ResponseEntity<byte[]> exportToCsv(@PathVariable Integer id) {
         try {
@@ -117,5 +138,28 @@ public class SuggestionResource {
     public ResponseEntity<Void> commander(@PathVariable Integer id) {
         suggestionProduitService.commander(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/commander-selection")
+    public ResponseEntity<Void> commanderSelection(@RequestBody CommanderSelectionDTO dto) {
+        suggestionProduitService.commanderSelection(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/budget")
+    public ResponseEntity<BudgetCommandeDTO> getBudget() {
+        return ResponseEntity.ok(suggestionProduitService.getBudgetCommande());
+    }
+
+    @PutMapping("/{id}/valider")
+    public ResponseEntity<Void> valider(@PathVariable Integer id) {
+        suggestionProduitService.validerSuggestion(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/rejeter")
+    public ResponseEntity<Void> rejeter(@PathVariable Integer id) {
+        suggestionProduitService.rejeterSuggestion(id);
+        return ResponseEntity.noContent().build();
     }
 }

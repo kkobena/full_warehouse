@@ -40,10 +40,10 @@ public interface ClassificationConfigRepository extends JpaRepository<Classifica
     int getNbMoisMinNouveauProduit();
 
     /**
-     * Récupère le seuil minimum de changement de score pour changer de classe
+     * Récupère l'écart minimum en points Pareto pour déclencher un reclassement (hysteresis).
      *
-     * @return Seuil de score (défaut 10)
+     * @return Pourcentage minimum (défaut 3)
      */
-    @Query("SELECT COALESCE(c.changementMinScore, 10) FROM ClassificationConfig c ORDER BY c.id ASC LIMIT 1")
-    int getChangementMinScore();
+    @Query("SELECT COALESCE(c.changementMinPourcentage, 3) FROM ClassificationConfig c ORDER BY c.id ASC LIMIT 1")
+    int getChangementMinPourcentage();
 }

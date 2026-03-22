@@ -1,0 +1,48 @@
+<table class="main-table" xmlns:th="http://www.thymeleaf.org">
+  <thead>
+    <tr>
+      <th colspan="8" style="text-align:left; font-size:11px; font-weight:bold; border-bottom:0.5px solid #3989c6; padding-bottom:4px;">
+        <span th:text="${suggestionReference}"></span>
+        &nbsp;—&nbsp;
+        <span th:text="${fournisseurLibelle}"></span>
+        &nbsp;—&nbsp;
+        <span th:text="${dateGeneration}"></span>
+      </th>
+    </tr>
+    <tr>
+      <th class="text-left">Désignation</th>
+      <th class="text-left">Code CIP</th>
+      <th class="text-right">Stock</th>
+      <th class="text-right">Qté suggérée</th>
+      <th class="text-right">Prix achat</th>
+      <th class="text-right">Montant</th>
+      <th class="text-center">Source</th>
+      <th class="text-center">Urgence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="itm : ${items}">
+      <td class="text-left" th:text="${itm.fournisseurProduitLibelle}"></td>
+      <td class="text-left" th:text="${itm.fournisseurProduitCip}"></td>
+      <td class="text-right" th:text="${#numbers.formatInteger(itm.currentStock, 1, 'WHITESPACE')}"></td>
+      <td class="text-right" th:text="${#numbers.formatInteger(itm.quantity, 1, 'WHITESPACE')}"></td>
+      <td class="text-right" th:text="${#numbers.formatInteger(itm.prixAchat, 1, 'WHITESPACE')}"></td>
+      <td class="text-right" th:text="${#numbers.formatInteger(itm.quantity * itm.prixAchat, 1, 'WHITESPACE')}"></td>
+      <td class="text-center" th:text="${itm.sourceCalcul}"></td>
+      <td class="text-center" th:text="${itm.niveauUrgence}"></td>
+    </tr>
+  </tbody>
+  <tfoot class="datatable-footer">
+    <tr>
+      <td colspan="3"><strong>TOTAUX</strong></td>
+      <td class="text-right">
+        <strong th:text="${#numbers.formatInteger(totalQuantite, 1, 'WHITESPACE')}"></strong>
+      </td>
+      <td></td>
+      <td class="text-right">
+        <strong th:text="${#numbers.formatInteger(totalMontant, 1, 'WHITESPACE')}"></strong>
+      </td>
+      <td colspan="2"></td>
+    </tr>
+  </tfoot>
+</table>

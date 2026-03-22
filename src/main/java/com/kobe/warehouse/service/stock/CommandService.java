@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import java.util.List;
@@ -47,6 +48,10 @@ public interface CommandService {
     CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
     void createCommandeFromSuggestion(Suggestion suggestion);
+
+    void createCommandeFromSelection(Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes);
+
+    void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId);
 
     void changeGrossiste(CommandeDTO commandeDTO);
 }

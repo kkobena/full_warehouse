@@ -7,12 +7,13 @@
     <p-card>
       <div class="form-grid-compact">
         <div [hidden]="!editForm.get('id')!.value" class="form-group">
-          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden"/>
         </div>
         <div class="form-field form-field-full">
           <label for="field_libelle">Libellé<span class="required">*</span></label>
 
-          <input #libelleInput autocomplete="off" class="w-full" formControlName="libelle" id="field_libelle" name="libelle" pInputText />
+          <input #libelleInput autocomplete="off" class="w-full" formControlName="libelle" id="field_libelle"
+                 name="libelle" pInputText/>
 
           @let libelle = editForm.get('libelle');
           @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
@@ -25,8 +26,24 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_urlPharmaMl">Url PharmaMl</label>
+          <label for="field_delaiLivraisonJours">Délai de livraison (jours)<span class="required">*</span></label>
 
+          <input pKeyFilter="'int'" autocomplete="off" class="w-full" formControlName="delaiLivraisonJours"
+                 id="field_delaiLivraisonJours" name="delaiLivraisonJours" pInputText/>
+
+          @let delaiLivraisonJours = editForm.get('delaiLivraisonJours');
+          @if (delaiLivraisonJours!.invalid && (delaiLivraisonJours!.dirty || delaiLivraisonJours!.touched)) {
+            <div>
+              @if (delaiLivraisonJours?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+
+
+        <div class="form-field form-field-full">
+          <label for="field_urlPharmaMl">URL PharmaML</label>
           <input
             [pKeyFilter]="blockSpace"
             autocomplete="off"
@@ -40,7 +57,7 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_codeOfficePharmaMl">Code officine PharmaMl</label>
+          <label for="field_codeOfficePharmaMl">Code officine PharmaML</label>
 
           <input
             [pKeyFilter]="blockSpace"
@@ -55,7 +72,7 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_codeRecepteurPharmaMl">Code récepteur PharmaMl</label>
+          <label for="field_codeRecepteurPharmaMl">Code récepteur PharmaML</label>
 
           <input
             [pKeyFilter]="blockSpace"
@@ -70,7 +87,7 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_idRecepteurPharmaMl">ID client chez le grossiste (PharmaMl)</label>
+          <label for="field_idRecepteurPharmaMl">ID client grossiste (PharmaML)</label>
 
           <input
             [pKeyFilter]="blockSpace"
@@ -85,7 +102,7 @@
         </div>
 
         <div class="form-field form-field-full">
-          <label for="field_odre">Ordre de priorité</label>
+          <label for="field_odre">Ordre</label>
 
           <input
             autocomplete="off"

@@ -27,6 +27,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { finalize } from 'rxjs/operators';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import {ButtonGroup} from "primeng/buttongroup";
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
@@ -50,6 +51,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent,
+    ButtonGroup,
   ],
 })
 export class GroupeFournisseurComponent implements OnInit {

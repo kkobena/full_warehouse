@@ -100,11 +100,6 @@ public class ClassificationResource {
     ) {
         LOG.info("REST request to update classification config");
 
-        // Validate weights sum to 1.0
-        if (!config.isPoidsValide()) {
-            return ResponseEntity.badRequest().build();
-        }
-
         // Validate thresholds order
         if (!config.isSeuilsValides()) {
             return ResponseEntity.badRequest().build();
@@ -134,7 +129,8 @@ public class ClassificationResource {
 
         // Log warning if anomaly detected
         if (result.hasAnomaliePotentielle()) {
-            LOG.warn("Reclassification anomaly detected: {:.1f}% changes", result.getPourcentageChangements());
+            LOG.warn("Reclassification anomaly detected: {}% changes",
+                String.format("%.1f", result.getPourcentageChangements()));
         }
 
         return ResponseEntity.ok(result);

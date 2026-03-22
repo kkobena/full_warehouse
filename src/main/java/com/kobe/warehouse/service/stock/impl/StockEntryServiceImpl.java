@@ -30,6 +30,8 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
+import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.PriceHistoryDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
@@ -41,6 +43,7 @@ import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.repository.FournisseurProduitPriceHistoryRepository;
 import com.kobe.warehouse.repository.LotReceptionRepository;
 import com.kobe.warehouse.repository.LotRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -101,6 +104,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final AppConfigurationService appConfigurationService ;
     private final RetourBonRepository retourBonRepository;
     private final FournisseurProduitPriceHistoryRepository priceHistoryRepository;
+    private final OrderLineRepository orderLineRepository;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
@@ -144,7 +148,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         LotReceptionRepository lotReceptionRepository,
         AppConfigurationService appConfigurationService,
         RetourBonRepository retourBonRepository,
-        FournisseurProduitPriceHistoryRepository priceHistoryRepository
+        FournisseurProduitPriceHistoryRepository priceHistoryRepository,
+        OrderLineRepository orderLineRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -164,11 +169,50 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.appConfigurationService = appConfigurationService;
         this.retourBonRepository = retourBonRepository;
         this.priceHistoryRepository = priceHistoryRepository;
+        this.orderLineRepository = orderLineRepository;
     }
 
     @Override
     public StockEntryResultDTO finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return finalizeSaisie(deliveryReceiptLite);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderLineDTO> findLignesAvecEcartPrix(Integer commandeId, LocalDate orderDate) {
+        int seuil = appConfigurationService.getSeuilVariationPrix();
+        return orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId, orderDate)
+            .stream()
+            .filter(line -> {
+                int orderCost = line.getOrderCostAmount();
+                int currentCost = line.getFournisseurProduit().getPrixAchat();
+                if (orderCost == 0 || currentCost == orderCost) return false;
+                double variation = Math.abs((double)(currentCost - orderCost) / orderCost) * 100;
+                return variation > seuil;
+            })
+            .map(line -> new OrderLineDTO(line)
+                .setOrderCostAmount(line.getOrderCostAmount())
+                .setCostAmount(line.getFournisseurProduit().getPrixAchat()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PriceHistoryDTO> getPriceHistory(Integer fournisseurProduitId) {
+        return priceHistoryRepository.findByFournisseurProduitIdOrderByChangedAtDesc(fournisseurProduitId)
+            .stream()
+            .limit(24)
+            .map(h -> new PriceHistoryDTO(
+                h.getId(),
+                h.getOldPrixAchat(),
+                h.getNewPrixAchat(),
+                h.getOldPrixUni(),
+                h.getNewPrixUni(),
+                h.getChangedAt(),
+                h.getReceiptReference(),
+                h.getChangedBy() != null ? h.getChangedBy().getLogin() : null
+            ))
+            .toList();
     }
 
     private Commande getReferenceById(CommandeId id) {

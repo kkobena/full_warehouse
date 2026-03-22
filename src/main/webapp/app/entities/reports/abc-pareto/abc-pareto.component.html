@@ -2,7 +2,7 @@
   <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-pie"></i>
-      <span class="pharma-toolbar-title">Analyse ABC Pareto (Règle 80/20)</span>
+      <span class="pharma-toolbar-title">Analyse ABC Pareto (5 classes)</span>
     </div>
 
     <p-toolbar>
@@ -10,13 +10,13 @@
         <div class="pharma-toolbar-filters">
           <p-select
             (onChange)="onFilterChange()"
-            [(ngModel)]="selectedCategorie"
-            [options]="categorieOptions()"
+            [(ngModel)]="selectedFamille"
+            [options]="familleOptions()"
             [showClear]="true"
             appendTo="body"
             optionLabel="label"
             optionValue="value"
-            placeholder="Catégorie"
+            placeholder="Famille"
             size="large"
           />
           <p-select
@@ -42,8 +42,6 @@
           <p-button (onClick)="showTopContributors()" class="mr-1" icon="pi pi-star" label="Top 50 Contributeurs"
                     severity="info"
                     size="small" />
-
-          <!--        <p-button label="Exporter PDF" icon="pi pi-file-pdf" severity="danger" (onClick)="exportToPdf()" />-->
           <p-button (onClick)="loadABCPareto()" icon="pi pi-refresh" label="Rafraîchir" severity="primary"
                     size="small" />
         </div>
@@ -51,15 +49,41 @@
     </p-toolbar>
   </div>
 
-  <!-- Summary Cards -->
+  <!-- Summary Cards — 5 classes -->
   @if (summary()) {
     <div class="row mt-3">
-      <div class="col-12 col-md-4 mb-2">
+
+      <!-- A+ -->
+      <div class="col-12 col-md-4 col-xl mb-2">
+        <div class="card h-100 data-card" style="border-left: 4px solid #d32f2f">
+          <div class="card-header">
+            <div class="d-flex align-items-center gap-2">
+              <p-chip label="A+" severity="danger" />
+              <span class="fw-semibold">Classe A+ (≤ 60% CA)</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="text-center">
+              <h2 class="fw-bold mb-2" style="color: #d32f2f">{{ summary()!.nbProduitsAPlus }}</h2>
+              <p class="text-sm text-muted mb-3">Produits
+                ({{ summary()!.pctCaClasseAPlus | number: '1.2-2' }}% du CA)</p>
+              <p-progressBar [showValue]="false" [value]="summary()!.pctCaClasseAPlus || 0"
+                             severity="danger" />
+              <hr class="my-3" />
+              <div class="fw-semibold fs-5">{{ formatCurrency(summary()!.caClasseAPlus) }} FCFA</div>
+              <p class="text-xs text-muted">Chiffre d'Affaires</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A -->
+      <div class="col-12 col-md-4 col-xl mb-2">
         <div class="card h-100 data-card" style="border-left: 4px solid #4caf50">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="A" severity="success" />
-              <span class="fw-semibold">Classe A (80% du CA)</span>
+              <span class="fw-semibold">Classe A (60-80%)</span>
             </div>
           </div>
           <div class="card-body">
@@ -77,12 +101,13 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
+      <!-- B -->
+      <div class="col-12 col-md-4 col-xl mb-2">
         <div class="card h-100 data-card" style="border-left: 4px solid #2196f3">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="B" severity="info" />
-              <span class="fw-semibold">Classe B (15% du CA)</span>
+              <span class="fw-semibold">Classe B (80-95%)</span>
             </div>
           </div>
           <div class="card-body">
@@ -100,12 +125,13 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-4 mb-2">
+      <!-- C -->
+      <div class="col-12 col-md-4 col-xl mb-2">
         <div class="card h-100 data-card" style="border-left: 4px solid #ff9800">
           <div class="card-header">
             <div class="d-flex align-items-center gap-2">
               <p-chip label="C" severity="warn" />
-              <span class="fw-semibold">Classe C (5% du CA)</span>
+              <span class="fw-semibold">Classe C (95-99%)</span>
             </div>
           </div>
           <div class="card-body">
@@ -122,9 +148,34 @@
           </div>
         </div>
       </div>
+
+      <!-- D -->
+      <div class="col-12 col-md-4 col-xl mb-2">
+        <div class="card h-100 data-card" style="border-left: 4px solid #9e9e9e">
+          <div class="card-header">
+            <div class="d-flex align-items-center gap-2">
+              <p-chip label="D" severity="secondary" />
+              <span class="fw-semibold">Classe D (>99% / sans ventes)</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="text-center">
+              <h2 class="text-secondary fw-bold mb-2">{{ summary()!.nbProduitsD }}</h2>
+              <p class="text-sm text-muted mb-3">Produits
+                ({{ summary()!.pctCaClasseD | number: '1.2-2' }}% du CA)</p>
+              <p-progressBar [showValue]="false" [value]="summary()!.pctCaClasseD || 0"
+                             severity="secondary" />
+              <hr class="my-3" />
+              <div class="fw-semibold fs-5">{{ formatCurrency(summary()!.caClasseD) }} FCFA</div>
+              <p class="text-xs text-muted">Chiffre d'Affaires</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Global Summary Card -->
+    <!-- Global Summary -->
     <div class="row mt-2">
       <div class="col-12 mb-2">
         <div class="card h-100 data-card">
@@ -170,7 +221,7 @@
         <div class="card-body p-0">
           <div class="overflow-x-auto">
             <p-table
-              [globalFilterFields]="['libelle', 'codeCip', 'categorie']"
+              [globalFilterFields]="['libelle', 'codeCip', 'famille', 'classeActuelle']"
               [loading]="isLoading()"
               [paginator]="true"
               [rowsPerPageOptions]="[10, 25, 50, 100]"
@@ -185,12 +236,13 @@
                   <th>Rang</th>
                   <th>Produit</th>
                   <th>Code CIP</th>
-                  <th>Catégorie</th>
+                  <th>Famille</th>
                   <th class="text-end">CA Total</th>
+                  <th class="text-end">Qté Vendue</th>
+                  <th class="text-end">Fréq. (mois)</th>
                   <th class="text-end">Contribution %</th>
                   <th class="text-end">CA Cumulé %</th>
                   <th>Classe Pareto</th>
-                  <th class="text-end">Nb Ventes</th>
                 </tr>
               </ng-template>
 
@@ -199,11 +251,12 @@
                   <td class="fw-bold">{{ product.rang }}</td>
                   <td>{{ product.libelle }}</td>
                   <td>{{ product.codeCip }}</td>
-                  <td>{{ product.categorie }}</td>
+                  <td>{{ product.famille }}</td>
                   <td class="text-end">{{ product.caTotal | number: '1.0-0' }} F</td>
+                  <td class="text-end">{{ product.qteVendue | number }}</td>
+                  <td class="text-end">{{ product.frequenceMois }}</td>
                   <td class="text-end">
-                    <span class="fw-semibold">{{ product.contributionPct | number: '1.2-2' }}
-                      %</span>
+                    <span class="fw-semibold">{{ product.contributionPct | number: '1.2-2' }}%</span>
                   </td>
                   <td class="text-end">
                     <div class="d-flex align-items-center justify-content-end gap-2">
@@ -218,17 +271,16 @@
                   </td>
                   <td>
                     <p-chip
-                      [label]="getClasseParetoLabel(product.classePareto) + ' - ' + getClasseParetoDescription(product.classePareto)"
+                      [label]="getClasseParetoLabel(product.classePareto) + ' — ' + getClasseParetoDescription(product.classePareto)"
                       [severity]="getClasseParetoSeverity(product.classePareto)"
                     />
                   </td>
-                  <td class="text-end">{{ product.nbVentes | number }}</td>
                 </tr>
               </ng-template>
 
               <ng-template #emptymessage>
                 <tr>
-                  <td class="text-center p-4" colspan="9">
+                  <td class="text-center p-4" colspan="10">
                     <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                     <p class="mt-3 text-muted">Aucun produit trouvé</p>
                   </td>
@@ -246,172 +298,86 @@
     <ng-template #header>
       <div class="d-flex align-items-center gap-2">
         <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
-        <span class="fw-bold fs-5">Guide d'utilisation - Analyse ABC Pareto</span>
+        <span class="fw-bold fs-5">Guide — Analyse ABC Pareto 5 classes</span>
       </div>
     </ng-template>
 
     <div class="p-3">
-      <!-- Introduction -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que
-          l'analyse ABC Pareto ?</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que l'analyse ABC Pareto ?</h6>
         <p class="text-sm text-muted">
-          L'analyse ABC Pareto (règle 80/20) est une méthode de classification qui permet
-          d'identifier les produits les plus rentables. Elle
-          repose sur le principe que <strong>20% des produits génèrent environ 80% du chiffre
-          d'affaires</strong>.
+          L'analyse ABC Pareto (règle 80/20) identifie les produits les plus rentables.
+          Cette version utilise <strong>5 classes</strong> pour une granularité accrue,
+          alignée sur la classification interne <em>ClasseCriticite</em>.
         </p>
       </div>
 
       <hr />
 
-      <!-- Classification -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification des
-          produits</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification des produits</h6>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
+        <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #d32f2f">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-chip label="A+" severity="danger" />
+            <span class="fw-bold">Classe A+ — Produits ultra-stratégiques</span>
+          </div>
+          <p class="text-sm mb-0">CA cumulé ≤ 60%. Surveillance quotidienne obligatoire.</p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="A" severity="success" />
-            <span class="fw-bold">Classe A - Produits stratégiques</span>
+            <span class="fw-bold">Classe A — Produits stratégiques</span>
           </div>
-          <p class="text-sm mb-2"><strong>Représentent :</strong> ~20% des produits = 80% du CA
-            cumulé</p>
-          <p class="text-sm mb-0"><strong>Actions :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li>Surveillance quotidienne des stocks</li>
-            <li>Négociation prioritaire avec fournisseurs</li>
-            <li>Éviter les ruptures de stock à tout prix</li>
-            <li>Prévoir des stocks de sécurité élevés</li>
-          </ul>
+          <p class="text-sm mb-0">CA cumulé 60-80%. Surveillance hebdomadaire, stock de sécurité élevé.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
+        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="B" severity="info" />
-            <span class="fw-bold">Classe B - Produits intermédiaires</span>
+            <span class="fw-bold">Classe B — Produits intermédiaires</span>
           </div>
-          <p class="text-sm mb-2"><strong>Représentent :</strong> ~30% des produits = 15% du CA
-            (80-95% cumulé)</p>
-          <p class="text-sm mb-0"><strong>Actions :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li>Surveillance hebdomadaire des stocks</li>
-            <li>Gestion optimisée des commandes</li>
-            <li>Maintenir un stock de sécurité modéré</li>
-          </ul>
+          <p class="text-sm mb-0">CA cumulé 80-95%. Gestion optimisée, stock modéré.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #fff3e0; border-left: 4px solid #ff9800">
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <div class="d-flex align-items-center gap-2 mb-2">
             <p-chip label="C" severity="warn" />
-            <span class="fw-bold">Classe C - Produits occasionnels</span>
+            <span class="fw-bold">Classe C — Produits occasionnels</span>
           </div>
-          <p class="text-sm mb-2"><strong>Représentent :</strong> ~50% des produits = 5% du CA
-            (95-100% cumulé)</p>
-          <p class="text-sm mb-0"><strong>Actions :</strong></p>
-          <ul class="text-sm mb-0 ps-3">
-            <li>Commandes à la demande</li>
-            <li>Réduire les stocks dormants</li>
-            <li>Envisager le déréférencement si rotation trop faible</li>
-            <li>Stock minimal ou sur commande uniquement</li>
-          </ul>
+          <p class="text-sm mb-0">CA cumulé 95-99%. Commandes à la demande, stock minimal.</p>
+        </div>
+
+        <div class="mb-3 p-3 rounded" style="background-color: #f5f5f5; border-left: 4px solid #9e9e9e">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <p-chip label="D" severity="secondary" />
+            <span class="fw-bold">Classe D — Produits dormants / sans ventes</span>
+          </div>
+          <p class="text-sm mb-0">CA cumulé > 99% ou aucune vente sur 12 mois. Envisager le déréférencement.</p>
         </div>
       </div>
 
       <hr />
 
-      <!-- Métriques -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les
-          métriques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Métriques</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Rang</p>
-          <p class="text-sm text-muted mb-2">Position du produit dans le classement par CA
-            décroissant (1 = meilleur contributeur).</p>
+          <p class="text-sm text-muted mb-2">Position par CA décroissant (1 = meilleur contributeur).</p>
         </div>
-
         <div class="mb-3">
-          <p class="fw-semibold mb-1">CA Total</p>
-          <p class="text-sm text-muted mb-2">Chiffre d'affaires généré par le produit sur la période
-            analysée.</p>
+          <p class="fw-semibold mb-1">Fréquence (mois)</p>
+          <p class="text-sm text-muted mb-2">Nombre de mois distincts avec au moins une vente sur 12 mois.</p>
         </div>
-
         <div class="mb-3">
           <p class="fw-semibold mb-1">Contribution %</p>
-          <p class="text-sm text-muted mb-2">
-            <strong>Formule :</strong> (CA du produit / CA global) × 100<br />
-            Part du produit dans le CA total de la pharmacie.
-          </p>
+          <p class="text-sm text-muted mb-2">Part du produit dans le CA global : (CA produit / CA global) × 100.</p>
         </div>
-
         <div class="mb-3">
           <p class="fw-semibold mb-1">CA Cumulé %</p>
-          <p class="text-sm text-muted mb-2">
-            <strong>Formule :</strong> Somme des contributions du rang 1 jusqu'au rang actuel<br />
-            Permet d'identifier les seuils 80%, 95% et 100% pour la classification ABC.
-          </p>
-        </div>
-      </div>
-
-      <hr />
-
-      <!-- Exploitation -->
-      <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter
-          cette analyse</h6>
-
-        <div class="alert alert-warning">
-          <strong><i class="pi pi-exclamation-triangle me-2"></i>Points d'attention :</strong>
-          <ul class="mb-0 mt-2 ps-3 text-sm">
-            <li>Concentrez 80% de votre attention sur les produits de classe A</li>
-            <li>Surveillez les ruptures de stock sur la classe A (impact majeur sur le CA)</li>
-            <li>Optimisez la trésorerie en réduisant le stock des produits classe C</li>
-            <li>Renégociez les conditions d'achat avec vos fournisseurs pour les produits classe A
-            </li>
-            <li>Utilisez le filtre "Top 50 Contributeurs" pour une vue focalisée</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Exemples pratiques -->
-      <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples pratiques</h6>
-
-        <div class="card mb-2" style="border-left: 3px solid #4caf50">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 1 : Produit classe A en rupture</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action immédiate :</strong> Commander en urgence, proposer une alternative au
-              client, augmenter le stock de sécurité
-              pour éviter toute rupture future.
-            </p>
-          </div>
-        </div>
-
-        <div class="card mb-2" style="border-left: 3px solid #ff9800">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 2 : Produit classe C avec stock élevé</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Organiser une promotion pour écouler le stock, réduire la
-              quantité commandée, voire envisager le
-              déréférencement.
-            </p>
-          </div>
-        </div>
-
-        <div class="card" style="border-left: 3px solid #2196f3">
-          <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">✓ Cas 3 : Négociation fournisseur</p>
-            <p class="text-xs text-muted mb-0">
-              <strong>Stratégie :</strong> Utilisez l'analyse pour négocier de meilleurs prix sur
-              les produits classe A (volumes importants
-              = pouvoir de négociation).
-            </p>
-          </div>
+          <p class="text-sm text-muted mb-2">Somme des contributions du rang 1 jusqu'au rang actuel. Détermine la classe Pareto.</p>
         </div>
       </div>
     </div>

@@ -1,0 +1,17 @@
+package com.kobe.warehouse.service.dto;
+
+/**
+ * Résumé agrégé d'une suggestion par fournisseur.
+ * Retourné par GET /api/suggestions/par-fournisseur.
+ * Les noms de champs correspondent exactement au modèle TypeScript FournisseurSuggestionSummary.
+ */
+public record FournisseurSuggestionSummaryDTO(
+    Integer suggestionId,
+    Integer fournisseurId,
+    String libelle,
+    String statut,
+    int nbProduits,
+    int nbUrgents,
+    long montantEstime,
+    String source
+) {}

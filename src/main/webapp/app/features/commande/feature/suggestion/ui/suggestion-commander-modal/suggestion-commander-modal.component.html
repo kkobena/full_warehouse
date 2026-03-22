@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-shopping-cart me-2 text-primary"></i>
+    Commander — <strong>{{ fournisseurLibelle }}</strong>
+  </h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0 pharma-table">
+      <thead>
+        <tr class="pharma-table-head">
+          <th>Produit</th>
+          <th style="width: 4rem; text-align: right;">Qté</th>
+          <th style="width: 8rem; text-align: right;">Prix unit. (FCFA)</th>
+          <th style="width: 9rem; text-align: right;">Montant (FCFA)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ligne of lignes; track ligne.id) {
+          <tr [class.table-warning]="ligne.quantiteModifiee">
+            <td>
+              <div class="fw-semibold" style="font-size: 0.85rem;">{{ ligne.libelle }}</div>
+              <div class="text-muted" style="font-size: 0.75rem;">{{ ligne.codeCip }}</div>
+            </td>
+            <td style="text-align: right; font-size: 0.875rem;">
+              {{ ligne.quantite | number : '1.0-0' }}
+              @if (ligne.quantiteModifiee) {
+                <i class="pi pi-pencil ms-1 text-warning" style="font-size: 0.7rem;" title="Quantité modifiée manuellement"></i>
+              }
+            </td>
+            <td style="text-align: right; font-size: 0.875rem;">
+              {{ ligne.prixAchat | number : '1.0-0' }}
+            </td>
+            <td style="text-align: right; font-size: 0.875rem; font-weight: 500;">
+              {{ ligne.quantite * ligne.prixAchat | number : '1.0-0' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (lignesModifiees.length > 0) {
+    <div class="d-flex align-items-center gap-2 px-3 py-2 bg-warning-subtle border-top border-warning-subtle">
+      <i class="pi pi-exclamation-triangle text-warning"></i>
+      <span class="text-warning-emphasis" style="font-size: 0.85rem;">
+        <strong>{{ lignesModifiees.length }}</strong> quantité(s) ont été modifiées manuellement.
+      </span>
+    </div>
+  }
+
+  <hr class="my-0" />
+
+  <div class="d-flex justify-content-end align-items-center px-3 py-2 gap-3">
+    @if (budgetRestant != null) {
+      <span class="text-muted" style="font-size: 0.85rem;">
+        Budget restant : <strong>{{ budgetRestant | number : '1.0-0' }} FCFA</strong>
+      </span>
+    }
+    <span class="fs-6 fw-bold text-dark">
+      Total : {{ montantTotal | number : '1.0-0' }} FCFA
+    </span>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    icon="pi pi-times"
+    severity="secondary"
+    (onClick)="cancel()"
+  />
+  <p-button
+    label="Valider et commander"
+    icon="pi pi-shopping-cart"
+    severity="success"
+    (onClick)="confirm()"
+  />
+</div>

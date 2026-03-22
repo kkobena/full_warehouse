@@ -1,0 +1,114 @@
+<p-toast position="center"/>
+
+<div class="semois-classe-config">
+  <div class="config-header">
+    <h2 class="config-title">Configuration SEMOIS — Paramètres par classe de criticité</h2>
+    <p class="config-subtitle">
+      Ces paramètres s'appliquent à tous les produits de la classe. Ils sont utilisés pour calculer le stock objectif
+      et déclencher le réapprovisionnement automatique.
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-wrapper">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <p-skeleton height="3.5rem" class="mb-2" />
+      }
+    </div>
+  } @else {
+    <p-table [value]="configs()" [tableStyle]="{ 'min-width': '700px' }" class="p-datatable-sm pharma-table">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 120px">Classe</th>
+          <th>Description</th>
+          <th style="width: 180px">
+            Coeff. sécurité
+            <i
+              class="pi pi-info-circle ml-1"
+              pTooltip="Multiplicateur appliqué au VMM pour calculer la marge de sécurité. Plage : 0.1 – 2.0"
+              tooltipPosition="top"
+            ></i>
+          </th>
+          <th style="width: 180px">
+            Mois d'historique
+            <i
+              class="pi pi-info-circle ml-1"
+              pTooltip="Nombre de mois pris en compte pour calculer la VMM pondérée"
+              tooltipPosition="top"
+            ></i>
+          </th>
+          <th style="width: 160px">
+            Limite péremption
+            <i
+              class="pi pi-info-circle ml-1"
+              pTooltip="Si activé, le stock objectif est plafonné à 3× la VMM pour éviter les invendus périméables"
+              tooltipPosition="top"
+            ></i>
+          </th>
+          <th style="width: 100px"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-config>
+        <tr>
+          <td>
+            <p-tag
+              [value]="getClasseInfo(config.classeCriticite).label"
+              [severity]="getClasseInfo(config.classeCriticite).severity"
+            />
+          </td>
+          <td class="config-description">{{ getClasseInfo(config.classeCriticite).description }}</td>
+          <td>
+            <p-inputNumber
+              [(ngModel)]="config.coefficientSecurite"
+              [min]="0.1"
+              [max]="2.0"
+              [step]="0.1"
+              [minFractionDigits]="1"
+              [maxFractionDigits]="2"
+              mode="decimal"
+              locale="fr-FR"
+              [inputStyle]="{ width: '100px' }"
+            />
+          </td>
+          <td>
+            <p-inputNumber
+              [(ngModel)]="config.nbMoisHistorique"
+              [min]="3"
+              [max]="24"
+              [step]="1"
+              [showButtons]="true"
+              [inputStyle]="{ width: '80px' }"
+            />
+          </td>
+          <td class="text-center">
+            <p-checkbox [(ngModel)]="config.limitePeremption" [binary]="true" />
+          </td>
+          <td class="text-center">
+            <p-button
+              icon="pi pi-save"
+              [loading]="isSaving(config.classeCriticite)"
+              (click)="save(config)"
+              pTooltip="Enregistrer"
+              tooltipPosition="left"
+              size="small"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-color-secondary py-4">Aucune configuration trouvée</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="config-footer">
+      <div class="formula-card">
+        <span class="formula-label">Formule stock objectif :</span>
+        <code class="formula">Stock objectif = VMM + (VMM × délai_livraison × coeff_sécurité / 30)</code>
+      </div>
+    </div>
+  }
+</div>

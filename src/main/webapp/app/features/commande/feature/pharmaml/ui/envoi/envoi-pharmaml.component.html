@@ -1,4 +1,4 @@
-<p-toast position="center"/>
+
 
 <div class="modal-header">
   <h5 class="modal-title">Envoi commande PharmaML</h5>
@@ -6,38 +6,51 @@
 </div>
 
 <div class="modal-body">
-  <div class="mb-3">
-    <label class="form-label">Type de commande</label>
-    <p-select
-      [options]="typeCommandeOptions"
-      [ngModel]="typeCommande()"
-      (ngModelChange)="typeCommande.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      class="w-100"
-    />
-  </div>
+  <p-card>
+    <div class="form-grid-compact">
+      <div class="form-field form-field-full">
+        <label class="form-label">Type de commande</label>
+        <p-select
+          [options]="typeCommandeOptions"
+          [ngModel]="typeCommande()"
+          (ngModelChange)="typeCommande.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          class="w-100"
+        />
+      </div>
 
-  <div class="mb-3">
-    <label class="form-label">Date de livraison souhaitée</label>
-    <input
-      type="date"
-      class="form-control"
-      [ngModel]="dateLivraison()"
-      (ngModelChange)="dateLivraison.set($event)"
-    />
-  </div>
+      <div class="form-field form-field-full">
+        <label class="form-label">Date de livraison souhaitée</label>
+        <p-datePicker
+          (onShow)="onDropdownShow($event)"
+          (onClose)="onDropdownHide($event)"
+          [minDate]="minDate"
+          [defaultDate]="minDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          class="w-full"
+          dateFormat="dd/mm/yy"
 
-  <div class="mb-3">
-    <label class="form-label">Commentaire</label>
-    <textarea
-      pTextarea
-      rows="3"
-      class="w-100"
-      [ngModel]="commentaire()"
-      (ngModelChange)="commentaire.set($event)"
-    ></textarea>
-  </div>
+          [ngModel]="dateLivraison()"
+          (ngModelChange)="dateLivraison.set($event)"
+        />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label class="form-label">Commentaire</label>
+        <textarea
+          pTextarea
+          rows="3"
+          class="w-100"
+          [ngModel]="commentaire()"
+          (ngModelChange)="commentaire.set($event)"
+        ></textarea>
+      </div>
+    </div>
+  </p-card>
+
 </div>
 
 <div class="modal-footer">

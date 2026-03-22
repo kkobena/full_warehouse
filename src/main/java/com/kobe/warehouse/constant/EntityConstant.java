@@ -50,6 +50,9 @@ public final class EntityConstant {
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
     public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
+    public static final String APP_BUDGET_MENSUEL_COMMANDE = "APP_BUDGET_MENSUEL_COMMANDE"; // Budget mensuel des commandes fournisseurs (0 = illimité)
+    public static final String APP_COUVERTURE_MOIS_CLASSIQUE = "APP_COUVERTURE_MOIS_CLASSIQUE"; // Nb mois de couverture cible pour la formule P2 (défaut: 2)
+    public static final String APP_COUVERTURE_MOIS_CLASSIQUE_CACHE = "APP_COUVERTURE_MOIS_CLASSIQUE_CACHE";
     public static final String APP_GESTION_LOT_INVENTAIRE = "APP_GESTION_LOT_INVENTAIRE";
     public static final String APP_GESTION_LOT_INVENTAIRE_CACHE = "APP_GESTION_LOT_INVENTAIRE_CACHE";
     public static final String APP_MODE_SAISIE_LOT_INVENTAIRE = "APP_MODE_SAISIE_LOT_INVENTAIRE";
@@ -71,5 +74,7 @@ public final class EntityConstant {
     public static final String APP_CANCEL_SALE_MAX_DAYS_CACHE = "APP_CANCEL_SALE_MAX_DAYS_CACHE";
     public static final String APP_RECEPTION_MIN_EXPIRY_DAYS = "APP_RECEPTION_MIN_EXPIRY_DAYS"; // Durée minimale (en jours) de validité d'un lot à la réception
     public static final String APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE = "APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE";
+    public static final String APP_SEUIL_VARIATION_PRIX = "APP_SEUIL_VARIATION_PRIX"; // Seuil (%) de variation de prix d'achat déclenchant une alerte à la réception
+    public static final String APP_SEUIL_VARIATION_PRIX_CACHE = "APP_SEUIL_VARIATION_PRIX_CACHE";
 
 }

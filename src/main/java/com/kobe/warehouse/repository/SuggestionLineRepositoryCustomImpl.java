@@ -39,6 +39,9 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
     private static final int COL_SUGGESTION_COUNT = 12;
     private static final int COL_COMMANDE_COUNT = 13;
     private static final int COL_ENTREE = 14;
+    private static final int COL_NIVEAU_URGENCE = 15;
+    private static final int COL_JOURS_RESTANTS = 16;
+    private static final int COL_SOURCE_CALCUL = 17;
     private final EntityManager em;
 
     public SuggestionLineRepositoryCustomImpl(EntityManager em) {
@@ -49,37 +52,39 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
 
     @Override
     public Page<SuggestionLineDTO> fetchSuggestionLinesWithConsommation(
-        Integer suggestionId, String search, Integer storageId, LocalDate dateRetention, int nthMois, Pageable pageable
+        Integer suggestionId, String search, String niveauUrgence, Integer storageId, LocalDate dateRetention, int nthMois, Pageable pageable
     ) {
-        return doFetch(suggestionId, search, storageId, dateRetention, pageable,  nthMois);
+        return doFetch(suggestionId, search, niveauUrgence, storageId, dateRetention, pageable, nthMois);
     }
 
     // ─── orchestration ────────────────────────────────────────────────
 
     private Page<SuggestionLineDTO> doFetch(
-        Integer suggestionId, String search, Integer storageId,
+        Integer suggestionId, String search, String niveauUrgence, Integer storageId,
         LocalDate dateRetention, Pageable pageable,
         int nthMois
     ) {
         boolean hasSearch = StringUtils.hasLength(search);
+        boolean hasUrgence = StringUtils.hasLength(niveauUrgence) && !"TOUS".equals(niveauUrgence);
         boolean unpaged = pageable.isUnpaged();
-        String baseFrom = baseFromClause();
+        String baseFrom = baseFromClause(nthMois);
         String searchClause = hasSearch ? searchClause() : "";
+        String urgenceClause = hasUrgence ? urgenceFilterClause() : "";
 
         // COUNT inutile quand on récupère tout
         long total = unpaged
             ? -1
-            : count(baseFrom + searchClause, storageId, suggestionId, hasSearch, search);
+            : count(baseFrom + searchClause + urgenceClause, storageId, suggestionId, hasSearch, search, hasUrgence, niveauUrgence);
 
         if (!unpaged && total == 0) {
             return Page.empty(pageable);
         }
 
-        String dataSql = selectClause() + baseFrom + searchClause
+        String dataSql = selectClause() + baseFrom + searchClause + urgenceClause
             + (unpaged ? orderClause() : orderAndPagination());
 
         List<Object[]> rows = executeData(
-            dataSql, storageId, suggestionId, dateRetention, pageable, hasSearch, search
+            dataSql, storageId, suggestionId, dateRetention, pageable, hasSearch, search, hasUrgence, niveauUrgence
         );
 
         if (unpaged && rows.isEmpty()) {
@@ -145,15 +150,23 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
 
     // ─── SQL fragments ────────────────────────────────────────────────
 
-    private static String baseFromClause() {
+    private static String baseFromClause(int nthMois) {
         return """
             FROM suggestion_line sl
             JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
             JOIN produit p ON p.id = fp.produit_id
             LEFT JOIN stock_produit sp ON sp.produit_id = p.id AND sp.storage_id = :storageId
+            LEFT JOIN v_semois_suggestion sm ON sm.produit_id = p.id
+            LEFT JOIN LATERAL (
+                SELECT ROUND(AVG(mv.qte_vendue))::integer AS vmm_p2
+                FROM mv_monthly_top_products mv
+                WHERE mv.produit_id = p.id
+                  AND mv.mois::date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '%d months')::date
+                  AND mv.mois::date <  DATE_TRUNC('month', CURRENT_DATE)::date
+            ) vmm_q ON true
             WHERE p.status = 'ENABLE'
               AND sl.suggestion_id = :suggestionId
-        """;
+        """.formatted(nthMois);
     }
 
     private static String searchClause() {
@@ -201,7 +214,60 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
                      WHERE fp4.produit_id = p.id
                        AND c2.order_status = 'RECEIVED'
                        AND c2.order_date > :dateRetention
-                )                                        AS entree
+                )                                        AS entree,
+                CASE
+                    WHEN sm.produit_id IS NOT NULL
+                         AND (COALESCE(sm.stock_objectif, 0) - COALESCE(sp.qty_stock + sp.qty_ug, 0)) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) < COALESCE(sm.marge_securite, 0)
+                        THEN 'URGENT'
+                    WHEN sm.produit_id IS NOT NULL
+                         AND (COALESCE(sm.stock_objectif, 0) - COALESCE(sp.qty_stock + sp.qty_ug, 0)) > 0
+                        THEN 'NORMAL'
+                    WHEN sm.produit_id IS NULL
+                         AND COALESCE(vmm_q.vmm_p2, 0) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) = 0
+                        THEN 'URGENT'
+                    WHEN sm.produit_id IS NULL
+                         AND COALESCE(vmm_q.vmm_p2, 0) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) < vmm_q.vmm_p2
+                        THEN 'NORMAL'
+                    ELSE 'OK'
+                END                                      AS niveau_urgence,
+                CASE
+                    WHEN COALESCE(sm.vmm, 0) > 0
+                        THEN ROUND(COALESCE(sp.qty_stock + sp.qty_ug, 0)::numeric / sm.vmm * 30)::integer
+                    WHEN COALESCE(vmm_q.vmm_p2, 0) > 0
+                        THEN ROUND(COALESCE(sp.qty_stock + sp.qty_ug, 0)::numeric / vmm_q.vmm_p2 * 30)::integer
+                    ELSE NULL
+                END                                      AS jours_restants,
+                CASE
+                    WHEN sm.produit_id IS NOT NULL THEN 'SEMOIS'
+                    WHEN COALESCE(vmm_q.vmm_p2, 0) > 0 THEN 'P2'
+                    ELSE 'CLASSIQUE'
+                END                                      AS source_calcul
+        """;
+    }
+
+    private static String urgenceFilterClause() {
+        return """
+            AND CASE
+                    WHEN sm.produit_id IS NOT NULL
+                         AND (COALESCE(sm.stock_objectif, 0) - COALESCE(sp.qty_stock + sp.qty_ug, 0)) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) < COALESCE(sm.marge_securite, 0)
+                        THEN 'URGENT'
+                    WHEN sm.produit_id IS NOT NULL
+                         AND (COALESCE(sm.stock_objectif, 0) - COALESCE(sp.qty_stock + sp.qty_ug, 0)) > 0
+                        THEN 'NORMAL'
+                    WHEN sm.produit_id IS NULL
+                         AND COALESCE(vmm_q.vmm_p2, 0) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) = 0
+                        THEN 'URGENT'
+                    WHEN sm.produit_id IS NULL
+                         AND COALESCE(vmm_q.vmm_p2, 0) > 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) < vmm_q.vmm_p2
+                        THEN 'NORMAL'
+                    ELSE 'OK'
+                END = :niveauUrgence
         """;
     }
 
@@ -222,12 +288,15 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
 
     // ─── query execution ──────────────────────────────────────────────
 
-    private long count(String whereClause, Integer storageId, Integer suggestionId, boolean hasSearch, String search) {
+    private long count(String whereClause, Integer storageId, Integer suggestionId, boolean hasSearch, String search, boolean hasUrgence, String niveauUrgence) {
         Query query = em.createNativeQuery("SELECT COUNT(*) " + whereClause)
             .setParameter("storageId", storageId)
             .setParameter("suggestionId", suggestionId);
         if (hasSearch) {
             query.setParameter("search", search.toUpperCase() + "%");
+        }
+        if (hasUrgence) {
+            query.setParameter("niveauUrgence", niveauUrgence);
         }
         return ((Number) query.getSingleResult()).longValue();
     }
@@ -235,7 +304,7 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
     @SuppressWarnings("unchecked")
     private List<Object[]> executeData(
         String sql, Integer storageId, Integer suggestionId,
-        LocalDate dateRetention, Pageable pageable, boolean hasSearch, String search
+        LocalDate dateRetention, Pageable pageable, boolean hasSearch, String search, boolean hasUrgence, String niveauUrgence
     ) {
         Query query = em.createNativeQuery(sql)
             .setParameter("storageId", storageId)
@@ -247,6 +316,9 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         }
         if (hasSearch) {
             query.setParameter("search", search.toUpperCase() + "%");
+        }
+        if (hasUrgence) {
+            query.setParameter("niveauUrgence", niveauUrgence);
         }
         return query.getResultList();
     }
@@ -270,6 +342,10 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
             commandeCount > 1
         );
 
+        String niveauUrgence = row[COL_NIVEAU_URGENCE] instanceof String s ? s : "OK";
+        Integer joursRestants = row[COL_JOURS_RESTANTS] instanceof Number n ? n.intValue() : null;
+        String sourceCalcul = row[COL_SOURCE_CALCUL] instanceof String s ? s : "CLASSIQUE";
+
         return new SuggestionLineDTO(
             intValue(row[COL_SL_ID]),
             intValue(row[COL_SL_QUANTITY]),
@@ -284,7 +360,10 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
             etatProduit,
             intValue(row[COL_PRIX_ACHAT]),
             intValue(row[COL_PRIX_UNI]),
-            consommation
+            consommation,
+            niveauUrgence,
+            joursRestants,
+            sourceCalcul
         );
     }
 

@@ -4,17 +4,24 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.PharmaMlEnvoi;
+import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.CustomizedCommandeService;
 import com.kobe.warehouse.repository.OrderLineRepository;
+import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
+import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeResumeeDTO;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.PharmaMlEnvoiResumeeDTO;
 import com.kobe.warehouse.service.dto.Sort;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
@@ -52,6 +59,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     private final CustomizedCommandeService customizedCommandeService;
     private final OrderLineRepository orderLineRepository;
     private final ObjectMapper objectMapper;
+    private final PharmaMlEnvoiRepository pharmaMlEnvoiRepository;
 
     private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
         StringUtils.isEmpty(s) ||
@@ -73,7 +81,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         CommandeReportReportService commandeReportService,
         CustomizedCommandeService customizedCommandeService,
         OrderLineRepository orderLineRepository,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        PharmaMlEnvoiRepository pharmaMlEnvoiRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.exportationCsvService = exportationCsvService;
@@ -81,6 +90,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         this.customizedCommandeService = customizedCommandeService;
         this.orderLineRepository = orderLineRepository;
         this.objectMapper = objectMapper;
+        this.pharmaMlEnvoiRepository = pharmaMlEnvoiRepository;
     }
 
     private Commande findId(CommandeId id) {
@@ -214,6 +224,69 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             LOG.error(null, e);
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public CommandeDashboardDTO getDashboard() {
+        List<Commande> allRequested = commandeRepository.findAll(
+            (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED)
+        );
+        List<Commande> allReceived = commandeRepository.findAll(
+            (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED)
+        );
+        List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING);
+
+        List<CommandeResumeeDTO> requestedDTOs = allRequested.stream()
+            .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
+            .limit(20)
+            .map(this::toResumee)
+            .toList();
+
+        List<CommandeResumeeDTO> receivedDTOs = allReceived.stream()
+            .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
+            .limit(20)
+            .map(this::toResumee)
+            .toList();
+
+        List<PharmaMlEnvoiResumeeDTO> envoisDTOs = envoisPending.stream()
+            .limit(50)
+            .map(this::toEnvoiResumee)
+            .toList();
+
+        return new CommandeDashboardDTO(
+            allRequested.size(),
+            allReceived.size(),
+            envoisPending.size(),
+            requestedDTOs,
+            receivedDTOs,
+            envoisDTOs
+        );
+    }
+
+    private CommandeResumeeDTO toResumee(Commande c) {
+        return new CommandeResumeeDTO(
+            c.getId().getId(),
+            c.getId().getOrderDate().toString(),
+            c.getOrderReference(),
+            c.getFournisseur().getLibelle(),
+            c.getGrossAmount() != null ? c.getGrossAmount() : 0,
+            c.getOrderStatus().name(),
+            c.getReliquatDeCommandeId()
+        );
+    }
+
+    private PharmaMlEnvoiResumeeDTO toEnvoiResumee(PharmaMlEnvoi e) {
+        Commande c = e.getCommande();
+        CommandeId commandeId = c.getId();
+        return new PharmaMlEnvoiResumeeDTO(
+            e.getId(),
+            commandeId.getId(),
+            commandeId.getOrderDate().toString(),
+            c.getOrderReference(),
+            e.getFournisseur().getLibelle(),
+            e.getStatut().name(),
+            e.getDerniereTentative() != null ? e.getDerniereTentative() : e.getCreatedAt()
+        );
     }
 
     private Resource getResource(String path) throws MalformedURLException {

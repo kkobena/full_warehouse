@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, Renderer2, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
@@ -18,6 +18,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 import { ErrorService } from '../../../shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Card } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-form-lot',
@@ -34,6 +35,7 @@ import { Card } from 'primeng/card';
     DatePicker,
     ToastAlertComponent,
     Card,
+    TagModule,
   ],
 })
 export class FormLotComponent implements OnInit, AfterViewInit {
@@ -47,6 +49,7 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   protected maxDate = new Date();
   protected minDate = new Date();
   protected showUgControl = false;
+  protected expiryWarning = signal<'none' | 'soon' | 'critical'>('none');
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     numLot: new FormControl<string | null>(null, {
@@ -103,14 +106,16 @@ export class FormLotComponent implements OnInit, AfterViewInit {
     }, 100);
   }
   updateForm(entity: ILot): void {
+    const expiryDate = entity.expiryDate ? new Date(entity.expiryDate) : null;
     this.editForm.patchValue({
       numLot: entity.numLot,
       id: entity.id,
       quantityReceived: entity.quantityReceived,
-      expiryDate: entity.expiryDate ? new Date(entity.expiryDate) : null,
+      expiryDate,
       manufacturingDate: entity.manufacturingDate ? new Date(entity.manufacturingDate) : null,
       ugQuantityReceived: entity.ugQuantityReceived,
     });
+    this.onExpiryDateSelected(expiryDate);
   }
 
   save(): void {
@@ -125,6 +130,21 @@ export class FormLotComponent implements OnInit, AfterViewInit {
 
   cancel(): void {
     this.activeModal.dismiss();
+  }
+
+  onExpiryDateSelected(date: Date | null): void {
+    if (!date) {
+      this.expiryWarning.set('none');
+      return;
+    }
+    const monthsToExpiry = (date.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44);
+    if (monthsToExpiry < 3) {
+      this.expiryWarning.set('critical');
+    } else if (monthsToExpiry < 6) {
+      this.expiryWarning.set('soon');
+    } else {
+      this.expiryWarning.set('none');
+    }
   }
 
   onValidateQuantity(event: any): void {

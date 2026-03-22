@@ -10,14 +10,6 @@ import com.kobe.warehouse.service.GroupeFournisseurService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -30,6 +22,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service Implementation for managing {@link GroupeFournisseur}.
@@ -70,9 +71,9 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
             .email(groupeFournisseurDTO.getEmail())
             .numFaxe(groupeFournisseurDTO.getNumFaxe())
             .odre(groupeFournisseurDTO.getOdre())
+            .setDelaiLivraisonJours(groupeFournisseurDTO.getDelaiLivraisonJours())
             .tel(groupeFournisseurDTO.getTel());
-        groupeFournisseur = groupeFournisseurRepository.save(groupeFournisseur);
-        return new GroupeFournisseurDTO(groupeFournisseur);
+        return new GroupeFournisseurDTO(groupeFournisseurRepository.save(groupeFournisseur));
     }
 
     /**
@@ -89,7 +90,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
         if (StringUtils.hasLength(search)) {
             SpecificationBuilder<GroupeFournisseur> builder = new SpecificationBuilder<>();
             Specification<GroupeFournisseur> spec = builder
-                .with(new String[] { "libelle" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
+                .with(new String[]{"libelle"}, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
                 .build();
             return groupeFournisseurRepository.findAll(spec, page).map(GroupeFournisseurDTO::new);
         }

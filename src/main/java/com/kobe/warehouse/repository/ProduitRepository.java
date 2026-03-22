@@ -25,9 +25,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.StringUtils.hasText;
@@ -173,4 +176,36 @@ public interface ProduitRepository
         GROUP BY p.classe_criticite
         """, nativeQuery = true)
     List<Object[]> countByClasseCriticite();
+
+    /**
+     * Compte les produits actifs non-DETAIL (pour dimensionner le batch SEMOIS).
+     */
+    @Query("SELECT COUNT(p) FROM Produit p WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL")
+    long countActiveNonDetail();
+
+    /**
+     * Charge une page de produits actifs non-DETAIL avec eager fetch du fournisseur principal
+     * et sa chaîne (groupe_fournisseur) pour le calcul du délai de livraison en cascade.
+     */
+    @Query(value = """
+        SELECT DISTINCT p FROM Produit p
+        LEFT JOIN FETCH p.fournisseurProduitPrincipal fp
+        LEFT JOIN FETCH fp.fournisseur f
+        LEFT JOIN FETCH f.groupeFournisseur
+        WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
+          AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
+        """,
+        countQuery = """
+        SELECT COUNT(p) FROM Produit p
+        WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
+          AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
+        """)
+    Page<Produit> findActiveNonDetailWithFournisseur(Pageable pageable);
+
+    /**
+     * Retourne les IDs des produits actifs non-DETAIL présents dans la collection donnée.
+     * Utilisé par le batch SEMOIS pour le bulk-load des SemoisConfiguration.
+     */
+    @Query("SELECT p.id FROM Produit p WHERE p.id IN :ids")
+    List<Integer> findIdsByIdIn(@Param("ids") Collection<Integer> ids);
 }

@@ -1,0 +1,314 @@
+<p-toast position="center"/>
+
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <!-- HEADER TOOLBAR -->
+    <div class="pharma-sales-header">
+      <div class="header-left">
+        <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour"/>
+        <div class="page-title">
+          <h5>Réception de commande</h5>
+          <p class="subtitle">Validation et traitement des réceptions</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        @if (lignesSansLot > 0) {
+          <p-tag
+            [value]="lignesSansLot + ' lot(s) manquant(s)'"
+            severity="warn"
+            icon="pi pi-exclamation-triangle"
+            pTooltip="Des lignes n'ont pas de numéro de lot renseigné"
+            tooltipPosition="bottom"
+          />
+        }
+        <p-button
+          (click)="onConfirmFinalize()"
+          class="action-btn"
+          icon="pi pi-check-circle"
+          label="Valider"
+          severity="primary"
+          size="small"
+        />
+        <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small"/>
+      </div>
+
+      <div class="header-status">
+        <app-commande-status-bar [commande]="currentCommande" />
+      </div>
+    </div>
+
+    <!-- FILTERS TOOLBAR -->
+    <div class="pharma-toolbar">
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters py-1">
+            <div>
+              <p-iconfield>
+                <p-inputicon class="pi pi-search"/>
+                <input
+                  (keyup.enter)="onFilterCommandeLines()"
+                  [(ngModel)]="search"
+                  pInputText
+                  placeholder="Taper pour rechercher"
+                  type="text"
+                />
+              </p-iconfield>
+            </div>
+            <div>
+              <p-floatlabel variant="on">
+                <p-select
+                  (onChange)="onFilterCommandeLines()"
+                  [(ngModel)]="tris"
+                  [fluid]="true"
+                  [options]="sorts"
+                  appendTo="body"
+                  inputId="ordre"
+                  optionLabel="label"
+                  optionValue="code"
+                  size="large"
+                />
+                <label for="ordre">Ordre</label>
+              </p-floatlabel>
+            </div>
+            <div>
+              <p-floatlabel variant="on">
+                <p-select
+                  (onChange)="onFilterCommandeLines()"
+                  [(ngModel)]="selectedFilter"
+                  [fluid]="true"
+                  [options]="filtres"
+                  appendTo="body"
+                  inputId="selectedFilter"
+                  optionLabel="label"
+                  optionValue="value"
+                  size="large"
+                />
+                <label for="selectedFilter">Filtrer par</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <div class="row">
+      <!-- RECEPTION SUMMARY CARD -->
+      <div class="col-md-3 col-sm-12 col-lg-3 col-xl-3">
+        <!-- CONCORDANCE PANEL -->
+        <app-reception-concordance
+          [orderLines]="currentCommande?.orderLines ?? []"
+          [showLotInfo]="showLotBtn"
+        />
+        <div class="reception-summary-card">
+          <div class="summary-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Détails de la réception</span>
+          </div>
+          <div class="summary-content">
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
+              <span class="summary-val">{{ currentCommande?.fournisseur?.libelle }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-file"></i> Référence</span>
+              <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
+              <span class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="summary-row highlight">
+              <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
+              <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }} F</span>
+            </div>
+            <div class="summary-row highlight">
+              <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
+              <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+      <!-- ORDER LINES TABLE -->
+      <div class="col-md-9 col-sm-12 col-lg-9 col-xl-9">
+        @if (currentCommande) {
+          <p-table
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
+            [rows]="10"
+            [showGridlines]="true"
+            [value]="orderLines"
+            class="pharma-table"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th style="width: 2%">#</th>
+                <th style="width: 8%">Code</th>
+                <th style="width: 20%">Description</th>
+                <th class="text-right" style="width: 5%">Stock</th>
+                <th class="text-right" style="width: 8%">P.A</th>
+                <th style="width: 6%">P.A Machine</th>
+                <th class="text-right" style="width: 8%">P.U</th>
+                <th class="text-right" style="width: 6%">P.U Machine</th>
+                <th class="text-right" style="width: 8%">Qté</th>
+                <th class="text-right" style="width: 6%">Qté Ug</th>
+                @if (showLotColumn()) {
+                  <th style="width: 7%">Lots</th>
+                }
+                <th style="width: 6%"></th>
+              </tr>
+            </ng-template>
+
+            <ng-template #body let-orderLine let-rowIndex="rowIndex">
+              <tr [ngClass]="orderLineTableColor(orderLine)">
+                <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+
+                @if (orderLine.provisionalCode === false) {
+                  <td>
+                    <span class="pharma-code">{{ orderLine.produitCip }}</span>
+                  </td>
+                } @else {
+                  <td class="pharma-badge-info" pEditableColumn>
+                    <p-cellEditor>
+                      <ng-template #input>
+                        <input
+                          (focus)="$event.target.select()"
+                          (keydown.enter)="onUpdateCip(orderLine, $event)"
+                          [value]="orderLine.produitCip"
+                          pInputText
+                          required
+                          style="width: 100%"
+                          type="text"
+                        />
+                      </ng-template>
+                      <ng-template #output>{{ orderLine.produitCip }}</ng-template>
+                    </p-cellEditor>
+                  </td>
+                }
+
+                <td>
+                  <span class="pharma-entity-name">{{ orderLine.produitLibelle }}</span>
+                </td>
+
+                <td style="text-align: right">{{ orderLine.initStock | number }}</td>
+
+                <td class="amount-td-column pharma-price">{{ orderLine.orderCostAmount | number }}</td>
+
+                <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
+
+                <td class="amount-td-column pharma-price">{{ orderLine.orderUnitPrice | number }}</td>
+
+                <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
+
+                <td class="amount-td-column">
+                  <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
+                </td>
+
+                <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column" pEditableColumnField="freeQty">
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateFreeQtyRequested(orderLine, $event)"
+                        [value]="orderLine.freeQty"
+                        class="pharma-input-qty"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="pharma-qty-value">{{ orderLine.freeQty | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
+                @if (showLotColumn()) {
+                  <td>
+                    @if (orderLine.lots.length === 0 && showLotBtn) {
+                      <p-tag
+                        severity="warn"
+                        icon="pi pi-exclamation-triangle"
+                        pTooltip="Cliquer sur 'Gérer le lot' pour saisir le numéro de lot et la date de péremption"
+                        tooltipPosition="left"
+                      />
+                    } @else {
+                      @for (lot of orderLine.lots; track lot.numLot) {
+                        <span class="me-1">{{ lot.numLot }}</span>
+                      }
+                    }
+                  </td>
+                }
+
+                <td  style="text-align: right">
+                  <p-buttonGroup>
+                    <p-button
+                      (click)="onShowPriceHistory(orderLine)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-chart-line"
+                      pTooltip="Historique des prix"
+                      severity="secondary"
+                      tooltipPosition="left"
+                    />
+                    <p-button
+                      (click)="editLigneInfos(orderLine)"
+                      [text]="true"
+                      [rounded]="true"
+                      icon="pi pi-pencil"
+                      pTooltip="Modifier le produit"
+                      severity="success"
+                      tooltipPosition="left"
+                    />
+                    @if (orderLine.lots.length > 0 || showLotBtn) {
+                      <p-button
+                        (click)="onAddLot(orderLine)"
+                        [text]="true"
+                        [rounded]="true"
+                        icon="pi pi-box"
+                        pTooltip="Gérer le lot"
+                        severity="info"
+                        tooltipPosition="left"
+                      />
+                      <p-button
+                        (click)="confirmDeleteItem(orderLine)"
+                        [text]="true"
+                        [rounded]="true"
+                        icon="pi pi-trash"
+                        pTooltip="Supprimer le lot"
+                        severity="danger"
+                        tooltipPosition="left"
+                      />
+                    }
+                  </p-buttonGroup>
+                </td>
+              </tr>
+            </ng-template>
+
+            @if (orderLines.length > 0) {
+              <ng-template #footer>
+                <tr class="pharma-table-footer">
+                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span></td>
+                  <td class="amount-column text-right red-400">
+                    <span class="pharma-footer-total">{{ currentCommande.grossAmount | number }}</span>
+                  </td>
+                  <td class="amount-column text-right red-400" colspan="2">
+                    <span class="pharma-footer-total">{{ currentCommande.orderAmount | number }}</span>
+                  </td>
+                  <td class="amount-column text-right" colspan="3"></td>
+                  <td colspan="3"></td>
+                </tr>
+              </ng-template>
+            }
+          </p-table>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<jhi-spinner #spinner/>

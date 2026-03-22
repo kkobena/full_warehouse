@@ -1,0 +1,326 @@
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-box"></i>
+            <span>Gestion commandes</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div
+              #nav="ngbNav"
+              (navChange)="onNavChange($event)"
+              [(activeId)]="active"
+              class="nav flex-column nav-pills"
+              ngbNav
+              orientation="vertical"
+            >
+              <ng-container ngbNavItem="DASHBOARD">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-th-large"></i>
+                  <span>Tableau de bord</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-commande-dashboard />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="REQUESTED">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-cart-plus"></i>
+                  <span>Commande en cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-commande-en-cours
+                    (selectionLength)="updateSelectionLength($event)"
+                    [searchCommande]="searchCommande"
+                    [search]="search"
+                  ></jhi-commande-en-cours>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="BONS_EN_COURS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-fw pi-truck"></i>
+                  <span>Bons en cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-bon-en-cours [search]="search"></jhi-bon-en-cours>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="LIST_BONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-list"></i>
+                  <span>Liste des bons</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-list-bons
+                    [fournisseurId]="selectFournisseurId"
+                    [search]="search"
+                    [dtStart]="dtStart"
+                    [dtEnd]="dtEnd"
+                  ></jhi-list-bons>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="SUGGESTIONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-lightbulb"></i>
+                  <span>Suggestions</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-suggestion-home />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="REPARTITION_STOCK">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sync"></i>
+                  <span>Pilotage des stocks</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-repartition-stock [search]="search" [dtStart]="dtStart" [dtEnd]="dtEnd" #repartitionStock></jhi-repartition-stock>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-replay"></i>
+                  <span>Retours fournisseur</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-retour-bon-list
+                    [search]="search"
+                    [selectedStatut]="selectedStatut"
+                    [dtStart]="dtStart"
+                    [dtEnd]="dtEnd"
+                  ></jhi-retour-bon-list>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8">
+      <div class="pharma-smart-content p-2">
+        <!-- Modern Pharma Toolbar -->
+        @if (active !== 'SUGGESTIONS') {
+          <div class="pharma-toolbar">
+            <div class="pharma-toolbar-header">
+              <i [ngClass]="icon"></i>
+              <span class="pharma-toolbar-title">{{ title }}</span>
+            </div>
+
+            <p-toolbar>
+              <ng-template #start>
+                <div class="pharma-toolbar-filters">
+                  @if (active === 'REQUESTED') {
+                    <div class="pharma-search-input">
+                      <p-iconfield>
+                        <p-inputicon class="pi pi-search" />
+                        <input
+                          (keyup.enter)="onSearch()"
+                          [(ngModel)]="searchCommande"
+                          pInputText
+                          placeholder="Recherche sur la commande"
+                          type="text"
+                        />
+                      </p-iconfield>
+                    </div>
+                  } @else if (active !== 'DASHBOARD') {
+                    <div class="pharma-search-input">
+                      <p-iconfield>
+                        <p-inputicon class="pi pi-search" />
+                        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
+                      </p-iconfield>
+                    </div>
+                  }
+
+                  @if (active === 'RETOUR_FOURNISSEUR') {
+                    <p-floatlabel variant="on">
+                      <p-select
+                        [style]="{ 'max-width': '150px', 'min-width': '120px' }"
+                        [(ngModel)]="selectedStatut"
+                        (onChange)="onSearch()"
+                        [options]="statutOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [showClear]="true"
+                        appendTo="body"
+                        inputId="statut"
+                      />
+                      <label for="statut">Statut</label>
+                    </p-floatlabel>
+                  }
+
+                  @if (active === 'RETOUR_FOURNISSEUR' || active === 'LIST_BONS' || active === 'REPARTITION_STOCK') {
+                    <p-floatlabel variant="on">
+                      <p-datePicker
+                        [style]="{ 'max-width': '150px' }"
+                        [(ngModel)]="dtStart"
+                        (onSelect)="onSearch()"
+                        [showIcon]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        inputId="dtStart"
+                        appendTo="body"
+                      />
+                      <label for="dtStart">Date début</label>
+                    </p-floatlabel>
+                    <p-floatlabel variant="on">
+                      <p-datePicker
+                        [style]="{ 'max-width': '150px' }"
+                        [(ngModel)]="dtEnd"
+                        (onSelect)="onSearch()"
+                        [showIcon]="true"
+                        [showButtonBar]="true"
+                        dateFormat="dd/mm/yy"
+                        inputId="dtEnd"
+                        appendTo="body"
+                      />
+                      <label for="dtEnd">Date fin</label>
+                    </p-floatlabel>
+                  }
+
+                  @if (active === 'LIST_BONS') {
+                    <p-select
+                      (onChange)="onFournisseurChange($event)"
+                      [filter]="false"
+                      [showClear]="true"
+                      [options]="fournisseurs"
+                      optionLabel="libelle"
+                      optionValue="id"
+                      placeholder="Séléctionner un fournisseur"
+                      appendTo="body"
+                    />
+                  }
+                </div>
+              </ng-template>
+
+              <ng-template #end>
+                <div class="pharma-toolbar-actions">
+                  <div class="pharma-button-group">
+                    @if (active === 'DASHBOARD') {
+                      <p-button
+                        (click)="onSearch()"
+                        [raised]="true"
+                        icon="pi pi-refresh"
+                        label="Rafraîchir"
+                        pTooltip="Rafraîchir le tableau de bord"
+                        severity="info"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    } @else {
+                      <p-button
+                        (click)="onSearch()"
+                        [raised]="true"
+                        icon="pi pi-search"
+                        label="Rechercher"
+                        pTooltip="Rechercher"
+                        severity="info"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+
+                    @if (active === 'REQUESTED') {
+                      <p-button
+                        (click)="onShowNewCommandeDialog()"
+                        [raised]="true"
+                        icon="pi pi-upload"
+                        label="Importation"
+                        pTooltip="Importation"
+                        severity="help"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+
+                      <p-button
+                        (click)="onCreatNewCommande()"
+                        [raised]="true"
+                        icon="pi pi-plus"
+                        label="Nouvelle commande"
+                        pTooltip="Nouvelle commande"
+                        severity="primary"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+
+                    @if (active === 'RETOUR_FOURNISSEUR') {
+                      <p-button
+                        (click)="onCreateRetourFournisseur()"
+                        [raised]="true"
+                        icon="pi pi-undo"
+                        label="Nouveau retour"
+                        pTooltip="Créer un nouveau retour fournisseur"
+                        severity="primary"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+
+                    @if (active === 'REPARTITION_STOCK') {
+                      <p-button
+                        (click)="exportRepartitionStockToPdf()"
+                        [raised]="true"
+                        icon="pi pi-file-pdf"
+                        label="Exporter PDF"
+                        pTooltip="Exporter l'historique en PDF"
+                        severity="warn"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+
+                    @if (active === 'REQUESTED' && selectionLength > 1) {
+                      <p-button
+                        (click)="fusionner()"
+                        [raised]="true"
+                        icon="pi pi-copy"
+                        label="Fusionner"
+                        pTooltip="Fusionner"
+                        severity="warn"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+
+                    @if (selectionLength > 0 && active === 'REQUESTED') {
+                      <p-button
+                        (click)="confirmDeleteSelectedRows()"
+                        [raised]="true"
+                        icon="pi pi-times"
+                        label="Supprimer"
+                        pTooltip="Supprimer"
+                        severity="danger"
+                        tooltipPosition="top"
+                        type="button"
+                      />
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </p-toolbar>
+          </div>
+        }
+
+        <div class="mt-3" [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
+  </div>
+</div>

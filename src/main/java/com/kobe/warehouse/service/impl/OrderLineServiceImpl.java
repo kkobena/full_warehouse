@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
@@ -257,8 +258,9 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public OrderLine buildOrderLine(SuggestionLine suggestionLine) {
+    public OrderLine buildOrderLine(SuggestionLine suggestionLine, Integer fournisseurId) {
         FournisseurProduit fournisseurProduit = suggestionLine.getFournisseurProduit();
+        int produitId = fournisseurProduit.getProduit().getId();
         int stockProduit = fournisseurProduit
             .getProduit()
             .getStockProduits()
@@ -277,6 +279,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setProvisionalCode(false);
         orderLine.setFreeQty(0);
         orderLine.setTaxAmount(0);
+        orderLine.setFournisseurProduit(fournisseurProduitService.findFirstByProduitIdAndFournisseurId( produitId,fournisseurId).orElseThrow(()-> new GenericError("Le produit " + fournisseurProduit.getProduit().getLibelle() + " n'est pas référencé pour ce fournisseur", "productNotFoundForFournisseur")));
         return orderLine;
     }
 

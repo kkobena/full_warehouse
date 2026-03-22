@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.PharmaMlUtils;
 import com.kobe.warehouse.service.pharmaml.dto.AcqReception;
 import com.kobe.warehouse.service.pharmaml.dto.Annulation;
@@ -116,6 +117,19 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
         ce.setCorps(buildCorpsInfo(commande, fournisseur));
+        return ce;
+    }
+
+    @Override
+    public CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes, Fournisseur fournisseur, String refMessage) {
+        CsrpEnveloppe ce = new CsrpEnveloppe();
+        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
+        ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
+        ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
+        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
+        ce.setEntete(buildEntete(fournisseur, refMessage));
+        ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur));
         return ce;
     }
 
@@ -349,6 +363,28 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return corps;
     }
 
+
+    private Corps buildCorpsInfoFromSuggestionLines(List<SuggestionLine> lignes, Fournisseur fournisseur) {
+        DemandeInfos demandeInfos = new DemandeInfos();
+        demandeInfos.setLignes(lignes.stream().map(sl -> {
+            String cip = sl.getFournisseurProduit().getCodeCip();
+            return new LigneInfoDemande()
+                .setCodeProduit(cip)
+                .setTypeCodification(typeCodification(cip))
+                .setQuantite(sl.getQuantity());
+        }).toList());
+
+        MessageCorps mc = new MessageCorps();
+        mc.setDemandeInfos(demandeInfos);
+
+        MessageOfficine messageOfficine = new MessageOfficine();
+        messageOfficine.setEntete(buildMessageEntete(fournisseur));
+        messageOfficine.setCorps(mc);
+
+        Corps corps = new Corps();
+        corps.setMessageOfficine(messageOfficine);
+        return corps;
+    }
 
     private String typeCodification(String cip) {
         if (cip.length() == 13) {

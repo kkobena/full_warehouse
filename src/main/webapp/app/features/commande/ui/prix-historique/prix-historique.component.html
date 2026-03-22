@@ -1,0 +1,72 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-chart-line me-2"></i>{{ header }}
+  </h5>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  @if (loading) {
+    <div class="ph-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Chargement de l'historique…</span>
+    </div>
+  } @else if (historique.length === 0) {
+    <div class="ph-empty">
+      <i class="pi pi-info-circle"></i>
+      <span>Aucun changement de prix enregistré pour ce produit.</span>
+    </div>
+  } @else {
+    <table class="pharma-table">
+      <thead>
+        <tr class="pharma-table-head">
+          <th>Date</th>
+          <th class="text-right">Ancien PA</th>
+          <th class="text-right">Nouveau PA</th>
+          <th class="text-center">Δ PA</th>
+          <th class="text-right">Ancien PV</th>
+          <th class="text-right">Nouveau PV</th>
+          <th class="text-center">Δ PV</th>
+          <th>Bon de livraison</th>
+          <th>Modifié par</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (h of historique; track h.id) {
+          <tr>
+            <td class="ph-date">{{ h.changedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="text-right ph-amount">{{ h.oldPrixAchat | number }}</td>
+            <td class="text-right ph-amount">{{ h.newPrixAchat | number }}</td>
+            <td class="text-center">
+              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixAchat, h.newPrixAchat) }"/>
+            </td>
+            <td class="text-right ph-amount">{{ h.oldPrixUni | number }}</td>
+            <td class="text-right ph-amount">{{ h.newPrixUni | number }}</td>
+            <td class="text-center">
+              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixUni, h.newPrixUni) }"/>
+            </td>
+            <td class="ph-ref">{{ h.receiptReference ?? '—' }}</td>
+            <td class="ph-user">{{ h.changedBy ?? '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <ng-template #variationTag let-pct="pct">
+      @if (pct === 0) {
+        <span class="ph-zero">=</span>
+      } @else {
+        <p-tag
+          [value]="(pct > 0 ? '+' : '') + pct + '%'"
+          [severity]="pct > 0 ? 'danger' : 'success'"
+          [pTooltip]="pct > 0 ? 'Hausse de ' + pct + '%' : 'Baisse de ' + (-pct) + '%'"
+          tooltipPosition="top"
+        />
+      }
+    </ng-template>
+  }
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary btn-sm" (click)="close()">Fermer</button>
+</div>

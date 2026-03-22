@@ -1,0 +1,91 @@
+<div class="supplier-list">
+
+  @if (loading()) {
+    <div class="sl-loading">
+      <p-progressSpinner strokeWidth="3" [style]="{ width: '32px', height: '32px' }" />
+    </div>
+  }
+
+  @if (!loading() && fournisseurs().length === 0) {
+    <div class="sl-empty">
+      <i class="pi pi-inbox"></i>
+      <span>Aucune suggestion disponible</span>
+    </div>
+  }
+
+  @for (f of fournisseurs(); track f.suggestionId ?? f.fournisseurId) {
+    <div
+      class="sc"
+      [class.sc--active]="selected()?.suggestionId === f.suggestionId"
+      [class.sc--checked]="isSelected(f)"
+      [class.sc--urgent]="f.nbUrgents > 0 && selected()?.suggestionId !== f.suggestionId && !isSelected(f)"
+      (click)="select(f)"
+    >
+      <!-- Colonne gauche : checkbox -->
+      <div class="sc__check">
+        @if (f.suggestionId) {
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isSelected(f)"
+            (click)="toggleSelect(f, $event)"
+            pTooltip="Sélectionner"
+            tooltipPosition="right"
+          />
+        }
+      </div>
+
+      <!-- Corps principal -->
+      <div class="sc__body">
+        <div class="sc__top">
+          <span class="sc__name" [title]="f.libelle">{{ f.libelle }}</span>
+          <span class="sc__amount">{{ f.montantEstime | number : '1.0-0' }}<small> FCFA</small></span>
+        </div>
+        <div class="sc__stats">
+          <span class="sc__stat">
+            <i class="pi pi-tag"></i>{{ f.nbProduits }}
+          </span>
+          @if (f.nbUrgents > 0) {
+            <span class="sc__stat sc__stat--urgent">
+              <i class="pi pi-bolt"></i>{{ f.nbUrgents }}
+            </span>
+          }
+          @if (f.statut) {
+            <span class="sc__badge" [attr.data-severity]="statutSeverity(f.statut)">
+              {{ f.statut }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Bouton delete (visible au hover) -->
+      @if (f.suggestionId) {
+        <button
+          class="sc__delete"
+          (click)="onSupprimerSuggestion(f, $event)"
+          title="Supprimer cette suggestion"
+        >
+          <i class="pi pi-trash"></i>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Toolbar bulk (sticky bas) -->
+  @if (selectionCount() >= 2) {
+    <div class="bulk-toolbar">
+      <span class="bulk-info">
+        <i class="pi pi-check-square"></i> {{ selectionCount() }} sél.
+      </span>
+      <div class="bulk-actions">
+        @if (canFusionner()) {
+          <button class="bulk-btn bulk-btn--info" (click)="onFusionner()" title="Fusionner">
+            <i class="pi pi-sitemap"></i> Fusionner
+          </button>
+        }
+        <button class="bulk-btn bulk-btn--danger" (click)="onSupprimerSelection()" title="Supprimer">
+          <i class="pi pi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  }
+</div>

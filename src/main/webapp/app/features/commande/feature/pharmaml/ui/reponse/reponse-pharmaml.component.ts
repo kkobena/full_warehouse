@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
-import {Toast} from 'primeng/toast';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
 import {IVerificationItem, IVerificationResponse} from '../../../../../../shared/model/pharmaml.model';
@@ -12,7 +11,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
 
 @Component({
   selector: 'app-reponse-pharmaml',
-  imports: [CommonModule, Button, TableModule, TagModule, Toast],
+  imports: [CommonModule, Button, TableModule, TagModule],
   templateUrl: './reponse-pharmaml.component.html',
   styleUrls: ['./reponse-pharmaml.scss'],
 })

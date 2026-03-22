@@ -88,23 +88,26 @@
           <td>{{ elRow.codeRecepteurPharmaMl }}</td>
 
           <td style="text-align: right">
-            <p-button
-              (click)="onEdit(elRow)"
-              [text]="true"
-              icon="pi pi-pencil"
-              pTooltip="Editer"
-              rounded="true"
-              severity="success"
-            ></p-button>
-            <p-button
-              (click)="delete(elRow)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              pTooltip="Supprimer"
-              severity="danger"
-              type="button"
-            ></p-button>
+            <p-buttonGroup>
+              <p-button
+                (click)="onEdit(elRow)"
+                [text]="true"
+                icon="pi pi-pencil"
+                pTooltip="Editer"
+                rounded="true"
+                severity="success"
+              />
+              <p-button
+                (click)="delete(elRow)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                severity="danger"
+                type="button"
+              />
+            </p-buttonGroup>
+
           </td>
         </tr>
       </ng-template>

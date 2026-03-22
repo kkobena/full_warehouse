@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.pharmaml.service;
 
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
+import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
+import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
 import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmaMlEnvoiDTO;
@@ -31,6 +33,8 @@ public interface PharmaMlService {
     void refuserSubstitution(Integer substitutionId);
 
     List<InfoProduitDTO> demanderDisponibilite(Integer commandeId, LocalDate orderDate, Integer grossisteId);
+
+    List<DispoGrossisteResultDTO> demanderDisponibiliteMulti(DispoMultiRequestDTO request);
 
     void envoiAccuseReception(Integer commandeId, LocalDate orderDate);
 

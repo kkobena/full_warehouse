@@ -190,6 +190,14 @@ public class FournisseurProduitService {
         return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
     }
 
+    @Transactional(readOnly = true)
+    public List<FournisseurProduitDTO> findAllByProduitId(Integer produitId) {
+        return fournisseurProduitRepository.findAllByProduitId(produitId)
+            .stream()
+            .map(FournisseurProduitDTO::fromEntity)
+            .toList();
+    }
+
     public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto) throws GenericError {
         FournisseurProduit fournisseurProduit = this.fournisseurProduitRepository.getReferenceById(dto.getId());
         Produit produit = fournisseurProduit.getProduit();

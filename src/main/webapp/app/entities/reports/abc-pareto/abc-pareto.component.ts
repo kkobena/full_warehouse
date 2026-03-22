@@ -48,20 +48,21 @@ export default class ABCParetoComponent implements OnInit {
   products = signal<IABCPareto[]>([]);
   summary = signal<IABCParetoSummary | null>(null);
   isLoading = signal<boolean>(false);
-  selectedCategorie = signal<string | null>(null);
+  selectedFamille = signal<string | null>(null);
   selectedClassePareto = signal<ClassePareto | null>(null);
   helpDrawerVisible = signal<boolean>(false);
 
-  categorieOptions = signal<{ label: string; value: string }[]>([]);
-  classeParetoOptions = signal<{ label: string; value: ClassePareto }[]>([
-    {label: 'Toutes', value: '' as any},
-    {label: 'Classe A (80% du CA)', value: ClassePareto.A},
-    {label: 'Classe B (15% du CA)', value: ClassePareto.B},
-    {label: 'Classe C (5% du CA)', value: ClassePareto.C},
+  familleOptions = signal<{ label: string; value: string }[]>([]);
+  classeParetoOptions = signal<{ label: string; value: ClassePareto | '' }[]>([
+    {label: 'Toutes', value: ''},
+    {label: 'A+ — Top 60% du CA', value: ClassePareto.A_PLUS},
+    {label: 'A — 60-80% du CA', value: ClassePareto.A},
+    {label: 'B — 80-95% du CA', value: ClassePareto.B},
+    {label: 'C — 95-99% du CA', value: ClassePareto.C},
+    {label: 'D — Sans ventes / >99%', value: ClassePareto.D},
   ]);
 
   ClassePareto = ClassePareto;
-  // Format methods using shared utilities
   formatCurrency = formatCurrency;
   private readonly abcParetoService = inject(ABCParetoReportService);
   private readonly tauriPrinter = inject(TauriPrinterService);
@@ -73,14 +74,14 @@ export default class ABCParetoComponent implements OnInit {
 
   loadABCPareto(): void {
     this.isLoading.set(true);
-    const categorie = this.selectedCategorie();
+    const famille = this.selectedFamille();
     const classePareto = this.selectedClassePareto();
 
     let request;
     if (classePareto) {
       request = this.abcParetoService.getABCParetoByClass(classePareto);
-    } else if (categorie) {
-      request = this.abcParetoService.getABCParetoByCategory(categorie);
+    } else if (famille) {
+      request = this.abcParetoService.getABCParetoByCategory(famille);
     } else {
       request = this.abcParetoService.getAllABCParetoAnalysis();
     }
@@ -88,7 +89,7 @@ export default class ABCParetoComponent implements OnInit {
     request.subscribe({
       next: (res: HttpResponse<IABCPareto[]>) => {
         this.products.set(res.body ?? []);
-        this.extractFilterOptions(res.body ?? []);
+        this.extractFamilleOptions(res.body ?? []);
         this.isLoading.set(false);
       },
       error: () => {
@@ -113,7 +114,7 @@ export default class ABCParetoComponent implements OnInit {
   }
 
   onClearFilters(): void {
-    this.selectedCategorie.set(null);
+    this.selectedFamille.set(null);
     this.selectedClassePareto.set(null);
     this.loadABCPareto();
   }
@@ -140,71 +141,59 @@ export default class ABCParetoComponent implements OnInit {
           window.open(URL.createObjectURL(resp.body));
         }
       });
-
   }
 
   getClasseParetoLabel(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
-      case ClassePareto.A:
-        return 'A';
-      case ClassePareto.B:
-        return 'B';
-      case ClassePareto.C:
-        return 'C';
-      default:
-        return '';
+      case ClassePareto.A_PLUS: return 'A+';
+      case ClassePareto.A:      return 'A';
+      case ClassePareto.B:      return 'B';
+      case ClassePareto.C:      return 'C';
+      case ClassePareto.D:      return 'D';
+      default:                  return '';
     }
   }
 
-  getClasseParetoSeverity(classePareto: ClassePareto | undefined): string {
+  getClasseParetoSeverity(classePareto: ClassePareto | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (classePareto) {
-      case ClassePareto.A:
-        return 'success';
-      case ClassePareto.B:
-        return 'info';
-      case ClassePareto.C:
-        return 'warn';
-      default:
-        return 'secondary';
+      case ClassePareto.A_PLUS: return 'danger';
+      case ClassePareto.A:      return 'success';
+      case ClassePareto.B:      return 'info';
+      case ClassePareto.C:      return 'warn';
+      case ClassePareto.D:      return 'secondary';
+      default:                  return 'secondary';
     }
   }
 
   getClasseParetoDescription(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
-      case ClassePareto.A:
-        return '80% du CA';
-      case ClassePareto.B:
-        return '15% du CA (80-95%)';
-      case ClassePareto.C:
-        return '5% du CA (95-100%)';
-      default:
-        return '';
+      case ClassePareto.A_PLUS: return '≤ 60% CA cumulé';
+      case ClassePareto.A:      return '60-80% CA cumulé';
+      case ClassePareto.B:      return '80-95% CA cumulé';
+      case ClassePareto.C:      return '95-99% CA cumulé';
+      case ClassePareto.D:      return 'Sans ventes / >99%';
+      default:                  return '';
     }
   }
 
   getCumulativePercentageColor(caCumulePct: number | undefined): string {
-    if (!caCumulePct) {
-      return 'secondary';
-    }
-    if (caCumulePct <= 80) {
-      return 'success';
-    }
-    if (caCumulePct <= 95) {
-      return 'info';
-    }
-    return 'warn';
+    if (!caCumulePct) return 'secondary';
+    if (caCumulePct <= 60)  return 'danger';
+    if (caCumulePct <= 80)  return 'success';
+    if (caCumulePct <= 95)  return 'info';
+    if (caCumulePct <= 99)  return 'warn';
+    return 'secondary';
   }
 
   toggleHelpDrawer(): void {
     this.helpDrawerVisible.update(value => !value);
   }
 
-  private extractFilterOptions(products: IABCPareto[]): void {
-    // Extract unique categories
-    const categories = [...new Set(products.map(p => p.categorie).filter(c => c))];
-    this.categorieOptions.set([{
-      label: 'Toutes les catégories',
-      value: ''
-    }, ...categories.map(c => ({label: c, value: c}))]);
+  private extractFamilleOptions(products: IABCPareto[]): void {
+    const familles = [...new Set(products.map(p => p.famille).filter(f => f))];
+    this.familleOptions.set([
+      {label: 'Toutes les familles', value: ''},
+      ...familles.map(f => ({label: f!, value: f!})),
+    ]);
   }
 }

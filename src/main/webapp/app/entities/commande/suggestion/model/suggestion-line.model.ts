@@ -14,4 +14,7 @@ export class SuggestionLine {
   prixAchat?: number;
   prixVente?: number;
   consommationMensuelle?: Record<string, number>;
+  niveauUrgence?: string;
+  joursRestants?: number | null;
+  sourceCalcul?: string;
 }

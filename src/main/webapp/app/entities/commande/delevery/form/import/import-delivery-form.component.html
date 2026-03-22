@@ -80,11 +80,10 @@
                 [selectOtherMonths]="true"
                 [showButtonBar]="true"
                 [showIcon]="true"
-                class="form-control"
                 dateFormat="dd/mm/yy"
                 formControlName="receiptDate"
                 name="receiptDate"
-              ></p-datePicker>
+              />
               @if (editForm.get('deliveryReceipt').get('receiptDate')!.invalid &&
               (editForm.get('deliveryReceipt').get('receiptDate')!.dirty || editForm.get('deliveryReceipt').get('receiptDate')!.touched)) {
                 <div>

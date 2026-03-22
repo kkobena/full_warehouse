@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import jakarta.validation.constraints.NotNull;
+
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +11,7 @@ import java.io.Serializable;
  */
 public class GroupeFournisseurDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -6447988428721557444L;
 
     private Integer id;
@@ -29,8 +32,10 @@ public class GroupeFournisseurDTO implements Serializable {
     private String codeOfficePharmaMl;
     private String urlPharmaMl;
     private String idRecepteurPharmaMl;
+    private Integer delaiLivraisonJours;
 
-    public GroupeFournisseurDTO() {}
+    public GroupeFournisseurDTO() {
+    }
 
     public GroupeFournisseurDTO(GroupeFournisseur groupeFournisseur) {
         id = groupeFournisseur.getId();
@@ -44,6 +49,15 @@ public class GroupeFournisseurDTO implements Serializable {
         codeOfficePharmaMl = groupeFournisseur.getCodeOfficePharmaMl();
         urlPharmaMl = groupeFournisseur.getUrlPharmaMl();
         idRecepteurPharmaMl = groupeFournisseur.getIdRecepteurPharmaMl();
+        delaiLivraisonJours = groupeFournisseur.getDelaiLivraisonJours();
+    }
+
+    public Integer getDelaiLivraisonJours() {
+        return delaiLivraisonJours;
+    }
+
+    public void setDelaiLivraisonJours(Integer delaiLivraisonJours) {
+        this.delaiLivraisonJours = delaiLivraisonJours;
     }
 
     public String getUrlPharmaMl() {

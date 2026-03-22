@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.pharmaml.service;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
@@ -66,6 +67,16 @@ public interface PharmaMlPayloadBuilderService {
      * @return l'enveloppe CSRP prête à être sérialisée
      */
     CsrpEnveloppe buildInfoPayload(Commande commande, Fournisseur fournisseur, String refMessage);
+
+    /**
+     * Construit le payload pour une demande d'information (disponibilité) à partir de lignes de suggestion.
+     *
+     * @param lignes      les lignes de suggestion dont on demande la disponibilité
+     * @param fournisseur le fournisseur destinataire
+     * @param refMessage  la référence unique du message
+     * @return l'enveloppe CSRP prête à être sérialisée
+     */
+    CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes, Fournisseur fournisseur, String refMessage);
 
     /**
      * Génère une référence de message unique.

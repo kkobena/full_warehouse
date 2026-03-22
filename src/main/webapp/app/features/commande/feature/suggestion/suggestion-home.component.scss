@@ -1,0 +1,158 @@
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/table-common';
+
+// ============================================
+// HEADER
+// ============================================
+
+.pharma-sales-header {
+  position: relative;
+  z-index: 1000;
+  background: $pharma-white;
+  border-bottom: 1px solid $gray-200;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  box-shadow: $pharma-shadow-md;
+  min-height: 50px;
+  flex-shrink: 0;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .page-title {
+    h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $gray-900;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.8rem;
+      color: $gray-500;
+      font-weight: 400;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+}
+
+// ============================================
+// KPI BAR
+// ============================================
+
+.kpi-bar {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-200;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $pharma-white;
+  border: 1px solid $gray-200;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow-sm;
+  padding: 0.5rem 1rem;
+  min-width: 100px;
+
+  .kpi-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .kpi-label {
+    font-size: 0.75rem;
+    color: $gray-500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.2rem;
+  }
+}
+
+// ============================================
+// SPLIT PANEL LAYOUT
+// ============================================
+
+
+.split-panel {
+  height: calc(100vh - 160px);
+  border: 1px solid $gray-200;
+  border-radius: $pharma-radius;
+  overflow: hidden;
+  margin: 0.75rem 0 1rem;
+}
+
+.supplier-col {
+  border-right: 1px solid $gray-200;
+  background: $pharma-white;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.supplier-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: $gray-100;
+  border-bottom: 1px solid $gray-200;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $gray-500;
+  flex-shrink: 0;
+}
+
+.produit-col {
+  background: $pharma-white;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  gap: 1rem;
+  color: $gray-400;
+
+  i {
+    font-size: 2rem;
+  }
+
+  span {
+    font-size: 0.9rem;
+  }
+}

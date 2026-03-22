@@ -6,250 +6,207 @@ import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
+/**
+ * Implémentation du rapport ABC Pareto depuis {@code v_abc_pareto_analysis}.
+ *
+ * <p>La vue remplace {@code mv_abc_pareto_analysis} (vue matérialisée supprimée en V1.3.4).
+ * Colonnes renvoyées (indices 0-14) :
+ * [0] produit_id  [1] libelle  [2] code_cip  [3] famille  [4] classe_actuelle
+ * [5] ca_total    [6] qte_vendue  [7] nb_ventes  [8] frequence_mois
+ * [9] ca_global   [10] ca_cumule  [11] contribution_pct  [12] ca_cumule_pct
+ * [13] rang       [14] classe_pareto
+ */
 @Service
 @Transactional(readOnly = true)
-public class ABCParetoReportServiceImpl  implements ABCParetoReportService {
+public class ABCParetoReportServiceImpl implements ABCParetoReportService {
 
+    private static final String SELECT_COLS =
+        "produit_id, libelle, code_cip, famille, classe_actuelle, " +
+        "ca_total, qte_vendue, nb_ventes, frequence_mois, " +
+        "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, rang, classe_pareto ";
 
-    private final EntityManager entityManager;
-
-    public ABCParetoReportServiceImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Cacheable(value = "abcPareto", key = "'all'")
     public List<ABCParetoDTO> getAllABCParetoAnalysis() {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "ORDER BY rang ";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + "FROM v_abc_pareto_analysis ORDER BY rang");
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
-    @Cacheable(value = "abcPareto", key = "'category:' + #categorie")
-    public List<ABCParetoDTO> getABCParetoByCategory(String categorie) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "WHERE categorie = :categorie " +
-            "ORDER BY rang ";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorie", categorie);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+    @Cacheable(value = "abcPareto", key = "'family:' + #famille")
+    public List<ABCParetoDTO> getABCParetoByCategory(String famille) {
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + "FROM v_abc_pareto_analysis WHERE famille = :famille ORDER BY rang");
+        query.setParameter("famille", famille);
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     @Cacheable(value = "abcPareto", key = "'class:' + #classePareto")
     public List<ABCParetoDTO> getABCParetoByClass(ClassePareto classePareto) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "WHERE classe_pareto = :classePareto " +
-            "ORDER BY rang ";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("classePareto", classePareto.name());
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + "FROM v_abc_pareto_analysis WHERE classe_pareto = :cp ORDER BY rang");
+        query.setParameter("cp", classePareto.name());
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     @Cacheable(value = "abcPareto", key = "'top:' + #limit")
     public List<ABCParetoDTO> getTopRevenueContributors(int limit) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "ORDER BY rang  ";
-
-        Query query = entityManager.createNativeQuery(sql);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + "FROM v_abc_pareto_analysis ORDER BY rang");
         query.setMaxResults(limit);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     public List<ABCParetoDTO> getABCParetoPaginated(int page, int size) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "ORDER BY rang " +
-            "LIMIT :size OFFSET :offset";
-
-        Query query = entityManager.createNativeQuery(sql);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + "FROM v_abc_pareto_analysis ORDER BY rang LIMIT :size OFFSET :offset");
         query.setParameter("size", size);
         query.setParameter("offset", page * size);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     @Cacheable(value = "abcPareto", key = "'count'")
     public long getABCParetoCount() {
-        String sql = "SELECT COUNT(*) FROM mv_abc_pareto_analysis";
-        Query query = entityManager.createNativeQuery(sql);
-        return ((Number) query.getSingleResult()).longValue();
+        return ((Number) entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM v_abc_pareto_analysis").getSingleResult()).longValue();
     }
 
     @Override
     public List<ABCParetoDTO> getABCParetoByClassPaginated(ClassePareto classePareto, int page, int size) {
-        String sql =
-            "SELECT " +
-            "produit_id, libelle, code_cip, categorie, ca_total, qte_vendue, nb_ventes, " +
-            "ca_global, ca_cumule, contribution_pct, ca_cumule_pct, classe_pareto, rang " +
-            "FROM mv_abc_pareto_analysis " +
-            "WHERE classe_pareto = :classePareto " +
-            "ORDER BY rang " +
-            "LIMIT :size OFFSET :offset";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("classePareto", classePareto.name());
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS +
+            "FROM v_abc_pareto_analysis WHERE classe_pareto = :cp ORDER BY rang LIMIT :size OFFSET :offset");
+        query.setParameter("cp", classePareto.name());
         query.setParameter("size", size);
         query.setParameter("offset", page * size);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     public long getABCParetoCountByClass(ClassePareto classePareto) {
-        String sql = "SELECT COUNT(*) FROM mv_abc_pareto_analysis WHERE classe_pareto = :classePareto";
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("classePareto", classePareto.name());
+        Query query = entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM v_abc_pareto_analysis WHERE classe_pareto = :cp");
+        query.setParameter("cp", classePareto.name());
         return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override
+    @Cacheable(value = "abcPareto", key = "'summary'")
     public ABCParetoSummaryDTO getABCParetoSummary() {
-        String sql =
-            "SELECT " +
-            "total_produits, ca_global, " +
-            "nb_produits_a, ca_classe_a, pct_ca_classe_a, " +
-            "nb_produits_b, ca_classe_b, pct_ca_classe_b, " +
-            "nb_produits_c, ca_classe_c, pct_ca_classe_c " +
-            "FROM mv_pareto_summary";
-
-        Query query = entityManager.createNativeQuery(sql);
+        // Calcul inline — mv_pareto_summary supprimée en V1.3.4
+        Query query = entityManager.createNativeQuery("""
+            SELECT
+                COUNT(*)                                                                                        AS total_produits,
+                COALESCE(SUM(ca_total), 0)                                                                      AS ca_global,
+                COUNT(*)        FILTER (WHERE classe_pareto = 'A_PLUS')                                         AS nb_a_plus,
+                COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'A_PLUS'), 0)                              AS ca_a_plus,
+                ROUND(COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'A_PLUS'), 0) * 100.0
+                      / NULLIF(SUM(ca_total), 0), 2)                                                            AS pct_a_plus,
+                COUNT(*)        FILTER (WHERE classe_pareto = 'A')                                              AS nb_a,
+                COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'A'), 0)                                   AS ca_a,
+                ROUND(COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'A'), 0) * 100.0
+                      / NULLIF(SUM(ca_total), 0), 2)                                                            AS pct_a,
+                COUNT(*)        FILTER (WHERE classe_pareto = 'B')                                              AS nb_b,
+                COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'B'), 0)                                   AS ca_b,
+                ROUND(COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'B'), 0) * 100.0
+                      / NULLIF(SUM(ca_total), 0), 2)                                                            AS pct_b,
+                COUNT(*)        FILTER (WHERE classe_pareto = 'C')                                              AS nb_c,
+                COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'C'), 0)                                   AS ca_c,
+                ROUND(COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'C'), 0) * 100.0
+                      / NULLIF(SUM(ca_total), 0), 2)                                                            AS pct_c,
+                COUNT(*)        FILTER (WHERE classe_pareto = 'D')                                              AS nb_d,
+                COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'D'), 0)                                   AS ca_d,
+                ROUND(COALESCE(SUM(ca_total) FILTER (WHERE classe_pareto = 'D'), 0) * 100.0
+                      / NULLIF(SUM(ca_total), 0), 2)                                                            AS pct_d
+            FROM v_abc_pareto_analysis
+            """);
 
         @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
+        List<Object[]> rows = query.getResultList();
 
-        if (results.isEmpty()) {
-            return new ABCParetoSummaryDTO(
-                0,
-                0L,
-                0,
-                0L,
-                BigDecimal.ZERO,
-                0,
-                0L,
-                BigDecimal.ZERO,
-                0,
-                0L,
-                BigDecimal.ZERO
-            );
+        if (rows.isEmpty()) {
+            return emptySummary();
         }
 
-        Object[] row = results.getFirst();
-
+        Object[] r = rows.getFirst();
         return new ABCParetoSummaryDTO(
-            row[0] != null ? ((Number) row[0]).intValue() : 0,
-            row[1] != null ? ((Number) row[1]).longValue() : 0L,
-            row[2] != null ? ((Number) row[2]).intValue() : 0,
-            row[3] != null ? ((Number) row[3]).longValue() : 0L,
-            row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO,
-            row[5] != null ? ((Number) row[5]).intValue() : 0,
-            row[6] != null ? ((Number) row[6]).longValue() : 0L,
-            row[7] != null ? new BigDecimal(row[7].toString()) : BigDecimal.ZERO,
-            row[8] != null ? ((Number) row[8]).intValue() : 0,
-            row[9] != null ? ((Number) row[9]).longValue() : 0L,
-            row[10] != null ? new BigDecimal(row[10].toString()) : BigDecimal.ZERO
+            toInt(r[0]),  toLong(r[1]),
+            toInt(r[2]),  toLong(r[3]),  toBd(r[4]),
+            toInt(r[5]),  toLong(r[6]),  toBd(r[7]),
+            toInt(r[8]),  toLong(r[9]),  toBd(r[10]),
+            toInt(r[11]), toLong(r[12]), toBd(r[13]),
+            toInt(r[14]), toLong(r[15]), toBd(r[16])
         );
     }
 
+    // ── mapping ──
 
-
+    @SuppressWarnings("unchecked")
     private List<ABCParetoDTO> mapResultsToDTO(List<Object[]> results) {
-        return results
-            .stream()
-            .map(row -> {
-                Integer produitId = row[0] != null ? ((Number) row[0]).intValue() : null;
-                String libelle = (String) row[1];
-                String codeCip = (String) row[2];
-                String categorie = (String) row[3];
-                Integer caTotal = row[4] != null ? ((Number) row[4]).intValue() : 0;
-                Integer qteVendue = row[5] != null ? ((Number) row[5]).intValue() : 0;
-                Integer nbVentes = row[6] != null ? ((Number) row[6]).intValue() : 0;
-                Long caGlobal = row[7] != null ? ((Number) row[7]).longValue() : 0L;
-                Long caCumule = row[8] != null ? ((Number) row[8]).longValue() : 0L;
-                BigDecimal contributionPct = row[9] != null ? new BigDecimal(row[9].toString()) : BigDecimal.ZERO;
-                BigDecimal caCumulePct = row[10] != null ? new BigDecimal(row[10].toString()) : BigDecimal.ZERO;
-                String classeParetoStr = (String) row[11];
-                Integer rang = row[12] != null ? ((Number) row[12]).intValue() : 0;
+        return results.stream().map(r -> {
+            String cpStr = (String) r[14];
+            ClassePareto cp;
+            try {
+                cp = cpStr != null ? ClassePareto.valueOf(cpStr) : ClassePareto.D;
+            } catch (IllegalArgumentException e) {
+                cp = ClassePareto.D;
+            }
+            return new ABCParetoDTO(
+                toInt(r[0]),          // produit_id
+                (String) r[1],        // libelle
+                (String) r[2],        // code_cip
+                (String) r[3],        // famille
+                (String) r[4],        // classe_actuelle
+                toInt(r[5]),          // ca_total
+                toInt(r[6]),          // qte_vendue
+                toInt(r[7]),          // nb_ventes
+                toInt(r[8]),          // frequence_mois
+                toLong(r[9]),         // ca_global
+                toLong(r[10]),        // ca_cumule
+                toBd(r[11]),          // contribution_pct
+                toBd(r[12]),          // ca_cumule_pct
+                toInt(r[13]),         // rang
+                cp                    // classe_pareto
+            );
+        }).toList();
+    }
 
-                ClassePareto classePareto = classeParetoStr != null ? ClassePareto.valueOf(classeParetoStr) : ClassePareto.C;
+    private static ABCParetoSummaryDTO emptySummary() {
+        return new ABCParetoSummaryDTO(
+            0, 0L,
+            0, 0L, BigDecimal.ZERO,
+            0, 0L, BigDecimal.ZERO,
+            0, 0L, BigDecimal.ZERO,
+            0, 0L, BigDecimal.ZERO,
+            0, 0L, BigDecimal.ZERO
+        );
+    }
 
-                return new ABCParetoDTO(
-                    produitId,
-                    libelle,
-                    codeCip,
-                    categorie,
-                    caTotal,
-                    qteVendue,
-                    nbVentes,
-                    caGlobal,
-                    caCumule,
-                    contributionPct,
-                    caCumulePct,
-                    classePareto,
-                    rang
-                );
-            })
-            .toList();
+    private static int toInt(Object o) {
+        return o == null ? 0 : ((Number) o).intValue();
+    }
+
+    private static long toLong(Object o) {
+        return o == null ? 0L : ((Number) o).longValue();
+    }
+
+    private static BigDecimal toBd(Object o) {
+        if (o == null) return BigDecimal.ZERO;
+        if (o instanceof BigDecimal bd) return bd;
+        return new BigDecimal(o.toString());
     }
 }

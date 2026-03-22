@@ -7,11 +7,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serial;
-import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.URL;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * A GroupeFournisseur.
@@ -47,6 +48,13 @@ public class GroupeFournisseur implements Serializable {
     @NotNull
     @Column(name = "odre", nullable = false)
     private Integer odre = 100;
+
+    /**
+     * Délai de livraison par défaut (jours) pour tous les fournisseurs de ce groupe.
+     */
+    @NotNull
+    @Column(name = "delai_livraison_jours", nullable = false)
+    private Integer delaiLivraisonJours = 7;
 
     /*
    utilser dans pharmaMl code grossiste RECEPTEUR(code)
@@ -194,6 +202,18 @@ public class GroupeFournisseur implements Serializable {
 
     public GroupeFournisseur odre(Integer odre) {
         this.odre = odre;
+        return this;
+    }
+
+    public Integer getDelaiLivraisonJours() {
+        if (delaiLivraisonJours == null) {
+            delaiLivraisonJours = 7; // Valeur par défaut si non spécifié
+        }
+        return delaiLivraisonJours;
+    }
+
+    public GroupeFournisseur setDelaiLivraisonJours(Integer delaiLivraisonJours) {
+        this.delaiLivraisonJours = delaiLivraisonJours;
         return this;
     }
 

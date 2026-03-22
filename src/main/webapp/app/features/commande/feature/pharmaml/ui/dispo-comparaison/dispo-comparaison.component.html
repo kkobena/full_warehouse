@@ -1,0 +1,109 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-chart-bar me-2"></i>{{ header }}
+  </h5>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Sélecteur de grossistes -->
+  <div class="dc-selector">
+    <p-multiSelect
+      [options]="fournisseurs()"
+      optionLabel="libelle"
+      placeholder="Choisir les grossistes à comparer..."
+      [showClear]="true"
+      [filter]="true"
+      [loading]="loadingFournisseurs()"
+      [maxSelectedLabels]="4"
+      [appendTo]="'body'"
+      [overlayOptions]="{baseZIndex: 10000}"
+      class="w-100"
+      [ngModel]="selectedFournisseurs()"
+      (ngModelChange)="onFournisseurChange($event)"
+    />
+    <p-button
+      label="Comparer"
+      icon="pi pi-sync"
+      severity="info"
+      size="small"
+      [loading]="loading()"
+      [disabled]="colonnes().length === 0"
+      (onClick)="comparer()"
+    />
+  </div>
+
+  @if (colonnes().length > 4) {
+    <small class="text-muted dc-hint">
+      <i class="pi pi-info-circle"></i> Conseil : limitez à 4 grossistes pour une meilleure lisibilité.
+    </small>
+  }
+
+  <!-- Tableau comparatif -->
+  @if (loading()) {
+    <div class="dc-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Interrogation des grossistes en cours…</span>
+    </div>
+  } @else if (hasResults()) {
+    <div class="dc-table-wrapper">
+      <table class="dc-table">
+        <thead>
+          <tr>
+            <th class="dc-th-produit">Produit</th>
+            @for (f of colonnes(); track f.id) {
+              <th colspan="3" class="dc-th-grossiste">{{ f.libelle }}</th>
+            }
+          </tr>
+          <tr class="dc-subheader">
+            <th></th>
+            @for (f of colonnes(); track f.id) {
+              <th class="text-center">Dispo</th>
+              <th class="text-right">Stock</th>
+              <th class="text-right">PA</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.codeProduit) {
+
+            <tr [class.dc-row-rupture]="isRowRupture(row)">
+              <td class="dc-td-produit">
+                <div class="dc-produit-libelle">{{ row.designation ?? '—' }}</div>
+                <code class="dc-produit-code">{{ row.codeProduit }}</code>
+              </td>
+              @for (f of colonnes(); track f.id) {
+                @let info = infoFor(row, f.id!);
+                @if (info) {
+                  <td class="text-center">
+                    @if (info.disponible) {
+                      <p-tag value="OK" severity="success"/>
+                    } @else {
+                      <p-tag value="Rupture" severity="danger"/>
+                    }
+                  </td>
+                  <td class="text-right dc-cell-num">{{ info.stockDisponible }}</td>
+                  <td class="text-right dc-cell-num">{{ info.prixAchat | number: '1.0-0' }}</td>
+                } @else {
+                  <td colspan="3" class="text-center text-muted dc-na">N/A</td>
+                }
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (!loading() && colonnes().length > 0) {
+    <div class="dc-empty">
+      <i class="pi pi-search"></i>
+      <span>Cliquez sur "Comparer" pour lancer la vérification.</span>
+    </div>
+  }
+</div>
+
+<div class="modal-footer">
+  <small class="text-muted me-auto">
+    {{ rows().length }} produit(s) comparé(s) sur {{ colonnes().length }} grossiste(s)
+  </small>
+  <p-button type="button" severity="secondary" (click)="close()">Fermer</p-button>
+</div>

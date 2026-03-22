@@ -1,0 +1,269 @@
+@import 'app/shared/scss/pharma-nav';
+
+// ─── Variables locales ────────────────────────────────────────────────────────
+$card-radius: 6px;
+$accent-urgent: $pharma-danger;
+$accent-active: $pharma-primary-dark;
+$accent-checked: $pharma-primary;
+
+// ─── Host ────────────────────────────────────────────────────────────────────
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ─── Conteneur liste ─────────────────────────────────────────────────────────
+.supplier-list {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.5rem 0;
+  gap: 0.35rem;
+  scrollbar-width: thin;
+}
+
+// ─── États vides / chargement ─────────────────────────────────────────────────
+.sl-loading,
+.sl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: $gray-400;
+  font-size: 0.82rem;
+
+  i { font-size: 1.5rem; }
+}
+
+// ─── Carte fournisseur ────────────────────────────────────────────────────────
+.sc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: $card-radius;
+  border: 1px solid $pharma-border;
+  background: $gray-50;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+
+  // Barre latérale colorée (pseudo-élément gauche)
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: transparent;
+    transition: background-color 0.15s;
+  }
+
+  &:hover {
+    border-color: $pharma-primary;
+    background: $pharma-primary-light;
+    box-shadow: $pharma-shadow-hover;
+  }
+
+  // ── Modificateurs d'état ───────────────────────────────────────────────────
+
+  // Sélectionné pour visualisation (clic sur la carte)
+  &--active {
+    border-color: $accent-active;
+    background: $pharma-primary-light;
+    box-shadow: 0 0 0 2px rgba(91, 137, 166, 0.2);
+
+    &::before { background: $accent-active; }
+
+    .sc__name { color: $accent-active; }
+    .sc__amount { color: $accent-active; }
+  }
+
+  // Coché pour action groupée
+  &--checked {
+    border-color: $accent-checked;
+    background: $pharma-primary-light;
+
+    &::before { background: $accent-checked; }
+  }
+
+  // A des urgents (non actif, non coché)
+  &--urgent {
+    &::before { background: $accent-urgent; }
+
+    .sc__stat--urgent {
+      font-weight: 700;
+    }
+  }
+}
+
+// ─── Zone checkbox ────────────────────────────────────────────────────────────
+.sc__check {
+  flex-shrink: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ─── Corps ───────────────────────────────────────────────────────────────────
+.sc__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sc__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.sc__name {
+  flex: 1;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: $gray-700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  transition: color 0.15s;
+}
+
+.sc__amount {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $pharma-primary;
+  white-space: nowrap;
+  transition: color 0.15s;
+
+  small {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: $gray-400;
+    margin-left: 1px;
+  }
+}
+
+// ─── Stats row ────────────────────────────────────────────────────────────────
+.sc__stats {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sc__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.74rem;
+  color: $pharma-text-light;
+  font-weight: 600;
+
+  i { font-size: 0.7rem; color: $pharma-secondary; }
+
+  &--urgent {
+    color: $accent-urgent;
+    font-weight: 700;
+
+    i { font-size: 0.72rem; color: $accent-urgent; }
+  }
+}
+
+// Badge statut (remplace p-tag pour allèger le DOM)
+.sc__badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  &[data-severity='success']   { background: #d1fae5; color: #065f46; }
+  &[data-severity='warn']      { background: #fef3c7; color: #92400e; }
+  &[data-severity='info']      { background: #dbeafe; color: #1e40af; }
+  &[data-severity='danger']    { background: #fee2e2; color: #991b1b; }
+  &[data-severity='secondary'] { background: $gray-100; color: $gray-600; }
+}
+
+// ─── Bouton delete (hover) ────────────────────────────────────────────────────
+.sc__delete {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 3px 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: $gray-400;
+  font-size: 0.78rem;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    background: rgba($pharma-danger, 0.1);
+    color: $pharma-danger;
+  }
+}
+
+// ─── Toolbar bulk ─────────────────────────────────────────────────────────────
+.bulk-toolbar {
+  position: sticky;
+  bottom: 0;
+  margin: 0.35rem -0.5rem 0;
+  background: $pharma-primary-dark;
+  color: #fff;
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.bulk-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+
+  &--info   { background: $pharma-info; color: #fff; }
+  &--danger { background: $pharma-danger; color: #fff; }
+}

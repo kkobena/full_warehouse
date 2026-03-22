@@ -9,6 +9,8 @@ export interface IFournisseur {
   code?: string;
   groupeFournisseurId?: number;
   groupeFournisseurLibelle?: string;
+  identifiantRepartiteur?: string;
+  delaiLivraisonJours?: number;
 }
 
 export class Fournisseur implements IFournisseur {

@@ -3,22 +3,30 @@ package com.kobe.warehouse.service.dto.report;
 import java.math.BigDecimal;
 
 /**
- * DTO for aggregated ABC Pareto summary from mv_pareto_summary materialized view
- * Provides distribution metrics for Pareto classification
+ * DTO de synthèse de l'analyse ABC Pareto — 5 classes.
+ * Calculé inline depuis {@code v_abc_pareto_analysis} (mv_pareto_summary supprimée).
  */
 public record ABCParetoSummaryDTO(
     Integer totalProduits,
     Long caGlobal,
-    // Classe A (80% du CA)
+    // Classe A_PLUS
+    Integer nbProduitsAPlus,
+    Long caClasseAPlus,
+    BigDecimal pctCaClasseAPlus,
+    // Classe A
     Integer nbProduitsA,
     Long caClasseA,
     BigDecimal pctCaClasseA,
-    // Classe B (15% du CA)
+    // Classe B
     Integer nbProduitsB,
     Long caClasseB,
     BigDecimal pctCaClasseB,
-    // Classe C (5% du CA)
+    // Classe C
     Integer nbProduitsC,
     Long caClasseC,
-    BigDecimal pctCaClasseC
+    BigDecimal pctCaClasseC,
+    // Classe D
+    Integer nbProduitsD,
+    Long caClasseD,
+    BigDecimal pctCaClasseD
 ) {}

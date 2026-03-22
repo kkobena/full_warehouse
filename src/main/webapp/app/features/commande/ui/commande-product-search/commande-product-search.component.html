@@ -1,0 +1,31 @@
+<p-floatlabel variant="on">
+  <p-autoComplete
+    #produitbox
+    [(ngModel)]="produitSelected"
+    (ngModelChange)="onNgModelChange($event)"
+    [suggestions]="produits()"
+    (completeMethod)="searchFn($event)"
+    (onSelect)="onSelect()"
+    (keydown)="onKeyDown($event)"
+    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
+    optionLabel="libelle"
+    [appendTo]="APPEND_TO"
+    [autofocus]="autofocus()"
+    [showClear]="true"
+    [style]="{ width: '100%' }"
+    [inputStyle]="{ width: '100%' }"
+    [disabled]="disabled()"
+    dataKey="id"
+    placeholder=" "
+    class="w-100 pharma-autocomplete"
+  >
+    <ng-template #item let-item>
+      <div class="commande-search-item" [class.stockless]="item.totalQuantity <= 0">
+        <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
+        <span class="item-libelle">{{ item.libelle }}</span>
+        <span class="item-price">{{ item.regularUnitPrice | number }} F</span>
+      </div>
+    </ng-template>
+  </p-autoComplete>
+  <label>Produit</label>
+</p-floatlabel>

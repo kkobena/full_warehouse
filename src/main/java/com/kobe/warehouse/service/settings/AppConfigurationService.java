@@ -32,7 +32,7 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_MONO_STOCK)
     public boolean isMono() {
-        Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
+        Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_MONO_STOCK);
         return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);
     }
 
@@ -210,6 +210,22 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_SEUIL_VARIATION_PRIX_CACHE)
+    public int getSeuilVariationPrix() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_SEUIL_VARIATION_PRIX)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 20;
+                }
+            })
+            .orElse(20);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE)
     public long getReceptionMinExpiryDays() {
         return appConfigurationRepository
@@ -239,6 +255,37 @@ public class AppConfigurationService {
                 }
             })
             .orElse(3);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE_CACHE)
+    public int getCouvertureMoisClassique() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE)
+            .map(AppConfiguration::getValue)
+            .map(value -> {
+                try {
+                    return Integer.parseInt(value.trim());
+                } catch (NumberFormatException _) {
+                    return 2;
+                }
+            })
+            .orElse(2);
+    }
+
+    /**
+     * Retourne le modèle de réapprovisionnement actuellement configuré.
+     */
+    @Transactional(readOnly = true)
+    public ModelReapprovisionnement getCurrentModelReappro() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_MODEL_REAPPRO)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try { return ModelReapprovisionnement.valueOf(v); }
+                catch (IllegalArgumentException e) { return ModelReapprovisionnement.CLASSIQUE; }
+            })
+            .orElse(ModelReapprovisionnement.CLASSIQUE);
     }
 
     /**

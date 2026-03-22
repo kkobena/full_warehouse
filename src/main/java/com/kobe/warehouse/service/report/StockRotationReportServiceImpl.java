@@ -1,322 +1,193 @@
 package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
+import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
+/**
+ * Implémentation du rapport de rotation de stock depuis {@code v_stock_rotation}.
+ *
+ * <p>La vue remplace {@code mv_stock_rotation} (supprimée en V1.3.4).
+ * {@code categorie_abc} (Z-score) est supprimée — la classification utilise désormais
+ * {@code produit.classe_criticite} via un LEFT JOIN.
+ *
+ * <p>Colonnes retournées (indices 0-15) :
+ * [0] produit_id  [1] libelle  [2] code_cip  [3] famille
+ * [4] stock_quantite  [5] cout_unitaire  [6] valeur_stock
+ * [7] ca_30_jours  [8] qte_vendue_30_jours  [9] nb_ventes_30_jours
+ * [10] ca_12_mois  [11] qte_vendue_12_mois  [12] cmm
+ * [13] rotation_annuelle_qte  [14] couverture_stock_jours
+ * [15] classe_criticite  (depuis produit — converti en CategorieABC)
+ */
 @Service
 @Transactional(readOnly = true)
 public class StockRotationReportServiceImpl implements StockRotationReportService {
 
+    private static final String SELECT_COLS =
+        "vsr.produit_id, vsr.libelle, vsr.code_cip, vsr.famille, " +
+        "vsr.stock_quantite, vsr.cout_unitaire, vsr.valeur_stock, " +
+        "vsr.ca_30_jours, vsr.qte_vendue_30_jours, vsr.nb_ventes_30_jours, " +
+        "vsr.ca_12_mois, vsr.qte_vendue_12_mois, vsr.cmm, " +
+        "vsr.rotation_annuelle_qte, vsr.couverture_stock_jours, " +
+        "p.classe_criticite ";
 
-    private final EntityManager entityManager;
+    private static final String FROM_CLAUSE =
+        "FROM v_stock_rotation vsr LEFT JOIN produit p ON p.id = vsr.produit_id ";
 
-    public StockRotationReportServiceImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Cacheable(value = "stockRotation", key = "'all'")
     public List<StockRotationDTO> getAllStockRotation() {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "ORDER BY rotation_rate_annual DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE + "ORDER BY vsr.rotation_annuelle_qte DESC");
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
-    @Cacheable(value = "stockRotation", key = "'category:' + #categorie")
+    @Cacheable(value = "stockRotation", key = "'family:' + #categorie")
     public List<StockRotationDTO> getStockRotationByCategory(String categorie) {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "WHERE categorie = :categorie " +
-            "ORDER BY rotation_rate_annual DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorie", categorie);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE +
+            "WHERE vsr.famille = :famille ORDER BY vsr.rotation_annuelle_qte DESC");
+        query.setParameter("famille", categorie);
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     @Cacheable(value = "stockRotation", key = "'abc:' + #categorieABC")
     public List<StockRotationDTO> getStockRotationByABCClassification(CategorieABC categorieABC) {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "WHERE categorie_abc = :categorieABC " +
-            "ORDER BY rotation_rate_annual DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorieABC", categorieABC.name());
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE +
+            "WHERE p.classe_criticite IN (:classes) ORDER BY vsr.rotation_annuelle_qte DESC");
+        query.setParameter("classes", toClassesCriticite(categorieABC));
+        return mapResultsToDTO(query.getResultList());
     }
 
     @Override
     public Map<CategorieABC, Long> getStockRotationCountByABCClassification() {
-        String countQuery =
-            "SELECT categorie_abc, COUNT(*) as count " + "FROM mv_stock_rotation " + "GROUP BY categorie_abc";
-
-        Query query = entityManager.createNativeQuery(countQuery);
-
         @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
+        List<Object[]> rows = entityManager.createNativeQuery(
+            "SELECT p.classe_criticite, COUNT(*) " + FROM_CLAUSE +
+            "GROUP BY p.classe_criticite").getResultList();
 
         Map<CategorieABC, Long> counts = new EnumMap<>(CategorieABC.class);
-
-        // Initialize with zeros
         counts.put(CategorieABC.A, 0L);
         counts.put(CategorieABC.B, 0L);
         counts.put(CategorieABC.C, 0L);
 
-        // Fill with actual counts
-        for (Object[] row : results) {
-            String classificationStr = (String) row[0];
+        for (Object[] row : rows) {
+            String cc = (String) row[0];
             Long count = row[1] != null ? ((Number) row[1]).longValue() : 0L;
             try {
-                CategorieABC classification = CategorieABC.valueOf(classificationStr);
-                counts.put(classification, count);
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid classifications
+                ClasseCriticite classe = ClasseCriticite.fromString(cc);
+                CategorieABC abc = CategorieABC.fromClasseCriticite(classe);
+                counts.merge(abc, count, Long::sum);
+            } catch (Exception ignored) {
+                // classe_criticite null ou inconnue
             }
         }
-
         return counts;
-    }
-
-    @Override
-    public List<StockRotationDTO> getStockRotationPaginated(int page, int size) {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "ORDER BY rotation_rate_annual DESC " +
-            "LIMIT :size OFFSET :offset";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("size", size);
-        query.setParameter("offset", page * size);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
-
-    @Override
-    @Cacheable(value = "stockRotation", key = "'count'")
-    public long getStockRotationCount() {
-        String sql = "SELECT COUNT(*) FROM mv_stock_rotation";
-        Query query = entityManager.createNativeQuery(sql);
-        return ((Number) query.getSingleResult()).longValue();
-    }
-
-    @Override
-    public List<StockRotationDTO> getStockRotationByABCPaginated(CategorieABC categorieABC, int page, int size) {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "WHERE categorie_abc = :categorieABC " +
-            "ORDER BY rotation_rate_annual DESC " +
-            "LIMIT :size OFFSET :offset";
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorieABC", categorieABC.name());
-        query.setParameter("size", size);
-        query.setParameter("offset", page * size);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
-    }
-
-    @Override
-    public long getStockRotationCountByABC(CategorieABC categorieABC) {
-        String sql = "SELECT COUNT(*) FROM mv_stock_rotation WHERE categorie_abc = :categorieABC";
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("categorieABC", categorieABC.name());
-        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override
     @Cacheable(value = "stockRotation", key = "'slow'")
     public List<StockRotationDTO> getSlowMovingProducts() {
-        String sql =
-            "SELECT " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "categorie, " +
-            "stock_quantity, " +
-            "unit_cost, " +
-            "stock_value, " +
-            "ca_last_30_days, " +
-            "qty_sold_last_30_days, " +
-            "nb_sales_last_30_days, " +
-            "ca_last_12_months, " +
-            "qty_sold_last_12_months, " +
-            "rotation_rate_annual, " +
-            "avg_days_in_stock, " +
-            "categorie_abc " +
-            "FROM mv_stock_rotation " +
-            "WHERE categorie_abc = 'C' " +
-            "ORDER BY stock_value DESC";
-
-        Query query = entityManager.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return mapResultsToDTO(results);
+        // Produits de faible activité : classe C ou D (= ancien categorie_abc='C')
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE +
+            "WHERE p.classe_criticite IN ('C', 'D') ORDER BY vsr.valeur_stock DESC");
+        return mapResultsToDTO(query.getResultList());
     }
 
+    @Override
+    public List<StockRotationDTO> getStockRotationPaginated(int page, int size) {
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE +
+            "ORDER BY vsr.rotation_annuelle_qte DESC LIMIT :size OFFSET :offset");
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+        return mapResultsToDTO(query.getResultList());
+    }
 
+    @Override
+    @Cacheable(value = "stockRotation", key = "'count'")
+    public long getStockRotationCount() {
+        return ((Number) entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM v_stock_rotation").getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<StockRotationDTO> getStockRotationByABCPaginated(CategorieABC categorieABC, int page, int size) {
+        Query query = entityManager.createNativeQuery(
+            "SELECT " + SELECT_COLS + FROM_CLAUSE +
+            "WHERE p.classe_criticite IN (:classes) ORDER BY vsr.rotation_annuelle_qte DESC LIMIT :size OFFSET :offset");
+        query.setParameter("classes", toClassesCriticite(categorieABC));
+        query.setParameter("size", size);
+        query.setParameter("offset", page * size);
+        return mapResultsToDTO(query.getResultList());
+    }
+
+    @Override
+    public long getStockRotationCountByABC(CategorieABC categorieABC) {
+        Query query = entityManager.createNativeQuery(
+            "SELECT COUNT(*) " + FROM_CLAUSE + "WHERE p.classe_criticite IN (:classes)");
+        query.setParameter("classes", toClassesCriticite(categorieABC));
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    // ── helpers ──
+
+    /** Traduit un CategorieABC en liste de codes ClasseCriticite pour le filtre SQL. */
+    private static List<String> toClassesCriticite(CategorieABC cat) {
+        return switch (cat) {
+            case A -> List.of("A_PLUS", "A");
+            case B -> List.of("B");
+            case C -> List.of("C", "D");
+        };
+    }
+
+    @SuppressWarnings("unchecked")
     private List<StockRotationDTO> mapResultsToDTO(List<Object[]> results) {
-        return results
-            .stream()
-            .map(row -> {
-                Integer produitId = row[0] != null ? ((Number) row[0]).intValue() : null;
-                String libelle = (String) row[1];
-                String codeCip = (String) row[2];
-                String categorie = (String) row[3];
-                Integer stockQuantity = row[4] != null ? ((Number) row[4]).intValue() : 0;
-                Integer unitCost = row[5] != null ? ((Number) row[5]).intValue() : 0;
-                Long stockValue = row[6] != null ? ((Number) row[6]).longValue() : 0L;
-                Integer caLast30Days = row[7] != null ? ((Number) row[7]).intValue() : 0;
-                Integer qtySoldLast30Days = row[8] != null ? ((Number) row[8]).intValue() : 0;
-                Integer nbSalesLast30Days = row[9] != null ? ((Number) row[9]).intValue() : 0;
-                Integer caLast12Months = row[10] != null ? ((Number) row[10]).intValue() : 0;
-                Integer qtySoldLast12Months = row[11] != null ? ((Number) row[11]).intValue() : 0;
-                BigDecimal rotationRateAnnual = row[12] != null ? new BigDecimal(row[12].toString()) : BigDecimal.ZERO;
-                Integer avgDaysInStock = row[13] != null ? ((Number) row[13]).intValue() : 999;
-                String categorieABCStr = (String) row[14];
-
-                CategorieABC categorieABC = categorieABCStr != null
-                    ? CategorieABC.valueOf(categorieABCStr)
+        return results.stream().map(row -> {
+            String ccStr = (String) row[15];
+            CategorieABC abc;
+            try {
+                abc = ccStr != null
+                    ? CategorieABC.fromClasseCriticite(ClasseCriticite.fromString(ccStr))
                     : CategorieABC.C;
+            } catch (Exception e) {
+                abc = CategorieABC.C;
+            }
 
-                return new StockRotationDTO(
-                    produitId,
-                    libelle,
-                    codeCip,
-                    categorie,
-                    stockQuantity,
-                    unitCost,
-                    stockValue,
-                    caLast30Days,
-                    qtySoldLast30Days,
-                    nbSalesLast30Days,
-                    caLast12Months,
-                    qtySoldLast12Months,
-                    rotationRateAnnual,
-                    avgDaysInStock,
-                    categorieABC
-                );
-            })
-            .toList();
+            return new StockRotationDTO(
+                row[0] != null ? ((Number) row[0]).intValue() : null,  // produitId
+                (String) row[1],                                        // libelle
+                (String) row[2],                                        // codeCip
+                (String) row[3],                                        // famille → categorie field
+                row[4] != null ? ((Number) row[4]).intValue() : 0,     // stockQuantity
+                row[5] != null ? ((Number) row[5]).intValue() : 0,     // unitCost
+                row[6] != null ? ((Number) row[6]).longValue() : 0L,   // stockValue
+                row[7] != null ? ((Number) row[7]).intValue() : 0,     // caLast30Days
+                row[8] != null ? ((Number) row[8]).intValue() : 0,     // qtySoldLast30Days
+                row[9] != null ? ((Number) row[9]).intValue() : 0,     // nbSalesLast30Days
+                row[10] != null ? ((Number) row[10]).intValue() : 0,   // caLast12Months
+                row[11] != null ? ((Number) row[11]).intValue() : 0,   // qtySoldLast12Months
+                row[13] != null ? new BigDecimal(row[13].toString()) : BigDecimal.ZERO, // rotationRateAnnual
+                row[14] != null ? ((Number) row[14]).intValue() : 999, // avgDaysInStock
+                abc
+            );
+        }).toList();
     }
 }

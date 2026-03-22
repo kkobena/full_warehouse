@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,6 +71,11 @@ public class FournisseurProduitResource {
     @GetMapping("/fournisseur-produits/{id}")
     public ResponseEntity<FournisseurProduitDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(fournisseurProduitService.findOneById(id));
+    }
+
+    @GetMapping("/fournisseur-produits/by-produit/{produitId}")
+    public ResponseEntity<List<FournisseurProduitDTO>> getByProduitId(@PathVariable Integer produitId) {
+        return ResponseEntity.ok(fournisseurProduitService.findAllByProduitId(produitId));
     }
 
     @PutMapping("/fournisseur-produits/update-from-commande")

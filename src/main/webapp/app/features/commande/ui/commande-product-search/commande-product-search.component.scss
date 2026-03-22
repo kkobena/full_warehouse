@@ -1,0 +1,38 @@
+.commande-search-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+
+  .pharma-code {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--p-primary-color, #3b82f6);
+    min-width: 7rem;
+    flex-shrink: 0;
+  }
+
+  .item-libelle {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item-price {
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  &.stockless {
+    color: var(--p-red-400, #f87171);
+
+    .pharma-code,
+    .item-libelle,
+    .item-price {
+      color: inherit;
+    }
+  }
+}

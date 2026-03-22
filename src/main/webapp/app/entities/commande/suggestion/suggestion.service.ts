@@ -6,6 +6,8 @@ import { SERVER_API_URL } from '../../../app.constants';
 import { Suggestion } from './model/suggestion.model';
 import { Keys } from '../../../shared/model/keys.model';
 import { SuggestionLine } from './model/suggestion-line.model';
+import { FournisseurSuggestionSummary } from '../../../features/commande/feature/suggestion/data-access/suggestion-enrichie.model';
+import { IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
 
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 
@@ -16,6 +18,10 @@ export class SuggestionService {
   protected http = inject(HttpClient);
 
   public resourceUrl = SERVER_API_URL + 'api/suggestions';
+
+  queryParFournisseur(): Observable<FournisseurSuggestionSummary[]> {
+    return this.http.get<FournisseurSuggestionSummary[]>(this.resourceUrl + '/par-fournisseur');
+  }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
@@ -74,4 +80,47 @@ export class SuggestionService {
   commander(id: number): Observable<{}> {
     return this.http.delete(`${this.resourceUrl}/commander/${id}`);
   }
+
+  commanderSelection(dto: { suggestionId: number; lignes: { suggestionLineId: number; quantite: number }[] }): Observable<{}> {
+    return this.http.post(`${this.resourceUrl}/commander-selection`, dto);
+  }
+
+  getBudget(): Observable<BudgetCommande> {
+    return this.http.get<BudgetCommande>(`${this.resourceUrl}/budget`);
+  }
+
+  getSemoisFraicheur(): Observable<SemoisFraicheur> {
+    return this.http.get<SemoisFraicheur>(`${SERVER_API_URL}api/semois/freshness`);
+  }
+
+  recalculerSemois(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${SERVER_API_URL}api/semois/recalculate`, {});
+  }
+
+  valider(id: number): Observable<{}> {
+    return this.http.put(`${this.resourceUrl}/${id}/valider`, {});
+  }
+
+  rejeter(id: number): Observable<{}> {
+    return this.http.delete(`${this.resourceUrl}/${id}/rejeter`);
+  }
+
+  getFournisseursProduit(produitId: number): Observable<IFournisseurProduit[]> {
+    return this.http.get<IFournisseurProduit[]>(`${SERVER_API_URL}api/fournisseur-produits/by-produit/${produitId}`);
+  }
+}
+
+export interface SemoisFraicheur {
+  dernierCalcul: string | null; // ISO datetime
+  calculeRecent: boolean;
+  nbProduitsConfigures: number;
+}
+
+export interface BudgetCommande {
+  budgetMensuel: number;
+  montantEstime: number;
+  montantCommande: number;
+  budgetRestant: number;
+  enDepassement: boolean;
+  budgetIllimite: boolean;
 }

@@ -1,175 +1,141 @@
-<p-toast position="center"/>
+<div class="card data-card pharmaml-card">
+  <div class="card-header">
+    <h5 class="card-title">
+      <i class="pi pi-send text-primary"></i>
+      PharmaML
+    </h5>
+    <div class="card-header-actions">
+      @if (polling()) {
+        <p-tag value="En attente..." severity="info" icon="pi pi-spin pi-spinner"/>
+      }
+      @if (substitutionsEnAttente().length > 0) {
+        <p-button
+          size="small"
+          [label]="substitutionsEnAttente().length + ' subst.'"
+          icon="pi pi-exclamation-triangle"
+          severity="warn"
+          pTooltip="Substitutions proposées — cliquer pour valider"
+          (onClick)="openSubstitutions()"
+        />
+      }
+      @if (orderStatus() === 'RECEIVED') {
+        <p-splitbutton
+          label="Actions réception"
+          icon="pi pi-check-circle"
+          severity="success"
+          size="small"
+          [model]="actionsReceived()"
+          [disabled]="sendingAck()"
+        ></p-splitbutton>
+      } @else {
+        <p-splitbutton
+          label="Actions PharmaML"
+          icon="pi pi-send"
+          severity="info"
+          size="small"
+          [model]="actionsRequested()"
+        ></p-splitbutton>
+      }
+    </div>
+  </div>
 
-<div class="d-flex align-items-center gap-2 flex-wrap mb-2">
-  @if (polling()) {
-    <p-tag value="En attente de réponse..." severity="info" icon="pi pi-spin pi-spinner" />
-  }
-  @if (orderStatus() === 'RECEIVED') {
-    <p-button size="small"
-      label="Accuser réception (PharmaML)"
-      icon="pi pi-check-circle"
-      severity="success"
-      [loading]="sendingAck()"
-      (onClick)="envoiAck()"
-    />
-    <p-button size="small"
-      label="Retour marchandise"
-      icon="pi pi-reply"
-      severity="warn"
-      [outlined]="true"
-      (onClick)="openRetour()"
-    />
-  } @else {
-    <p-button size="small"
-      label="Envoyer via PharmaML"
-      icon="pi pi-send"
-      severity="primary"
-      (onClick)="openEnvoi()"
-    />
-  }
-  <p-button size="small"
-    label="Voir réponse"
-    icon="pi pi-file"
-    severity="secondary"
-    (onClick)="openReponse()"
-  />
-  @if (canAnnuler()) {
-    <p-button size="small"
-      label="Annuler commande"
-      icon="pi pi-ban"
-      severity="danger"
-      [outlined]="true"
-      (onClick)="openAnnulation()"
-    />
-  }
-  @if (substitutionsEnAttente().length > 0) {
-    <p-button size="small"
-      [label]="substitutionsEnAttente().length + ' substitution(s) à valider'"
-      icon="pi pi-exclamation-triangle"
-      severity="warn"
-      [badge]="substitutionsEnAttente().length.toString()"
-      (onClick)="openSubstitutions()"
-    />
-  }
-  <p-button size="small"
-    label="Vérifier disponibilité"
-    icon="pi pi-search"
-    severity="info"
-    [outlined]="true"
-    [loading]="loadingDisponibilite()"
-    (onClick)="verifierDisponibilite()"
-  />
-  <p-button size="small"
-    [label]="showHistorique() ? 'Masquer historique' : 'Historique'"
-    icon="pi pi-history"
-    severity="contrast"
-    [outlined]="true"
-    (onClick)="toggleHistorique()"
-  />
+  <div class="card-body p-2">
 
-  @if (lastResult(); as res) {
-    <p-tag
-      [value]="res.successCount + ' / ' + res.totalProduit + ' acceptés'"
-      [severity]="res.success ? 'success' : 'warn'"
-    />
-    @if (res.outOfStockCount > 0) {
-      <p-tag [value]="res.outOfStockCount + ' rupture(s)'" severity="danger" />
+    @if (lastResult(); as res) {
+      <div class="pharmaml-last-result mb-2">
+        <p-tag
+          [value]="res.successCount + ' / ' + res.totalProduit + ' acceptés'"
+          [severity]="res.success ? 'success' : 'warn'"
+        />
+        @if (res.outOfStockCount > 0) {
+          <p-tag [value]="res.outOfStockCount + ' rupture(s)'" severity="danger"/>
+        }
+        @if (res.reliquatCommandeId != null) {
+          <p-tag value="Reliquat créé" severity="info" icon="pi pi-copy"
+                 pTooltip="Une commande reliquat a été créée automatiquement"/>
+        }
+      </div>
     }
-    @if (res.reliquatCommandeId != null) {
-      <p-tag value="Reliquat créé" severity="info" icon="pi pi-copy" />
+
+    <!-- Disponibilités -->
+    @if (loadingDisponibilite() || disponibilites().length > 0) {
+      <div class="pharmaml-panel-section mb-2">
+        <p class="pharmaml-section-title"><i class="pi pi-search me-1"></i>Disponibilités</p>
+        @if (loadingDisponibilite()) {
+          <div class="text-center text-muted py-2"><i class="pi pi-spin pi-spinner"></i></div>
+        } @else {
+          <p-table [value]="disponibilites()" class="p-datatable-sm pharma-table w-100">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Code</th>
+                <th>Désignation</th>
+                <th class="text-center">Stock</th>
+                <th class="text-center">P.A</th>
+                <th class="text-center">Dispo</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-info>
+              <tr>
+                <td><code>{{ info.codeProduit }}</code></td>
+                <td>{{ info.designation ?? '—' }}</td>
+                <td class="text-center">{{ info.stockDisponible }}</td>
+                <td class="text-center">{{ info.prixAchat | number: '1.0-0' }}</td>
+                <td class="text-center">
+                  @if (info.disponible) {
+                    <p-tag value="Oui" severity="success"/>
+                  } @else {
+                    <p-tag value="Rupture" severity="danger"/>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr><td colspan="5" class="text-center text-muted">Aucune information disponible</td></tr>
+            </ng-template>
+          </p-table>
+        }
+      </div>
     }
-  }
+
+    <!-- Historique -->
+    <div class="pharmaml-panel-section">
+      <p class="pharmaml-section-title"><i class="pi pi-history me-1"></i>Historique des envois</p>
+      <p-table
+        [value]="historique()"
+        [loading]="loadingHistorique()"
+        [rows]="5"
+        [paginator]="historique().length > 5"
+        class="w-100 p-datatable-sm pharma-table"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Date</th>
+            <th>Statut</th>
+            <th class="text-center">Acc.</th>
+            <th class="text-center">Rupt.</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-envoi>
+          <tr>
+            <td>{{ envoi.createdAt | date: 'dd/MM HH:mm' }}</td>
+            <td><p-tag [value]="envoi.statut" [severity]="statutSeverity(envoi.statut)"/></td>
+            <td class="text-center">
+              @if (envoi.lignesAcceptees != null) {
+                {{ envoi.lignesAcceptees }}/{{ envoi.totalLignes }}
+              } @else { — }
+            </td>
+            <td class="text-center">
+              @if (envoi.lignesRupture != null && envoi.lignesRupture > 0) {
+                <p-tag [value]="envoi.lignesRupture.toString()" severity="danger"/>
+              } @else { — }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr><td colspan="4" class="text-center text-muted">Aucun envoi PharmaML</td></tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+  </div>
 </div>
-
-@if (showDisponibilite() && disponibilites().length > 0) {
-  <p-table
-    [value]="disponibilites()"
-    [loading]="loadingDisponibilite()"
-    class="p-datatable-sm pharma-table w-100 mt-2"
-
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Code produit</th>
-        <th>Désignation</th>
-        <th class="text-center">Stock dispo</th>
-        <th class="text-center">Prix achat</th>
-        <th class="text-center">Disponible</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-info>
-      <tr>
-        <td><code>{{ info.codeProduit }}</code></td>
-        <td>{{ info.designation ?? '—' }}</td>
-        <td class="text-center">{{ info.stockDisponible }}</td>
-        <td class="text-center">{{ info.prixAchat | number: '1.0-0' }}</td>
-        <td class="text-center">
-          @if (info.disponible) {
-            <p-tag value="Oui" severity="success" />
-          } @else {
-            <p-tag value="Rupture" severity="danger" />
-          }
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="5" class="text-center text-muted">Aucune information disponible</td>
-      </tr>
-    </ng-template>
-  </p-table>
-}
-
-@if (showHistorique()) {
-  <p-table
-    [value]="historique()"
-    [loading]="loadingHistorique()"
-    [rows]="5"
-    [paginator]="historique().length > 5"
-    class="w-100 p-datatable-sm pharma-table"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Date</th>
-        <th>Fournisseur</th>
-        <th>Statut</th>
-        <th class="text-center">Acceptées</th>
-        <th class="text-center">Ruptures</th>
-        <th>Réf. message</th>
-        <th class="text-center">Tentatives</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-envoi>
-      <tr>
-        <td>{{ envoi.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-        <td>{{ envoi.fournisseurLibelle }}</td>
-        <td>
-          <p-tag [value]="envoi.statut" [severity]="statutSeverity(envoi.statut)" />
-        </td>
-        <td class="text-center">
-          @if (envoi.lignesAcceptees != null) {
-            {{ envoi.lignesAcceptees }} / {{ envoi.totalLignes }}
-          } @else {
-            —
-          }
-        </td>
-        <td class="text-center">
-          @if (envoi.lignesRupture != null && envoi.lignesRupture > 0) {
-            <p-tag [value]="envoi.lignesRupture.toString()" severity="danger" />
-          } @else {
-            —
-          }
-        </td>
-        <td>
-          <code>{{ envoi.refMessage ?? '—' }}</code>
-        </td>
-        <td class="text-center">{{ envoi.tentatives }}</td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="7" class="text-center text-muted">Aucun envoi PharmaML pour cette commande</td>
-      </tr>
-    </ng-template>
-  </p-table>
-}

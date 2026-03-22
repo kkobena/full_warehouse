@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.Suggestion_;
+import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,6 +12,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -59,6 +62,62 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
         List<SuggestionProjection> results = typedQuery.getResultList();
 
         return new PageImpl<>(results, pageable, count(specification));
+    }
+
+    private static final String PAR_FOURNISSEUR_SQL = """
+        SELECT
+            s.id                                          AS suggestion_id,
+            f.id                                          AS fournisseur_id,
+            f.libelle                                     AS libelle,
+            s.statut,
+            COUNT(sl.id)                                  AS nb_produits,
+            COALESCE(SUM(sl.quantity * fp.prix_achat), 0) AS montant_estime,
+            CASE
+                WHEN COUNT(sl.id) = 0 THEN 'STANDARD'
+                WHEN COUNT(sc.id) = 0 THEN 'STANDARD'
+                WHEN COUNT(sc.id) = COUNT(sl.id) THEN 'SEMOIS'
+                ELSE 'MIXTE'
+            END                                           AS source
+        FROM suggestion s
+        JOIN fournisseur f ON f.id = s.fournisseur_id
+        LEFT JOIN suggestion_line sl ON sl.suggestion_id = s.id
+        LEFT JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
+        LEFT JOIN semois_configuration sc ON sc.produit_id = fp.produit_id
+        WHERE s.updated_at >= NOW() - make_interval(days => :retentionDays)
+        GROUP BY s.id, f.id, f.libelle, s.statut
+        ORDER BY f.libelle ASC
+        """;
+
+    @Override
+    public List<FournisseurSuggestionSummaryDTO> getParFournisseur(int retentionDays) {
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = entityManager
+            .createNativeQuery(PAR_FOURNISSEUR_SQL)
+            .setParameter("retentionDays", retentionDays)
+            .getResultList();
+
+        return rows.stream().map(row -> new FournisseurSuggestionSummaryDTO(
+            toInt(row[0]),            // suggestionId
+            toInt(row[1]),            // fournisseurId
+            (String) row[2],          // libelle
+            (String) row[3],          // statut
+            toLong(row[4]).intValue(), // nbProduits
+            0,                        // nbUrgents (calculé côté frontend après chargement des lignes)
+            toLong(row[5]),           // montantEstime
+            (String) row[6]           // source
+        )).toList();
+    }
+
+    private static Integer toInt(Object val) {
+        if (val instanceof Number n) return n.intValue();
+        return null;
+    }
+
+    private static Long toLong(Object val) {
+        if (val instanceof BigDecimal bd) return bd.longValue();
+        if (val instanceof BigInteger bi) return bi.longValue();
+        if (val instanceof Number n) return n.longValue();
+        return 0L;
     }
 
     private Long count(Specification<Suggestion> specification) {

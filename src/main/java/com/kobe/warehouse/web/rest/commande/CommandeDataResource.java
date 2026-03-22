@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
@@ -141,5 +142,10 @@ public class CommandeDataResource {
     ) {
         log.debug("REST request to get Commande : {}", id);
         return ResponseUtil.wrapOrNotFound(commandeDataService.getCommandeById(new CommandeId(id, orderDate)));
+    }
+
+    @GetMapping("/commandes/dashboard")
+    public ResponseEntity<CommandeDashboardDTO> getDashboard() {
+        return ResponseEntity.ok(commandeDataService.getDashboard());
     }
 }

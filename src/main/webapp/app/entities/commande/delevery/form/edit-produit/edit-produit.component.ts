@@ -10,7 +10,7 @@ import { ITva } from '../../../../../shared/model/tva.model';
 import { IRayon } from '../../../../../shared/model/rayon.model';
 import { RayonService } from '../../../../rayon/rayon.service';
 import { TvaService } from '../../../../tva/tva.service';
-import { IProduit } from '../../../../../shared/model/produit.model';
+import { IProduit } from '../../../../../shared/model';
 import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';

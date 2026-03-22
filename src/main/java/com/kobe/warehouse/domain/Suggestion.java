@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -61,8 +62,15 @@ public class Suggestion implements Serializable {
     private TypeSuggession typeSuggession;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", length = 15)
-    private StatutSuggession statut = StatutSuggession.OPEN;
+    @Column(name = "statut", length = 30)
+    private StatutSuggession statut = StatutSuggession.GENEREE;
+
+    @ManyToOne
+    @JoinColumn(name = "valide_par_id",referencedColumnName = "id")
+    private AppUser validePar;
+
+    @Column(name = "date_validation")
+    private LocalDateTime dateValidation;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -154,4 +162,23 @@ public class Suggestion implements Serializable {
     public void setFournisseur(Fournisseur fournisseur) {
         this.fournisseur = fournisseur;
     }
+
+    public AppUser getValidePar() {
+        return validePar;
+    }
+
+    public Suggestion setValidePar(AppUser validePar) {
+        this.validePar = validePar;
+        return this;
+    }
+
+    public LocalDateTime getDateValidation() {
+        return dateValidation;
+    }
+
+    public Suggestion setDateValidation(LocalDateTime dateValidation) {
+        this.dateValidation = dateValidation;
+        return this;
+    }
+
 }

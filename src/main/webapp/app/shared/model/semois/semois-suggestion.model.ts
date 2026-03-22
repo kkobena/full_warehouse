@@ -7,6 +7,8 @@ export interface ISemoisSuggestion {
   produitId?: number;
   libelle?: string;
   codeCip?: string;
+  fournisseurId?: number;
+  fournisseurLibelle?: string;
   classeCriticite?: ClasseCriticite;
   vmm?: number; // Ventes Mensuelles Moyennes (pondérées)
   margeSecurite?: number; // Marge de sécurité calculée
@@ -24,6 +26,8 @@ export class SemoisSuggestion implements ISemoisSuggestion {
     public produitId?: number,
     public libelle?: string,
     public codeCip?: string,
+    public fournisseurId?: number,
+    public fournisseurLibelle?: string,
     public classeCriticite?: ClasseCriticite,
     public vmm?: number,
     public margeSecurite?: number,

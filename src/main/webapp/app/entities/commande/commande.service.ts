@@ -12,6 +12,46 @@ import { ICommandeResponse } from '../../shared/model/commande-response.model';
 import { CommandeId } from '../../shared/model/abstract-commande.model';
 import { OrderLineId } from '../../shared/model/abstract-order-item.model';
 
+export interface IPriceHistory {
+  id: number;
+  oldPrixAchat: number;
+  newPrixAchat: number;
+  oldPrixUni: number;
+  newPrixUni: number;
+  changedAt: string;
+  receiptReference: string | null;
+  changedBy: string | null;
+}
+
+export interface ICommandeResumee {
+  id: number;
+  orderDate: string;
+  orderReference: string | null;
+  fournisseurLibelle: string;
+  grossAmount: number;
+  orderStatus: string;
+  reliquatDeCommandeId: number | null;
+}
+
+export interface IPharmaMlEnvoiResumee {
+  id: number;
+  commandeId: number;
+  commandeOrderDate: string;
+  commandeRef: string | null;
+  fournisseurLibelle: string;
+  statut: string;
+  createdAt: string;
+}
+
+export interface ICommandeDashboard {
+  totalRequested: number;
+  totalReceived: number;
+  totalPharmamlPending: number;
+  commandesRequested: ICommandeResumee[];
+  commandesReceived: ICommandeResumee[];
+  envoisPending: IPharmaMlEnvoiResumee[];
+}
+
 type EntityResponseType = HttpResponse<ICommande>;
 type EntityArrayResponseType = HttpResponse<ICommande[]>;
 
@@ -168,6 +208,33 @@ export class CommandeService {
 
   changeGrossiste(commande: ICommande): Observable<HttpResponse<{}>> {
     return this.http.put(`${this.resourceUrl}/change-grossiste`, commande, { observe: 'response' });
+  }
+
+  /**
+   * Vérifie côté serveur les lignes dont la variation de prix dépasse le seuil configuré
+   * (APP_SEUIL_VARIATION_PRIX). Opère sur TOUTES les lignes, sans dépendre de la pagination frontend.
+   */
+  getPriceHistory(fournisseurProduitId: number): Observable<IPriceHistory[]> {
+    return this.http.get<IPriceHistory[]>(`${this.resourceUrl}/entree-stock/prix-historique/${fournisseurProduitId}`);
+  }
+
+  checkPriceVariation(commandeId: CommandeId): Observable<HttpResponse<IOrderLine[]>> {
+    return this.http.get<IOrderLine[]>(`${this.resourceUrl}/entree-stock/check-price-variation`, {
+      params: { commandeId: commandeId.id, orderDate: commandeId.orderDate },
+      observe: 'response',
+    });
+  }
+
+  getDashboard(): Observable<ICommandeDashboard> {
+    return this.http.get<ICommandeDashboard>(`${this.resourceUrl}/dashboard`);
+  }
+
+  importSuggestionIntoCommande(commandeId: CommandeId, suggestionId: number): Observable<HttpResponse<{}>> {
+    return this.http.post(
+      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion`,
+      null,
+      { observe: 'response', params: { suggestionId } },
+    );
   }
 
 

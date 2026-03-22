@@ -21,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Service for refreshing materialized views on a scheduled basis.
  *
  * <p>Refresh Schedule:
- * - TIER 1 (High Priority): Every 15 minutes during business hours (8am-8pm) - Dashboard and alerts
- * - TIER 2 (Medium Priority): Every hour - Product and stock analytics
- * - TIER 3 (Low Priority): Every 6 hours - Complex analytical reports
  */
 @Service
 public class MaterializedViewRefreshService {
@@ -50,24 +47,15 @@ public class MaterializedViewRefreshService {
     // =====================================================
     // TIER 3: Low Priority Views (Every 6 hours)
     // =====================================================
+    // mv_stock_rotation, mv_abc_pareto_analysis, mv_pareto_summary supprimées en V1.3.4
+    // (remplacées par des vues ordinaires v_stock_rotation et v_abc_pareto_analysis)
     private static final List<String> TIER3_VIEWS = Arrays.asList(
-        "mv_stock_rotation",
         "mv_customer_rfm",
-        "mv_abc_pareto_analysis",
-        "mv_pareto_summary",
         "mv_supplier_performance",
         "mv_marge_produit"
-
     );
 
-    // =====================================================
-    // Views that cannot use CONCURRENT refresh
-    // Single-row aggregate views don't have natural unique keys
-    // =====================================================
-    private static final List<String> NON_CONCURRENT_VIEWS = Arrays.asList(
-        "mv_pareto_summary"
-
-    );
+    private static final List<String> NON_CONCURRENT_VIEWS = List.of();
 
     @PersistenceContext
     private EntityManager entityManager;

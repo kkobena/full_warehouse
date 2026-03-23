@@ -1,0 +1,216 @@
+<p-toast position="center" />
+
+<div class="container-fluid">
+  <div class="pharma-smart-content p-1">
+
+    <!-- ── HEADER ────────────────────────────────────────────────────────── -->
+    <div class="pharma-sales-header">
+      <div class="header-left">
+        <p-button
+          (onClick)="goBack()"
+          [rounded]="true"
+          [text]="true"
+          class="back-button"
+          icon="pi pi-arrow-left"
+          pTooltip="Retour à l'historique"
+        />
+        <div class="page-title">
+          <h1>Ajustement de stock</h1>
+          <p class="subtitle">Saisir une quantité positive (entrée) ou négative (sortie)</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <p-button
+          icon="pi pi-lock"
+          label="Clôturer"
+          severity="success"
+          size="small"
+          [disabled]="!facade.hasLines() || facade.isSaving()"
+          pTooltip="Valider et appliquer les mouvements de stock"
+          tooltipPosition="bottom"
+          (onClick)="openFinaliseModal()"
+        />
+      </div>
+    </div>
+
+    <!-- ── ORDER LINE SELECTION SECTION ─────────────────────────────────── -->
+    <div class="order-search-section">
+      <div class="search-section-header">
+        <i class="pi pi-sliders-h"></i>
+        <span>Saisie de l'ajustement</span>
+      </div>
+
+      <div class="search-controls">
+
+        <!-- Emplacement -->
+        <div class="storage-select-input">
+          <p-select
+            [(ngModel)]="selectedStorage"
+            [options]="facade.storages()"
+            optionLabel="name"
+            dataKey="id"
+            [fluid]="true"
+            [showClear]="false"
+            appendTo="body"
+            placeholder="Emplacement…"
+          />
+        </div>
+
+        <!-- Motif -->
+        <div class="motif-select-input">
+          <p-select
+            #motifSelect
+            [(ngModel)]="selectedMotif"
+            [options]="facade.motifs()"
+            optionLabel="libelle"
+            dataKey="id"
+            appendTo="body"
+            [fluid]="true"
+            placeholder="Motif d'ajustement *"
+          />
+        </div>
+
+        <!-- Recherche produit -->
+        <div class="product-search-input">
+          <app-commande-product-search
+            #productSearch
+            [searchByStorage]="true"
+            [storageId]="selectedStorage?.id"
+            (productSelected)="onProduitSelected($event)"
+            (productScanned)="onProduitSelected($event)"
+          />
+        </div>
+
+        <!-- Quantité + Ajouter -->
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <p-inputNumber
+              #qtyBox
+              [(ngModel)]="qty"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [fluid]="true"
+              placeholder="Qté (±)"
+              (keydown.enter)="onAddLine()"
+              (onFocus)="onQtyFocus()"
+            />
+            <p-inputgroup-addon>
+              <p-button
+                icon="pi pi-check"
+                severity="primary"
+                [disabled]="!canAdd"
+                [loading]="facade.isSaving()"
+                (onClick)="onAddLine()"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+
+      </div>
+
+      <!-- Meta : stock actuel + après + lot selection -->
+      @if (produitSearch()) {
+        <div class="order-meta">
+
+          <!-- CIP -->
+          <div class="meta-item">
+            <i class="pi pi-barcode"></i>
+            <span>CIP : <strong>{{ produitSearch()?.fournisseurProduit?.codeCip ?? '–' }}</strong></span>
+          </div>
+
+          <!-- Stock actuel -->
+          <div
+            class="meta-item"
+            [class.low-stock]="facade.stockActuel() < 10"
+          >
+            <i class="pi pi-database"></i>
+            <span>
+              {{ selectedStorage?.storageType === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }} :
+              <strong>{{ facade.stockActuel() | number }}</strong>
+            </span>
+          </div>
+
+          <!-- Stock après -->
+          @if (qty !== 0) {
+            <div
+              class="meta-item"
+              [class.low-stock]="stockAfter < 0"
+            >
+              <i class="pi pi-arrow-right"></i>
+              <span>
+                Après :
+                <strong [class.text-danger]="stockAfter < 0">{{ stockAfter | number }}</strong>
+              </span>
+              @if (stockAfter < 0) {
+                <span class="meta-warn">
+                  <i class="pi pi-exclamation-triangle"></i> Stock insuffisant
+                </span>
+              }
+            </div>
+          }
+
+          <!-- Lot (entrée + gestion lot) -->
+          @if (lotVisible) {
+            <div class="meta-item meta-item--lot">
+              <i class="pi pi-tag"></i>
+              <p-select
+                [(ngModel)]="selectedLot"
+                [options]="facade.availableLots()"
+                dataKey="id"
+                [loading]="facade.loadingLots()"
+                placeholder="Sélectionner un lot…"
+                [showClear]="true"
+                appendTo="body"
+              >
+                <ng-template #selectedItem let-lot>
+                  <div class="lot-selected">
+                    <span class="lot-num">{{ lot.numLot }}</span>
+                    @if (lot.expiryDate) {
+                      <span class="lot-exp">Exp. {{ lot.expiryDate | date:'MM/yyyy' }}</span>
+                    }
+                    <span class="lot-qty">{{ lot.quantity | number }} u.</span>
+                  </div>
+                </ng-template>
+                <ng-template #item let-lot>
+                  <div class="lot-option">
+                    <div class="lot-option-main">
+                      <i class="pi pi-tag"></i>
+                      <span class="lot-num">{{ lot.numLot }}</span>
+                    </div>
+                    <div class="lot-option-meta">
+                      @if (lot.expiryDate) {
+                        <span class="lot-exp">
+                          <i class="pi pi-calendar"></i> {{ lot.expiryDate | date:'dd/MM/yyyy' }}
+                        </span>
+                      }
+                      <span class="lot-qty">
+                        <i class="pi pi-box"></i> {{ lot.quantity | number }} u.
+                      </span>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+
+    <!-- ── TABLE DES LIGNES ─────────────────────────────────────────────── -->
+    <div class="mt-2 px-1">
+      <app-ajustement-lines-table
+        [lines]="facade.lines()"
+        [loading]="facade.loadingLines()"
+        (deleteLine)="onDeleteLine($event)"
+        (deleteSelection)="onDeleteSelection($event)"
+        (updateQty)="onUpdateQty($event)"
+        (searchChange)="onSearchLines($event)"
+      />
+    </div>
+
+  </div>
+</div>

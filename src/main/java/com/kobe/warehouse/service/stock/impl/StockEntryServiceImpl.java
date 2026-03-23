@@ -11,6 +11,7 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -32,11 +33,14 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
+import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
+import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.domain.FournisseurProduitPriceHistory;
 import com.kobe.warehouse.domain.LotReception;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
@@ -48,6 +52,7 @@ import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
@@ -61,12 +66,17 @@ import java.io.Reader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -105,6 +115,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final RetourBonRepository retourBonRepository;
     private final FournisseurProduitPriceHistoryRepository priceHistoryRepository;
     private final OrderLineRepository orderLineRepository;
+    private final LotStockLocationService lotStockLocationService;
+    private final SuggestionReassortService suggestionReassortService;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
@@ -149,7 +161,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         AppConfigurationService appConfigurationService,
         RetourBonRepository retourBonRepository,
         FournisseurProduitPriceHistoryRepository priceHistoryRepository,
-        OrderLineRepository orderLineRepository
+        OrderLineRepository orderLineRepository,
+        LotStockLocationService lotStockLocationService,
+        SuggestionReassortService suggestionReassortService
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -170,6 +184,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.retourBonRepository = retourBonRepository;
         this.priceHistoryRepository = priceHistoryRepository;
         this.orderLineRepository = orderLineRepository;
+        this.lotStockLocationService = lotStockLocationService;
+        this.suggestionReassortService = suggestionReassortService;
     }
 
     @Override
@@ -320,6 +336,8 @@ public class StockEntryServiceImpl implements StockEntryService {
             orderLineService.saveAll(deliveryReceipt.getOrderLines());
         }
         saveLotReceptions(deliveryReceipt, receiptDate);
+        saveLotStockLocations(deliveryReceipt);
+        applyPutawayPolicy(deliveryReceipt, deliveryReceiptLite);
         inventoryTransactionService.saveAll(deliveryReceipt.getOrderLines());
         // Retours fournisseur en attente liés à cette commande (ou l'originale si clonée)
         Integer sourceCommandeId = hasCloned
@@ -833,10 +851,84 @@ public class StockEntryServiceImpl implements StockEntryService {
         //  orderLineService.save(orderLine);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId,LocalDate orderDate) {
+        Commande commande = commandeRepository.getReferenceById(new CommandeId(commandeId,orderDate));
+        Storage rayon   = storageService.getDefaultConnectedUserMainStorage();
+        Storage reserve = storageService.getDefaultConnectedUserReserveStorage();
+
+        return commande.getOrderLines().stream()
+            .map(ol -> ol.getFournisseurProduit().getProduit())
+            .distinct()
+            .flatMap(produit -> {
+                StockProduit rayonSp   = null;
+                StockProduit reserveSp = null;
+                for (StockProduit sp : produit.getStockProduits()) {
+                    if (sp.getStorage().getId().equals(rayon.getId()))   rayonSp   = sp;
+                    if (sp.getStorage().getId().equals(reserve.getId())) reserveSp = sp;
+                }
+                if (rayonSp == null || reserveSp == null) return java.util.stream.Stream.empty();
+                Integer maxiRayon = rayonSp.getStockMaxi();
+                if (maxiRayon == null || maxiRayon <= 0) return java.util.stream.Stream.empty();
+                int overflow = rayonSp.getTotalStockQuantity() - maxiRayon;
+                if (overflow <= 0) return Stream.empty();
+
+                var fp = produit.getFournisseurProduitPrincipal();
+                String classe = produit.getClasseCriticite() != null
+                    ? produit.getClasseCriticite().getCode() : "B";
+                return Stream.of(new PutawayPreviewItemDTO(
+                    produit.getId(),
+                    produit.getLibelle(),
+                    fp != null ? fp.getCodeCip() : null,
+                    rayonSp.getTotalStockQuantity(),
+                    maxiRayon,
+                    overflow,
+                    reserveSp.getTotalStockQuantity(),
+                    classe
+                ));
+            })
+            .sorted(Comparator.comparingInt(item -> switch (item.classePareto()) {
+                case "A+" -> 0;
+                case "A"  -> 1;
+                case "B"  -> 2;
+                case "C"  -> 3;
+                default   -> 4;
+            }))
+            .toList();
+    }
+
+    /**
+     * Applique la politique de rangement rayon → réserve selon la config {@code APP_PUTAWAY_MODE}.
+     *
+     * <ul>
+     *   <li>{@code AUTO}      : transfert implicite, sans confirmation.</li>
+     *   <li>{@code MANUAL}    : transfert uniquement si {@code doTransfer=true} dans la requête
+     *                           (le frontend a affiché le modal et l'utilisateur a confirmé).</li>
+     *   <li>{@code ALL_RAYON} : aucun transfert — les suggestions sont tout de même créées
+     *                           mais non exécutées.</li>
+     * </ul>
+     */
+    private void applyPutawayPolicy(Commande deliveryReceipt, DeliveryReceiptLiteDTO dto) {
+        PutawayMode mode = appConfigurationService.getPutawayMode();
+        boolean shouldTransfer = switch (mode) {
+            case AUTO      -> true;
+            case MANUAL    -> Boolean.TRUE.equals(dto.getDoTransfer());
+            case ALL_RAYON -> false;
+        };
+        if (!shouldTransfer) return;
+
+        Set<Integer> produitIds = deliveryReceipt.getOrderLines().stream()
+            .map(ol -> ol.getFournisseurProduit().getProduit().getId())
+            .collect(Collectors.toSet());
+        suggestionReassortService.autoExecuteOverflowForProducts(produitIds);
+    }
+
     private void mergeLots(OrderLine orderLine, Produit produit, LocalDate receiptDate) {
         if (CollectionUtils.isEmpty(orderLine.getLots())) {
             return;
         }
+        var principalStorage = storageService.getDefaultConnectedUserMainStorage();
         List<Lot> lotsToRemove = new ArrayList<>();
         orderLine.getLots().forEach(lot ->
             lotRepository.findByNumLotAndProduitId(lot.getNumLot(), produit.getId())
@@ -848,10 +940,26 @@ public class StockEntryServiceImpl implements StockEntryService {
                     existingLot.setUpdated(LocalDateTime.now());
                     lotRepository.save(existingLot);
                     lotReceptionRepository.save(buildLotReception(existingLot, orderLine, lot.getQuantity(), lot.getFreeQty(), lot.getPrixAchat(), receiptDate));
+                    // FEFO : créditer le lot existant dans le storage PRINCIPAL
+                    lotStockLocationService.credit(existingLot, principalStorage, lot.getQuantity());
                     lotsToRemove.add(lot);
                 })
         );
         orderLine.getLots().removeAll(lotsToRemove);
+    }
+
+    /**
+     * Crée les {@code LotStockLocation} pour les nouveaux lots (après flush en cascade).
+     * Les lots encore présents dans {@code orderLine.getLots()} sont des lots créés pour
+     * la première fois et ont maintenant un ID généré.
+     */
+    private void saveLotStockLocations(Commande deliveryReceipt) {
+        var principalStorage = storageService.getDefaultConnectedUserMainStorage();
+        deliveryReceipt.getOrderLines().forEach(orderLine ->
+            orderLine.getLots().forEach(lot ->
+                lotStockLocationService.credit(lot, principalStorage, lot.getCurrentQuantity() != null ? lot.getCurrentQuantity() : lot.getQuantity())
+            )
+        );
     }
 
     /**

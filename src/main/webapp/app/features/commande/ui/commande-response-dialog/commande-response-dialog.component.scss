@@ -1,0 +1,60 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/modal-theme';
+
+:host {
+  @include modal-theme;
+}
+.response-card {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  height: 100%;
+
+  &--success {
+    .response-card-header { background: #16a34a; }
+  }
+
+  &--warn {
+    .response-card-header { background: #d97706; }
+  }
+}
+
+.response-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+
+  i { font-size: 1rem; }
+}
+
+.response-card-body {
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.response-counter {
+  display: block;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.response-counter-total {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.response-counter-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.25);
+  padding: 1px 8px;
+  border-radius: 12px;
+}

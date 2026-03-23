@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
+import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
@@ -53,6 +54,16 @@ public class StockEntryResource {
     @PutMapping("/commandes/entree-stock/finalize")
     public ResponseEntity<StockEntryResultDTO> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return ResponseEntity.accepted().body(stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite));
+    }
+
+    /**
+     * Prévisualisation de la répartition automatique rayon → réserve avant validation finale.
+     * Retourne la liste des produits dont le stock rayon dépasse {@code stockMaxi}.
+     * Utilisé par le frontend en mode MANUAL pour alimenter le modal de confirmation.
+     */
+    @GetMapping("/commandes/entree-stock/putaway-preview/{commandeId}/{orderDate}")
+    public ResponseEntity<List<PutawayPreviewItemDTO>> getPutawayPreview(@PathVariable Integer commandeId,@PathVariable LocalDate orderDate) {
+        return ResponseEntity.ok(stockEntryService.getPutawayPreview(commandeId,orderDate));
     }
 
     /**

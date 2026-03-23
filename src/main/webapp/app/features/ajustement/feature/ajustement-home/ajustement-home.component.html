@@ -1,0 +1,201 @@
+<p-toast position="center" />
+
+<div class="pharma-smart-content p-2">
+
+  <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-sliders-h"></i>
+      <span>Historique des ajustements</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex-wrap gap-2">
+
+          <!-- Période -->
+          <jhi-date-picker
+            [(ngModel)]="fromDate"
+            [id]="'dateDebut'" [label]="'warehouseApp.labels.du'"
+            (ngModelChange)="onSearch()"
+            label="Du"
+          />
+          <jhi-date-picker
+            [(ngModel)]="toDate"
+            [id]="'dateFin'" [label]="'warehouseApp.labels.au'"
+            (ngModelChange)="onSearch()"
+            label="Au"
+          />
+
+          <!-- Opérateur -->
+          <p-floatlabel variant="on">
+            <p-select
+              id="userFilter"
+              [(ngModel)]="user"
+              [options]="users"
+              [appendTo]="appendTo"
+              dataKey="id"
+              optionLabel="abbrName"
+              [fluid]="true"
+              (onChange)="onSearch()"
+            />
+            <label for="userFilter">Opérateur</label>
+          </p-floatlabel>
+
+          <!-- Sens -->
+          <p-selectButton
+            [(ngModel)]="typeFilter"
+            [options]="typeOptions"
+            (onChange)="onSearch()"
+          />
+
+          <!-- Recherche texte -->
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="search"
+              (keyup.enter)="onSearch()"
+              placeholder="Code CIP, libellé…"
+            />
+          </p-iconfield>
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              icon="pi pi-plus"
+              label="Nouvel ajustement"
+              severity="success"
+              [raised]="true"
+              pTooltip="Créer un ajustement de stock"
+              tooltipPosition="top"
+              (onClick)="goToNew()"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- ── Table historique ─────────────────────────────────────────────────── -->
+  <p-table
+    [value]="facade.history()"
+    [loading]="facade.loadingHistory()"
+    [stripedRows]="true"
+    dataKey="id"
+    class="pharma-table"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 4%">#</th>
+        <th style="width: 14%">Date</th>
+        <th style="width: 12%">Opérateur</th>
+        <th style="width: 10%">Sens</th>
+        <th class="text-right" style="width: 8%">Entrées</th>
+        <th class="text-right" style="width: 8%">Sorties</th>
+        <th style="width: 28%">Commentaire</th>
+        <th class="text-center" style="width: 16%">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-ajust let-rowIndex="rowIndex">
+      <tr class="pharma-row-hover">
+        <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+        <td class="text-muted small">
+          {{ ajust.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ ajust.userFullName ?? '-' }}</span>
+        </td>
+        <td>
+          <div class="d-flex flex-column gap-1">
+            @if (hasEntrees(ajust.ajustements ?? [])) {
+              <p-tag
+                value="Entrée"
+                severity="success"
+                icon="pi pi-arrow-up"
+              />
+            }
+            @if (hasSorties(ajust.ajustements ?? [])) {
+              <p-tag
+                value="Sortie"
+                severity="danger"
+                icon="pi pi-arrow-down"
+              />
+            }
+          </div>
+        </td>
+        <td class="text-right">
+          @if (hasEntrees(ajust.ajustements ?? [])) {
+            <span class="ajust-count-in">{{ nbEntrees(ajust.ajustements ?? []) }}</span>
+          }
+        </td>
+        <td class="text-right">
+          @if (hasSorties(ajust.ajustements ?? [])) {
+            <span class="ajust-count-out">{{ nbSorties(ajust.ajustements ?? []) }}</span>
+          }
+        </td>
+        <td>
+          <span class="text-muted small text-truncate d-block" style="max-width: 22rem">
+            {{ ajust.commentaire ?? '–' }}
+          </span>
+        </td>
+        <td class="text-center">
+          <p-buttonGroup>
+            <p-button
+              icon="pi pi-file-pdf"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              size="small"
+              pTooltip="Exporter PDF"
+              tooltipPosition="top"
+              (onClick)="exportPdf(ajust)"
+            />
+          </p-buttonGroup>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucun ajustement pour cette période</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Pagination -->
+  <div class="table-footer-info px-2">
+    <small class="text-muted">Total : {{ facade.totalHistory() }} ajustement(s)</small>
+    <div class="d-flex align-items-center gap-2">
+      <p-button
+        icon="pi pi-chevron-left"
+        [text]="true"
+        [rounded]="true"
+        size="small"
+        [disabled]="page() <= 1"
+        (onClick)="page.set(page() - 1); load()"
+      />
+      <small class="text-muted">Page {{ page() }}</small>
+      <p-button
+        icon="pi pi-chevron-right"
+        [text]="true"
+        [rounded]="true"
+        size="small"
+        [disabled]="page() * itemsPerPage >= facade.totalHistory()"
+        (onClick)="page.set(page() + 1); load()"
+      />
+    </div>
+  </div>
+
+</div>

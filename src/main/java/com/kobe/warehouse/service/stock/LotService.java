@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
@@ -27,6 +28,28 @@ public interface LotService {
     void updateLots(List<LotSold> lots);
 
     void restoreLots(List<LotSold> lots);
+
+    /**
+     * Applique un delta sur {@code lot.current_quantity} suite à un ajustement manuel.
+     * <ul>
+     *   <li>{@code qtyDelta < 0} (OUT) : débite les lots en ordre FEFO jusqu'à épuisement du delta.</li>
+     *   <li>{@code qtyDelta > 0} (IN)  : crédite le lot le plus récemment reçu ({@code createdDate DESC}).</li>
+     * </ul>
+     * Sans effet si le produit n'a aucun lot.
+     *
+     * @param produit  produit ajusté
+     * @param qtyDelta delta signé (négatif = sortie, positif = entrée)
+     */
+    void adjustLots(Produit produit, int qtyDelta);
+
+    /**
+     * Crédite un lot explicitement sélectionné (AJUSTEMENT_IN avec gestion_lot=true).
+     * Met à jour {@code lot.current_quantity} et réactive le lot si nécessaire.
+     *
+     * @param lot lot à créditer
+     * @param qty quantité à ajouter (positive)
+     */
+    void creditSpecificLot(Lot lot, int qty);
 
     Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable);
 

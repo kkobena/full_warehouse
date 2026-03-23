@@ -1,0 +1,34 @@
+
+@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+.putaway-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e8f4fd;
+  border-left: 4px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #1e3a5f;
+
+  i {
+    font-size: 1rem;
+    color: #3b82f6;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+}
+
+.putaway-overflow {
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.modal-footer {
+  gap: 0.5rem;
+}

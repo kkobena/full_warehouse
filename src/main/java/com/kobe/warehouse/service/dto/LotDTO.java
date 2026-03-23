@@ -32,12 +32,15 @@ public class LotDTO {
 
     private List<LotSoldDTO> lotSolds;
 
+    private Integer currentQuantity;
+
     public LotDTO(Lot lot) {
         id = lot.getId();
         numLot = lot.getNumLot();
         freeQty = lot.getFreeQty();
         quantity = lot.getQuantity();
         quantityReceived = lot.getQuantity();
+        currentQuantity = lot.getCurrentQuantity();
         createdDate = lot.getCreatedDate();
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
@@ -132,6 +135,15 @@ public class LotDTO {
 
     public LotDTO setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
+        return this;
+    }
+
+    public Integer getCurrentQuantity() {
+        return currentQuantity;
+    }
+
+    public LotDTO setCurrentQuantity(Integer currentQuantity) {
+        this.currentQuantity = currentQuantity;
         return this;
     }
 

@@ -67,6 +67,13 @@ public class LotResource {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/lot/produit/{produitId}")
+    public ResponseEntity<List<LotDTO>> findByProduitId(@PathVariable Integer produitId) {
+        return ResponseEntity.ok(
+            lotService.findByProduitId(produitId).stream().map(LotDTO::new).toList()
+        );
+    }
+
     @GetMapping("/lot")
     public ResponseEntity<List<LotPerimeDTO>> fetchAll(LotFilterParam lotFilterParam, Pageable pageable) {
         Page<LotPerimeDTO> page = lotService.findLotsPerimes(lotFilterParam, pageable);

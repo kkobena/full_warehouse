@@ -14,6 +14,10 @@ export interface IAjustement {
   commentaire?: string;
   motifAjustementId?: number;
   motifAjustementLibelle?: string;
+  /** Emplacement de stockage cible (PRINCIPAL ou SAFETY_STOCK). Null = emplacement par défaut de l'utilisateur. */
+  storageId?: number;
+  /** Lot explicitement sélectionné pour AJUSTEMENT_IN (gestion_lot=true). Null = heuristique "dernier reçu". */
+  lotId?: number;
 }
 
 export class Ajustement implements IAjustement {

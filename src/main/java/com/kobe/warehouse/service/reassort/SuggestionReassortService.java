@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.reassort.dto.ReassortRecord;
 import com.kobe.warehouse.service.reassort.dto.SuggestionReassortDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface SuggestionReassortService {
     void createLigneReassort(Produit p, int totalQty, int newQty);
@@ -41,6 +42,20 @@ public interface SuggestionReassortService {
 
     void createReserveSuggestionReassort(StockProduit stockProduit);
 
-   // void createSuggestionReassort(List<StockProduit> stockProduits, AppUser user);
-
+    /**
+     * Auto-exécute les suggestions de réassort RESERVE créées durant la réception d'une commande,
+     * pour les produits identifiés par {@code produitIds}.
+     *
+     * <p>Pour chaque {@link com.kobe.warehouse.domain.LigneReassort} de la suggestion OPEN de type
+     * {@link com.kobe.warehouse.domain.enumeration.TypeReassort#RESERVE} dont le produit est dans
+     * {@code produitIds}, le transfert rayon → réserve est exécuté immédiatement via
+     * {@code RepartitionStockService.autoPutawayRayonToReserve()} (avec traçabilité FEFO).
+     * La ligne est ensuite retirée de la suggestion ; si la suggestion est vide, elle est clôturée.</p>
+     *
+     * <p>Doit être appelé APRÈS {@code saveLotStockLocations()} afin que les lots soient déjà
+     * présents dans PRINCIPAL avant le transfert FEFO.</p>
+     *
+     * @param produitIds identifiants des produits reçus dans la commande
+     */
+    void autoExecuteOverflowForProducts(Set<Integer> produitIds);
 }

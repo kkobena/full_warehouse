@@ -47,4 +47,20 @@ public interface RepartitionStockService {
      */
     void transfertImpliciteReserveVersRayon(
         Integer produitId, Integer rayonStorageId, Integer reserveStorageId, int quantity);
+
+    /**
+     * Répartition automatique rayon → réserve déclenchée à la réception d'une commande.
+     *
+     * <p>Lorsque la réception porte le stock rayon au-delà de {@code stockMaxi}, l'excédent
+     * ({@code qtyRayon − stockMaxi}) est automatiquement versé dans la réserve sans intervention
+     * manuelle. Les lots sont déplacés en ordre FEFO via {@code LotStockLocationService}.</p>
+     *
+     * <p>Crée un {@link com.kobe.warehouse.domain.RepartitionStockProduit} de type
+     * {@link com.kobe.warehouse.domain.enumeration.TypeRepartition#AUTO} pour la traçabilité.</p>
+     *
+     * @param rayonSp   StockProduit rayon (source, PRINCIPAL)
+     * @param reserveSp StockProduit réserve (destination, SAFETY_STOCK)
+     * @param qty       quantité à verser en réserve (overflow = qtyRayon − stockMaxi)
+     */
+    void autoPutawayRayonToReserve(StockProduit rayonSp, StockProduit reserveSp, int qty);
 }

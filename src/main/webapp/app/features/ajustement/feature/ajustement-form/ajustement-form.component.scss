@@ -1,0 +1,136 @@
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as *;
+@import 'app/shared/scss/search-section';
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.pharma-sales-header {
+  position: relative;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  min-height: 50px;
+  flex-shrink: 0;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+
+    .page-title {
+      h1 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        margin: 0;
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-weight: 400;
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// ── Order search section ──────────────────────────────────────────────────────
+
+.order-search-section {
+  @include search-section(#2e7d97);
+
+  // Ajustement-specific: lot meta-item needs extra space
+  .order-meta {
+    .meta-item--lot {
+      flex: 1;
+      min-width: 280px;
+      white-space: normal;
+      gap: 0.5rem;
+    }
+  }
+
+  // Ajustement-specific select widths
+  .search-controls {
+    .storage-select-input { flex: 0 0 160px; }
+    .motif-select-input   { flex: 1; min-width: 200px; }
+  }
+}
+
+// ── Lot select templates ──────────────────────────────────────────────────────
+
+.lot-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+
+  .lot-num  { font-weight: 600; color: #1e293b; }
+  .lot-exp  { color: #64748b; font-size: 0.75rem; }
+  .lot-qty  {
+    color: #2e7d97;
+    font-weight: 600;
+    font-size: 0.75rem;
+    background: rgba(46, 125, 151, 0.08);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+  }
+}
+
+::ng-deep .p-select-overlay {
+  .lot-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.1rem 0;
+
+    &-main {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.8125rem;
+
+      i { color: #2e7d97; font-size: 0.8rem; }
+    }
+
+    &-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: #64748b;
+
+      i { font-size: 0.7rem; }
+
+      .lot-qty {
+        color: #2e7d97;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 768px) {
+  .order-search-section .search-controls {
+    .storage-select-input,
+    .motif-select-input { flex: 1 1 100%; }
+  }
+}

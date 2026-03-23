@@ -69,6 +69,11 @@ public class Ajustement implements Serializable {
     @JoinColumn(name = "motif_ajustement_id", referencedColumnName = "id")
     private MotifAjustement motifAjustement;
 
+    /** Lot explicitement sélectionné pour AJUSTEMENT_IN (gestion_lot=true). Null = heuristique "dernier reçu". */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lot_id")
+    private Lot lot;
+
     public Integer getId() {
         return id;
     }
@@ -134,6 +139,15 @@ public class Ajustement implements Serializable {
 
     public Ajustement setMotifAjustement(MotifAjustement motifAjustement) {
         this.motifAjustement = motifAjustement;
+        return this;
+    }
+
+    public Lot getLot() {
+        return lot;
+    }
+
+    public Ajustement setLot(Lot lot) {
+        this.lot = lot;
         return this;
     }
 

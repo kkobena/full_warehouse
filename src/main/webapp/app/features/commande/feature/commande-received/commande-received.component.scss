@@ -164,3 +164,22 @@ $border-radius-lg: 12px;
 @media (max-width: 1200px) {
   .reception-summary-card { position: static; }
 }
+
+// ============================================
+// QUANTITY & STOCK COLUMNS
+// ============================================
+
+.qty-partial {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.stock-positive {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.stock-zero {
+  color: #f59e0b;
+  font-weight: 700;
+}

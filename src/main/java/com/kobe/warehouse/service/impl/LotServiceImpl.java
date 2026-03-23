@@ -129,7 +129,49 @@ public class LotServiceImpl implements LotService {
             });
         }
     }
+    @Override
+    public void adjustLots(Produit produit, int qtyDelta) {
+        if (qtyDelta == 0) return;
 
+        if (qtyDelta < 0) {
+            // AJUSTEMENT_OUT : débiter en FEFO (expiry ASC)
+            int remaining = Math.abs(qtyDelta);
+            List<Lot> lots = lotRepository.findByProduitId(produit.getId());
+            for (Lot lot : lots) {
+                if (remaining <= 0) break;
+                int toTake = Math.min(lot.getCurrentQuantity(), remaining);
+                if (toTake <= 0) continue;
+                lot.setCurrentQuantity(lot.getCurrentQuantity() - toTake);
+                if (lot.getCurrentQuantity() <= 0) {
+                    lot.setStatut(StatutLot.SOLD);
+                }
+                lotRepository.save(lot);
+                remaining -= toTake;
+            }
+        } else {
+            // AJUSTEMENT_IN : créditer le lot le plus récemment reçu
+            lotRepository.findLastReceivedByProduitId(produit.getId()).ifPresent(lot -> {
+                lot.setCurrentQuantity(lot.getCurrentQuantity() + qtyDelta);
+                if (lot.getStatut() == StatutLot.SOLD) {
+                    lot.setStatut(StatutLot.AVAILABLE);
+                }
+                lotRepository.save(lot);
+            });
+        }
+    }
+
+    @Override
+    public void creditSpecificLot(Lot lot, int qty) {
+        if (qty <= 0) return;
+        Lot entity = lotRepository.getReferenceById(lot.getId());
+        entity.setCurrentQuantity(entity.getCurrentQuantity() + qty);
+        if (entity.getStatut() == StatutLot.SOLD) {
+            entity.setStatut(StatutLot.AVAILABLE);
+        }
+        lotRepository.save(entity);
+    }
+
+    //TODO logique à  revoir(pour decrement le last IN pour les annulation) ou faire une étude comparative pour voir comment les autres gère ce cas
     @Override
     public void restoreLots(List<LotSold> lots) {
         if (!CollectionUtils.isEmpty(lots)) {

@@ -25,13 +25,14 @@
         <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon" severity="primary" size="small" pTooltip="F9" tooltipPosition="bottom"/>
 
         <p-button
-          [hidden]="true"
           (click)="onImporterReponseCommande()"
           class="action-btn"
           icon="pi pi-download"
-          label="Importer"
+          label="Importer réponse"
           severity="info"
           size="small"
+          pTooltip="Importer la réponse EDI / fichier du grossiste"
+          tooltipPosition="bottom"
         />
 
         @if (currentCommande?.commandeId) {
@@ -335,7 +336,8 @@
                     <span class="pharma-footer-total">{{ currentCommande.orderAmount | number }}</span>
                   </td>
                   <td class="amount-column text-right" colspan="3"></td>
-                  <td colspan="5"></td>
+
+                  <td  [attr.colspan]="showLotColumn() ? 5 : 4" ></td>
                 </tr>
               </ng-template>
             }

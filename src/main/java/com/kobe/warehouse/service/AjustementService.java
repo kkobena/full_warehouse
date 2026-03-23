@@ -20,6 +20,8 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.settings.FileResourceService;
+import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,7 +54,8 @@ public class AjustementService extends FileResourceService {
     private final LogsService logsService;
     private final InventoryTransactionService inventoryTransactionService;
     private final SuggestionReassortService suggestionReassortService;
-
+    private final LotStockLocationService lotStockLocationService;
+    private final LotService lotService;
 
     private final BiPredicate<Ajustement, String> searchPredicate = (ajustement, s) -> {
         Produit produit = ajustement.getStockProduit().getProduit();
@@ -67,7 +70,10 @@ public class AjustementService extends FileResourceService {
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
         LogsService logsService,
-        InventoryTransactionService inventoryTransactionService, SuggestionReassortService suggestionReassortService
+        InventoryTransactionService inventoryTransactionService,
+        SuggestionReassortService suggestionReassortService,
+        LotStockLocationService lotStockLocationService,
+        LotService lotService
     ) {
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
@@ -77,6 +83,8 @@ public class AjustementService extends FileResourceService {
         this.logsService = logsService;
         this.inventoryTransactionService = inventoryTransactionService;
         this.suggestionReassortService = suggestionReassortService;
+        this.lotStockLocationService = lotStockLocationService;
+        this.lotService = lotService;
     }
 
     private AppUser getUser() {
@@ -114,6 +122,11 @@ public class AjustementService extends FileResourceService {
             ajustType = AjustType.AJUSTEMENT_IN;
         }
         ajustement.setType(ajustType);
+        if (nonNull(ajustementDTO.getLotId())) {
+            var lot = new com.kobe.warehouse.domain.Lot();
+            lot.setId(ajustementDTO.getLotId());
+            ajustement.setLot(lot);
+        }
         ajustementRepository.save(ajustement);
     }
 
@@ -169,7 +182,26 @@ public class AjustementService extends FileResourceService {
             p.setQtyUG(0);
             ajustement.setStockAfter(p.getQtyStock());
             ajustement = this.ajustementRepository.save(ajustement);
-          p=  stockProduitRepository.save(p);
+            p = stockProduitRepository.save(p);
+            if (ajustement.getQtyMvt() < 0) {
+                // AJUSTEMENT_OUT : débiter lot.current_quantity en FEFO + lot_stock_location
+                int effectiveDebit = Math.min(Math.abs(ajustement.getQtyMvt()), initStock);
+                if (effectiveDebit > 0) {
+                    lotService.adjustLots(produit, -effectiveDebit);
+                    lotStockLocationService.debitFefo(produit, p.getStorage(), effectiveDebit);
+                }
+            } else {
+                // AJUSTEMENT_IN
+                if (nonNull(ajustement.getLot())) {
+                    // Lot explicitement sélectionné par l'utilisateur
+                    lotService.creditSpecificLot(ajustement.getLot(), ajustement.getQtyMvt());
+                    lotStockLocationService.credit(ajustement.getLot(), p.getStorage(), ajustement.getQtyMvt());
+                } else {
+                    // Heuristique "dernier reçu" (gestion_lot=false ou pas de sélection)
+                    lotService.adjustLots(produit, ajustement.getQtyMvt());
+                    lotStockLocationService.creditLastLot(produit, p.getStorage(), ajustement.getQtyMvt());
+                }
+            }
             FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
             String desc = String.format(
                 "Ajustement du produit %s %s quantité initiale %d quantité ajustéé %d quantité finale %d",

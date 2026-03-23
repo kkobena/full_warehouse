@@ -21,47 +21,22 @@
 // CARDS - Distinction visuelle sections
 // ============================================
 
+@import 'app/shared/scss/search-section';
+
 .product-search-section {
-  background: $pharma-white;
-  border-radius: $pharma-radius-lg;
-  box-shadow: $pharma-shadow-md;
-  overflow: hidden;
-  border: 1px solid $gray-200;
-  flex-shrink: 0;
+ /* @include search-section(#00a86b);*/ // vert pharma vente
+  @include search-section(#2e7d97);
   margin-bottom: 0.75rem;
+  margin-left: 0;
+  margin-right: 0;
 
-  .search-section-header {
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #00a86b 0%, darken(#00a86b, 10%) 100%);
-    color: $pharma-white;
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-
-    i {
-      font-size: 1.125rem;
-    }
-  }
-
+  // product-meta : variante sales — méta dans .search-controls (pas dans .order-meta)
   .search-controls {
     padding: 0.625rem 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
     gap: 0.75rem;
-    background: $gray-50;
 
-    .product-search-input {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .quantity-input-wrapper {
-      width: 180px;
-      flex-shrink: 0;
-    }
+    .product-search-input { flex: 1; min-width: 300px; }
+    .quantity-input-wrapper { width: 180px; flex-shrink: 0; }
 
     .product-meta {
       display: flex;
@@ -71,6 +46,7 @@
       flex: 1;
       min-width: 300px;
 
+      // réutilise le style .meta-item du mixin via héritage de sélecteur
       .meta-item {
         display: flex;
         align-items: center;
@@ -83,41 +59,20 @@
         border: 1px solid $gray-200;
         white-space: nowrap;
 
-        i {
-          color: $pharma-primary;
-          font-size: 0.9rem;
-        }
-
-        strong {
-          color: $gray-900;
-          font-weight: 600;
-        }
+        i { color: $pharma-primary; font-size: 0.9rem; }
+        strong { color: $gray-900; font-weight: 600; }
 
         &.low-stock {
           background: rgba(220, 53, 69, 0.1);
           border-color: rgba(220, 53, 69, 0.3);
-
-          i {
-            color: #dc3545;
-          }
-
-          strong {
-            color: #dc3545;
-          }
+          i, strong { color: #dc3545; }
         }
 
         &.price-display {
           background: rgba(40, 167, 69, 0.1);
           border-color: rgba(40, 167, 69, 0.3);
-
-          i {
-            color: #28a745;
-          }
-
-          strong {
-            color: #28a745;
-            font-size: 0.875rem;
-          }
+          i { color: #28a745; }
+          strong { color: #28a745; font-size: 0.875rem; }
         }
       }
     }
@@ -271,7 +226,7 @@
 .insurance-data-section,
 .carnet-data-section {
   margin-bottom: 1rem;
-  
+
   // Assurer que le composant insurance-data-bar s'affiche correctement
   app-insurance-data-bar {
     display: block;

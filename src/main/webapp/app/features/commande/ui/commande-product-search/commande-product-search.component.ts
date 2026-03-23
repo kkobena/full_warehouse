@@ -1,14 +1,14 @@
-import { Component, DestroyRef, inject, input, OnDestroy, OnInit, output, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { AutoComplete, AutoCompleteModule } from 'primeng/autocomplete';
-import { FloatLabel } from 'primeng/floatlabel';
-import { DecimalPipe } from '@angular/common';
-import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
-import { ProduitSearch } from '../../../../shared/model';
-import { ProduitService } from '../../../../entities/produit/produit.service';
-import { ScanDetectorService, ScanEvent } from '../../../../shared/scan-detector.service';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH } from '../../../../shared/constants/pagination.constants';
+import {Component, DestroyRef, inject, input, OnDestroy, OnInit, output, signal, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormsModule} from '@angular/forms';
+import {AutoComplete, AutoCompleteModule} from 'primeng/autocomplete';
+import {FloatLabel} from 'primeng/floatlabel';
+import {DecimalPipe} from '@angular/common';
+import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
+import {ProduitSearch} from '../../../../shared/model';
+import {ProduitService} from '../../../../entities/produit/produit.service';
+import {ScanDetectorService, ScanEvent} from '../../../../shared/scan-detector.service';
+import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/pagination.constants';
 
 /**
  * Composant de recherche produit dédié au module commande.
@@ -29,6 +29,8 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   autofocus = input<boolean>(true);
   pageSize = input<number>(10);
   disabled = input<boolean>(false);
+  searchByStorage = input<boolean>(false);
+  storageId = input<number>(null);
 
   productSelected = output<ProduitSearch | null>();
   productScanned = output<ProduitSearch>();
@@ -190,7 +192,9 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     this.stopInputClearLoop();
     this.clearInputValue();
     this.searchByBarcode(scannedCode);
-    setTimeout(() => { this.isScanning = false; }, 400);
+    setTimeout(() => {
+      this.isScanning = false;
+    }, 400);
   }
 
   private clearInputValue(): void {
@@ -226,10 +230,14 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   private searchByBarcode(barcode: string): void {
     this.produitService
-      .search({ page: 0, size: 1, search: barcode }, false)
+      .search({page: 0, size: 1, search: barcode, storageId: this.storageId()}, this.searchByStorage())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        catchError(() => { this.isScanning = false; this.produits.set([]); return of({ body: [] }); }),
+        catchError(() => {
+          this.isScanning = false;
+          this.produits.set([]);
+          return of({body: []});
+        }),
       )
       .subscribe(res => {
         const result = res.body ?? [];
@@ -255,10 +263,10 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     const inputEl = this.produitbox()?.inputEL?.nativeElement;
     if (inputEl && !inputEl.value?.trim()) return;
     this.produitService
-      .search({ page: 0, size: this.pageSize(), search }, false)
+      .search({page: 0, size: this.pageSize(), search, storageId: this.storageId()}, this.searchByStorage())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        catchError(() => of({ body: [] })),
+        catchError(() => of({body: []})),
       )
       .subscribe(res => {
         this.produits.set(res.body ?? []);

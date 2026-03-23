@@ -1,0 +1,45 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-lock me-2"></i>
+    Finalisation de l'ajustement
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body p-4">
+  <p class="text-muted mb-3">
+    Ajoutez un commentaire obligatoire avant de valider.<br/>
+    Cette action applique les modifications de stock et clôture l'ajustement.
+  </p>
+  <div class="mb-3">
+    <label for="commentaire" class="form-label fw-semibold">Commentaire <span class="text-danger">*</span></label>
+    <input
+      #commentaireInput
+      id="commentaire"
+      pInputText
+      type="text"
+      class="w-100"
+      [(ngModel)]="commentaire"
+      (keydown.enter)="confirm()"
+      placeholder="Ex. : casse constatée en rayon, inventaire physique…"
+      autofocus
+    />
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    icon="pi pi-times"
+    severity="secondary"
+    [outlined]="true"
+    (onClick)="cancel()"
+  />
+  <p-button
+    label="Valider et clôturer"
+    icon="pi pi-lock"
+    severity="success"
+    [disabled]="!commentaire.trim()"
+    (onClick)="confirm()"
+  />
+</div>

@@ -23,6 +23,13 @@ public class DeliveryReceiptLiteDTO {
     private String orderReference;
     private Integer finalAmount; //montant vente
 
+    /**
+     * Mode MANUAL uniquement : {@code true} si le pharmacien a confirmé le transfert
+     * rayon → réserve dans le modal de validation. {@code null} ou {@code false} = suggestions
+     * restent ouvertes. Ignoré si le mode applicatif est AUTO ou ALL_RAYON.
+     */
+    private Boolean doTransfer;
+
     public CommandeId getCommandeId() {
         return commandeId;
     }
@@ -101,6 +108,15 @@ public class DeliveryReceiptLiteDTO {
 
     public DeliveryReceiptLiteDTO setOrderReference(String orderReference) {
         this.orderReference = orderReference;
+        return this;
+    }
+
+    public Boolean getDoTransfer() {
+        return doTransfer;
+    }
+
+    public DeliveryReceiptLiteDTO setDoTransfer(Boolean doTransfer) {
+        this.doTransfer = doTransfer;
         return this;
     }
 }

@@ -28,7 +28,9 @@ import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final StockUpdateService stockUpdateService;
     private final StorageService storageService;
     private final RepartitionStockService repartitionStockService;
+    private final LotStockLocationService lotStockLocationService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -72,7 +75,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         SaleLineIdGeneratorService saleLineIdGeneratorService,
         StockUpdateService stockUpdateService,
         StorageService storageService,
-        RepartitionStockService repartitionStockService
+        RepartitionStockService repartitionStockService,
+        LotStockLocationService lotStockLocationService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -84,6 +88,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.stockUpdateService = stockUpdateService;
         this.storageService = storageService;
         this.repartitionStockService = repartitionStockService;
+        this.lotStockLocationService = lotStockLocationService;
     }
 
     private SalesLine getNew() {
@@ -316,21 +321,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         }
     }
 
-    @Override
-    public void createInventory(SalesLine salesLine, AppUser user, Integer storageId) {
-        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
-            salesLine.getProduit().getId(), storageId);
-        updateSaleLineLotSold(salesLine);
-        save(salesLine, stockProduit);
-        this.inventoryTransactionService.save(salesLine);
-    }
 
-    @Override
-    public void createInventory(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
-        if (!CollectionUtils.isEmpty(salesLines)) {
-            salesLines.forEach(salesLine -> createInventory(salesLine, user, storageId));
-        }
-    }
+
 
     @Override
     public void save(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
@@ -339,7 +331,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             salesLines.forEach(salesLine -> {
                 Produit p = salesLine.getProduit();
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
-                updateSaleLineLotSold(salesLine);
+                updateSaleLineLotSold(salesLine, stockProduit.getStorage());
                 save(salesLine, stockProduit);
                 this.inventoryTransactionService.save(salesLine);
                 quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
@@ -378,7 +370,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     }
 
-    private void updateSaleLineLotSold(SalesLine salesLine) {
+    private void updateSaleLineLotSold(SalesLine salesLine, Storage storage) {
         int quantitySold = salesLine.getQuantitySold();
         if (quantitySold <= 0) {
             return;
@@ -390,6 +382,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
                 if (toTake > 0) {
                     salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
+                    lotStockLocationService.debit(lot, storage, toTake);
                     remaining.addAndGet(-toTake);
                 }
             }
@@ -430,6 +423,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         // Restaure le stock rayon et crée une suggestion réassort réserve si rayon > stockMaxi
         stockUpdateService.updateStockOnCancellation(salesLineCopy, stockProduit);
         this.lotService.restoreLots(salesLine.getLots());
+        lotStockLocationService.creditFromSold(salesLine.getLots(), stockProduit.getStorage());
         this.inventoryTransactionService.save(salesLineCopy);
     }
 

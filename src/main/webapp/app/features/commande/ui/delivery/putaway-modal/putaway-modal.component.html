@@ -1,0 +1,67 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-arrows-h me-2"></i>{{ header }}
+  </h5>
+</div>
+
+<div class="modal-body">
+  <div class="putaway-info">
+    <i class="pi pi-info-circle"></i>
+    <span>
+      Les produits ci-dessous dépassent leur stock maxi rayon après réception.
+      Voulez-vous transférer l'excédent vers la réserve ?
+    </span>
+  </div>
+
+  <table class="pharma-table mt-3">
+    <thead>
+      <tr class="pharma-table-head">
+        <th>Produit</th>
+        <th class="text-center">Code CIP</th>
+        <th class="text-center">Classe</th>
+        <th class="text-right">Stock rayon</th>
+        <th class="text-right">Stock maxi</th>
+        <th class="text-right">Excédent</th>
+        <th class="text-right">Réserve actuelle</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items; track item.produitId) {
+        <tr>
+          <td class="pharma-entity-name">{{ item.produitLibelle }}</td>
+          <td class="text-center pharma-code">{{ item.codeCip }}</td>
+          <td class="text-center">
+            @if (item.classePareto) {
+              <p-tag [value]="item.classePareto" [severity]="abcSeverity(item.classePareto)" [style]="{'font-size': '0.7rem'}"/>
+            }
+          </td>
+          <td class="text-right">{{ item.qtyRayon | number }}</td>
+          <td class="text-right">{{ item.stockMaxiRayon | number }}</td>
+          <td class="text-right putaway-overflow">{{ item.qtyOverflow | number }}</td>
+          <td class="text-right">{{ item.qtyReserveActuelle | number }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (click)="ignore()"
+    label="Ignorer"
+    severity="secondary"
+    size="small"
+    icon="pi pi-times"
+    pTooltip="Laisser la suggestion ouverte — vous pourrez la traiter ultérieurement"
+    tooltipPosition="top"
+  />
+  <p-button
+    (click)="transfer()"
+    label="Transférer vers réserve"
+    severity="primary"
+    size="small"
+    icon="pi pi-arrow-right"
+    pTooltip="Transférer immédiatement l'excédent rayon vers la réserve"
+    tooltipPosition="top"
+  />
+</div>

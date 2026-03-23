@@ -52,6 +52,10 @@ public interface LotRepository
     )
     List<Lot> findByProduitId(Integer produitId);
 
+    /** Lot le plus récemment reçu (createdDate DESC) pour un produit — pour AJUSTEMENT_IN. */
+    @Query("SELECT o FROM Lot o WHERE o.produit.id = :produitId ORDER BY o.createdDate DESC LIMIT 1")
+    Optional<Lot> findLastReceivedByProduitId(Integer produitId);
+
     default Specification<Lot> filterByStock() {
         return (root, _, cb) -> cb.greaterThan(root.get(Lot_.quantity), 0);
     }

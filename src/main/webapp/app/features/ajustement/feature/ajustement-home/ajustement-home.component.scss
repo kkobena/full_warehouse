@@ -1,0 +1,23 @@
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as *;
+
+.ajust-count-in {
+  font-weight: 700;
+  color: #15803d;
+}
+
+.ajust-count-out {
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.table-footer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.82rem;
+  color: #6c757d;
+  border-top: 1px solid #e9ecef;
+  margin-top: 0.25rem;
+}

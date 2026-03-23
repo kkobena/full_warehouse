@@ -125,6 +125,10 @@ export class NavigationService {
           label: this.translateLabel('ajustement'),
           routerLink: '/ajustement',
           faIcon: faSlidersH,
+        },   {
+          label: 'Ajustements de stock',
+          routerLink: '/features-ajustement',
+          faIcon: faSlidersH,
         },
         {
           label: this.translateFullLabel('gestionPerimes.title'),

@@ -5,7 +5,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../constants/pagination.constants';
-import { IProduit } from '../model/produit.model';
+import { IProduit } from '../model';
 import { ProduitService } from '../../entities/produit/produit.service';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 

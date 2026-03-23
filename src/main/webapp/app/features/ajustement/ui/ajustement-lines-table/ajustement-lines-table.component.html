@@ -1,0 +1,124 @@
+<p-table
+  [value]="lines()"
+  [(selection)]="selectedRows"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="15"
+  [rowsPerPageOptions]="[10, 15, 20, 50]"
+  [stripedRows]="true"
+  dataKey="id"
+  class="pharma-table"
+>
+  <ng-template #caption>
+    <div class="d-flex align-items-center gap-2">
+      <p-iconfield class="flex-grow-1">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="search"
+          (keyup.enter)="onSearch()"
+          placeholder="Filtrer par produit, code CIP…"
+        />
+      </p-iconfield>
+      @if (selectedRows.length > 0) {
+        <p-button
+          icon="pi pi-trash"
+          [label]="'Supprimer (' + selectedRows.length + ')'"
+          severity="danger"
+          [outlined]="true"
+          size="small"
+          (onClick)="onDeleteSelection()"
+        />
+      }
+    </div>
+  </ng-template>
+
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th style="width: 3%">#</th>
+      <th style="width: 9%">Sens</th>
+      <th style="width: 10%">Code CIP</th>
+      <th>Libellé produit</th>
+      <th class="text-right" style="width: 11%">Stock initial</th>
+      <th class="text-right" style="width: 11%">Quantité ajustée</th>
+      <th class="text-right" style="width: 11%">Stock final</th>
+      <th style="width: 15%">Motif</th>
+      <th style="width: 4%"></th>
+      <th class="table-all-checkbos" style="width: 3rem">
+        <p-tableHeaderCheckbox />
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-line let-rowIndex="rowIndex">
+    <tr
+      class="pharma-row-hover"
+      [class.ajust-row-in]="(line.qtyMvt ?? 0) >= 0"
+      [class.ajust-row-out]="(line.qtyMvt ?? 0) < 0"
+    >
+      <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+      <td>
+        <p-tag
+          [value]="directionLabel(line.qtyMvt)"
+          [severity]="directionSeverity(line.qtyMvt)"
+          [icon]="directionIcon(line.qtyMvt)"
+        />
+      </td>
+      <td><span class="pharma-code">{{ line.codeCip }}</span></td>
+      <td><span class="pharma-entity-name">{{ line.produitLibelle }}</span></td>
+      <td class="text-right pharma-qty-value">{{ line.stockBefore | number }}</td>
+
+      <!-- Quantité éditable inline -->
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template #input>
+            <p-inputNumber
+              [ngModel]="line.qtyMvt"
+              (ngModelChange)="onQtyChange(line, $event)"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [fluid]="true"
+            />
+          </ng-template>
+          <ng-template #output>
+            <span
+              class="ajust-qty-cell"
+              [class.ajust-qty-in]="(line.qtyMvt ?? 0) >= 0"
+              [class.ajust-qty-out]="(line.qtyMvt ?? 0) < 0"
+            >
+              {{ (line.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ line.qtyMvt | number }}
+            </span>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+
+      <td class="text-right">
+        <strong class="pharma-qty-value">{{ line.stockAfter | number }}</strong>
+      </td>
+      <td><span class="pharma-entity-name text-truncate">{{ line.motifAjustementLibelle }}</span></td>
+      <td class="text-right">
+        <p-button
+          icon="pi pi-trash"
+          [text]="true"
+          [rounded]="true"
+          severity="danger"
+          pTooltip="Supprimer"
+          (onClick)="deleteLine.emit(line)"
+        />
+      </td>
+      <td class="text-center"><p-tableCheckbox [value]="line" /></td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="10" class="text-center p-5 text-muted">
+        <i class="pi pi-inbox" style="font-size:2rem; opacity:.4"></i>
+        <div class="mt-2">Aucun produit ajouté — sélectionnez un produit dans le formulaire ci-dessus</div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

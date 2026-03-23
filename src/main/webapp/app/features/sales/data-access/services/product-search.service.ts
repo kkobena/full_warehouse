@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProduitService } from '../../../../entities/produit/produit.service';
-import { ProduitSearch } from '../../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../../shared/model';
 
 /**
  * Service de recherche de produits pour les ventes

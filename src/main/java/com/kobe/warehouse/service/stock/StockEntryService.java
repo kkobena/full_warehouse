@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
+import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import java.io.IOException;
@@ -43,4 +44,15 @@ public interface StockEntryService {
      * triées par date décroissante.
      */
     List<PriceHistoryDTO> getPriceHistory(Integer fournisseurProduitId);
+
+    /**
+     * Calcule la prévisualisation de répartition rayon → réserve pour une commande donnée.
+     * Retourne uniquement les produits dont le stock rayon dépasse {@code stockMaxi} ET
+     * qui ont un stock réserve configuré.
+     * Utilisé par le frontend (mode MANUAL) pour afficher le modal de confirmation.
+     *
+     * @param commandeId identifiant de la commande (BL en cours de réception)
+     * @return liste des produits concernés avec les quantités à déplacer
+     */
+    List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId,LocalDate orderDate);
 }

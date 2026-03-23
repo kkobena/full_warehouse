@@ -50,9 +50,6 @@ public interface SalesLineService {
 
     Set<SalesLine> cloneSalesLine(Set<SalesLine> salesLines, Sales copy);
 
-    void createInventory(SalesLine salesLine, AppUser user, Integer storageId);
-
-    void createInventory(Set<SalesLine> salesLines, AppUser user, Integer storageId);
 
     void save(Set<SalesLine> salesLines, AppUser user, Integer storageId);
 

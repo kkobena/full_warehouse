@@ -1,0 +1,79 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-file-check me-2"></i>{{ header }}
+  </h5>
+  <button type="button" class="btn-close" (click)="close()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="row g-3">
+
+    <!-- Produits pris en compte -->
+    <div [class]="responseCommandeItemNonPrisEnCompte.length > 0 ? 'col-sm-3' : 'col-sm-8'">
+      <div class="response-card response-card--success">
+        <div class="response-card-header">
+          <i class="pi pi-check-circle"></i>
+          <span>Produits pris en compte</span>
+        </div>
+        <div class="response-card-body">
+          <span class="response-counter">
+            {{ responseCommandeItem.length | number }}
+            <span class="response-counter-total">/ {{ (commande?.orderLines)!.length | number }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits en rupture / partiels -->
+    @if (responseCommandeItemNonPrisEnCompte.length > 0) {
+      <div class="col-sm-9">
+        <div class="response-card response-card--warn">
+          <div class="response-card-header">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>Produits en rupture ou partiels</span>
+            <span class="response-counter-badge ms-auto">
+              {{ responseCommandeItemNonPrisEnCompte.length | number }}
+              / {{ (commande?.orderLines)!.length | number }}
+            </span>
+          </div>
+          <div class="response-card-body">
+            @if (responseCommandeItemNonPrisEnCompte.length < (commande?.orderLines?.length ?? 0)) {
+              <table class="pharma-table">
+                <thead>
+                  <tr class="pharma-table-head">
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th class="text-right">Qté dispo</th>
+                    <th class="text-right">Qté demandée</th>
+                    <th class="text-center">Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of responseCommandeItemNonPrisEnCompte; track item.codeCip) {
+                    <tr>
+                      <td class="pharma-code">{{ item.codeCip }}</td>
+                      <td class="pharma-entity-name">{{ item.produitLibelle }}</td>
+                      <td class="text-right">{{ item.quantitePriseEnCompte | number }}</td>
+                      <td class="text-right">{{ item.quantite | number }}</td>
+                      <td class="text-center">
+                        @if ((item.quantitePriseEnCompte ?? 0) === 0) {
+                          <p-tag severity="danger" value="Rupture" icon="pi pi-times"/>
+                        } @else {
+                          <p-tag severity="warn" value="Partiel" icon="pi pi-minus"/>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button (click)="close()" label="Fermer" severity="secondary" size="small" icon="pi pi-times"/>
+</div>

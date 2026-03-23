@@ -23,6 +23,26 @@
           />
         }
         <p-button
+          (click)="onImporterReponseCommande()"
+          class="action-btn"
+          icon="pi pi-download"
+          label="Importer réponse"
+          severity="info"
+          size="small"
+          pTooltip="Importer la réponse EDI / fichier du grossiste"
+          tooltipPosition="bottom"
+        />
+        <p-button
+          (click)="onToutValider()"
+          class="action-btn"
+          icon="pi pi-check-square"
+          label="Tout valider"
+          severity="secondary"
+          size="small"
+          pTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
+          tooltipPosition="bottom"
+        />
+        <p-button
           (click)="onConfirmFinalize()"
           class="action-btn"
           icon="pi pi-check-circle"
@@ -97,7 +117,7 @@
       <div class="col-md-3 col-sm-12 col-lg-3 col-xl-3">
         <!-- CONCORDANCE PANEL -->
         <app-reception-concordance
-          [orderLines]="currentCommande?.orderLines ?? []"
+          [orderLines]="orderLines"
           [showLotInfo]="showLotBtn"
         />
         <div class="reception-summary-card">
@@ -147,15 +167,18 @@
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width: 2%">#</th>
-                <th style="width: 8%">Code</th>
-                <th style="width: 20%">Description</th>
+                <th style="width: 7%">Code</th>
+                <th style="width: 17%">Description</th>
                 <th class="text-right" style="width: 5%">Stock</th>
-                <th class="text-right" style="width: 8%">P.A</th>
+                <th class="text-right" style="width: 7%">P.A</th>
                 <th style="width: 6%">P.A Machine</th>
-                <th class="text-right" style="width: 8%">P.U</th>
-                <th class="text-right" style="width: 6%">P.U Machine</th>
-                <th class="text-right" style="width: 8%">Qté</th>
-                <th class="text-right" style="width: 6%">Qté Ug</th>
+                <th class="text-right" style="width: 7%">P.U</th>
+                <th class="text-right" style="width: 5%">P.U Machine</th>
+                <th class="text-right" style="width: 6%">Qté cmdée</th>
+                <th class="text-right" style="width: 6%">Qté reçue</th>
+                <th class="text-right" style="width: 5%">Qté Ug</th>
+                <th class="text-right" style="width: 6%">Stock après</th>
+                <th class="text-center" style="width: 6%">Statut</th>
                 @if (showLotColumn()) {
                   <th style="width: 7%">Lots</th>
                 }
@@ -208,6 +231,28 @@
                   <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
                 </td>
 
+                <td [pEditableColumn]="orderLine.quantityReceivedTmp" class="amount-td-column" pEditableColumnField="quantityReceivedTmp">
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="onUpdateQuantityReceived(orderLine, $event)"
+                        [value]="orderLine.quantityReceivedTmp"
+                        class="pharma-input-qty"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span [class.qty-partial]="orderLine.quantityReceivedTmp !== orderLine.quantityRequested"
+                            class="pharma-qty-value">
+                        {{ orderLine.quantityReceivedTmp | number }}
+                      </span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+
                 <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column" pEditableColumnField="freeQty">
                   <p-cellEditor>
                     <ng-template #input>
@@ -225,6 +270,22 @@
                       <span class="pharma-qty-value">{{ orderLine.freeQty | number }}</span>
                     </ng-template>
                   </p-cellEditor>
+                </td>
+
+                <td class="amount-td-column">
+                  <span [class.stock-zero]="computeAfterStock(orderLine) === 0"
+                        [class.stock-positive]="computeAfterStock(orderLine) > 0"
+                        class="pharma-qty-value">
+                    {{ computeAfterStock(orderLine) | number }}
+                  </span>
+                </td>
+
+                <td class="text-center">
+                  <p-tag
+                    [value]="lineStatutLabel(orderLine)"
+                    [severity]="lineStatutSeverity(orderLine)"
+                    [style]="{'font-size': '0.65rem', 'padding': '2px 5px'}"
+                  />
                 </td>
 
                 @if (showLotColumn()) {
@@ -299,8 +360,8 @@
                   <td class="amount-column text-right red-400" colspan="2">
                     <span class="pharma-footer-total">{{ currentCommande.orderAmount | number }}</span>
                   </td>
-                  <td class="amount-column text-right" colspan="3"></td>
-                  <td colspan="3"></td>
+                  <td class="amount-column text-right" colspan="6"></td>
+                  <td  [attr.colspan]="showLotColumn() ? 3 : 2" ></td>
                 </tr>
               </ng-template>
             }

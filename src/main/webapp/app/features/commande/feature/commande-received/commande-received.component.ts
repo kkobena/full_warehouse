@@ -23,6 +23,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import {ButtonGroup} from 'primeng/buttongroup';
 import {Toast} from 'primeng/toast';
 import {finalize} from 'rxjs/operators';
+import {forkJoin} from 'rxjs';
 import {SORT} from '../../../../shared/util/command-item-sort';
 import {CommandeService} from '../../../../entities/commande/commande.service';
 import {DeliveryService} from '../../../../entities/commande/delevery/delivery.service';
@@ -30,6 +31,10 @@ import {ListLotComponent} from '../../ui/lot/list/list-lot.component';
 import {FormLotComponent} from '../../ui/lot/form/form-lot.component';
 import {EditProduitComponent} from '../../ui/delivery/edit-produit/edit-produit.component';
 import {EtiquetteComponent} from '../../ui/delivery/etiquette/etiquette.component';
+import {PutawayModalComponent} from '../../ui/delivery/putaway-modal/putaway-modal.component';
+import {FileResponseModalComponent} from '../../ui/file-response-modal/file-response-modal.component';
+import {CommandeResponseDialogComponent} from '../../ui/commande-response-dialog/commande-response-dialog.component';
+import {IResponseCommande} from '../../../../shared/model/response-commande.model';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
 import {SpinnerComponent} from '../../../../shared/spinner/spinner.component';
 import {ReceptionConcordanceComponent} from '../../ui/reception-concordance/reception-concordance.component';
@@ -37,6 +42,7 @@ import {CommandeStatusBarComponent} from '../../ui/commande-status-bar/commande-
 import {PrixHistoriqueComponent} from '../../ui/prix-historique/prix-historique.component';
 import {CommandeId} from '../../../../shared/model/abstract-commande.model';
 import {Params} from '../../../../shared/model/enumerations/params.model';
+import {IPutawayPreviewItem} from '../../../../entities/commande/commande.service';
 import {ConfigurationService} from '../../../../shared/configuration.service';
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
@@ -149,11 +155,63 @@ export class CommandeReceivedComponent implements OnInit {
     const qty = Number(event.target.value);
     if (qty >= 0) {
       orderLine.freeQty = qty;
+      this.orderLines = [...this.orderLines]; // force signal update in concordance panel
       this.commandeService.updateQuantityUG(orderLine).subscribe({
         next: () => this.refreshCommande(),
         error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
       });
     }
+  }
+
+  protected onUpdateQuantityReceived(orderLine: IOrderLine, event: any): void {
+    const qty = Number(event.target.value);
+    if (qty >= 0) {
+      orderLine.quantityReceived = qty;
+      orderLine.quantityReceivedTmp = qty;
+      this.orderLines = [...this.orderLines]; // force signal update in concordance panel
+      this.deliveryService.updateQuantityReceived(orderLine).subscribe({
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
+      });
+    }
+  }
+
+  protected computeAfterStock(ol: IOrderLine): number {
+    return (ol.initStock ?? 0) + (ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0) + (ol.freeQty ?? 0);
+  }
+
+  protected lineStatutSeverity(ol: IOrderLine): string {
+    return this.lineStatut(ol).severity;
+  }
+
+  protected lineStatutLabel(ol: IOrderLine): string {
+    return this.lineStatut(ol).label;
+  }
+
+  private lineStatut(ol: IOrderLine): {label: string; severity: string} {
+    const rec = ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0;
+    const cmd = ol.quantityRequested ?? 0;
+    if (rec === cmd) return {label: 'Servi',    severity: 'success'};
+    if (rec === 0)   return {label: 'Rupture',  severity: 'danger'};
+    if (rec > cmd)   return {label: 'Excédent', severity: 'info'};
+    return              {label: 'Partiel',  severity: 'warn'};
+  }
+
+  protected onToutValider(): void {
+    const allLines = this.currentCommande.orderLines ?? [];
+    const linesToUpdate = allLines.filter(
+      l => (l.quantityReceivedTmp ?? l.quantityRequested ?? 0) !== (l.quantityRequested ?? 0),
+    );
+    for (const l of allLines) {
+      l.quantityReceived = l.quantityRequested ?? 0;
+      l.quantityReceivedTmp = l.quantityRequested ?? 0;
+    }
+    // Réinitialise le filtre et affiche toutes les lignes mises à jour
+    this.selectedFilter = 'ALL';
+    this.orderLines = [...allLines];
+    if (linesToUpdate.length === 0) return;
+    forkJoin(linesToUpdate.map(l => this.deliveryService.updateQuantityReceived(l))).subscribe({
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
+    });
   }
 
   protected onDeleteOrderLine(orderLine: IOrderLine): void {
@@ -185,7 +243,7 @@ export class CommandeReceivedComponent implements OnInit {
           );
         } else {
           this.confirmDialog.onConfirm(
-            () => this.onFinalize(),
+            () => this.checkPutawayAndFinalize(),
             'Finalisation de la commande',
             "Voullez-vous faire l'entrée en stock ?",
           );
@@ -194,7 +252,7 @@ export class CommandeReceivedComponent implements OnInit {
       error: () => {
         // En cas d'erreur de l'API de vérification, on laisse passer (fail-open)
         this.confirmDialog.onConfirm(
-          () => this.onFinalize(),
+          () => this.checkPutawayAndFinalize(),
           'Finalisation de la commande',
           "Voullez-vous faire l'entrée en stock ?",
         );
@@ -204,9 +262,53 @@ export class CommandeReceivedComponent implements OnInit {
 
   private confirmFinalizeApresAlertesPrix(): void {
     this.confirmDialog.onConfirm(
-      () => this.onFinalize(),
+      () => this.checkPutawayAndFinalize(),
       'Confirmation finale',
       "Confirmer l'entrée en stock malgré les écarts de prix ?",
+    );
+  }
+
+  private checkPutawayAndFinalize(): void {
+    const mode = this.configurationService.getParamByKey(Params.APP_PUTAWAY_MODE)?.value ?? 'MANUAL';
+    if (mode !== 'MANUAL') {
+      this.onFinalize(false);
+      return;
+    }
+    this.commandeService.getPutawayPreview(this.currentCommande.commandeId).subscribe({
+      next: (items: IPutawayPreviewItem[]) => {
+        if (!items || items.length === 0) {
+          this.onFinalize(false);
+          return;
+        }
+        showCommonModal(
+          this.modalService,
+          PutawayModalComponent,
+          {
+            items,
+            header: `Répartition rayon → réserve (${items.length} produit(s))`,
+          },
+          (doTransfer: boolean) => this.onFinalize(doTransfer),
+          'lg',
+          null,
+          () => this.onFinalize(false),
+        );
+      },
+      error: () => this.onFinalize(false),
+    });
+  }
+
+  protected onImporterReponseCommande(): void {
+    showCommonModal(
+      this.modalService,
+      FileResponseModalComponent,
+      {commandeSelected: this.currentCommande, header: 'IMPORTER RÉPONSE'},
+      (responseCommande: IResponseCommande) => {
+        if (responseCommande) {
+          this.refreshCommande();
+          this.openImporterReponseCommandeDialog(responseCommande);
+        }
+      },
+      'lg',
     );
   }
 
@@ -271,7 +373,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected showLotColumn(): boolean {
-    return this.showLotBtn || this.orderLines.some(l => l.lots.length > 0);
+    return this.showLotBtn ;
   }
 
   /** Nombre de lignes sans lot assigné (pertinent uniquement si APP_GESTION_LOT actif) */
@@ -305,6 +407,16 @@ export class CommandeReceivedComponent implements OnInit {
     if (param) this.showLotBtn = Number(param.value) === 0;
   }
 
+  private openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
+    const modalRef = this.modalService.open(CommandeResponseDialogComponent, {
+      size: 'xl',
+      scrollable: true,
+      backdrop: 'static',
+    });
+    modalRef.componentInstance.responseCommande = responseCommande;
+    modalRef.componentInstance.commande = this.currentCommande;
+  }
+
   private refreshCommande(): void {
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
@@ -313,10 +425,10 @@ export class CommandeReceivedComponent implements OnInit {
     });
   }
 
-  private onFinalize(): void {
+  private onFinalize(doTransfer = false): void {
     this.spinner().show();
     this.deliveryService
-      .finalizeSaisieEntreeStock(this.currentCommande)
+      .finalizeSaisieEntreeStock({...this.currentCommande, doTransfer})
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<IStockEntryResult>) => {

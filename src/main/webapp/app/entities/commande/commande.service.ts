@@ -23,6 +23,17 @@ export interface IPriceHistory {
   changedBy: string | null;
 }
 
+export interface IPutawayPreviewItem {
+  produitId: number;
+  produitLibelle: string;
+  codeCip: string;
+  qtyRayon: number;
+  stockMaxiRayon: number;
+  qtyOverflow: number;
+  qtyReserveActuelle: number;
+  classePareto?: string;
+}
+
 export interface ICommandeResumee {
   id: number;
   orderDate: string;
@@ -223,6 +234,10 @@ export class CommandeService {
       params: { commandeId: commandeId.id, orderDate: commandeId.orderDate },
       observe: 'response',
     });
+  }
+
+  getPutawayPreview(commandeId: CommandeId): Observable<IPutawayPreviewItem[]> {
+    return this.http.get<IPutawayPreviewItem[]>(`${this.resourceUrl}/entree-stock/putaway-preview/${commandeId}/${commandeId.orderDate}`);
   }
 
   getDashboard(): Observable<ICommandeDashboard> {

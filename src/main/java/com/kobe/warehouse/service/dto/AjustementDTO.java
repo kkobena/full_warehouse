@@ -31,6 +31,8 @@ public class AjustementDTO {
     private String motifAjustementLibelle;
     private String commentaire;
     private CodeLibelle storageType;
+    /** Lot explicitement sélectionné pour AJUSTEMENT_IN (gestion_lot=true). Null = heuristique "dernier reçu". */
+    private Integer lotId;
 
     public AjustementDTO(Ajustement ajustement) {
         id = ajustement.getId();
@@ -189,6 +191,15 @@ public class AjustementDTO {
 
     public AjustementDTO setCommentaire(String commentaire) {
         this.commentaire = commentaire;
+        return this;
+    }
+
+    public Integer getLotId() {
+        return lotId;
+    }
+
+    public AjustementDTO setLotId(Integer lotId) {
+        this.lotId = lotId;
         return this;
     }
 }

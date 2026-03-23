@@ -21,6 +21,7 @@ import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.reassort.dto.RepartionQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
@@ -44,19 +45,22 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
     private final StockProduitRepository stockProduitRepository;
     private final RepartitionStockPdfReportService repartitionStockPdfReportService;
     private final InventoryTransactionService inventoryTransactionService;
+    private final LotStockLocationService lotStockLocationService;
 
     public RepartitionStockServiceImpl(
         StorageService storageService,
         RepartitionStockProduitRepository repartitionStockProduitRepository,
         StockProduitRepository stockProduitRepository,
         RepartitionStockPdfReportService repartitionStockPdfReportService,
-        InventoryTransactionService inventoryTransactionService
+        InventoryTransactionService inventoryTransactionService,
+        LotStockLocationService lotStockLocationService
     ) {
         this.storageService = storageService;
         this.repartitionStockProduitRepository = repartitionStockProduitRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.repartitionStockPdfReportService = repartitionStockPdfReportService;
         this.inventoryTransactionService = inventoryTransactionService;
+        this.lotStockLocationService = lotStockLocationService;
     }
 
     @Override
@@ -99,6 +103,15 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
             repartitionStockProduitRepository.save(repartitionStockProduit);
             inventoryTransactionService.saveRepartition(repartitionStockProduit);
+
+            // FEFO : transfert lots dans le sens du mouvement
+            StockProduit finalStockProduitSrc = stockProduitSrc;
+            lotStockLocationService.transferFefo(
+                stockProduitDest.getProduit(),
+                finalStockProduitSrc.getStorage(),
+                stockProduitDest.getStorage(),
+                reassort.getQuantity()
+            );
         }
     }
 
@@ -138,6 +151,14 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
             repartitionStockProduitRepository.save(repartitionStockProduit);
             inventoryTransactionService.saveRepartition(repartitionStockProduit);
+
+            // FEFO : réserve → rayon lors du réassort batch
+            lotStockLocationService.transferFefo(
+                produit,
+                stockProduitSrc.getStorage(),
+                stockProduitDest.getStorage(),
+                reassort.getQuantity()
+            );
         }
     }
 
@@ -181,8 +202,14 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             updateStockQuantity(stockProduitSrc, stockSrcFinal);
             updateStockQuantity(stockProduitDest, stockDestFinal);
 
+            // FEFO : déplacer les lots du plus proche en expiry en premier
+            lotStockLocationService.transferFefo(
+                produit,
+                stockProduitSrc.getStorage(),
+                stockProduitDest.getStorage(),
+                queryDto.quantity()
+            );
         }
-
     }
 
 
@@ -229,6 +256,13 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
         repartitionStockProduitRepository.save(repartitionStockProduit);
         inventoryTransactionService.saveRepartition(repartitionStockProduit);
         updateStockQuantity(stockProduitSrc, stockSrcFinal);
+        // FEFO : rayon → réserve lors de la création d'un stock réserve
+        lotStockLocationService.transferFefo(
+            produit,
+            stockProduitSrc.getStorage(),
+            stockProduitDest.getStorage(),
+            stockProduitDest.getQtyStock()
+        );
     }
 
     @Override
@@ -255,6 +289,43 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
         repartitionStockProduitRepository.save(repartition);
         inventoryTransactionService.saveRepartition(repartition);
+
+        // FEFO : réserve → rayon lors d'un réassort implicite (vente urgente)
+        lotStockLocationService.transferFefo(
+            stockReserve.getProduit(),
+            stockReserve.getStorage(),
+            stockRayon.getStorage(),
+            quantity
+        );
+    }
+
+    @Override
+    public void autoPutawayRayonToReserve(StockProduit rayonSp, StockProduit reserveSp, int qty) {
+        if (qty <= 0) return;
+
+        int rayonInit = rayonSp.getTotalStockQuantity();
+        int rayonFinal = rayonInit - qty;
+        int reserveInit = reserveSp.getTotalStockQuantity();
+        int reserveFinal = reserveInit + qty;
+
+        RepartitionStockProduit repartition = createBaseRepartitionStockProduit(getCurrentUser());
+        repartition.setTypeRepartition(TypeRepartition.AUTO);
+        setSourceStockInfo(repartition, rayonSp, rayonInit, rayonFinal);
+        setDestinationStockInfo(repartition, reserveSp, qty, reserveInit, reserveFinal);
+
+        updateStockQuantity(rayonSp, rayonFinal);
+        updateStockQuantity(reserveSp, reserveFinal);
+
+        repartitionStockProduitRepository.save(repartition);
+        inventoryTransactionService.saveRepartition(repartition);
+
+        // FEFO : rayon → réserve (auto-putaway à la réception)
+        lotStockLocationService.transferFefo(
+            rayonSp.getProduit(),
+            rayonSp.getStorage(),
+            reserveSp.getStorage(),
+            qty
+        );
     }
 
     @Override

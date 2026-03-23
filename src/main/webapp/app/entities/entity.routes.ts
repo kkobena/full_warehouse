@@ -197,6 +197,12 @@ const routes: Routes = [
     data: { pageTitle: 'Catalogue produits' },
     loadChildren: () => import('../features/products/products.routes').then(m => m.PRODUCTS_ROUTES),
   },
+  {
+    path: 'features-ajustement',
+    data: { pageTitle: 'Ajustements de stock' },
+    loadChildren: () =>
+      import('../features/ajustement/ajustement.routes').then(m => m.AJUSTEMENT_ROUTES),
+  },
 ];
 
 export default routes;

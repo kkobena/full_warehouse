@@ -1,0 +1,14 @@
+@use 'app/shared/scss/table-common' as *;
+
+// Row tint by direction — subtle left accent only
+.ajust-row-in td   { border-left: 3px solid rgba(34, 197, 94, 0.45); }
+.ajust-row-out td  { border-left: 3px solid rgba(239, 68, 68, 0.35); }
+
+// Qty cell in the output template
+.ajust-qty-cell {
+  font-weight: 600;
+  font-size: 0.875rem;
+
+  &.ajust-qty-in  { color: #16a34a; }
+  &.ajust-qty-out { color: #dc2626; }
+}

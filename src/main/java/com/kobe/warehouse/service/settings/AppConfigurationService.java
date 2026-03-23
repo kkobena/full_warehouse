@@ -4,6 +4,7 @@ import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
+import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
 import java.time.LocalDateTime;
@@ -271,6 +272,23 @@ public class AppConfigurationService {
                 }
             })
             .orElse(2);
+    }
+
+    /**
+     * Retourne le mode de rangement automatique configuré pour la réception.
+     * Défaut : {@link PutawayMode#MANUAL}.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_PUTAWAY_MODE_CACHE)
+    public PutawayMode getPutawayMode() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PUTAWAY_MODE)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try { return PutawayMode.valueOf(v.trim()); }
+                catch (IllegalArgumentException e) { return PutawayMode.MANUAL; }
+            })
+            .orElse(PutawayMode.MANUAL);
     }
 
     /**

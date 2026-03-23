@@ -103,6 +103,38 @@ public class InventoryClosedEventListener {
               AND (sp_rayon.qty_stock + sp_rayon.qty_ug) > 0
             """;
 
+    /**
+     * Reconcile lot_stock_location from inventory_lot after close.
+     * UPSERT lots with quantity_on_hand > 0, DELETE those at 0.
+     * No-op if no inventory_lot records exist (gestion_lot = false).
+     */
+    private static final String SQL_LOT_LOCATION_UPSERT =
+        """
+            INSERT INTO lot_stock_location (lot_id, storage_id, qty, updated_at)
+            SELECT il.lot_id, :storageId, il.quantity_on_hand, NOW()
+            FROM inventory_lot il
+            JOIN store_inventory_line sil ON sil.id = il.store_inventory_line_id
+            WHERE sil.store_inventory_id = :inventoryId
+              AND il.updated  = true
+              AND il.quantity_on_hand > 0
+            ON CONFLICT (lot_id, storage_id) DO UPDATE
+              SET qty = EXCLUDED.qty, updated_at = NOW()
+            """;
+
+    private static final String SQL_LOT_LOCATION_DELETE_ZERO =
+        """
+            DELETE FROM lot_stock_location
+            WHERE storage_id = :storageId
+              AND lot_id IN (
+                SELECT il.lot_id
+                FROM inventory_lot il
+                JOIN store_inventory_line sil ON sil.id = il.store_inventory_line_id
+                WHERE sil.store_inventory_id = :inventoryId
+                  AND il.updated = true
+                  AND il.quantity_on_hand = 0
+              )
+            """;
+
     private final EntityManager em;
     private final SuggestionReassortService suggestionReassortService;
 
@@ -143,6 +175,44 @@ public class InventoryClosedEventListener {
         suggestionReassortService.createLigneReassort(allSuggestions, user);
         log.info("Inventaire {} clôturé : {} suggestions créées (rayon + réserve)",
             event.storeInventoryId(), allSuggestions.size());
+
+        reconcileLotStockLocation(event);
+
+        // MAGASIN : la procédure remet la réserve à 0 → purger lot_stock_location de la réserve aussi
+        if (event.inventoryCategory() == InventoryCategory.MAGASIN) {
+            em.createNativeQuery(
+                    """
+                    DELETE FROM lot_stock_location lsl
+                    USING storage s
+                    WHERE lsl.storage_id = s.id
+                      AND s.magasin_id   = :magasinId
+                      AND s.storage_type = 'SAFETY_STOCK'
+                    """)
+                .setParameter("magasinId", event.magasinId())
+                .executeUpdate();
+            log.info("Inventaire MAGASIN {} — lot_stock_location réserve purgée", event.storeInventoryId());
+        }
+    }
+
+    /**
+     * Réconcilie {@code lot_stock_location} depuis les {@code inventory_lot} saisis.
+     * — UPSERT pour les lots avec quantité > 0
+     * — DELETE pour les lots portés à 0
+     * Sans effet si l'inventaire n'a pas de gestion_lot (pas d'inventory_lot).
+     */
+    private void reconcileLotStockLocation(InventoryClosedEvent event) {
+        int upserted = em.createNativeQuery(SQL_LOT_LOCATION_UPSERT)
+            .setParameter("inventoryId", event.storeInventoryId())
+            .setParameter("storageId", event.storageId())
+            .executeUpdate();
+
+        int deleted = em.createNativeQuery(SQL_LOT_LOCATION_DELETE_ZERO)
+            .setParameter("inventoryId", event.storeInventoryId())
+            .setParameter("storageId", event.storageId())
+            .executeUpdate();
+
+        log.info("Inventaire {} — lot_stock_location réconcilié : {} upserts, {} suppressions",
+            event.storeInventoryId(), upserted, deleted);
     }
 
     private List<ReassortRecord> querySuggestions(String sql, InventoryClosedEvent event,

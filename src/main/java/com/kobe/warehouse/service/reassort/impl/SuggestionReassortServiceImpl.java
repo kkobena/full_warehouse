@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -299,6 +300,46 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
         suggestionReassortRepository.save(suggestionReassort);
 
 
+    }
+
+    @Override
+    public void autoExecuteOverflowForProducts(Set<Integer> produitIds) {
+        if (CollectionUtils.isEmpty(produitIds)) return;
+
+        AppUser user = getCurrentUser();
+        SuggestionReassort suggestion = suggestionReassortRepository
+            .findOneByStatutAndMagasinIdAndTypeReassort(
+                StatutReassort.OPEN, user.getMagasin().getId(), TypeReassort.RESERVE)
+            .orElse(null);
+
+        if (suggestion == null) return;
+
+        Storage rayonStorage = storageService.getDefaultConnectedUserMainStorage();
+
+        List<LigneReassort> toProcess = suggestion.getLigneReassorts().stream()
+            .filter(lr -> produitIds.contains(lr.getStockProduit().getProduit().getId()))
+            .toList();
+
+        for (LigneReassort ligne : toProcess) {
+            StockProduit reserveSp = ligne.getStockProduit();           // destination = réserve
+            StockProduit rayonSp = reserveSp.getProduit().getStockProduits().stream()
+                .filter(sp -> sp.getStorage().getId().equals(rayonStorage.getId()))
+                .findFirst()
+                .orElse(null);
+
+            if (rayonSp == null) continue;
+
+            repartitionStockService.autoPutawayRayonToReserve(rayonSp, reserveSp, ligne.getQuantity());
+
+            suggestion.getLigneReassorts().remove(ligne);
+            ligneReassortRepository.delete(ligne);
+        }
+
+        if (suggestion.getLigneReassorts().isEmpty()) {
+            suggestion.setStatut(StatutReassort.CLOSED);
+            suggestion.setUpdatedAt(LocalDateTime.now());
+        }
+        suggestionReassortRepository.save(suggestion);
     }
 
     private AppUser getCurrentUser() {

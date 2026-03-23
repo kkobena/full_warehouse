@@ -48,7 +48,7 @@
 
 | Phase | Sujet | Statut |
 |-------|-------|--------|
-| C1 | Répartition automatique à la réception (règle rayon/réserve) | 🔲 À faire |
+| C1 | Répartition automatique à la réception (règle rayon/réserve) | ✅ Terminé |
 | C2 | Suggestion putaway basée sur classe ABC et stockMaxi | 🔲 À faire |
 
 ### À venir — P2 (module Inventaire)

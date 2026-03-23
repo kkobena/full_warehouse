@@ -9,7 +9,7 @@ import {FournisseurService} from '../../../../entities/fournisseur/fournisseur.s
 import {IOrderLine, OrderLine} from '../../../../shared/model/order-line.model';
 import {ErrorService} from '../../../../shared/error.service';
 import {IResponseCommande} from '../../../../shared/model/response-commande.model';
-import {CommandeEnCoursResponseDialogComponent} from '../../../../entities/commande/commande-en-cours-response-dialog.component';
+import {CommandeResponseDialogComponent} from '../../ui/commande-response-dialog/commande-response-dialog.component';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {RippleModule} from 'primeng/ripple';
@@ -285,7 +285,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   }
 
   protected showLotColumn(): boolean {
-    return this.showLotBtn || this.orderLines.some(l => l.lots.length > 0);
+    return this.showLotBtn ;
   }
 
   protected onAddLot(orderLine: IOrderLine): void {
@@ -345,7 +345,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   }
 
   private openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
-    const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
+    const modalRef = this.modalService.open(CommandeResponseDialogComponent, {
       size: 'xl',
       scrollable: true,
       backdrop: 'static',

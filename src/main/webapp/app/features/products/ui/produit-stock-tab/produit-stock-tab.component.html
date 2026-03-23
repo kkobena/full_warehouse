@@ -1,0 +1,297 @@
+@if (!produit().stockProduits || produit().stockProduits!.length === 0) {
+  <div class="pharma-empty-message">
+    <div class="pharma-empty-content">
+      <i class="pi pi-box"></i>
+      <p>Aucune donnée de stock disponible</p>
+    </div>
+  </div>
+} @else {
+
+  <!-- ── CARTES RAYON + RÉSERVE ─────────────────────────────── -->
+  <div class="stock-cards-layout">
+
+    <!-- Rayon (PRINCIPAL) -->
+    @if (stockPrincipal(); as rayon) {
+      <div [class]="'stock-card ' + stockClass(rayon)">
+        <div class="stock-card-header">
+          <span class="stock-card-label">
+            <i class="pi pi-shopping-cart me-1"></i>Rayon
+          </span>
+          <span class="stock-card-name text-muted">{{ rayon.storageName ?? rayon.storageType }}</span>
+          <div class="stock-card-actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              severity="secondary"
+              pTooltip="Modifier paramètres"
+              (onClick)="onEditStock(rayon)"
+            />
+          </div>
+        </div>
+
+        <!-- Quantité principale -->
+        <div class="stock-qty-block">
+          <span class="stock-qty-value">{{ rayon.qtyStock ?? 0 | number }}</span>
+          <span class="stock-qty-unit">unités</span>
+          @if ((rayon.qtyUG ?? 0) > 0) {
+            <span class="stock-qty-ug">+ {{ rayon.qtyUG }} UG</span>
+          }
+        </div>
+
+        <!-- Barre de niveau -->
+        <div class="niveau-bar-track">
+          <div class="niveau-bar-fill" [style.width.%]="niveauPct(rayon)"></div>
+          @if (rayon.seuilMini) {
+            <div
+              class="niveau-seuil-marker"
+              [style.left.%]="rayon.stockMaxi ? (rayon.seuilMini / rayon.stockMaxi) * 100 : 50"
+              pTooltip="Seuil mini : {{ rayon.seuilMini }} u"
+            ></div>
+          }
+        </div>
+
+        <!-- Paramètres -->
+        <div class="stock-params">
+          <span class="param-item">
+            <span class="param-label">Seuil mini</span>
+            <span class="param-value">{{ rayon.seuilMini ?? '—' }}</span>
+          </span>
+          <span class="param-item">
+            <span class="param-label">Stock maxi</span>
+            <span class="param-value">{{ rayon.stockMaxi ?? '—' }}</span>
+          </span>
+          <span class="param-item">
+            <span class="param-label">Réassort</span>
+            <span class="param-value">{{ rayon.stockReassort ?? '—' }}</span>
+          </span>
+        </div>
+
+        <!-- Alerte sous seuil -->
+        @if ((rayon.qtyStock ?? 0) > 0 && rayon.seuilMini && (rayon.qtyStock ?? 0) < rayon.seuilMini) {
+          <div class="stock-alert">
+            <i class="pi pi-exclamation-triangle me-1"></i>Stock sous seuil minimum
+          </div>
+        }
+        @if ((rayon.qtyStock ?? 0) === 0) {
+          <div class="stock-alert stock-alert-empty">
+            <i class="pi pi-times-circle me-1"></i>Rayon vide
+          </div>
+        }
+
+        <!-- Actions transfert -->
+        <div class="stock-card-footer">
+          @if (canTransfertToReserve()) {
+            @if (stockReserve()) {
+              <p-button
+                icon="pi pi-arrow-down"
+                [label]="lotUrgent() ? 'Vers réserve (FEFO !)' : 'Vers réserve'"
+                size="small"
+                [severity]="lotUrgent() ? 'warning' : 'secondary'"
+                [outlined]="true"
+                [pTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.datePeremption + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
+                (onClick)="onTransfert(rayon)"
+              />
+            } @else {
+              <p-button
+                icon="pi pi-plus"
+                label="Créer réserve"
+                size="small"
+                severity="primary"
+                [outlined]="true"
+                pTooltip="Créer un stock réserve et y transférer du stock"
+                (onClick)="onAddReserve()"
+              />
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Flèche centrale (si les 2 stocks existent) -->
+    @if (stockPrincipal() && stockReserve()) {
+      <div class="stock-arrow">
+        <i class="pi pi-arrows-v"></i>
+      </div>
+    }
+
+    <!-- Réserve (SAFETY_STOCK) -->
+    @if (stockReserve(); as reserve) {
+      <div [class]="'stock-card ' + stockClass(reserve)">
+        <div class="stock-card-header">
+          <span class="stock-card-label">
+            <i class="pi pi-database me-1"></i>Réserve
+          </span>
+          <span class="stock-card-name text-muted">{{ reserve.storageName ?? reserve.storageType }}</span>
+          <div class="stock-card-actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              severity="secondary"
+              pTooltip="Modifier paramètres"
+              (onClick)="onEditStock(reserve)"
+            />
+          </div>
+        </div>
+
+        <div class="stock-qty-block">
+          <span class="stock-qty-value">{{ reserve.qtyStock ?? 0 | number }}</span>
+          <span class="stock-qty-unit">unités</span>
+          @if ((reserve.qtyUG ?? 0) > 0) {
+            <span class="stock-qty-ug">+ {{ reserve.qtyUG }} UG</span>
+          }
+        </div>
+
+        <div class="niveau-bar-track">
+          <div class="niveau-bar-fill" [style.width.%]="niveauPct(reserve)"></div>
+          @if (reserve.seuilMini) {
+            <div
+              class="niveau-seuil-marker"
+              [style.left.%]="reserve.stockMaxi ? (reserve.seuilMini / reserve.stockMaxi) * 100 : 50"
+              pTooltip="Seuil mini : {{ reserve.seuilMini }} u"
+            ></div>
+          }
+        </div>
+
+        <div class="stock-params">
+          <span class="param-item">
+            <span class="param-label">Seuil mini</span>
+            <span class="param-value">{{ reserve.seuilMini ?? '—' }}</span>
+          </span>
+          <span class="param-item">
+            <span class="param-label">Stock maxi</span>
+            <span class="param-value">{{ reserve.stockMaxi ?? '—' }}</span>
+          </span>
+          <span class="param-item">
+            <span class="param-label">Réassort</span>
+            <span class="param-value">{{ reserve.stockReassort ?? '—' }}</span>
+          </span>
+        </div>
+
+        @if ((reserve.qtyStock ?? 0) === 0) {
+          <div class="stock-alert stock-alert-empty">
+            <i class="pi pi-times-circle me-1"></i>Réserve vide
+          </div>
+        }
+
+        <div class="stock-card-footer">
+          @if (canTransfertToRayon()) {
+            <p-button
+              icon="pi pi-arrow-up"
+              label="Réapprovisionner rayon"
+              size="small"
+              severity="primary"
+              [outlined]="true"
+              pTooltip="Transférer de la réserve vers le rayon"
+              (onClick)="onTransfert(reserve)"
+            />
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Bouton ajout réserve si rayon seul -->
+    @if (canAddReserve()) {
+      <div class="stock-add-reserve">
+        <p-button
+          icon="pi pi-plus"
+          label="Créer stock réserve"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onAddReserve()"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- ── INSIGHTS CMM / COUVERTURE CIBLE ─────────────────── -->
+  @if (cmm() > 0) {
+    <div class="stock-insights">
+      <div class="insight-title">
+        <i class="pi pi-calculator me-1"></i>Analyse CMM
+      </div>
+      <div class="insight-grid">
+
+        <div class="insight-item">
+          <span class="insight-label">CMM</span>
+          <span class="insight-value">{{ cmm() | number:'1.0-0' }} u/mois</span>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-label">Délai fournisseur</span>
+          <span class="insight-value">{{ delaiLivraison() }} j</span>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-label">Couverture actuelle</span>
+          <span class="insight-value" [class.insight-alert]="couvertureActuelle() !== null && couvertureActuelle()! < delaiLivraison()">
+            {{ couvertureActuelle() !== null ? (couvertureActuelle() + ' j') : '—' }}
+          </span>
+        </div>
+
+        @if (seuilCalcule() !== null) {
+          <div class="insight-item">
+            <span class="insight-label">Seuil recommandé</span>
+            <span class="insight-value insight-highlight">{{ seuilCalcule() }} u</span>
+            @if (seuilInsuffisant()) {
+              <span class="insight-warn" pTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)">
+                <i class="pi pi-exclamation-triangle"></i> Seuil trop bas
+              </span>
+            }
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+  <!-- ── FEFO LOTS ────────────────────────────────────────── -->
+  @if (lotsFEFO().length > 0) {
+    <div class="fefo-section">
+      <div class="fefo-title">
+        <i class="pi pi-sort-amount-up me-1"></i>Lots — ordre FEFO
+        <span class="fefo-subtitle">(Premier expirant, premier sorti)</span>
+        @if (lotUrgent()) {
+          <span class="fefo-urgent-badge">
+            <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
+          </span>
+        }
+      </div>
+      <div class="fefo-table">
+        <div class="fefo-row fefo-head">
+          <span>N° Lot</span>
+          <span>Péremption</span>
+          <span class="text-end">Qté</span>
+          <span>État</span>
+        </div>
+        @for (lot of lotsFEFO(); track lot.id) {
+          <div [class]="'fefo-row ' + fefoClass(lot)">
+            <span class="fefo-num">{{ lot.numLot }}</span>
+            <span class="fefo-date">{{ lot.datePeremption }}</span>
+            <span class="fefo-qty text-end">{{ lot.quantity }}</span>
+            <span>
+              @if ((lot.peremptionStatut?.days ?? 9999) <= 30) {
+                <span class="fefo-badge fefo-badge-critical">Critique</span>
+              } @else if ((lot.peremptionStatut?.days ?? 9999) <= 90) {
+                <span class="fefo-badge fefo-badge-warning">{{ lot.peremptionStatut?.mouths }} mois</span>
+              } @else {
+                <span class="fefo-badge fefo-badge-ok">OK</span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── TOTAL ─────────────────────────────────────────────── -->
+  <div class="stock-total-bar">
+    <span class="text-muted" style="font-size:0.7rem">TOTAL STOCK</span>
+    <span class="stock-total-value">{{ produit().totalQuantity ?? 0 | number }} u</span>
+    @if ((produit().qtyReserve ?? 0) > 0) {
+      <span class="text-muted ms-3" style="font-size:0.75rem">dont {{ produit().qtyReserve }} en réserve</span>
+    }
+  </div>
+}

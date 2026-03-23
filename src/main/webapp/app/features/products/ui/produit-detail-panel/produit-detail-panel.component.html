@@ -1,0 +1,133 @@
+<div class="detail-panel">
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-block">
+      <div class="panel-libelle">{{ produit().libelle }}</div>
+      <div class="panel-meta">
+        <span class="pharma-code">{{ produit().codeCip }}</span>
+        @if (produit().codeEan) {
+          <span class="text-muted ms-2" style="font-size: 0.75rem">EAN: {{ produit().codeEan }}</span>
+        }
+        @if (produit().classeCriticite) {
+          <span class="classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }} ms-2">
+            {{ classeLabel(produit().classeCriticite) }}
+          </span>
+        }
+        @if (produit().estMedicamentEssentiel) {
+          <span class="badge-essentiel ms-1" pTooltip="Médicament essentiel (liste OMS)">ME</span>
+        }
+        @if (produit().estProduitGarde) {
+          <span class="badge-garde ms-1" pTooltip="Produit de garde officine">G</span>
+        }
+      </div>
+    </div>
+    <div class="panel-actions">
+      <p-button
+        icon="pi pi-pencil"
+        label="Modifier"
+        size="small"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="onEdit()"
+      />
+      <p-button
+        icon="pi pi-times"
+        [text]="true"
+        size="small"
+        severity="secondary"
+        pTooltip="Fermer"
+        (onClick)="closePanel.emit()"
+      />
+    </div>
+  </div>
+
+  <!-- Statut workflow -->
+  @if (produit().etatProduit) {
+    <div class="panel-status">
+      <jhi-eta-produit [etatProduit]="produit().etatProduit!" [showLabel]="true" />
+    </div>
+  }
+
+  <!-- Onglets ngbNav -->
+  <div class="pharma-nav-tabs-container flex-1-overflow">
+    <div
+      #nav="ngbNav"
+      [activeId]="activeTab()"
+      (activeIdChange)="onTabChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      <ng-container ngbNavItem="synthese">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-chart-line"></i>
+          <span>Synthèse</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-synthese-tab
+            [produit]="produit()"
+            [indicateurs]="indicateurs()"
+            [lots]="lots()"
+            [loadingIndicateurs]="loadingIndicateurs()"
+          />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="stock">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-box"></i>
+          <span>Stock</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-stock-tab
+            [produit]="richProduit()"
+            [indicateurs]="indicateurs()"
+            [lots]="lots()"
+            (refreshRequested)="onRefreshRequested()"
+          />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="fournisseurs">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-truck"></i>
+          <span>Fournisseurs</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-fournisseurs-tab
+            [produit]="richProduit()"
+            (refreshRequested)="onRefreshRequested()"
+          />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="historique">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-history"></i>
+          <span>Historique</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-historique-tab
+            [ventes]="ventes()"
+            [loading]="loadingVentes()"
+          />
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="mouvements">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-arrows-v"></i>
+          <span>Mouvements</span>
+        </a>
+        <ng-template ngbNavContent>
+          @if (produit().id) {
+            <app-produit-mouvements-tab [produitId]="produit().id!" />
+          }
+        </ng-template>
+      </ng-container>
+    </div>
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>

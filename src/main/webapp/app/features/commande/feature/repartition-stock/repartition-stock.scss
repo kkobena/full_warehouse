@@ -1,0 +1,45 @@
+
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/pharma-nav';
+
+.pharma-suggestion-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.pharma-suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.pharma-suggestion-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  i {
+    font-size: 1.5rem;
+  }
+}
+
+.pharma-suggestion-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.pharma-suggestion-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pharma-qty-highlight {
+  font-weight: 700;
+  color: #3b82f6;
+  font-size: 1.1rem;
+}

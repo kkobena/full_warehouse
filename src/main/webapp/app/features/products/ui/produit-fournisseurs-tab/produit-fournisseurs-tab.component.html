@@ -1,0 +1,76 @@
+<!-- Toolbar -->
+<div class="four-tab-toolbar">
+  <p-button
+    icon="pi pi-plus"
+    label="Ajouter fournisseur"
+    size="small"
+    severity="primary"
+    [outlined]="true"
+    (onClick)="onAddFournisseur()"
+  />
+</div>
+
+<!-- Etat vide -->
+@if (!produit().fournisseurProduits || produit().fournisseurProduits!.length === 0) {
+  <div class="pharma-empty-message">
+    <div class="pharma-empty-content">
+      <i class="pi pi-truck"></i>
+      <p>Aucun fournisseur associé</p>
+      <small>Cliquez sur "Ajouter fournisseur" pour en associer un</small>
+    </div>
+  </div>
+} @else {
+  <p-table [value]="produit().fournisseurProduits!" class="pharma-table p-datatable-sm">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Fournisseur</th>
+        <th>CIP fournisseur</th>
+        <th class="text-end">Prix achat</th>
+        <th class="text-end">Prix vente</th>
+        <th class="text-center" pTooltip="Fournisseur par défaut pour les commandes">Principal</th>
+        <th style="width: 80px"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-fp>
+      <tr [class.row-principal]="isPrincipal(fp)">
+        <td>
+          <span class="pharma-product-name">{{ fp.fournisseurLibelle }}</span>
+          @if (isPrincipal(fp)) {
+            <span class="badge-principal ms-2" pTooltip="Fournisseur principal">Principal</span>
+          }
+        </td>
+        <td><span class="pharma-code">{{ fp.codeCip }}</span></td>
+        <td class="text-end"><span class="pharma-price">{{ formatPrix(fp.prixAchat) }}</span></td>
+        <td class="text-end"><span class="pharma-price">{{ formatPrix(fp.prixUni) }}</span></td>
+        <td class="text-center">
+          <p-toggleswitch
+            [ngModel]="isPrincipal(fp)"
+            (ngModelChange)="onTogglePrincipal(fp, $event)"
+            pTooltip="Définir comme fournisseur principal"
+          />
+        </td>
+        <td class="text-end">
+          <div class="row-actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              severity="secondary"
+              pTooltip="Modifier"
+              (onClick)="onEditFournisseur(fp)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              pTooltip="Supprimer"
+              [disabled]="isPrincipal(fp) && produit().fournisseurProduits!.length > 1"
+              (onClick)="onDeleteFournisseur(fp)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

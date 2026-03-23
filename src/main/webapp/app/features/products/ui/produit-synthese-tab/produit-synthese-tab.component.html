@@ -1,0 +1,186 @@
+@if (loadingIndicateurs()) {
+  <div class="text-center py-4">
+    <i class="pi pi-spin pi-spinner me-2"></i>Chargement des indicateurs...
+  </div>
+} @else {
+  <div class="synthese-grid">
+
+    <!-- Indicateurs clés -->
+    <div class="synthese-section">
+      <h6 class="section-title">Indicateurs clés</h6>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">Stock actuel</span>
+          <span class="kpi-value" [class]="stockClass()">
+            {{ produit().totalQuantity ?? 0 | number }} u
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Seuil mini</span>
+          <span class="kpi-value">{{ produit().seuilMini ?? '—' }} u</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label" pTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
+          <span class="kpi-value" [class]="joursStockClass()">
+            @if (couvertureJours() != null) {
+              {{ couvertureJours() }} j
+            } @else {
+              —
+            }
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label" pTooltip="Consommation mensuelle moyenne sur 12 mois">CMM</span>
+          <span class="kpi-value">
+            @if (indicateurs()?.cmm != null) {
+              {{ indicateurs()!.cmm | number: '1.1-1' }} u/m
+            } @else {
+              —
+            }
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label" pTooltip="Nombre de rotations stock / an">Rotation</span>
+          <span class="kpi-value">
+            @if (rotationAnnuelle() != null) {
+              {{ rotationAnnuelle() | number: '1.1-1' }} ×/an
+            } @else {
+              —
+            }
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Marge brute</span>
+          <span class="kpi-value" style="color: #5cb85c">
+            @if (tauxMarge() != null) {
+              {{ tauxMarge() }}%
+            } @else {
+              —
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerte péremption -->
+    @if (alertePeremption() === 'critical') {
+      <div class="peremption-alert peremption-critical">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          Lot expirant dans &lt; 3 mois —
+          {{ lotLeProchePrime()?.datePeremption }}
+          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+        </span>
+      </div>
+    } @else if (alertePeremption() === 'warning') {
+      <div class="peremption-alert peremption-warning">
+        <i class="pi pi-clock"></i>
+        <span>
+          Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
+          {{ lotLeProchePrime()?.datePeremption }}
+          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+        </span>
+      </div>
+    }
+
+    <!-- Chiffre d'affaires -->
+    <div class="synthese-section">
+      <h6 class="section-title">Chiffre d'affaires</h6>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">CA 30 jours</span>
+          <span class="kpi-value">{{ formatPrix(indicateurs()?.ca30Jours) }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">CA 12 mois</span>
+          <span class="kpi-value">{{ formatPrix(indicateurs()?.ca12Mois) }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Qté 12 mois</span>
+          <span class="kpi-value">
+            @if (indicateurs()?.qteVendue12Mois != null) {
+              {{ indicateurs()!.qteVendue12Mois | number }} u
+            } @else { — }
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Classe ABC</span>
+          <span class="kpi-value classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }}">
+            {{ produit().classeCriticite?.replace('_', '+') ?? '—' }}
+          </span>
+        </div>
+        @if (indicateurs()?.rang != null) {
+          <div class="kpi-item">
+            <span class="kpi-label">Rang Pareto</span>
+            <span class="kpi-value"># {{ indicateurs()!.rang }}</span>
+          </div>
+        }
+        @if (indicateurs()?.frequenceMois != null) {
+          <div class="kpi-item">
+            <span class="kpi-label" pTooltip="Nombre de mois distincts avec au moins 1 vente">Fréquence</span>
+            <span class="kpi-value">{{ indicateurs()!.frequenceMois }} mois/12</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Prix -->
+    <div class="synthese-section">
+      <h6 class="section-title">Prix</h6>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">Prix achat</span>
+          <span class="kpi-value">{{ formatPrix(produit().costAmount) }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Prix vente</span>
+          <span class="kpi-value">{{ formatPrix(produit().regularUnitPrice) }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Marge absolue</span>
+          <span class="kpi-value" style="color: #5cb85c">
+            @if (margeAbsolue() != null) {
+              {{ margeAbsolue() | number: '1.0-0' }} FCFA
+            } @else { — }
+          </span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">TVA</span>
+          <span class="kpi-value">{{ produit().tvaTaux ?? '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Identification -->
+    <div class="synthese-section">
+      <h6 class="section-title">Identification</h6>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">Famille</span>
+          <span class="kpi-value">{{ produit().familleLibelle ?? '—' }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Forme</span>
+          <span class="kpi-value">{{ produit().formeLibelle ?? '—' }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Laboratoire</span>
+          <span class="kpi-value">{{ produit().laboratoireLibelle ?? '—' }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Rayon</span>
+          <span class="kpi-value">{{ produit().rayonLibelle ?? '—' }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Dernière vente</span>
+          <span class="kpi-value">{{ formatDate(produit().lastDateOfSale) }}</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Dernière commande</span>
+          <span class="kpi-value">{{ formatDate(produit().lastOrderDate) }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+}

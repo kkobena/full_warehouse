@@ -1,14 +1,12 @@
-import { inject } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
-import { EMPTY, mergeMap, Observable, of } from 'rxjs';
+import {inject} from '@angular/core';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRouteSnapshot, Router, Routes} from '@angular/router';
+import {EMPTY, mergeMap, Observable, of} from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { Commande, ICommande } from 'app/shared/model/commande.model';
-import { CommandeService } from './commande.service';
-
-import SuggestionResolver from './suggestion/suggestion.resolver';
+import {Authority} from 'app/shared/constants/authority.constants';
+import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import {Commande, ICommande} from 'app/shared/model/commande.model';
+import {CommandeService} from './commande.service';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
@@ -16,7 +14,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
   if (id) {
     if (route.url.some(url => url.path.includes('stock-entry'))) {
       return inject(CommandeService)
-        .findSaisieEntreeStock({ id, orderDate })
+        .findSaisieEntreeStock({id, orderDate})
         .pipe(
           mergeMap((commande: HttpResponse<ICommande>) => {
             if (commande.body) {
@@ -29,7 +27,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
         );
     }
     return inject(CommandeService)
-      .find({ id, orderDate })
+      .find({id, orderDate})
       .pipe(
         mergeMap((res: HttpResponse<ICommande>) => {
           if (res.body) {
@@ -84,21 +82,13 @@ const commandeRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
 
-  {
-    path: ':id/suggestion',
-    loadComponent: () => import('./suggestion/edit-suggestion.component').then(m => m.EditSuggestionComponent),
-    resolve: {
-      suggestion: SuggestionResolver,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
-    },
-    canActivate: [UserRouteAccessService],
-  },
+
   {
     path: 'retour-fournisseur/new',
-    loadComponent: () => import('./retour_fournisseur/supplier-returns.component').then(m => m.SupplierReturnsComponent),
+    loadComponent: () =>
+      import('../../features/commande/feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
+        m => m.SupplierReturnsComponent,
+      ),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Nouveau Retour Fournisseur',

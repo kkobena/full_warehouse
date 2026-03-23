@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
+import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import org.springframework.util.CollectionUtils;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class ProduitDTO {
 
@@ -91,6 +91,10 @@ public class ProduitDTO {
     private String dciLibelle;
     private String dciCode;
     private String categorie;
+    private ClasseCriticite classeCriticite;
+    private Boolean estMedicamentEssentiel = false;
+    private Boolean estProduitGarde = false;
+    private Integer couvertureStockJours;
     private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
     private ProduitDTO parent;
 
@@ -818,6 +822,42 @@ public class ProduitDTO {
 
     public ProduitDTO setHistoriqueProduitInventaires(List<HistoriqueProduitInventaire> historiqueProduitInventaires) {
         this.historiqueProduitInventaires = historiqueProduitInventaires;
+        return this;
+    }
+
+    public ClasseCriticite getClasseCriticite() {
+        return classeCriticite;
+    }
+
+    public ProduitDTO setClasseCriticite(ClasseCriticite classeCriticite) {
+        this.classeCriticite = classeCriticite;
+        return this;
+    }
+
+    public Boolean getEstMedicamentEssentiel() {
+        return estMedicamentEssentiel;
+    }
+
+    public ProduitDTO setEstMedicamentEssentiel(Boolean estMedicamentEssentiel) {
+        this.estMedicamentEssentiel = estMedicamentEssentiel;
+        return this;
+    }
+
+    public Boolean getEstProduitGarde() {
+        return estProduitGarde;
+    }
+
+    public ProduitDTO setEstProduitGarde(Boolean estProduitGarde) {
+        this.estProduitGarde = estProduitGarde;
+        return this;
+    }
+
+    public Integer getCouvertureStockJours() {
+        return couvertureStockJours;
+    }
+
+    public ProduitDTO setCouvertureStockJours(Integer couvertureStockJours) {
+        this.couvertureStockJours = couvertureStockJours;
         return this;
     }
 }

@@ -1,0 +1,106 @@
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-sync"></i>
+    <span>Pilotage des stocks</span>
+  </div>
+  <p-toolbar>
+    <ng-template #start>
+      <div class="pharma-toolbar-filters">
+        <div class="pharma-search-input">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Rechercher" type="text" />
+          </p-iconfield>
+        </div>
+        <p-floatlabel variant="on">
+          <p-datePicker
+            [style]="{ 'max-width': '150px' }"
+            [(ngModel)]="dtStart"
+            (onSelect)="onSearch()"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            inputId="dtStart"
+            appendTo="body"
+          />
+          <label for="dtStart">Date début</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on">
+          <p-datePicker
+            [style]="{ 'max-width': '150px' }"
+            [(ngModel)]="dtEnd"
+            (onSelect)="onSearch()"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            inputId="dtEnd"
+            appendTo="body"
+          />
+          <label for="dtEnd">Date fin</label>
+        </p-floatlabel>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+          <p-button (click)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+</div>
+
+<div class="pharma-nav-tabs-container">
+  <div
+    #nav="ngbNav"
+    [(activeId)]="activeTab"
+    (navChange)="onTabChange($event)"
+    class="nav pharma-nav-tabs"
+    ngbNav
+    orientation="horizontal"
+  >
+    <ng-container ngbNavItem="historique">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-history"></i>
+        <span>Traçabilité</span>
+      </a>
+      <ng-template ngbNavContent>
+        <app-repartition-list [fromDate]="dtStart" [searchTerm]="search" [toDate]="dtEnd"></app-repartition-list>
+      </ng-template>
+    </ng-container>
+
+    <ng-container ngbNavItem="rayon">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-shopping-cart"></i>
+        <span>Réassort suggéré – Rayon</span>
+      </a>
+      <ng-template ngbNavContent>
+        <app-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'"></app-suggestion-reassort>
+      </ng-template>
+    </ng-container>
+
+    <ng-container ngbNavItem="reserve">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-warehouse"></i>
+        <span>Réassort suggéré – Réserve</span>
+      </a>
+      <ng-template ngbNavContent>
+        <app-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'"></app-suggestion-reassort>
+      </ng-template>
+    </ng-container>
+
+    <ng-container ngbNavItem="manual">
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-cog"></i>
+        <span>Transfert manuel stock Rayon / Réserve</span>
+      </a>
+      <ng-template ngbNavContent>
+        <app-manual-repartition></app-manual-repartition>
+      </ng-template>
+    </ng-container>
+  </div>
+  <div class="pharma-nav-tabs-outlet">
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+</div>

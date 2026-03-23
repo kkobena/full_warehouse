@@ -158,7 +158,7 @@ public class LotServiceImpl implements LotService {
     }
 
     private Pageable buildPageable(Pageable pageable, boolean useLot) {
-        String sortBy = useLot ? "expiryDate" : "perimeAt";
+        String sortBy = useLot ? "expiryDate" : "libelle";
         Sort sort = Sort.by(Direction.DESC, sortBy);
         if (pageable.isPaged()) {
             return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);

@@ -6,7 +6,10 @@ import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitIndicateursDTO;
+import com.kobe.warehouse.service.dto.VenteMoisDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.stock.ProduitIndicateursService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.util.HeaderUtil;
@@ -25,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,6 +50,7 @@ public class ProduitResource {
     private final ProduitRepository produitRepository;
     private final ProduitService produitService;
     private final ProductActivityService productActivityService;
+    private final ProduitIndicateursService produitIndicateursService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
@@ -53,12 +58,13 @@ public class ProduitResource {
     public ProduitResource(
         ProduitRepository produitRepository,
         ProduitService produitService,
-        ProductActivityService productActivityService
+        ProductActivityService productActivityService,
+        ProduitIndicateursService produitIndicateursService
     ) {
-
         this.produitRepository = produitRepository;
         this.produitService = produitService;
         this.productActivityService = productActivityService;
+        this.produitIndicateursService = produitIndicateursService;
     }
 
     /**
@@ -152,11 +158,52 @@ public class ProduitResource {
     }
 
     /**
+     * {@code GET /produits/:id/indicateurs} : indicateurs analytiques du panneau détail.
+     * Agrège rotation, CMM, jours de stock, marge et score Pareto pour un produit.
+     * Conçu pour le chargement lazy à la sélection d'un produit dans le split panel.
+     *
+     * @param id identifiant du produit
+     * @return indicateurs ou 404 si le produit est inconnu
+     */
+    @GetMapping("/produits/{id}/indicateurs")
+    public ResponseEntity<ProduitIndicateursDTO> getProduitIndicateurs(@PathVariable Integer id) {
+        log.debug("REST request to get indicateurs for Produit : {}", id);
+        return ResponseUtil.wrapOrNotFound(produitIndicateursService.getIndicateurs(id));
+    }
+
+    /**
+     * {@code GET /produits/:id/ventes-mensuelles} : historique mensuel des ventes.
+     * Retourne les N derniers mois pour le sparkline Chart.js de l'onglet Historique.
+     *
+     * @param id     identifiant du produit
+     * @param nbMois nombre de mois à retourner (défaut : 12)
+     * @return liste triée par mois croissant
+     */
+    @GetMapping("/produits/{id}/ventes-mensuelles")
+    public ResponseEntity<List<VenteMoisDTO>> getVentesMensuelles(
+        @PathVariable Integer id,
+        @RequestParam(required = false, defaultValue = "12") int nbMois
+    ) {
+        log.debug("REST request to get ventes-mensuelles for Produit : {}, nbMois={}", id, nbMois);
+        return ResponseEntity.ok(produitIndicateursService.getVentesMensuelles(id, nbMois));
+    }
+
+    /**
      * {@code DELETE /produits/:id} : delete the "id" produit.
      *
      * @param id the id of the produit to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+    @PatchMapping("/produits/{id}/status")
+    public ResponseEntity<Void> changeStatus(
+        @PathVariable Integer id,
+        @RequestParam Status status
+    ) {
+        log.debug("REST request to change status of Produit {} to {}", id, status);
+        produitService.changeStatus(id, status);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/produits/{id}")
     public ResponseEntity<Void> deleteProduit(@PathVariable Integer id) {
         log.debug("REST request to delete Produit : {}", id);

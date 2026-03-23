@@ -1,0 +1,16 @@
+@if (loading()) {
+  <div class="text-center py-4">
+    <i class="pi pi-spin pi-spinner me-2"></i>Chargement de l'historique...
+  </div>
+} @else if (ventes().length === 0) {
+  <div class="text-center text-muted py-4">
+    <i class="pi pi-chart-bar me-2"></i>Aucune donnée de vente disponible
+  </div>
+} @else {
+  <div class="chart-container" style="position: relative; height: 260px;">
+    <canvas #ventesChart></canvas>
+  </div>
+  <div class="mt-2 text-muted text-xs text-center">
+    Quantités vendues — {{ ventes().length }} derniers mois
+  </div>
+}

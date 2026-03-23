@@ -21,7 +21,7 @@ import { DatePickerComponent } from '../../../shared/date-picker/date-picker.com
 import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from '../../../shared/model';
 import { IStorage } from '../../../shared/model/magasin.model';
 
 @Component({

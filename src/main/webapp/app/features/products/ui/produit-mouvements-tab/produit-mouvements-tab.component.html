@@ -1,0 +1,156 @@
+<div class="mvt-tab-container">
+
+  <!-- Mini-toolbar date + storage + recherche -->
+  <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
+    <jhi-date-picker
+      #dateDebut
+      [(ngModel)]="fromDate"
+      [id]="'mvt-du'"
+      [label]="'warehouseApp.labels.du'"
+      [max]="toDate"
+      [defaultDate]="fromDate"
+      [style]="{ 'max-width': '145px' }"
+      (onSelect)="onFromDateChange(dateDebut.submitValue)"
+    />
+    <jhi-date-picker
+      #dateFin
+      [(ngModel)]="toDate"
+      [id]="'mvt-au'"
+      [label]="'warehouseApp.labels.au'"
+      [min]="fromDate"
+      [defaultDate]="toDate"
+      [style]="{ 'max-width': '145px' }"
+      (onSelect)="onToDateChange(dateFin.submitValue)"
+    />
+
+    @if (storages().length > 1) {
+      <p-select
+        [(ngModel)]="selectedStorage"
+        [options]="storages()"
+        [showClear]="true"
+        optionLabel="name"
+        placeholder="Tous les emplacements"
+        [style]="{ 'min-width': '170px' }"
+      />
+    }
+
+    <p-button
+      icon="pi pi-search"
+      label="Actualiser"
+      severity="info"
+      size="small"
+      (onClick)="load()"
+    />
+    @if (entites().length > 0) {
+      <p-button
+        icon="pi pi-file-pdf"
+        label="PDF"
+        severity="warn"
+        size="small"
+        pTooltip="Exporter en PDF"
+        (onClick)="exportPdf()"
+      />
+    }
+  </div>
+
+  <!-- Tableau mouvements -->
+  <p-table
+    [value]="entites()"
+    [loading]="loading()"
+    [scrollable]="true"
+    [showGridlines]="true"
+    class="pharma-table p-datatable-sm"
+    scrollHeight="calc(100vh - 340px)"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th rowspan="2">Date</th>
+        <th rowspan="2" class="text-end">Qté init</th>
+        <th class="text-center" colspan="6">Sorties</th>
+        @if (hasDepot()) {
+          <th class="text-center" colspan="6">Entrées</th>
+        } @else {
+          <th class="text-center" colspan="5">Entrées</th>
+        }
+        <th rowspan="2" class="text-end">Qté inv.</th>
+        <th rowspan="2" class="text-end">Écart</th>
+        <th rowspan="2" class="text-end">Stock final</th>
+      </tr>
+      <tr class="pharma-table-head">
+        <th class="text-end">Vente</th>
+        <th class="text-end">Ret. four.</th>
+        <th class="text-end">Périmée</th>
+        <th class="text-end">Ajust.−</th>
+        <th class="text-end">Décon.−</th>
+        <th class="text-end">Transf.↓</th>
+        <th class="text-end">Entrée</th>
+        <th class="text-end">Ajust.+</th>
+        <th class="text-end">Décon.+</th>
+        <th class="text-end">Annulée</th>
+        <th class="text-end">Transf.↑</th>
+        @if (hasDepot()) {
+          <th class="text-end">Ret. dépôt</th>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.mvtDate | date: 'dd/MM/yyyy' }}</td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.initStock | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.saleQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.retourFournisseurQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.perimeQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.ajustementNegatifQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.deconNegatifQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.mouvementStockOut | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.deleveryQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.ajustementPositifQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.deconPositifQuantity | number }}</span></td>
+        <td class="text-end text-danger"><span class="pharma-qty-value">{{ row.canceledQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.mouvementStockIn | number }}</span></td>
+        @if (hasDepot()) {
+          <td class="text-end"><span class="pharma-qty-value">{{ row.retourDepot | number }}</span></td>
+        }
+        <td class="text-end"><span class="pharma-qty-value">{{ row.storeInventoryQuantity | number }}</span></td>
+        <td class="text-end"><span class="pharma-qty-value">{{ row.inventoryGap | number }}</span></td>
+        <td class="text-end"><span class="pharma-total">{{ row.afterStock | number }}</span></td>
+      </tr>
+    </ng-template>
+
+    <ng-template #footer>
+      @if (entites().length > 0) {
+        <tr class="pharma-table-footer">
+          <td colspan="2"><span class="pharma-footer-label"><span>Totaux</span></span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ saleQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ retourFournisseurQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ perimeQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ ajustementNegatifQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ mouvementStockOut | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ deleveryQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ ajustementPositifQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ deconPositifQuantity | number }}</span></td>
+          <td class="text-end text-danger"><span class="pharma-footer-value">{{ canceledQuantity | number }}</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ mouvementStockIn | number }}</span></td>
+          @if (hasDepot()) {
+            <td class="text-end"><span class="pharma-footer-value">{{ retourDepot | number }}</span></td>
+          }
+          <td colspan="3"></td>
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="hasDepot() ? 17 : 16" class="pharma-empty-message">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucun mouvement sur la période</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>

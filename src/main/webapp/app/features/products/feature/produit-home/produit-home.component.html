@@ -1,0 +1,167 @@
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-th-large"></i>
+      <span>Catalogue produits</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              placeholder="Rechercher (CIP, libellé, EAN)..."
+              [(ngModel)]="search"
+              (keyup.enter)="onSearch()"
+              style="width: 220px"
+            />
+          </p-iconfield>
+
+          <p-select
+            [options]="filterOptions"
+            [(ngModel)]="selectedFilter"
+            (onChange)="onFilterChange()"
+            appendTo="body"
+            placeholder="Filtre..."
+            style="min-width: 150px"
+          />
+
+          <p-select
+            [options]="familles()"
+            [(ngModel)]="selectedFamilleId"
+            optionLabel="libelle"
+            optionValue="id"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="onFilterChange()"
+            placeholder="Famille..."
+            style="min-width: 140px"
+          />
+
+          <p-select
+            [options]="rayons()"
+            [(ngModel)]="selectedRayonId"
+            optionLabel="libelle"
+            optionValue="id"
+            appendTo="body"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+            placeholder="Rayon..."
+            style="min-width: 120px"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-splitbutton
+            label="Importer"
+            icon="pi pi-upload"
+            [model]="importMenuItems"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+          />
+          <p-button
+            icon="pi pi-plus"
+            label="Nouveau"
+            size="small"
+            (onClick)="onNewProduit()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Légende code couleur stock -->
+  <div class="stock-legend">
+    <span class="legend-label">Stock :</span>
+    <span class="legend-item">
+      <span class="legend-dot dot-success"></span>Normal
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-warning"></span>Sous seuil
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-danger"></span>Rupture
+    </span>
+    <span class="legend-sep">|</span>
+    <span class="legend-item">
+      <span class="legend-dot dot-critical"></span>Péremption &lt; 3 mois
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-expiry"></span>Péremption &lt; 6 mois
+    </span>
+    <span class="legend-sep">|</span>
+    <span class="legend-item">
+      <span class="legend-dot dot-marge-low"></span>Marge &lt; 15%
+    </span>
+  </div>
+
+  <!-- Barre d'actions groupées -->
+  @if (hasSelection()) {
+    <div class="bulk-action-bar">
+      <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
+      <p-button
+        label="Mettre en veille"
+        icon="pi pi-pause"
+        size="small"
+        severity="warning"
+        [outlined]="true"
+        (onClick)="onBulkDisable()"
+      />
+      <p-button
+        label="Réactiver"
+        icon="pi pi-play"
+        size="small"
+        severity="success"
+        [outlined]="true"
+        (onClick)="onBulkEnable()"
+      />
+      <p-button
+        icon="pi pi-times"
+        size="small"
+        severity="secondary"
+        [text]="true"
+        pTooltip="Désélectionner tout"
+        (onClick)="onClearSelection()"
+      />
+    </div>
+  }
+
+  <!-- Split panel -->
+  <div class="split-container" [class.panel-open]="panelOpen()">
+
+    <!-- Colonne gauche : liste -->
+    <div class="list-column">
+      <app-produit-list
+        [produits]="produits()"
+        [totalItems]="totalItems()"
+        [rows]="rows"
+        [loading]="loading()"
+        [selectedProduit]="selectedProduit()"
+        (produitSelected)="onProduitSelected($event)"
+        (lazyLoad)="onLazyLoad($event)"
+        (editRequested)="onEditRequested($event)"
+        (deleteRequested)="onDeleteRequested($event)"
+        (menuAction)="onMenuAction($event)"
+        (selectionChanged)="onSelectionChanged($event)"
+        [clearSelectionTrigger]="clearSelectionTrigger()"
+      />
+    </div>
+
+    <!-- Colonne droite : panneau détail -->
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-produit-detail-panel
+          [produit]="selectedProduit()!"
+          (closePanel)="onClosePanel()"
+          (editRequested)="onEditRequested($event)"
+        />
+      </div>
+    }
+
+  </div>
+</div>

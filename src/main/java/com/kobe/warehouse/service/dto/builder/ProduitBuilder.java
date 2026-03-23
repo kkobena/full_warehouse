@@ -316,6 +316,9 @@ public final class ProduitBuilder {
         if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())) {
             produitDTO.setLastInventoryDate(produitDTO.getHistoriqueProduitInventaires().getFirst().dateInventaire());
         }
+        produitDTO.setClasseCriticite(produit.getClasseCriticite());
+        produitDTO.setEstMedicamentEssentiel(Boolean.TRUE.equals(produit.getEstMedicamentEssentiel()));
+        produitDTO.setEstProduitGarde(Boolean.TRUE.equals(produit.getEstProduitGarde()));
         return produitDTO;
     }
 

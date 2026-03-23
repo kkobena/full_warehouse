@@ -452,6 +452,16 @@ public class ProduitServiceImpl implements ProduitService {
         produitRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = "produits", key = "#id")
+    public void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status) {
+        produitRepository.findById(id).ifPresent(produit -> {
+            produit.setStatus(status);
+            produitRepository.save(produit);
+        });
+    }
+
     private StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto, StockProduit stockProduit) {
         stockProduit.setQtyStock(dto.getQtyStock());
         stockProduit.setUpdatedAt(LocalDateTime.now());

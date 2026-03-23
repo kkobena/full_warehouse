@@ -6,13 +6,14 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToolbarModule } from 'primeng/toolbar';
 import { CommandeService, ICommandeDashboard, ICommandeResumee, IPharmaMlEnvoiResumee } from '../../../../entities/commande/commande.service';
 
 @Component({
   selector: 'app-commande-dashboard',
   templateUrl: './commande-dashboard.component.html',
   styleUrls: ['./commande-dashboard.component.scss'],
-  imports: [DatePipe, RouterModule, TagModule, TableModule, ButtonModule, TooltipModule, SkeletonModule],
+  imports: [DatePipe, RouterModule, TagModule, TableModule, ButtonModule, TooltipModule, SkeletonModule, ToolbarModule],
 })
 export class CommandeDashboardComponent implements OnInit {
   readonly dashboard = signal<ICommandeDashboard | null>(null);

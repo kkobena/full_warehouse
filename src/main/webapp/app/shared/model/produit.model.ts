@@ -80,6 +80,13 @@ export interface IProduit {
   qtyReserve?: number;
   categorie?: string; // categorie ABC
   codeEanLaboratoire?: string;
+  classeCriticite?: string;
+  estMedicamentEssentiel?: boolean;
+  estProduitGarde?: boolean;
+  /** 0 = ENABLE, 1 = DISABLE */
+  status?: number;
+  dateperemption?: boolean;
+  couvertureStockJours?: number;
 }
 
 export class Produit implements IProduit {

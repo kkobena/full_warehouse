@@ -1,6 +1,7 @@
-import { Component, DestroyRef, inject, input, OnInit, output, viewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ICommande } from 'app/shared/model/commande.model';
+import { ICommandeResponse } from 'app/shared/model/commande-response.model';
 import { IOrderLine } from 'app/shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CommandeService } from '../../../../entities/commande/commande.service';
@@ -9,10 +10,15 @@ import { ErrorService } from 'app/shared/error.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { OrderStatut } from 'app/shared/model/enumerations/order-statut.model';
 import { finalize } from 'rxjs/operators';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
@@ -21,6 +27,11 @@ import { SpinnerComponent } from 'app/shared/spinner/spinner.component';
 import { CommandeId } from 'app/shared/model/abstract-commande.model';
 import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
 import { handleBlobForTauri } from 'app/shared/util/tauri-util';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommandCommonService } from '../../../../entities/commande/command-common.service';
+import { ImportationNewCommandeComponent } from '../../../../entities/commande/importation-new-commande.component';
+import { CommandeImportResponseDialogComponent } from '../../../../entities/commande/commande-import-response-dialog.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -28,12 +39,25 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-commande-en-cours',
   templateUrl: './commande-en-cours.component.html',
   styleUrl: './commande-en-cours.component.scss',
-  imports: [CommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, TagModule, SpinnerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    TableModule,
+    RouterModule,
+    TooltipModule,
+    TagModule,
+    ToolbarModule,
+    InputTextModule,
+    IconField,
+    InputIcon,
+    SpinnerComponent,
+  ],
 })
 export class CommandeEnCoursComponent implements OnInit {
-  readonly search = input('');
-  readonly searchCommande = input('');
-  readonly selectionLength = output<number>();
+  protected search = '';
+  protected searchCommande = '';
+  protected selectionLength = 0;
   readonly itemsPerPage = ITEMS_PER_PAGE;
   readonly rowExpandMode: ExpandMode;
   protected commandes: ICommande[] = [];
@@ -57,6 +81,8 @@ export class CommandeEnCoursComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly tauriPrinter = inject(TauriPrinterService);
+  private readonly modalService = inject(NgbModal);
+  private readonly commandCommonService = inject(CommandCommonService);
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -73,8 +99,8 @@ export class CommandeEnCoursComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: this.search(),
-        searchCommande: this.searchCommande(),
+        search: this.search,
+        searchCommande: this.searchCommande,
         orderStatuts: this.selectedFilters,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
@@ -219,6 +245,43 @@ export class CommandeEnCoursComponent implements OnInit {
     }
   }
 
+  onCreatNewCommande(): void {
+    this.commandCommonService.updateCommand(null);
+    this.router.navigate(['/commande/new']);
+  }
+
+  onShowNewCommandeDialog(): void {
+    showCommonModal(
+      this.modalService,
+      ImportationNewCommandeComponent,
+      { header: 'IMPORTATION DE NOUVELLE COMMANDE' },
+      (reason: ICommandeResponse) => {
+        this.loadPage(0);
+        if (reason) {
+          this.openImportResponseDialog(reason);
+        }
+      },
+      'lg',
+    );
+  }
+
+  confirmDeleteAll(): void {
+    this.confirmDialog.onConfirm(
+      () => this.removeAll(),
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
+  }
+
+  private openImportResponseDialog(responseCommande: ICommandeResponse): void {
+    const modalRef = this.modalService.open(CommandeImportResponseDialogComponent, {
+      size: 'xl',
+      scrollable: true,
+      backdrop: 'static',
+    });
+    modalRef.componentInstance.responseCommande = responseCommande;
+  }
+
   lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
@@ -227,8 +290,8 @@ export class CommandeEnCoursComponent implements OnInit {
         .query({
           page: this.page,
           size: event.rows,
-          search: this.search(),
-          searchCommande: this.searchCommande(),
+          search: this.search,
+          searchCommande: this.searchCommande,
           orderStatuts: this.selectedFilters,
           typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
@@ -244,15 +307,15 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   protected selectAllClik(): void {
-    this.selectionLength.emit(this.selections.length);
+    this.selectionLength = this.selections.length;
   }
 
   protected onRowSelected(): void {
-    this.selectionLength.emit(this.selections.length);
+    this.selectionLength = this.selections.length;
   }
 
   protected onRowUnselect(): void {
-    this.selectionLength.emit(this.selections.length);
+    this.selectionLength = this.selections.length;
   }
 
   protected onSuccess(data: ICommande[] | null, headers: HttpHeaders, page: number): void {
@@ -262,7 +325,7 @@ export class CommandeEnCoursComponent implements OnInit {
       queryParams: {
         page: this.page,
         size: this.itemsPerPage,
-        search: this.search(),
+        search: this.search,
         orderStatuts: this.selectedFilters,
         typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       },

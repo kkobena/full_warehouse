@@ -245,6 +245,23 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
                 list.add(dto);
             });
+
+        // Enrichissement batch : couvertureStockJours depuis v_stock_rotation (1 seule requête)
+        if (!list.isEmpty()) {
+            List<Integer> ids = list.stream().map(ProduitDTO::getId).toList();
+            List<Object[]> rotationRows = em.createNativeQuery(
+                    "SELECT vsr.produit_id, vsr.couverture_stock_jours FROM v_stock_rotation vsr WHERE vsr.produit_id IN :ids")
+                .setParameter("ids", ids)
+                .getResultList();
+            java.util.Map<Integer, Integer> couvertureMap = new java.util.HashMap<>();
+            for (Object[] row : rotationRows) {
+                if (row[1] != null) {
+                    couvertureMap.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+                }
+            }
+            list.forEach(dto -> dto.setCouvertureStockJours(couvertureMap.get(dto.getId())));
+        }
+
         return list;
     }
 

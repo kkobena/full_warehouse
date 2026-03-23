@@ -192,6 +192,11 @@ const routes: Routes = [
     data: { pageTitle: 'Inventaires' },
     loadChildren: () => import('../features/inventory/inventory.routes').then(m => m.INVENTORY_ROUTES),
   },
+  {
+    path: 'produits',
+    data: { pageTitle: 'Catalogue produits' },
+    loadChildren: () => import('../features/products/products.routes').then(m => m.PRODUCTS_ROUTES),
+  },
 ];
 
 export default routes;

@@ -1,0 +1,207 @@
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/table-common';
+
+
+.produit-home-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.split-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+.list-column {
+  flex: 1;
+  overflow: hidden;
+  transition: flex 0.2s ease;
+  border-right: 1px solid $pharma-border;
+}
+
+.split-container.panel-open .list-column {
+  flex: 0 0 38%;
+  max-width: 38%;
+}
+
+.detail-column {
+  flex: 0 0 62%;
+  max-width: 62%;
+  overflow-y: auto;
+  background: $pharma-white;
+}
+
+// Légende code couleur stock
+.stock-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  background: $gray-50;
+  border-bottom: 1px solid $pharma-border;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.legend-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: $pharma-text-light;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: $pharma-text-light;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.dot-success  { background: #5cb85c; }
+  &.dot-warning  { background: #f0ad4e; }
+  &.dot-danger   { background: #d9534f; }
+  &.dot-critical { background: #c0392b; border: 1px solid #922b21; }
+  &.dot-expiry   { background: #e67e22; border: 1px solid #ca6f1e; }
+  &.dot-marge-low { background: #d9534f; border-radius: 2px; }
+}
+
+.legend-sep {
+  color: $pharma-border;
+  font-size: 0.8rem;
+}
+
+// Barre d'actions groupées
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+  flex-shrink: 0;
+}
+
+.bulk-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin-right: 0.25rem;
+}
+
+/* Overrides toolbar margin since it's embedded in the layout flow */
+.pharma-toolbar {
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  flex-shrink: 0;
+}
+
+/* Badges classe ABC */
+:host ::ng-deep .classe-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+:host ::ng-deep .classe-a_plus { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+:host ::ng-deep .classe-a      { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+:host ::ng-deep .classe-b      { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+:host ::ng-deep .classe-c      { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+:host ::ng-deep .classe-d      { background: #f3f4f6; color: $pharma-text-light; border: 1px solid #e5e7eb; }
+
+/* Badges réglementaires */
+:host ::ng-deep .badge-essentiel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+:host ::ng-deep .badge-garde {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* Ligne sélectionnée dans la liste */
+:host ::ng-deep .selected-row {
+  background-color: lighten($pharma-primary, 42%) !important;
+  border-left: 3px solid $pharma-primary;
+}
+
+/* Synthese tab - KPI grid */
+:host ::ng-deep .synthese-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem 0.25rem;
+}
+
+:host ::ng-deep .synthese-section {
+  border: 1px solid $pharma-border;
+  border-radius: $pharma-radius;
+  padding: 0.75rem;
+}
+
+:host ::ng-deep .section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $pharma-text-light;
+  margin: 0 0 0.5rem;
+}
+
+:host ::ng-deep .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .kpi-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+:host ::ng-deep .kpi-label {
+  font-size: 0.65rem;
+  color: $pharma-text-light;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .kpi-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $pharma-text;
+
+  &.kpi-danger  { color: #d9534f; }
+  &.kpi-warning { color: #f0ad4e; }
+  &.kpi-success { color: #5cb85c; }
+}

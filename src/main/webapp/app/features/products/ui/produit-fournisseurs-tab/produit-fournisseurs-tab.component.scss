@@ -1,0 +1,35 @@
+@import 'app/shared/scss/table-common';
+
+$gray-50: #f9fafb;
+
+.four-tab-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $pharma-border;
+  background: $gray-50;
+}
+
+.row-principal {
+  background-color: #f0fdf4 !important;
+}
+
+.badge-principal {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.1rem;
+}

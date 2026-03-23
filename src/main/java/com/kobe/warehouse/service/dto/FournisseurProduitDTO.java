@@ -30,6 +30,7 @@ public class FournisseurProduitDTO {
     private boolean principal;
     private ProduitDTO produit;
     private String codeEan;
+    private Integer delaiLivraisonJours;
 
     public FournisseurProduitDTO() {}
 
@@ -45,6 +46,9 @@ public class FournisseurProduitDTO {
         fournisseurId = fr.getId();
         fournisseurLibelle = fr.getLibelle();
         codeEan = f.getCodeEan();
+        delaiLivraisonJours = fr.getDelaiLivraisonJours() != null
+            ? fr.getDelaiLivraisonJours()
+            : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null);
     }
 
     public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
@@ -60,7 +64,10 @@ public class FournisseurProduitDTO {
             .setProduitLibelle(p.getLibelle())
             .setProduitId(p.getId())
             .setFournisseurId(fr.getId())
-            .setProduit(ProduitBuilder.fromEntity(p));
+            .setProduit(ProduitBuilder.fromEntity(p))
+            .setDelaiLivraisonJours(fr.getDelaiLivraisonJours() != null
+                ? fr.getDelaiLivraisonJours()
+                : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null));
     }
 
     public String getCodeEan() {
@@ -177,7 +184,15 @@ public class FournisseurProduitDTO {
 
     public FournisseurProduitDTO setProduit(ProduitDTO produit) {
         this.produit = produit;
+        return this;
+    }
 
+    public Integer getDelaiLivraisonJours() {
+        return delaiLivraisonJours;
+    }
+
+    public FournisseurProduitDTO setDelaiLivraisonJours(Integer delaiLivraisonJours) {
+        this.delaiLivraisonJours = delaiLivraisonJours;
         return this;
     }
 }

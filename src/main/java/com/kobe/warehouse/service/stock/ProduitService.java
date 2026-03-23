@@ -93,4 +93,5 @@ public interface ProduitService {
     Optional<Produit> findProduitById(Integer id);
     Produit updateProduit(Produit produit);
     void deleteProduit(Integer id);
+    void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status);
 }

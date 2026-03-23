@@ -1,3 +1,73 @@
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-cart-plus"></i>
+    <span>Commandes en cours</span>
+  </div>
+  <p-toolbar>
+    <ng-template #start>
+      <div class="pharma-toolbar-filters">
+        <div class="pharma-search-input">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              [(ngModel)]="searchCommande"
+              (keyup.enter)="onSearch()"
+              pInputText
+              placeholder="Recherche sur la commande"
+              type="text"
+            />
+          </p-iconfield>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <p-button
+            (click)="onSearch()"
+            icon="pi pi-search"
+            label="Rechercher"
+            severity="info"
+            size="small"
+          />
+          <p-button
+            (click)="onShowNewCommandeDialog()"
+            icon="pi pi-upload"
+            label="Importation"
+            severity="help"
+            size="small"
+          />
+          <p-button
+            (click)="onCreatNewCommande()"
+            icon="pi pi-plus"
+            label="Nouvelle commande"
+            severity="primary"
+            size="small"
+          />
+          @if (selectionLength > 1) {
+            <p-button
+              (click)="fusionner()"
+              icon="pi pi-copy"
+              label="Fusionner"
+              severity="warn"
+              size="small"
+            />
+          }
+          @if (selectionLength > 0) {
+            <p-button
+              (click)="confirmDeleteAll()"
+              icon="pi pi-times"
+              label="Supprimer"
+              severity="danger"
+              size="small"
+            />
+          }
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+</div>
+
 @if (commandes && commandes.length > 0) {
   <p-table
     (onLazyLoad)="lazyLoading($event)"

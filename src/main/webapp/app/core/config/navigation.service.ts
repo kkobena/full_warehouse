@@ -107,8 +107,8 @@ export class NavigationService {
       ],
       children: [
         {
-          label: this.translateLabel('entities.produit'),
-          routerLink: '/produit',
+          label: 'Catalogue produits',
+          routerLink: '/produits',
           faIcon: faBoxOpen,
         },
         {

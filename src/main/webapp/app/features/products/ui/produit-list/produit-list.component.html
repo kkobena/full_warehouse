@@ -1,0 +1,126 @@
+<p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
+
+<p-table
+  [value]="produits()"
+  [lazy]="true"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="rows()"
+  [totalRecords]="totalItems()"
+  [rowsPerPageOptions]="[10,15, 20, 50]"
+  [selectionMode]="'single'"
+  [selection]="selectedProduit()"
+  (onLazyLoad)="lazyLoad.emit($event)"
+  currentPageReportTemplate="{first}–{last} / {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="pharma-table p-datatable-sm"
+  scrollHeight="calc(100vh - 220px)"
+  [scrollable]="true"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th style="width: 36px; text-align: center">
+        <p-checkbox [binary]="true" [ngModel]="allSelected()" (ngModelChange)="toggleAll()" />
+      </th>
+      <th style="width: 110px">CIP</th>
+      <th>Libellé</th>
+      <th style="width: 80px; text-align: right">Stock</th>
+      <th
+        style="width: 72px; text-align: right; cursor: default"
+        pTooltip="Jours avant rupture estimés — disponible dans le panneau détail"
+      >J. stock</th>
+      <th style="width: 68px; text-align: right" pTooltip="Marge brute : (PV − PA) / PV">Marge</th>
+      <th style="width: 56px; text-align: center">Cl.</th>
+      <th>Statut</th>
+      <th style="width: 44px"></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-produit>
+    <tr
+      [class.selected-row]="selectedProduit()?.id === produit.id"
+      [class.row-checked]="isChecked(produit)"
+      (click)="onRowClick(produit)"
+      style="cursor: pointer"
+    >
+      <td class="text-center" (click)="$event.stopPropagation(); toggleCheckbox(produit)">
+        <p-checkbox [binary]="true" [ngModel]="isChecked(produit)" (ngModelChange)="toggleCheckbox(produit)" />
+      </td>
+      <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+      <td>
+        <span class="pharma-product-name">{{ produit.libelle }}</span>
+        @if (produit.estMedicamentEssentiel) {
+          <span class="badge-essentiel ms-1" pTooltip="Médicament essentiel">ME</span>
+        }
+        @if (produit.estProduitGarde) {
+          <span class="badge-garde ms-1" pTooltip="Produit de garde">G</span>
+        }
+      </td>
+      <td class="text-end">
+        <p-tag
+          [value]="(produit.totalQuantity ?? 0) | number"
+          [severity]="stockSeverity(produit)"
+          [rounded]="true"
+        />
+      </td>
+      <td class="text-end">
+        @if (joursStock(produit) != null) {
+          <span
+            class="jours-stock"
+            [class.jours-critical]="joursStock(produit)! <= 0"
+            [class.jours-warning]="joursStock(produit)! > 0 && joursStock(produit)! < 7"
+            [class.jours-low]="joursStock(produit)! >= 7 && joursStock(produit)! < 30"
+            pTooltip="Couverture estimée sur base CMM"
+          >{{ joursStock(produit) }} j</span>
+        } @else {
+          <span class="text-muted" style="font-size: 0.7rem">—</span>
+        }
+      </td>
+      <td class="text-end">
+        @if (tauxMarge(produit) != null) {
+          <span
+            class="marge-value"
+            [class.marge-low]="tauxMarge(produit)! < 15"
+            [class.marge-ok]="tauxMarge(produit)! >= 15 && tauxMarge(produit)! < 30"
+            [class.marge-good]="tauxMarge(produit)! >= 30"
+            pTooltip="(PV − PA) / PV × 100"
+          >{{ tauxMarge(produit) }}%</span>
+        } @else {
+          <span class="text-muted" style="font-size: 0.7rem">—</span>
+        }
+      </td>
+      <td class="text-center">
+        <span class="classe-badge classe-{{ produit.classeCriticite?.toLowerCase() }}">
+          {{ classeLabel(produit.classeCriticite) }}
+        </span>
+      </td>
+      <td>
+        @if (produit.etatProduit) {
+          <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false" />
+        }
+      </td>
+      <td class="text-end" (click)="$event.stopPropagation()">
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          pTooltip="Actions"
+          (onClick)="openContextMenu($event, produit, rowMenu)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="9" class="pharma-empty-message">
+        <div class="pharma-empty-content">
+          <i class="pi pi-inbox"></i>
+          <p>Aucun produit trouvé</p>
+          <small>Modifiez vos critères de recherche</small>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

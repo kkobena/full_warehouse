@@ -1,3 +1,26 @@
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-th-large"></i>
+    <span>Tableau de bord</span>
+  </div>
+  <p-toolbar>
+    <ng-template #end>
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <p-button
+            (click)="refresh()"
+            [loading]="loading()"
+            icon="pi pi-refresh"
+            label="Rafraîchir"
+            severity="info"
+            size="small"
+          />
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+</div>
+
 @if (loading()) {
   <div class="row mt-2">
     @for (i of [1, 2, 3]; track i) {

@@ -11,6 +11,7 @@ export interface IFournisseurProduit {
   codeCip?: string;
   produitId?: number;
   produit?: IProduit;
+  delaiLivraisonJours?: number;
 }
 
 export class FournisseurProduit implements IFournisseurProduit {

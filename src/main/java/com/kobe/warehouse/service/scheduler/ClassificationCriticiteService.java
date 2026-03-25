@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.classification;
+package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.domain.ClassificationConfig;
 import com.kobe.warehouse.domain.ClassificationCriticiteLog;
@@ -11,12 +11,12 @@ import com.kobe.warehouse.repository.ParetoAnalysisRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.service.classification.ClassificationBatchProcessor;
 import com.kobe.warehouse.service.classification.ClassificationBatchProcessor.ParetoScore;
 import com.kobe.warehouse.service.dto.ClassificationConfigDTO;
 import com.kobe.warehouse.service.dto.ClassificationLogDTO;
 import com.kobe.warehouse.service.dto.ClassificationScoreDTO;
 import com.kobe.warehouse.service.dto.ReclassificationResultDTO;
-import com.kobe.warehouse.service.semois.SemoisCalculationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

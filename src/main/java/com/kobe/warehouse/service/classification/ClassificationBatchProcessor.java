@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ClassificationType;
 import com.kobe.warehouse.repository.ClassificationCriticiteLogRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.service.scheduler.ClassificationCriticiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -38,16 +39,18 @@ public class ClassificationBatchProcessor {
     /**
      * Données Pareto préchargées pour un produit.
      *
-     * @param ca12Mois       CA sur 12 mois (centimes)
-     * @param caCumulePct    % CA cumulé dans le Pareto (0–100, faible = produit critique)
-     * @param rang           Rang Pareto (1 = plus vendu)
-     * @param frequenceMois  Nombre de mois distincts avec ventes sur 12 mois
-     * @param qteVendue      Quantité totale vendue sur 12 mois (pour CMM = qteVendue / 12)
+     * @param ca12Mois      CA sur 12 mois (centimes)
+     * @param caCumulePct   % CA cumulé dans le Pareto (0–100, faible = produit critique)
+     * @param rang          Rang Pareto (1 = plus vendu)
+     * @param frequenceMois Nombre de mois distincts avec ventes sur 12 mois
+     * @param qteVendue     Quantité totale vendue sur 12 mois (pour CMM = qteVendue / 12)
      */
     public record ParetoScore(Long ca12Mois, BigDecimal caCumulePct, int rang, int frequenceMois, int qteVendue) {
         static final ParetoScore NO_SALES = new ParetoScore(0L, new BigDecimal("100.00"), Integer.MAX_VALUE, 0, 0);
 
-        /** Consommation Mensuelle Moyenne (entière, arrondie au plus proche). */
+        /**
+         * Consommation Mensuelle Moyenne (entière, arrondie au plus proche).
+         */
         public int cmm() {
             return (int) Math.round(qteVendue / 12.0);
         }
@@ -73,17 +76,17 @@ public class ClassificationBatchProcessor {
      *   <li>La mémoire JPA est libérée après chaque page.</li>
      * </ul>
      *
-     * @param pageable       Pagination (page courante + taille)
-     * @param config         Configuration des seuils Pareto / CMM / hysteresis
-     * @param paretoMap      Scores Pareto préchargés (produitId → ParetoScore)
-     * @param raison         Raison de la reclassification (pour le log)
-     * @param nbAnalyses     Compteur de produits analysés (partagé entre pages)
-     * @param nbChangements  Compteur de changements effectués
-     * @param nbPromotions   Compteur de promotions
+     * @param pageable          Pagination (page courante + taille)
+     * @param config            Configuration des seuils Pareto / CMM / hysteresis
+     * @param paretoMap         Scores Pareto préchargés (produitId → ParetoScore)
+     * @param raison            Raison de la reclassification (pour le log)
+     * @param nbAnalyses        Compteur de produits analysés (partagé entre pages)
+     * @param nbChangements     Compteur de changements effectués
+     * @param nbPromotions      Compteur de promotions
      * @param nbRetrogradations Compteur de rétrogradations
-     * @param nbNouveaux     Compteur de produits nouveaux ignorés
-     * @param nbOverridden   Compteur de produits avec override ignorés
-     * @param nbErreurs      Compteur d'erreurs
+     * @param nbNouveaux        Compteur de produits nouveaux ignorés
+     * @param nbOverridden      Compteur de produits avec override ignorés
+     * @param nbErreurs         Compteur d'erreurs
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processPage(
@@ -173,7 +176,7 @@ public class ClassificationBatchProcessor {
     /**
      * Détermine la classe d'un produit selon le Pareto, les overrides médicaux et de garde.
      */
-    ClasseCriticite determinerClasse(ParetoScore pareto, Produit produit, ClassificationConfig config) {
+    public ClasseCriticite determinerClasse(ParetoScore pareto, Produit produit, ClassificationConfig config) {
         // Override de garde — toujours A_PLUS
         if (Boolean.TRUE.equals(produit.getEstProduitGarde())) {
             return ClasseCriticite.A_PLUS;
@@ -215,9 +218,9 @@ public class ClassificationBatchProcessor {
 
         double pct = pareto.caCumulePct().doubleValue();
         if (pct <= config.getSeuilParetoAPlus()) return ClasseCriticite.A_PLUS;
-        if (pct <= config.getSeuilParetoA())    return ClasseCriticite.A;
-        if (pct <= config.getSeuilParetoB())    return ClasseCriticite.B;
-        if (pct <= config.getSeuilParetoC())    return ClasseCriticite.C;
+        if (pct <= config.getSeuilParetoA()) return ClasseCriticite.A;
+        if (pct <= config.getSeuilParetoB()) return ClasseCriticite.B;
+        if (pct <= config.getSeuilParetoC()) return ClasseCriticite.C;
         return ClasseCriticite.D;
     }
 
@@ -231,9 +234,9 @@ public class ClassificationBatchProcessor {
     private ClasseCriticite classeDepuisCmm(ParetoScore pareto, ClassificationConfig config) {
         int cmm = pareto.cmm();
         if (cmm >= config.getCmmSeuilAPlus()) return ClasseCriticite.A_PLUS;
-        if (cmm >= config.getCmmSeuilA())     return ClasseCriticite.A;
-        if (cmm >= config.getCmmSeuilB())     return ClasseCriticite.B;
-        if (cmm >= config.getCmmSeuilC())     return ClasseCriticite.C;
+        if (cmm >= config.getCmmSeuilA()) return ClasseCriticite.A;
+        if (cmm >= config.getCmmSeuilB()) return ClasseCriticite.B;
+        if (cmm >= config.getCmmSeuilC()) return ClasseCriticite.C;
         // Plancher B pour médicament essentiel (jamais D)
         return ClasseCriticite.B;
     }
@@ -247,7 +250,7 @@ public class ClassificationBatchProcessor {
      * En attendant, cette méthode retourne la classe Pareto inchangée.
      *
      * @param classePareto Classe Pareto calculée normalement
-     * @param config Configuration avec les paramètres saisonniers
+     * @param config       Configuration avec les paramètres saisonniers
      * @return Classe ajustée (identique à classePareto jusqu'à l'implémentation de la phase 2.5)
      */
     private ClasseCriticite appliquerCorrectionSaisonniere(
@@ -271,7 +274,7 @@ public class ClassificationBatchProcessor {
      * Si le produit est clairement dans la nouvelle classe (écart > changementMinPourcentage),
      * le reclassement est autorisé.
      */
-    boolean passeHysteresis(
+    public boolean passeHysteresis(
         BigDecimal caCumulePct,
         ClasseCriticite classeActuelle,
         ClasseCriticite classeSuggeree,
@@ -290,10 +293,10 @@ public class ClassificationBatchProcessor {
     private double getFrontiereClasse(ClasseCriticite classe, ClassificationConfig config) {
         return switch (classe) {
             case A_PLUS -> config.getSeuilParetoAPlus();
-            case A      -> config.getSeuilParetoA();
-            case B      -> config.getSeuilParetoB();
-            case C      -> config.getSeuilParetoC();
-            case D      -> 100.0;
+            case A -> config.getSeuilParetoA();
+            case B -> config.getSeuilParetoB();
+            case C -> config.getSeuilParetoC();
+            case D -> 100.0;
         };
     }
 
@@ -304,10 +307,10 @@ public class ClassificationBatchProcessor {
     static int getOrdreClasse(ClasseCriticite classe) {
         return switch (classe) {
             case A_PLUS -> 5;
-            case A      -> 4;
-            case B      -> 3;
-            case C      -> 2;
-            case D      -> 1;
+            case A -> 4;
+            case B -> 3;
+            case C -> 2;
+            case D -> 1;
         };
     }
 }

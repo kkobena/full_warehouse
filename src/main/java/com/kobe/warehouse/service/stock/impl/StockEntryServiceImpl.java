@@ -41,6 +41,7 @@ import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
+import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.domain.FournisseurProduitPriceHistory;
 import com.kobe.warehouse.domain.LotReception;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
@@ -117,6 +118,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final OrderLineRepository orderLineRepository;
     private final LotStockLocationService lotStockLocationService;
     private final SuggestionReassortService suggestionReassortService;
+    private final RuptureService ruptureService;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
@@ -163,7 +165,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         FournisseurProduitPriceHistoryRepository priceHistoryRepository,
         OrderLineRepository orderLineRepository,
         LotStockLocationService lotStockLocationService,
-        SuggestionReassortService suggestionReassortService
+        SuggestionReassortService suggestionReassortService,
+        RuptureService ruptureService
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -186,6 +189,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.orderLineRepository = orderLineRepository;
         this.lotStockLocationService = lotStockLocationService;
         this.suggestionReassortService = suggestionReassortService;
+        this.ruptureService = ruptureService;
     }
 
     @Override
@@ -315,6 +319,10 @@ public class StockEntryServiceImpl implements StockEntryService {
                 );
                 produit.setUpdatedAt(LocalDateTime.now());
                 produitService.update(produit);
+                // Si le produit rentre en stock, on marque ses ruptures ouvertes comme résolues
+                if (getTotalStockQuantity(stockProduit) > 0) {
+                    ruptureService.markProductAsBackInStock(produit);
+                }
             });
         logsService.create(
             TransactionType.ENTREE_STOCK,

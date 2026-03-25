@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.semois;
+package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
@@ -95,6 +95,14 @@ public class VentesAgregeesService {
      * Agrège ou met à jour les ventes d'un mois.
      * Utilise INSERT ... ON CONFLICT pour gérer les updates.
      * Prend en compte les ventes de produits DETAIL (enfants) en les convertissant en quantité parent.
+     * <p>
+     * Après l'agrégation, recalcule le statut de rupture fournisseur pour les mois non-gelés :
+     * <ul>
+     *   <li>Si une rupture existe sur la période → {@code est_rupture_fournisseur = TRUE}</li>
+     *   <li>Si plus aucune rupture sur la période (rupture résolue) → {@code est_rupture_fournisseur = FALSE}</li>
+     * </ul>
+     * Les mois gelés ({@code is_frozen = TRUE}) ne sont jamais modifiés.
+     * </p>
      *
      * @param mois   Le mois à agréger (format YearMonth)
      * @param freeze Si true, gèle définitivement le mois
@@ -106,8 +114,12 @@ public class VentesAgregeesService {
 
         int rowsAffected = ventesAgregeesRepository.aggregateOrUpdateMonth(anneeMois, debut, fin, freeze);
 
-        LOG.info("Mois {} : {} produits agrégés (freeze={})",
-            anneeMois, rowsAffected, freeze);
+        // Axe 3 — Recalcul bidirectionnel du statut rupture (TRUE ou FALSE selon la réalité).
+        // Seuls les mois non-gelés sont mis à jour (les mois gelés sont immuables).
+        // Si une rupture a été résolue depuis la dernière agrégation, le flag revient à FALSE.
+        ventesAgregeesRepository.refreshRuptureStatus(anneeMois, debut, fin);
+
+        LOG.info("Mois {} : {} produits agrégés (freeze={})", anneeMois, rowsAffected, freeze);
     }
 
     /**
@@ -167,13 +179,13 @@ public class VentesAgregeesService {
 
             try {
                 aggregateOrUpdateMonth(mois, shouldFreeze);
-                LOG.info("✅ Mois {} importé (frozen={})", mois, shouldFreeze);
+                LOG.info(" Mois {} importé (frozen={})", mois, shouldFreeze);
             } catch (Exception e) {
-                LOG.error("❌ Erreur import mois {}", mois, e);
+                LOG.error("Erreur import mois {}", mois, e);
             }
         }
 
-        LOG.info("✅ Import historique terminé - {} mois agrégés", nbMois);
+        LOG.info("Import historique terminé - {} mois agrégés", nbMois);
     }
 
     /**

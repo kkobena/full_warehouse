@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.semois;
+package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.SemoisSuggestionView;
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
@@ -36,6 +37,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,6 +69,8 @@ public class SemoisCalculationService {
     private final ProduitRepository produitRepository;
     private final StockProduitRepository stockProduitRepository;
     private final AppConfigurationService appConfigurationService;
+    /** Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison. */
+    private final OrderLineRepository orderLineRepository;
 
     public SemoisCalculationService(
         SemoisConfigurationRepository semoisConfigRepository,
@@ -75,7 +79,8 @@ public class SemoisCalculationService {
         VentesMensuellesAgregeesRepository ventesAgregeesRepository,
         ProduitRepository produitRepository,
         StockProduitRepository stockProduitRepository,
-        AppConfigurationService appConfigurationService
+        AppConfigurationService appConfigurationService,
+        OrderLineRepository orderLineRepository
     ) {
         this.semoisConfigRepository = semoisConfigRepository;
         this.semoisClasseConfigRepository = semoisClasseConfigRepository;
@@ -84,6 +89,7 @@ public class SemoisCalculationService {
         this.produitRepository = produitRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.appConfigurationService = appConfigurationService;
+        this.orderLineRepository = orderLineRepository;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -282,9 +288,36 @@ public class SemoisCalculationService {
     // Calculs métier
     // ──────────────────────────────────────────────────────────────────────────
 
+    /**
+     * Calcule la VMM pondérée (Ventes Mensuelles Moyennes) pour un produit.
+     * <p>
+     * <b>Axe 3 — Exclusion des mois de rupture fournisseur :</b><br>
+     * Les mois où le produit était en rupture fournisseur documentée
+     * ({@code est_rupture_fournisseur = TRUE}) sont exclus du calcul.
+     * En effet, les ventes de ces mois sont artificiellement basses et biaisent
+     * la VMM à la baisse, ce qui perpétuerait la rupture.
+     * <br>
+     * Si aucun mois valide n'est disponible (ex: produit toujours en rupture),
+     * on utilise tous les mois disponibles comme fallback.
+     * </p>
+     *
+     * @param produitId ID du produit
+     * @param nbMois    Nombre de mois d'historique souhaités
+     * @return VMM arrondie à l'entier supérieur, 0 si aucune donnée
+     */
     public int calculateVMM(Integer produitId, int nbMois) {
+        // Axe 3 : utiliser les mois valides (hors rupture fournisseur) en priorité
         List<VentesMensuellesAgregees> ventes = ventesAgregeesRepository
-            .findLastNMonthsByProduit(produitId, nbMois);
+            .findLastNValidMonthsByProduit(produitId, nbMois);
+
+        // Fallback : si aucun mois valide, utiliser tous les mois (y compris rupture)
+        if (ventes.isEmpty()) {
+            ventes = ventesAgregeesRepository.findLastNMonthsByProduit(produitId, nbMois);
+            if (!ventes.isEmpty()) {
+                LOG.debug("VMM produit {} : aucun mois valide, fallback sur {} mois incluant ruptures",
+                    produitId, ventes.size());
+            }
+        }
 
         if (ventes.isEmpty()) {
             return 0;
@@ -391,6 +424,10 @@ public class SemoisCalculationService {
         Produit produit = config.getProduit();
         var fpPrincipal = produit.getFournisseurProduitPrincipal();
 
+        // Axe 1 — Stock virtuel : déduire les commandes REQUESTED de la quantité à commander
+        int pendingQty = getPendingQty(produitId);
+        int qteACommander = Math.max(0, c.quantiteACommander() - pendingQty);
+
         return new SemoisSuggestionDTO(
             produitId,
             produit.getLibelle(),
@@ -402,7 +439,7 @@ public class SemoisCalculationService {
             c.margeSecurite(),
             c.stockObjectif(),
             c.stockActuel(),
-            c.quantiteACommander(),
+            qteACommander,
             resolveDelaiLivraisonJours(config),
             classeConfig.getCoefficientSecurite(),
             config.getFacteurSaisonnierActuel(),
@@ -422,14 +459,32 @@ public class SemoisCalculationService {
         Page<SemoisSuggestionView> viewPage = semoisSuggestionViewRepository.findAllWithFilters(
             search, classeCriticite, pageable);
 
+        // Axe 1 — Stock virtuel : batch-load des commandes en attente pour toute la page
+        List<Integer> produitIds = viewPage.getContent().stream()
+            .map(SemoisSuggestionView::getProduitId)
+            .toList();
+        Map<Integer, Integer> pendingQtyMap = loadPendingOrderQtyBatch(produitIds);
+
         List<SemoisSuggestionDTO> suggestions = viewPage.getContent().stream()
-            .map(this::toDTO)
+            .map(view -> toDTO(view, pendingQtyMap.getOrDefault(view.getProduitId(), 0)))
             .toList();
 
         return new PageImpl<>(suggestions, pageable, viewPage.getTotalElements());
     }
 
-    private SemoisSuggestionDTO toDTO(SemoisSuggestionView view) {
+    /**
+     * Convertit une vue SEMOIS en DTO, en ajustant la quantité à commander
+     * pour tenir compte des commandes en attente (stock virtuel).
+     *
+     * @param view       Vue SEMOIS depuis la vue matérialisée
+     * @param pendingQty Quantité déjà commandée (REQUESTED) en attente de livraison
+     */
+    private SemoisSuggestionDTO toDTO(SemoisSuggestionView view, int pendingQty) {
+        int qteVueACommander = view.getQuantiteACommander() != null ? view.getQuantiteACommander().intValue() : 0;
+        // Axe 1 : qteACommander ajustée = MAX(0, stockObjectif - (stockActuel + pendingQty))
+        //       = MAX(0, qteVueACommander - pendingQty)
+        int qteACommander = Math.max(0, qteVueACommander - pendingQty);
+
         return new SemoisSuggestionDTO(
             view.getProduitId(),
             view.getLibelle(),
@@ -441,7 +496,7 @@ public class SemoisCalculationService {
             view.getMargeSecurite(),
             view.getStockObjectif(),
             view.getStockActuel() != null ? view.getStockActuel().intValue() : 0,
-            view.getQuantiteACommander() != null ? view.getQuantiteACommander().intValue() : 0,
+            qteACommander,
             view.getDelaiLivraisonJours(),
             view.getCoefficientSecurite() != null
                 ? BigDecimal.valueOf(view.getCoefficientSecurite()).setScale(2, RoundingMode.HALF_UP)
@@ -451,6 +506,10 @@ public class SemoisCalculationService {
                 ? LocalDateTime.ofInstant(view.getDateDernierCalcul(), java.time.ZoneId.systemDefault())
                 : null
         );
+    }
+
+    private SemoisSuggestionDTO toDTO(SemoisSuggestionView view) {
+        return toDTO(view, 0);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -494,6 +553,35 @@ public class SemoisCalculationService {
     // ──────────────────────────────────────────────────────────────────────────
 
     private record BatchResult(int successCount, int errorCount) {}
+
+    /**
+     * Axe 1 — Retourne la quantité en attente de livraison pour un produit spécifique.
+     * Commandes dont le statut est REQUESTED (envoyées, non encore réceptionnées).
+     */
+    private int getPendingQty(Integer produitId) {
+        List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(List.of(produitId));
+        return rows.stream()
+            .filter(row -> ((Number) row[0]).intValue() == produitId)
+            .mapToInt(row -> ((Number) row[1]).intValue())
+            .findFirst()
+            .orElse(0);
+    }
+
+    /**
+     * Axe 1 — Batch-charge les quantités en attente de livraison pour une liste de produits.
+     * Un seul appel SQL pour toute la page SEMOIS.
+     *
+     * @param produitIds IDs des produits de la page courante
+     * @return Map produit_id → quantité en attente (seulement les produits avec qté > 0)
+     */
+    private Map<Integer, Integer> loadPendingOrderQtyBatch(List<Integer> produitIds) {
+        if (produitIds.isEmpty()) return Map.of();
+        List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
+        return rows.stream().collect(Collectors.toMap(
+            row -> ((Number) row[0]).intValue(),
+            row -> ((Number) row[1]).intValue()
+        ));
+    }
 
     private ModelReapprovisionnement getConfiguredModel() {
         return appConfigurationService

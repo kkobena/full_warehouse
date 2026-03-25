@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.service.dto.MaterializedViewRefreshDTO;
 import com.kobe.warehouse.service.dto.TierRefreshResultDTO;

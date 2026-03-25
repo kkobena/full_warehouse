@@ -17,6 +17,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
@@ -91,6 +92,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     private final EntityManager em;
     private final SuggestionPdfReportService suggestionPdfReportService;
     private final ProduitRepository produitRepository;
+    /** Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison. */
+    private final OrderLineRepository orderLineRepository;
 
 
     public SuggestionProduitServiceImpl(
@@ -107,7 +110,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         SemoisClasseConfigRepository semoisClasseConfigRepository,
         EntityManager em,
         SuggestionPdfReportService suggestionPdfReportService,
-        ProduitRepository produitRepository
+        ProduitRepository produitRepository,
+        OrderLineRepository orderLineRepository
     ) {
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
@@ -123,6 +127,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         this.em = em;
         this.suggestionPdfReportService = suggestionPdfReportService;
         this.produitRepository = produitRepository;
+        this.orderLineRepository = orderLineRepository;
     }
 
     @Async
@@ -169,6 +174,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             .stream()
             .collect(Collectors.toMap(l -> l.getFournisseurProduit().getId(), Function.identity()));
 
+        // ── 5b. Batch-load commandes en attente — STOCK VIRTUEL (Axe 1) ──────────
+        // Produits déjà commandés (REQUESTED) mais non encore reçus.
+        // On les soustrait du calcul pour ne pas commander en double.
+        Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(allProduitIds);
+        if (!pendingQtyByProduitId.isEmpty()) {
+            LOG.debug("Stock virtuel chargé : {} produit(s) ont des commandes en attente", pendingQtyByProduitId.size());
+        }
+
         // ── 6. Regroupement par fournisseur ──────────────────────────────────────
         Map<Fournisseur, List<QuantitySuggestion>> byFournisseur = eligibles.stream()
             .collect(Collectors.groupingBy(q -> q.produit().getFournisseurProduitPrincipal().getFournisseur()));
@@ -204,12 +217,20 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     produitAllSock -= quantitySold;
                 }
 
+                // Axe 1 — Stock virtuel : stock physique + commandes REQUESTED en attente
+                // Évite de commander des produits déjà en cours de livraison
+                int qtesEnCommande = pendingQtyByProduitId.getOrDefault(produit.getId(), 0);
+                int stockVirtuel = produitAllSock + qtesEnCommande;
+
                 SemoisConfiguration semoisConfig = semoisConfigByProduitId.get(produit.getId());
                 int vmm = vmmByProduitId.getOrDefault(produit.getId(), 0);
 
-                if (produitAllSock > seuilReappro(produit, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs)) continue;
+                // Utiliser stockVirtuel pour le seuil : si le stock virtuel couvre déjà l'objectif, pas de suggestion
+                if (stockVirtuel > seuilReappro(produit, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs)) continue;
 
-                int qty = computeQtyReappro(produit, produitAllSock, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs);
+                // Utiliser stockVirtuel pour le calcul de la quantité : on ne commande que le delta restant
+                int qty = computeQtyReappro(produit, stockVirtuel, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs);
+                if (qty <= 0) continue; // Sécurité : ne jamais suggérer une quantité nulle ou négative
                 SuggestionLine existingLine = existingLineByFpId.get(fournisseurProduit.getId());
 
                 if (existingLine != null) {
@@ -739,6 +760,25 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             result.putAll(loadVmmForProduits(new HashSet<>(entry.getValue()), nbMois));
         }
         return result;
+    }
+
+    /**
+     * Axe 1 — Charge en batch les quantités commandées en attente de livraison.
+     * <p>
+     * Une commande est "en attente" si son statut est {@code REQUESTED} (envoyée au fournisseur,
+     * non encore réceptionnée). La quantité en attente = quantité commandée - quantité déjà reçue.
+     * </p>
+     *
+     * @param produitIds IDs des produits à interroger
+     * @return Map produit_id → quantité en attente (seulement les produits avec qté > 0)
+     */
+    private Map<Integer, Integer> loadPendingOrderQty(Set<Integer> produitIds) {
+        if (produitIds.isEmpty()) return Map.of();
+        List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
+        return rows.stream().collect(Collectors.toMap(
+            row -> ((Number) row[0]).intValue(),
+            row -> ((Number) row[1]).intValue()
+        ));
     }
 
     @SuppressWarnings("unchecked")

@@ -21,4 +21,9 @@ public class RuptureServiceImpl implements RuptureService {
     public void createRupture(Produit produit, Fournisseur fournisseur, int qty) {
         ruptureRepository.save(new Rupture().setProduit(produit).setFournisseur(fournisseur).setQty(qty));
     }
+
+    @Override
+    public void markProductAsBackInStock(Produit produit) {
+        ruptureRepository.markProductAsBackInStock(produit.getId());
+    }
 }

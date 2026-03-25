@@ -1,5 +1,6 @@
-package com.kobe.warehouse.service.stock;
+package com.kobe.warehouse.service.scheduler;
 
+import com.kobe.warehouse.service.stock.StockSnapshotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

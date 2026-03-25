@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.Modifying;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,76 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
         """)
     List<VentesMensuellesAgregees> findLastNMonthsByProduit(@Param("produitId") Integer produitId,
                                                              @Param("nbMois") int nbMois);
+
+    /**
+     * Récupère les N derniers mois VALIDES (hors rupture fournisseur) pour un produit.
+     * Ces mois sont utilisés pour le calcul VMM SEMOIS afin d'exclure les mois biais.
+     * <p>
+     * Un mois de rupture (est_rupture_fournisseur = TRUE) est exclu car les ventes
+     * auraient été plus élevées sans la rupture, et les inclure sous-estime la VMM.
+     * </p>
+     *
+     * @param produitId ID du produit
+     * @param nbMois    Nombre de mois valides souhaités
+     * @return Liste des agrégations hors rupture, triée par mois décroissant
+     */
+    @Query("""
+        SELECT vma FROM VentesMensuellesAgregees vma
+        WHERE vma.produit.id = :produitId
+          AND vma.estRuptureFournisseur = FALSE
+        ORDER BY vma.anneeMois DESC
+        LIMIT :nbMois
+        """)
+    List<VentesMensuellesAgregees> findLastNValidMonthsByProduit(@Param("produitId") Integer produitId,
+                                                                  @Param("nbMois") int nbMois);
+
+    /**
+     * Recalcule le statut de rupture fournisseur pour un mois donné.
+     * <p>
+     * Met à jour {@code est_rupture_fournisseur} dans les deux sens :
+     * <ul>
+     *   <li><b>TRUE</b> si le produit a une rupture encore active ({@code product_still_out_of_stock = TRUE})
+     *       qui avait débuté avant ou pendant ce mois ({@code date_mtv < :fin})</li>
+     *   <li><b>FALSE</b> dans tous les autres cas :
+     *     <ul>
+     *       <li>Aucune rupture pour ce produit</li>
+     *       <li>Rupture résolue ({@code product_still_out_of_stock = FALSE}) — données de ventes valides</li>
+     *       <li>Rupture démarrée après ce mois — le mois n'était pas impacté</li>
+     *     </ul>
+     *   </li>
+     * </ul>
+     * Seuls les mois <b>non gelés</b> ({@code is_frozen = FALSE}) sont mis à jour.
+     * Les mois gelés sont immuables : leur statut de rupture est figé définitivement lors du gel.
+     * </p>
+     * <p>
+     * Le retour à FALSE est automatique : dès que {@code productStillOutOfStock} passe à FALSE
+     * (stock réapprovisionné), la prochaine agrégation mensuelle réinitialise le flag.
+     * </p>
+     *
+     * @param anneeMois Mois au format YYYY-MM
+     * @param debut     Premier jour du mois (inclusif) — non utilisé dans le filtre mais gardé pour cohérence
+     * @param fin       Premier jour du mois suivant (exclusif) — borne de début de rupture
+     * @return Nombre de lignes mises à jour
+     */
+    @Modifying
+    @Query(value = """
+        UPDATE ventes_mensuelles_agregees vma
+        SET est_rupture_fournisseur = EXISTS (
+                SELECT 1
+                FROM   rupture r
+                WHERE  r.produit_id                = vma.produit_id
+                  AND  r.product_still_out_of_stock = TRUE
+                  AND  r.date_mtv                  < :fin
+            ),
+            updated_at = NOW()
+        WHERE vma.annee_mois = :anneeMois
+          AND vma.is_frozen  = FALSE
+        """, nativeQuery = true)
+    int refreshRuptureStatus(
+        @Param("anneeMois") String anneeMois,
+        @Param("debut") LocalDate debut,
+        @Param("fin") LocalDate fin
+    );
 
     /**
      * Récupère les ventes entre deux mois inclus pour un produit

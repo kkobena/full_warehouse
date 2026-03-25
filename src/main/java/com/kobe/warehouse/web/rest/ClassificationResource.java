@@ -2,7 +2,7 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.security.AuthoritiesConstants;
-import com.kobe.warehouse.service.classification.ClassificationCriticiteService;
+import com.kobe.warehouse.service.scheduler.ClassificationCriticiteService;
 import com.kobe.warehouse.service.dto.ClassificationConfigDTO;
 import com.kobe.warehouse.service.dto.ClassificationLogDTO;
 import com.kobe.warehouse.service.dto.ClassificationScoreDTO;

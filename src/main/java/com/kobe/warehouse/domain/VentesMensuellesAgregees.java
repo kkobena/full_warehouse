@@ -92,6 +92,15 @@ public class VentesMensuellesAgregees implements Serializable {
     @Column(name = "freeze_date")
     private LocalDateTime freezeDate;
 
+    /**
+     * Indique si le produit était en rupture fournisseur documentée durant ce mois.
+     * Quand TRUE, ce mois est exclu du calcul VMM SEMOIS pour éviter de sous-estimer
+     * la consommation réelle (les ventes auraient été plus élevées sans la rupture).
+     */
+    @NotNull
+    @Column(name = "est_rupture_fournisseur", nullable = false)
+    private Boolean estRuptureFournisseur = false;
+
     @NotNull
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -164,6 +173,19 @@ public class VentesMensuellesAgregees implements Serializable {
 
     public void setFreezeDate(LocalDateTime freezeDate) {
         this.freezeDate = freezeDate;
+    }
+
+    public Boolean getEstRuptureFournisseur() {
+        return estRuptureFournisseur;
+    }
+
+    public void setEstRuptureFournisseur(Boolean estRuptureFournisseur) {
+        this.estRuptureFournisseur = estRuptureFournisseur;
+    }
+
+    /** Marque ce mois comme mois de rupture fournisseur (exclu du calcul VMM). */
+    public void marquerRupture() {
+        this.estRuptureFournisseur = true;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -259,6 +281,7 @@ public class VentesMensuellesAgregees implements Serializable {
             ", montantCa=" + montantCa +
             ", nombreVentes=" + nombreVentes +
             ", isFrozen=" + isFrozen +
+            ", estRuptureFournisseur=" + estRuptureFournisseur +
             '}';
     }
 }

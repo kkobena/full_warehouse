@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.security.AuthoritiesConstants;
-import com.kobe.warehouse.service.MaterializedViewRefreshService;
+import com.kobe.warehouse.service.scheduler.MaterializedViewRefreshService;
 import com.kobe.warehouse.service.dto.MaterializedViewRefreshDTO;
 import com.kobe.warehouse.service.dto.TierRefreshResultDTO;
 import java.util.List;

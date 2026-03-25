@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.stock;
+package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.service.stock.impl.PlanningInventaireTournantServiceImpl;
 import java.util.List;

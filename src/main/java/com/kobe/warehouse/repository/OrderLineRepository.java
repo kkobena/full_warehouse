@@ -11,6 +11,7 @@ import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Collection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -94,4 +95,33 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     );
 
     int countByCommande(Commande commande);
+
+    /**
+     * Retourne les quantités en attente de livraison par produit (stock virtuel — Axe 1).
+     * <p>
+     * Sélectionne les lignes de commandes dont le statut est REQUESTED (envoyée au fournisseur,
+     * non encore réceptionnée). La quantité en attente = quantité commandée - quantité déjà reçue.
+     * </p>
+     * <p>
+     * Ce résultat est utilisé dans le calcul des suggestions de réapprovisionnement pour éviter
+     * de commander à nouveau des produits déjà en cours de livraison.
+     * </p>
+     *
+     * @param produitIds IDs des produits à interroger (batch)
+     * @return Tableau de [produit_id, qty_en_attente] — seuls les produits avec qty > 0 sont retournés
+     */
+    @Query(value = """
+        SELECT fp.produit_id                                                            AS produit_id,
+               SUM(ol.quantity_requested - COALESCE(ol.quantity_received, 0))           AS qty_en_attente
+        FROM order_line ol
+             JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
+             JOIN commande c ON c.id = ol.commande_id
+                             AND c.order_date = ol.commande_order_date
+        WHERE fp.produit_id IN :produitIds
+          AND c.order_status = 'REQUESTED'
+          AND ol.quantity_requested > COALESCE(ol.quantity_received, 0)
+        GROUP BY fp.produit_id
+        HAVING SUM(ol.quantity_requested - COALESCE(ol.quantity_received, 0)) > 0
+        """, nativeQuery = true)
+    List<Object[]> findPendingQtyByProduitIds(@Param("produitIds") Collection<Integer> produitIds);
 }

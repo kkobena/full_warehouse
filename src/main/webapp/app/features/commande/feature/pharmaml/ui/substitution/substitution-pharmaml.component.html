@@ -28,7 +28,17 @@
       <tr>
         <td>{{ sub.designationOriginale }}</td>
         <td><code>{{ sub.cipOriginal }}</code></td>
-        <td>{{ sub.designation ?? '—' }}</td>
+        <td>
+          {{ sub.designation ?? '—' }}
+          @if (sub.substitutConnu) {
+            <span
+              class="badge bg-success ms-1"
+              pTooltip="Ce substitut est déjà enregistré dans votre référentiel local"
+              tooltipPosition="top">
+              <i class="pi pi-check-circle"></i> connu
+            </span>
+          }
+        </td>
         <td><code>{{ sub.cipPropose }}</code></td>
         <td class="text-center">{{ sub.quantite }}</td>
         <td class="text-center">

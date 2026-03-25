@@ -15,5 +15,6 @@ public record SubstitutionProposeeDTO(
     LocalDateTime createdAt,
     String codeReponse,
     String additif,
-    String typeRemplacement
+    String typeRemplacement,
+    boolean substitutConnu
 ) {}

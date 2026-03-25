@@ -78,5 +78,7 @@ public final class EntityConstant {
     public static final String APP_SEUIL_VARIATION_PRIX_CACHE = "APP_SEUIL_VARIATION_PRIX_CACHE";
     public static final String APP_PUTAWAY_MODE = "APP_PUTAWAY_MODE"; // Mode de rangement à la réception (AUTO, MANUAL, ALL_RAYON)
     public static final String APP_PUTAWAY_MODE_CACHE = "APP_PUTAWAY_MODE_CACHE";
+    public static final String APP_ACCEPTATION_SUBSTITUTION = "APP_ACCEPTATION_SUBSTITUTION"; // Mode d'acceptation des substitutions PharmaML EP (AUTO | MANUEL)
+    public static final String APP_ACCEPTATION_SUBSTITUTION_CACHE = "APP_ACCEPTATION_SUBSTITUTION_CACHE";
 
 }

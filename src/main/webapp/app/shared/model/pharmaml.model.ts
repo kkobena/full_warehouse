@@ -96,4 +96,5 @@ export interface ISubstitutionProposee {
   codeReponse: string | null;
   additif: string | null;
   typeRemplacement: string | null;
+  substitutConnu: boolean;
 }

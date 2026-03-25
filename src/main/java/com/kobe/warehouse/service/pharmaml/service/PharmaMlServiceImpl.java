@@ -9,14 +9,18 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rupture;
+import com.kobe.warehouse.domain.Substitut;
 import com.kobe.warehouse.domain.SubstitutionProposee;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
 import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
+import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.RuptureRepository;
+import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
@@ -61,6 +65,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     private final RuptureRepository ruptureRepository;
     private final PharmaMlEnvoiRepository pharmaMlEnvoiRepository;
     private final SubstitutionProposeeRepository substitutionProposeeRepository;
+    private final SubstitutRepository substitutRepository;
     private final FournisseurProduitService fournisseurProduitService;
     private final OrderLineService orderLineService;
     private final FileStorageService fileStorageService;
@@ -76,6 +81,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         RuptureRepository ruptureRepository,
         PharmaMlEnvoiRepository pharmaMlEnvoiRepository,
         SubstitutionProposeeRepository substitutionProposeeRepository,
+        SubstitutRepository substitutRepository,
         FournisseurProduitService fournisseurProduitService,
         OrderLineService orderLineService,
         FileStorageService fileStorageService,
@@ -88,6 +94,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         this.ruptureRepository = ruptureRepository;
         this.pharmaMlEnvoiRepository = pharmaMlEnvoiRepository;
         this.substitutionProposeeRepository = substitutionProposeeRepository;
+        this.substitutRepository = substitutRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.orderLineService = orderLineService;
         this.fileStorageService = fileStorageService;
@@ -246,6 +253,9 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
         sub.setStatut(SubstitutionStatut.ACCEPTEE);
         substitutionProposeeRepository.save(sub);
+
+        // Mémoriser la paire dans le référentiel local des substituts
+        enregistrerSubstitutLocal(originalLine.getFournisseurProduit().getProduit(), fp.getProduit());
 
         // L'original est remplacé : on le supprime maintenant que SubstitutionProposee est résolue
         orderLineService.delete(originalLine);
@@ -419,10 +429,16 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
     private SubstitutionProposeeDTO toSubstitutionDTO(SubstitutionProposee s) {
         OrderLine ol = s.getOrderLine();
-        String cipOriginal =
-            ol.getFournisseurProduit() != null ? ol.getFournisseurProduit().getCodeCip() : "";
-        String designOriginal = ol.getFournisseurProduit() != null
-            ? ol.getFournisseurProduit().getProduit().getLibelle() : "";
+        FournisseurProduit fpOriginal = ol.getFournisseurProduit();
+        String cipOriginal = fpOriginal != null ? fpOriginal.getCodeCip() : "";
+        String designOriginal = fpOriginal != null ? fpOriginal.getProduit().getLibelle() : "";
+        boolean estConnu = fpOriginal != null && fournisseurProduitService
+            .findByCodeCipOrProduitcodeEan(s.getCipPropose())
+            .stream()
+            .filter(fp -> fp.getCodeCip().equals(s.getCipPropose()))
+            .findFirst()
+            .map(fp -> substitutRepository.existsByProduitAndSubstitut(fpOriginal.getProduit(), fp.getProduit()))
+            .orElse(false);
         return new SubstitutionProposeeDTO(
             s.getId(),
             s.getCipPropose(),
@@ -435,8 +451,18 @@ public class PharmaMlServiceImpl implements PharmaMlService {
             s.getCreatedAt(),
             s.getCodeReponse(),
             s.getAdditif(),
-            s.getTypeRemplacement()
+            s.getTypeRemplacement(),
+            estConnu
         );
+    }
+
+    private void enregistrerSubstitutLocal(Produit produit, Produit substitutProduit) {
+        if (substitutRepository.existsByProduitAndSubstitut(produit, substitutProduit)) return;
+        Substitut s = new Substitut();
+        s.setProduit(produit);
+        s.setSubstitut(substitutProduit);
+        s.setType(TypeSubstitut.GENERIQUE);
+        substitutRepository.save(s);
     }
 
     private void prevalidate(Fournisseur fournisseur) {

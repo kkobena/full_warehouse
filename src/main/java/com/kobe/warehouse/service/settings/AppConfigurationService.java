@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.settings;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
@@ -272,6 +273,23 @@ public class AppConfigurationService {
                 }
             })
             .orElse(2);
+    }
+
+    /**
+     * Retourne le mode d'acceptation des substitutions PharmaML EP.
+     * Défaut : {@link AcceptationSubstitutionMode#MANUEL}.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_ACCEPTATION_SUBSTITUTION_CACHE)
+    public AcceptationSubstitutionMode getAcceptationSubstitutionMode() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_ACCEPTATION_SUBSTITUTION)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try { return AcceptationSubstitutionMode.valueOf(v.trim()); }
+                catch (IllegalArgumentException e) { return AcceptationSubstitutionMode.MANUEL; }
+            })
+            .orElse(AcceptationSubstitutionMode.MANUEL);
     }
 
     /**

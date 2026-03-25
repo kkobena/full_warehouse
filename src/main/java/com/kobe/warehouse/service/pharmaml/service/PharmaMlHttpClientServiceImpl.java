@@ -9,12 +9,17 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
+import com.kobe.warehouse.domain.Substitut;
 import com.kobe.warehouse.domain.SubstitutionProposee;
+import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
+import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
+import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
@@ -105,6 +110,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     private final RuptureService ruptureService;
     private final FournisseurProduitService fournisseurProduitService;
     private final SubstitutionProposeeRepository substitutionProposeeRepository;
+    private final SubstitutRepository substitutRepository;
+    private final AppConfigurationService appConfigurationService;
     private final CommandeIdGeneratorService commandeIdGeneratorService;
     private final ReferenceService referenceService;
     private final StorageService storageService;
@@ -118,6 +125,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         RuptureService ruptureService,
         FournisseurProduitService fournisseurProduitService,
         SubstitutionProposeeRepository substitutionProposeeRepository,
+        SubstitutRepository substitutRepository,
+        AppConfigurationService appConfigurationService,
         CommandeIdGeneratorService commandeIdGeneratorService,
         ReferenceService referenceService,
         StorageService storageService
@@ -130,6 +139,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         this.ruptureService = ruptureService;
         this.fournisseurProduitService = fournisseurProduitService;
         this.substitutionProposeeRepository = substitutionProposeeRepository;
+        this.substitutRepository = substitutRepository;
+        this.appConfigurationService = appConfigurationService;
         this.commandeIdGeneratorService = commandeIdGeneratorService;
         this.referenceService = referenceService;
         this.storageService = storageService;
@@ -490,60 +501,90 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         }
         String type = produitRemplacant.getTypeRemplacement();
 
+        String cipPropose = produitRemplacant.getCodeProduit();
+
         if (TypeRemplacement.EP.name().equals(type)) {
-            SubstitutionProposee sub = new SubstitutionProposee()
-                .setCommande(commande)
-                .setOrderLine(origin)
-                .setFournisseur(fournisseur)
-                .setCipPropose(produitRemplacant.getCodeProduit())
-                .setDesignation(produitRemplacant.getDesignation())
-                .setTypeCodification(produitRemplacant.getTypeCodification())
-                .setQuantite(origin.getQuantityRequested())
-                .setTypeRemplacement(type)
-                .setCodeReponse(indisponibilite.getCodeReponse())
-                .setAdditif(indisponibilite.getAdditif());
+            boolean modeAuto = AcceptationSubstitutionMode.AUTO == appConfigurationService.getAcceptationSubstitutionMode();
+            if (modeAuto) {
+                // Acceptation implicite : même traitement que EL/RL
+                FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant, ligneNReponse, fournisseur);
+                if (fp != null) {
+                    addRemplacement(ligneNReponse, origin.getQuantityRequested(), fp, commande);
+                    SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant, indisponibilite,
+                        type, origin, commande, fournisseur, origin.getQuantityRequested(), SubstitutionStatut.ACCEPTEE);
+                    substitutionProposeeRepository.save(trace);
+                    enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(), fp.getProduit());
+                    return true;
+                }
+            }
+            // Mode MANUEL (ou fp introuvable en AUTO) : en attente de validation pharmacien
+            SubstitutionProposee sub = buildSubstitutionTrace(produitRemplacant, indisponibilite,
+                type, origin, commande, fournisseur, origin.getQuantityRequested(), SubstitutionStatut.EN_ATTENTE);
             substitutionProposeeRepository.save(sub);
             return true;
         }
 
         if (TypeRemplacement.EL.name().equals(type) || TypeRemplacement.RL.name().equals(type)) {
-            List<FournisseurProduit> fournisseurProduits =
-                this.fournisseurProduitService.findByCodeCipOrProduitcodeEan(
-                    produitRemplacant.getCodeProduit());
-            if (!fournisseurProduits.isEmpty()) {
-                FournisseurProduit fournisseurProduit = fournisseurProduits.stream()
-                    .filter(p -> p.getCodeCip().equals(produitRemplacant.getCodeProduit()))
-                    .findFirst()
-                    .orElse(null);
-                if (isNull(fournisseurProduit)) {
-                    com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(
-                        ligneNReponse.getPrix());
-                    fournisseurProduit = new FournisseurProduit();
-                    fournisseurProduit.setProduit(fournisseurProduits.getFirst().getProduit());
-                    fournisseurProduit.setCodeCip(produitRemplacant.getCodeProduit());
-                    fournisseurProduit.setFournisseur(fournisseur);
-                    fournisseurProduit.setPrixAchat(Integer.parseInt(getPrixAchatPrixUni(ligneNReponse.getPrix()).key() + ""));
-                    fournisseurProduit.setPrixUni(Integer.parseInt(getPrixAchatPrixUni(ligneNReponse.getPrix()).value() + ""));
-                    fournisseurProduit = fournisseurProduitService.save(fournisseurProduit);
-                }
-                addRemplacement(ligneNReponse, origin.getQuantityRequested(), fournisseurProduit, commande);
-                // Traçabilité : enregistrer le remplacement automatique
-                SubstitutionProposee trace = new SubstitutionProposee()
-                    .setCommande(commande)
-                    .setOrderLine(origin)
-                    .setFournisseur(fournisseur)
-                    .setCipPropose(produitRemplacant.getCodeProduit())
-                    .setDesignation(produitRemplacant.getDesignation())
-                    .setTypeCodification(produitRemplacant.getTypeCodification())
-                    .setQuantite(ligneNReponse.getQuantiteLivree())
-                    .setTypeRemplacement(type)
-                    .setCodeReponse(indisponibilite.getCodeReponse())
-                    .setAdditif(indisponibilite.getAdditif())
-                    .setStatut(SubstitutionStatut.ACCEPTEE);
+            FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant, ligneNReponse, fournisseur);
+            if (fp != null) {
+                addRemplacement(ligneNReponse, origin.getQuantityRequested(), fp, commande);
+                SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant, indisponibilite,
+                    type, origin, commande, fournisseur, ligneNReponse.getQuantiteLivree(), SubstitutionStatut.ACCEPTEE);
                 substitutionProposeeRepository.save(trace);
+                // EL/RL : toujours mémoriser la paire, quel que soit le mode
+                enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(), fp.getProduit());
             }
         }
         return false;
+    }
+
+    private FournisseurProduit findOrCreateFournisseurProduit(ProduitRemplacant produitRemplacant,
+        LigneNReponse ligneNReponse, Fournisseur fournisseur) {
+        String cipPropose = produitRemplacant.getCodeProduit();
+        List<FournisseurProduit> fps = fournisseurProduitService.findByCodeCipOrProduitcodeEan(cipPropose);
+        if (fps.isEmpty()) return null;
+        FournisseurProduit fp = fps.stream()
+            .filter(p -> p.getCodeCip().equals(cipPropose))
+            .findFirst()
+            .orElse(null);
+        if (isNull(fp)) {
+            com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligneNReponse.getPrix());
+            fp = new FournisseurProduit();
+            fp.setProduit(fps.getFirst().getProduit());
+            fp.setCodeCip(cipPropose);
+            fp.setFournisseur(fournisseur);
+            fp.setPrixAchat(Integer.parseInt(prix.key() + ""));
+            fp.setPrixUni(Integer.parseInt(prix.value() + ""));
+            fp = fournisseurProduitService.save(fp);
+        }
+        return fp;
+    }
+
+    private SubstitutionProposee buildSubstitutionTrace(ProduitRemplacant produitRemplacant,
+        IndisponibiliteN indisponibilite, String type, OrderLine origin,
+        Commande commande, Fournisseur fournisseur, int quantite, SubstitutionStatut statut) {
+        return new SubstitutionProposee()
+            .setCommande(commande)
+            .setOrderLine(origin)
+            .setFournisseur(fournisseur)
+            .setCipPropose(produitRemplacant.getCodeProduit())
+            .setDesignation(produitRemplacant.getDesignation())
+            .setTypeCodification(produitRemplacant.getTypeCodification())
+            .setQuantite(quantite)
+            .setTypeRemplacement(type)
+            .setCodeReponse(indisponibilite.getCodeReponse())
+            .setAdditif(indisponibilite.getAdditif())
+            .setStatut(statut);
+    }
+
+    private void enregistrerSubstitutLocal(com.kobe.warehouse.domain.Produit produit,
+        com.kobe.warehouse.domain.Produit substitutProduit) {
+        if (substitutRepository.existsByProduitAndSubstitut(produit, substitutProduit)) return;
+        Substitut s = new Substitut();
+        s.setProduit(produit);
+        s.setSubstitut(substitutProduit);
+        s.setType(TypeSubstitut.GENERIQUE);
+        substitutRepository.save(s);
     }
 
     private void addRemplacement(

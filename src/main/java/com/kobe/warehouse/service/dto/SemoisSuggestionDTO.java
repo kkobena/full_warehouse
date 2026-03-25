@@ -56,6 +56,45 @@ public record SemoisSuggestionDTO(
     }
 
     /**
+     * Calcule la couverture cible en mois (objectif pharmacien).
+     * Indique combien de mois de ventes le stock objectif représente.
+     * Formule : Stock Objectif / VMM
+     *
+     * @return Nombre de mois de couverture cible (Stock Objectif / VMM)
+     */
+    public double getCouvertureCibleMois() {
+        if (vmm == null || vmm == 0) {
+            return 0.0;
+        }
+        return stockObjectif != null ? (double) stockObjectif / vmm : 0.0;
+    }
+
+    /**
+     * Calcule la couverture de la marge de sécurité en mois.
+     * Indique combien de mois de ventes la marge de sécurité représente.
+     * Formule : Marge de Sécurité / VMM
+     *
+     * @return Nombre de mois de marge de sécurité (Marge / VMM)
+     */
+    public double getMargeSecuriteCibleMois() {
+        if (vmm == null || vmm == 0) {
+            return 0.0;
+        }
+        return margeSecurite != null ? (double) margeSecurite / vmm : 0.0;
+    }
+
+    /**
+     * Construit un message comparatif de couverture (actuelle vs cible).
+     * Permet un affichage lisible du ratio stock actuel / stock objectif en mois.
+     *
+     * @return Message "X.X mois / Y.Y mois cible"
+     */
+    public String getMessageCouvertureComparatif() {
+        return String.format("%.1f mois / %.1f mois cible",
+            getTauxCouvertureMois(), getCouvertureCibleMois());
+    }
+
+    /**
      * Vérifie si le produit est en rupture potentielle
      *
      * @return true si le stock actuel est inférieur à la marge de sécurité
@@ -159,17 +198,18 @@ public record SemoisSuggestionDTO(
      */
     public String getMessageSuggestion() {
         if (!necessiteReappro()) {
-            return String.format("Stock OK - Couverture: %.1f mois", getTauxCouvertureMois());
+            return String.format("Stock OK - Couverture: %.1f mois (cible: %.1f mois)",
+                getTauxCouvertureMois(), getCouvertureCibleMois());
         }
 
         String urgence = estEnRupture() ? "⚠️ URGENT" : "ℹ️";
         return String.format(
-            "%s Commander %d unités - Stock: %d/%d (%.0f jours restants)",
+            "%s Commander %d unités - Couverture: %.1f/%.1f mois (%d jours restants)",
             urgence,
             quantiteACommander,
-            stockActuel,
-            stockObjectif,
-            (double) getJoursStockRestant()
+            getTauxCouvertureMois(),
+            getCouvertureCibleMois(),
+            getJoursStockRestant()
         );
     }
 }

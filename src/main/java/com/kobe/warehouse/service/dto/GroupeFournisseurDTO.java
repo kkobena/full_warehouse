@@ -33,6 +33,7 @@ public class GroupeFournisseurDTO implements Serializable {
     private String urlPharmaMl;
     private String idRecepteurPharmaMl;
     private Integer delaiLivraisonJours;
+    private Integer frequenceCommandeJours;
 
     public GroupeFournisseurDTO() {
     }
@@ -58,6 +59,14 @@ public class GroupeFournisseurDTO implements Serializable {
 
     public void setDelaiLivraisonJours(Integer delaiLivraisonJours) {
         this.delaiLivraisonJours = delaiLivraisonJours;
+    }
+
+    public Integer getFrequenceCommandeJours() {
+        return frequenceCommandeJours;
+    }
+
+    public void setFrequenceCommandeJours(Integer frequenceCommandeJours) {
+        this.frequenceCommandeJours = frequenceCommandeJours;
     }
 
     public String getUrlPharmaMl() {

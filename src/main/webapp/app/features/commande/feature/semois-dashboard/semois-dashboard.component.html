@@ -1,0 +1,301 @@
+<!-- Toolbar header — même pattern que commande-dashboard -->
+<div class="pharma-toolbar">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-chart-bar"></i>
+    <span>Dashboard Réapprovisionnement SEMOIS</span>
+  </div>
+  <p-toolbar>
+    <ng-template #start>
+      @if (lastRefresh()) {
+        <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
+      }
+    </ng-template>
+    <ng-template #end>
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <p-button
+            label="Suggestions"
+            icon="pi pi-list"
+            severity="secondary"
+            size="small"
+            (onClick)="navigateToSuggestions()"
+          />
+          <p-button
+            label="Actualiser"
+            icon="pi pi-refresh"
+            severity="info"
+            size="small"
+            [loading]="isLoading()"
+            (onClick)="loadDashboard()"
+          />
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+</div>
+
+<!-- Skeleton chargement -->
+@if (isLoading() && !dashboard()) {
+  <div class="row mt-2">
+    @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+      <div class="col-12 col-md-2 mb-2">
+        <div class="card h-100">
+          <div class="card-body">
+            <p-skeleton height="2rem" class="mb-2" />
+            <p-skeleton height="1.5rem" />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- KPI Cards — style compact aligné sur commande-dashboard -->
+@if (dashboard(); as d) {
+  <div class="row mt-2 kpi-row">
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact danger-accent clickable" (click)="navigateToSuggestions()">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-triangle"></i></div>
+            <div>
+              <p class="kpi-label mb-0">En rupture</p>
+              <span class="kpi-value-sm text-danger">{{ d.nbRupture }}</span>
+              <p class="kpi-sublabel mb-0">Stock &lt; Marge séc.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact warning-accent clickable" (click)="navigateToSuggestions()">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-warning"><i class="pi pi-shopping-bag"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Sous seuil</p>
+              <span class="kpi-value-sm text-warning">{{ d.nbSousSeuil }}</span>
+              <p class="kpi-sublabel mb-0">À commander</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact success-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Stock OK</p>
+              <span class="kpi-value-sm text-success">{{ d.nbOk }}</span>
+              <p class="kpi-sublabel mb-0">Stock optimal</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact info-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-info"><i class="pi pi-box"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Surstock</p>
+              <span class="kpi-value-sm text-info">{{ d.nbSurstock }}</span>
+              <p class="kpi-sublabel mb-0">Risque péremption</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact secondary-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-secondary"><i class="pi pi-cog"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Non configurés</p>
+              <span class="kpi-value-sm text-secondary">{{ d.nbSansConfig }}</span>
+              <p class="kpi-sublabel mb-0">VMM = 0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-2 mb-2">
+      <div class="card kpi-card kpi-card-compact danger-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-danger"><i class="pi pi-minus-circle"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Unités manquantes</p>
+              <span class="kpi-value-sm text-danger">{{ d.totalUnitesManquantes | number }}</span>
+              <p class="kpi-sublabel mb-0">Total ruptures</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Taux de performance + Répartition par classe -->
+  <div class="row mt-2">
+
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-percentage text-primary"></i>
+            Taux de performance stock
+          </h5>
+          <span class="text-muted small">{{ d.totalProduits }} produits SEMOIS actifs</span>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-success fw-semibold">Produits OK</span>
+              <span class="text-success fw-bold">{{ getTauxOk() | number: '1.0-1' }}%</span>
+            </div>
+            <p-progressBar [value]="getTauxOk()" [showValue]="false" />
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-danger fw-semibold">Produits à risque</span>
+              <span class="text-danger fw-bold">{{ getTauxRisque() | number: '1.0-1' }}%</span>
+            </div>
+            <p-progressBar [value]="getTauxRisque()" [showValue]="false" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-sitemap text-primary"></i>
+            Par classe de criticité
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            [value]="d.parClasse"
+            [trackBy]="trackByClasse"
+            [scrollable]="true"
+            scrollHeight="200px"
+            class="pharma-table"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Classe</th>
+                <th class="text-end">Total</th>
+                <th class="text-end text-danger">Rupture</th>
+                <th class="text-end text-warning">Sous seuil</th>
+                <th class="text-end text-success">OK</th>
+                <th class="text-end text-info">Surstock</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr class="cursor-pointer" (click)="navigateToSuggestions(row.classeCriticite)">
+                <td>
+                  <p-tag [severity]="getClasseSeverity(row.classeCriticite)">{{ getClasseLabel(row.classeCriticite) }}</p-tag>
+                </td>
+                <td class="text-end fw-bold">{{ row.nbProduits }}</td>
+                <td class="text-end text-danger">{{ row.nbRupture }}</td>
+                <td class="text-end text-warning">{{ row.nbSousSeuil }}</td>
+                <td class="text-end text-success">{{ row.nbOk }}</td>
+                <td class="text-end text-info">{{ row.nbSurstock }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Top 10 produits urgents -->
+  <div class="row mt-2">
+    <div class="col-12 mb-3">
+      <div class="card data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-exclamation-triangle text-danger"></i>
+            Top 10 produits les plus urgents
+          </h5>
+          <p-button
+            label="Voir toutes les suggestions"
+            icon="pi pi-arrow-right"
+            severity="secondary"
+            size="small"
+            (onClick)="navigateToSuggestions()"
+          />
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            [value]="d.topUrgents"
+            [trackBy]="trackByProduit"
+            [tableStyle]="{ 'min-width': '80rem' }"
+            class="pharma-table"
+            [rowHover]="true"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Urgence</th>
+                <th>Produit</th>
+                <th>Code CIP</th>
+                <th>Fournisseur</th>
+                <th>Classe</th>
+                <th class="text-end">VMM</th>
+                <th class="text-end">Marge séc.</th>
+                <th class="text-end">Stock act.</th>
+                <th class="text-end">Qté à cmd</th>
+                <th class="text-end" title="Couverture actuelle / Couverture cible (en mois de ventes)">Couv. act / cible</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-p>
+              <tr [ngClass]="p.stockActuel < p.margeSecurite ? 'table-danger' : 'table-warning'">
+                <td><p-tag [severity]="getUrgenceSeverity(p)">{{ getUrgenceLabel(p) }}</p-tag></td>
+                <td class="fw-medium">{{ p.libelle }}</td>
+                <td><code>{{ p.codeCip || '-' }}</code></td>
+                <td>{{ p.fournisseurLibelle || '-' }}</td>
+                <td><p-tag [severity]="getClasseSeverity(p.classeCriticite)">{{ getClasseLabel(p.classeCriticite) }}</p-tag></td>
+                <td class="text-end">{{ p.vmm }}</td>
+                <td class="text-end">{{ p.margeSecurite }}</td>
+                <td class="text-end fw-bold" [ngClass]="p.stockActuel < p.margeSecurite ? 'text-danger' : 'text-warning'">{{ p.stockActuel }}</td>
+                <td class="text-end fw-bold pharma-price">{{ p.quantiteACommander }}</td>
+                <td class="text-end">
+                  <div class="d-flex flex-column align-items-end gap-0">
+                    <span class="px-2 py-1 rounded fw-semibold" [ngClass]="getCouvertureClass(p.tauxCouvertureMois)">
+                      {{ p.tauxCouvertureMois | number: '1.1-1' }} mois
+                    </span>
+                    <span class="small" [ngClass]="getCouvertureCibleClass(p)" title="Couverture cible (stock objectif / VMM)">
+                      ↗ {{ getCouvertureCibleMois(p) | number: '1.1-1' }} mois
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="10" class="text-center p-4 text-success">
+                  <i class="pi pi-check-circle" style="font-size: 2rem"></i>
+                  <p class="mt-2 mb-0">Aucun produit urgent — stock en bonne santé !</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+

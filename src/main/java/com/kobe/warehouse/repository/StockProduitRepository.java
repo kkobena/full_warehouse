@@ -68,6 +68,22 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     );
 
     /**
+     * Axe 2 SEMOIS — Chargement en masse par liste de produits et magasin.
+     * Retourne toutes les entrées (PRINCIPAL + SAFETY_STOCK) pour les produits donnés.
+     * Utilisé pour l'auto-calcul des paramètres rayon/réserve dans le batch SEMOIS.
+     */
+    @Query("""
+        SELECT sp FROM StockProduit sp
+        JOIN FETCH sp.storage s
+        WHERE sp.produit.id IN :produitIds
+          AND s.magasin.id = :magasinId
+        """)
+    List<StockProduit> findAllByProduitIdInAndMagasinId(
+        @Param("produitIds") Collection<Integer> produitIds,
+        @Param("magasinId") Integer magasinId
+    );
+
+    /**
      * Search stock produits by storage and product criteria
      * Fetches all stocks with their associated produit and storage information
      */

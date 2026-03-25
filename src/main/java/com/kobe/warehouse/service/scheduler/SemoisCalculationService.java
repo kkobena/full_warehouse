@@ -7,8 +7,10 @@ import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.SemoisSuggestionView;
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
+import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
@@ -16,6 +18,7 @@ import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
+import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -36,12 +39,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -69,7 +73,7 @@ public class SemoisCalculationService {
     private final ProduitRepository produitRepository;
     private final StockProduitRepository stockProduitRepository;
     private final AppConfigurationService appConfigurationService;
-    /** Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison. */
+    /** Stock virtuel : commandes REQUESTED en attente de livraison. */
     private final OrderLineRepository orderLineRepository;
 
     public SemoisCalculationService(
@@ -92,9 +96,6 @@ public class SemoisCalculationService {
         this.orderLineRepository = orderLineRepository;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Scheduler : filet de sécurité horaire (8h–19h)
-    // ──────────────────────────────────────────────────────────────────────────
 
     /**
      * Filet de sécurité : toutes les heures entre 8h et 19h.
@@ -226,16 +227,43 @@ public class SemoisCalculationService {
         }
 
         // Bulk-load des SemoisConfiguration existantes (évite N+1)
-        List<Integer> produitIds = produits.stream().map(Produit::getId).toList();
+        Set<Integer> produitIds = produits.stream().map(Produit::getId).collect(Collectors.toSet());
         Map<Integer, SemoisConfiguration> configsByProduitId = semoisConfigRepository
             .findByProduitIdIn(produitIds)
             .stream()
             .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
 
+        //  Bulk-load des StockProduit (rayon + réserve) pour l'auto-calcul des paramètres
+        Map<Integer, List<StockProduit>> stockProduitsByProduitId = canUpdateProduitReapproInfo
+            ? stockProduitRepository
+                .findAllByProduitIdInAndMagasinId(produitIds, (int) EntityConstant.DEFAULT_MAGASIN)
+                .stream()
+                .collect(Collectors.groupingBy(sp -> sp.getProduit().getId()))
+            : Map.of();
+
+        //  Batch-load des ventes du même mois N-1 et N-2 (calcul saisonnier)
+        // Un seul appel SQL pour tout le batch : évite 2×N requêtes individuelles.
+        String moisN1 = YearMonth.now().minusYears(1).toString();  // ex: "2025-03"
+        String moisN2 = YearMonth.now().minusYears(2).toString();  // ex: "2024-03"
+        Map<Integer, Map<String, Integer>> saisonByProduitId = canUpdateProduitReapproInfo
+            ? ventesAgregeesRepository
+                .findByProduitIdInAndAnneeMoisIn(produitIds, Set.of(moisN1, moisN2))
+                .stream()
+                .collect(Collectors.groupingBy(
+                    vma -> vma.getProduit().getId(),
+                    Collectors.toMap(
+                        VentesMensuellesAgregees::getAnneeMois,
+                        VentesMensuellesAgregees::getQuantiteVendue,
+                        (v1, v2) -> v1  // dédoublonnage défensif
+                    )
+                ))
+            : Map.of();
+
         int successCount = 0;
         int errorCount = 0;
         List<SemoisConfiguration> toSaveConfigs = new ArrayList<>();
         List<Produit> toSaveProduits = new ArrayList<>();
+        List<StockProduit> toSaveStockProduits = new ArrayList<>();  // Axe 2
 
         for (Produit produit : produits) {
             try {
@@ -243,7 +271,6 @@ public class SemoisCalculationService {
                 ClasseCriticite classe = produit.getEffectiveClasseCriticite();
                 SemoisClasseConfig classeConfig = classeConfigMap.get(classe);
                 if (classeConfig == null) {
-                    // Fallback sur B si la classe n'a pas de config
                     classeConfig = classeConfigMap.get(ClasseCriticite.B);
                 }
                 if (classeConfig == null) {
@@ -259,6 +286,17 @@ public class SemoisCalculationService {
                     config = SemoisConfiguration.createDefault(produit, classe);
                 }
 
+                if (canUpdateProduitReapproInfo) {
+                    //  Auto-calcul facteur saisonnier AVANT computeAllCalculs()
+                    // pour que computeMarge() utilise le nouveau facteur.
+                    if (!config.isFacteurSaisonnierManuel()) {
+                        Map<String, Integer> saisonData = saisonByProduitId
+                            .getOrDefault(produit.getId(), Map.of());
+                        BigDecimal newCoeff = computeSeasonalFactor(config, saisonData, moisN1, moisN2);
+                        config.setFacteurSaisonnierActuel(newCoeff);
+                    }
+                }
+
                 AllCalculs c = computeAllCalculs(config, classeConfig, produit.getId());
                 config.updateCalculs(c.vmm(), c.margeSecurite(), c.stockObjectif());
                 toSaveConfigs.add(config);
@@ -268,6 +306,14 @@ public class SemoisCalculationService {
                     produit.setQtySeuilMini(c.margeSecurite());
                     produit.setUpdatedAt(LocalDateTime.now());
                     toSaveProduits.add(produit);
+
+                    // Axe 2 — Auto-renseigner les paramètres rayon/réserve si non définis
+                    List<StockProduit> spList = stockProduitsByProduitId.getOrDefault(produit.getId(), List.of());
+                    for (StockProduit sp : spList) {
+                        if (autoFillStockProduitParams(sp, c)) {
+                            toSaveStockProduits.add(sp);
+                        }
+                    }
                 }
                 successCount++;
             } catch (Exception e) {
@@ -281,6 +327,12 @@ public class SemoisCalculationService {
             produitRepository.saveAll(toSaveProduits);
         }
 
+        if (!toSaveStockProduits.isEmpty()) {
+            stockProduitRepository.saveAll(toSaveStockProduits);
+            LOG.debug("Axe 2 — {} StockProduit mis à jour automatiquement (params rayon/réserve)",
+                toSaveStockProduits.size());
+        }
+
         return new BatchResult(successCount, errorCount);
     }
 
@@ -291,7 +343,7 @@ public class SemoisCalculationService {
     /**
      * Calcule la VMM pondérée (Ventes Mensuelles Moyennes) pour un produit.
      * <p>
-     * <b>Axe 3 — Exclusion des mois de rupture fournisseur :</b><br>
+     * <b>Exclusion des mois de rupture fournisseur :</b><br>
      * Les mois où le produit était en rupture fournisseur documentée
      * ({@code est_rupture_fournisseur = TRUE}) sont exclus du calcul.
      * En effet, les ventes de ces mois sont artificiellement basses et biaisent
@@ -306,7 +358,7 @@ public class SemoisCalculationService {
      * @return VMM arrondie à l'entier supérieur, 0 si aucune donnée
      */
     public int calculateVMM(Integer produitId, int nbMois) {
-        // Axe 3 : utiliser les mois valides (hors rupture fournisseur) en priorité
+        //  utiliser les mois valides (hors rupture fournisseur) en priorité
         List<VentesMensuellesAgregees> ventes = ventesAgregeesRepository
             .findLastNValidMonthsByProduit(produitId, nbMois);
 
@@ -384,7 +436,9 @@ public class SemoisCalculationService {
 
     private int applyPeremption(SemoisConfiguration config, SemoisClasseConfig classeConfig,
                                 Integer produitId, int vmm, int marge) {
-        int stockObjectif = vmm + marge;
+        // Axe 5 — Ajouter le stock de rotation (fréquence de commande)
+        int rotationStock = computeRotationStock(config, vmm);
+        int stockObjectif = vmm + marge + rotationStock;
         boolean limitePeremption = config.getLimitePeremption() != null
             ? config.getLimitePeremption()
             : classeConfig.getLimitePeremption();
@@ -395,11 +449,49 @@ public class SemoisCalculationService {
         return stockObjectif;
     }
 
+    /**
+     * Axe 5 — Stock de rotation = VMM × (fréquence_commande_jours / 30).
+     * Représente la quantité consommée entre deux commandes successives.
+     * Exemple : VMM=30, fréquence=7j → rotation=7 unités (≈ 1 semaine de ventes).
+     */
+    private int computeRotationStock(SemoisConfiguration config, int vmm) {
+        if (vmm == 0) return 0;
+        int freqJours = resolveFrequenceCommandeJours(config);
+        return (int) (vmm * freqJours / 30.0);
+    }
+
+    /**
+     * Résout la fréquence de commande en cascade :
+     * <ol>
+     *   <li>{@code SemoisConfiguration.frequenceCommandeJours} — surcharge par produit</li>
+     *   <li>{@code Fournisseur.frequenceCommandeJours} — surcharge par fournisseur</li>
+     *   <li>{@code GroupeFournisseur.frequenceCommandeJours} — défaut par groupe grossiste</li>
+     *   <li>Défaut code : 7 jours (commande hebdomadaire)</li>
+     * </ol>
+     */
+    private int resolveFrequenceCommandeJours(SemoisConfiguration config) {
+        if (config.getFrequenceCommandeJours() != null) {
+            return config.getFrequenceCommandeJours();
+        }
+        var fp = config.getProduit().getFournisseurProduitPrincipal();
+        if (fp != null && fp.getFournisseur() != null) {
+            var f = fp.getFournisseur();
+            if (f.getFrequenceCommandeJours() != null) {
+                return f.getFrequenceCommandeJours();
+            }
+            var gf = f.getGroupeFournisseur();
+            if (gf != null && gf.getFrequenceCommandeJours() != null) {
+                return gf.getFrequenceCommandeJours();
+            }
+        }
+        return 7; // commande hebdomadaire par défaut
+    }
+
     private record AllCalculs(int vmm, int margeSecurite, int stockObjectif, int stockActuel, int quantiteACommander) {}
 
     private int getStockActuel(Integer produitId) {
         Integer stock = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(
-            (int) EntityConstant.DEFAULT_MAGASIN, produitId);
+             EntityConstant.DEFAULT_MAGASIN, produitId);
         return stock != null ? stock : 0;
     }
 
@@ -459,7 +551,7 @@ public class SemoisCalculationService {
         Page<SemoisSuggestionView> viewPage = semoisSuggestionViewRepository.findAllWithFilters(
             search, classeCriticite, pageable);
 
-        // Axe 1 — Stock virtuel : batch-load des commandes en attente pour toute la page
+        // Stock virtuel : batch-load des commandes en attente pour toute la page
         List<Integer> produitIds = viewPage.getContent().stream()
             .map(SemoisSuggestionView::getProduitId)
             .toList();
@@ -481,7 +573,7 @@ public class SemoisCalculationService {
      */
     private SemoisSuggestionDTO toDTO(SemoisSuggestionView view, int pendingQty) {
         int qteVueACommander = view.getQuantiteACommander() != null ? view.getQuantiteACommander().intValue() : 0;
-        // Axe 1 : qteACommander ajustée = MAX(0, stockObjectif - (stockActuel + pendingQty))
+        // qteACommander ajustée = MAX(0, stockObjectif - (stockActuel + pendingQty))
         //       = MAX(0, qteVueACommander - pendingQty)
         int qteACommander = Math.max(0, qteVueACommander - pendingQty);
 
@@ -510,6 +602,111 @@ public class SemoisCalculationService {
 
     private SemoisSuggestionDTO toDTO(SemoisSuggestionView view) {
         return toDTO(view, 0);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    //  Dashboard réappro temps réel
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Construit le tableau de bord de réapprovisionnement en temps réel.
+     * <p>
+     * Agrège les indicateurs clés depuis {@code v_semois_suggestion} :
+     * compteurs par niveau d'urgence, répartition par classe, top produits urgents.
+     * </p>
+     *
+     * @return DTO consolidé du tableau de bord réappro
+     */
+    @Transactional(readOnly = true)
+    public ReapproDashboardDTO getDashboard() {
+
+        List<Object[]> globalRows = semoisSuggestionViewRepository.getDashboardGlobalStats();
+        Object[] globalRow = globalRows.isEmpty() ? new Object[7] : globalRows.get(0);
+        long totalProduits         = toLong(globalRow[0]);
+        long nbRupture             = toLong(globalRow[1]);
+        long nbSousSeuil           = toLong(globalRow[2]);
+        long nbOk                  = toLong(globalRow[3]);
+        long nbSurstock            = toLong(globalRow[4]);
+        long nbSansConfig          = toLong(globalRow[5]);
+        long totalUnitesManquantes = toLong(globalRow[6]);
+
+        //  Répartition par classe
+        List<ReapproDashboardDTO.ClasseBreakdown> parClasse = semoisSuggestionViewRepository
+            .getDashboardStatsByClasse()
+            .stream()
+            .map(row -> {
+                ClasseCriticite classe = ClasseCriticite.valueOf((String) row[0]);
+                return new ReapproDashboardDTO.ClasseBreakdown(
+                    classe,
+                    toLong(row[1]),
+                    toLong(row[2]),
+                    toLong(row[3]),
+                    toLong(row[4]),
+                    toLong(row[5])
+                );
+            })
+            .toList();
+
+        // 3. Top 10 produits urgents
+        List<ReapproDashboardDTO.TopUrgentDTO> topUrgents = semoisSuggestionViewRepository
+            .findTopUrgentProducts(10)
+            .stream()
+            .map(row -> new ReapproDashboardDTO.TopUrgentDTO(
+                toInt(row[0]),
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                row[4] != null ? ClasseCriticite.valueOf((String) row[4]) : null,
+                toInt(row[5]),
+                toInt(row[6]),
+                toInt(row[7]),
+                toLong(row[8]),
+                toLong(row[9]),
+                toDouble(row[10])
+            ))
+            .toList();
+
+        return new ReapproDashboardDTO(
+            totalProduits, nbRupture, nbSousSeuil, nbOk, nbSurstock, nbSansConfig,
+            totalUnitesManquantes, parClasse, topUrgents
+        );
+    }
+
+    /**
+     * Conversion sécurisée vers long pour les résultats de requêtes natives.
+     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static long toLong(Object val) {
+        if (val == null) return 0L;
+
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toLong(arr[0]) : 0L;
+        }
+        return ((Number) val).longValue();
+    }
+
+    /**
+     * Conversion sécurisée vers int pour les résultats de requêtes natives.
+     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static int toInt(Object val) {
+        if (val == null) return 0;
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toInt(arr[0]) : 0;
+        }
+        return ((Number) val).intValue();
+    }
+
+    /**
+     * Conversion sécurisée vers double pour les résultats de requêtes natives.
+     * Gère les cas Hibernate 7 où un scalaire peut être wrappé dans Object[].
+     */
+    private static double toDouble(Object val) {
+        if (val == null) return 0.0;
+        if (val instanceof Object[] arr) {
+            return arr.length > 0 ? toDouble(arr[0]) : 0.0;
+        }
+        return ((Number) val).doubleValue();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -549,7 +746,137 @@ public class SemoisCalculationService {
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // Helpers privés
+    // Auto-calcul paramètres rayon/réserve
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Auto-renseigne les paramètres rayon/réserve d'un {@link StockProduit} si non définis.
+     * <p>
+     * <b>Règle de protection :</b> une valeur saisie manuellement (non null et > 0) n'est jamais
+     * écrasée. L'auto-calcul ne s'applique qu'aux valeurs à zéro ou null.
+     * </p>
+     * <b>Paramètres auto-calculés par type de stockage :</b>
+     * <ul>
+     *   <li><b>PRINCIPAL (rayon)</b> :
+     *     <ul>
+     *       <li>{@code seuilMini} = VMM/4 ≈ 1 semaine de ventes (point de déclenchement réassort rayon)</li>
+     *       <li>{@code stockReassort} = VMM/4 (quantité à transférer depuis la réserve)</li>
+     *       <li>{@code stockMaxi} = max(VMM, margeSecurité×2) (évite la surcharge du rayon)</li>
+     *     </ul>
+     *   </li>
+     *   <li><b>SAFETY_STOCK (réserve)</b> :
+     *     <ul>
+     *       <li>{@code seuilMini} = margeSecurite (point de commande fournisseur)</li>
+     *     </ul>
+     *   </li>
+     * </ul>
+     *
+     * @param sp StockProduit à mettre à jour
+     * @param c  Calculs SEMOIS (VMM, marge sécurité, stock objectif)
+     * @return {@code true} si au moins un champ a été modifié
+     */
+    private boolean autoFillStockProduitParams(StockProduit sp, AllCalculs c) {
+        if (c.vmm() == 0 && c.margeSecurite() == 0) {
+            return false; // Pas de données de ventes : aucune auto-valeur fiable
+        }
+        StorageType type = sp.getStorage().getStorageType();
+        boolean modified = false;
+
+        if (type == StorageType.PRINCIPAL) {
+            // Rayon : seuil mini ≈ 1 semaine de ventes (VMM/4, minimum 1)
+            int seuilRayon = Math.max(1, c.vmm() / 4);
+            if (isNullOrZero(sp.getSeuilMini())) {
+                sp.setSeuilMini(seuilRayon);
+                modified = true;
+            }
+            // Quantité de réassort rayon = 1 semaine de ventes
+            if (isNullOrZero(sp.getStockReassort())) {
+                sp.setStockReassort(seuilRayon);
+                modified = true;
+            }
+            // Stock maxi rayon = max(VMM, 2 × marge sécurité) — évite la surcharge
+            int stockMaxiRayon = Math.max(Math.max(1, c.vmm()), c.margeSecurite() * 2);
+            if (isNullOrZero(sp.getStockMaxi())) {
+                sp.setStockMaxi(stockMaxiRayon);
+                modified = true;
+            }
+        } else if (type == StorageType.SAFETY_STOCK) {
+            // Réserve : seuil mini = marge de sécurité (point de commande fournisseur)
+            if (isNullOrZero(sp.getSeuilMini()) && c.margeSecurite() > 0) {
+                sp.setSeuilMini(c.margeSecurite());
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            sp.setUpdatedAt(LocalDateTime.now());
+        }
+        return modified;
+    }
+
+    /** Retourne true si la valeur est null ou égale à 0 (non saisie manuellement). */
+    private boolean isNullOrZero(Integer value) {
+        return value == null || value == 0;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Axe 4 — Saisonnalité automatique
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Calcule le coefficient saisonnier pour le mois actuel en comparant les ventes
+     * du même mois des 2 années précédentes avec la VMM stockée.
+     * <p>
+     * <b>Formule (inspirée Winpharma/Périscopie sur 24 mois) :</b>
+     * <pre>
+     * coeff_N1 = ventes(même_mois, N-1) / VMM_stockée
+     * coeff_N2 = ventes(même_mois, N-2) / VMM_stockée  [si disponible]
+     * coeff_final = moyenne(coeff_N1, coeff_N2) borné [0.50 ; 3.00]
+     * </pre>
+     * Retourne 1.0 (facteur neutre) si VMM = 0 ou aucune donnée historique.
+     * </p>
+     *
+     * @param config     Configuration SEMOIS (fournit la VMM du dernier calcul)
+     * @param saisonData Map anneeMois → quantiteVendue pour ce produit
+     * @param moisN1     Même mois, année N-1 (format YYYY-MM)
+     * @param moisN2     Même mois, année N-2 (format YYYY-MM)
+     * @return Coefficient saisonnier arrondi à 2 décimales, borné [0.50 ; 3.00]
+     */
+    private BigDecimal computeSeasonalFactor(
+        SemoisConfiguration config,
+        Map<String, Integer> saisonData,
+        String moisN1,
+        String moisN2
+    ) {
+        int vmmBase = config.getVmmCalcule() != null ? config.getVmmCalcule() : 0;
+        if (vmmBase == 0 || saisonData.isEmpty()) {
+            return BigDecimal.ONE;
+        }
+
+        List<Double> coefficients = new ArrayList<>();
+
+        Integer ventesN1 = saisonData.get(moisN1);
+        if (ventesN1 != null && ventesN1 > 0) {
+            coefficients.add((double) ventesN1 / vmmBase);
+        }
+
+        Integer ventesN2 = saisonData.get(moisN2);
+        if (ventesN2 != null && ventesN2 > 0) {
+            coefficients.add((double) ventesN2 / vmmBase);
+        }
+
+        if (coefficients.isEmpty()) {
+            return BigDecimal.ONE;
+        }
+
+        double avg = coefficients.stream().mapToDouble(Double::doubleValue).average().orElse(1.0);
+        // Borne [0.50 ; 3.00] pour éviter les aberrations (ex: rupture fournisseur N-1)
+        double bounded = Math.max(0.50, Math.min(3.0, avg));
+        return BigDecimal.valueOf(bounded).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Helpers privés (infrastructure)
     // ──────────────────────────────────────────────────────────────────────────
 
     private record BatchResult(int successCount, int errorCount) {}

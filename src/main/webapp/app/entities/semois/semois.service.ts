@@ -12,6 +12,7 @@ import {
   IAggregationStatus,
   IMessageResponse,
   IInitAllResponse,
+  IReapproDashboard,
 } from 'app/shared/model/semois';
 import { ClasseCriticite } from 'app/shared/model/semois/classe-criticite.model';
 import { createRequestOption } from 'app/core/request/request-util';
@@ -136,5 +137,13 @@ export class SemoisService {
    */
   updateClasseConfig(classeCriticite: string, config: ISemoisClasseConfig): Observable<HttpResponse<ISemoisClasseConfig>> {
     return this.http.put<ISemoisClasseConfig>(`${this.resourceUrl}/classe-configs/${classeCriticite}`, config, { observe: 'response' });
+  }
+
+  /**
+   * Récupère le tableau de bord réapprovisionnement SEMOIS temps réel (Axe 6).
+   * Consolide les indicateurs : compteurs par urgence, répartition par classe, top produits urgents.
+   */
+  getDashboard(): Observable<HttpResponse<IReapproDashboard>> {
+    return this.http.get<IReapproDashboard>(`${this.resourceUrl}/dashboard`, { observe: 'response' });
   }
 }

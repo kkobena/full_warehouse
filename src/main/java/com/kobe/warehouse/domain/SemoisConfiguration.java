@@ -47,6 +47,13 @@ public class SemoisConfiguration implements Serializable {
     @Column(name = "delai_livraison_jours")
     private Integer delaiLivraisonJours;
 
+    /**
+     * Axe 5 — Surcharge de la fréquence de commande pour ce produit spécifique (nullable).
+     * {@code null} = utiliser la fréquence du groupe fournisseur (ou défaut 7 jours).
+     */
+    @Column(name = "frequence_commande_jours")
+    private Integer frequenceCommandeJours;
+
     @Column(name = "marge_securite")
     private Integer margeSecurite;
 
@@ -63,6 +70,15 @@ public class SemoisConfiguration implements Serializable {
     @DecimalMax("3.0")
     @Column(name = "facteur_saisonnier_actuel", precision = 3, scale = 2)
     private BigDecimal facteurSaisonnierActuel = BigDecimal.ONE;
+
+    /**
+     * Indique que le facteur saisonnier a été saisi manuellement par le pharmacien.
+     * Quand {@code true}, l'auto-calcul SEMOIS (Axe 4) ne l'écrasera pas.
+     * Quand {@code false} (défaut), le facteur est recalculé chaque mois depuis
+     * l'historique des ventes N-1 / N-2 du même mois.
+     */
+    @Column(name = "facteur_saisonnier_manuel", nullable = false)
+    private boolean facteurSaisonnierManuel = false;
 
     @Column(name = "limite_peremption")
     private Boolean limitePeremption;
@@ -107,6 +123,14 @@ public class SemoisConfiguration implements Serializable {
         this.delaiLivraisonJours = delaiLivraisonJours;
     }
 
+    public Integer getFrequenceCommandeJours() {
+        return frequenceCommandeJours;
+    }
+
+    public void setFrequenceCommandeJours(Integer frequenceCommandeJours) {
+        this.frequenceCommandeJours = frequenceCommandeJours;
+    }
+
     public Integer getMargeSecurite() {
         return margeSecurite;
     }
@@ -145,6 +169,14 @@ public class SemoisConfiguration implements Serializable {
 
     public void setFacteurSaisonnierActuel(BigDecimal facteurSaisonnierActuel) {
         this.facteurSaisonnierActuel = facteurSaisonnierActuel;
+    }
+
+    public boolean isFacteurSaisonnierManuel() {
+        return facteurSaisonnierManuel;
+    }
+
+    public void setFacteurSaisonnierManuel(boolean facteurSaisonnierManuel) {
+        this.facteurSaisonnierManuel = facteurSaisonnierManuel;
     }
 
     public Boolean getLimitePeremption() {

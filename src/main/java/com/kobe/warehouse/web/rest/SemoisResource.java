@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
+import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import com.kobe.warehouse.service.scheduler.SemoisCalculationService;
 import com.kobe.warehouse.service.scheduler.VentesAgregeesService;
@@ -209,6 +210,24 @@ public class SemoisResource {
         long nbProduits = semoisConfigRepository.countAll();
         boolean recente = lastCalc != null && lastCalc.isAfter(LocalDateTime.now().minusHours(24));
         return ResponseEntity.ok(new FraicheurResponse(lastCalc, recente, nbProduits));
+    }
+
+    /**
+     * GET /api/semois/dashboard : Tableau de bord réapprovisionnement temps réel (Axe 6).
+     * <p>
+     * Retourne les indicateurs consolidés depuis {@code v_semois_suggestion} :
+     * <ul>
+     *   <li>Compteurs par niveau d'urgence (rupture, sous seuil, ok, surstock)</li>
+     *   <li>Répartition par classe de criticité (A+, A, B, C, D)</li>
+     *   <li>Top 10 produits les plus urgents triés par taux de couverture</li>
+     * </ul>
+     * </p>
+     */
+    @GetMapping("/dashboard")
+    public ResponseEntity<ReapproDashboardDTO> getDashboard() {
+        LOG.debug("REST request to get SEMOIS reappro dashboard");
+        ReapproDashboardDTO dashboard = semoisCalculationService.getDashboard();
+        return ResponseEntity.ok(dashboard);
     }
 
     /**

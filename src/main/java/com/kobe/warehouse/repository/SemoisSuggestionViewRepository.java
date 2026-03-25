@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Repository pour la vue ordinaire v_semois_suggestion.
  *
@@ -41,4 +43,82 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
         Pageable pageable
     );
 
+    // ──────────────────────────────────────────────────────────────────────
+    // Dashboard réappro (Axe 6)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * Retourne les statistiques globales du dashboard réappro en une seule requête.
+     * Résultat : List avec un seul Object[] de 7 colonnes :
+     * [0] total_produits, [1] nb_rupture, [2] nb_sous_seuil, [3] nb_ok,
+     * [4] nb_surstock, [5] nb_sans_config, [6] total_unites_manquantes
+     *
+     * <p>Retourné en List&lt;Object[]&gt; car Hibernate 7 ne déroule plus
+     * automatiquement le résultat scalaire d'une native query en Object[].</p>
+     */
+    @Query(value = """
+        SELECT
+            COUNT(*)                                                                              AS total_produits,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel < marge_securite)                    AS nb_rupture,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel >= marge_securite
+                                           AND stock_actuel < stock_objectif)                    AS nb_sous_seuil,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel >= stock_objectif
+                                           AND stock_actuel <= stock_objectif * 1.5)             AS nb_ok,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_objectif > 0
+                                           AND stock_actuel > stock_objectif * 1.5)              AS nb_surstock,
+            COUNT(*) FILTER (WHERE vmm = 0 OR vmm IS NULL)                                       AS nb_sans_config,
+            COALESCE(SUM(quantite_a_commander)
+                FILTER (WHERE vmm > 0 AND stock_actuel < marge_securite), 0)                     AS total_unites_manquantes
+        FROM v_semois_suggestion
+        """, nativeQuery = true)
+    List<Object[]> getDashboardGlobalStats();
+
+    /**
+     * Répartition par classe de criticité pour le dashboard réappro.
+     * Résultat : lignes de Object[] avec :
+     * [0] classe_criticite, [1] nb_produits, [2] nb_rupture,
+     * [3] nb_sous_seuil, [4] nb_ok, [5] nb_surstock
+     */
+    @Query(value = """
+        SELECT
+            classe_criticite,
+            COUNT(*)                                                                              AS nb_produits,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel < marge_securite)                    AS nb_rupture,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel >= marge_securite
+                                           AND stock_actuel < stock_objectif)                    AS nb_sous_seuil,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel >= stock_objectif
+                                           AND stock_actuel <= stock_objectif * 1.5)             AS nb_ok,
+            COUNT(*) FILTER (WHERE vmm > 0 AND stock_objectif > 0
+                                           AND stock_actuel > stock_objectif * 1.5)              AS nb_surstock
+        FROM v_semois_suggestion
+        WHERE classe_criticite IS NOT NULL
+        GROUP BY classe_criticite
+        ORDER BY classe_criticite
+        """, nativeQuery = true)
+    List<Object[]> getDashboardStatsByClasse();
+
+    /**
+     * Top N produits les plus urgents (en rupture ou sous seuil, vmm > 0).
+     * Triés par taux de couverture croissant (les plus critiques en premier).
+     */
+    @Query(value = """
+        SELECT
+            produit_id,
+            libelle,
+            code_cip,
+            fournisseur_libelle,
+            classe_criticite,
+            vmm,
+            marge_securite,
+            stock_objectif,
+            stock_actuel,
+            quantite_a_commander,
+            CASE WHEN vmm > 0 THEN CAST(stock_actuel AS FLOAT) / vmm ELSE 0 END AS taux_couverture_mois
+        FROM v_semois_suggestion
+        WHERE vmm > 0
+          AND stock_actuel < stock_objectif
+        ORDER BY taux_couverture_mois ASC, quantite_a_commander DESC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Object[]> findTopUrgentProducts(@Param("limit") int limit);
 }

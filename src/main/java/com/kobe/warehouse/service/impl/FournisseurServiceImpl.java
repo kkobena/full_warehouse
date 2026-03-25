@@ -66,6 +66,7 @@ public class FournisseurServiceImpl implements FournisseurService {
             .phone(fournisseurDTO.getPhone())
             .site(fournisseurDTO.getSite())
             .setDelaiLivraisonJours(fournisseurDTO.getDelaiLivraisonJours())
+            .setFrequenceCommandeJours(fournisseurDTO.getFrequenceCommandeJours())
             .setIdentifiantRepartiteur(fournisseurDTO.getIdentifiantRepartiteur())
             .groupeFournisseur(
                 new GroupeFournisseur().id(fournisseurDTO.getGroupeFournisseurId() != null ? fournisseurDTO.getGroupeFournisseurId() : 5)

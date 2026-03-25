@@ -72,6 +72,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
             .numFaxe(groupeFournisseurDTO.getNumFaxe())
             .odre(groupeFournisseurDTO.getOdre())
             .setDelaiLivraisonJours(groupeFournisseurDTO.getDelaiLivraisonJours())
+            .setFrequenceCommandeJours(groupeFournisseurDTO.getFrequenceCommandeJours())
             .tel(groupeFournisseurDTO.getTel());
         return new GroupeFournisseurDTO(groupeFournisseurRepository.save(groupeFournisseur));
     }

@@ -51,6 +51,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
     mobile: [],
     groupeFournisseurId: [],
     delaiLivraisonJours: [],
+    frequenceCommandeJours: [],
     identifiantRepartiteur: [],
   });
   private readonly entityService = inject(FournisseurService);
@@ -84,6 +85,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       mobile: entity.mobile,
       identifiantRepartiteur: entity.identifiantRepartiteur,
       delaiLivraisonJours: entity.delaiLivraisonJours,
+      frequenceCommandeJours: entity.frequenceCommandeJours,
     });
   }
 
@@ -129,6 +131,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       phone: this.editForm.get(['phone']).value,
       mobile: this.editForm.get(['mobile']).value,
       delaiLivraisonJours: this.editForm.get(['delaiLivraisonJours']).value,
+      frequenceCommandeJours: this.editForm.get(['frequenceCommandeJours']).value,
       identifiantRepartiteur: this.editForm.get(['identifiantRepartiteur']).value,
     };
   }

@@ -64,6 +64,23 @@
         </div>
 
         <div class="form-field form-field-full">
+          <label for="field_frequenceCommandeJours">
+            Fréquence de commande (jours)
+            <small class="text-muted ms-1">— ex : 1 = quotidien · 7 = hebdo · 14 = bimensuel</small>
+          </label>
+          <input
+            autocomplete="off"
+            class="w-full"
+            formControlName="frequenceCommandeJours"
+            id="field_frequenceCommandeJours"
+            name="frequenceCommandeJours"
+            pInputText
+            pKeyFilter="int"
+            placeholder="Vide = utiliser la fréquence du groupe"
+          />
+        </div>
+
+        <div class="form-field form-field-full">
           <label for="field_identifiantRepartiteur">Code répartiteur</label>
           <input
             autocomplete="off"

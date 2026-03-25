@@ -3,7 +3,6 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -65,6 +64,10 @@ public class Fournisseur implements Serializable {
     /** Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur. */
     @Column(name = "delai_livraison_jours")
     private Integer delaiLivraisonJours;
+
+    /**  Fréquence de commande en jours. Null = utiliser la fréquence du groupe fournisseur. */
+    @Column(name = "frequence_commande_jours")
+    private Integer frequenceCommandeJours;
 
     /*
     Id de agence grossiste, utliser dans pharamaml RECEPTEUR (Id) DESTINATAIRE(Id_Societe)
@@ -213,6 +216,15 @@ public class Fournisseur implements Serializable {
 
     public Fournisseur setDelaiLivraisonJours(Integer delaiLivraisonJours) {
         this.delaiLivraisonJours = delaiLivraisonJours;
+        return this;
+    }
+
+    public Integer getFrequenceCommandeJours() {
+        return frequenceCommandeJours;
+    }
+
+    public Fournisseur setFrequenceCommandeJours(Integer frequenceCommandeJours) {
+        this.frequenceCommandeJours = frequenceCommandeJours;
         return this;
     }
 

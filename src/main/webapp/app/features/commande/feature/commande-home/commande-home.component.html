@@ -106,6 +106,28 @@
                   <app-semois-classe-config />
                 </ng-template>
               </ng-container>
+
+              <ng-container ngbNavItem="SEMOIS_DASHBOARD">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Dashboard SEMOIS</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-semois-dashboard />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="SEMOIS_SUGGESTIONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shopping-bag"></i>
+                  <span>Suggestions SEMOIS</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-semois-suggestions />
+                </ng-template>
+              </ng-container>
             </div>
           </div>
         </div>

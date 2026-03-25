@@ -1,0 +1,351 @@
+<div class="pharma-smart-content p-2">
+  <!-- Toolbar Header -->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-cog"></i>
+      <span class="pharma-toolbar-title">Configuration SEMOIS en Masse</span>
+    </div>
+    <p-toolbar>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-button icon="pi pi-arrow-left" label="Retour aux suggestions" severity="secondary" [text]="true" (click)="previousState()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Tabs pour les différentes stratégies -->
+  <div class="pharma-nav-tabs-container mt-3">
+    <div #nav="ngbNav" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+      <!-- Onglet 1: Classification Automatique ABC -->
+      <ng-container ngbNavItem="classification-abc">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sparkles me-2"></i>
+          <span>Classification Auto (ABC)</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="pi pi-info-circle me-2"></i>
+                Stratégie de Classification Automatique
+              </h6>
+
+              <p class="text-muted mb-4">
+                Cette stratégie utilise l'<strong>analyse ABC de rotation</strong> existante pour classer automatiquement vos produits en
+                classes SEMOIS. Elle se base sur le taux de rotation annuel et le z-score statistique.
+              </p>
+
+              <div class="alert alert-info">
+                <strong>Règles de classification proposées :</strong>
+                <ul class="mb-0 mt-2">
+                  <li><strong>Classe A+</strong> : Produits vitaux (à définir manuellement après import)</li>
+                  <li><strong>Classe A</strong> : ABC = A (forte rotation, z ≥ 1.96) ET rotation ≥ 6x/an</li>
+                  <li><strong>Classe B</strong> : ABC = B (rotation moyenne) OU rotation 3-6x/an</li>
+                  <li><strong>Classe C</strong> : ABC = C (faible rotation) ET rotation 1-3x/an</li>
+                  <li><strong>Classe D</strong> : Rotation < 1x/an ou VMM nul</li>
+                </ul>
+              </div>
+
+              <div class="form-grid-compact mb-3">
+                <div class="form-field">
+                  <label>
+                    <input type="checkbox" [(ngModel)]="autoConfig.includeNoSales" class="me-2" />
+                    Inclure les produits sans vente (classe D par défaut)
+                  </label>
+                </div>
+
+                <div class="form-field">
+                  <label>
+                    <input type="checkbox" [(ngModel)]="autoConfig.overwriteExisting" class="me-2" />
+                    Écraser les configurations SEMOIS existantes
+                  </label>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <p-button
+                  label="Prévisualiser la classification"
+                  icon="pi pi-eye"
+                  severity="secondary"
+                  (onClick)="previewAutoClassification()"
+                  [loading]="isPreviewLoading()"
+                />
+                <p-button
+                  label="Appliquer la classification ABC"
+                  icon="pi pi-check"
+                  severity="primary"
+                  [disabled]="!previewData() || previewData()!.length === 0"
+                  (onClick)="confirmAutoClassification()"
+                  [loading]="isProcessing()"
+                />
+              </div>
+
+              <!-- Prévisualisation -->
+              @if (previewData() && previewData()!.length > 0) {
+                <div class="mt-4">
+                  <h6 class="mb-3">Prévisualisation ({{ previewData()!.length }} produits)</h6>
+
+                  <div class="row mb-3">
+                    <div class="col-md-2">
+                      <div class="card text-center">
+                        <div class="card-body">
+                          <h5 class="text-danger">{{ getPreviewCountByClasse('A_PLUS') }}</h5>
+                          <small class="text-muted">Classe A+</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="card text-center">
+                        <div class="card-body">
+                          <h5 class="text-success">{{ getPreviewCountByClasse('A') }}</h5>
+                          <small class="text-muted">Classe A</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="card text-center">
+                        <div class="card-body">
+                          <h5 class="text-info">{{ getPreviewCountByClasse('B') }}</h5>
+                          <small class="text-muted">Classe B</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="card text-center">
+                        <div class="card-body">
+                          <h5 class="text-warning">{{ getPreviewCountByClasse('C') }}</h5>
+                          <small class="text-muted">Classe C</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="card text-center">
+                        <div class="card-body">
+                          <h5 class="text-secondary">{{ getPreviewCountByClasse('D') }}</h5>
+                          <small class="text-muted">Classe D</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p-table
+                    [value]="previewData()!"
+                    [paginator]="true"
+                    [rows]="10"
+                    class="pharma-table"
+                    [tableStyle]="{ 'min-width': '60rem' }"
+                  >
+                    <ng-template #header>
+                      <tr class="pharma-table-head">
+                        <th>Produit</th>
+                        <th>Code CIP</th>
+                        <th>ABC Rotation</th>
+                        <th>Rotation (x/an)</th>
+                        <th>Classe SEMOIS proposée</th>
+                        <th>Coefficient</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template #body let-item>
+                      <tr>
+                        <td>{{ item.libelle }}</td>
+                        <td>{{ item.codeCip }}</td>
+                        <td>
+                          <p-tag [severity]="item.abcRotation === 'A' ? 'success' : item.abcRotation === 'B' ? 'info' : 'warn'">
+                            {{ item.abcRotation }}
+                          </p-tag>
+                        </td>
+                        <td class="text-end">{{ item.rotationRate | number: '1.1-1' }}x</td>
+                        <td>
+                          <p-tag [severity]="getClasseSeverity(item.classeSemoisProposee)">
+                            {{ getClasseLabel(item.classeSemoisProposee) }}
+                          </p-tag>
+                        </td>
+                        <td class="text-end">{{ item.coefficientSecurite }}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <!-- Onglet 2: Configuration Manuelle en Masse -->
+      <ng-container ngbNavItem="config-manuelle">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sliders-h me-2"></i>
+          <span>Configuration Manuelle</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="pi pi-info-circle me-2"></i>
+                Initialisation Globale des Produits
+              </h6>
+
+              <p class="text-muted mb-4">
+                Initialise tous les produits actifs sans configuration SEMOIS avec des paramètres par défaut. Vous pourrez ensuite ajuster
+                individuellement ou utiliser la classification ABC.
+              </p>
+
+              <div class="alert alert-warning">
+                <strong>⚠️ Paramètres par défaut appliqués :</strong>
+                <ul class="mb-0 mt-2">
+                  <li>Classe de criticité : <strong>B</strong> (Rotation moyenne)</li>
+                  <li>Coefficient de sécurité : <strong>0.7</strong></li>
+                  <li>Nombre de mois historique : <strong>6 mois</strong></li>
+                  <li>Délai de livraison : <strong>7 jours</strong></li>
+                  <li>Facteur saisonnier : <strong>1.0</strong> (neutre)</li>
+                  <li>Limite péremption : <strong>Non activée</strong></li>
+                </ul>
+              </div>
+
+              <p-button
+                label="Initialiser tous les produits actifs"
+                icon="pi pi-plus-circle"
+                severity="primary"
+                (onClick)="confirmInitAll()"
+                [loading]="isProcessing()"
+              />
+
+              @if (initAllResult()) {
+                <div class="alert alert-success mt-3">
+                  <strong>✓ Succès !</strong> {{ initAllResult()!.configurationsCreated }} configurations SEMOIS créées.
+                </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <!-- Onglet 3: Import Historique -->
+      <ng-container ngbNavItem="import-historique">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-history me-2"></i>
+          <span>Import Historique</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="pi pi-info-circle me-2"></i>
+                Import des Données Historiques de Ventes
+              </h6>
+
+              <p class="text-muted mb-4">
+                Agrège les ventes des N derniers mois pour alimenter le calcul du VMM SEMOIS.
+                <strong>À exécuter une seule fois</strong> lors du déploiement initial, ou pour corriger des données manquantes.
+              </p>
+
+              <div class="alert alert-warning">
+                <strong>⚠️ Important :</strong>
+                <ul class="mb-0 mt-2">
+                  <li>Cet import peut prendre plusieurs minutes pour des milliers de produits</li>
+                  <li>Les mois M-2 à M-12 seront gelés automatiquement</li>
+                  <li>Le mois M-1 reste modifiable (fenêtre de correction J+7)</li>
+                  <li>Les recalculs quotidiens automatiques prendront le relais ensuite</li>
+                </ul>
+              </div>
+
+              <div class="form-field mb-3" style="max-width: 300px">
+                <label for="nbMois">Nombre de mois à importer</label>
+                <input pInputText type="number" id="nbMois" [(ngModel)]="importNbMois" min="1" max="24" class="w-full" />
+                <small class="text-muted">Recommandé : 12 mois</small>
+              </div>
+
+              <p-button
+                [label]="'Importer ' + importNbMois + ' mois de ventes'"
+                icon="pi pi-download"
+                severity="primary"
+                (onClick)="confirmImportHistorique()"
+                [loading]="isProcessing()"
+              />
+
+              @if (importResult()) {
+                <div class="alert alert-success mt-3"><strong>✓ Succès !</strong> {{ importResult() }}</div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <!-- Onglet 4: Statut Système -->
+      <ng-container ngbNavItem="statut-systeme">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-chart-line me-2"></i>
+          <span>Statut Système</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-primary mb-3">
+                <i class="pi pi-info-circle me-2"></i>
+                Statut de l'Agrégation Mensuelle
+              </h6>
+
+              @if (aggregationStatus()) {
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div class="card">
+                      <div class="card-body">
+                        <h6 class="text-muted">Mois en cours</h6>
+                        <h4>{{ aggregationStatus()!.currentMonth }}</h4>
+                        <p class="mb-0">
+                          <strong>{{ aggregationStatus()!.currentMonthProductCount }}</strong> produits agrégés
+                        </p>
+                        <small class="text-muted">Recalculé quotidiennement à 2h</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <div class="card">
+                      <div class="card-body">
+                        <h6 class="text-muted">Mois précédent</h6>
+                        <h4>{{ aggregationStatus()!.lastMonth }}</h4>
+                        <p class="mb-0">
+                          <strong>{{ aggregationStatus()!.lastMonthProductCount }}</strong> produits agrégés
+                        </p>
+                        <p class="mb-0">
+                          Statut :
+                          @if (aggregationStatus()!.lastMonthFrozen) {
+                            <span class="badge bg-success">🔒 Gelé</span>
+                          } @else {
+                            <span class="badge bg-warning">🔓 Modifiable (J+{{ aggregationStatus()!.freezeDelayDays }})</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="alert alert-info">
+                  <strong>ℹ️ Informations :</strong>
+                  <ul class="mb-0 mt-2">
+                    <li>Fenêtre de correction : {{ aggregationStatus()!.freezeDelayDays }} jours après fin de mois</li>
+                    <li>Agrégation automatique : Tous les jours à 2h du matin</li>
+                    <li>Recalcul SEMOIS : Tous les jours à 3h du matin</li>
+                  </ul>
+                </div>
+
+                <p-button label="Rafraîchir le statut" icon="pi pi-refresh" severity="secondary" (onClick)="loadAggregationStatus()" />
+              } @else {
+                <div class="text-center p-4">
+                  <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                  <p class="mt-3">Chargement du statut...</p>
+                </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <!-- Tab content -->
+    <div [ngbNavOutlet]="nav" class="pharma-nav-tab-content mt-3"></div>
+  </div>
+</div>

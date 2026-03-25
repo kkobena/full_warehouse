@@ -52,6 +52,43 @@ export class SemoisSuggestion implements ISemoisSuggestion {
   }
 
   /**
+   * Calcule la couverture cible en mois (objectif pharmacien).
+   * Indique combien de mois de ventes le stock objectif représente.
+   * Formule : Stock Objectif / VMM
+   * @returns Nombre de mois de couverture cible
+   */
+  getCouvertureCibleMois(): number {
+    if (!this.vmm || this.vmm === 0) {
+      return 0;
+    }
+    return (this.stockObjectif ?? 0) / this.vmm;
+  }
+
+  /**
+   * Calcule la couverture de la marge de sécurité en mois.
+   * Formule : Marge de Sécurité / VMM
+   * @returns Nombre de mois de marge de sécurité
+   */
+  getMargeSecuriteCibleMois(): number {
+    if (!this.vmm || this.vmm === 0) {
+      return 0;
+    }
+    return (this.margeSecurite ?? 0) / this.vmm;
+  }
+
+  /**
+   * Retourne la classe CSS de couleur pour la couverture cible.
+   * Même logique que getTauxCouvertureMois mais appliquée au stock objectif.
+   */
+  getCouvertureCibleClass(): string {
+    const cible = this.getCouvertureCibleMois();
+    if (cible < 0.5) return 'text-danger';
+    if (cible < 1.0) return 'text-warning';
+    if (cible <= 3.0) return 'text-success';
+    return 'text-info';
+  }
+
+  /**
    * Vérifie si le produit est en rupture potentielle
    * @returns true si le stock actuel est inférieur à la marge de sécurité
    */

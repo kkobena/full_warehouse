@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavLink, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +11,8 @@ import { AppRepartitionStockComponent } from '../repartition-stock/repartition-s
 import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component';
 import { CommandeDashboardComponent } from '../commande-dashboard/commande-dashboard.component';
 import { SemoisClasseConfigComponent } from '../semois-classe-config/semois-classe-config.component';
+import { SemoisDashboardComponent } from '../semois-dashboard/semois-dashboard.component';
+import { SemoisSuggestionsComponent } from '../semois-suggestions/semois-suggestions.component';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 
@@ -34,6 +36,8 @@ import { PrimeNG } from 'primeng/config';
     SuggestionHomeComponent,
     CommandeDashboardComponent,
     SemoisClasseConfigComponent,
+    SemoisDashboardComponent,
+    SemoisSuggestionsComponent,
   ],
 })
 export class CommandeHomeComponent implements OnInit {
@@ -43,6 +47,17 @@ export class CommandeHomeComponent implements OnInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
+
+  constructor() {
+    // Réagit aux changements de nav déclenchés depuis les composants enfants
+    // (ex: semois-dashboard → SEMOIS_SUGGESTIONS)
+    effect(() => {
+      const nav = this.commandCommonService.commandPreviousActiveNav();
+      if (nav !== this.active) {
+        this.active = nav;
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.translate.use('fr');

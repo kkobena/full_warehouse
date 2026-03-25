@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository pour VentesMensuellesAgregees.
@@ -28,6 +29,27 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
      * @return L'agrégation si trouvée
      */
     Optional<VentesMensuellesAgregees> findByProduitIdAndAnneeMois(Integer produitId, String anneeMois);
+
+    /**
+     * Axe 4 SEMOIS — Batch-chargement des données saisonnières.
+     * Charge les ventes pour une liste de produits et une liste de mois spécifiques
+     * (ex: même mois N-1 et N-2) en une seule requête SQL.
+     * Utilisé pour calculer le coefficient saisonnier dans {@code SemoisCalculationService}.
+     *
+     * @param produitIds IDs des produits du batch courant
+     * @param months     Mois cibles au format YYYY-MM (ex: ["2025-03", "2024-03"])
+     * @return Ventes pour ces produits et ces mois spécifiques
+     */
+    @Query("""
+        SELECT vma FROM VentesMensuellesAgregees vma
+        JOIN FETCH vma.produit p
+        WHERE p.id IN :produitIds
+          AND vma.anneeMois IN :months
+        """)
+    List<VentesMensuellesAgregees> findByProduitIdInAndAnneeMoisIn(
+        @Param("produitIds") Set<Integer> produitIds,
+        @Param("months") Set<String> months
+    );
 
     /**
      * Récupère les N derniers mois de ventes pour un produit

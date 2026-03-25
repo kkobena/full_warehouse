@@ -56,6 +56,9 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "delai_livraison_jours", nullable = false)
     private Integer delaiLivraisonJours = 7;
 
+    @Column(name = "frequence_commande_jours", nullable = false)
+    private Integer frequenceCommandeJours = 7;
+
     /*
    utilser dans pharmaMl code grossiste RECEPTEUR(code)
    DESTINATAIRE(code_societe)
@@ -207,13 +210,25 @@ public class GroupeFournisseur implements Serializable {
 
     public Integer getDelaiLivraisonJours() {
         if (delaiLivraisonJours == null) {
-            delaiLivraisonJours = 7; // Valeur par défaut si non spécifié
+            delaiLivraisonJours = 7;
         }
         return delaiLivraisonJours;
     }
 
     public GroupeFournisseur setDelaiLivraisonJours(Integer delaiLivraisonJours) {
         this.delaiLivraisonJours = delaiLivraisonJours;
+        return this;
+    }
+
+    public Integer getFrequenceCommandeJours() {
+        if (frequenceCommandeJours == null) {
+            frequenceCommandeJours = 7;
+        }
+        return frequenceCommandeJours;
+    }
+
+    public GroupeFournisseur setFrequenceCommandeJours(Integer frequenceCommandeJours) {
+        this.frequenceCommandeJours = frequenceCommandeJours;
         return this;
     }
 

@@ -41,6 +41,27 @@
           }
         </div>
 
+        <div class="form-field form-field-full">
+          <label for="field_frequenceCommandeJours">
+            Fréquence de commande (jours)
+            <small class="text-muted ms-1">— ex : 1 = quotidien · 7 = hebdo · 14 = bimensuel</small>
+          </label>
+          <input
+            pKeyFilter="int"
+            autocomplete="off"
+            class="w-full"
+            formControlName="frequenceCommandeJours"
+            id="field_frequenceCommandeJours"
+            name="frequenceCommandeJours"
+            pInputText
+            type="number"
+            min="1"
+          />
+          <small class="text-muted">
+            Utilisé par SEMOIS pour calculer le stock de rotation entre deux commandes.
+          </small>
+        </div>
+
 
         <div class="form-field form-field-full">
           <label for="field_urlPharmaMl">URL PharmaML</label>

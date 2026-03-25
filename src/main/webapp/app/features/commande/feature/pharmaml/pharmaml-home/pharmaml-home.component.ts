@@ -46,12 +46,7 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   commandeRef = input.required<string>();
   orderStatus = input<OrderStatut | undefined>(undefined);
 
-  readonly sendingAck = signal(false);
-
-  private readonly modal = inject(NgbModal);
-  private readonly notificationService = inject(NotificationService);
-  private readonly api = inject(PharmamlApiService);
-  private readonly errorService = inject(ErrorService);
+  readonly isSubmited = input(false);
   readonly lastResult = signal<IPharmamlCommandeResponse | null>(null);
   readonly historique = signal<IPharmaMlEnvoi[]>([]);
   readonly showHistorique = signal(false);
@@ -61,37 +56,10 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   readonly disponibilites = signal<IInfoProduit[]>([]);
   readonly showDisponibilite = signal(false);
   readonly loadingDisponibilite = signal(false);
-
-  readonly canAnnuler = computed(() =>
-    this.orderStatus() !== 'RECEIVED' &&
-    this.historique().some(e => e.statut === 'SUBMITTED' || e.statut === 'PARTIAL')
-  );
-
-  private readonly utilsMenuItems = (): MenuItem[] => [
-    {separator: true},
-    {label: 'Vérifier disponibilité', icon: 'pi pi-search', command: () => this.verifierDisponibilite()},
-    {label: 'Comparer multi-grossistes', icon: 'pi pi-chart-bar', command: () => this.ouvrirComparaison()},
-    {label: 'Historique des envois', icon: 'pi pi-history', command: () => this.toggleHistorique()},
-  ];
-
-  /** Actions du SplitButton en mode REQUESTED */
-  readonly actionsRequested = computed<MenuItem[]>(() => [
-    {label: 'Envoyer via PharmaML', icon: 'pi pi-send', command: () => this.openEnvoi()},
-    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
-    ...(this.canAnnuler()
-      ? [{label: 'Annuler commande', icon: 'pi pi-ban', styleClass: 'p-button-danger', command: () => this.openAnnulation()}]
-      : []),
-    ...this.utilsMenuItems(),
-  ]);
-
-  /** Actions du SplitButton en mode RECEIVED */
-  readonly actionsReceived = computed<MenuItem[]>(() => [
-    {label: 'Accuser réception (PharmaML)', icon: 'pi pi-check-circle', command: () => this.envoiAck()},
-    {label: 'Retour marchandise', icon: 'pi pi-reply', command: () => this.openRetour()},
-    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
-    ...this.utilsMenuItems(),
-  ]);
-
+  private readonly modal = inject(NgbModal);
+  private readonly notificationService = inject(NotificationService);
+  private readonly api = inject(PharmamlApiService);
+  private readonly errorService = inject(ErrorService);
   private pollSub: Subscription | null = null;
 
   ngOnInit(): void {
@@ -104,7 +72,11 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   }
 
   openEnvoi(): void {
-    const ref = this.modal.open(EnvoiPharmamlComponent, {size: 'lg',backdrop: 'static', centered: true});
+    const ref = this.modal.open(EnvoiPharmamlComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true
+    });
     const instance = ref.componentInstance as EnvoiPharmamlComponent;
     instance.commandeId = this.commandeId();
 
@@ -125,14 +97,22 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   }
 
   openSubstitutions(): void {
-    const ref = this.modal.open(SubstitutionPharmamlComponent, {size: 'xl',backdrop: 'static', centered: true});
+    const ref = this.modal.open(SubstitutionPharmamlComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      centered: true
+    });
     const instance = ref.componentInstance as SubstitutionPharmamlComponent;
     instance.commandeId = this.commandeId();
     ref.result.then(() => this.loadSubstitutions(), () => this.loadSubstitutions());
   }
 
   openReponse(): void {
-    const ref = this.modal.open(ReponsePharmamlComponent, {size: 'xl',backdrop: 'static', centered: true});
+    const ref = this.modal.open(ReponsePharmamlComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      centered: true
+    });
     const instance = ref.componentInstance as ReponsePharmamlComponent;
     instance.commandeRef = this.commandeRef();
     instance.orderId = this.commandeId().id.toString();
@@ -149,7 +129,11 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   }
 
   openAnnulation(): void {
-    const ref = this.modal.open(AnnulationPharmamlComponent, {size: 'md', backdrop: 'static',centered: true});
+    const ref = this.modal.open(AnnulationPharmamlComponent, {
+      size: 'md',
+      backdrop: 'static',
+      centered: true
+    });
     const instance = ref.componentInstance as AnnulationPharmamlComponent;
     instance.commandeId = this.commandeId();
     ref.result.then(
@@ -165,7 +149,11 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
   }
 
   openRetour(): void {
-    const ref = this.modal.open(RetourPharmamlComponent, {size: 'xl',backdrop: 'static', centered: true});
+    const ref = this.modal.open(RetourPharmamlComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      centered: true
+    });
     const instance = ref.componentInstance as RetourPharmamlComponent;
     instance.commandeId = this.commandeId();
     instance.commandeRef = this.commandeRef();
@@ -180,31 +168,23 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  envoiAck(): void {
-    if (this.sendingAck()) return;
-    const id = this.commandeId();
-    this.sendingAck.set(true);
-    this.api.accuseReception(id.id, id.orderDate).subscribe({
-      next: () => {
-        this.sendingAck.set(false);
-        this.notificationService.success(`Accusé de reception transmis au grossiste`, 'Accusé envoyé');
-      },
-      error: (err) => {
-        this.sendingAck.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
-      },
-    });
-  }
 
   ouvrirComparaison(): void {
-    const ref = this.modal.open(DispoComparaisonComponent, {size: 'lg',backdrop: 'static', centered: true, scrollable: true});
+    const ref = this.modal.open(DispoComparaisonComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+      scrollable: true
+    });
     const instance = ref.componentInstance as DispoComparaisonComponent;
     instance.commandeId = this.commandeId();
     instance.header = `Comparaison disponibilité multi-grossistes — commande ${this.commandeRef()}`;
   }
 
   verifierDisponibilite(): void {
-    if (this.loadingDisponibilite()) return;
+    if (this.loadingDisponibilite()) {
+      return;
+    }
     const id = this.commandeId();
     this.loadingDisponibilite.set(true);
     this.showDisponibilite.set(true);
@@ -236,6 +216,51 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
         return 'secondary';
     }
   }
+
+  libelleStatut(statut: PharmaMlStatut): string {
+    switch (statut) {
+      case 'SUBMITTED':
+        return 'Soumise';
+      case 'PARTIAL':
+        return 'Reception partielle';
+      case 'REJECTED':
+        return 'Rejetée';
+      case 'ERROR':
+        return 'En erreur';
+      case 'PENDING':
+        return 'En attente';
+      default:
+        return '';
+
+    }
+  }
+
+  private readonly utilsMenuItems = (): MenuItem[] => [
+    {separator: true},
+    {
+      label: 'Vérifier disponibilité',
+      icon: 'pi pi-search',
+      command: () => this.verifierDisponibilite()
+    },
+    {
+      label: 'Comparer multi-grossistes',
+      icon: 'pi pi-chart-bar',
+      command: () => this.ouvrirComparaison()
+    },
+    {label: 'Historique des envois', icon: 'pi pi-history', command: () => this.toggleHistorique()},
+  ];
+
+  /** Actions du SplitButton en mode REQUESTED */
+  readonly actionsRequested = computed<MenuItem[]>(() => [
+    {label: 'Envoyer via PharmaML', icon: 'pi pi-send', command: () => this.openEnvoi()},
+    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
+    ...this.utilsMenuItems(),
+  ]);
+  /** Actions du SplitButton en mode RECEIVED */
+  readonly actionsReceived = computed<MenuItem[]>(() => [
+    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
+    ...this.utilsMenuItems(),
+  ]);
 
   private loadSubstitutions(): void {
     const id = this.commandeId();

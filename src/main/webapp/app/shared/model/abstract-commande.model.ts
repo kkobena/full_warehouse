@@ -34,6 +34,7 @@ export interface AbstractCommande {
   itemSize?: number;
   statut?: string;
   doTransfer?: boolean;
+  hasBeenSubmittedToPharmaML?: boolean;
 }
 
 export class CommandeId {

@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.pharmaml.service;
 
+import static com.kobe.warehouse.service.pharmaml.PharmaMlUtils.TYPE_CODIFICATION_CIP39;
+import static com.kobe.warehouse.service.pharmaml.PharmaMlUtils.TYPE_CODIFICATION_EAN;
+
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -10,11 +13,9 @@ import com.kobe.warehouse.service.pharmaml.dto.AcqReception;
 import com.kobe.warehouse.service.pharmaml.dto.Annulation;
 import com.kobe.warehouse.service.pharmaml.dto.Corps;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
-import com.kobe.warehouse.service.pharmaml.dto.DemandeInfos;
 import com.kobe.warehouse.service.pharmaml.dto.Entete;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.Exceptionnelle;
-import com.kobe.warehouse.service.pharmaml.dto.LigneInfoDemande;
 import com.kobe.warehouse.service.pharmaml.dto.LigneN;
 import com.kobe.warehouse.service.pharmaml.dto.LigneReception;
 import com.kobe.warehouse.service.pharmaml.dto.LigneRetour;
@@ -28,9 +29,6 @@ import com.kobe.warehouse.service.pharmaml.dto.Partenaire;
 import com.kobe.warehouse.service.pharmaml.dto.Retour;
 import com.kobe.warehouse.service.pharmaml.dto.enumeration.TypeCommande;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -38,13 +36,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static com.kobe.warehouse.service.pharmaml.PharmaMlUtils.TYPE_CODIFICATION_CIP39;
-import static com.kobe.warehouse.service.pharmaml.PharmaMlUtils.TYPE_CODIFICATION_EAN;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
- * Implémentation du service de construction des payloads PharmaML.
- * Ce service est stateless et ne gère aucune persistance ni appel réseau.
+ * Implémentation du service de construction des payloads PharmaML. Ce service est stateless et ne
+ * gère aucune persistance ni appel réseau.
  */
 @Service
 public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilderService {
@@ -56,7 +53,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     @Override
-    public CsrpEnveloppe buildCommandePayload(Commande commande, EnvoiParamsDTO params, Fournisseur fournisseur, String refMessage) {
+    public CsrpEnveloppe buildCommandePayload(Commande commande, EnvoiParamsDTO params,
+        Fournisseur fournisseur, String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
         ce.setUsage(PharmaMlUtils.USAGE_VALUE);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
@@ -68,47 +66,10 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return ce;
     }
 
-    @Override
-    public CsrpEnveloppe buildAckPayload(Commande commande, Fournisseur fournisseur, String refMessage) {
-        CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
-        ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
-        ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
-        ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_ACQ_RECEPTION);
-        ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsAck(commande, fournisseur));
-        return ce;
-    }
 
     @Override
-    public CsrpEnveloppe buildAnnulationPayload(Commande commande, Fournisseur fournisseur, String refMessage, String motif) {
-        CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
-        ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
-        ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
-        ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_ANNULATION);
-        ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsAnnulation(commande, fournisseur, motif));
-        return ce;
-    }
-
-    @Override
-    public CsrpEnveloppe buildRetourPayload(Commande commande, Fournisseur fournisseur, String refMessage, List<LigneRetourDTO> lignes) {
-        CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
-        ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
-        ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
-        ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
-        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_RETOUR);
-        ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsRetour(commande, fournisseur, lignes));
-        return ce;
-    }
-
-    @Override
-    public CsrpEnveloppe buildInfoPayload(Commande commande, Fournisseur fournisseur, String refMessage) {
+    public CsrpEnveloppe buildInfoPayload(Commande commande, Fournisseur fournisseur,
+        String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
         ce.setUsage(PharmaMlUtils.USAGE_VALUE);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
@@ -116,12 +77,13 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
         ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsInfo(commande, fournisseur));
+        ce.setCorps(buildCorpsInfo(commande, fournisseur, refMessage));
         return ce;
     }
 
     @Override
-    public CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes, Fournisseur fournisseur, String refMessage) {
+    public CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes,
+        Fournisseur fournisseur, String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
         ce.setUsage(PharmaMlUtils.USAGE_VALUE);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
@@ -129,7 +91,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
         ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_INFORMATION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur));
+        ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur, refMessage));
         return ce;
     }
 
@@ -156,7 +118,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_OF);
         p.setCode(code);
         p.setAdresse(this.appConfigurationService.getMagasin().getName());
-        p.setId(groupeFournisseur.getIdRecepteurPharmaMl());
+        p.setId(
+            fournisseur.getIdentifiantRepartiteur());//groupeFournisseur.getIdRecepteurPharmaMl()
         return p;
     }
 
@@ -166,7 +129,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_RE);
         p.setCode(groupeFournisseur.getCodeRecepteurPharmaMl());
         p.setAdresse(this.appConfigurationService.getMagasin().getName());
-        p.setId(fournisseur.getIdentifiantRepartiteur());
+        p.setId(groupeFournisseur.getIdRecepteurPharmaMl());
         return p;
     }
 
@@ -181,28 +144,32 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     private OfficinePartenaire buildOfficineDestinataire(Fournisseur fournisseur) {
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         OfficinePartenaire op = new OfficinePartenaire();
-        op.setIdSociete(fournisseur.getIdentifiantRepartiteur());
+        // op.setIdSociete(fournisseur.getIdentifiantRepartiteur());
+        op.setIdSociete(groupeFournisseur.getIdRecepteurPharmaMl());
         op.setCodeSociete(groupeFournisseur.getCodeRecepteurPharmaMl());
         op.setNaturePartenaire(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_RE);
         return op;
     }
 
     private OfficinePartenaire buildOfficineEmetteur(Fournisseur fournisseur) {
-        GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
+        //  GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         OfficinePartenaire op = new OfficinePartenaire();
-        op.setIdClient(groupeFournisseur.getIdRecepteurPharmaMl());
+        // op.setIdClient(groupeFournisseur.getIdRecepteurPharmaMl());
+        op.setIdClient(fournisseur.getIdentifiantRepartiteur());
         op.setNaturePartenaire(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_OF);
         return op;
     }
 
 
-    private Corps buildCorpsCommande(Commande commande, EnvoiParamsDTO params, Fournisseur fournisseur) {
+    private Corps buildCorpsCommande(Commande commande, EnvoiParamsDTO params,
+        Fournisseur fournisseur) {
         Corps c = new Corps();
         c.setMessageOfficine(buildMessageOfficineCommande(commande, params, fournisseur));
         return c;
     }
 
-    private MessageOfficine buildMessageOfficineCommande(Commande commande, EnvoiParamsDTO params, Fournisseur fournisseur) {
+    private MessageOfficine buildMessageOfficineCommande(Commande commande, EnvoiParamsDTO params,
+        Fournisseur fournisseur) {
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
         messageOfficine.setCorps(buildMessageCorpsCommande(commande, params));
@@ -215,7 +182,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return mc;
     }
 
-    private com.kobe.warehouse.service.pharmaml.dto.Commande buildCommande(Commande commande, EnvoiParamsDTO params) {
+    private com.kobe.warehouse.service.pharmaml.dto.Commande buildCommande(Commande commande,
+        EnvoiParamsDTO params) {
         com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
 
         LocalDate dateLivraison = params.getDateLivraisonSouhaitee() != null
@@ -224,7 +192,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         c.setDateLivraison(dateLivraison.toString());
 
         String commentaire = params.getCommentaire();
-        c.setCommentaireGeneral(StringUtils.hasLength(commentaire) ? commentaire : commande.getOrderReference());
+        c.setCommentaireGeneral(
+            StringUtils.hasLength(commentaire) ? commentaire : commande.getOrderReference());
         c.setRefCdeClient(commande.getOrderReference());
 
         if (TypeCommande.EXCEPTIONNELLE.equals(params.getTypeCommande())) {
@@ -246,16 +215,18 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
                 LigneN ligne = new LigneN();
                 FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
 
-                String numLigne = org.apache.commons.lang3.StringUtils.leftPad(count.getAndIncrement() + "", 4, '0');
-                String quantite = org.apache.commons.lang3.StringUtils.leftPad(item.getQuantityRequested() + "", 4, '0');
+                String numLigne = org.apache.commons.lang3.StringUtils.leftPad(
+                    count.getAndIncrement() + "", 4, '0');
+                String quantite = org.apache.commons.lang3.StringUtils.leftPad(
+                    item.getQuantityRequested() + "", 4, '0');
                 String cip = fournisseurProduit.getCodeCip();
 
                 ligne.setCodeProduit(cip);
                 ligne.setQuantite(quantite);
                 ligne.setNumLigne(numLigne);
                 ligne.setTypeCodification(typeCodification(cip));
-                ligne.setPartielle(true);
-                ligne.setReliquat(true);
+                ligne.setPartielle(false);
+                ligne.setReliquat(false);
                 ligne.setEquivalent(false);
                 return ligne;
             })
@@ -284,8 +255,12 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
             })
             .toList());
 
+        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
+        c.setRefCdeClient(commande.getOrderReference());
+        c.setAcqReception(acq);
+
         MessageCorps mc = new MessageCorps();
-        mc.setAcqReception(acq);
+        mc.setCommande(c);
 
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
@@ -314,8 +289,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return corps;
     }
 
-
-    private Corps buildCorpsRetour(Commande commande, Fournisseur fournisseur, List<LigneRetourDTO> lignes) {
+    private Corps buildCorpsRetour(Commande commande, Fournisseur fournisseur,
+        List<LigneRetourDTO> lignes) {
         Retour retour = new Retour()
             .setRefCdeOfficine(commande.getOrderReference())
             .setRefBl(commande.getReceiptReference())
@@ -328,8 +303,12 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
                     .setMotifRetour(dto.motifRetour());
             }).toList());
 
+        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
+        c.setRefCdeClient(commande.getOrderReference());
+        c.setRetour(retour);
+
         MessageCorps mc = new MessageCorps();
-        mc.setRetour(retour);
+        mc.setCommande(c);
 
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
@@ -341,18 +320,13 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
 
-    private Corps buildCorpsInfo(Commande commande, Fournisseur fournisseur) {
-        DemandeInfos demandeInfos = new DemandeInfos();
-        demandeInfos.setLignes(commande.getOrderLines().stream().map(ol -> {
-            String cip = ol.getFournisseurProduit().getCodeCip();
-            return new LigneInfoDemande()
-                .setCodeProduit(cip)
-                .setTypeCodification(typeCodification(cip))
-                .setQuantite(ol.getQuantityRequested());
-        }).toList());
+    private Corps buildCorpsInfo(Commande commande, Fournisseur fournisseur, String refMessage) {
+        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
+        c.setRefCdeClient(refMessage);
+        c.setNormale(buildNormale(commande));
 
         MessageCorps mc = new MessageCorps();
-        mc.setDemandeInfos(demandeInfos);
+        mc.setCommande(c);
 
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
@@ -363,19 +337,31 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return corps;
     }
 
-
-    private Corps buildCorpsInfoFromSuggestionLines(List<SuggestionLine> lignes, Fournisseur fournisseur) {
-        DemandeInfos demandeInfos = new DemandeInfos();
-        demandeInfos.setLignes(lignes.stream().map(sl -> {
+    private Corps buildCorpsInfoFromSuggestionLines(List<SuggestionLine> lignes,
+        Fournisseur fournisseur, String refMessage) {
+        AtomicInteger count = new AtomicInteger(1);
+        Normale n = new Normale();
+        n.setLignes(lignes.stream().map(sl -> {
             String cip = sl.getFournisseurProduit().getCodeCip();
-            return new LigneInfoDemande()
-                .setCodeProduit(cip)
-                .setTypeCodification(typeCodification(cip))
-                .setQuantite(sl.getQuantity());
+            LigneN ligne = new LigneN();
+            ligne.setNumLigne(
+                org.apache.commons.lang3.StringUtils.leftPad(count.getAndIncrement() + "", 4, '0'));
+            ligne.setCodeProduit(cip);
+            ligne.setTypeCodification(typeCodification(cip));
+            ligne.setQuantite(
+                org.apache.commons.lang3.StringUtils.leftPad(sl.getQuantity() + "", 4, '0'));
+            ligne.setPartielle(false);
+            ligne.setReliquat(false);
+            ligne.setEquivalent(false);
+            return ligne;
         }).toList());
 
+        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
+        c.setRefCdeClient(refMessage);
+        c.setNormale(n);
+
         MessageCorps mc = new MessageCorps();
-        mc.setDemandeInfos(demandeInfos);
+        mc.setCommande(c);
 
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
@@ -394,7 +380,8 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     private String getPharmaMlDate() {
-        return LocalDate.now() + "T" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        return LocalDate.now() + "T" + LocalTime.now()
+            .format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 }
 

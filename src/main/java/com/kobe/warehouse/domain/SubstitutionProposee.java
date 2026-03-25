@@ -68,6 +68,18 @@ public class SubstitutionProposee implements Serializable {
     @Column(name = "statut", nullable = false)
     private SubstitutionStatut statut = SubstitutionStatut.EN_ATTENTE;
 
+    /** Code réponse CSRP : IND, ARR, REM, DIF… */
+    @Column(name = "code_reponse", length = 10)
+    private String codeReponse;
+
+    /** Commentaire libre du répartiteur sur l'indisponibilité */
+    @Column(name = "additif", length = 500)
+    private String additif;
+
+    /** Type de remplacement : EP (à valider), EL / RL (auto-accepté) */
+    @Column(name = "type_remplacement", length = 3)
+    private String typeRemplacement;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -97,6 +109,15 @@ public class SubstitutionProposee implements Serializable {
 
     public SubstitutionStatut getStatut() { return statut; }
     public SubstitutionProposee setStatut(SubstitutionStatut statut) { this.statut = statut; return this; }
+
+    public String getCodeReponse() { return codeReponse; }
+    public SubstitutionProposee setCodeReponse(String codeReponse) { this.codeReponse = codeReponse; return this; }
+
+    public String getAdditif() { return additif; }
+    public SubstitutionProposee setAdditif(String additif) { this.additif = additif; return this; }
+
+    public String getTypeRemplacement() { return typeRemplacement; }
+    public SubstitutionProposee setTypeRemplacement(String typeRemplacement) { this.typeRemplacement = typeRemplacement; return this; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

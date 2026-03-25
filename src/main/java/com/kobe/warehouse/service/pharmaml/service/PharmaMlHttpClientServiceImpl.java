@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.pharmaml.service;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -8,6 +11,7 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.SubstitutionProposee;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
@@ -42,14 +46,6 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -67,13 +63,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
- * Implémentation du service de communication HTTP avec les serveurs PharmaML.
- * Gère la sérialisation XML, les envois HTTP avec retry, et le parsing des réponses.
+ * Implémentation du service de communication HTTP avec les serveurs PharmaML. Gère la sérialisation
+ * XML, les envois HTTP avec retry, et le parsing des réponses.
  */
 @Service
 @Transactional(readOnly = true)
@@ -146,6 +146,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     ) {
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         String xmlPayload = serializePayload(payload);
+        IO.println(xmlPayload);
         saveXmlFile(payload, "C", fileName);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -162,7 +163,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             if (attempt > 1) {
                 envoi.setTentatives(attempt).setDerniereTentative(LocalDateTime.now());
                 pharmaMlEnvoiRepository.save(envoi);
-                LOG.info("PharmaML retry {}/{} pour commande {}", attempt, MAX_RETRY_ATTEMPTS, commande.getOrderReference());
+                LOG.info("PharmaML retry {}/{} pour commande {}", attempt, MAX_RETRY_ATTEMPTS,
+                    commande.getOrderReference());
                 try {
                     Thread.sleep(delayMs);
                 } catch (InterruptedException ie) {
@@ -172,21 +174,25 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                 delayMs *= 2;
             }
             try {
-                HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> response = httpClient.send(httpRequest,
+                    HttpResponse.BodyHandlers.ofString());
                 return processCommandeResponse(response, fileName, commande, fournisseur);
             } catch (IOException e) {
                 lastException = e;
-                LOG.warn("PharmaML tentative {}/{} échouée: {}", attempt, MAX_RETRY_ATTEMPTS, e.getMessage());
+                LOG.warn("PharmaML tentative {}/{} échouée: {}", attempt, MAX_RETRY_ATTEMPTS,
+                    e.getMessage());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new GenericError("Interruption lors de l'envoi PharmaML", "pharmaMlError");
             }
         }
-        throw new GenericError("Échec de l'envoi après " + MAX_RETRY_ATTEMPTS + " tentatives: " + lastException.getMessage(), "pharmaMlError");
+        throw new GenericError("Échec de l'envoi après " + MAX_RETRY_ATTEMPTS + " tentatives: "
+            + lastException.getMessage(), "pharmaMlError");
     }
 
     @Override
-    public void sendSimpleMessage(CsrpEnveloppe payload, Fournisseur fournisseur, String fileName, String actionName) {
+    public void sendSimpleMessage(CsrpEnveloppe payload, Fournisseur fournisseur, String fileName,
+        String actionName) {
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         String xmlPayload = serializePayload(payload);
 
@@ -202,10 +208,13 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             .build();
 
         try {
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
+                HttpResponse.BodyHandlers.ofString());
             if (httpResponse.statusCode() != 200) {
-                LOG.warn("{}: HTTP {} pour fichier {}", actionName, httpResponse.statusCode(), fileName);
-                throw new GenericError("Le grossiste a retourné une erreur lors de " + actionName, "pharmaMlError");
+                LOG.warn("{}: HTTP {} - réponse: {}", actionName, httpResponse.statusCode(),
+                    httpResponse.body());
+                throw new GenericError("Le grossiste a retourné une erreur lors de " + actionName,
+                    "pharmaMlError");
             }
             LOG.info("{} envoyé avec succès pour fichier {}", actionName, fileName);
         } catch (IOException | InterruptedException e) {
@@ -221,6 +230,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     public List<InfoProduitDTO> sendInfoRequest(CsrpEnveloppe payload, Fournisseur fournisseur) {
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         String xmlPayload = serializePayload(payload);
+        System.err.println(xmlPayload);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(groupeFournisseur.getUrlPharmaMl()))
@@ -230,7 +240,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             .build();
 
         try {
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
+                HttpResponse.BodyHandlers.ofString());
             return parseInfosResponse(httpResponse);
         } catch (IOException | InterruptedException e) {
             LOG.error("Erreur lors de la demande de disponibilité PharmaML", e);
@@ -251,7 +262,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             return sw.toString();
         } catch (JAXBException e) {
             LOG.error("Erreur de sérialisation XML", e);
-            throw new GenericError("Erreur lors de la construction du message XML", "pharmaMlError");
+            throw new GenericError("Erreur lors de la construction du message XML",
+                "pharmaMlError");
         }
     }
 
@@ -290,7 +302,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         if (httpCode == 200) {
             try {
                 Unmarshaller unmarshaller = JAXB_RESPONSE_CONTEXT.createUnmarshaller();
-                CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(new StringReader(httpResponse.body()));
+                CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(
+                    new StringReader(httpResponse.body()));
                 saveXmlFile(response, "R", fileName);
                 return traiterCommandeRepondue(commande, response, fournisseur);
             } catch (JAXBException ex) {
@@ -304,7 +317,9 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     private void saveLogResponse(String response, String fileName) {
         try {
-            Files.writeString(fileStorageService.getFilePharmamlStorageLocation().resolve(fileName + ".xml"), response);
+            Files.writeString(
+                fileStorageService.getFilePharmamlStorageLocation().resolve(fileName + ".xml"),
+                response);
         } catch (IOException ex) {
             LOG.error("Erreur lors de la sauvegarde du log de réponse", ex);
         }
@@ -350,7 +365,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
         for (LigneNReponse ligneNReponse : lignes) {
             items.stream()
-                .filter(ord -> ligneNReponse.getCodeProduit().equals(ord.getFournisseurProduit().getCodeCip()))
+                .filter(ord -> ligneNReponse.getCodeProduit()
+                    .equals(ord.getFournisseurProduit().getCodeCip()))
                 .findFirst()
                 .ifPresentOrElse(
                     orderLine -> {
@@ -361,19 +377,24 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                             processOrderDetailResponse(orderLine, ligneNReponse);
                             montantCommande.addAndGet(computeOrderAmount(ligneNReponse));
                         } else {
+                            OrderLine lineForRupture;
                             if (qteLivre > 0) {
                                 prisEncompte.incrementAndGet();
-                                processOrderDetailResponse(orderLine, ligneNReponse);
+                                lineForRupture = processOrderDetailResponse(orderLine,
+                                    ligneNReponse);
                                 montantCommande.addAndGet(computeOrderAmount(ligneNReponse));
                             } else {
                                 ruptureComplet.incrementAndGet();
+                                lineForRupture = orderLine;
                             }
                             countRupture.incrementAndGet();
-                            lignesRupture.put(orderLine, Pair.of(orderLine.getFournisseurProduit(), ligneNReponse));
+                            lignesRupture.put(lineForRupture,
+                                Pair.of(lineForRupture.getFournisseurProduit(), ligneNReponse));
                         }
                         itemsToRemove.add(orderLine);
                     },
-                    () -> LOG.error("Produit {} non trouvé dans la commande {}", ligneNReponse.getCodeProduit(), commande.getOrderReference())
+                    () -> LOG.error("Produit {} non trouvé dans la commande {}",
+                        ligneNReponse.getCodeProduit(), commande.getOrderReference())
                 );
         }
         items.removeAll(itemsToRemove);
@@ -395,10 +416,11 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             commande.setUpdatedAt(LocalDateTime.now());
             commandeRepository.save(commande);
         }
-        return new PharmamlCommandeResponse(true, itemSize, prisEncompte.get(), countRupture.get(), reliquatCommandeId);
+        return new PharmamlCommandeResponse(true, itemSize, prisEncompte.get(), countRupture.get(),
+            reliquatCommandeId);
     }
 
-    private void processOrderDetailResponse(OrderLine o, LigneNReponse ligneNReponse) {
+    private OrderLine processOrderDetailResponse(OrderLine o, LigneNReponse ligneNReponse) {
         com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligneNReponse.getPrix());
 
         o.setQuantityReceived(ligneNReponse.getQuantiteLivree());
@@ -413,7 +435,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         }
         o.setUpdatedAt(LocalDateTime.now());
         o.setUpdated(true);
-        orderLineService.save(o);
+        return orderLineService.save(o);
     }
 
     private com.kobe.warehouse.service.dto.Pair getPrixAchatPrixUni(List<PrixN> prixs) {
@@ -421,16 +443,19 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             return new com.kobe.warehouse.service.dto.Pair(0, 0);
         }
         Integer prixAchat = NumberUtil.intFromString(
-            prixs.stream().filter(p -> p.getNature().equals(TypePrix.PHAHT.name())).findAny().map(PrixN::getValeur).orElse("")
+            prixs.stream().filter(p -> p.getNature().equals(TypePrix.PHAHT.name())).findAny()
+                .map(PrixN::getValeur).orElse("")
         );
         Integer prixUnitt = NumberUtil.intFromString(
-            prixs.stream().filter(p -> p.getNature().equals(TypePrix.PUBTC.name())).findAny().map(PrixN::getValeur).orElse("")
+            prixs.stream().filter(p -> p.getNature().equals(TypePrix.PUBTC.name())).findAny()
+                .map(PrixN::getValeur).orElse("")
         );
         return new com.kobe.warehouse.service.dto.Pair(prixAchat, prixUnitt);
     }
 
     private int computeOrderAmount(LigneNReponse ligneNReponse) {
-        return ligneNReponse.getQuantiteLivree() * Integer.parseInt(getPrixAchatPrixUni(ligneNReponse.getPrix()).key() + "");
+        return ligneNReponse.getQuantiteLivree() * Integer.parseInt(
+            getPrixAchatPrixUni(ligneNReponse.getPrix()).key() + "");
     }
 
     private void createRupture(
@@ -445,21 +470,23 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                 fournisseur,
                 orderLine.getQuantityRequested() - ligneNReponse.getQuantiteLivree()
             );
-            processRemplacement(ligneNReponse, orderLine, commande, fournisseur);
-            if (ligneNReponse.getQuantiteLivree() == 0) {
+            boolean substitutionCreated = processRemplacement(ligneNReponse, orderLine, commande,
+                fournisseur);
+            if (ligneNReponse.getQuantiteLivree() == 0 && !substitutionCreated) {
                 this.orderLineService.delete(orderLine);
             }
         });
     }
 
-    private void processRemplacement(LigneNReponse ligneNReponse, OrderLine origin, Commande commande, Fournisseur fournisseur) {
+    private boolean processRemplacement(LigneNReponse ligneNReponse, OrderLine origin,
+        Commande commande, Fournisseur fournisseur) {
         IndisponibiliteN indisponibilite = ligneNReponse.getIndisponibilite();
         if (isNull(indisponibilite)) {
-            return;
+            return false;
         }
         ProduitRemplacant produitRemplacant = indisponibilite.getProduitRemplacant();
         if (isNull(produitRemplacant)) {
-            return;
+            return false;
         }
         String type = produitRemplacant.getTypeRemplacement();
 
@@ -471,32 +498,52 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                 .setCipPropose(produitRemplacant.getCodeProduit())
                 .setDesignation(produitRemplacant.getDesignation())
                 .setTypeCodification(produitRemplacant.getTypeCodification())
-                .setQuantite(origin.getQuantityRequested());
+                .setQuantite(origin.getQuantityRequested())
+                .setTypeRemplacement(type)
+                .setCodeReponse(indisponibilite.getCodeReponse())
+                .setAdditif(indisponibilite.getAdditif());
             substitutionProposeeRepository.save(sub);
-            return;
+            return true;
         }
 
         if (TypeRemplacement.EL.name().equals(type) || TypeRemplacement.RL.name().equals(type)) {
             List<FournisseurProduit> fournisseurProduits =
-                this.fournisseurProduitService.findByCodeCipOrProduitcodeEan(produitRemplacant.getCodeProduit());
+                this.fournisseurProduitService.findByCodeCipOrProduitcodeEan(
+                    produitRemplacant.getCodeProduit());
             if (!fournisseurProduits.isEmpty()) {
                 FournisseurProduit fournisseurProduit = fournisseurProduits.stream()
                     .filter(p -> p.getCodeCip().equals(produitRemplacant.getCodeProduit()))
                     .findFirst()
                     .orElse(null);
                 if (isNull(fournisseurProduit)) {
-                    com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligneNReponse.getPrix());
+                    com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(
+                        ligneNReponse.getPrix());
                     fournisseurProduit = new FournisseurProduit();
                     fournisseurProduit.setProduit(fournisseurProduits.getFirst().getProduit());
                     fournisseurProduit.setCodeCip(produitRemplacant.getCodeProduit());
                     fournisseurProduit.setFournisseur(fournisseur);
-                    fournisseurProduit.setPrixAchat(Integer.parseInt(prix.key() + ""));
-                    fournisseurProduit.setPrixUni(Integer.parseInt(prix.value() + ""));
+                    fournisseurProduit.setPrixAchat(Integer.parseInt(getPrixAchatPrixUni(ligneNReponse.getPrix()).key() + ""));
+                    fournisseurProduit.setPrixUni(Integer.parseInt(getPrixAchatPrixUni(ligneNReponse.getPrix()).value() + ""));
                     fournisseurProduit = fournisseurProduitService.save(fournisseurProduit);
                 }
                 addRemplacement(ligneNReponse, origin.getQuantityRequested(), fournisseurProduit, commande);
+                // Traçabilité : enregistrer le remplacement automatique
+                SubstitutionProposee trace = new SubstitutionProposee()
+                    .setCommande(commande)
+                    .setOrderLine(origin)
+                    .setFournisseur(fournisseur)
+                    .setCipPropose(produitRemplacant.getCodeProduit())
+                    .setDesignation(produitRemplacant.getDesignation())
+                    .setTypeCodification(produitRemplacant.getTypeCodification())
+                    .setQuantite(ligneNReponse.getQuantiteLivree())
+                    .setTypeRemplacement(type)
+                    .setCodeReponse(indisponibilite.getCodeReponse())
+                    .setAdditif(indisponibilite.getAdditif())
+                    .setStatut(SubstitutionStatut.ACCEPTEE);
+                substitutionProposeeRepository.save(trace);
             }
         }
+        return false;
     }
 
     private void addRemplacement(
@@ -505,11 +552,19 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         FournisseurProduit fournisseurProduit,
         Commande commande
     ) {
+        com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligneNReponse.getPrix());
+        int prixAchat = Integer.parseInt(prix.key() + "");
+        int prixUnit = Integer.parseInt(prix.value() + "");
+
         OrderLineDTO dto = new OrderLineDTO();
         dto.setQuantityRequested(requestedQuanty);
         dto.setQuantityReceived(ligneNReponse.getQuantiteLivree());
         dto.setInitStock(0);
         OrderLine orderLine = this.orderLineService.buildOrderLine(dto, fournisseurProduit);
+        if (prixAchat > 0) orderLine.setOrderCostAmount(prixAchat);
+        if (prixUnit > 0) orderLine.setOrderUnitPrice(prixUnit);
+        orderLine.setUpdatedAt(LocalDateTime.now());
+        orderLine.setUpdated(true);
         orderLine.setCommande(commande);
         commande.getOrderLines().add(this.orderLineService.save(orderLine));
     }
@@ -528,7 +583,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                 dto.setQuantityRequested(qteReliquat);
                 dto.setQuantityReceived(0);
                 dto.setInitStock(original.getInitStock() != null ? original.getInitStock() : 0);
-                lignesReliquat.add(orderLineService.buildOrderLine(dto, original.getFournisseurProduit()));
+                lignesReliquat.add(
+                    orderLineService.buildOrderLine(dto, original.getFournisseurProduit()));
             }
         }
         if (lignesReliquat.isEmpty()) {
@@ -546,7 +602,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         reliquat.setGrossAmount(0);
         lignesReliquat.forEach(reliquat::addOrderLine);
         commandeRepository.saveAndFlush(reliquat);
-        LOG.info("Reliquat {} créé depuis commande {}", reliquat.getOrderReference(), parent.getOrderReference());
+        LOG.info("Reliquat {} créé depuis commande {}", reliquat.getOrderReference(),
+            parent.getOrderReference());
         return reliquat.getId().getId();
     }
 
@@ -554,31 +611,55 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     private List<InfoProduitDTO> parseInfosResponse(HttpResponse<String> httpResponse) {
         if (httpResponse.statusCode() != 200) {
-            LOG.warn("REQ_INFORMATION: HTTP {}", httpResponse.statusCode());
+            LOG.warn("REQ_INFORMATION: HTTP {} - réponse serveur: {}", httpResponse.statusCode(),
+                httpResponse.body());
             return List.of();
         }
         try {
             Unmarshaller unmarshaller = JAXB_RESPONSE_CONTEXT.createUnmarshaller();
-            CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(new StringReader(httpResponse.body()));
-            RepInfos repInfos = getRepInfos(response);
-            if (repInfos == null || CollectionUtils.isEmpty(repInfos.getLignes())) {
-                return List.of();
+            CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(
+                new StringReader(httpResponse.body()));
+            // GESCOM v1.x répond avec REP_COMMANDE (pas REP_INFOS)
+            List<LigneNReponse> lignes = getLigneNReponses(response);
+            if (!CollectionUtils.isEmpty(lignes)) {
+                return lignes.stream().map(this::ligneNReponseToInfoProduitDTO).toList();
             }
-            return repInfos.getLignes().stream().map(this::toInfoProduitDTO).toList();
+            // Fallback : REP_INFOS (versions GESCOM plus récentes)
+            RepInfos repInfos = getRepInfos(response);
+            if (repInfos != null && !CollectionUtils.isEmpty(repInfos.getLignes())) {
+                return repInfos.getLignes().stream().map(this::toInfoProduitDTO).toList();
+            }
+            return List.of();
         } catch (JAXBException e) {
             LOG.error("Erreur de parsing de la réponse REQ_INFORMATION", e);
             return List.of();
         }
     }
 
+    private InfoProduitDTO ligneNReponseToInfoProduitDTO(LigneNReponse ligne) {
+        com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligne.getPrix());
+        int prixAchat = Integer.parseInt(prix.key() + "");
+        int stock = ligne.getQuantiteLivree();
+        return new InfoProduitDTO(ligne.getCodeProduit(), ligne.getDesignation(), stock, prixAchat,
+            stock > 0);
+    }
+
     private RepInfos getRepInfos(CsrpEnveloppeResponse response) {
-        if (isNull(response)) return null;
+        if (isNull(response)) {
+            return null;
+        }
         CorpsResponse corps = response.getCorps();
-        if (isNull(corps)) return null;
+        if (isNull(corps)) {
+            return null;
+        }
         MessageRepartiteur mr = corps.getMessageRepartiteur();
-        if (isNull(mr)) return null;
+        if (isNull(mr)) {
+            return null;
+        }
         CorpsRepartiteur corpsR = mr.getCorps();
-        if (isNull(corpsR)) return null;
+        if (isNull(corpsR)) {
+            return null;
+        }
         return corpsR.getRepInfos();
     }
 

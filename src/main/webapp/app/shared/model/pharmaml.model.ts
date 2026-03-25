@@ -93,4 +93,7 @@ export interface ISubstitutionProposee {
   cipOriginal: string;
   designationOriginale: string;
   createdAt: string;
+  codeReponse: string | null;
+  additif: string | null;
+  typeRemplacement: string | null;
 }

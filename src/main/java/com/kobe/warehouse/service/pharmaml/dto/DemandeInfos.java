@@ -1,14 +1,14 @@
 package com.kobe.warehouse.service.pharmaml.dto;
 
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DemandeInfos {
 
-    @XmlElement(name = "LIGNE_INFO", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    @XmlElement(name = "LIGNE_INFO_DEMANDE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private List<LigneInfoDemande> lignes;
 
     public List<LigneInfoDemande> getLignes() { return lignes; }

@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.pharmaml.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
 /**
  * @author koben
@@ -13,20 +13,20 @@ public class MessageCorps {
     @XmlElement(name = "COMMANDE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private Commande commande;
 
-    @XmlElement(name = "DEMANDE_INFOS", namespace = "urn:x-csrp:fr.csrp.protocole:message")
-    private DemandeInfos demandeInfos;
-
     @XmlElement(name = "ACQ_RECEPTION", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private AcqReception acqReception;
 
     @XmlElement(name = "ANNULATION", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private Annulation annulation;
 
+    @XmlElement(name = "REQ_INFOS", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    private DemandeInfos reqInfos;
+
     public Commande getCommande() { return commande; }
     public void setCommande(Commande commande) { this.commande = commande; }
 
-    public DemandeInfos getDemandeInfos() { return demandeInfos; }
-    public void setDemandeInfos(DemandeInfos demandeInfos) { this.demandeInfos = demandeInfos; }
+    public DemandeInfos getReqInfos() { return reqInfos; }
+    public void setReqInfos(DemandeInfos reqInfos) { this.reqInfos = reqInfos; }
 
     public AcqReception getAcqReception() { return acqReception; }
     public void setAcqReception(AcqReception acqReception) { this.acqReception = acqReception; }

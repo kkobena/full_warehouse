@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.pharmaml.service;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
@@ -9,10 +11,9 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.Rupture;
 import com.kobe.warehouse.domain.SubstitutionProposee;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
 import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
-import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.RuptureRepository;
@@ -29,30 +30,25 @@ import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
 import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
 import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
-import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmaMlEnvoiDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmamlCommandeResponse;
 import com.kobe.warehouse.service.pharmaml.dto.SubstitutionProposeeDTO;
 import com.kobe.warehouse.service.settings.FileStorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.Objects.isNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
- * Service principal PharmaML qui orchestre les opérations métier.
- * Ce service délègue la construction des payloads à {@link PharmaMlPayloadBuilderService}
- * et les communications HTTP à {@link PharmaMlHttpClientService}.
+ * Service principal PharmaML qui orchestre les opérations métier. Ce service délègue la
+ * construction des payloads à {@link PharmaMlPayloadBuilderService} et les communications HTTP à
+ * {@link PharmaMlHttpClientService}.
  */
 @Service
 @Transactional
@@ -103,6 +99,12 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     @Override
     public PharmamlCommandeResponse envoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO) {
         Commande commande = commandeRepository.getReferenceById(envoiParamsDTO.getCommandeId());
+        if (commande.isHasBeenSubmittedToPharmaML()) {
+            throw new GenericError(
+                "Cette commande a déjà été soumise via PharmaML",
+                "commandeDejasoumisePharmaML"
+            );
+        }
         PharmaMlEnvoi envoi = null;
         try {
             Fournisseur fournisseur = isNull(envoiParamsDTO.getGrossisteId())
@@ -121,10 +123,13 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                 .setDerniereTentative(LocalDateTime.now());
             pharmaMlEnvoiRepository.save(envoi);
 
-            CsrpEnveloppe payload = payloadBuilderService.buildCommandePayload(commande, envoiParamsDTO, fournisseur, refMessage);
-            String fileName = httpClientService.generateFileName(commande.getOrderReference(), fournisseur.getLibelle());
+            CsrpEnveloppe payload = payloadBuilderService.buildCommandePayload(commande,
+                envoiParamsDTO, fournisseur, refMessage);
+            String fileName = httpClientService.generateFileName(commande.getOrderReference(),
+                fournisseur.getLibelle());
 
-            PharmamlCommandeResponse result = httpClientService.sendCommandeWithRetry(payload, commande, fournisseur, envoi, fileName);
+            PharmamlCommandeResponse result = httpClientService.sendCommandeWithRetry(payload,
+                commande, fournisseur, envoi, fileName);
 
             Path storageLocation = fileStorageService.getFilePharmamlStorageLocation();
             PharmaMlStatut statut = determineStatut(result);
@@ -150,10 +155,12 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
     @Override
     @Transactional(readOnly = true)
-    public VerificationResponseCommandeDTO lignesCommandeRetour(String commandeRef, String orderId) {
+    public VerificationResponseCommandeDTO lignesCommandeRetour(String commandeRef,
+        String orderId) {
         Commande commande = commandeRepository
             .findByOrderReference(commandeRef)
-            .orElseThrow(() -> new GenericError("Commande introuvable : " + commandeRef, "commandeNotFound"));
+            .orElseThrow(() -> new GenericError("Commande introuvable : " + commandeRef,
+                "commandeNotFound"));
 
         List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
         List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
@@ -164,7 +171,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                 .setCodeEan(ol.getFournisseurProduit().getProduit().getCodeEanLaboratoire())
                 .setProduitLibelle(ol.getFournisseurProduit().getProduit().getLibelle())
                 .setQuantite(ol.getQuantityRequested())
-                .setQuantitePriseEnCompte(ol.getQuantityReceived() != null ? ol.getQuantityReceived() : 0);
+                .setQuantitePriseEnCompte(
+                    ol.getQuantityReceived() != null ? ol.getQuantityReceived() : 0);
 
             if (Boolean.TRUE.equals(ol.getUpdated()) && item.getQuantitePriseEnCompte() > 0) {
                 items.add(item);
@@ -178,10 +186,15 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     @Override
     public void renvoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO) {
         Commande commande = commandeRepository.getReferenceById(envoiParamsDTO.getCommandeId());
-        if (!commande.isHasBeenSubmittedToPharmaML()) {
+        boolean dernierEnvoiEchoue = pharmaMlEnvoiRepository
+            .findTopByCommandeIdAndCommandeOrderDateOrderByCreatedAtDesc(
+                commande.getId().getId(), commande.getId().getOrderDate())
+            .map(e -> e.getStatut() == PharmaMlStatut.ERROR || e.getStatut() == PharmaMlStatut.REJECTED)
+            .orElse(false);
+        if (!dernierEnvoiEchoue) {
             throw new GenericError(
-                "Cette commande n'a pas encore été soumise via PharmaML",
-                "commandeNonSoumisePharmaML"
+                "Le renvoi n'est possible que si le dernier envoi a échoué",
+                "renvoiNonAutorise"
             );
         }
         commande.setHasBeenSubmittedToPharmaML(false);
@@ -190,7 +203,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     }
 
     @Override
-    public List<SubstitutionProposeeDTO> getSubstitutionsEnAttente(Integer commandeId, LocalDate orderDate) {
+    public List<SubstitutionProposeeDTO> getSubstitutionsEnAttente(Integer commandeId,
+        LocalDate orderDate) {
         return substitutionProposeeRepository
             .findByCommandeIdAndCommandeOrderDateAndStatutOrderByCreatedAtDesc(
                 commandeId, orderDate, SubstitutionStatut.EN_ATTENTE)
@@ -202,9 +216,11 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     @Override
     public void accepterSubstitution(Integer substitutionId) {
         SubstitutionProposee sub = substitutionProposeeRepository.findById(substitutionId)
-            .orElseThrow(() -> new GenericError("Substitution introuvable : " + substitutionId, "substitutionNotFound"));
+            .orElseThrow(() -> new GenericError("Substitution introuvable : " + substitutionId,
+                "substitutionNotFound"));
 
-        List<FournisseurProduit> fps = fournisseurProduitService.findByCodeCipOrProduitcodeEan(sub.getCipPropose());
+        List<FournisseurProduit> fps = fournisseurProduitService.findByCodeCipOrProduitcodeEan(
+            sub.getCipPropose());
         FournisseurProduit fp = fps.stream()
             .filter(p -> p.getCodeCip().equals(sub.getCipPropose()))
             .findFirst()
@@ -218,6 +234,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                 return fournisseurProduitService.save(nouveau);
             });
 
+        OrderLine originalLine = sub.getOrderLine();
+
         OrderLineDTO dto = new OrderLineDTO();
         dto.setQuantityRequested(sub.getQuantite());
         dto.setQuantityReceived(0);
@@ -228,14 +246,24 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
         sub.setStatut(SubstitutionStatut.ACCEPTEE);
         substitutionProposeeRepository.save(sub);
+
+        // L'original est remplacé : on le supprime maintenant que SubstitutionProposee est résolue
+        orderLineService.delete(originalLine);
     }
 
     @Override
     public void refuserSubstitution(Integer substitutionId) {
         SubstitutionProposee sub = substitutionProposeeRepository.findById(substitutionId)
-            .orElseThrow(() -> new GenericError("Substitution introuvable : " + substitutionId, "substitutionNotFound"));
+            .orElseThrow(() -> new GenericError("Substitution introuvable : " + substitutionId,
+                "substitutionNotFound"));
         sub.setStatut(SubstitutionStatut.REFUSEE);
         substitutionProposeeRepository.save(sub);
+
+        // Si rien n'a été livré, l'OrderLine original n'a plus lieu d'être
+        OrderLine originalLine = sub.getOrderLine();
+        if (originalLine.getQuantityReceived() == null || originalLine.getQuantityReceived() == 0) {
+            orderLineService.delete(originalLine);
+        }
     }
 
     @Override
@@ -255,7 +283,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                 e.getCreatedAt(),
                 e.getFournisseur().getLibelle()
             ))
-            .orElseThrow(() -> new GenericError("Envoi PharmaML introuvable : " + envoiId, "envoiNotFound"));
+            .orElseThrow(
+                () -> new GenericError("Envoi PharmaML introuvable : " + envoiId, "envoiNotFound"));
     }
 
     @Override
@@ -284,7 +313,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     public VerificationResponseCommandeDTO reponseRupture(String ruptureId) {
         Rupture rupture = ruptureRepository
             .findById(Integer.parseInt(ruptureId))
-            .orElseThrow(() -> new GenericError("Rupture introuvable : " + ruptureId, "ruptureNotFound"));
+            .orElseThrow(
+                () -> new GenericError("Rupture introuvable : " + ruptureId, "ruptureNotFound"));
 
         VerificationResponseCommandeDTO.Item item = new VerificationResponseCommandeDTO.Item()
             .setCodeCip("")
@@ -298,66 +328,11 @@ public class PharmaMlServiceImpl implements PharmaMlService {
             .setExtraItems(List.of(item));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public void envoiAccuseReception(Integer commandeId, LocalDate orderDate) {
-        Commande commande = commandeRepository.findById(new CommandeId(commandeId, orderDate))  .orElseThrow(() -> new GenericError("La commande n'existe pas", "commandeNotFound"));;
-        Fournisseur fournisseur = commande.getFournisseur();
-        prevalidate(fournisseur);
-
-        String refMessage = payloadBuilderService.generateRefMessage();
-        CsrpEnveloppe payload = payloadBuilderService.buildAckPayload(commande, fournisseur, refMessage);
-        String fileName = "ACK_" + commande.getOrderReference();
-
-        httpClientService.sendSimpleMessage(payload, fournisseur, fileName, "ACQ_RECEPTION");
-        LOG.info("ACQ_RECEPTION envoyé pour commande {}", commande.getOrderReference());
-    }
-
-    @Override
-    public void envoiAnnulation(Integer commandeId, LocalDate orderDate, String motif) {
-        Commande commande = commandeRepository.getReferenceById(new CommandeId(commandeId, orderDate));
-        if (!commande.isHasBeenSubmittedToPharmaML()) {
-            throw new GenericError(
-                "Cette commande n'a pas encore été soumise via PharmaML",
-                "commandeNonSoumisePharmaML"
-            );
-        }
-        Fournisseur fournisseur = commande.getFournisseur();
-        prevalidate(fournisseur);
-
-        String refMessage = payloadBuilderService.generateRefMessage();
-        CsrpEnveloppe payload = payloadBuilderService.buildAnnulationPayload(commande, fournisseur, refMessage, motif);
-        String fileName = commande.getOrderReference();
-
-        httpClientService.sendSimpleMessage(payload, fournisseur, fileName, "REQ_ANNULATION");
-
-        commande.setOrderStatus(OrderStatut.ARCHIVED);
-        commande.setUpdatedAt(LocalDateTime.now());
-        commandeRepository.save(commande);
-        LOG.info("REQ_ANNULATION envoyé et commande {} archivée", commande.getOrderReference());
-    }
 
     @Override
     @Transactional(readOnly = true)
-    public void envoiRetour(Integer commandeId, LocalDate orderDate, List<LigneRetourDTO> lignes) {
-        if (CollectionUtils.isEmpty(lignes)) {
-            throw new GenericError("Aucune ligne sélectionnée pour le retour", "lignesRetourVides");
-        }
-        Commande commande = commandeRepository.findById(new CommandeId(commandeId, orderDate))  .orElseThrow(() -> new GenericError("La commande n'existe pas", "commandeNotFound"));;
-        Fournisseur fournisseur = commande.getFournisseur();
-        prevalidate(fournisseur);
-
-        String refMessage = payloadBuilderService.generateRefMessage();
-        CsrpEnveloppe payload = payloadBuilderService.buildRetourPayload(commande, fournisseur, refMessage, lignes);
-        String fileName = commande.getOrderReference();
-
-        httpClientService.sendSimpleMessage(payload, fournisseur, fileName, "REQ_RETOUR");
-        LOG.info("REQ_RETOUR envoyé pour commande {} ({} ligne(s))", commande.getOrderReference(), lignes.size());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<InfoProduitDTO> demanderDisponibilite(Integer commandeId, LocalDate orderDate, Integer grossisteId) {
+    public List<InfoProduitDTO> demanderDisponibilite(Integer commandeId, LocalDate orderDate,
+        Integer grossisteId) {
         Commande commande = commandeRepository.findById(new CommandeId(commandeId, orderDate))
             .orElseThrow(() -> new GenericError("La commande n'existe pas", "commandeNotFound"));
         Fournisseur fournisseur = isNull(grossisteId)
@@ -366,7 +341,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         prevalidate(fournisseur);
 
         String refMessage = payloadBuilderService.generateRefMessage();
-        CsrpEnveloppe payload = payloadBuilderService.buildInfoPayload(commande, fournisseur, refMessage);
+        CsrpEnveloppe payload = payloadBuilderService.buildInfoPayload(commande, fournisseur,
+            refMessage);
 
         return httpClientService.sendInfoRequest(payload, fournisseur);
     }
@@ -389,27 +365,36 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                     Fournisseur fournisseur = fournisseurService.findOneById(grossisteId);
                     prevalidate(fournisseur);
                     String refMessage = payloadBuilderService.generateRefMessage();
-                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayloadFromSuggestionLines(lignes, fournisseur, refMessage);
-                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload, fournisseur);
-                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(), produits));
+                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayloadFromSuggestionLines(
+                        lignes, fournisseur, refMessage);
+                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload,
+                        fournisseur);
+                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(),
+                        produits));
                 } catch (Exception e) {
-                    LOG.warn("Echec disponibilité grossiste {} (suggestion {}) : {}", grossisteId, request.suggestionId(), e.getMessage());
+                    LOG.warn("Echec disponibilité grossiste {} (suggestion {}) : {}", grossisteId,
+                        request.suggestionId(), e.getMessage());
                     results.add(new DispoGrossisteResultDTO(grossisteId, null, List.of()));
                 }
             }
         } else {
             // Branche commande classique
             LocalDate orderDate = LocalDate.parse(request.orderDate());
-            Commande commande = commandeRepository.findById(new CommandeId(request.commandeId(), orderDate))
-                .orElseThrow(() -> new GenericError("La commande n'existe pas", "commandeNotFound"));
+            Commande commande = commandeRepository.findById(
+                    new CommandeId(request.commandeId(), orderDate))
+                .orElseThrow(
+                    () -> new GenericError("La commande n'existe pas", "commandeNotFound"));
             for (Integer grossisteId : request.grossisteIds()) {
                 try {
                     Fournisseur fournisseur = fournisseurService.findOneById(grossisteId);
                     prevalidate(fournisseur);
                     String refMessage = payloadBuilderService.generateRefMessage();
-                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayload(commande, fournisseur, refMessage);
-                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload, fournisseur);
-                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(), produits));
+                    CsrpEnveloppe payload = payloadBuilderService.buildInfoPayload(commande,
+                        fournisseur, refMessage);
+                    List<InfoProduitDTO> produits = httpClientService.sendInfoRequest(payload,
+                        fournisseur);
+                    results.add(new DispoGrossisteResultDTO(grossisteId, fournisseur.getLibelle(),
+                        produits));
                 } catch (Exception e) {
                     LOG.warn("Echec disponibilité grossiste {} : {}", grossisteId, e.getMessage());
                     results.add(new DispoGrossisteResultDTO(grossisteId, null, List.of()));
@@ -434,7 +419,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
     private SubstitutionProposeeDTO toSubstitutionDTO(SubstitutionProposee s) {
         OrderLine ol = s.getOrderLine();
-        String cipOriginal = ol.getFournisseurProduit() != null ? ol.getFournisseurProduit().getCodeCip() : "";
+        String cipOriginal =
+            ol.getFournisseurProduit() != null ? ol.getFournisseurProduit().getCodeCip() : "";
         String designOriginal = ol.getFournisseurProduit() != null
             ? ol.getFournisseurProduit().getProduit().getLibelle() : "";
         return new SubstitutionProposeeDTO(
@@ -446,7 +432,10 @@ public class PharmaMlServiceImpl implements PharmaMlService {
             s.getStatut(),
             cipOriginal,
             designOriginal,
-            s.getCreatedAt()
+            s.getCreatedAt(),
+            s.getCodeReponse(),
+            s.getAdditif(),
+            s.getTypeRemplacement()
         );
     }
 
@@ -454,7 +443,8 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         if (isNull(groupeFournisseur)) {
             throw new GenericError(
-                String.format("Le fournisseur %s n'est pas configuré pour PharmaML", fournisseur.getLibelle()),
+                String.format("Le fournisseur %s n'est pas configuré pour PharmaML",
+                    fournisseur.getLibelle()),
                 "fournisseurNonConfigurePharmaMl"
             );
         }

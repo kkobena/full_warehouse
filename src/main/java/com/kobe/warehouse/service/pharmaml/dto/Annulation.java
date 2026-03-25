@@ -1,19 +1,19 @@
 package com.kobe.warehouse.service.pharmaml.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Annulation {
 
-    @XmlElement(name = "REF_CDE_OFFICINE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    @XmlAttribute(name = "Ref_Cde_Officine")
     private String refCdeOfficine;
 
-    @XmlElement(name = "REF_CDE_REPARTITEUR", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    @XmlAttribute(name = "Ref_Cde_Repartiteur")
     private String refCdeRepartiteur;
 
-    @XmlElement(name = "MOTIF", namespace = "urn:x-csrp:fr.csrp.protocole:message")
+    @XmlAttribute(name = "Motif")
     private String motif;
 
     public String getRefCdeOfficine() { return refCdeOfficine; }

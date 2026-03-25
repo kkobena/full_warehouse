@@ -2,40 +2,41 @@
   <h5 class="modal-title">
     <i class="pi pi-chart-bar me-2"></i>{{ header }}
   </h5>
-  <button type="button" class="btn-close" (click)="close()"></button>
+  <button (click)="close()" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
   <!-- Sélecteur de grossistes -->
   <div class="dc-selector">
     <p-multiSelect
-      [options]="fournisseurs()"
-      optionLabel="libelle"
-      placeholder="Choisir les grossistes à comparer..."
-      [showClear]="true"
+      (ngModelChange)="onFournisseurChange($event)"
+      [appendTo]="'body'"
       [filter]="true"
       [loading]="loadingFournisseurs()"
       [maxSelectedLabels]="4"
-      [appendTo]="'body'"
-      [overlayOptions]="{baseZIndex: 10000}"
-      class="w-100"
       [ngModel]="selectedFournisseurs()"
-      (ngModelChange)="onFournisseurChange($event)"
+      [options]="fournisseurs()"
+      [overlayOptions]="{baseZIndex: 10000}"
+      [showClear]="true"
+      class="w-100"
+      optionLabel="libelle"
+      placeholder="Choisir les grossistes à comparer..."
     />
     <p-button
-      label="Comparer"
+      (onClick)="comparer()"
+      [disabled]="colonnes().length === 0"
+      [loading]="loading()"
       icon="pi pi-sync"
+      label="Comparer"
       severity="info"
       size="small"
-      [loading]="loading()"
-      [disabled]="colonnes().length === 0"
-      (onClick)="comparer()"
     />
   </div>
 
   @if (colonnes().length > 4) {
     <small class="text-muted dc-hint">
-      <i class="pi pi-info-circle"></i> Conseil : limitez à 4 grossistes pour une meilleure lisibilité.
+      <i class="pi pi-info-circle"></i> Conseil : limitez à 4 grossistes pour une meilleure
+      lisibilité.
     </small>
   }
 
@@ -47,22 +48,22 @@
     </div>
   } @else if (hasResults()) {
     <div class="dc-table-wrapper">
-      <table class="dc-table">
+      <table class="dc-table pharma-table">
         <thead>
-          <tr>
-            <th class="dc-th-produit">Produit</th>
-            @for (f of colonnes(); track f.id) {
-              <th colspan="3" class="dc-th-grossiste">{{ f.libelle }}</th>
-            }
-          </tr>
-          <tr class="dc-subheader">
-            <th></th>
-            @for (f of colonnes(); track f.id) {
-              <th class="text-center">Dispo</th>
-              <th class="text-right">Stock</th>
-              <th class="text-right">PA</th>
-            }
-          </tr>
+        <tr class="pharma-table-head">
+          <th class="dc-th-produit">Produit</th>
+          @for (f of colonnes(); track f.id) {
+            <th class="dc-th-grossiste" colspan="3">{{ f.libelle }}</th>
+          }
+        </tr>
+        <tr class="dc-subheader">
+          <th></th>
+          @for (f of colonnes(); track f.id) {
+            <th class="text-center">Dispo</th>
+            <th class="text-right">Stock</th>
+            <th class="text-right">PA</th>
+          }
+        </tr>
         </thead>
         <tbody>
           @for (row of rows(); track row.codeProduit) {
@@ -77,15 +78,15 @@
                 @if (info) {
                   <td class="text-center">
                     @if (info.disponible) {
-                      <p-tag value="OK" severity="success"/>
+                      <p-tag severity="success" value="OK" />
                     } @else {
-                      <p-tag value="Rupture" severity="danger"/>
+                      <p-tag severity="danger" value="Rupture" />
                     }
                   </td>
                   <td class="text-right dc-cell-num">{{ info.stockDisponible }}</td>
                   <td class="text-right dc-cell-num">{{ info.prixAchat | number: '1.0-0' }}</td>
                 } @else {
-                  <td colspan="3" class="text-center text-muted dc-na">N/A</td>
+                  <td class="text-center text-muted dc-na" colspan="3">N/A</td>
                 }
               }
             </tr>
@@ -105,5 +106,5 @@
   <small class="text-muted me-auto">
     {{ rows().length }} produit(s) comparé(s) sur {{ colonnes().length }} grossiste(s)
   </small>
-  <p-button type="button" severity="secondary" (click)="close()">Fermer</p-button>
+  <p-button (click)="close()" severity="secondary" type="button">Fermer</p-button>
 </div>

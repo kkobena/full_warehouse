@@ -1,10 +1,9 @@
-
 @use 'app/shared/scss/modal-theme' as *;
 @use 'app/shared/scss/table-common'  as *;
+
 :host {
   @include modal-theme;
 }
-
 
 
 .modal-body.overflow-visible {
@@ -27,7 +26,9 @@
   align-items: center;
   margin-bottom: 0.5rem;
 
-  p-multiSelect { flex: 1; }
+  p-multiSelect {
+    flex: 1;
+  }
 }
 
 .dc-hint {
@@ -48,7 +49,9 @@
   color: var(--p-text-muted-color, #6b7280);
   font-size: 0.875rem;
 
-  i { font-size: 1.25rem; }
+  i {
+    font-size: 1.25rem;
+  }
 }
 
 .dc-table-wrapper {
@@ -56,7 +59,7 @@
   margin-top: 0.75rem;
 }
 
-/*.dc-table {
+.dc-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.78rem;
@@ -65,9 +68,17 @@
   thead tr:first-child {
     background: var(--p-primary-100, #e0e7ff);
 
-    th { padding: 0.4rem 0.75rem; font-weight: 700; font-size: 0.75rem; }
+    th {
+      padding: 0.4rem 0.75rem;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
 
-    .dc-th-produit { background: var(--p-surface-100, #f8fafc); min-width: 200px; }
+    .dc-th-produit {
+      background: var(--p-surface-100, #f8fafc);
+      min-width: 200px;
+    }
+
     .dc-th-grossiste {
       text-align: center;
       border-left: 2px solid var(--p-surface-0, #fff);
@@ -93,16 +104,24 @@
     border-bottom: 1px solid var(--p-surface-100, #f1f5f9);
     transition: background 0.15s;
 
-    &:hover { background: var(--p-surface-50, #f9fafb); }
+    &:hover {
+      background: var(--p-surface-50, #f9fafb);
+    }
 
     &.dc-row-rupture {
       background: var(--p-red-50, #fef2f2);
-      &:hover { background: var(--p-red-100, #fee2e2); }
+
+      &:hover {
+        background: var(--p-red-100, #fee2e2);
+      }
     }
 
-    td { padding: 0.35rem 0.5rem; vertical-align: middle; }
+    td {
+      padding: 0.35rem 0.5rem;
+      vertical-align: middle;
+    }
   }
-}*/
+}
 
 .dc-td-produit {
   min-width: 200px;
@@ -130,5 +149,10 @@
   color: var(--p-text-muted-color, #94a3b8);
 }
 
-.text-right { text-align: right; }
-.text-center { text-align: center; }
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}

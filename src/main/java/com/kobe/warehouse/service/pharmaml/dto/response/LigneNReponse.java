@@ -1,16 +1,19 @@
 package com.kobe.warehouse.service.pharmaml.dto.response;
 
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LigneNReponse {
 
     @XmlAttribute(name = "Code_Produit")
     private String codeProduit;
+
+    @XmlAttribute(name = "Designation")
+    private String designation;
 
     @XmlAttribute(name = "Quantite_livree")
     private int quantiteLivree;
@@ -28,6 +31,14 @@ public class LigneNReponse {
 
     public void setCodeProduit(String codeProduit) {
         this.codeProduit = codeProduit;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
     }
 
     public int getQuantiteLivree() {

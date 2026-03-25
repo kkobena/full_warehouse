@@ -12,5 +12,8 @@ public record SubstitutionProposeeDTO(
     SubstitutionStatut statut,
     String cipOriginal,
     String designationOriginale,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String codeReponse,
+    String additif,
+    String typeRemplacement
 ) {}

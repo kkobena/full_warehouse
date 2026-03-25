@@ -284,8 +284,12 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     return '';
   }
 
+  protected get isLocked(): boolean {
+    return !!this.currentCommande?.hasBeenSubmittedToPharmaML;
+  }
+
   protected showLotColumn(): boolean {
-    return this.showLotBtn ;
+    return this.showLotBtn;
   }
 
   protected onAddLot(orderLine: IOrderLine): void {

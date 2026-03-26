@@ -23,7 +23,6 @@ interface ModelReapproConfig {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-semois-model-config',
   templateUrl: './semois-model-config.component.html',
   styleUrls: ['./semois-model-config.component.scss'],

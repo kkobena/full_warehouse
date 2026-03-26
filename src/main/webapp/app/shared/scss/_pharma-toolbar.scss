@@ -1068,3 +1068,80 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex !important;
   }
 }
+
+// ====================================
+// SECONDARY ACTION BAR
+// Barre d'actions secondaire pour les composants enfants (pas de header sombre).
+// Fond gris clair, séparateur bas, padding compact.
+// Usage : remplace pharma-toolbar dans les composants enfants montés dans un parent
+//         qui possède déjà le header (pharma-toolbar-header).
+// ====================================
+.su-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-200;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+
+  &__filters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+
+    // Normalise la hauteur des contrôles de formulaire PrimeNG
+    ::ng-deep {
+      .p-select,
+      .p-inputtext,
+      .p-datepicker-input {
+        height: 32px !important;
+        min-height: 32px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        font-size: 0.8125rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+      }
+
+      // Icône du select alignée
+      .p-select-label {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 32px !important;
+        font-size: 0.8125rem !important;
+      }
+
+      input.p-inputtext {
+        height: 32px !important;
+        line-height: 32px !important;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    &__filters,
+    &__actions {
+      width: 100%;
+    }
+
+    &__actions {
+      justify-content: flex-end;
+    }
+  }
+}
+

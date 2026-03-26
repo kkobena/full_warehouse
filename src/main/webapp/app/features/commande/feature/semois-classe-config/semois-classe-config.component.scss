@@ -5,63 +5,31 @@
   @include modal-theme;
 }
 
+.config-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0.75rem 1rem;
+  padding: 0.65rem 0.875rem;
+  background: rgba(13, 110, 253, 0.06);
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  border-left: 4px solid #0d6efd;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #1a3a5c;
+  line-height: 1.5;
 
-
-.semois-classe-config {
-  padding: 1.5rem;
-
-  .config-header {
-    margin-bottom: 1.5rem;
-
-    .config-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-color);
-      margin: 0 0 0.5rem;
-    }
-
-    .config-subtitle {
-      color: var(--text-color-secondary);
-      font-size: 0.875rem;
-      margin: 0;
-    }
-  }
-
-  .skeleton-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .config-description {
-    color: var(--text-color-secondary);
-    font-size: 0.875rem;
-  }
-
-  .config-footer {
-    margin-top: 1.25rem;
-
-    .formula-card {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--surface-section);
-      border: 1px solid var(--surface-border);
-      border-radius: 6px;
-      padding: 0.625rem 1rem;
-      font-size: 0.85rem;
-
-      .formula-label {
-        color: var(--text-color-secondary);
-        white-space: nowrap;
-      }
-
-      .formula {
-        font-family: monospace;
-        color: var(--primary-color);
-        background: none;
-        padding: 0;
-      }
-    }
+  &::before {
+    content: '\e9be'; // pi-info-circle
+    font-family: 'primeicons';
+    font-size: 1rem;
+    color: #0d6efd;
+    flex-shrink: 0;
+    margin-top: 1px;
   }
 }
+
+
+
+
+

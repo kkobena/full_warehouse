@@ -141,29 +141,28 @@ export class SemoisSuggestion implements ISemoisSuggestion {
   }
 
   /**
-   * Obtient le niveau d'urgence du réapprovisionnement
-   * @returns "URGENT" si stock < marge sécurité, "NORMAL" si stock < objectif, "OK" sinon
+   * Niveau d'urgence — cohérent avec le filtre backend (quantiteACommander > 0 garanti).
+   * URGENT : stock < marge de sécurité.
+   * NORMAL : stock entre marge et objectif.
+   * OK     : stock ≥ objectif.
    */
   getNiveauUrgence(): 'URGENT' | 'NORMAL' | 'OK' {
-    if (this.estEnRupture()) {
-      return 'URGENT';
-    }
-    if (this.necessiteReappro()) {
-      return 'NORMAL';
-    }
+    if (this.estEnRupture()) return 'URGENT';
+    if (this.necessiteReappro()) return 'NORMAL';
     return 'OK';
   }
 
   /**
-   * Calcule le nombre de jours de stock restant
-   * @returns Nombre de jours approximatif de stock (Stock Actuel / VMM * 30)
+   * Calcule le nombre de jours de stock restant.
+   * Un stock négatif est traité comme 0 (artefact comptable sans sens physique).
    */
   getJoursStockRestant(): number {
     if (!this.vmm || this.vmm === 0 || this.stockActuel === undefined) {
       return 0;
     }
+    const stockEffectif = Math.max(0, this.stockActuel);
     const vmmJour = this.vmm / 30.0;
-    return Math.ceil(this.stockActuel / vmmJour);
+    return Math.ceil(stockEffectif / vmmJour);
   }
 
   /**

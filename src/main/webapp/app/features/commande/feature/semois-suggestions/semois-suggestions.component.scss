@@ -2,7 +2,27 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/dashboard-common';
 
-/* Couverture act / cible */
+/* ── Largeur fixe des selects dans su-action-bar ─────────────────────
+   Évite que les selects se redimensionnent en fonction du contenu sélectionné
+────────────────────────────────────────────────────────────────────── */
+.su-action-bar {
+  &__filters {
+    ::ng-deep {
+      // Selects fournisseur / classe / urgence : largeur fixe
+      p-select:nth-child(1) .p-select { width: 160px !important; min-width: 160px !important; }
+      p-select:nth-child(2) .p-select { width: 140px !important; min-width: 140px !important; }
+      p-select:nth-child(3) .p-select { width: 150px !important; min-width: 150px !important; }
+    }
+
+    // Input recherche : prend l'espace restant mais pas moins de 140px
+    input[pInputText] {
+      flex: 1;
+      min-width: 140px;
+      max-width: 280px;
+    }
+  }
+}
+
 .couverture-badge {
   font-size: 0.8rem;
   line-height: 1.2;

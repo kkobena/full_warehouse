@@ -9,9 +9,11 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
@@ -24,6 +26,7 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
@@ -91,6 +94,7 @@ public class CommandServiceImpl implements CommandService {
     private final CommandeIdGeneratorService commandeIdGeneratorService;
     private final SuggestionReassortService suggestionReassortService;
     private final SuggestionRepository suggestionRepository;
+    private final FournisseurProduitRepository fournisseurProduitRepository;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -101,7 +105,8 @@ public class CommandServiceImpl implements CommandService {
         ImportationEchoueService importationEchoueService,
         CommandeIdGeneratorService commandeIdGeneratorService,
         SuggestionReassortService suggestionReassortService,
-        SuggestionRepository suggestionRepository
+        SuggestionRepository suggestionRepository,
+        FournisseurProduitRepository fournisseurProduitRepository
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -112,6 +117,7 @@ public class CommandServiceImpl implements CommandService {
         this.commandeIdGeneratorService = commandeIdGeneratorService;
         this.suggestionReassortService = suggestionReassortService;
         this.suggestionRepository = suggestionRepository;
+        this.fournisseurProduitRepository = fournisseurProduitRepository;
     }
 
     private Commande createNewCommande(Commande commande) {
@@ -372,6 +378,55 @@ public class CommandServiceImpl implements CommandService {
                 commande.getOrderLines().add(orderLine);
             });
         commandeRepository.save(commande);
+    }
+
+    @Override
+    public void createCommandeFromSemoisLines(Integer fournisseurId, List<SemoisCommanderDTO.LigneSemois> lignes) {
+        if (lignes == null || lignes.isEmpty()) return;
+        AppUser user = storageService.getUser();
+        Commande commande = new Commande();
+        commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
+        commande.setCreatedAt(LocalDateTime.now());
+        commande.setUpdatedAt(commande.getCreatedAt());
+        commande.setOrderStatus(OrderStatut.REQUESTED);
+        commande.setUser(user);
+        commande.setOrderReference(referenceService.buildNumCommande());
+        commande.setReceiptReference(commande.getOrderReference());
+        commande.setGrossAmount(0);
+        commande.setOrderAmount(0);
+        commande.setTaxAmount(0);
+        commande.setHtAmount(0);
+        commande.setDiscountAmount(0);
+        commande.setFournisseur(buildFournisseurFromId(fournisseurId));
+
+        for (SemoisCommanderDTO.LigneSemois ligne : lignes) {
+            if (ligne.quantite() <= 0) continue;
+            fournisseurProduitRepository
+                .findOneByProduitIdAndFournisseurId(ligne.produitId(), fournisseurId)
+                .ifPresent(fp -> {
+                    // Calcul du stock actuel comme snapshot à la commande
+                    int stockActuel = fp.getProduit().getStockProduits().stream()
+                        .mapToInt(sp -> sp.getTotalStockQuantity())
+                        .sum();
+                    OrderLineDTO dto = new OrderLineDTO();
+                    dto.setQuantityRequested(ligne.quantite());
+                    dto.setQuantityReceived(0);
+                    dto.setTotalQuantity(stockActuel);
+                    OrderLine orderLine = orderLineService.buildOrderLine(dto, fp);
+                    orderLine.setCommande(commande);
+                    updateCommandeAmount(commande, orderLine);
+                    commande.getOrderLines().add(orderLine);
+                });
+        }
+
+        if (!commande.getOrderLines().isEmpty()) {
+            commande.setFinalAmount(commande.getOrderAmount());
+            commandeRepository.save(commande);
+            log.info("Commande SEMOIS créée : {} lignes pour fournisseur {}",
+                commande.getOrderLines().size(), fournisseurId);
+        } else {
+            log.warn("Aucune ligne valide trouvée pour la commande SEMOIS fournisseur {}", fournisseurId);
+        }
     }
 
     private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Integer commandeId) {

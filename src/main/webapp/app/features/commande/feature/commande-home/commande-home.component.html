@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
@@ -19,6 +18,7 @@
               ngbNav
               orientation="vertical"
             >
+              <!-- 1 ─ Dashboard unifié -->
               <ng-container ngbNavItem="DASHBOARD">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-th-large"></i>
@@ -26,14 +26,15 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-commande-dashboard />
+                  <app-appro-unified-dashboard />
                 </ng-template>
               </ng-container>
 
+              <!-- 2 ─ Commandes en cours -->
               <ng-container ngbNavItem="REQUESTED">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-cart-plus"></i>
-                  <span>Commande en cours</span>
+                  <span>Commandes en cours</span>
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
@@ -41,28 +42,19 @@
                 </ng-template>
               </ng-container>
 
-              <ng-container ngbNavItem="BONS_EN_COURS">
+              <!-- 3 ─ Réceptions (Bons en cours + Historique) -->
+              <ng-container ngbNavItem="RECEPTIONS">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-fw pi-truck"></i>
-                  <span>Bons en cours</span>
+                  <i class="pi pi-truck"></i>
+                  <span>Réceptions</span>
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-bon-en-cours />
+                  <app-reception-hub />
                 </ng-template>
               </ng-container>
 
-              <ng-container ngbNavItem="LIST_BONS">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-list"></i>
-                  <span>Liste des bons</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-list-bons />
-                </ng-template>
-              </ng-container>
-
+              <!-- 4 ─ Suggestions (unifié Fournisseurs + SEMOIS) -->
               <ng-container ngbNavItem="SUGGESTIONS">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-lightbulb"></i>
@@ -70,10 +62,11 @@
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
-                  <app-suggestion-home />
+                  <app-suggestions-unified />
                 </ng-template>
               </ng-container>
 
+              <!-- 6 ─ Pilotage des stocks -->
               <ng-container ngbNavItem="REPARTITION_STOCK">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-sync"></i>
@@ -85,6 +78,7 @@
                 </ng-template>
               </ng-container>
 
+              <!-- 7 ─ Retours fournisseur -->
               <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-replay"></i>
@@ -96,38 +90,6 @@
                 </ng-template>
               </ng-container>
 
-              <ng-container ngbNavItem="SEMOIS_CONFIG">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-sliders-h"></i>
-                  <span>Config. SEMOIS</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-semois-classe-config />
-                </ng-template>
-              </ng-container>
-
-              <ng-container ngbNavItem="SEMOIS_DASHBOARD">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-chart-bar"></i>
-                  <span>Dashboard SEMOIS</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-semois-dashboard />
-                </ng-template>
-              </ng-container>
-
-              <ng-container ngbNavItem="SEMOIS_SUGGESTIONS">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-shopping-bag"></i>
-                  <span>Suggestions SEMOIS</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-semois-suggestions />
-                </ng-template>
-              </ng-container>
             </div>
           </div>
         </div>
@@ -141,3 +103,4 @@
     </div>
   </div>
 </div>
+

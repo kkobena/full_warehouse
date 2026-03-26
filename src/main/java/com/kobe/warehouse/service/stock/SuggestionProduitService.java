@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
+import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
@@ -42,6 +43,12 @@ public interface SuggestionProduitService {
     void commander(Integer suggestionId);
 
     void commanderSelection(CommanderSelectionDTO dto);
+
+    /**
+     * Crée des commandes groupées par fournisseur depuis des suggestions SEMOIS.
+     * Chaque ligne contient produitId + fournisseurId + quantite.
+     */
+    void createCommandesFromSemois(List<SemoisCommanderDTO.LigneSemois> lignes);
 
     BudgetCommandeDTO getBudgetCommande();
 

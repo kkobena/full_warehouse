@@ -1,14 +1,16 @@
 <p-toast position="center"/>
+<div class="modal-header">
+  <h2 class="modal-title">Configuration SEMOIS — Paramètres par classe de criticité</h2>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
+</div>
 
-<div class="semois-classe-config">
-  <div class="config-header">
-    <h2 class="config-title">Configuration SEMOIS — Paramètres par classe de criticité</h2>
-    <p class="config-subtitle">
+  <div class="config-info">
+
       Ces paramètres s'appliquent à tous les produits de la classe. Ils sont utilisés pour calculer le stock objectif
       et déclencher le réapprovisionnement automatique.
-    </p>
-  </div>
 
+  </div>
+<div class="modal-body semois-classe-config">
   @if (loading()) {
     <div class="skeleton-wrapper">
       @for (i of [1, 2, 3, 4, 5]; track i) {
@@ -105,11 +107,20 @@
       </ng-template>
     </p-table>
 
-    <div class="config-footer">
-      <div class="formula-card">
-        <span class="formula-label">Formule stock objectif :</span>
-        <code class="formula">Stock objectif = VMM + (VMM × délai_livraison × coeff_sécurité / 30)</code>
-      </div>
-    </div>
+
   }
+
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (click)="cancel()"
+    data-dismiss="modal"
+    icon="pi pi-times"
+    label="Annuler"
+    raised="true"
+    severity="secondary"
+    type="button"
+  />
+
 </div>

@@ -6,9 +6,11 @@ import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
+import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import com.kobe.warehouse.service.scheduler.SemoisCalculationService;
 import com.kobe.warehouse.service.scheduler.VentesAgregeesService;
+import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -46,17 +48,20 @@ public class SemoisResource {
     private final VentesAgregeesService ventesAgregeesService;
     private final SemoisConfigurationRepository semoisConfigRepository;
     private final SemoisClasseConfigRepository semoisClasseConfigRepository;
+    private final SuggestionProduitService suggestionProduitService;
 
     public SemoisResource(
         SemoisCalculationService semoisCalculationService,
         VentesAgregeesService ventesAgregeesService,
         SemoisConfigurationRepository semoisConfigRepository,
-        SemoisClasseConfigRepository semoisClasseConfigRepository
+        SemoisClasseConfigRepository semoisClasseConfigRepository,
+        SuggestionProduitService suggestionProduitService
     ) {
         this.semoisCalculationService = semoisCalculationService;
         this.ventesAgregeesService = ventesAgregeesService;
         this.semoisConfigRepository = semoisConfigRepository;
         this.semoisClasseConfigRepository = semoisClasseConfigRepository;
+        this.suggestionProduitService = suggestionProduitService;
     }
 
     /**
@@ -98,19 +103,38 @@ public class SemoisResource {
     public ResponseEntity<List<SemoisSuggestionDTO>> getAllSuggestions(
         Pageable pageable,
         @RequestParam(required = false) String search,
-        @RequestParam(required = false) ClasseCriticite classeCriticite
+        @RequestParam(required = false) ClasseCriticite classeCriticite,
+        @RequestParam(required = false) Integer fournisseurId,
+        @RequestParam(required = false) String niveauUrgence
     ) {
-        LOG.debug("REST request to get paged SEMOIS suggestions - page: {}, search: {}, classe: {}",
-            pageable.getPageNumber(), search, classeCriticite);
+        LOG.debug("REST request to get paged SEMOIS suggestions - page: {}, search: {}, classe: {}, fournisseur: {}, urgence: {}",
+            pageable.getPageNumber(), search, classeCriticite, fournisseurId, niveauUrgence);
 
-        Page<SemoisSuggestionDTO> page = semoisCalculationService.getAllSuggestions(search, classeCriticite, pageable);
+        Page<SemoisSuggestionDTO> page = semoisCalculationService.getAllSuggestions(
+            search, classeCriticite, fournisseurId, niveauUrgence, pageable);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(),
-            page
-        );
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * GET /api/semois/suggestions/urgents : Tous les produits en rupture (sans pagination).
+     * Utilisé pour "Commander tous les urgents".
+     */
+    @GetMapping("/suggestions/urgents")
+    public ResponseEntity<List<SemoisSuggestionDTO>> getAllUrgentSuggestions() {
+        LOG.debug("REST request to get all urgent SEMOIS suggestions");
+        return ResponseEntity.ok(semoisCalculationService.getAllUrgentSuggestions());
+    }
+
+    /**
+     * GET /api/semois/suggestions/fournisseurs : Fournisseurs distincts ayant des produits SEMOIS.
+     */
+    @GetMapping("/suggestions/fournisseurs")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getSemoisFournisseurs() {
+        return ResponseEntity.ok(semoisCalculationService.getDistinctFournisseurs());
     }
 
     /**
@@ -188,18 +212,7 @@ public class SemoisResource {
         return ResponseEntity.ok().body(updated);
     }
 
-    /**
-     * POST /api/semois/init-all : Initialize SEMOIS configurations for all active products without config.
-     * Admin only. One-time initialization.
-     *
-     * @return Number of configurations created
-     */
-    @PostMapping("/init-all")
-    public ResponseEntity<InitAllResponse> initializeAllConfigurations() {
-        LOG.info("REST request to initialize all missing SEMOIS configurations");
-        int created = semoisCalculationService.initializeAllMissingConfigurations();
-        return ResponseEntity.ok().body(new InitAllResponse(created));
-    }
+
 
     /**
      * GET /api/semois/freshness : Get SEMOIS calculation freshness status.
@@ -214,20 +227,27 @@ public class SemoisResource {
 
     /**
      * GET /api/semois/dashboard : Tableau de bord réapprovisionnement temps réel (Axe 6).
-     * <p>
-     * Retourne les indicateurs consolidés depuis {@code v_semois_suggestion} :
-     * <ul>
-     *   <li>Compteurs par niveau d'urgence (rupture, sous seuil, ok, surstock)</li>
-     *   <li>Répartition par classe de criticité (A+, A, B, C, D)</li>
-     *   <li>Top 10 produits les plus urgents triés par taux de couverture</li>
-     * </ul>
-     * </p>
      */
     @GetMapping("/dashboard")
     public ResponseEntity<ReapproDashboardDTO> getDashboard() {
         LOG.debug("REST request to get SEMOIS reappro dashboard");
         ReapproDashboardDTO dashboard = semoisCalculationService.getDashboard();
         return ResponseEntity.ok(dashboard);
+    }
+
+    /**
+     * POST /api/semois/commander : Crée des commandes groupées par fournisseur
+     * depuis une liste de suggestions SEMOIS sélectionnées.
+     * Les lignes sont automatiquement regroupées par fournisseur (1 commande par fournisseur).
+     *
+     * @param dto Liste de lignes SEMOIS à commander (produitId + fournisseurId + quantite)
+     * @return 204 No Content en cas de succès
+     */
+    @PostMapping("/commander")
+    public ResponseEntity<Void> commanderSemois(@Valid @RequestBody SemoisCommanderDTO dto) {
+        LOG.info("REST request to create commandes from {} SEMOIS suggestions", dto.lignes().size());
+        suggestionProduitService.createCommandesFromSemois(dto.lignes());
+        return ResponseEntity.noContent().build();
     }
 
     /**

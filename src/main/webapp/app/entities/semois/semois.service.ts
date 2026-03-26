@@ -36,16 +36,29 @@ export class SemoisService {
    * @param classeCriticite Filtre par classe de criticité
    * @returns Page de suggestions paginées
    */
-  getSuggestions(req?: any, search?: string, classeCriticite?: ClasseCriticite): Observable<EntityArrayResponseType> {
-    const options = createRequestOptions({
-      ...req,
-      search,
-      classeCriticite,
-    });
+  getSuggestions(
+    req?: any,
+    search?: string,
+    classeCriticite?: ClasseCriticite,
+    fournisseurId?: number,
+    niveauUrgence?: 'URGENT' | 'NORMAL' | 'OK',
+  ): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions({ ...req, search, classeCriticite, fournisseurId, niveauUrgence });
     return this.http.get<ISemoisSuggestion[]>(`${this.resourceUrl}/suggestions`, {
       params: options,
       observe: 'response',
     });
+  }
+
+  /** Tous les produits en rupture sans pagination — pour "Commander urgents". */
+  getAllUrgentSuggestions(): Observable<HttpResponse<ISemoisSuggestion[]>> {
+    return this.http.get<ISemoisSuggestion[]>(`${this.resourceUrl}/suggestions/urgents`, { observe: 'response' });
+  }
+
+  /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
+  getSemoisFournisseurs(): Observable<HttpResponse<Array<{ fournisseurId: number; fournisseurLibelle: string }>>> {
+    return this.http.get<Array<{ fournisseurId: number; fournisseurLibelle: string }>>(
+      `${this.resourceUrl}/suggestions/fournisseurs`, { observe: 'response' });
   }
 
   /**
@@ -140,8 +153,15 @@ export class SemoisService {
   }
 
   /**
+   * Crée des commandes groupées par fournisseur depuis des suggestions SEMOIS sélectionnées.
+   * @param lignes Liste de {produitId, fournisseurId, quantite}
+   */
+  commanderSemois(lignes: Array<{ produitId: number; fournisseurId: number; quantite: number }>): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/commander`, { lignes }, { observe: 'response' });
+  }
+
+  /**
    * Récupère le tableau de bord réapprovisionnement SEMOIS temps réel (Axe 6).
-   * Consolide les indicateurs : compteurs par urgence, répartition par classe, top produits urgents.
    */
   getDashboard(): Observable<HttpResponse<IReapproDashboard>> {
     return this.http.get<IReapproDashboard>(`${this.resourceUrl}/dashboard`, { observe: 'response' });

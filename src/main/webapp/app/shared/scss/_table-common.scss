@@ -149,7 +149,33 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
   // Corps du tableau
   .p-datatable-tbody {
     tr {
+      transition: none !important;
 
+      // ── Neutralise le border-left de PrimeNG sur la 1re cellule ──────────
+      // PrimeNG 20 ajoute border-left sur td:first-child au hover/focus/select
+      // ce qui décale la première colonne. On le force à 0 dans tous les états.
+      td {
+        transition: none !important;
+        border-left: 0 !important;
+
+        &::before,
+        &::after {
+          display: none !important;
+          content: none !important;
+        }
+      }
+
+      td:first-child {
+        border-left: 0 !important;
+        padding-left: 4px !important;
+      }
+
+      &:hover td:first-child,
+      &.p-highlight td:first-child,
+      &.p-focus td:first-child {
+        border-left: 0 !important;
+        padding-left: 4px !important;
+      }
 
       &:nth-child(even) {
         background: #f8f9fa;
@@ -169,31 +195,40 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
       // Ligne avec alerte (quantité insuffisante)
       &.pharma-row-warning {
         background: #fff3cd !important;
-        border-left: 3px solid $pharma-warning;
+        box-shadow: inset 3px 0 0 $pharma-warning;
 
-        &:hover {
-          background: #ffe8a1 !important;
-        }
+        &:hover { background: #ffe8a1 !important; }
       }
 
       // Ligne avec succès
       &.pharma-row-success {
         background: #d4edda !important;
-        border-left: 3px solid $pharma-success;
+        box-shadow: inset 3px 0 0 $pharma-success;
 
-        &:hover {
-          background: #c3e6cb !important;
-        }
+        &:hover { background: #c3e6cb !important; }
       }
 
       // Ligne avec danger
       &.pharma-row-danger {
         background: #f8d7da !important;
-        border-left: 3px solid $pharma-danger;
+        box-shadow: inset 3px 0 0 $pharma-danger;
 
-        &:hover {
-          background: #f5c6cb !important;
-        }
+        &:hover { background: #f5c6cb !important; }
+      }
+
+      // Bootstrap table-warning / table-danger (semois-suggestions)
+      &.table-warning {
+        background: #fff3cd !important;
+        box-shadow: inset 3px 0 0 $pharma-warning;
+
+        &:hover { background: #ffe8a1 !important; }
+      }
+
+      &.table-danger {
+        background: #f8d7da !important;
+        box-shadow: inset 3px 0 0 $pharma-danger;
+
+        &:hover { background: #f5c6cb !important; }
       }
     }
   }
@@ -531,7 +566,23 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
 
     .p-datatable-tbody {
       tr {
+        transition: none !important;
 
+        td {
+          transition: none !important;
+          border-left: 0 !important;
+        }
+
+        td:first-child {
+          border-left: 0 !important;
+          padding-left: 4px !important;
+        }
+
+        &:hover td:first-child,
+        &.p-highlight td:first-child {
+          border-left: 0 !important;
+          padding-left: 4px !important;
+        }
 
         &:nth-child(even) {
           background: #f8f9fa;
@@ -550,32 +601,33 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
 
         // Warning row for sub-table
         &.pharma-sub-row-warning,
-        &.table-danger {
+        &.table-warning {
           background: #fff3cd !important;
-          border-left: 3px solid $pharma-warning;
+          box-shadow: inset 3px 0 0 $pharma-warning;
 
           &:hover {
             background: #ffe8a1 !important;
           }
         }
 
-        // Success row for sub-table
-        &.pharma-sub-row-success {
-          background: #d4edda !important;
-          border-left: 3px solid $pharma-success;
-
-          &:hover {
-            background: #c3e6cb !important;
-          }
-        }
-
         // Danger row for sub-table
-        &.pharma-sub-row-danger {
+        &.pharma-sub-row-danger,
+        &.table-danger {
           background: #f8d7da !important;
-          border-left: 3px solid $pharma-danger;
+          box-shadow: inset 3px 0 0 $pharma-danger;
 
           &:hover {
             background: #f5c6cb !important;
+          }
+        }
+
+        // Success row for sub-table
+        &.pharma-sub-row-success {
+          background: #d4edda !important;
+          box-shadow: inset 3px 0 0 $pharma-success;
+
+          &:hover {
+            background: #c3e6cb !important;
           }
         }
       }

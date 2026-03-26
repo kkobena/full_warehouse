@@ -246,7 +246,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         OrderLineDTO dto = new OrderLineDTO();
         dto.setQuantityRequested(sub.getQuantite());
         dto.setQuantityReceived(0);
-        dto.setInitStock(0);
+        dto.setTotalQuantity(0);
         OrderLine newLine = orderLineService.buildOrderLine(dto, fp);
         newLine.setCommande(sub.getCommande());
         sub.getCommande().getOrderLines().add(orderLineService.save(newLine));

@@ -1,20 +1,23 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavLink, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
-import { CommandCommonService } from '../../../../entities/commande/command-common.service';
-import { CommandeEnCoursComponent } from '../../ui/commande-en-cours/commande-en-cours.component';
-import { AppBonEnCoursComponent } from '../../ui/bon-en-cours/bon-en-cours.component';
-import { AppListBonsComponent } from '../../ui/list-bons/list-bons.component';
-import { AppRetourFournisseurComponent } from '../retour-fournisseur/retour-fournisseur.component';
-import { AppRepartitionStockComponent } from '../repartition-stock/repartition-stock.component';
-import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component';
-import { CommandeDashboardComponent } from '../commande-dashboard/commande-dashboard.component';
-import { SemoisClasseConfigComponent } from '../semois-classe-config/semois-classe-config.component';
-import { SemoisDashboardComponent } from '../semois-dashboard/semois-dashboard.component';
-import { SemoisSuggestionsComponent } from '../semois-suggestions/semois-suggestions.component';
-import { TranslateService } from '@ngx-translate/core';
-import { PrimeNG } from 'primeng/config';
+import {Component, effect, inject, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, RouterModule} from '@angular/router';
+import {
+  NgbNav,
+  NgbNavChangeEvent,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavOutlet
+} from '@ng-bootstrap/ng-bootstrap';
+import {CommandCommonService} from '../../../../entities/commande/command-common.service';
+import {CommandeEnCoursComponent} from '../../ui/commande-en-cours/commande-en-cours.component';
+import {AppRetourFournisseurComponent} from '../retour-fournisseur/retour-fournisseur.component';
+import {AppRepartitionStockComponent} from '../repartition-stock/repartition-stock.component';
+import {ApproUnifiedDashboardComponent} from '../appro-unified-dashboard/appro-unified-dashboard.component';
+import {SuggestionsUnifiedComponent} from '../suggestions-unified/suggestions-unified.component';
+import {ReceptionHubComponent} from '../reception-hub/reception-hub.component';
+import {TranslateService} from '@ngx-translate/core';
+import {PrimeNG} from 'primeng/config';
 
 @Component({
   selector: 'app-commande-home',
@@ -29,15 +32,11 @@ import { PrimeNG } from 'primeng/config';
     NgbNavContent,
     NgbNavOutlet,
     CommandeEnCoursComponent,
-    AppBonEnCoursComponent,
-    AppListBonsComponent,
     AppRetourFournisseurComponent,
     AppRepartitionStockComponent,
-    SuggestionHomeComponent,
-    CommandeDashboardComponent,
-    SemoisClasseConfigComponent,
-    SemoisDashboardComponent,
-    SemoisSuggestionsComponent,
+    ApproUnifiedDashboardComponent,
+    SuggestionsUnifiedComponent,
+    ReceptionHubComponent,
   ],
 })
 export class CommandeHomeComponent implements OnInit {

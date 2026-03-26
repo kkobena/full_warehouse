@@ -17,13 +17,11 @@ import {SemoisFraicheur} from 'app/entities/commande/suggestion/suggestion.servi
 import {NotificationService} from 'app/shared/services/notification.service';
 import {ErrorService} from 'app/shared/error.service';
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {Toolbar} from "primeng/toolbar";
 
 @Component({
   selector: 'app-suggestion-home',
   templateUrl: './suggestion-home.component.html',
   styleUrls: ['./suggestion-home.component.scss'],
-
   imports: [
     CommonModule,
     SuggestionFournisseurListComponent,
@@ -32,7 +30,6 @@ import {Toolbar} from "primeng/toolbar";
     TagModule,
     TooltipModule,
     DecimalPipe,
-    Toolbar,
   ],
 })
 export class SuggestionHomeComponent implements OnInit {

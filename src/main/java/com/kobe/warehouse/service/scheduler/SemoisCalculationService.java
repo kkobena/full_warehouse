@@ -169,7 +169,7 @@ public class SemoisCalculationService {
         boolean canUpdateProduitReapproInfo = isNull(lastReapproDate)
             || !lastReapproDate.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1));
 
-        // Charger les 5 configs de classe en mémoire (évite un N+1 par produit)
+
         Map<ClasseCriticite, SemoisClasseConfig> classeConfigMap = semoisClasseConfigRepository.findAll()
             .stream()
             .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
@@ -226,25 +226,24 @@ public class SemoisCalculationService {
             return new BatchResult(0, 0);
         }
 
-        // Bulk-load des SemoisConfiguration existantes (évite N+1)
+
         Set<Integer> produitIds = produits.stream().map(Produit::getId).collect(Collectors.toSet());
         Map<Integer, SemoisConfiguration> configsByProduitId = semoisConfigRepository
             .findByProduitIdIn(produitIds)
             .stream()
             .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
 
-        //  Bulk-load des StockProduit (rayon + réserve) pour l'auto-calcul des paramètres
+
         Map<Integer, List<StockProduit>> stockProduitsByProduitId = canUpdateProduitReapproInfo
             ? stockProduitRepository
-                .findAllByProduitIdInAndMagasinId(produitIds, (int) EntityConstant.DEFAULT_MAGASIN)
+                .findAllByProduitIdInAndMagasinId(produitIds,  EntityConstant.DEFAULT_MAGASIN)
                 .stream()
                 .collect(Collectors.groupingBy(sp -> sp.getProduit().getId()))
             : Map.of();
 
-        //  Batch-load des ventes du même mois N-1 et N-2 (calcul saisonnier)
-        // Un seul appel SQL pour tout le batch : évite 2×N requêtes individuelles.
-        String moisN1 = YearMonth.now().minusYears(1).toString();  // ex: "2025-03"
-        String moisN2 = YearMonth.now().minusYears(2).toString();  // ex: "2024-03"
+
+        String moisN1 = YearMonth.now().minusYears(1).toString();
+        String moisN2 = YearMonth.now().minusYears(2).toString();
         Map<Integer, Map<String, Integer>> saisonByProduitId = canUpdateProduitReapproInfo
             ? ventesAgregeesRepository
                 .findByProduitIdInAndAnneeMoisIn(produitIds, Set.of(moisN1, moisN2))
@@ -254,7 +253,7 @@ public class SemoisCalculationService {
                     Collectors.toMap(
                         VentesMensuellesAgregees::getAnneeMois,
                         VentesMensuellesAgregees::getQuantiteVendue,
-                        (v1, v2) -> v1  // dédoublonnage défensif
+                        (v1, _) -> v1  // dédoublonnage défensif
                     )
                 ))
             : Map.of();
@@ -263,7 +262,7 @@ public class SemoisCalculationService {
         int errorCount = 0;
         List<SemoisConfiguration> toSaveConfigs = new ArrayList<>();
         List<Produit> toSaveProduits = new ArrayList<>();
-        List<StockProduit> toSaveStockProduits = new ArrayList<>();  // Axe 2
+        List<StockProduit> toSaveStockProduits = new ArrayList<>();
 
         for (Produit produit : produits) {
             try {
@@ -307,7 +306,7 @@ public class SemoisCalculationService {
                     produit.setUpdatedAt(LocalDateTime.now());
                     toSaveProduits.add(produit);
 
-                    // Axe 2 — Auto-renseigner les paramètres rayon/réserve si non définis
+                    // Auto-renseigner les paramètres rayon/réserve si non définis
                     List<StockProduit> spList = stockProduitsByProduitId.getOrDefault(produit.getId(), List.of());
                     for (StockProduit sp : spList) {
                         if (autoFillStockProduitParams(sp, c)) {
@@ -329,7 +328,7 @@ public class SemoisCalculationService {
 
         if (!toSaveStockProduits.isEmpty()) {
             stockProduitRepository.saveAll(toSaveStockProduits);
-            LOG.debug("Axe 2 — {} StockProduit mis à jour automatiquement (params rayon/réserve)",
+            LOG.debug("{} StockProduit mis à jour automatiquement (params rayon/réserve)",
                 toSaveStockProduits.size());
         }
 
@@ -362,7 +361,7 @@ public class SemoisCalculationService {
         List<VentesMensuellesAgregees> ventes = ventesAgregeesRepository
             .findLastNValidMonthsByProduit(produitId, nbMois);
 
-        // Fallback : si aucun mois valide, utiliser tous les mois (y compris rupture)
+        //si aucun mois valide, utiliser tous les mois (y compris rupture)
         if (ventes.isEmpty()) {
             ventes = ventesAgregeesRepository.findLastNMonthsByProduit(produitId, nbMois);
             if (!ventes.isEmpty()) {
@@ -436,7 +435,7 @@ public class SemoisCalculationService {
 
     private int applyPeremption(SemoisConfiguration config, SemoisClasseConfig classeConfig,
                                 Integer produitId, int vmm, int marge) {
-        // Axe 5 — Ajouter le stock de rotation (fréquence de commande)
+        //Ajouter le stock de rotation (fréquence de commande)
         int rotationStock = computeRotationStock(config, vmm);
         int stockObjectif = vmm + marge + rotationStock;
         boolean limitePeremption = config.getLimitePeremption() != null
@@ -450,7 +449,7 @@ public class SemoisCalculationService {
     }
 
     /**
-     * Axe 5 — Stock de rotation = VMM × (fréquence_commande_jours / 30).
+     * Stock de rotation = VMM × (fréquence_commande_jours / 30).
      * Représente la quantité consommée entre deux commandes successives.
      * Exemple : VMM=30, fréquence=7j → rotation=7 unités (≈ 1 semaine de ventes).
      */
@@ -543,15 +542,15 @@ public class SemoisCalculationService {
     public Page<SemoisSuggestionDTO> getAllSuggestions(
         String search,
         ClasseCriticite classeCriticite,
+        Integer fournisseurId,String niveauUrgence,
         Pageable pageable
     ) {
-        LOG.debug("Récupération suggestions SEMOIS depuis vue - search: {}, classe: {}, page: {}",
-            search, classeCriticite, pageable.getPageNumber());
+        LOG.debug("Récupération suggestions SEMOIS depuis vue - search: {}, classe: {}, fournisseur: {}, page: {}",
+            search, classeCriticite, fournisseurId, pageable.getPageNumber());
 
         Page<SemoisSuggestionView> viewPage = semoisSuggestionViewRepository.findAllWithFilters(
-            search, classeCriticite, pageable);
+            search, classeCriticite, fournisseurId,niveauUrgence, pageable);
 
-        // Stock virtuel : batch-load des commandes en attente pour toute la page
         List<Integer> produitIds = viewPage.getContent().stream()
             .map(SemoisSuggestionView::getProduitId)
             .toList();
@@ -559,9 +558,31 @@ public class SemoisCalculationService {
 
         List<SemoisSuggestionDTO> suggestions = viewPage.getContent().stream()
             .map(view -> toDTO(view, pendingQtyMap.getOrDefault(view.getProduitId(), 0)))
+            // Aligne avec Winpharma/Pharmagest : un produit couvert par commande en cours
+            // (qte nette = 0 après soustraction pending) n'apparaît pas dans les suggestions.
+            .filter(dto -> dto.quantiteACommander() > 0)
             .toList();
 
         return new PageImpl<>(suggestions, pageable, viewPage.getTotalElements());
+    }
+
+    /** Tous les produits urgents (stockActuel < margeSecurite) sans pagination. */
+    @Transactional(readOnly = true)
+    public List<SemoisSuggestionDTO> getAllUrgentSuggestions() {
+        return semoisSuggestionViewRepository.findAllUrgents().stream()
+            .map(this::toDTO)
+            .toList();
+    }
+
+    /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getDistinctFournisseurs() {
+        return semoisSuggestionViewRepository.findDistinctFournisseurs().stream()
+            .map(row -> Map.<String, Object>of(
+                "fournisseurId", row[0],
+                "fournisseurLibelle", row[1] != null ? row[1].toString() : ""
+            ))
+            .toList();
     }
 
     /**
@@ -621,7 +642,7 @@ public class SemoisCalculationService {
     public ReapproDashboardDTO getDashboard() {
 
         List<Object[]> globalRows = semoisSuggestionViewRepository.getDashboardGlobalStats();
-        Object[] globalRow = globalRows.isEmpty() ? new Object[7] : globalRows.get(0);
+        Object[] globalRow = globalRows.isEmpty() ? new Object[7] : globalRows.getFirst();
         long totalProduits         = toLong(globalRow[0]);
         long nbRupture             = toLong(globalRow[1]);
         long nbSousSeuil           = toLong(globalRow[2]);
@@ -647,7 +668,6 @@ public class SemoisCalculationService {
             })
             .toList();
 
-        // 3. Top 10 produits urgents
         List<ReapproDashboardDTO.TopUrgentDTO> topUrgents = semoisSuggestionViewRepository
             .findTopUrgentProducts(10)
             .stream()
@@ -709,9 +729,6 @@ public class SemoisCalculationService {
         return ((Number) val).doubleValue();
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Initialisation / administration
-    // ──────────────────────────────────────────────────────────────────────────
 
     @Transactional
     public SemoisConfiguration initializeConfiguration(Integer produitId) {
@@ -737,13 +754,6 @@ public class SemoisCalculationService {
         return semoisConfigRepository.save(SemoisConfiguration.createDefault(produit, classe));
     }
 
-    @Transactional
-    public int initializeAllMissingConfigurations() {
-        LOG.info("Initialisation configurations SEMOIS manquantes...");
-        int created = semoisConfigRepository.initializeAllMissingConfigurations();
-        LOG.info("{} configurations SEMOIS initialisées", created);
-        return created;
-    }
 
     // ──────────────────────────────────────────────────────────────────────────
     // Auto-calcul paramètres rayon/réserve
@@ -820,7 +830,7 @@ public class SemoisCalculationService {
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // Axe 4 — Saisonnalité automatique
+    // Saisonnalité automatique
     // ──────────────────────────────────────────────────────────────────────────
 
     /**
@@ -871,7 +881,7 @@ public class SemoisCalculationService {
 
         double avg = coefficients.stream().mapToDouble(Double::doubleValue).average().orElse(1.0);
         // Borne [0.50 ; 3.00] pour éviter les aberrations (ex: rupture fournisseur N-1)
-        double bounded = Math.max(0.50, Math.min(3.0, avg));
+        double bounded = Math.clamp(avg, 0.50, 3.0);
         return BigDecimal.valueOf(bounded).setScale(2, RoundingMode.HALF_UP);
     }
 

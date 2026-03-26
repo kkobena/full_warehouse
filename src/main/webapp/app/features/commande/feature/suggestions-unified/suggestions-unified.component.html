@@ -1,0 +1,61 @@
+<!-- ─── Toolbar parent — titre + méta dans le header, tabs dans la barre ── -->
+<div class="pharma-toolbar su-parent-toolbar">
+
+  <!-- Header bleu : titre + indicateur fraîcheur + bouton config -->
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-lightbulb"></i>
+    <span class="su-title">Suggestions de commande</span>
+
+    <div class="su-header-end ms-auto">
+      @if (semoisFraicheur()) {
+        <p-tag
+          [value]="semoisFraicheurLabel"
+          [severity]="semoisFraicheurSeverity"
+          icon="pi pi-clock"
+          pTooltip="Fraîcheur du dernier calcul SEMOIS. Le recalcul automatique est planifié selon la configuration."
+          tooltipPosition="bottom"
+        />
+      }
+      <div class="su-config-btn-wrap">
+        <p-button
+          icon="pi pi-sliders-h"
+          label="Config. SEMOIS"
+          [outlined]="true"
+          size="small"
+          pTooltip="Paramétrage des classes de criticité et modèles SEMOIS"
+          tooltipPosition="bottom"
+          (onClick)="navigateToSemoisConfig()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre des onglets de sélection de source -->
+  <div class="su-source-tabs-bar">
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeSource() === 'FOURNISSEURS'"
+      (click)="setSource('FOURNISSEURS')"
+      type="button"
+    >
+      <i class="pi pi-building"></i>
+      Par fournisseur
+    </button>
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeSource() === 'SEMOIS'"
+      (click)="setSource('SEMOIS')"
+      type="button"
+    >
+      <i class="pi pi-chart-line"></i>
+      SEMOIS
+    </button>
+  </div>
+</div>
+
+<!-- ─── Contenu selon la source active ──────────────────────────────── -->
+@if (activeSource() === 'FOURNISSEURS') {
+  <app-suggestion-home />
+} @else {
+  <app-semois-suggestions />
+}

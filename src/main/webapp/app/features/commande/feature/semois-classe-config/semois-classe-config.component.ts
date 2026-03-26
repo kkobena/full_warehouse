@@ -17,6 +17,7 @@ import {
 } from 'app/shared/model/semois/classe-criticite.model';
 import {NotificationService} from "../../../../shared/services/notification.service";
 import {ErrorService} from "../../../../shared/error.service";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-semois-classe-config',
@@ -31,7 +32,7 @@ export class SemoisClasseConfigComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly semoisService = inject(SemoisService);
   private readonly errorService = inject(ErrorService);
-
+  private readonly activeModal = inject(NgbActiveModal);
   ngOnInit(): void {
     this.semoisService.getClasseConfigs().subscribe({
       next: res => {
@@ -65,7 +66,9 @@ export class SemoisClasseConfigComponent implements OnInit {
       },
     });
   }
-
+  cancel(): void {
+    this.activeModal.dismiss();
+  }
   isSaving(classe: ClasseCriticite): boolean {
     return this.savingClasse() === classe;
   }

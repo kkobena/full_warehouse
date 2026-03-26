@@ -28,7 +28,6 @@ interface IPreviewClassificationItem {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-semois-config-masse',
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],

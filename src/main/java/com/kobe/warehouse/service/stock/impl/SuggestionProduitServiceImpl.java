@@ -29,6 +29,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
+import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
@@ -394,6 +395,22 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         Suggestion suggestion = suggestionRepository.findById(dto.suggestionId()).orElseThrow();
         commandService.createCommandeFromSelection(suggestion, dto.lignes());
         suggestionRepository.delete(suggestion);
+    }
+
+    @Override
+    public void createCommandesFromSemois(List<SemoisCommanderDTO.LigneSemois> lignes) {
+        if (lignes == null || lignes.isEmpty()) {
+            LOG.warn("createCommandesFromSemois: aucune ligne fournie");
+            return;
+        }
+        // Grouper les lignes par fournisseur → 1 commande par fournisseur
+        Map<Integer, List<SemoisCommanderDTO.LigneSemois>> byFournisseur = lignes.stream()
+            .collect(Collectors.groupingBy(SemoisCommanderDTO.LigneSemois::fournisseurId));
+
+        byFournisseur.forEach(commandService::createCommandeFromSemoisLines
+        );
+        LOG.info("createCommandesFromSemois: {} commandes créées depuis {} lignes SEMOIS",
+            byFournisseur.size(), lignes.size());
     }
 
     @Override

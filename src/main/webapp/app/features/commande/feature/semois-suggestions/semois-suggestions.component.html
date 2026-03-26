@@ -1,69 +1,68 @@
-<!-- Toolbar header — même pattern que commande-dashboard / suggestion-home -->
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-shopping-bag"></i>
-    <span>Suggestions SEMOIS</span>
+<!-- ── Barre d'actions secondaire (sans header sombre — le parent en possède un) ── -->
+<div class="su-action-bar">
+  <div class="su-action-bar__filters">
+    <p-select
+      [ngModel]="selectedFournisseurId()"
+      (ngModelChange)="selectedFournisseurId.set($event); onFilterChange()"
+      [options]="fournisseurOptions()"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      placeholder="Tous fournisseurs"
+      [showClear]="true"
+    />
+    <p-select
+      [ngModel]="selectedClasse()"
+      (ngModelChange)="selectedClasse.set($event); onFilterChange()"
+      [options]="classeOptions"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      placeholder="Toutes classes"
+      [showClear]="true"
+    />
+    <p-select
+      [ngModel]="selectedNiveauUrgence()"
+      (ngModelChange)="selectedNiveauUrgence.set($event); onFilterChange()"
+      [options]="urgenceOptions"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      placeholder="Toutes criticités"
+      [showClear]="true"
+    />
+    <input
+      pInputText
+      type="text"
+      placeholder="Rechercher un produit..."
+      [ngModel]="searchText()"
+      (ngModelChange)="searchText.set($event); onSearchChange()"
+    />
   </div>
-  <p-toolbar>
-    <ng-template #start>
-      <div class="pharma-toolbar-filters">
-        <p-select
-          [ngModel]="selectedClasse()"
-          (ngModelChange)="selectedClasse.set($event); onFilterChange()"
-          [options]="classeOptions"
-          optionLabel="label"
-          optionValue="value"
-          appendTo="body"
-          placeholder="Toutes classes"
-          [showClear]="true"
-        />
-        <input
-          pInputText
-          type="text"
-          placeholder="Rechercher un produit..."
-          [ngModel]="searchText()"
-          (ngModelChange)="searchText.set($event); onSearchChange()"
-        />
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <p-button
-            label="Dashboard"
-            icon="pi pi-chart-bar"
-            severity="secondary"
-            size="small"
-            (onClick)="navigateToDashboard()"
-          />
-          <p-button
-            label="Réinitialiser"
-            icon="pi pi-filter-slash"
-            severity="secondary"
-            size="small"
-            (onClick)="onClearFilters()"
-          />
-          <p-button
-            label="Config. masse"
-            icon="pi pi-cog"
-            severity="secondary"
-            size="small"
-            (onClick)="openMassConfig()"
-          />
-          <p-button
-            label="Guide"
-            icon="pi pi-question-circle"
-            severity="info"
-            size="small"
-            (onClick)="toggleHelpDrawer()"
-          />
-        </div>
-      </div>
-    </ng-template>
-  </p-toolbar>
+  <div class="su-action-bar__actions">
+    <p-button
+      [label]="commanderLabel"
+      icon="pi pi-cart-plus"
+      severity="success"
+      size="small"
+      [loading]="isCommanding()"
+      [disabled]="nbCommandable === 0"
+      [pTooltip]="commanderTooltip"
+      tooltipPosition="bottom"
+      (onClick)="commander()"
+    />
+
+    <p-button
+      label="Réinitialiser"
+      icon="pi pi-filter-slash"
+      severity="secondary"
+      size="small"
+      (onClick)="onClearFilters()"
+    />
+  </div>
 </div>
 
-<!-- KPI Cards — style compact aligné sur commande-dashboard -->
+<!-- KPI Cards — chiffres globaux (dashboard stats, pas page courante) -->
 <div class="row mt-2 kpi-row">
   <div class="col-12 col-md-3 mb-2">
     <div class="card kpi-card kpi-card-compact danger-accent">
@@ -72,7 +71,7 @@
           <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-triangle"></i></div>
           <div>
             <p class="kpi-label mb-0">Produits urgents</p>
-            <span class="kpi-value-sm text-danger">{{ urgentCount() }}</span>
+            <span class="kpi-value-sm text-danger">{{ urgentCount }}</span>
             <p class="kpi-sublabel mb-0">Stock &lt; Marge sécurité</p>
           </div>
         </div>
@@ -87,7 +86,7 @@
           <div class="kpi-icon-sm text-warning"><i class="pi pi-shopping-bag"></i></div>
           <div>
             <p class="kpi-label mb-0">Produits à commander</p>
-            <span class="kpi-value-sm text-warning">{{ normalCount() }}</span>
+            <span class="kpi-value-sm text-warning">{{ normalCount }}</span>
             <p class="kpi-sublabel mb-0">Stock &lt; Objectif</p>
           </div>
         </div>
@@ -102,7 +101,7 @@
           <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
           <div>
             <p class="kpi-label mb-0">Produits OK</p>
-            <span class="kpi-value-sm text-success">{{ okCount() }}</span>
+            <span class="kpi-value-sm text-success">{{ okCount }}</span>
             <p class="kpi-sublabel mb-0">Stock optimal</p>
           </div>
         </div>
@@ -135,11 +134,17 @@
           <i class="pi pi-shopping-cart text-primary"></i>
           Articles en Situation de Criticité
         </h5>
+        @if (selectedSuggestions().length > 0) {
+          <span class="badge bg-success ms-auto">{{ selectedSuggestions().length }} sélectionné(s)</span>
+        }
       </div>
       <div class="card-body p-0">
         <div class="overflow-x-auto">
           <p-table
             [value]="suggestions()"
+            [selection]="selectedSuggestions()"
+            (selectionChange)="selectedSuggestions.set($event)"
+            dataKey="produitId"
             [loading]="isLoading()"
             [lazy]="true"
             [paginator]="true"
@@ -150,11 +155,14 @@
             [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            [tableStyle]="{ 'min-width': '120rem' }"
+            [tableStyle]="{ 'min-width': '125rem' }"
             (onPage)="onPageChange($event)"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
+                <th style="width: 3rem">
+                  <p-tableHeaderCheckbox />
+                </th>
                 <th>Urgence</th>
                 <th>Produit</th>
                 <th>Code CIP</th>
@@ -171,10 +179,13 @@
               </tr>
             </ng-template>
             <ng-template #body let-suggestion>
-              <tr [ngClass]="getRowClass(suggestion)">
+              <tr [class]="getRowClass(suggestion)">
+                <td>
+                  <p-tableCheckbox [value]="suggestion" />
+                </td>
                 <td>
                   <p-tag [severity]="getUrgenceSeverity(suggestion)">
-                    {{ getUrgenceLabel(suggestion) }}
+                    {{ getUrgenceDisplayLabel(suggestion) }}
                   </p-tag>
                 </td>
                 <td>{{ suggestion.libelle }}</td>
@@ -187,7 +198,7 @@
                 <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
                 <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
                 <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
-                <td class="text-end" [ngClass]="getStockActuelClass(suggestion)">
+                <td class="text-end" [class]="getStockActuelClass(suggestion)">
                   {{ suggestion.stockActuel || 0 }}
                 </td>
                 <td class="text-end fw-bold pharma-price">
@@ -195,19 +206,19 @@
                 </td>
                 <td class="text-end">
                   <div class="d-flex flex-column align-items-end gap-0">
-                    <span class="couverture-badge px-2 py-1 rounded fw-semibold" [ngClass]="getCouvertureClass(suggestion)"
+                    <span class="couverture-badge px-2 py-1 rounded fw-semibold" [class]="getCouvertureClass(suggestion)"
                           title="Couverture actuelle">
                       {{ getCouvertureMois(suggestion) | number: '1.1-1' }} mois
                     </span>
-                    <span class="couverture-cible text-muted small" [ngClass]="getCouvertureCibleClass(suggestion)"
+                    <span class="couverture-cible text-muted small" [class]="getCouvertureCibleClass(suggestion)"
                           title="Couverture cible (stock objectif)">
                       ↗ {{ getCouvertureCibleMois(suggestion) | number: '1.1-1' }} mois
                     </span>
                   </div>
                 </td>
                 <td class="text-end">
-                  <span class="px-2 py-1 rounded fw-semibold" [ngClass]="getJoursRestantsClass(suggestion)">
-                    {{ getJoursRestants(suggestion) }} jours
+                  <span class="px-2 py-1 rounded fw-semibold" [class]="getJoursRestantsClass(suggestion)">
+                    {{ getJoursRestantsLabel(suggestion) }}
                   </span>
                 </td>
                 <td class="text-end">{{ suggestion.delaiLivraisonJours || 0 }}j</td>
@@ -224,7 +235,7 @@
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="13" class="text-center p-4">
+                <td colspan="14" class="text-center p-4">
                   <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                   <p class="mt-3 text-muted">Aucune suggestion disponible</p>
                 </td>
@@ -236,94 +247,4 @@
     </div>
   </div>
 </div>
-
-<!-- Help Drawer -->
-<p-drawer [(visible)]="helpDrawerVisible" position="right" [style]="{ width: '700px' }">
-  <ng-template #header>
-    <div class="d-flex align-items-center gap-2">
-      <i class="pi pi-question-circle text-primary" style="font-size: 1.5rem"></i>
-      <span class="fw-bold fs-5">Guide d'utilisation SEMOIS</span>
-    </div>
-  </ng-template>
-
-  <div class="p-3">
-    <!-- Classification Criticité -->
-    <div class="mb-4">
-      <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-pie me-2"></i>Classification par Criticité</h6>
-
-      <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #d32f2f">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <p-tag value="A+" severity="danger" />
-          <span class="fw-bold">Classe A+ — Produits Vitaux</span>
-        </div>
-        <p class="text-sm mb-1"><strong>Exemples :</strong> Insuline, Adrénaline, Ventoline, Atropine</p>
-        <ul class="text-sm mb-0 ps-3">
-          <li>Stock toujours disponible, rupture interdite</li>
-          <li>Surveillance quotidienne recommandée</li>
-        </ul>
-      </div>
-
-      <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #388e3c">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <p-tag value="A" severity="success" />
-          <span class="fw-bold">Classe A — Forte Rotation</span>
-        </div>
-        <p class="text-sm mb-1"><strong>Caractéristiques :</strong> Top 20% des ventes, forte demande régulière</p>
-        <ul class="text-sm mb-0 ps-3">
-          <li>Commandes fréquentes, stock suffisant</li>
-          <li>Suivi hebdomadaire, éviter ruptures</li>
-        </ul>
-      </div>
-
-      <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #1976d2">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <p-tag value="B" severity="info" />
-          <span class="fw-bold">Classe B — Rotation Moyenne</span>
-        </div>
-        <p class="text-sm mb-0"><strong>Caractéristiques :</strong> Ventes régulières mais modérées (classe par défaut)</p>
-      </div>
-
-      <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #f57c00">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <p-tag value="C" severity="warn" />
-          <span class="fw-bold">Classe C — Faible Rotation</span>
-        </div>
-        <p class="text-sm mb-0"><strong>Caractéristiques :</strong> VMM &lt; 5 unités/mois, vente occasionnelle</p>
-      </div>
-
-      <div class="mb-3 p-3 rounded" style="background-color: #fafafa; border-left: 4px solid #757575">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <p-tag value="D" severity="secondary" />
-          <span class="fw-bold">Classe D — Très Faible Rotation</span>
-        </div>
-        <p class="text-sm mb-0"><strong>Caractéristiques :</strong> VMM &lt; 2 unités/mois ou nul</p>
-      </div>
-    </div>
-
-    <hr />
-
-    <!-- Niveaux d'urgence -->
-    <div class="mb-4">
-      <h6 class="text-primary fw-bold mb-3"><i class="pi pi-bell me-2"></i>Niveaux d'Urgence</h6>
-
-      <div class="mb-2 p-2 rounded" style="background-color: #ffebee">
-        <span class="badge bg-danger me-2">URGENT</span>
-        <span class="text-sm fw-semibold">Stock Actuel &lt; Marge de Sécurité</span>
-        <p class="text-xs text-muted mb-0 mt-1">⚠️ Risque de rupture imminent ! Commander en priorité absolue.</p>
-      </div>
-
-      <div class="mb-2 p-2 rounded" style="background-color: #fff3e0">
-        <span class="badge bg-warning me-2">NORMAL</span>
-        <span class="text-sm fw-semibold">Stock Actuel &lt; Stock Objectif</span>
-        <p class="text-xs text-muted mb-0 mt-1">Réapprovisionner lors de la prochaine commande.</p>
-      </div>
-
-      <div class="mb-2 p-2 rounded" style="background-color: #e8f5e9">
-        <span class="badge bg-success me-2">OK</span>
-        <span class="text-sm fw-semibold">Stock Actuel ≥ Stock Objectif</span>
-        <p class="text-xs text-muted mb-0 mt-1">Stock optimal, pas de commande nécessaire.</p>
-      </div>
-    </div>
-  </div>
-</p-drawer>
 

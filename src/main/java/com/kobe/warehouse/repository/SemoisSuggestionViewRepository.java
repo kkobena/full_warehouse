@@ -33,19 +33,41 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     @Query("""
         SELECT s FROM SemoisSuggestionView s
         WHERE (:classeCriticite IS NULL OR s.classeCriticite = :classeCriticite)
+          AND (:fournisseurId IS NULL OR s.fournisseurId = :fournisseurId)
           AND (:search IS NULL OR :search = '' OR
                LOWER(s.libelle) LIKE LOWER(CONCAT('%', :search, '%')) OR
                LOWER(s.codeCip) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (:niveauUrgence IS NULL OR
+               (:niveauUrgence = 'URGENT' AND s.vmm > 0 AND s.stockActuel < s.margeSecurite) OR
+               (:niveauUrgence = 'NORMAL' AND s.vmm > 0 AND s.stockActuel >= s.margeSecurite
+                                           AND s.stockActuel < s.stockObjectif) OR
+               (:niveauUrgence = 'OK'     AND (s.vmm = 0 OR s.stockActuel >= s.stockObjectif)))
         """)
     Page<SemoisSuggestionView> findAllWithFilters(
         @Param("search") String search,
         @Param("classeCriticite") ClasseCriticite classeCriticite,
+        @Param("fournisseurId") Integer fournisseurId,
+        @Param("niveauUrgence") String niveauUrgence,
         Pageable pageable
     );
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Dashboard réappro (Axe 6)
-    // ──────────────────────────────────────────────────────────────────────
+    /** Tous les produits en rupture (stockActuel < margeSecurite, vmm > 0) sans pagination. */
+    @Query("""
+        SELECT s FROM SemoisSuggestionView s
+        WHERE s.vmm > 0 AND s.stockActuel < s.margeSecurite
+        ORDER BY s.stockActuel ASC
+        """)
+    List<SemoisSuggestionView> findAllUrgents();
+
+    /** Fournisseurs distincts ayant au moins un produit SEMOIS configuré. */
+    @Query(value = """
+        SELECT DISTINCT fournisseur_id, fournisseur_libelle
+        FROM v_semois_suggestion
+        WHERE fournisseur_id IS NOT NULL
+        ORDER BY fournisseur_libelle
+        """, nativeQuery = true)
+    List<Object[]> findDistinctFournisseurs();
+
 
     /**
      * Retourne les statistiques globales du dashboard réappro en une seule requête.

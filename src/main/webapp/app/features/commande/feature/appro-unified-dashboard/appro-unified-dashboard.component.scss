@@ -1,0 +1,81 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.cursor-pointer { cursor: pointer; }
+
+/* ── Quick Actions bar ──────────────────────────────────────────────────── */
+.quick-actions-bar {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  backdrop-filter: blur(4px);
+}
+
+.quick-actions-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── KPI cards compact ──────────────────────────────────────────────────── */
+.kpi-card-compact {
+  border-radius: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  .card-body {
+    padding: 0.6rem 0.875rem !important;
+  }
+}
+
+.kpi-icon-sm {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  flex-shrink: 0;
+
+  i { font-size: 1rem; }
+}
+
+.kpi-value-sm {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  display: block;
+}
+
+.kpi-sublabel {
+  font-size: 0.68rem;
+  color: #888;
+}
+
+/* ── Budget bar ──────────────────────────────────────────────────────────── */
+.budget-card {
+  border-radius: 8px;
+  border-left: 4px solid var(--bs-primary, #0d6efd);
+  background: rgba(13, 110, 253, 0.03);
+
+  .card-body {
+    padding: 0.5rem 0.875rem !important;
+  }
+}
+
+:host ::ng-deep .budget-progress {
+  height: 8px !important;
+  border-radius: 4px;
+}
+

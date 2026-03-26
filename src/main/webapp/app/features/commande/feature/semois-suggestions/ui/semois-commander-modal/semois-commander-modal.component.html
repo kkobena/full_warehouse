@@ -1,0 +1,73 @@
+<div class="modal-header pharma-modal-header">
+  <div class="d-flex align-items-center gap-2">
+    <i class="pi pi-shopping-cart text-primary" style="font-size: 1.4rem"></i>
+    <h5 class="modal-title mb-0">{{ titre }}</h5>
+  </div>
+</div>
+
+<div class="modal-body p-3">
+  <!-- Résumé -->
+  <div class="alert alert-info d-flex align-items-center gap-2 py-2 mb-3">
+    <i class="pi pi-info-circle"></i>
+    <span>
+      <strong>{{ lignes.length }}</strong> article(s) à commander auprès de
+      <strong>{{ nbFournisseurs }}</strong> fournisseur(s).
+      <br/>
+      <small class="text-muted">Une commande séparée sera créée par fournisseur.</small>
+    </span>
+  </div>
+
+  <!-- Groupes par fournisseur -->
+  @for (entry of fournisseurEntries; track entry.label) {
+    <div class="mb-3">
+      <div class="d-flex align-items-center gap-2 mb-2 border-bottom pb-2">
+        <i class="pi pi-building text-primary"></i>
+        <span class="fw-semibold text-primary">{{ entry.label }}</span>
+        <span class="badge bg-secondary ms-auto">{{ entry.lignes.length }} article(s)</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Produit</th>
+              <th class="text-center">Urgence</th>
+              <th class="text-end">Qté à cmd.</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of entry.lignes; track ligne.produitId) {
+              <tr>
+                <td class="fw-medium small">{{ ligne.libelle }}</td>
+                <td class="text-center">
+                  <p-tag
+                    [value]="ligne.urgence"
+                    [severity]="ligne.urgence === 'URGENT' ? 'danger' : 'warn'"
+                  />
+                </td>
+                <td class="text-end fw-bold pharma-price">{{ ligne.quantite | number }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="modal-footer border-top">
+  <p-button
+    label="Annuler"
+    icon="pi pi-times"
+    severity="secondary"
+    size="small"
+    (onClick)="cancel()"
+  />
+  <p-button
+    label="Confirmer la commande"
+    icon="pi pi-check"
+    severity="success"
+    size="small"
+    (onClick)="confirm()"
+  />
+</div>
+

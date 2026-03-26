@@ -15,7 +15,6 @@ import { SemoisService } from 'app/entities/semois/semois.service';
 import { CommandCommonService } from 'app/entities/commande/command-common.service';
 
 @Component({
-  standalone: true,
   selector: 'app-semois-dashboard',
   templateUrl: './semois-dashboard.component.html',
   styleUrls: ['./semois-dashboard.component.scss'],

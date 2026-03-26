@@ -10,6 +10,7 @@ import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +51,15 @@ public interface CommandService {
     void createCommandeFromSuggestion(Suggestion suggestion);
 
     void createCommandeFromSelection(Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes);
+
+    /**
+     * Crée une commande à partir d'une liste de lignes SEMOIS pour un fournisseur donné.
+     * Utilisé par le module SEMOIS pour déclencher les réapprovisionnements urgents.
+     *
+     * @param fournisseurId ID du fournisseur cible
+     * @param lignes        Lignes SEMOIS (produitId + quantite) pour ce fournisseur
+     */
+    void createCommandeFromSemoisLines(Integer fournisseurId, List<SemoisCommanderDTO.LigneSemois> lignes);
 
     void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId);
 

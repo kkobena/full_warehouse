@@ -25,6 +25,13 @@ import java.time.LocalDateTime;
  * @param facteurSaisonnier Facteur d'ajustement saisonnier actuel
  * @param dateDernierCalcul Date du dernier calcul SEMOIS
  */
+/**
+ * DTO pour les suggestions de réapprovisionnement selon la méthode SEMOIS.
+ *
+ * @param couvertParCommandeEnCours true si une commande REQUESTED couvre déjà le besoin
+ *        (pendingQty > 0 ET qteVueACommander > 0 ET qteACommander = 0 après ajustement).
+ *        Distinct de quantiteACommander=0 qui peut aussi signifier "produit non configuré".
+ */
 public record SemoisSuggestionDTO(
     Integer produitId,
     String libelle,
@@ -152,37 +159,35 @@ public record SemoisSuggestionDTO(
     }
 
     /**
-     * Obtient le niveau d'urgence du réapprovisionnement
-     *
-     * @return "URGENT" si stock < marge sécurité, "NORMAL" si stock < objectif, "OK" sinon
+     * Niveau d'urgence du réapprovisionnement.
+     * Cohérent avec le filtre repository : quantiteACommander > 0 toujours garanti.
+     * <ul>
+     *   <li>URGENT — stock &lt; marge de sécurité (rupture potentielle)</li>
+     *   <li>NORMAL — stock entre marge et objectif</li>
+     *   <li>OK     — stock ≥ objectif (ne devrait pas apparaître si filtre appliqué)</li>
+     * </ul>
      */
     public String getNiveauUrgence() {
-        if (estEnRupture()) {
-            return "URGENT";
-        }
-        if (necessiteReappro()) {
-            return "NORMAL";
-        }
+        if (estEnRupture()) return "URGENT";
+        if (necessiteReappro()) return "NORMAL";
         return "OK";
     }
 
     /**
-     * Calcule le nombre de jours de stock restant
-     *
-     * @return Nombre de jours approximatif de stock (Stock Actuel / VMM * 30)
+     * Nombre de jours de stock restant.
+     * Un stock négatif est traité comme 0 (artefact comptable, sans sens physique).
      */
     public int getJoursStockRestant() {
         if (vmm == null || vmm == 0 || stockActuel == null) {
             return 0;
         }
+        int stockEffectif = Math.max(0, stockActuel);
         double vmmJour = vmm / 30.0;
-        return (int) Math.ceil(stockActuel / vmmJour);
+        return (int) Math.ceil(stockEffectif / vmmJour);
     }
 
     /**
      * Vérifie si le calcul est récent (< 24h)
-     *
-     * @return true si le calcul date de moins de 24h
      */
     public boolean estCalculRecent() {
         if (dateDernierCalcul == null) {
@@ -192,24 +197,26 @@ public record SemoisSuggestionDTO(
     }
 
     /**
-     * Construit un message de suggestion pour l'utilisateur
-     *
-     * @return Message descriptif de la situation du stock
+     * Message de suggestion lisible pour l'utilisateur.
      */
     public String getMessageSuggestion() {
-        if (!necessiteReappro()) {
-            return String.format("Stock OK - Couverture: %.1f mois (cible: %.1f mois)",
-                getTauxCouvertureMois(), getCouvertureCibleMois());
+        if (estEnRupture()) {
+            if (quantiteACommander == null || quantiteACommander == 0) {
+                return String.format(
+                    "⏳ Rupture couverte par commande en cours — stock: %d (seuil: %d) — couverture: %.1f/%.1f mois",
+                    stockActuel, margeSecurite, getTauxCouvertureMois(), getCouvertureCibleMois());
+            }
+            return String.format(
+                "⚠️ URGENT — Commander %d unité(s) — stock: %d (seuil: %d) — %d jour(s) restant(s)",
+                quantiteACommander, stockActuel, margeSecurite, getJoursStockRestant());
         }
-
-        String urgence = estEnRupture() ? "⚠️ URGENT" : "ℹ️";
+        if (necessiteReappro()) {
+            return String.format(
+                "ℹ️ Commander %d unité(s) — couverture: %.1f/%.1f mois (%d jour(s) restant(s))",
+                quantiteACommander, getTauxCouvertureMois(), getCouvertureCibleMois(), getJoursStockRestant());
+        }
         return String.format(
-            "%s Commander %d unités - Couverture: %.1f/%.1f mois (%d jours restants)",
-            urgence,
-            quantiteACommander,
-            getTauxCouvertureMois(),
-            getCouvertureCibleMois(),
-            getJoursStockRestant()
-        );
+            "✅ Stock suffisant — couverture: %.1f mois (cible: %.1f mois)",
+            getTauxCouvertureMois(), getCouvertureCibleMois());
     }
 }

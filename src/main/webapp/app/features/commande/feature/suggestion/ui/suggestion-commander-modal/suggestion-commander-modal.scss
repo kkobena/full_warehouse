@@ -6,4 +6,44 @@
   @include modal-theme;
 }
 
+.mode-option {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: #fff;
+  user-select: none;
 
+  i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    border-color: #86b7fe;
+    background-color: #f0f6ff;
+  }
+
+  &.active {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+
+    .fw-semibold {
+      color: #0d6efd;
+    }
+  }
+}
+
+.pharmaml-options {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -21,7 +21,12 @@ public record SuggestionLineDTO(
     Map<Mois, Integer> consommationMensuelle,
     String niveauUrgence,
     Integer joursRestants,
-    String sourceCalcul
+    String sourceCalcul,
+    boolean quantiteModifieeManuel,
+    //Nombre d'unités par colis (conditionnement fournisseur). 1 = pas de contrainte.
+    Integer qteColis,
+    //Quantité minimale de commande (en unités). 0 = pas de minimum.
+    Integer qteMinimaleCommande
 ) {
 
 }

@@ -9,7 +9,6 @@ import com.kobe.warehouse.service.MailProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.net.http.HttpClient;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -20,12 +19,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ ApplicationProperties.class, MailProperties.class, LogProperties.class })
 @EnableCaching
+@EnableAsync
+@EnableScheduling
 public class WarehouseApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(WarehouseApp.class);

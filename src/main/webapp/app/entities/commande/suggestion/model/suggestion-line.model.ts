@@ -19,4 +19,8 @@ export class SuggestionLine {
   sourceCalcul?: string;
   /** true = qté modifiée manuellement par le pharmacien (protégée du batch SEMOIS). */
   quantiteModifieeManuel?: boolean;
+  /** S4.4 — Nombre d'unités par colis. 1 = pas de contrainte. */
+  qteColis?: number;
+  /** S4.4 — Quantité minimale de commande (en unités). 0 = pas de minimum. */
+  qteMinimaleCommande?: number;
 }

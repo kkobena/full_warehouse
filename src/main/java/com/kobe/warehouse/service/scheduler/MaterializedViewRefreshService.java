@@ -7,49 +7,59 @@ import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for refreshing materialized views on a scheduled basis.
+ * Service de rafraîchissement des vues matérialisées.
  *
- * <p>Refresh Schedule:
+ * <p>Trois niveaux de priorité, chacun avec un cron configurable :
+ * <ul>
+ *   <li><b>TIER 1</b> — Dashboards temps réel (CA, alertes stock) : toutes les 15 min
+ *       pendant les heures d'ouverture</li>
+ *   <li><b>TIER 2</b> — Données analytiques (familles, valorisation) : toutes les heures
+ *       pendant les heures d'ouverture</li>
+ *   <li><b>TIER 3</b> — Analyses complexes (RFM, performance fournisseurs) : 4x/jour</li>
+ * </ul>
+ *
+ * <p>Les méthodes planifiées sont {@code @Async} pour ne pas bloquer le pool scheduling
+ * (taille 2) et éviter d'impacter les autres jobs ou le travail des utilisateurs.
+ * Le {@code REFRESH MATERIALIZED VIEW CONCURRENTLY} côté PostgreSQL ne bloque pas
+ * les lectures non plus.
+ *
+ * <p>Un {@code refreshAllViews()} est aussi appelé par {@link JobOrchestrationService}
+ * en fin de pipeline (démarrage + nocturne) pour garantir des dashboards à jour.
  */
 @Service
 public class MaterializedViewRefreshService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaterializedViewRefreshService.class);
-    // =====================================================
-    // TIER 1: High Priority Views (Every 15 minutes during business hours)
-    // =====================================================
-    private static final List<String> TIER1_VIEWS = Arrays.asList(
+
+    // ── TIER 1 : Dashboards temps réel ───────────────────────────────────────────
+    private static final List<String> TIER1_VIEWS = List.of(
         "mv_dashboard_ca_daily",
         "mv_dashboard_ca_payment_methods",
         "mv_stock_alerts",
         "mv_daily_sales_summary"
     );
-    // =====================================================
-    // TIER 2: Medium Priority Views (Every hour)
-    // =====================================================
-    private static final List<String> TIER2_VIEWS = Arrays.asList(
+
+    // ── TIER 2 : Données analytiques ─────────────────────────────────────────────
+    private static final List<String> TIER2_VIEWS = List.of(
         "mv_dashboard_ca_product_families",
         "mv_monthly_top_products",
         "mv_stock_valuation",
         "mv_stock_valuation_by_rayon"
     );
-    // =====================================================
-    // TIER 3: Low Priority Views (Every 6 hours)
-    // =====================================================
-    // mv_stock_rotation, mv_abc_pareto_analysis, mv_pareto_summary supprimées en V1.3.4
-    // (remplacées par des vues ordinaires v_stock_rotation et v_abc_pareto_analysis)
-    private static final List<String> TIER3_VIEWS = Arrays.asList(
+
+    // ── TIER 3 : Analyses complexes ──────────────────────────────────────────────
+    private static final List<String> TIER3_VIEWS = List.of(
         "mv_customer_rfm",
         "mv_supplier_performance",
         "mv_marge_produit"
@@ -60,160 +70,121 @@ public class MaterializedViewRefreshService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // ── Méthodes planifiées (async pour ne pas bloquer le pool scheduling) ────────
+
     /**
-     * TIER 1: Refresh high-priority views every 15 minutes during business hours (8am-8pm).
-     * These views are used in real-time dashboards and require fresh data.
+     * TIER 1 : toutes les 15 minutes pendant les heures d'ouverture.
+     * Configurable via {@code pharma-smart.views.dashboards-cron}.
      */
-    @Scheduled(cron = "0 */15 8-20 * * *")// Every 15 minutes between 8am and 8pm
+    @Async
     @Transactional
+    @Scheduled(cron = "${pharma-smart.views.dashboards-cron:0 */15 8-20 * * *}")
     public void refreshTier1ViewsScheduled() {
-        LOG.info("Starting scheduled TIER 1 materialized views refresh");
-        refreshTier1Views();
+        LOG.debug("Scheduled TIER 1 refresh");
+        refreshViews(TIER1_VIEWS, "TIER1");
     }
 
     /**
-     * TIER 2: Refresh medium-priority views every hour.
-     * These views contain analytical data that can tolerate slight delays.
+     * TIER 2 : toutes les heures pendant les heures d'ouverture.
+     * Configurable via {@code pharma-smart.views.analytique-cron}.
      */
-    @Scheduled(cron = "0 0 * * * *") // Every hour at minute 0
+    @Async
     @Transactional
+    @Scheduled(cron = "${pharma-smart.views.analytique-cron:0 0 8-20 * * *}")
     public void refreshTier2ViewsScheduled() {
-        LOG.info("Starting scheduled TIER 2 materialized views refresh");
-        refreshTier2Views();
+        LOG.debug("Scheduled TIER 2 refresh");
+        refreshViews(TIER2_VIEWS, "TIER2");
     }
 
     /**
-     * TIER 3: Refresh low-priority views every 6 hours.
-     * These are complex analytical views that are less time-sensitive.
-     * <p>
-     * For testing purposes, this is set to every 3 minutes.
+     * TIER 3 : 4 fois par jour (9h, 12h, 15h, 18h).
+     * Configurable via {@code pharma-smart.views.reporting-cron}.
      */
-    //  @Scheduled(cron = "0 */3 * * * *")
-    @Scheduled(cron = "0 0 9,12,15,18 * * *") // At 2am, 8am, 2pm, 8pm
+    @Async
     @Transactional
+    @Scheduled(cron = "${pharma-smart.views.reporting-cron:0 0 9,12,15,18 * * *}")
     public void refreshTier3ViewsScheduled() {
-        LOG.info("Starting scheduled TIER 3 materialized views refresh");
-        refreshTier3Views();
+        LOG.debug("Scheduled TIER 3 refresh");
+        refreshViews(TIER3_VIEWS, "TIER3");
     }
 
-    /**
-     * Manual refresh of TIER 1 views.
-     *
-     * @return Result summary with individual view results
-     */
+    // ── API publique (synchrone, pour appels manuels et pipeline) ─────────────────
+
     @Transactional
     public TierRefreshResultDTO refreshTier1Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        List<MaterializedViewRefreshDTO> results = refreshViews(TIER1_VIEWS, "TIER1");
-        LocalDateTime endTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER1", results, startTime, endTime);
+        return TierRefreshResultDTO.of("TIER1", refreshViews(TIER1_VIEWS, "TIER1"), startTime, LocalDateTime.now());
     }
 
-    /**
-     * Manual refresh of TIER 2 views.
-     *
-     * @return Result summary with individual view results
-     */
     @Transactional
     public TierRefreshResultDTO refreshTier2Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        List<MaterializedViewRefreshDTO> results = refreshViews(TIER2_VIEWS, "TIER2");
-        LocalDateTime endTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER2", results, startTime, endTime);
+        return TierRefreshResultDTO.of("TIER2", refreshViews(TIER2_VIEWS, "TIER2"), startTime, LocalDateTime.now());
     }
 
-    /**
-     * Manual refresh of TIER 3 views.
-     *
-     * @return Result summary with individual view results
-     */
     @Transactional
     public TierRefreshResultDTO refreshTier3Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        List<MaterializedViewRefreshDTO> results = refreshViews(TIER3_VIEWS, "TIER3");
-        LocalDateTime endTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER3", results, startTime, endTime);
+        return TierRefreshResultDTO.of("TIER3", refreshViews(TIER3_VIEWS, "TIER3"), startTime, LocalDateTime.now());
     }
 
-    /**
-     * Refresh all materialized views across all tiers.
-     *
-     * @return Result summary with all view results
-     */
     @Transactional
     public TierRefreshResultDTO refreshAllViews() {
         LocalDateTime startTime = LocalDateTime.now();
         List<MaterializedViewRefreshDTO> allResults = new ArrayList<>();
 
-        LOG.info("Starting refresh of ALL materialized views");
+        LOG.info("Refresh ALL materialized views");
 
         allResults.addAll(refreshViews(TIER1_VIEWS, "TIER1"));
         allResults.addAll(refreshViews(TIER2_VIEWS, "TIER2"));
         allResults.addAll(refreshViews(TIER3_VIEWS, "TIER3"));
 
-        LocalDateTime endTime = LocalDateTime.now();
-        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime, endTime);
+        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime, LocalDateTime.now());
 
-        LOG.info(
-            "Completed refresh of ALL materialized views: {} successful, {} failed in {}ms",
-            result.successCount(),
-            result.failedCount(),
-            result.totalDurationMillis()
-        );
+        LOG.info("ALL views refreshed: {} OK, {} KO en {}ms",
+            result.successCount(), result.failedCount(), result.totalDurationMillis());
 
         return result;
     }
 
-    /**
-     * Refresh a specific materialized view by name.
-     *
-     * @param viewName The name of the materialized view to refresh
-     * @return Refresh result for the view
-     */
     @Transactional
     public MaterializedViewRefreshDTO refreshView(String viewName) {
         return refreshSingleView(viewName, "MANUAL");
     }
 
-    /**
-     * Refresh a list of views for a specific tier.
-     *
-     * @param viewNames List of view names to refresh
-     * @param tier      The tier identifier (TIER1, TIER2, TIER3)
-     * @return List of refresh results
-     */
+    public List<String> getAllManagedViews() {
+        List<String> allViews = new ArrayList<>();
+        allViews.addAll(TIER1_VIEWS);
+        allViews.addAll(TIER2_VIEWS);
+        allViews.addAll(TIER3_VIEWS);
+        return allViews;
+    }
+
+    public Map<String, List<String>> getViewsByTier() {
+        return Map.of("TIER1", TIER1_VIEWS, "TIER2", TIER2_VIEWS, "TIER3", TIER3_VIEWS);
+    }
+
+    // ── Méthodes internes ────────────────────────────────────────────────────────
+
     private List<MaterializedViewRefreshDTO> refreshViews(List<String> viewNames, String tier) {
         List<MaterializedViewRefreshDTO> results = new ArrayList<>();
 
         for (String viewName : viewNames) {
-            MaterializedViewRefreshDTO result = refreshSingleView(viewName, tier);
-            results.add(result);
+            results.add(refreshSingleView(viewName, tier));
         }
 
         long successCount = results.stream().filter(r -> "SUCCESS".equals(r.status())).count();
         long failedCount = results.stream().filter(r -> "FAILED".equals(r.status())).count();
 
-        LOG.info("{} refresh completed: {} successful, {} failed", tier, successCount, failedCount);
+        LOG.info("{} refresh: {} OK, {} KO", tier, successCount, failedCount);
 
         return results;
     }
 
-    /**
-     * Refresh a single materialized view with error handling.
-     * Note: This method should be called from a @Transactional context (scheduled methods or manual refresh methods).
-     *
-     * @param viewName The view name to refresh
-     * @param tier     The tier/source of the refresh request
-     * @return Refresh result
-     */
     private MaterializedViewRefreshDTO refreshSingleView(String viewName, String tier) {
         LocalDateTime startTime = LocalDateTime.now();
 
-        LOG.debug("Refreshing materialized view: {} ({})", viewName, tier);
-
         try {
-            // Use CONCURRENT refresh for views with unique indexes
-            // Use non-CONCURRENT refresh for single-row aggregate views
             boolean useConcurrent = !NON_CONCURRENT_VIEWS.contains(viewName);
             String sql = useConcurrent
                 ? "REFRESH MATERIALIZED VIEW CONCURRENTLY " + viewName
@@ -224,34 +195,12 @@ public class MaterializedViewRefreshService {
             LocalDateTime endTime = LocalDateTime.now();
             long duration = java.time.Duration.between(startTime, endTime).toMillis();
 
-            LOG.info("Successfully refreshed {} in {}ms (concurrent={})", viewName, duration, useConcurrent);
+            LOG.debug("Refreshed {} in {}ms (concurrent={})", viewName, duration, useConcurrent);
 
             return MaterializedViewRefreshDTO.success(viewName, tier, startTime, endTime);
         } catch (Exception e) {
-            LOG.error("Failed to refresh materialized view: {}", viewName, e);
+            LOG.error("Failed to refresh {}", viewName, e);
             return MaterializedViewRefreshDTO.failed(viewName, tier, startTime, e.getMessage());
         }
-    }
-
-    /**
-     * Get list of all materialized views managed by this service.
-     *
-     * @return List of all view names
-     */
-    public List<String> getAllManagedViews() {
-        List<String> allViews = new ArrayList<>();
-        allViews.addAll(TIER1_VIEWS);
-        allViews.addAll(TIER2_VIEWS);
-        allViews.addAll(TIER3_VIEWS);
-        return allViews;
-    }
-
-    /**
-     * Get views organized by tier.
-     *
-     * @return Map of tier names to view lists
-     */
-    public Map<String, List<String>> getViewsByTier() {
-        return Map.of("TIER1", TIER1_VIEWS, "TIER2", TIER2_VIEWS, "TIER3", TIER3_VIEWS);
     }
 }

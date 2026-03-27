@@ -2,18 +2,21 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
+import com.kobe.warehouse.service.dto.Keys;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -99,40 +102,89 @@ public class SuggestionResource {
         );
     }
 
+    /**
+     * POST /suggestions/fusionner — fusionne plusieurs suggestions.
+     * Body : {@code {"ids":[1,2,...]}} (record {@link Keys}).
+     */
     @PostMapping("/suggestions/fusionner")
-    public ResponseEntity<Void> fusionner(@RequestBody Set<Integer> ids) throws GenericError {
-        suggestionProduitService.fusionnerSuggestion(ids);
+    public ResponseEntity<Void> fusionner(@RequestBody Keys keys) throws GenericError {
+        if (keys.safeIds().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        suggestionProduitService.fusionnerSuggestion(new HashSet<>(keys.safeIds()));
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/suggestions")
-    public ResponseEntity<Void> deleteSuggestions(@RequestBody Set<Integer> ids) {
-        suggestionProduitService.deleteSuggestion(ids);
+    /**
+     * POST /suggestions/delete — supprime une ou plusieurs suggestions.
+     * Body : {@code {"ids":[1,2,...]}} (record {@link Keys}).
+     */
+    @PostMapping("/suggestions/delete")
+    public ResponseEntity<Void> deleteSuggestionsPost(@RequestBody Keys keys) {
+        if (!keys.safeIds().isEmpty()) {
+            suggestionProduitService.deleteSuggestion(new HashSet<>(keys.safeIds()));
+        }
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/suggestions/lines")
-    public ResponseEntity<Void> deleteSuggestionLines(@RequestBody Set<Integer> ids) {
-        suggestionProduitService.deleteSuggestionLine(ids);
+    /**
+     * POST /suggestions/delete/lines — supprime une ou plusieurs lignes de suggestion.
+     * Body : {@code {"ids":[1,2,...]}} (record {@link Keys}).
+     */
+    @PostMapping("/suggestions/delete/lines")
+    public ResponseEntity<Void> deleteSuggestionLinesPost(@RequestBody Keys keys) {
+        if (!keys.safeIds().isEmpty()) {
+            suggestionProduitService.deleteSuggestionLine(new HashSet<>(keys.safeIds()));
+        }
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/suggestions/{id}/sanitize")
-    public ResponseEntity<Void> sanitize(@PathVariable Integer id) {
+    /**
+     * POST /suggestions/add-item/{id} — ajoute ou met à jour un produit dans une suggestion.
+     * Alias de POST /suggestions/{id}/lines pour la compatibilité frontend.
+     */
+    @PostMapping("/suggestions/add-item/{id}")
+    public ResponseEntity<Void> addOrUpdateItem(
+        @PathVariable Integer id,
+        @RequestBody SuggestionLineDTO line
+    ) {
+        suggestionProduitService.addSuggestionLine(id, line);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * DELETE /suggestions/sanitize/{id} — nettoie (sanitize) une suggestion.
+     * La version POST est conservée ; cet alias DELETE est pour la compatibilité frontend.
+     */
+    @DeleteMapping("/suggestions/sanitize/{id}")
+    public ResponseEntity<Void> sanitizeDelete(@PathVariable Integer id) {
         suggestionProduitService.sanitize(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/suggestions/{id}/commander")
-    public ResponseEntity<Void> commander(@PathVariable Integer id) {
-        suggestionProduitService.commander(id);
+    /**
+     * DELETE /suggestions/{id} — rejette (supprime) une suggestion par son ID.
+     * Utilisé par le frontend pour l'action "rejeter".
+     */
+    @DeleteMapping("/suggestions/{id}")
+    public ResponseEntity<Void> deleteSuggestionById(@PathVariable Integer id) {
+        suggestionProduitService.rejeterSuggestion(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/suggestions/{id}/commander")
+    public ResponseEntity<CommandeId> commander(
+        @PathVariable Integer id,
+        @RequestParam(required = false) Integer fournisseurId
+    ) {
+        CommandeId commandeId = suggestionProduitService.commander(id, fournisseurId);
+        return ResponseEntity.ok(commandeId);
+    }
+
     @PostMapping("/suggestions/commander-selection")
-    public ResponseEntity<Void> commanderSelection(@RequestBody CommanderSelectionDTO dto) {
-        suggestionProduitService.commanderSelection(dto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<CommandeId> commanderSelection(@RequestBody CommanderSelectionDTO dto) {
+        CommandeId commandeId = suggestionProduitService.commanderSelection(dto);
+        return ResponseEntity.ok(commandeId);
     }
 
     @GetMapping("/suggestions/budget-commande")
@@ -140,7 +192,7 @@ public class SuggestionResource {
         return ResponseEntity.ok(suggestionProduitService.getBudgetCommande());
     }
 
-    @PostMapping("/suggestions/{id}/valider")
+    @PutMapping("/suggestions/{id}/valider")
     public ResponseEntity<Void> valider(@PathVariable Integer id) {
         suggestionProduitService.validerSuggestion(id);
         return ResponseEntity.noContent().build();

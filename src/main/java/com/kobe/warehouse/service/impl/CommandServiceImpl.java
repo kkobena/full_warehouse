@@ -336,14 +336,16 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void createCommandeFromSuggestion(Suggestion suggestion) {
-        buildNew(suggestion);
+    public CommandeId createCommandeFromSuggestion(Suggestion suggestion, Integer fournisseurId) {
+        Commande commande = buildNew(suggestion, fournisseurId);
+        return new CommandeId(commande.getId().getId(), commande.getId().getOrderDate());
     }
 
     @Override
-    public void createCommandeFromSelection(
+    public CommandeId createCommandeFromSelection(
         Suggestion suggestion,
-       List<CommanderSelectionDTO.LigneSelection> lignes
+       List<CommanderSelectionDTO.LigneSelection> lignes,
+       Integer fournisseurId
     ) {
         Map<Integer, Integer> qteParLigne = lignes.stream()
             .collect(Collectors.toMap(
@@ -353,7 +355,10 @@ public class CommandServiceImpl implements CommandService {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
         commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
-        Fournisseur fournisseur = suggestion.getFournisseur();
+        // Fournisseur : override si fourni, sinon celui de la suggestion
+        Fournisseur fournisseur = (fournisseurId != null)
+            ? buildFournisseurFromId(fournisseurId)
+            : suggestion.getFournisseur();
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -371,13 +376,15 @@ public class CommandServiceImpl implements CommandService {
             .forEach(suggestionLine -> {
                 int qte = qteParLigne.get(suggestionLine.getId());
                 if (qte <= 0) return;
-                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, fournisseur.getId());
+                // Toujours utiliser le fournisseurProduit original pour la référence produit
+                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
                 orderLine.setQuantityRequested(qte);
                 orderLine.setCommande(commande);
                 updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
         commandeRepository.save(commande);
+        return new CommandeId(commande.getId().getId(), commande.getId().getOrderDate());
     }
 
     @Override
@@ -979,11 +986,14 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
-    private void buildNew(Suggestion suggestion) {
+    private Commande buildNew(Suggestion suggestion, Integer fournisseurId) {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
         commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
-        Fournisseur fournisseur=suggestion.getFournisseur();
+        // Fournisseur : override si fourni, sinon celui de la suggestion
+        Fournisseur fournisseur = (fournisseurId != null)
+            ? buildFournisseurFromId(fournisseurId)
+            : suggestion.getFournisseur();
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -996,12 +1006,14 @@ public class CommandServiceImpl implements CommandService {
         suggestion
             .getSuggestionLines()
             .forEach(suggestionLine -> {
-                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine,fournisseur.getId());
+                // Toujours utiliser le fournisseurProduit original pour la référence produit
+                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
                 orderLine.setCommande(commande);
                 updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
         commandeRepository.save(commande);
+        return commande;
     }
 
     @Override

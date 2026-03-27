@@ -14,25 +14,38 @@
       severity="secondary"
       icon="pi pi-wallet"
     />
-    @if (facade.semoisFraicheur(); as f) {
+    @if (statut() === 'GENEREE') {
+      @if (facade.semoisFraicheur(); as f) {
+        <p-tag
+          [value]="semoisFraicheurLabel(f)"
+          [severity]="semoisFraicheurSeverity(f)"
+          icon="pi pi-clock"
+          pTooltip="Fraîcheur du dernier calcul SEMOIS"
+          tooltipPosition="bottom"
+        />
+      }
+    }
+    @if (statut() === 'VALIDEE') {
       <p-tag
-        [value]="semoisFraicheurLabel(f)"
-        [severity]="semoisFraicheurSeverity(f)"
-        icon="pi pi-clock"
+        value="Prêtes à commander"
+        severity="info"
+        icon="pi pi-send"
       />
     }
   </div>
   <div class="su-action-bar__actions">
-    <p-button
-      label="Recalculer"
-      icon="pi pi-sync"
-      severity="warn"
-      size="small"
-      [loading]="facade.recalculEnCours()"
-      pTooltip="Déclencher un recalcul immédiat"
-      tooltipPosition="bottom"
-      (onClick)="onRecalculer()"
-    />
+    @if (statut() === 'GENEREE') {
+      <p-button
+        label="Recalculer"
+        icon="pi pi-sync"
+        severity="warn"
+        size="small"
+        [loading]="facade.recalculEnCours()"
+        pTooltip="Déclencher un recalcul SEMOIS immédiat et régénérer le panier"
+        tooltipPosition="bottom"
+        (onClick)="onRecalculer()"
+      />
+    }
   </div>
 </div>
 
@@ -60,7 +73,11 @@
     <!-- LEFT: fournisseur list -->
     <div class="col-lg-3 col-md-4 supplier-col">
       <div class="supplier-col-header">
-        <span>Fournisseurs</span>
+        @if (statut() === 'VALIDEE') {
+          <span><i class="pi pi-send me-1"></i>À commander</span>
+        } @else {
+          <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
+        }
       </div>
       <app-suggestion-fournisseur-list
         [fournisseurs]="facade.fournisseurs()"
@@ -85,6 +102,7 @@
           [rows]="facade.rows()"
           (commander)="onCommander()"
           (commanderSelection)="onCommanderSelection()"
+          (commanderFiltre)="onCommanderFiltre($event)"
           (quantiteChanged)="onQuantiteChanged($event)"
           (resetQte)="onResetQte($event)"
           (selectionChanged)="onSelectionChanged($event)"
@@ -104,10 +122,15 @@
       } @else {
         <div class="empty-state">
           <i class="pi pi-arrow-left"></i>
-          <span>Sélectionnez un fournisseur pour voir ses suggestions</span>
+          @if (statut() === 'VALIDEE') {
+            <span>Sélectionnez un fournisseur pour voir ses commandes à passer</span>
+          } @else {
+            <span>Sélectionnez un fournisseur pour voir ses suggestions de réapprovisionnement</span>
+          }
         </div>
       }
     </div>
   </div>
 
 
+<p-toast position="center" ></p-toast>

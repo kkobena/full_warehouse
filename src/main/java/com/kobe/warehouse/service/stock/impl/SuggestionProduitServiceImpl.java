@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -410,17 +411,36 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void commander(Integer suggestionId) {
+    public CommandeId commander(Integer suggestionId, Integer fournisseurId) {
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
-        commandService.createCommandeFromSuggestion(suggestion);
+        CommandeId commandeId = commandService.createCommandeFromSuggestion(suggestion, fournisseurId);
         suggestionRepository.delete(suggestion);
+        return commandeId;
     }
 
     @Override
-    public void commanderSelection(CommanderSelectionDTO dto) {
+    public CommandeId commanderSelection(CommanderSelectionDTO dto) {
         Suggestion suggestion = suggestionRepository.findById(dto.suggestionId()).orElseThrow();
-        commandService.createCommandeFromSelection(suggestion, dto.lignes());
-        suggestionRepository.delete(suggestion);
+        CommandeId commandeId = commandService.createCommandeFromSelection(suggestion, dto.lignes(), dto.fournisseurId());
+
+        // Supprimer uniquement les lignes qui ont été commandées (pas toute la suggestion)
+        Set<Integer> idsCommandees = dto.lignes().stream()
+            .map(CommanderSelectionDTO.LigneSelection::suggestionLineId)
+            .collect(Collectors.toSet());
+        List<SuggestionLine> lignesASupprimer = suggestion.getSuggestionLines().stream()
+            .filter(sl -> idsCommandees.contains(sl.getId()))
+            .toList();
+        suggestionLineRepository.deleteAll(lignesASupprimer);
+
+        // Si toutes les lignes ont été commandées, supprimer la suggestion elle-même
+        long restantes = suggestion.getSuggestionLines().size() - lignesASupprimer.size();
+        if (restantes <= 0) {
+            suggestionRepository.delete(suggestion);
+        } else {
+            suggestion.setUpdatedAt(LocalDateTime.now());
+            suggestionRepository.save(suggestion);
+        }
+        return commandeId;
     }
 
     @Override

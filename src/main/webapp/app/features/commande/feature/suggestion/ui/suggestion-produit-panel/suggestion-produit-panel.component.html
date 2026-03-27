@@ -53,15 +53,36 @@
         tooltipPosition="top"
         (onClick)="sanitizeRequest.emit()"
       />
-      <p-button
-        label="Commander tout"
-        icon="pi pi-shopping-cart"
-        severity="primary"
-        size="small"
-        pTooltip="Commander toutes les lignes de ce fournisseur"
-        tooltipPosition="top"
-        (onClick)="commander.emit()"
-      />
+      @if (urgenceFilter() === 'TOUS') {
+        <p-button
+          label="Commander tout"
+          icon="pi pi-shopping-cart"
+          severity="primary"
+          size="small"
+          pTooltip="Commander toutes les lignes de ce fournisseur"
+          tooltipPosition="top"
+          (onClick)="commander.emit()"
+        />
+      } @else {
+        <p-button
+          [label]="'Commander filtrés (' + nbFilteredLignes + ')'"
+          icon="pi pi-shopping-cart"
+          severity="primary"
+          size="small"
+          [pTooltip]="'Commander uniquement les ' + nbFilteredLignes + ' ligne(s) visibles'"
+          tooltipPosition="top"
+          (onClick)="onCommanderFiltre()"
+        />
+        <p-button
+          [label]="'Supprimer filtrés (' + nbFilteredLignes + ')'"
+          icon="pi pi-trash"
+          severity="danger"
+          size="small"
+          [pTooltip]="'Retirer les ' + nbFilteredLignes + ' ligne(s) visibles de la suggestion'"
+          tooltipPosition="top"
+          (onClick)="onSupprimerFiltrees()"
+        />
+      }
     </div>
   </div>
 
@@ -183,9 +204,11 @@
           (onClick)="setUrgenceFilter('NORMAL')"
         />
         <p-button
-          label="OK"
+          label="Couverts"
           size="small"
           [severity]="urgenceFilter() === 'OK' ? 'success' : 'secondary'"
+          pTooltip="Produits avec un stock en couverture suffisante"
+          tooltipPosition="top"
           (onClick)="setUrgenceFilter('OK')"
         />
       </div>
@@ -201,6 +224,8 @@
         [rowSelection]="rowSelection"
         [rowClassRules]="rowClassRules"
         [getRowId]="getRowId"
+        [isExternalFilterPresent]="isExternalFilterPresent"
+        [doesExternalFilterPass]="doesExternalFilterPass"
         [enableCellEditingOnBackspace]="true"
         [enterNavigatesVerticallyAfterEdit]="true"
         [animateRows]="true"

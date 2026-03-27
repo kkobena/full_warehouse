@@ -102,6 +102,49 @@
             <label class="ml-3" for="principal">Définir comme fournisseur principal</label>
           </div>
         </div>
+
+        <!-- Colisage fournisseur — S4.4 -->
+        <div class="form-field form-field-half">
+          <label for="field_qteColis">Qté par colis
+            <small class="text-muted ms-1">(conditionnement)</small>
+          </label>
+          <input
+            autocomplete="off"
+            formControlName="qteColis"
+            id="field_qteColis"
+            name="qteColis"
+            pInputText
+            type="number"
+            min="1"
+          />
+          <small class="form-hint text-muted">
+            La qté commandée sera arrondie au multiple supérieur. 1 = pas de contrainte.
+          </small>
+          @if (editForm.get('qteColis')!.invalid && editForm.get('qteColis')!.touched) {
+            <small class="form-text text-danger">Valeur minimale : 1</small>
+          }
+        </div>
+
+        <div class="form-field form-field-half">
+          <label for="field_qteMinimaleCommande">Qté minimale de commande
+            <small class="text-muted ms-1">(unités)</small>
+          </label>
+          <input
+            autocomplete="off"
+            formControlName="qteMinimaleCommande"
+            id="field_qteMinimaleCommande"
+            name="qteMinimaleCommande"
+            pInputText
+            type="number"
+            min="0"
+          />
+          <small class="form-hint text-muted">
+            Minimum imposé par le fournisseur. 0 = pas de minimum.
+          </small>
+          @if (editForm.get('qteMinimaleCommande')!.invalid && editForm.get('qteMinimaleCommande')!.touched) {
+            <small class="form-text text-danger">Valeur minimale : 0</small>
+          }
+        </div>
       </div>
     </p-card>
   </div>

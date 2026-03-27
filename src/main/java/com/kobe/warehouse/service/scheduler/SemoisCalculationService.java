@@ -30,7 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,9 +72,9 @@ public class SemoisCalculationService {
     private final ProduitRepository produitRepository;
     private final StockProduitRepository stockProduitRepository;
     private final AppConfigurationService appConfigurationService;
-    /** Stock virtuel : commandes REQUESTED en attente de livraison. */
+
     private final OrderLineRepository orderLineRepository;
-    /** Batch v12 — crée/met à jour les Suggestions SEMOIS après recalcul. */
+
     private final SemoisBatchJobService semoisBatchJobService;
 
     public SemoisCalculationService(
@@ -106,7 +105,6 @@ public class SemoisCalculationService {
      * Si le recalcul n'a pas été fait aujourd'hui (machine redémarrée, crash…), il s'exécute.
      * L'idempotence est garantie par APP_LAST_DAY_SEMOIS_CALCULATION.
      */
-    @Scheduled(cron = "${pharma-smart.semois.recalculation-cron:0 0 8-19 * * *}")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void recalculateAllConfigurations() {
         if (!calculEnCours.compareAndSet(false, true)) {
@@ -148,9 +146,35 @@ public class SemoisCalculationService {
         }
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Calcul principal
-    // ──────────────────────────────────────────────────────────────────────────
+    /**
+     * Recalcul forcé déclenché manuellement via l'API REST (ex : bouton "Actualiser maintenant").
+     * <p>
+     * Ignore la garde journalière {@code APP_LAST_DAY_SEMOIS_CALCULATION} en la réinitialisant,
+     * puis exécute immédiatement {@code doRecalculateAllConfigurations()}.
+     * Utile quand le pharmacien a modifié manuellement des données et veut des suggestions à jour
+     * sans attendre le recalcul nocturne.
+     * </p>
+     *
+     * @throws IllegalStateException si un recalcul est déjà en cours
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void forceRecalculate() {
+        if (!calculEnCours.compareAndSet(false, true)) {
+            throw new IllegalStateException("Un recalcul SEMOIS est déjà en cours");
+        }
+        try {
+            LOG.info("Recalcul SEMOIS forcé (API) — réinitialisation de la garde journalière");
+            // Réinitialiser la garde pour bypasser le check "déjà calculé aujourd'hui"
+            appConfigurationService.findOneById(APP_LAST_DAY_SEMOIS_CALCULATION)
+                .ifPresent(cfg -> {
+                    cfg.setValue("");
+                    appConfigurationService.update(cfg);
+                });
+            doRecalculateAllConfigurations();
+        } finally {
+            calculEnCours.set(false);
+        }
+    }
 
     private void doRecalculateAllConfigurations() {
         Optional<AppConfiguration> semoisConfigOpt = getLastSemoisCalculationDate();
@@ -219,7 +243,6 @@ public class SemoisCalculationService {
         LOG.info("Recalcul SEMOIS terminé en {}ms - Succès: {}, Erreurs: {}",
             duration, totalSuccess.get(), totalErrors.get());
 
-        // v12 — Créer/mettre à jour les suggestions SEMOIS (paniers) après recalcul
         try {
             semoisBatchJobService.creerSuggestionBatch();
         } catch (Exception e) {
@@ -346,9 +369,6 @@ public class SemoisCalculationService {
         return new BatchResult(successCount, errorCount);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Calculs métier
-    // ──────────────────────────────────────────────────────────────────────────
 
     /**
      * Calcule la VMM pondérée (Ventes Mensuelles Moyennes) pour un produit.
@@ -526,7 +546,7 @@ public class SemoisCalculationService {
         Produit produit = config.getProduit();
         var fpPrincipal = produit.getFournisseurProduitPrincipal();
 
-        // Axe 1 — Stock virtuel : déduire les commandes REQUESTED de la quantité à commander
+        //  Stock virtuel : déduire les commandes REQUESTED de la quantité à commander
         int pendingQty = getPendingQty(produitId);
         int qteACommander = Math.max(0, c.quantiteACommander() - pendingQty);
 
@@ -569,7 +589,6 @@ public class SemoisCalculationService {
 
         List<SemoisSuggestionDTO> suggestions = viewPage.getContent().stream()
             .map(view -> toDTO(view, pendingQtyMap.getOrDefault(view.getProduitId(), 0)))
-            // Aligne avec Winpharma/Pharmagest : un produit couvert par commande en cours
             // (qte nette = 0 après soustraction pending) n'apparaît pas dans les suggestions.
             .filter(dto -> dto.quantiteACommander() > 0)
             .toList();
@@ -896,14 +915,12 @@ public class SemoisCalculationService {
         return BigDecimal.valueOf(bounded).setScale(2, RoundingMode.HALF_UP);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Helpers privés (infrastructure)
-    // ──────────────────────────────────────────────────────────────────────────
 
-    private record BatchResult(int successCount, int errorCount) {}
+    /** Résultat d'un batch de recalcul : compteurs de succès et d'erreurs. */
+    public record BatchResult(int successCount, int errorCount) {}
 
     /**
-     * Axe 1 — Retourne la quantité en attente de livraison pour un produit spécifique.
+     *  Retourne la quantité en attente de livraison pour un produit spécifique.
      * Commandes dont le statut est REQUESTED (envoyées, non encore réceptionnées).
      */
     private int getPendingQty(Integer produitId) {
@@ -916,7 +933,7 @@ public class SemoisCalculationService {
     }
 
     /**
-     * Axe 1 — Batch-charge les quantités en attente de livraison pour une liste de produits.
+     *  Batch-charge les quantités en attente de livraison pour une liste de produits.
      * Un seul appel SQL pour toute la page SEMOIS.
      *
      * @param produitIds IDs des produits de la page courante
@@ -967,5 +984,93 @@ public class SemoisCalculationService {
         } catch (Exception e) {
             LOG.error("Erreur mise à jour date dernier recalcul SEMOIS", e);
         }
+    }
+
+    // ── Méthodes de service pour SemoisResource (plus de repository dans le contrôleur) ──
+
+    @Transactional(readOnly = true)
+    public Optional<SemoisConfiguration> findConfiguration(Integer produitId) {
+        return semoisConfigRepository.findByProduitId(produitId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean configurationExists(Integer produitId) {
+        return semoisConfigRepository.existsByProduitId(produitId);
+    }
+
+    @Transactional
+    public SemoisConfiguration saveConfiguration(SemoisConfiguration config) {
+        return semoisConfigRepository.save(config);
+    }
+
+    @Transactional(readOnly = true)
+    public LocalDateTime getLastCalculDate() {
+        return semoisConfigRepository.findMaxDateDernierCalcul();
+    }
+
+    @Transactional(readOnly = true)
+    public long countConfiguredProducts() {
+        return semoisConfigRepository.countAll();
+    }
+
+    // ── Exclusions temporaires ────────────────────────────────────────────────
+
+    @Transactional
+    public void exclureProduit(Integer produitId, Integer dureeJours, String motif) {
+        SemoisConfiguration config = semoisConfigRepository.findByProduitId(produitId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Aucune configuration SEMOIS pour le produit " + produitId));
+        config.setExclusionDate(LocalDateTime.now());
+        config.setExclusionDureeJours(dureeJours != null ? dureeJours : com.kobe.warehouse.service.dto.SemoisExclusionDTO.DEFAULT_DUREE_JOURS);
+        config.setExclusionMotif(motif);
+        semoisConfigRepository.save(config);
+    }
+
+    @Transactional
+    public void leverExclusion(Integer produitId) {
+        semoisConfigRepository.findByProduitId(produitId).ifPresent(config -> {
+            config.setExclusionDate(null);
+            config.setExclusionMotif(null);
+            semoisConfigRepository.save(config);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.kobe.warehouse.service.dto.SemoisExclusionDTO> getExclusionsActives() {
+        return semoisConfigRepository.findExclusionsActives(LocalDateTime.now().minusDays(365))
+            .stream()
+            .filter(SemoisConfiguration::isExcluActif)
+            .map(c -> new com.kobe.warehouse.service.dto.SemoisExclusionDTO(
+                c.getProduit().getId(),
+                c.getProduit().getLibelle(),
+                c.getExclusionDureeJours(),
+                c.getExclusionMotif(),
+                c.getExclusionDate(),
+                c.getExclusionDateFin(),
+                c.isExcluActif()
+            ))
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public long countExclusionsActives() {
+        return semoisConfigRepository.countExclusionsActives();
+    }
+
+    // ── Gestion des classes de criticité ────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public List<SemoisClasseConfig> getAllClasseConfigs() {
+        return semoisClasseConfigRepository.findAll();
+    }
+
+    @Transactional
+    public Optional<SemoisClasseConfig> updateClasseConfig(ClasseCriticite classeCriticite,
+                                                            SemoisClasseConfig config) {
+        if (!semoisClasseConfigRepository.existsById(classeCriticite)) {
+            return Optional.empty();
+        }
+        config.setClasseCriticite(classeCriticite);
+        return Optional.of(semoisClasseConfigRepository.save(config));
     }
 }

@@ -47,7 +47,7 @@ public class SemoisConfiguration implements Serializable {
     private Integer delaiLivraisonJours;
 
     /**
-     * Axe 5 — Surcharge de la fréquence de commande pour ce produit spécifique (nullable).
+     * Surcharge de la fréquence de commande pour ce produit spécifique (nullable).
      * {@code null} = utiliser la fréquence du groupe fournisseur (ou défaut 7 jours).
      */
     @Column(name = "frequence_commande_jours")
@@ -81,6 +81,27 @@ public class SemoisConfiguration implements Serializable {
 
     @Column(name = "limite_peremption")
     private Boolean limitePeremption;
+
+    /**
+     * Date de début de l'exclusion temporaire.
+     * {@code null} = produit actif dans SEMOIS (non exclu).
+     */
+    @Column(name = "exclusion_date")
+    private LocalDateTime exclusionDate;
+
+    /**
+     * Durée de l'exclusion en jours (défaut 30).
+     * Réintégration automatique : {@code exclusion_date + exclusion_duree_jours < NOW()}.
+     */
+    @Column(name = "exclusion_duree_jours")
+    private Integer exclusionDureeJours = 30;
+
+    /**
+     * Motif libre saisi par le pharmacien.
+     * Ex : "surstock promotionnel", "rupture fournisseur temporaire", etc.
+     */
+    @Column(name = "exclusion_motif")
+    private String exclusionMotif;
 
     @NotNull
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -184,6 +205,37 @@ public class SemoisConfiguration implements Serializable {
 
     public void setLimitePeremption(Boolean limitePeremption) {
         this.limitePeremption = limitePeremption;
+    }
+
+    // ── S4.3 — Exclusion temporaire ──────────────────────────────────────────
+
+    public LocalDateTime getExclusionDate() { return exclusionDate; }
+    public void setExclusionDate(LocalDateTime exclusionDate) { this.exclusionDate = exclusionDate; }
+
+    public Integer getExclusionDureeJours() { return exclusionDureeJours; }
+    public void setExclusionDureeJours(Integer exclusionDureeJours) { this.exclusionDureeJours = exclusionDureeJours; }
+
+    public String getExclusionMotif() { return exclusionMotif; }
+    public void setExclusionMotif(String exclusionMotif) { this.exclusionMotif = exclusionMotif; }
+
+    /**
+     * Retourne {@code true} si le produit est actuellement exclu des suggestions SEMOIS.
+     * L'exclusion est active si {@code exclusionDate != null} et que la durée n'a pas expiré.
+     */
+    public boolean isExcluActif() {
+        if (exclusionDate == null) return false;
+        int duree = exclusionDureeJours != null ? exclusionDureeJours : 30;
+        return LocalDateTime.now().isBefore(exclusionDate.plusDays(duree));
+    }
+
+    /**
+     * Date de fin d'exclusion calculée (exclusionDate + exclusionDureeJours).
+     * Retourne {@code null} si pas d'exclusion active.
+     */
+    public LocalDateTime getExclusionDateFin() {
+        if (exclusionDate == null) return null;
+        int duree = exclusionDureeJours != null ? exclusionDureeJours : 30;
+        return exclusionDate.plusDays(duree);
     }
 
     public LocalDateTime getCreatedAt() {

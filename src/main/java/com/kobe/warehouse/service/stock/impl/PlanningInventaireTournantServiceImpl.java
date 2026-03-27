@@ -20,6 +20,7 @@ import com.kobe.warehouse.service.stock.PlanningInventaireTournantService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +176,7 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
                     return null;
                 }
             })
-            .filter(id -> id != null)
+            .filter(Objects::nonNull)
             .toList();
     }
 

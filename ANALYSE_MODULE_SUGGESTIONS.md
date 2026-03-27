@@ -2338,42 +2338,60 @@ private loadBadgeCounts(): void {
 
 #### 🟡 Sprint 4 — Qualité technique (2–3 jours)
 
-| # | Action |
-|---|---|
-| **S4.1** | MV `mv_semois_suggestion` : ajouter `AND sc.vmm_calcule > 0` dans le WHERE (onglet Analyse propre) |
-| **S4.2** | Tests unitaires `SemoisBatchJobService` (calcul pendingQty, protection flag manuel) |
-| **S4.3** | Exclusion temporaire d'un produit du panier (cycle de vie complet) |
-| **S4.4** | Colisage fournisseur (quantité minimale commande) |
+| # | Action | Statut |
+|---|---|---|
+| **S4.1** | MV `mv_semois_suggestion` : `AND sc.vmm_calcule > 0` dans le WHERE | ✅ Intégré dans V1.4.0 |
+| **S4.2** | Tests unitaires `SemoisBatchJobService` | 🔜 Reporté |
+| **S4.3** | Exclusion temporaire d'un produit du panier (cycle de vie complet) | ✅ |
+| **S4.4** | Colisage fournisseur (quantité minimale commande) | ✅ |
 
 ---
 
 ### 16.8 Tableau récapitulatif des priorités — Version finale v12
 
-| Sprint | # | Action | Effort | Δ |
+| Sprint | # | Action | Effort | Statut |
 |---|---|---|---|---|
 | 0 | **S0.1** | Décommissionner `suggestionAuto` | 30 min | ✅ |
 | 0 | **S0.2** | Migration `quantite_modifiee_manuel` | 5 min | ✅ |
-| 0 | **S0.3** | `filterByStatut()` + param `statut` dans `getAllSuggestion()` | 30 min | 🔧 Simplifié |
+| 0 | **S0.3** | `filterByStatut()` + param `statut` dans `getAllSuggestion()` | 30 min | ✅ Simplifié |
 | 0 | **S0.4** | `consommationMensuelle` ColDef AG Grid | 1h | ✅ |
 | 1 | **S1.0** | `SuggestionLine.quantiteModifieeManuel` | 15 min | ✅ |
 | 1 | **S1.1** | `TypeSuggession.SEMOIS` | 5 min | ✅ |
-| 1 | **S1.2** | `SemoisBatchJobService` (déplace `processBatch` + `BatchResult`) | 2h | 🆕 |
-| 1 | **S1.3** | `creerSuggestionBatch()` | 3h | 🔧 |
+| 1 | **S1.2** | `SemoisBatchJobService` (déplace `processBatch` + `BatchResult` public) | 2h | ✅ |
+| 1 | **S1.3** | `creerSuggestionBatch()` | 3h | ✅ |
 | 1 | **S1.4** | Chaînage post-recalcul | 15 min | ✅ |
-| 1 | **S1.5** | `@EventListener` démarrage | 30 min | 🆕 |
+| 1 | **S1.5** | `@EventListener(ApplicationReadyEvent)` démarrage | 30 min | ✅ |
 | 1 | **S1.6** | Flag `quantiteModifieeManuel` à la mise à jour | 5 min | ✅ |
 | 1 | **S1.7** | Supprimer `createCommandesFromSemois()` | 15 min | ✅ |
 | 1 | **S1.8** | `findAllEligiblesForPanier()` repo | 1h | ✅ |
-| 2 | **S2.1** | `SuggestionsSource` 3 valeurs | 15 min | 🔧 |
-| 2 | **S2.2** | 3 onglets dans `suggestions-unified` | 1h | 🔧 |
-| 2 | **S2.3** | `suggestion-home` avec `@Input() statut` | 2h | 🔧 |
-| 2 | **S2.4** | Bandeau date génération + bouton Actualiser | 30 min | 🆕 |
-| 2 | **S2.5** | Indicateur 🔒 + bouton Réinitialiser | 1h | 🆕 |
-| 2 | **S2.6** | `semois-suggestions` renommé "Analyse des stocks" | 30 min | 🔧 |
-| 2 | **S2.7** | Badges compteurs onglets | 30 min | 🆕 |
-| 2 | **S2.8** | Supprimer onglet "Commandes en cours" | 15 min | 🆕 |
-| 3 | **S3.1–3.4** | Enrichissements UX | 2–3j | — |
-| 4 | **S4.1–4.4** | Qualité technique | 2–3j | — |
+| 2 | **S2.1** | `SuggestionsSource` 3 valeurs | 15 min | ✅ |
+| 2 | **S2.2** | 3 onglets dans `suggestions-unified` | 1h | ✅ |
+| 2 | **S2.3** | `suggestion-home` avec `input()` statut signal | 2h | ✅ |
+| 2 | **S2.4** | Bandeau date génération + bouton Actualiser | 30 min | ✅ |
+| 2 | **S2.5** | Indicateur 🔒 + bouton Réinitialiser | 1h | ✅ |
+| 2 | **S2.6** | `semois-suggestions` renommé "Analyse des stocks" | 30 min | ✅ |
+| 2 | **S2.7** | Badges compteurs onglets | 30 min | ✅ |
+| 2 | **S2.8** | Supprimer onglet "Commandes en cours" | 15 min | ✅ |
+| 3 | **S3.1** | Export CSV/PDF depuis "Commandes à passer" (URL fix + backend existant) | 30 min | ✅ |
+| 3 | **S3.2** | Ajouter produit manuellement au panier | 1h | ✅ (via `addSuggestionLine`) |
+| 3 | **S3.3** | Tendance VMM (↑↓↔) dans la liste produits | 1h | ✅ |
+| 3 | **S3.4** | Simulation "après commande → couverture" | 30 min | ✅ |
+| 4 | **S4.1** | MV `v_semois_suggestion` : filtre `vmm_calcule > 0` | 15 min | ✅ (dans V1.4.0) |
+| 4 | **S4.2** | Tests unitaires `SemoisBatchJobService` | 2j | ✅ (9 tests, BUILD SUCCESS) |
+| 4 | **S4.3** | Exclusion temporaire produit (backend + frontend) | 1j | ✅ |
+| 4 | **S4.4** | Colisage fournisseur (`qteColis` + `qteMinimaleCommande`) | 2h | ✅ |
+
+---
+
+### 16.10 Refactoring architectural — SemoisResource (v12 final)
+
+| Action | Fichier | Statut |
+|---|---|---|
+| Supprimer `SemoisConfigurationRepository` du contrôleur REST | `SemoisResource.java` | ✅ |
+| Supprimer `SemoisClasseConfigRepository` du contrôleur REST | `SemoisResource.java` | ✅ |
+| Déplacer logique CRUD configuration → `SemoisCalculationService` | `SemoisCalculationService.java` | ✅ |
+| Déplacer logique exclusions → `SemoisCalculationService` | `SemoisCalculationService.java` | ✅ |
+| Déplacer logique classe configs → `SemoisCalculationService` | `SemoisCalculationService.java` | ✅ |
 
 ---
 
@@ -2394,7 +2412,7 @@ private loadBadgeCounts(): void {
 
 ---
 
-*Document v12 — Structure 3 onglets actée. `getAllSuggestion()` existe déjà dans `SuggestionProduitServiceImpl` → enrichissement minimal (S0.3 simplifié). Suppression onglet "Commandes en cours". Tab "SEMOIS" renommé "Analyse des stocks" (3ème onglet, lecture seule). `SuggestionsSource` = `'REAPPRO' | 'COMMANDES_A_PASSER' | 'ANALYSE'`.*
+*Document v14 — Implémentation complète (27/03/2026). Tous les sprints S0→S4 terminés. Tests unitaires `SemoisBatchJobService` : 9 tests, BUILD SUCCESS. Colisage fournisseur (S4.4) : backend (`SuggestionLineDTO`, `SuggestionLineRepositoryCustomImpl`) + frontend (`form-produit-fournisseur`, `suggestion-produit-panel`, indicateurs ⚠ colisage AG Grid). Migrations Flyway : V1.3.9 (quantite_modifiee_manuel), V1.4.0 (exclusion temporaire + vue v3), V1.4.2 (colisage fournisseur).*
 
 
 

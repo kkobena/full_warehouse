@@ -5,12 +5,14 @@ import java.util.List;
 /**
  * DTO pour commander une sélection de lignes de suggestion avec des quantités personnalisées.
  *
- * @param suggestionId ID de la suggestion parente
- * @param lignes       Liste des lignes à commander avec leur quantité souhaitée
+ * @param suggestionId  ID de la suggestion parente
+ * @param lignes        Liste des lignes à commander avec leur quantité souhaitée
+ * @param fournisseurId Fournisseur cible (optionnel — si null, utilise le fournisseur de la suggestion)
  */
 public record CommanderSelectionDTO(
     Integer suggestionId,
-    List<LigneSelection> lignes
+    List<LigneSelection> lignes,
+    Integer fournisseurId
 ) {
 
     /**

@@ -56,6 +56,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
     fournisseurId: [null, [Validators.required]],
     principal: [false, [Validators.required]],
+    qteColis: [1, [Validators.min(1)]],
+    qteMinimaleCommande: [0, [Validators.min(0)]],
   });
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
@@ -103,6 +105,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       fournisseurId: produitFournisseur.fournisseurId,
       produitId: this.produit.id,
       principal: this.produit.fournisseurProduit?.id === produitFournisseur.id,
+      qteColis: produitFournisseur.qteColis ?? 1,
+      qteMinimaleCommande: produitFournisseur.qteMinimaleCommande ?? 0,
     });
   }
 
@@ -169,6 +173,8 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       fournisseurId: this.editForm.get(['fournisseurId']).value,
       principal: this.editForm.get(['principal']).value,
       produitId: this.produit.id,
+      qteColis: this.editForm.get(['qteColis']).value ?? 1,
+      qteMinimaleCommande: this.editForm.get(['qteMinimaleCommande']).value ?? 0,
     };
   }
 }

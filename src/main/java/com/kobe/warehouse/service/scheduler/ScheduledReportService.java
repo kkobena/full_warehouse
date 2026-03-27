@@ -205,27 +205,20 @@ public class ScheduledReportService {
         LocalDateTime nextExecution;
         LocalTime executionTime = report.getExecutionTime() != null ? report.getExecutionTime() : LocalTime.of(8, 0);
 
-        switch (report.getFrequency()) {
-            case DAILY:
-                nextExecution = LocalDateTime.now().plusDays(1).with(executionTime);
-                break;
-
-            case WEEKLY:
+        nextExecution = switch (report.getFrequency()) {
+            case WEEKLY -> {
                 DayOfWeek targetDay = DayOfWeek.of(report.getDayOfWeek() != null ? report.getDayOfWeek() : 1);
-                nextExecution = LocalDateTime
+                yield LocalDateTime
                     .now()
                     .with(TemporalAdjusters.next(targetDay))
                     .with(executionTime);
-                break;
-
-            case MONTHLY:
+            }
+            case MONTHLY -> {
                 int dayOfMonth = report.getDayOfMonth() != null ? report.getDayOfMonth() : 1;
-                nextExecution = LocalDateTime.now().plusMonths(1).withDayOfMonth(dayOfMonth).with(executionTime);
-                break;
-
-            default:
-                nextExecution = LocalDateTime.now().plusDays(1).with(executionTime);
-        }
+                yield LocalDateTime.now().plusMonths(1).withDayOfMonth(dayOfMonth).with(executionTime);
+            }
+            default -> LocalDateTime.now().plusDays(1).with(executionTime);
+        };
 
         report.setNextExecution(nextExecution);
     }
@@ -235,24 +228,11 @@ public class ScheduledReportService {
      */
     private LocalDate[] getReportDateRange(ScheduledReportFrequency frequency) {
         LocalDate endDate = LocalDate.now().minusDays(1); // Yesterday
-        LocalDate startDate;
-
-        switch (frequency) {
-            case DAILY:
-                startDate = endDate; // Same day
-                break;
-
-            case WEEKLY:
-                startDate = endDate.minusDays(7);
-                break;
-
-            case MONTHLY:
-                startDate = endDate.minusMonths(1);
-                break;
-
-            default:
-                startDate = endDate.minusDays(7);
-        }
+        LocalDate startDate = switch (frequency) {
+            case DAILY -> endDate; // Same day
+            case MONTHLY -> endDate.minusMonths(1);
+            default -> endDate.minusDays(7);
+        };
 
         return new LocalDate[]{startDate, endDate};
     }

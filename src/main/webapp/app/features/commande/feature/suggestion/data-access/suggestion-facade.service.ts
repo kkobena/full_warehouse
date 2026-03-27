@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { BudgetCommande, SemoisFraicheur, SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ErrorService } from 'app/shared/error.service';
@@ -10,6 +11,8 @@ import { handleBlobForTauri } from 'app/shared/util/tauri-util';
 import { saveAs } from 'file-saver';
 import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { Keys } from 'app/shared/model/keys.model';
+import { CommanderModalResult } from './suggestion-commander.model';
+import { PharmamlApiService } from '../../../data-access/pharmaml-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionFacadeService {
@@ -17,6 +20,7 @@ export class SuggestionFacadeService {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly pharmamlApiService = inject(PharmamlApiService);
 
   // ─── Signals ────────────────────────────────────────────────────────────────
   readonly fournisseurs = signal<FournisseurSuggestionSummary[]>([]);
@@ -57,6 +61,7 @@ export class SuggestionFacadeService {
   // Contexte du fournisseur courant pour les rechargements
   private currentSuggestionId: number | null = null;
   private currentFournisseurId: number | null = null;
+  private currentStatut: 'GENEREE' | 'VALIDEE' | undefined = undefined;
 
   // ─── Public methods ──────────────────────────────────────────────────────────
 
@@ -66,6 +71,7 @@ export class SuggestionFacadeService {
    *               Null = tous (comportement antérieur).
    */
   loadAll(statut?: 'GENEREE' | 'VALIDEE'): void {
+    this.currentStatut = statut;
     this.loading.set(true);
     this.fournisseurs.set([]);
     this.selectedFournisseur.set(null);
@@ -151,18 +157,55 @@ export class SuggestionFacadeService {
   }
 
   /**
-   * Lance la commande pour les lignes fournies (sélection ou toutes les lignes).
-   * Utilise l'endpoint commander-selection pour respecter les quantités modifiées.
+   * Bug 3 — Commander toute la suggestion via son ID uniquement.
+   * Gère le mode Interne (commande locale) et PharmaML (envoi électronique).
    */
-  commander(lignes?: SuggestionLigneEnrichie[]): void {
+  commanderFull(modalResult: CommanderModalResult): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
       this.notificationService.warning('Aucun fournisseur sélectionné.');
       return;
     }
+    this.suggestionService.commander(fournisseur.suggestionId, modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined).pipe(
+      switchMap(commandeId => {
+        if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
+          const params = {
+            commandeId: { id: commandeId.id, orderDate: commandeId.orderDate },
+            grossisteId: modalResult.fournisseurId,
+            typeCommande: modalResult.pharmamlParams.typeCommande,
+            commentaire: modalResult.pharmamlParams.commentaire,
+            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee,
+          };
+          return this.pharmamlApiService.envoi(params);
+        }
+        return of(null);
+      }),
+    ).subscribe({
+      next: () => {
+        const msg = modalResult.type === 'PHARMAML'
+          ? `Commande transmise via PharmaML pour ${fournisseur.libelle}.`
+          : `Commande passée avec succès pour ${fournisseur.libelle}.`;
+        this.notificationService.success(msg, 'Commander');
+        this.loadAll(this.currentStatut);
+      },
+      error: err => {
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander');
+      },
+    });
+  }
 
-    const linesToCommander = lignes ?? this.lignesEnrichies();
-    const selection = linesToCommander
+  /**
+   * Bug 1 — Commander uniquement les lignes sélectionnées.
+   * La suggestion n'est PAS supprimée si des lignes restent.
+   * Gère le mode Interne et PharmaML.
+   */
+  commanderSelection(lignes: SuggestionLigneEnrichie[], modalResult: CommanderModalResult): void {
+    const fournisseur = this.selectedFournisseur();
+    if (!fournisseur?.suggestionId) {
+      this.notificationService.warning('Aucun fournisseur sélectionné.');
+      return;
+    }
+    const selection = lignes
       .filter(l => l.id != null)
       .map(l => ({ suggestionLineId: l.id!, quantite: l.quantite }));
 
@@ -170,21 +213,52 @@ export class SuggestionFacadeService {
       this.notificationService.warning('Aucune ligne à commander.');
       return;
     }
+    this.suggestionService.commanderSelection({
+      suggestionId: fournisseur.suggestionId,
+      lignes: selection,
+      fournisseurId: modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined,
+    }).pipe(
+      switchMap(commandeId => {
+        if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
+          const params = {
+            commandeId: { id: commandeId.id, orderDate: commandeId.orderDate },
+            grossisteId: modalResult.fournisseurId,
+            typeCommande: modalResult.pharmamlParams.typeCommande,
+            commentaire: modalResult.pharmamlParams.commentaire,
+            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee,
+          };
+          return this.pharmamlApiService.envoi(params);
+        }
+        return of(null);
+      }),
+    ).subscribe({
+      next: () => {
+        const msg = modalResult.type === 'PHARMAML'
+          ? `Sélection transmise via PharmaML pour ${fournisseur.libelle}.`
+          : `Commande (sélection) passée avec succès pour ${fournisseur.libelle}.`;
+        this.notificationService.success(msg, 'Commander');
+        this.loadAll(this.currentStatut);
+      },
+      error: err => {
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander');
+      },
+    });
+  }
 
-    this.suggestionService
-      .commanderSelection({ suggestionId: fournisseur.suggestionId, lignes: selection })
-      .subscribe({
-        next: () => {
-          this.notificationService.success(
-            `Commande passée avec succès pour ${fournisseur.libelle}.`,
-            'Commander',
-          );
-          this.loadAll();
-        },
-        error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander');
-        },
-      });
+  /** @deprecated Utiliser commanderFull() ou commanderSelection() à la place. */
+  commander(lignes?: SuggestionLigneEnrichie[]): void {
+    const fournisseur = this.selectedFournisseur();
+    if (!fournisseur?.suggestionId) return;
+    const linesToCommander = lignes ?? this.lignesEnrichies();
+    const selection = linesToCommander.filter(l => l.id != null).map(l => ({ suggestionLineId: l.id!, quantite: l.quantite }));
+    if (selection.length === 0) return;
+    this.suggestionService.commanderSelection({ suggestionId: fournisseur.suggestionId, lignes: selection }).subscribe({
+      next: () => {
+        this.notificationService.success(`Commande passée pour ${fournisseur.libelle}.`, 'Commander');
+        this.loadAll();
+      },
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander'),
+    });
   }
 
   /** Met à jour la quantité d'une ligne via l'API puis met à jour le signal. */
@@ -451,7 +525,6 @@ export class SuggestionFacadeService {
     const item: SuggestionLine = { produitId, fournisseurProduitId, quantity: quantite };
     this.suggestionService.createOrUpdateItem(item, fournisseur.suggestionId).subscribe({
       next: () => {
-        this.notificationService.success('Produit ajouté à la suggestion.', 'Ajout');
         this.loadLignes();
       },
       error: err => {
@@ -535,6 +608,8 @@ export class SuggestionFacadeService {
       quantiteModifiee: !!line.quantiteModifieeManuel,
       quantiteModifieeManuel: !!line.quantiteModifieeManuel,
       commandee: false,
+      qteColis: line.qteColis ?? 1,
+      qteMinimaleCommande: line.qteMinimaleCommande ?? 0,
     };
   }
 

@@ -5,7 +5,6 @@ import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,6 @@ public class VentesAgregeesService {
      * Exécuté selon le cron configuré dans application.yml.
      * Par défaut: tous les jours à 2h du matin (heure creuse).
      */
-    @Scheduled(cron = "${pharma-smart.semois.aggregation-cron:0 0 2 * * *}")
     public void aggregateMonthlySalesDaily() {
         LOG.info(" Début agrégation quotidienne des ventes mensuelles SEMOIS");
 

@@ -31,6 +31,10 @@ public class FournisseurProduitDTO {
     private ProduitDTO produit;
     private String codeEan;
     private Integer delaiLivraisonJours;
+    /**Conditionnement : nombre d'unités par colis. 1 = pas de contrainte. */
+    private Integer qteColis;
+    /**Quantité minimale de commande (en unités). 0 = pas de minimum. */
+    private Integer qteMinimaleCommande;
 
     public FournisseurProduitDTO() {}
 
@@ -49,6 +53,8 @@ public class FournisseurProduitDTO {
         delaiLivraisonJours = fr.getDelaiLivraisonJours() != null
             ? fr.getDelaiLivraisonJours()
             : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null);
+        qteColis = f.getQteColis();
+        qteMinimaleCommande = f.getQteMinimaleCommande();
     }
 
     public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
@@ -67,7 +73,9 @@ public class FournisseurProduitDTO {
             .setProduit(ProduitBuilder.fromEntity(p))
             .setDelaiLivraisonJours(fr.getDelaiLivraisonJours() != null
                 ? fr.getDelaiLivraisonJours()
-                : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null));
+                : (fr.getGroupeFournisseur() != null ? fr.getGroupeFournisseur().getDelaiLivraisonJours() : null))
+            .setQteColis(f.getQteColis())
+            .setQteMinimaleCommande(f.getQteMinimaleCommande());
     }
 
     public String getCodeEan() {
@@ -193,6 +201,24 @@ public class FournisseurProduitDTO {
 
     public FournisseurProduitDTO setDelaiLivraisonJours(Integer delaiLivraisonJours) {
         this.delaiLivraisonJours = delaiLivraisonJours;
+        return this;
+    }
+
+    public Integer getQteColis() {
+        return qteColis;
+    }
+
+    public FournisseurProduitDTO setQteColis(Integer qteColis) {
+        this.qteColis = qteColis;
+        return this;
+    }
+
+    public Integer getQteMinimaleCommande() {
+        return qteMinimaleCommande;
+    }
+
+    public FournisseurProduitDTO setQteMinimaleCommande(Integer qteMinimaleCommande) {
+        this.qteMinimaleCommande = qteMinimaleCommande;
         return this;
     }
 }

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
@@ -65,12 +66,12 @@ public interface SuggestionProduitService {
 
     void sanitize(Integer suggestionId);
 
-    void commander(Integer suggestionId);
+    CommandeId commander(Integer suggestionId, Integer fournisseurId);
 
-    void commanderSelection(CommanderSelectionDTO dto);
+    CommandeId commanderSelection(CommanderSelectionDTO dto);
 
     /**
-     * @deprecated Décommissionné depuis v12. Un seul chemin : {@code Suggestion} → {@code Commande}.
+     * @deprecated Décommissionné depuis  Un seul chemin : {@code Suggestion} → {@code Commande}.
      */
     @Deprecated(since = "2026-03", forRemoval = false)
     void createCommandesFromSemois(List<SemoisCommanderDTO.LigneSemois> lignes);

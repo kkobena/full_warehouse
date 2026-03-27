@@ -135,49 +135,33 @@ info:
   display-ribbon-on-profiles: 'dev'
 
 pharma-smart:
+  jobs:
+    # Pipeline nocturne SEMOIS (séquentiel) :
+    #   1. Réintégration exclusions expirées
+    #   2. Agrégation ventes mensuelles
+    #   3. Classification criticité (garde mensuelle)
+    #   4. Recalcul SEMOIS + suggestions (garde journalière)
+    # Le même pipeline s'exécute aussi au démarrage de l'application (catch-up).
+    # Format cron: secondes minutes heures jour mois jour-semaine
+    nightly-pipeline-cron: '0 0 9 * * *'
+
   semois:
     # Délai de gel des agrégations mensuelles (en jours)
     # Fenêtre de correction pour annulations tardives après fin de mois
     freeze-delay-days: 30
-
-    # Format cron: secondes minutes heures jour mois jour-semaine
-    aggregation-cron: '0 */59 8-12 * * *'
-
-    # Exécuté après l'agrégation des ventes
-  #  recalculation-cron: '0 */59 12-21 * * *'
-    recalculation-cron: '0 */2 * * * *'
-    recalculation-delay-ms: 86400000 # Délai de 24 heure avant le recalcul
     batch-size: 100 # Taille du lot pour le traitement par lots
 
   classification:
-    # Reclassification mensuelle automatique de la criticité des produits
-    # Exécutée le 8e jour de chaque mois à 4h (après le gel des agrégations)
-    # Format cron: secondes minutes heures jour mois jour-semaine
-    cron: '0 0 * 1-8 * ?'
-
     # Taille des batchs pour le traitement par lots
     batch-size: 100
-  stock:
-    snapshot:
-      # Snapshot quotidien du stock pour la reconstitution historique (fn_stock_at_time).
-      # Exécuté aussi au démarrage si le snapshot du jour n'existe pas encore
-      # (catch-up pour les machines éteintes la nuit).
-      # Format : secondes minutes heures jour mois jour-semaine
-      # Utiliser '-' pour désactiver le scheduler (le catch-up démarrage reste actif).
-      cron: '0 30 9 * * *'
 
-  inventaire:
-    tournant:
-      # Cron d'exécution automatique des plannings tournants échus.
-      # Format : secondes minutes heures jour mois jour-semaine
-      # Défaut : chaque matin à 8h00 (les officines ne sont pas forcément ouvertes à 7h
-      #          et les machines peuvent être éteintes la nuit).
-      # Exemple : '0 0 8 * * *'  → 8h00 tous les jours
-      #           '0 0 8 * * MON-SAT' → 8h00 du lundi au samedi
-      #           '-'           → désactiver le job (Spring ignore les expressions négatives,
-      #                           utiliser un placeholder qui ne déclenchera jamais)
-      cron: '0 30 12 * * *'
-
+  views:
+    # Rafraîchissement intra-journée des vues matérialisées (async, ne bloque pas les utilisateurs).
+    # Un refreshAll est aussi exécuté en fin de pipeline (démarrage + nocturne).
+    # Format cron: secondes minutes heures jour mois jour-semaine
+    dashboards-cron: '0 */15 8-20 * * *'    # CA, alertes stock, ventes — toutes les 15 min (8h-20h)
+    analytique-cron: '0 0 8-20 * * *'     # Familles, valorisation stock — toutes les heures (8h-20h)
+    reporting-cron: '0 0 9,12,15,18 * * *' # RFM clients, perf fournisseurs, marges — 4x/jour
   clientApp:
     name: 'pharma-smart'
   # OAuth2 Authorization Server settings

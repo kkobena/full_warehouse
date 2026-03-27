@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,62 +43,6 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      */
     boolean existsByProduitId(Integer produitId);
 
-    /**
-     * Liste toutes les configurations d'une classe de criticité
-     *
-     * @param classeCriticite Classe de criticité (A+, A, B, C, D)
-     * @return Liste des configurations
-     */
-    List<SemoisConfiguration> findByClasseCriticite(ClasseCriticite classeCriticite);
-
-    /**
-     * Compte le nombre de produits par classe de criticité
-     *
-     * @return Map des classes avec leur comptage
-     */
-    @Query("""
-        SELECT sc.classeCriticite, COUNT(sc) FROM SemoisConfiguration sc
-        GROUP BY sc.classeCriticite
-        ORDER BY sc.classeCriticite ASC
-        """)
-    List<Object[]> countByClasseCriticite();
-
-    /**
-     * Trouve les configurations nécessitant un recalcul
-     * (date dernier calcul > 24h ou null)
-     *
-     * @return Liste des configurations à recalculer
-     */
-    @Query(value = """
-        SELECT * FROM semois_configuration sc
-        WHERE sc.date_dernier_calcul IS NULL
-           OR sc.date_dernier_calcul < CURRENT_TIMESTAMP - INTERVAL '1 day'
-        ORDER BY sc.date_dernier_calcul ASC NULLS FIRST
-        """, nativeQuery = true)
-    List<SemoisConfiguration> findConfigurationsNeedingRecalculation();
-
-    /**
-     * Trouve les produits avec stock objectif calculé < stock actuel (surstock potentiel)
-     *
-     * @return Liste des configurations en surstock
-     */
-    @Query("""
-        SELECT sc FROM SemoisConfiguration sc
-        JOIN sc.produit p
-        JOIN p.stockProduits sp
-        WHERE sc.stockObjectifCalcule IS NOT NULL
-          AND sc.stockObjectifCalcule < (SELECT SUM(sp2.qtyStock + sp2.qtyUG)
-                                          FROM StockProduit sp2
-                                          WHERE sp2.produit.id = p.id)
-        """)
-    List<SemoisConfiguration> findSurstockConfigurations();
-
-    /**
-     * Trouve les produits avec limite péremption activée
-     *
-     * @return Liste des configurations avec limite péremption
-     */
-    List<SemoisConfiguration> findByLimitePeremptionTrue();
 
     /**
      * Charge les configurations SEMOIS pour un lot de produits (évite les N+1 dans suggerer()).
@@ -107,88 +52,6 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      */
     List<SemoisConfiguration> findByProduitIdIn(java.util.Collection<Integer> produitIds);
 
-    /**
-     * Supprime la configuration d'un produit (usage admin uniquement)
-     *
-     * @param produitId ID du produit
-     * @return Nombre de configurations supprimées (0 ou 1)
-     */
-    long deleteByProduitId(Integer produitId);
-
-    /**
-     * Récupère les configurations avec facteur saisonnier actif (≠ 1.0)
-     *
-     * @return Liste des configurations avec ajustement saisonnier
-     */
-    @Query("""
-        SELECT sc FROM SemoisConfiguration sc
-        WHERE sc.facteurSaisonnierActuel IS NOT NULL
-          AND sc.facteurSaisonnierActuel <> 1.0
-        """)
-    List<SemoisConfiguration> findConfigurationsWithSeasonalFactor();
-
-    /**
-     * Récupère les configurations par plage de délai de livraison
-     *
-     * @param delaiMin Délai minimum (inclus)
-     * @param delaiMax Délai maximum (inclus)
-     * @return Liste des configurations
-     */
-    @Query("""
-        SELECT sc FROM SemoisConfiguration sc
-        WHERE sc.delaiLivraisonJours >= :delaiMin
-          AND sc.delaiLivraisonJours <= :delaiMax
-        ORDER BY sc.delaiLivraisonJours DESC
-        """)
-    List<SemoisConfiguration> findByDelaiLivraisonBetween(@Param("delaiMin") Integer delaiMin,
-                                                           @Param("delaiMax") Integer delaiMax);
-
-    /**
-     * Récupère toutes les configurations avec eager fetch du Produit (pour batch processing).
-     * Résout le problème "Could not initialize proxy - no Session" en chargeant
-     * le Produit dans la même requête via JOIN FETCH.
-     *
-     * @param pageable Pagination
-     * @return Page de configurations avec produits chargés
-     */
-    @Query(value = """
-        SELECT sc FROM SemoisConfiguration sc
-        JOIN FETCH sc.produit p
-        """,
-        countQuery = """
-        SELECT COUNT(sc) FROM SemoisConfiguration sc
-        """)
-    Page<SemoisConfiguration> findAllWithProduit(Pageable pageable);
-
-    /**
-     * Compte les configurations d'une classe donnée.
-     *
-     * @param classeCriticite Classe à compter
-     * @return Nombre de configurations
-     */
-    long countByClasseCriticiteEquals(ClasseCriticite classeCriticite);
-
-    /**
-     * Charge les configurations d'une classe en eager fetch du Produit.
-     * Utilisé par le batch de recalcul piloté par SemoisClasseConfig.
-     *
-     * @param classeCriticite Classe de criticité cible
-     * @param pageable        Pagination
-     * @return Page de configurations avec produits chargés
-     */
-    @Query(value = """
-        SELECT sc FROM SemoisConfiguration sc
-        JOIN FETCH sc.produit p
-        WHERE sc.classeCriticite = :classeCriticite
-        """,
-        countQuery = """
-        SELECT COUNT(sc) FROM SemoisConfiguration sc
-        WHERE sc.classeCriticite = :classeCriticite
-        """)
-    Page<SemoisConfiguration> findByClasseCriticiteWithProduit(
-        @Param("classeCriticite") ClasseCriticite classeCriticite,
-        Pageable pageable
-    );
 
     /**
      * Recherche paginée de configurations SEMOIS avec filtres.
@@ -221,41 +84,45 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
         Pageable pageable
     );
 
+
+
     /**
-     * Initialise les configurations SEMOIS pour tous les produits actifs sans configuration.
-     * Utilise la classe B par défaut.
+     * Retourne toutes les configurations avec une exclusion encore active (NOW < date_fin).
+     */
+    @Query("""
+        SELECT sc FROM SemoisConfiguration sc
+        JOIN FETCH sc.produit p
+        WHERE sc.exclusionDate IS NOT NULL
+          AND sc.exclusionDate > :horizon
+        ORDER BY sc.exclusionDate ASC
+        """)
+    List<SemoisConfiguration> findExclusionsActives(@Param("horizon") LocalDateTime horizon);
+
+    /**
+     * Compte le nombre d'exclusions actuellement actives.
+     */
+    @Query(value = """
+        SELECT COUNT(*) FROM semois_configuration
+        WHERE exclusion_date IS NOT NULL
+          AND NOW() < exclusion_date + (COALESCE(exclusion_duree_jours, 30) || ' days')::INTERVAL
+        """, nativeQuery = true)
+    long countExclusionsActives();
+
+
+
+    /**
+     * Réintègre en masse les exclusions expirées (met exclusion_date à NULL).
      *
-     * @return Nombre de configurations créées
+     * @return Nombre de configurations réintégrées
      */
     @Modifying
     @Query(value = """
-        INSERT INTO semois_configuration (
-            produit_id,
-            classe_criticite,
-            coefficient_securite,
-            nb_mois_historique,
-            delai_livraison_jours,
-            facteur_saisonnier_actuel,
-            limite_peremption,
-            created_at,
-            updated_at
-        )
-        SELECT
-            p.id,
-            'B',
-            1.0,
-            6,
-            7,
-            1.0,
-            FALSE,
-            NOW(),
-            NOW()
-        FROM produit p
-        WHERE p.status = 'ENABLE'
-          AND p.type_produit != 'DETAIL'
-          AND NOT EXISTS (
-              SELECT 1 FROM semois_configuration sc WHERE sc.produit_id = p.id
-          )
+        UPDATE semois_configuration
+        SET exclusion_date = NULL,
+            exclusion_motif = NULL,
+            updated_at = NOW()
+        WHERE exclusion_date IS NOT NULL
+          AND NOW() >= exclusion_date + (COALESCE(exclusion_duree_jours, 30) || ' days')::INTERVAL
         """, nativeQuery = true)
-    int initializeAllMissingConfigurations();
+    int reintegrerExclusionsExpirees();
 }

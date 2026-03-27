@@ -39,7 +39,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>Exécuté chaque nuit à 02h00. Pour chaque produit éligible (modèle=SEMOIS, actif,
  * FP principal défini), recalcule le VMM et le stock objectif, puis crée/met à jour la
- * {@link Suggestion} de type {@link TypeSuggession#SEMOIS} pour chaque fournisseur.
+ * {@link Suggestion} de type {@link TypeSuggession#AUTO} pour chaque fournisseur.
  *
- * <p><strong>Protection manuelle (v12) :</strong> les lignes dont le flag
+ * <p><strong>Protection manuelle:</strong> les lignes dont le flag
  * {@code quantiteModifieeManuel=true} ne sont <em>pas</em> modifiées par ce batch.
  */
 @Service
@@ -90,6 +89,19 @@ public class SemoisBatchJobService {
         this.em = em;
     }
 
+    // ── S4.3 — Réintégration automatique des exclusions expirées ─────────────────
+    /**
+     * Réintègre automatiquement les produits dont l'exclusion temporaire a expiré.
+     * Exécuté chaque nuit à 01h30 (avant le batch principal à 02h00).
+     */
+    @Transactional
+    public void reintegrerExclusionsExpirees() {
+        int nb = semoisConfigurationRepository.reintegrerExclusionsExpirees();
+        if (nb > 0) {
+            LOG.info("[SEMOIS-BATCH] {} produit(s) réintégré(s) automatiquement après expiration de l'exclusion", nb);
+        }
+    }
+
     // ────────────────────────────────────────────────────────────────────────────────
     // Batch principal — planifié à 02h00 chaque nuit
     // ────────────────────────────────────────────────────────────────────────────────
@@ -97,11 +109,10 @@ public class SemoisBatchJobService {
     /**
      * Crée ou met à jour les suggestions SEMOIS pour tous les produits éligibles.
      *
-     * <p><strong>Règle v12 :</strong> Les lignes ayant {@code quantiteModifieeManuel=true} sont
+     * <p>Les lignes ayant {@code quantiteModifieeManuel=true} sont
      * préservées — le pharmacien a pris la main, le batch ne les modifie pas.
      * Seul un appel explicite à {@code resetQuantiteManuelle()} réautorise le batch.
      */
-    @Scheduled(cron = "0 0 2 * * *")
     @Transactional
     public void creerSuggestionBatch() {
         LOG.info("[SEMOIS-BATCH] Démarrage du batch de création des suggestions");
@@ -113,12 +124,12 @@ public class SemoisBatchJobService {
             return;
         }
 
-        // ── 1. Charger les configs de classe (au plus 5 lignes) ─────────────────────
+        // Charger les configs de classe (au plus 5 lignes) ─────────────────────
         Map<ClasseCriticite, SemoisClasseConfig> classeConfigs = semoisClasseConfigRepository.findAll()
             .stream()
             .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
 
-        // ── 2. Charger tous les produits éligibles avec leur FP principal ────────────
+        //Charger tous les produits éligibles avec leur FP principal ────────────
         List<Produit> eligibles = produitRepository.findAllSemoisEligibles(magasin.getId());
         if (eligibles.isEmpty()) {
             LOG.info("[SEMOIS-BATCH] Aucun produit éligible trouvé");
@@ -128,30 +139,30 @@ public class SemoisBatchJobService {
         Set<Integer> allProduitIds = eligibles.stream().map(Produit::getId).collect(Collectors.toSet());
         LOG.info("[SEMOIS-BATCH] {} produits éligibles chargés", allProduitIds.size());
 
-        // ── 3. Batch-load SemoisConfiguration ────────────────────────────────────────
+        // Batch-load SemoisConfiguration ────────────────────────────────────────
         Map<Integer, SemoisConfiguration> semoisConfigByProduitId = semoisConfigurationRepository
             .findByProduitIdIn(allProduitIds)
             .stream()
             .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
 
-        // ── 4. Batch VMM par classe ──────────────────────────────────────────────────
+        // Batch VMM par classe ──────────────────────────────────────────────────
         Map<Integer, Integer> vmmByProduitId = loadVmmBySemoisClass(eligibles, classeConfigs);
 
-        // ── 5. Stock virtuel (commandes en attente) ──────────────────────────────────
+        // Stock virtuel (commandes en attente) ──────────────────────────────────
         Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(allProduitIds);
 
-        // ── 6. Batch-load lignes SEMOIS existantes ────────────────────────────────────
+        // Batch-load lignes SEMOIS existantes ────────────────────────────────────
         Set<Integer> allFpIds = eligibles.stream()
             .filter(p -> p.getFournisseurProduitPrincipal() != null)
             .map(p -> p.getFournisseurProduitPrincipal().getId())
             .collect(Collectors.toSet());
 
         Map<Integer, SuggestionLine> existingLineByFpId = suggestionLineRepository
-            .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.SEMOIS, allFpIds)
+            .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, allFpIds)
             .stream()
             .collect(Collectors.toMap(l -> l.getFournisseurProduit().getId(), Function.identity()));
 
-        // ── 7. Regroupement par fournisseur ──────────────────────────────────────────
+        // Regroupement par fournisseur ──────────────────────────────────────────
         Map<Fournisseur, List<Produit>> byFournisseur = eligibles.stream()
             .filter(p -> p.getFournisseurProduitPrincipal() != null)
             .collect(Collectors.groupingBy(p -> p.getFournisseurProduitPrincipal().getFournisseur()));
@@ -195,11 +206,13 @@ public class SemoisBatchJobService {
 
                 if (stockVirtuel >= stockObjectif) continue;
 
-                int qty = Math.max(1, stockObjectif - stockVirtuel);
+                // Quantité brute = besoin pour atteindre le stock objectif
+                int qtyBrute = Math.max(1, stockObjectif - stockVirtuel);
+                //Arrondi au colisage fournisseur (multiple de colis + qté minimale)
+                int qty = fp.appliquerColisage(qtyBrute);
 
                 SuggestionLine existingLine = existingLineByFpId.get(fp.getId());
                 if (existingLine != null) {
-                    // ── Protection manuelle v12 ──────────────────────────────────────
                     if (existingLine.isQuantiteModifieeManuel()) {
                         LOG.debug("[SEMOIS-BATCH] Ligne {} protégée (qté manuelle={}) — skip",
                             existingLine.getId(), existingLine.getQuantity());
@@ -228,7 +241,7 @@ public class SemoisBatchJobService {
             }
         }
 
-        // ── 8. Persister en batch ────────────────────────────────────────────────────
+
         semoisConfigurationRepository.saveAll(configsToUpdate);
         suggestionRepository.saveAll(suggestionsToSave);
         suggestionLineRepository.saveAll(linesToSave);
@@ -238,13 +251,10 @@ public class SemoisBatchJobService {
             duree, suggestionsToSave.size(), nbCreees, nbMajees, nbProtegees);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────────
-    // Helpers
-    // ────────────────────────────────────────────────────────────────────────────────
 
     private Suggestion getOrCreateSemoisSuggestion(Fournisseur fournisseur, Magasin magasin, AtomicBoolean existing) {
         Optional<Suggestion> opt = suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
-            TypeSuggession.SEMOIS,
+            TypeSuggession.AUTO,
             fournisseur.getId(),
             magasin.getId()
         );
@@ -263,7 +273,7 @@ public class SemoisBatchJobService {
             .createdAt(LocalDateTime.now());
         s.setFournisseur(fournisseur);
         s.setMagasin(magasin);
-        s.setTypeSuggession(TypeSuggession.SEMOIS);
+        s.setTypeSuggession(TypeSuggession.AUTO);
         s.setStatut(StatutSuggession.GENEREE);
         s.setUpdatedAt(LocalDateTime.now());
         return s;

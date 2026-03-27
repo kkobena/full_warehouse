@@ -29,6 +29,34 @@ export interface ISemoisConfiguration {
   updatedAt?: Date;
 }
 
+//Exclusion temporaire ──────────────────────────────────────────────
+
+/**
+ * Représente une exclusion temporaire d'un produit du batch SEMOIS.
+ * Un produit exclu n'apparaît plus dans la vue v_semois_suggestion
+ * et n'est pas réintégré dans le panier par creerSuggestionBatch() jusqu'à expiration.
+ */
+export interface ISemoisExclusion {
+  produitId: number;
+  produitLibelle: string;
+  exclusionDureeJours: number;
+  exclusionMotif?: string;
+  exclusionDate: string;       // ISO datetime
+  exclusionDateFin: string;    // ISO datetime
+  exclActif: boolean;
+}
+
+/** Payload envoyé à POST /api/semois/configuration/{produitId}/exclure */
+export interface IExclusionRequest {
+  dureeJours?: number;
+  motif?: string;
+}
+
+/** Réponse de GET /api/semois/exclusions/count */
+export interface IExclusionCount {
+  count: number;
+}
+
 export class SemoisConfiguration implements ISemoisConfiguration {
   constructor(
     public id?: number,

@@ -277,3 +277,43 @@
     font-weight: 700;
   }
 }
+
+// ── Cellule quantité avec indicateurs colisage ─────────────────────────────
+::ng-deep {
+  .ag-qty-cell {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    justify-content: flex-end;
+  }
+
+  .ag-colis-warn {
+    font-size: 11px;
+    color: #d97706;
+    cursor: help;
+  }
+
+  .ag-min-warn {
+    font-size: 10px;
+    color: #dc3545;
+    cursor: help;
+  }
+
+  .ag-colis-badge {
+    font-size: 9px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    border-radius: 3px;
+    padding: 0 3px;
+    font-weight: 700;
+    cursor: help;
+    line-height: 14px;
+  }
+
+  .ag-lock-icon {
+    font-size: 10px;
+    cursor: help;
+  }
+}
+

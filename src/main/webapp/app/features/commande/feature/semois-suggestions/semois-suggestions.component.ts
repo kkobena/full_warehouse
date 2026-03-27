@@ -9,7 +9,6 @@ import { SelectModule } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ISemoisSuggestion, SemoisSuggestion } from 'app/shared/model/semois/semois-suggestion.model';
@@ -17,10 +16,9 @@ import { ClasseCriticite, getClasseCriticiteInfo, CLASSE_CRITICITE_INFO } from '
 import { SemoisService } from 'app/entities/semois/semois.service';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { CommandCommonService } from 'app/entities/commande/command-common.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { ErrorService } from 'app/shared/error.service';
-import { SemoisCommanderModalComponent, SemoisCommandeLine } from './ui/semois-commander-modal/semois-commander-modal.component';
 import { IReapproDashboard } from 'app/shared/model/semois/semois-dashboard.model';
+import { SemoisExclureProduitComponent } from './ui/semois-exclure-produit/semois-exclure-produit.component';
+import { SemoisExclusionPanelComponent } from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
 
 @Component({
   selector: 'app-semois-suggestions',
@@ -41,7 +39,6 @@ import { IReapproDashboard } from 'app/shared/model/semois/semois-dashboard.mode
 export class SemoisSuggestionsComponent implements OnInit {
   readonly suggestions = signal<ISemoisSuggestion[]>([]);
   readonly isLoading = signal<boolean>(false);
-  readonly isCommanding = signal<boolean>(false);
   readonly selectedClasse = signal<ClasseCriticite | null>(null);
   readonly searchText = signal<string>('');
   readonly selectedFournisseurId = signal<number | null>(null);
@@ -53,11 +50,14 @@ export class SemoisSuggestionsComponent implements OnInit {
   readonly itemsPerPage = signal<number>(15);
   readonly totalItems = signal<number>(0);
 
-  // KPI — chargés depuis le dashboard (total, pas page courante)
+  // KPI
   readonly dashboardStats = signal<IReapproDashboard | null>(null);
 
   // Fournisseurs distincts pour le filtre
   readonly fournisseurOptions = signal<Array<{ label: string; value: number }>>([]);
+
+  /** Nombre d'exclusions actives — badge dans la barre d'actions. */
+  readonly exclusionCount = signal<number>(0);
 
   /** Options pour le sélecteur de classe */
   readonly classeOptions = Object.entries(CLASSE_CRITICITE_INFO).map(([key, info]) => ({
@@ -74,8 +74,6 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   private readonly semoisService = inject(SemoisService);
   private readonly commandCommonService = inject(CommandCommonService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
   private readonly modalService = inject(NgbModal);
 
   // ── Compteurs KPI (depuis dashboard, pas page courante) ──────────────────
@@ -83,34 +81,12 @@ export class SemoisSuggestionsComponent implements OnInit {
   get normalCount(): number { return this.dashboardStats()?.nbSousSeuil ?? 0; }
   get okCount(): number { return this.dashboardStats()?.nbOk ?? 0; }
 
-  /** Nombre de lignes sélectionnées avec quantité > 0 */
-  get nbSelectionCommandable(): number {
-    return this.selectedSuggestions().filter(s => (s.quantiteACommander ?? 0) > 0).length;
-  }
-
-  /** Nombre de lignes commandables sur la page courante (selection ou page entière) */
-  get nbCommandable(): number {
-    const sel = this.nbSelectionCommandable;
-    if (sel > 0) return sel;
-    return this.suggestions().filter(s => (s.quantiteACommander ?? 0) > 0).length;
-  }
-
-  get commanderLabel(): string {
-    const n = this.nbCommandable;
-    return n > 0 ? `Commander (${n})` : 'Commander';
-  }
-
-  get commanderTooltip(): string {
-    const sel = this.nbSelectionCommandable;
-    if (sel > 0) return `Commander les ${sel} ligne(s) sélectionnée(s)`;
-    const page = this.suggestions().filter(s => (s.quantiteACommander ?? 0) > 0).length;
-    return page > 0 ? `Commander les ${page} article(s) de la page courante` : 'Aucune ligne à commander';
-  }
 
   ngOnInit(): void {
     this.loadDashboardStats();
     this.loadFournisseurs();
     this.loadSuggestions();
+    this.loadExclusionCount();
   }
 
   // ── Chargement ────────────────────────────────────────────────────────────
@@ -129,6 +105,13 @@ export class SemoisSuggestionsComponent implements OnInit {
         this.fournisseurOptions.set(opts);
       },
       error: () => this.fournisseurOptions.set([]),
+    });
+  }
+
+  private loadExclusionCount(): void {
+    this.semoisService.countExclusionsActives().subscribe({
+      next: res => this.exclusionCount.set(res.body?.count ?? 0),
+      error: () => this.exclusionCount.set(0),
     });
   }
 
@@ -177,141 +160,44 @@ export class SemoisSuggestionsComponent implements OnInit {
     this.loadSuggestions();
   }
 
-  navigateToDashboard(): void {
-    this.commandCommonService.updateCommandPreviousActiveNav('DASHBOARD');
+  /**Navigation vers l'onglet Réapprovisionnement (panier auto-généré par batch). */
+  naviguerVersReappro(): void {
+    this.commandCommonService.suggestionsActiveSource.set('REAPPRO');
   }
 
-  // ── Commander ─────────────────────────────────────────────────────────────
+  /** Ouvre le formulaire d'exclusion pour un produit. */
+  ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {
+    const ref = this.modalService.open(SemoisExclureProduitComponent, { size: 'md', centered: true });
+    ref.componentInstance.produitId = suggestion.produitId;
+    ref.componentInstance.produitLibelle = suggestion.libelle;
 
-  /**
-   * Point d'entrée unique du bouton "Commander".
-   * - Si des lignes sont cochées → commander la sélection
-   * - Sinon → commander toutes les lignes commandables de la page courante
-   */
-  commander(): void {
-    if (this.nbSelectionCommandable > 0) {
-      this.commanderSelection();
-    } else {
-      this.commanderPageCourante();
-    }
-  }
-
-  /** Commander les lignes commandables de la page courante (sans sélection explicite). */
-  private commanderPageCourante(): void {
-    const lignes = this.suggestions().filter(s => (s.quantiteACommander ?? 0) > 0);
-    if (lignes.length === 0) {
-      this.notificationService.info('Aucune ligne à commander sur cette page.');
-      return;
-    }
-    this.ouvrirModalCommande(lignes, `Commander ${lignes.length} article(s)`);
-  }
-
-  /** Commander la sélection courante (checkboxes). */
-  commanderSelection(): void {
-    const selection = this.selectedSuggestions().filter(s => (s.quantiteACommander ?? 0) > 0);
-    if (selection.length === 0) {
-      this.notificationService.warning('Sélectionnez au moins une ligne avec une quantité à commander.');
-      return;
-    }
-    this.ouvrirModalCommande(selection, `Commander ${selection.length} article(s) sélectionné(s)`);
-  }
-
-  /** Commander TOUS les urgents (stockActuel < margeSecurite) — appel API dédié. */
-  commanderUrgents(): void {
-    this.isCommanding.set(true);
-    this.semoisService.getAllUrgentSuggestions().subscribe({
-      next: res => {
-        const urgents = (res.body ?? []).filter(s => (s.quantiteACommander ?? 0) > 0);
-        this.isCommanding.set(false);
-        if (urgents.length === 0) {
-          this.notificationService.info('Aucun produit urgent avec quantité à commander.');
-          return;
-        }
-        this.ouvrirModalCommande(urgents, `Commander ${urgents.length} article(s) urgents`);
-      },
-      error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Urgents');
-        this.isCommanding.set(false);
-      },
+    ref.closed.subscribe((result: { dureeJours: number; motif?: string }) => {
+      this.semoisService.exclureProduit(suggestion.produitId, result).subscribe({
+        next: () => {
+          this.exclusionCount.update(n => n + 1);
+          this.suggestions.update(list => list.filter(s => s.produitId !== suggestion.produitId));
+          this.totalItems.update(n => Math.max(0, n - 1));
+        },
+      });
     });
   }
 
-  /** Commander tous les produits du fournisseur sélectionné. */
-  commanderParFournisseur(): void {
-    const fId = this.selectedFournisseurId();
-    if (!fId) {
-      this.notificationService.warning('Sélectionnez un fournisseur dans le filtre.');
-      return;
-    }
-    const lignes = this.suggestions().filter(s => (s.quantiteACommander ?? 0) > 0 && s.fournisseurId === fId);
-    if (lignes.length === 0) {
-      this.notificationService.info('Aucune ligne à commander pour ce fournisseur sur cette page.');
-      return;
-    }
-    const lib = this.fournisseurOptions().find(f => f.value === fId)?.label ?? '';
-    this.ouvrirModalCommande(lignes, `Commander — ${lib}`);
-  }
-
-  /** Commander tous les produits de la classe sélectionnée. */
-  commanderParClasse(): void {
-    const cl = this.selectedClasse();
-    if (!cl) {
-      this.notificationService.warning('Sélectionnez une classe dans le filtre.');
-      return;
-    }
-    const lignes = this.suggestions().filter(s => (s.quantiteACommander ?? 0) > 0 && s.classeCriticite === cl);
-    if (lignes.length === 0) {
-      this.notificationService.info('Aucune ligne à commander pour cette classe sur cette page.');
-      return;
-    }
-    this.ouvrirModalCommande(lignes, `Commander — Classe ${cl}`);
-  }
-
-  private ouvrirModalCommande(lignes: ISemoisSuggestion[], titre: string): void {
-    const commandeLines: SemoisCommandeLine[] = lignes.map(s => ({
-      produitId: s.produitId!,
-      fournisseurId: s.fournisseurId ?? 0,
-      libelle: s.libelle!,
-      fournisseurLibelle: s.fournisseurLibelle ?? 'Inconnu',
-      quantite: s.quantiteACommander ?? 0,
-      urgence: this.getUrgenceLabel(s),
-    }));
-
-    const modalRef = this.modalService.open(SemoisCommanderModalComponent, {
-      size: 'lg', scrollable: true, centered: true,
+  /** Ouvre le panneau de gestion des exclusions actives (liste + réintégration). */
+  ouvrirGestionExclusions(): void {
+    const ref = this.modalService.open(SemoisExclusionPanelComponent, {
+      size: 'lg',
+      centered: true,
+      scrollable: true,
     });
-    modalRef.componentInstance.lignes = commandeLines;
-    modalRef.componentInstance.titre = titre;
 
-    modalRef.result.then(result => {
-      if (result === 'confirmed') this.executerCommande(commandeLines);
-    }).catch(() => {});
-  }
-
-  private executerCommande(lignes: SemoisCommandeLine[]): void {
-    this.isCommanding.set(true);
-    const payload = lignes
-      .filter(l => l.fournisseurId > 0 && l.quantite > 0)
-      .map(l => ({ produitId: l.produitId, fournisseurId: l.fournisseurId, quantite: l.quantite }));
-
-    this.semoisService.commanderSemois(payload).subscribe({
-      next: () => {
-        const nbFournisseurs = new Set(payload.map(p => p.fournisseurId)).size;
-        this.notificationService.success(
-          `${payload.length} article(s) commandé(s) → ${nbFournisseurs} commande(s) créée(s).`, 'Commander SEMOIS');
-        this.isCommanding.set(false);
-        this.selectedSuggestions.set([]);
-        this.loadDashboardStats();
+    ref.closed.subscribe((reintegratedCount: number) => {
+      if (reintegratedCount > 0) {
+        this.loadExclusionCount();
         this.loadSuggestions();
-      },
-      error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander SEMOIS');
-        this.isCommanding.set(false);
-      },
+      }
     });
   }
 
-  // ── Utilitaires d'affichage ───────────────────────────────────────────────
 
   private toModel(s: ISemoisSuggestion): SemoisSuggestion {
     return new SemoisSuggestion(

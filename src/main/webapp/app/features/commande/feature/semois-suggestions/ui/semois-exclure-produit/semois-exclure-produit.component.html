@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-ban text-warning me-2"></i>
+    Exclure du batch SEMOIS
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="alert alert-warning d-flex gap-2 py-2" role="alert">
+    <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
+    <div>
+      <strong>{{ produitLibelle }}</strong> sera exclu des suggestions SEMOIS et du panier
+      automatique pendant la durée choisie. Il sera réintégré automatiquement à l'expiration.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Durée d'exclusion <span class="text-danger">*</span></label>
+    <p-select
+      [ngModel]="dureeJours()"
+      (ngModelChange)="dureeJours.set($event)"
+      [options]="dureeOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Choisir une durée..."
+      appendTo="body"
+      class="w-100"
+    />
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label fw-semibold">Motif <span class="text-muted small">(optionnel)</span></label>
+    <input
+      pInputText
+      type="text"
+      class="form-control"
+      placeholder="Ex : surstockage, produit en fin de vie..."
+      [ngModel]="motif()"
+      (ngModelChange)="motif.set($event)"
+      maxlength="255"
+    />
+    <small class="text-muted">{{ motif().length }}/255</small>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    severity="secondary"
+    size="small"
+    (onClick)="cancel()"
+  />
+  <p-button
+    label="Exclure le produit"
+    icon="pi pi-ban"
+    severity="warn"
+    size="small"
+    [disabled]="!isValid"
+    (onClick)="confirm()"
+  />
+</div>
+

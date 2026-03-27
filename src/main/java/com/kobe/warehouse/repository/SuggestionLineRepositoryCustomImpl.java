@@ -42,6 +42,10 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
     private static final int COL_NIVEAU_URGENCE = 15;
     private static final int COL_JOURS_RESTANTS = 16;
     private static final int COL_SOURCE_CALCUL = 17;
+    private static final int COL_QUANTITE_MODIFIEE_MANUEL = 18;
+    /** S4.4 — Colisage */
+    private static final int COL_QTE_COLIS = 19;
+    private static final int COL_QTE_MINIMALE_COMMANDE = 20;
     private final EntityManager em;
 
     public SuggestionLineRepositoryCustomImpl(EntityManager em) {
@@ -225,7 +229,7 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
                         THEN 'NORMAL'
                     WHEN sm.produit_id IS NULL
                          AND COALESCE(vmm_q.vmm_p2, 0) > 0
-                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) = 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) <= 0
                         THEN 'URGENT'
                     WHEN sm.produit_id IS NULL
                          AND COALESCE(vmm_q.vmm_p2, 0) > 0
@@ -235,16 +239,19 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
                 END                                      AS niveau_urgence,
                 CASE
                     WHEN COALESCE(sm.vmm, 0) > 0
-                        THEN ROUND(COALESCE(sp.qty_stock + sp.qty_ug, 0)::numeric / sm.vmm * 30)::integer
+                        THEN ROUND(GREATEST(0, COALESCE(sp.qty_stock + sp.qty_ug, 0))::numeric / sm.vmm * 30)::integer
                     WHEN COALESCE(vmm_q.vmm_p2, 0) > 0
-                        THEN ROUND(COALESCE(sp.qty_stock + sp.qty_ug, 0)::numeric / vmm_q.vmm_p2 * 30)::integer
+                        THEN ROUND(GREATEST(0, COALESCE(sp.qty_stock + sp.qty_ug, 0))::numeric / vmm_q.vmm_p2 * 30)::integer
                     ELSE NULL
                 END                                      AS jours_restants,
                 CASE
                     WHEN sm.produit_id IS NOT NULL THEN 'SEMOIS'
                     WHEN COALESCE(vmm_q.vmm_p2, 0) > 0 THEN 'P2'
                     ELSE 'CLASSIQUE'
-                END                                      AS source_calcul
+                END                                      AS source_calcul,
+                sl.quantite_modifiee_manuel              AS quantite_modifiee_manuel,
+                COALESCE(fp.qte_colis, 1)                AS qte_colis,
+                COALESCE(fp.qte_minimale_commande, 0)    AS qte_minimale_commande
         """;
     }
 
@@ -260,7 +267,7 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
                         THEN 'NORMAL'
                     WHEN sm.produit_id IS NULL
                          AND COALESCE(vmm_q.vmm_p2, 0) > 0
-                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) = 0
+                         AND COALESCE(sp.qty_stock + sp.qty_ug, 0) <= 0
                         THEN 'URGENT'
                     WHEN sm.produit_id IS NULL
                          AND COALESCE(vmm_q.vmm_p2, 0) > 0
@@ -345,6 +352,9 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         String niveauUrgence = row[COL_NIVEAU_URGENCE] instanceof String s ? s : "OK";
         Integer joursRestants = row[COL_JOURS_RESTANTS] instanceof Number n ? n.intValue() : null;
         String sourceCalcul = row[COL_SOURCE_CALCUL] instanceof String s ? s : "CLASSIQUE";
+        boolean quantiteModifieeManuel = Boolean.TRUE.equals(row[COL_QUANTITE_MODIFIEE_MANUEL]);
+        Integer qteColis = row[COL_QTE_COLIS] instanceof Number n ? n.intValue() : 1;
+        Integer qteMinimaleCommande = row[COL_QTE_MINIMALE_COMMANDE] instanceof Number n ? n.intValue() : 0;
 
         return new SuggestionLineDTO(
             intValue(row[COL_SL_ID]),
@@ -363,7 +373,10 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
             consommation,
             niveauUrgence,
             joursRestants,
-            sourceCalcul
+            sourceCalcul,
+            quantiteModifieeManuel,
+            qteColis,
+            qteMinimaleCommande
         );
     }
 

@@ -1,12 +1,11 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
-import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
-import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
 import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
+import com.kobe.warehouse.service.dto.SemoisExclusionDTO;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import com.kobe.warehouse.service.scheduler.SemoisCalculationService;
 import com.kobe.warehouse.service.scheduler.VentesAgregeesService;
@@ -28,7 +27,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing SEMOIS (Stock Économique Mensuel d'Objectif Interne de Sécurité).
@@ -46,21 +44,15 @@ public class SemoisResource {
 
     private final SemoisCalculationService semoisCalculationService;
     private final VentesAgregeesService ventesAgregeesService;
-    private final SemoisConfigurationRepository semoisConfigRepository;
-    private final SemoisClasseConfigRepository semoisClasseConfigRepository;
     private final SuggestionProduitService suggestionProduitService;
 
     public SemoisResource(
         SemoisCalculationService semoisCalculationService,
         VentesAgregeesService ventesAgregeesService,
-        SemoisConfigurationRepository semoisConfigRepository,
-        SemoisClasseConfigRepository semoisClasseConfigRepository,
         SuggestionProduitService suggestionProduitService
     ) {
         this.semoisCalculationService = semoisCalculationService;
         this.ventesAgregeesService = ventesAgregeesService;
-        this.semoisConfigRepository = semoisConfigRepository;
-        this.semoisClasseConfigRepository = semoisClasseConfigRepository;
         this.suggestionProduitService = suggestionProduitService;
     }
 
@@ -69,8 +61,7 @@ public class SemoisResource {
      */
     @GetMapping("/classe-configs")
     public ResponseEntity<List<SemoisClasseConfig>> getClasseConfigs() {
-        List<SemoisClasseConfig> configs = semoisClasseConfigRepository.findAll();
-        return ResponseEntity.ok(configs);
+        return ResponseEntity.ok(semoisCalculationService.getAllClasseConfigs());
     }
 
     /**
@@ -82,12 +73,9 @@ public class SemoisResource {
         @Valid @RequestBody SemoisClasseConfig config
     ) {
         LOG.debug("REST request to update SemoisClasseConfig for classe: {}", classeCriticite);
-        if (!semoisClasseConfigRepository.existsById(classeCriticite)) {
-            return ResponseEntity.notFound().build();
-        }
-        config.setClasseCriticite(classeCriticite);
-        SemoisClasseConfig updated = semoisClasseConfigRepository.save(config);
-        return ResponseEntity.ok(updated);
+        return semoisCalculationService.updateClasseConfig(classeCriticite, config)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -164,8 +152,9 @@ public class SemoisResource {
     @GetMapping("/configuration/{produitId}")
     public ResponseEntity<SemoisConfiguration> getConfiguration(@PathVariable Integer produitId) {
         LOG.debug("REST request to get SEMOIS configuration for product: {}", produitId);
-        Optional<SemoisConfiguration> config = semoisConfigRepository.findByProduitId(produitId);
-        return config.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return semoisCalculationService.findConfiguration(produitId)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -201,14 +190,11 @@ public class SemoisResource {
         @Valid @RequestBody SemoisConfiguration config
     ) {
         LOG.debug("REST request to update SEMOIS configuration for product: {}", produitId);
-
-        if (!semoisConfigRepository.existsByProduitId(produitId)) {
+        if (!semoisCalculationService.configurationExists(produitId)) {
             return ResponseEntity.notFound().build();
         }
-
         config.getProduit().setId(produitId);
-        SemoisConfiguration updated = semoisConfigRepository.save(config);
-
+        SemoisConfiguration updated = semoisCalculationService.saveConfiguration(config);
         return ResponseEntity.ok().body(updated);
     }
 
@@ -219,8 +205,8 @@ public class SemoisResource {
      */
     @GetMapping("/freshness")
     public ResponseEntity<FraicheurResponse> getFreshness() {
-        LocalDateTime lastCalc = semoisConfigRepository.findMaxDateDernierCalcul();
-        long nbProduits = semoisConfigRepository.countAll();
+        LocalDateTime lastCalc = semoisCalculationService.getLastCalculDate();
+        long nbProduits = semoisCalculationService.countConfiguredProducts();
         boolean recente = lastCalc != null && lastCalc.isAfter(LocalDateTime.now().minusHours(24));
         return ResponseEntity.ok(new FraicheurResponse(lastCalc, recente, nbProduits));
     }
@@ -238,11 +224,12 @@ public class SemoisResource {
     /**
      * POST /api/semois/commander : Crée des commandes groupées par fournisseur
      * depuis une liste de suggestions SEMOIS sélectionnées.
-     * Les lignes sont automatiquement regroupées par fournisseur (1 commande par fournisseur).
      *
-     * @param dto Liste de lignes SEMOIS à commander (produitId + fournisseurId + quantite)
-     * @return 204 No Content en cas de succès
+     * @deprecated v12 — Le flux SEMOIS passe maintenant par le panier {@link com.kobe.warehouse.domain.Suggestion}.
+     * Utiliser {@code POST /api/suggestions/{id}/commander} à la place.
      */
+    @Deprecated(since = "2026-03", forRemoval = false)
+    @SuppressWarnings("deprecation")
     @PostMapping("/commander")
     public ResponseEntity<Void> commanderSemois(@Valid @RequestBody SemoisCommanderDTO dto) {
         LOG.info("REST request to create commandes from {} SEMOIS suggestions", dto.lignes().size());
@@ -251,22 +238,26 @@ public class SemoisResource {
     }
 
     /**
-     * POST /api/semois/recalculate : Trigger manual SEMOIS recalculation for all products.
-     * Admin only. Normally runs automatically at 3 AM.
-     * Returns 409 Conflict if a recalculation is already in progress.
-     *
-     * @return Success message or 409 if already running
+     * POST /api/semois/recalculate : Déclenche un recalcul SEMOIS forcé pour tous les produits.
+     * <p>
+     * Contrairement au recalcul planifié (cron nocturne), cet endpoint <strong>ignore la garde
+     * journalière</strong> et force un recalcul immédiat même si un recalcul a déjà eu lieu
+     * aujourd'hui. Utile après une modification manuelle de configurations ou de classifications.
+     * </p>
+     * Retourne 409 Conflict si un recalcul est déjà en cours.
      */
     @PostMapping("/recalculate")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<MessageResponse> triggerRecalculation() {
-        if (semoisCalculationService.isCalculEnCours()) {
-            LOG.warn("REST request to trigger SEMOIS recalculation rejected: already in progress");
+        LOG.info("REST request to force SEMOIS recalculation (bypasses daily guard)");
+        try {
+            semoisCalculationService.forceRecalculate();
+        } catch (IllegalStateException e) {
+            LOG.warn("SEMOIS recalculation rejected: already in progress");
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new MessageResponse("Un recalcul SEMOIS est déjà en cours. Veuillez réessayer dans quelques minutes."));
         }
-        LOG.info("REST request to trigger manual SEMOIS recalculation");
-        semoisCalculationService.recalculateAllConfigurations();
-        return ResponseEntity.ok().body(new MessageResponse("Recalcul SEMOIS déclenché avec succès"));
+        return ResponseEntity.ok().body(new MessageResponse("Recalcul SEMOIS forcé déclenché avec succès"));
     }
 
     /**
@@ -331,6 +322,55 @@ public class SemoisResource {
         );
     }
 
+    // ── S4.3 — Exclusion temporaire ──────────────────────────────────────────
+
+    /**
+     * POST /api/semois/configuration/{produitId}/exclure
+     * Exclut temporairement un produit des suggestions SEMOIS.
+     */
+    @PostMapping("/configuration/{produitId}/exclure")
+    public ResponseEntity<Void> exclureProduit(
+        @PathVariable Integer produitId,
+        @Valid @RequestBody ExclusionRequest request
+    ) {
+        LOG.info("REST request to exclude produit {} from SEMOIS for {} days - motif: {}",
+            produitId, request.dureeJours, request.motif);
+        try {
+            semoisCalculationService.exclureProduit(produitId, request.dureeJours, request.motif);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * DELETE /api/semois/configuration/{produitId}/exclusion
+     * Lève manuellement l'exclusion d'un produit (réintégration immédiate).
+     */
+    @DeleteMapping("/configuration/{produitId}/exclusion")
+    public ResponseEntity<Void> leverExclusion(@PathVariable Integer produitId) {
+        LOG.info("REST request to lift exclusion for produit {}", produitId);
+        semoisCalculationService.leverExclusion(produitId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * GET /api/semois/exclusions : Liste toutes les exclusions actuellement actives.
+     */
+    @GetMapping("/exclusions")
+    public ResponseEntity<List<SemoisExclusionDTO>> getExclusionsActives() {
+        LOG.debug("REST request to get active SEMOIS exclusions");
+        return ResponseEntity.ok(semoisCalculationService.getExclusionsActives());
+    }
+
+    /**
+     * GET /api/semois/exclusions/count : Nombre d'exclusions actives (pour badge UI).
+     */
+    @GetMapping("/exclusions/count")
+    public ResponseEntity<ExclusionCountResponse> countExclusionsActives() {
+        return ResponseEntity.ok(new ExclusionCountResponse(semoisCalculationService.countExclusionsActives()));
+    }
+
     // ==================== DTOs pour les requêtes ====================
 
     /**
@@ -340,6 +380,15 @@ public class SemoisResource {
         @NotNull Integer produitId,
         ClasseCriticite classeCriticite
     ) {}
+
+    /** Request DTO for temporarily excluding a product from SEMOIS suggestions */
+    public record ExclusionRequest(
+        Integer dureeJours,
+        String motif
+    ) {}
+
+    /** Response DTO for exclusion count badge */
+    public record ExclusionCountResponse(long count) {}
 
     /**
      * Request DTO for importing historical data
@@ -356,10 +405,6 @@ public class SemoisResource {
         @NotNull String reason
     ) {}
 
-    /**
-     * Response DTO for initialization
-     */
-    public record InitAllResponse(int configurationsCreated) {}
 
     /**
      * Response DTO for generic messages

@@ -77,6 +77,35 @@ public class FournisseurProduit implements Serializable {
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate = LocalDateTime.now();
 
+    /**
+     * Nombre d'unités par colis (conditionnement fournisseur).
+     * La quantité SEMOIS sera arrondie au multiple supérieur de cette valeur.
+     * Null ou 1 = pas de contrainte de colisage.
+     */
+    @Column(name = "qte_colis")
+    private Integer qteColis = 1;
+
+    /**
+     * Quantité minimale de commande acceptée par le fournisseur (en unités).
+     * 0 ou null = pas de minimum imposé.
+     */
+    @Column(name = "qte_minimale_commande")
+    private Integer qteMinimaleCommande = 0;
+
+    /**
+     * Arrondit une quantité brute au respect du colisage et de la quantité minimale.
+     * Règle : {@code max(qteMin, ceil(qty / colis) * colis)}
+     *
+     * @param qty Quantité brute calculée (>= 1)
+     * @return Quantité arrondie, toujours >= 1
+     */
+    public int appliquerColisage(int qty) {
+        int colis = (qteColis != null && qteColis > 1) ? qteColis : 1;
+        int minimum = (qteMinimaleCommande != null && qteMinimaleCommande > 0) ? qteMinimaleCommande : 0;
+        int arrondi = colis == 1 ? qty : (int) Math.ceil((double) qty / colis) * colis;
+        return Math.max(Math.max(1, arrondi), minimum);
+    }
+
     public Integer getId() {
         return id;
     }
@@ -176,6 +205,22 @@ public class FournisseurProduit implements Serializable {
 
     public void setCodeEan(String codeEan) {
         this.codeEan = codeEan;
+    }
+
+    public Integer getQteColis() {
+        return qteColis;
+    }
+
+    public void setQteColis(Integer qteColis) {
+        this.qteColis = qteColis;
+    }
+
+    public Integer getQteMinimaleCommande() {
+        return qteMinimaleCommande;
+    }
+
+    public void setQteMinimaleCommande(Integer qteMinimaleCommande) {
+        this.qteMinimaleCommande = qteMinimaleCommande;
     }
 
     @Override

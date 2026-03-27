@@ -9,13 +9,17 @@ import {
   SuggestionFournisseurListComponent
 } from './ui/suggestion-fournisseur-list/suggestion-fournisseur-list.component';
 import {SuggestionProduitPanelComponent} from './ui/suggestion-produit-panel/suggestion-produit-panel.component';
-import {SuggestionCommanderModalComponent} from './ui/suggestion-commander-modal/suggestion-commander-modal.component';
+import {
+  SuggestionCommanderModalComponent
+} from './ui/suggestion-commander-modal/suggestion-commander-modal.component';
+import {CommanderModalResult} from './data-access/suggestion-commander.model';
 import {SuggestionComparaisonComponent} from './ui/suggestion-comparaison/suggestion-comparaison.component';
 import {DispoComparaisonComponent} from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
 import {FournisseurSuggestionSummary, SuggestionLigneEnrichie} from './data-access/suggestion-enrichie.model';
 import {SemoisFraicheur} from 'app/entities/commande/suggestion/suggestion.service';
 import {NotificationService} from 'app/shared/services/notification.service';
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { Toast } from "primeng/toast";
 
 @Component({
   selector: 'app-suggestion-home',
@@ -29,7 +33,8 @@ import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dia
     TagModule,
     TooltipModule,
     DecimalPipe,
-  ],
+    Toast
+  ]
 })
 export class SuggestionHomeComponent {
   protected readonly facade = inject(SuggestionFacadeService);
@@ -65,6 +70,7 @@ export class SuggestionHomeComponent {
     this.facade.selectFournisseur(f);
   }
 
+  /** Commander toute la suggestion, envoie uniquement l'ID au backend. */
   onCommander(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur) {
@@ -72,9 +78,10 @@ export class SuggestionHomeComponent {
       return;
     }
     const lignes = this.facade.lignesEnrichies();
-    this.openCommanderModal(fournisseur, lignes);
+    this.openCommanderModal(fournisseur, lignes, 'full');
   }
 
+  /** Commander uniquement les lignes sélectionnées (la suggestion n'est pas supprimée si des lignes restent). */
   onCommanderSelection(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur) {
@@ -86,7 +93,24 @@ export class SuggestionHomeComponent {
       this.notificationService.warning('Aucune ligne sélectionnée.');
       return;
     }
-    this.openCommanderModal(fournisseur, lignes);
+    this.openCommanderModal(fournisseur, lignes, 'selection');
+  }
+
+  /**
+   * Commander les lignes visibles après filtrage urgence.
+   * Déclenché par le bouton "Commander filtrés (N)" quand un filtre est actif.
+   */
+  onCommanderFiltre(lignes: SuggestionLigneEnrichie[]): void {
+    const fournisseur = this.facade.selectedFournisseur();
+    if (!fournisseur) {
+      this.notificationService.warning('Aucun fournisseur sélectionné.');
+      return;
+    }
+    if (lignes.length === 0) {
+      this.notificationService.warning('Aucune ligne visible après filtrage.');
+      return;
+    }
+    this.openCommanderModal(fournisseur, lignes, 'selection');
   }
 
   onQuantiteChanged(data: { ligne: SuggestionLigneEnrichie; qte: number }): void {
@@ -246,19 +270,31 @@ export class SuggestionHomeComponent {
   private openCommanderModal(
     fournisseur: FournisseurSuggestionSummary,
     lignes: SuggestionLigneEnrichie[],
+    mode: 'full' | 'selection' = 'selection',
   ): void {
     const modalRef = this.modalService.open(SuggestionCommanderModalComponent, {
-      size: 'lg',
-      scrollable: true,
+      size: 'xl',
       backdrop: 'static',
     });
     modalRef.componentInstance.fournisseurLibelle = fournisseur.libelle;
+    modalRef.componentInstance.fournisseurId = fournisseur.fournisseurId;
     modalRef.componentInstance.lignes = lignes;
+    if (fournisseur.suggestionId) {
+      const budget = this.facade.budget();
+      if (budget && !budget.budgetIllimite) {
+        modalRef.componentInstance.budgetRestant = budget.budgetRestant;
+      }
+    }
 
     modalRef.result.then(
-      result => {
-        if (result === 'confirmed') {
-          this.facade.commander(lignes);
+      (result: CommanderModalResult) => {
+        if (!result?.type) return;
+        if (mode === 'full') {
+          // Bug 3 : envoie uniquement l'id de suggestion au backend
+          this.facade.commanderFull(result);
+        } else {
+          // Bug 1 : envoie seulement les lignes sélectionnées, ne supprime pas la suggestion si des lignes restent
+          this.facade.commanderSelection(lignes, result);
         }
       },
       () => {

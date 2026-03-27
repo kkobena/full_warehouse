@@ -48,9 +48,22 @@ public interface CommandService {
 
     CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
-    void createCommandeFromSuggestion(Suggestion suggestion);
+    /**
+     * Crée une commande à partir de toutes les lignes d'une suggestion.
+     *
+     * @param suggestion      Suggestion source
+     * @param fournisseurId   Fournisseur cible (null = utilise le fournisseur de la suggestion)
+     */
+    CommandeId createCommandeFromSuggestion(Suggestion suggestion, Integer fournisseurId);
 
-    void createCommandeFromSelection(Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes);
+    /**
+     * Crée une commande à partir d'une sélection de lignes de suggestion.
+     *
+     * @param suggestion      Suggestion source
+     * @param lignes          Sélection de lignes avec quantités
+     * @param fournisseurId   Fournisseur cible (null = utilise le fournisseur de la suggestion)
+     */
+    CommandeId createCommandeFromSelection(Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes, Integer fournisseurId);
 
     /**
      * Crée une commande à partir d'une liste de lignes SEMOIS pour un fournisseur donné.

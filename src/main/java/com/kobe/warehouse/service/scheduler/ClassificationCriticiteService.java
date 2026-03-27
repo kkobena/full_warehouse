@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -204,10 +203,9 @@ public class ClassificationCriticiteService {
      * Reclassifie tous les produits selon l'analyse Pareto.
      * Exécuté mensuellement (cron horaire = filet de sécurité, garde idempotente mensuelle).
      */
-    @Scheduled(cron = "${pharma-smart.classification.cron:0 0 8-19 * * *}")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public ReclassificationResultDTO reclassifierTousProduits() {
-        return reclassifierTousProduits(AUTO_DESCRIPTION);
+    public void reclassifierTousProduits() {
+        reclassifierTousProduits(AUTO_DESCRIPTION);
     }
 
     /**

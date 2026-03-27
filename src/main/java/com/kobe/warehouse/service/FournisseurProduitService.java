@@ -84,6 +84,13 @@ public class FournisseurProduitService {
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
+        //  Colisage fournisseur
+        if (dto.getQteColis() != null && dto.getQteColis() > 1) {
+            fournisseurProduit.setQteColis(dto.getQteColis());
+        }
+        if (dto.getQteMinimaleCommande() != null && dto.getQteMinimaleCommande() > 0) {
+            fournisseurProduit.setQteMinimaleCommande(dto.getQteMinimaleCommande());
+        }
         setToFournisseurPrincipal(fournisseurProduit, produit, dto.isPrincipal());
         produit.getFournisseurProduits().add(fournisseurProduit);
         fournisseurProduit = fournisseurProduitRepository.save(fournisseurProduit);
@@ -126,6 +133,13 @@ public class FournisseurProduitService {
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
+        //Colisage fournisseur
+        if (dto.getQteColis() != null) {
+            fournisseurProduit.setQteColis(Math.max(1, dto.getQteColis()));
+        }
+        if (dto.getQteMinimaleCommande() != null) {
+            fournisseurProduit.setQteMinimaleCommande(Math.max(0, dto.getQteMinimaleCommande()));
+        }
         setToFournisseurPrincipal(fournisseurProduit, fournisseurProduit.getProduit(), dto.isPrincipal());
         fournisseurProduit = fournisseurProduitRepository.save(fournisseurProduit);
         produitService.updateProduit(fournisseurProduit.getProduit());

@@ -26,12 +26,11 @@
           <th>CIP</th>
           <th class="text-end">Prix achat (FCFA)</th>
           <th class="text-end">Prix vente (FCFA)</th>
-          <th class="text-center">Statut</th>
         </tr>
       </thead>
       <tbody>
         @for (fp of fournisseurs(); track fp.id) {
-          <tr [class.table-primary]="isCurrent(fp)">
+          <tr [style.background-color]="isCurrent(fp) ? 'rgba(13,110,253,0.07)' : null">
             <td>
               <span class="fw-semibold">{{ fp.fournisseurLibelle }}</span>
               @if (isCurrent(fp)) {
@@ -49,13 +48,7 @@
               }
             </td>
             <td class="text-end">{{ fp.prixUni | number: '1.0-0' }}</td>
-            <td class="text-center">
-              @if (fp.principal) {
-                <p-tag value="Principal" severity="success" />
-              } @else {
-                <p-tag value="Alternatif" severity="secondary" />
-              }
-            </td>
+
           </tr>
         }
       </tbody>

@@ -13,9 +13,11 @@ import {
   IMessageResponse,
   IInitAllResponse,
   IReapproDashboard,
+  ISemoisExclusion,
+  IExclusionRequest,
+  IExclusionCount,
 } from 'app/shared/model/semois';
 import { ClasseCriticite } from 'app/shared/model/semois/classe-criticite.model';
-import { createRequestOption } from 'app/core/request/request-util';
 import { createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<ISemoisSuggestion>;
@@ -165,5 +167,27 @@ export class SemoisService {
    */
   getDashboard(): Observable<HttpResponse<IReapproDashboard>> {
     return this.http.get<IReapproDashboard>(`${this.resourceUrl}/dashboard`, { observe: 'response' });
+  }
+
+  //Exclusion temporaire ────────────────────────────────────────────
+
+  /** Exclut temporairement un produit du batch SEMOIS. */
+  exclureProduit(produitId: number, request: IExclusionRequest): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/configuration/${produitId}/exclure`, request, { observe: 'response' });
+  }
+
+  /** Lève immédiatement l'exclusion d'un produit (réintégration forcée). */
+  leverExclusion(produitId: number): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrl}/configuration/${produitId}/exclusion`, { observe: 'response' });
+  }
+
+  /** Liste toutes les exclusions actuellement actives. */
+  getExclusionsActives(): Observable<HttpResponse<ISemoisExclusion[]>> {
+    return this.http.get<ISemoisExclusion[]>(`${this.resourceUrl}/exclusions`, { observe: 'response' });
+  }
+
+  /** Nombre d'exclusions actives — utilisé pour le badge dans la barre d'actions. */
+  countExclusionsActives(): Observable<HttpResponse<IExclusionCount>> {
+    return this.http.get<IExclusionCount>(`${this.resourceUrl}/exclusions/count`, { observe: 'response' });
   }
 }

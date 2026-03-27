@@ -8,6 +8,7 @@ import { Keys } from '../../../shared/model/keys.model';
 import { SuggestionLine } from './model/suggestion-line.model';
 import { FournisseurSuggestionSummary } from '../../../features/commande/feature/suggestion/data-access/suggestion-enrichie.model';
 import { IFournisseurProduit } from "../../../shared/model";
+import { CommandeId } from '../../../shared/model/abstract-commande.model';
 
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 
@@ -15,9 +16,9 @@ type EntityArrayResponseType = HttpResponse<Suggestion[]>;
   providedIn: 'root',
 })
 export class SuggestionService {
-  protected http = inject(HttpClient);
+  private readonly  http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/suggestions';
+  private readonly resourceUrl = SERVER_API_URL + 'api/suggestions';
 
   queryParFournisseur(statut?: 'GENEREE' | 'VALIDEE'): Observable<FournisseurSuggestionSummary[]> {
     const params: Record<string, string> = {};
@@ -60,49 +61,56 @@ export class SuggestionService {
     return this.http.get<Suggestion>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  delete(ids: Keys): Observable<HttpResponse<{}>> {
-    return this.http.post(this.resourceUrl + '/delete', ids, { observe: 'response' });
+  delete(ids: Keys): Observable<HttpResponse<void>> {
+    return this.http.post<void>(this.resourceUrl + '/delete', ids, { observe: 'response' });
   }
 
-  deleteItem(ids: Keys): Observable<HttpResponse<{}>> {
-    return this.http.post(this.resourceUrl + '/delete/items', ids, { observe: 'response' });
+  deleteItem(ids: Keys): Observable<HttpResponse<void>> {
+    return this.http.post<void>(this.resourceUrl + '/delete/lines', ids, { observe: 'response' });
   }
 
-  fusionner(ids: Keys): Observable<HttpResponse<{}>> {
-    return this.http.post(this.resourceUrl + '/fusionner', ids, { observe: 'response' });
+  fusionner(ids: Keys): Observable<HttpResponse<void>> {
+    return this.http.post<void>(this.resourceUrl + '/fusionner', ids, { observe: 'response' });
   }
 
-  sanitize(id: number): Observable<{}> {
-    return this.http.delete(`${this.resourceUrl}/sanitize/${id}`);
+  /** Nettoie (sanitize) une suggestion — supprime les lignes inutiles. */
+  sanitize(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.resourceUrl}/sanitize/${id}`);
   }
 
   exportToCsv(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${id}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/${id}/export-csv`, { responseType: 'blob' });
   }
 
-  createOrUpdateItem(item: SuggestionLine, id: number): Observable<HttpResponse<{}>> {
-    return this.http.post(`${this.resourceUrl}/add-item/${id}`, item, { observe: 'response' });
+  createOrUpdateItem(item: SuggestionLine, id: number): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/add-item/${id}`, item, { observe: 'response' });
   }
 
-  updateQuantity(item: SuggestionLine): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/lines/quantity', item, { observe: 'response' });
+  updateQuantity(item: SuggestionLine): Observable<HttpResponse<void>> {
+    return this.http.put<void>(this.resourceUrl + '/lines/quantity', item, { observe: 'response' });
   }
 
   /** Réinitialise le flag quantiteModifieeManuel — le batch peut à nouveau calculer la qté. */
-  resetQuantiteManuelle(id: number): Observable<{}> {
-    return this.http.put(`${this.resourceUrl}/lines/${id}/reset-quantite`, {});
+  resetQuantiteManuelle(id: number): Observable<void> {
+    return this.http.put<void>(`${this.resourceUrl}/lines/${id}/reset-quantite`, {});
   }
 
   exportToPdf(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${id}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/${id}/export-pdf`, { responseType: 'blob' });
   }
 
-  commander(id: number): Observable<{}> {
-    return this.http.delete(`${this.resourceUrl}/commander/${id}`);
+  /** Commande toute la suggestion (toutes les lignes). Retourne le CommandeId de la commande créée.
+   * @param fournisseurId Fournisseur cible (optionnel, null = fournisseur de la suggestion).
+   */
+  commander(id: number, fournisseurId?: number): Observable<CommandeId> {
+    const params: Record<string, string> = {};
+    if (fournisseurId != null) params['fournisseurId'] = fournisseurId.toString();
+    return this.http.post<CommandeId>(`${this.resourceUrl}/${id}/commander`, {}, { params });
   }
 
-  commanderSelection(dto: { suggestionId: number; lignes: { suggestionLineId: number; quantite: number }[] }): Observable<{}> {
-    return this.http.post(`${this.resourceUrl}/commander-selection`, dto);
+  /** Commande une sélection de lignes. Retourne le CommandeId de la commande créée. */
+  commanderSelection(dto: { suggestionId: number; lignes: { suggestionLineId: number; quantite: number }[]; fournisseurId?: number }): Observable<CommandeId> {
+    return this.http.post<CommandeId>(`${this.resourceUrl}/commander-selection`, dto);
   }
 
   getBudget(): Observable<BudgetCommande> {
@@ -117,12 +125,13 @@ export class SuggestionService {
     return this.http.post<{ message: string }>(`${SERVER_API_URL}api/semois/recalculate`, {});
   }
 
-  valider(id: number): Observable<{}> {
-    return this.http.put(`${this.resourceUrl}/${id}/valider`, {});
+  valider(id: number): Observable<void> {
+    return this.http.put<void>(`${this.resourceUrl}/${id}/valider`, {});
   }
 
-  rejeter(id: number): Observable<{}> {
-    return this.http.delete(`${this.resourceUrl}/${id}/rejeter`);
+  /** Rejette (supprime) une suggestion. */
+  rejeter(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
 
   getFournisseursProduit(produitId: number): Observable<IFournisseurProduit[]> {

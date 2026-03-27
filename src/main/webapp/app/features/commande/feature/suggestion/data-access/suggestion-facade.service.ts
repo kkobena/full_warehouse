@@ -33,6 +33,8 @@ export class SuggestionFacadeService {
   readonly recalculEnCours = signal(false);
   readonly fournisseursProduit = signal<IFournisseurProduit[]>([]);
   readonly loadingComparaison = signal(false);
+  readonly exportingPdf = signal(false);
+  readonly exportingCsv = signal(false);
 
   // ─── Pagination & filtre (backend-driven) ───────────────────────────────────
   readonly page = signal(0);
@@ -312,18 +314,21 @@ export class SuggestionFacadeService {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
     const filename = `suggestion_${fournisseur.suggestionId}`;
-    this.suggestionService.exportToPdf(fournisseur.suggestionId).subscribe({
-      next: blob => {
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, filename);
-        } else {
-          window.open(URL.createObjectURL(blob));
-        }
-      },
-      error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF');
-      },
-    });
+    this.exportingPdf.set(true);
+    this.suggestionService.exportToPdf(fournisseur.suggestionId)
+      .pipe(finalize(() => this.exportingPdf.set(false)))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, filename);
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
+        },
+        error: err => {
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF');
+        },
+      });
   }
 
   /** Exporte la suggestion en CSV. */
@@ -331,18 +336,21 @@ export class SuggestionFacadeService {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
     const filename = `suggestion_${fournisseur.suggestionId}.csv`;
-    this.suggestionService.exportToCsv(fournisseur.suggestionId).subscribe({
-      next: blob => {
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, `suggestion_${fournisseur.suggestionId}`,'csv');
-        } else {
-          saveAs(blob, filename);
-        }
-      },
-      error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Export CSV');
-      },
-    });
+    this.exportingCsv.set(true);
+    this.suggestionService.exportToCsv(fournisseur.suggestionId)
+      .pipe(finalize(() => this.exportingCsv.set(false)))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, `suggestion_${fournisseur.suggestionId}`,'csv');
+          } else {
+            saveAs(blob, filename);
+          }
+        },
+        error: err => {
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export CSV');
+        },
+      });
   }
 
   /** Valide une suggestion (GENEREE → VALIDEE). */

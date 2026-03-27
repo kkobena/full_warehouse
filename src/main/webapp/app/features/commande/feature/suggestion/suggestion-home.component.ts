@@ -2,7 +2,6 @@ import {Component, computed, effect, inject, input, Injector, signal} from '@ang
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {SuggestionFacadeService} from './data-access/suggestion-facade.service';
 import {
@@ -30,7 +29,6 @@ import { Toast } from "primeng/toast";
     SuggestionFournisseurListComponent,
     SuggestionProduitPanelComponent,
     ButtonModule,
-    TagModule,
     TooltipModule,
     DecimalPipe,
     Toast
@@ -53,6 +51,7 @@ export class SuggestionHomeComponent {
 
   readonly showHelp = signal(false);
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
+  readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
 
   readonly nbCritiques = computed(() =>
     this.facade.fournisseurs().filter(f => f.nbUrgents > 0).length,
@@ -68,6 +67,11 @@ export class SuggestionHomeComponent {
 
   onFournisseurSelected(f: FournisseurSuggestionSummary): void {
     this.facade.selectFournisseur(f);
+    this.editingFournisseur.set(f);
+  }
+
+  onRetour(): void {
+    this.editingFournisseur.set(null);
   }
 
   /** Commander toute la suggestion, envoie uniquement l'ID au backend. */
@@ -163,7 +167,14 @@ export class SuggestionHomeComponent {
   onValider(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
-    this.facade.valider(fournisseur.suggestionId);
+
+    this.confirmDialog.onConfirm(
+      () => this.facade.valider(fournisseur.suggestionId),
+      'Validation de la suggestion',
+      'Valider cette suggestion ? Après validation, elle passera dans l\'onglet "Commandes à passer" et ne pourra plus être modifiée par la suggestion automatique.',
+    );
+
+
   }
 
   onRejeter(): void {
@@ -197,7 +208,12 @@ export class SuggestionHomeComponent {
 
   onSuggestionSupprimee(id: number): void {
     this.confirmDialog.onConfirm(
-      () => this.facade.supprimerSuggestions([id]),
+      () => {
+        if (this.editingFournisseur()?.suggestionId === id) {
+          this.editingFournisseur.set(null);
+        }
+        this.facade.supprimerSuggestions([id]);
+      },
       'Supprimer la suggestion',
       'Cette action supprimera définitivement la suggestion et toutes ses lignes. Confirmer ?',
     );
@@ -206,7 +222,12 @@ export class SuggestionHomeComponent {
   onSuggestionsSupprimeees(ids: number[]): void {
     if (ids.length === 0) return;
     this.confirmDialog.onConfirm(
-      () => this.facade.supprimerSuggestions(ids),
+      () => {
+        if (ids.includes(this.editingFournisseur()?.suggestionId ?? -1)) {
+          this.editingFournisseur.set(null);
+        }
+        this.facade.supprimerSuggestions(ids);
+      },
       'Supprimer les suggestions',
       `Supprimer définitivement ${ids.length} suggestion(s) ? Cette action est irréversible.`,
     );

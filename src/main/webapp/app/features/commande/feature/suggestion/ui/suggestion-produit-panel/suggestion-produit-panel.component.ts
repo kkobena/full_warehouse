@@ -52,6 +52,8 @@ export class SuggestionProduitPanelComponent {
   total = input(0);
   page = input(0);
   rows = input(0);
+  exportingPdf = input(false);
+  exportingCsv = input(false);
 
   // ─── ViewChild refs ──────────────────────────────────────────────────────────
   private readonly searchComp = viewChild<CommandeProductSearchComponent>('produitSearch');

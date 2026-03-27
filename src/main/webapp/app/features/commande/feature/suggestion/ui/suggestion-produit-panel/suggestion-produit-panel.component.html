@@ -17,24 +17,26 @@
         />
       }
 
-      <p-button
-        icon="pi pi-file-pdf"
-        severity="warn"
-        label="PDF"
-        size="small"
-        pTooltip="Exporter en PDF"
-        tooltipPosition="top"
-        (onClick)="exportPdfRequest.emit()"
-      />
-      <p-button
-        icon="pi pi-file-excel"
-        severity="help"
-        label="CSV"
-        size="small"
-        pTooltip="Exporter en CSV"
-        tooltipPosition="top"
-        (onClick)="exportCsvRequest.emit()"
-      />
+        <p-button
+          icon="pi pi-file-pdf"
+          severity="warn"
+          label="PDF"
+          size="small"
+          [loading]="exportingPdf()"
+          pTooltip="Exporter en PDF"
+          tooltipPosition="top"
+          (onClick)="exportPdfRequest.emit()"
+        />
+        <p-button
+          icon="pi pi-file-excel"
+          severity="help"
+          label="CSV"
+          size="small"
+          [loading]="exportingCsv()"
+          pTooltip="Exporter en CSV"
+          tooltipPosition="top"
+          (onClick)="exportCsvRequest.emit()"
+        />
       <p-button
         icon="pi pi-search"
         label="Dispo PharmaML"

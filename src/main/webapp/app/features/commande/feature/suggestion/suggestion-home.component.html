@@ -1,136 +1,107 @@
 
-<!-- ── Barre d'actions secondaire (sans header sombre — le parent en possède un) ── -->
-<div class="su-action-bar">
-  <div class="su-action-bar__filters">
-    @if (facade.nbUrgentsTotal() > 0) {
-      <p-tag
-        [value]="facade.nbUrgentsTotal() + ' urgents'"
-        severity="danger"
-        icon="pi pi-exclamation-triangle"
-      />
-    }
-    <p-tag
-      [value]="(facade.totalMontantEstime() | number : '1.0-0') + ' FCFA'"
-      severity="secondary"
-      icon="pi pi-wallet"
-    />
-    @if (statut() === 'GENEREE') {
-      @if (facade.semoisFraicheur(); as f) {
-        <p-tag
-          [value]="semoisFraicheurLabel(f)"
-          [severity]="semoisFraicheurSeverity(f)"
-          icon="pi pi-clock"
-          pTooltip="Fraîcheur du dernier calcul SEMOIS"
-          tooltipPosition="bottom"
-        />
-      }
-    }
-    @if (statut() === 'VALIDEE') {
-      <p-tag
-        value="Prêtes à commander"
-        severity="info"
-        icon="pi pi-send"
-      />
-    }
-  </div>
-  <div class="su-action-bar__actions">
-    @if (statut() === 'GENEREE') {
-      <p-button
-        label="Recalculer"
-        icon="pi pi-sync"
-        severity="warn"
-        size="small"
-        [loading]="facade.recalculEnCours()"
-        pTooltip="Déclencher un recalcul SEMOIS immédiat et régénérer le panier"
-        tooltipPosition="bottom"
-        (onClick)="onRecalculer()"
-      />
-    }
-  </div>
-</div>
-
-
-
-  <!-- BANDEAU DÉPASSEMENT BUDGET -->
-  @if (facade.budget()?.enDepassement) {
-    <div class="alert alert-danger d-flex align-items-center gap-2 mx-0 mt-2 mb-0" role="alert">
-      <i class="pi pi-exclamation-circle"></i>
-      <div>
-        <strong>Dépassement du budget mensuel !</strong>
-        Montant estimé :
-        <strong>{{ facade.budget()!.montantEstime | number : '1.0-0' }} FCFA</strong>
-        · Budget mensuel :
-        <strong>{{ facade.budget()!.budgetMensuel | number : '1.0-0' }} FCFA</strong>
-        · Déjà commandé ce mois :
-        <strong>{{ facade.budget()!.montantCommande | number : '1.0-0' }} FCFA</strong>
-      </div>
+<!-- BANDEAU DÉPASSEMENT BUDGET -->
+@if (facade.budget()?.enDepassement) {
+  <div class="alert alert-danger d-flex align-items-center gap-2 mx-0 mt-2 mb-0" role="alert">
+    <i class="pi pi-exclamation-circle"></i>
+    <div>
+      <strong>Dépassement du budget mensuel !</strong>
+      Montant estimé :
+      <strong>{{ facade.budget()!.montantEstime | number : '1.0-0' }} FCFA</strong>
+      · Budget mensuel :
+      <strong>{{ facade.budget()!.budgetMensuel | number : '1.0-0' }} FCFA</strong>
+      · Déjà commandé ce mois :
+      <strong>{{ facade.budget()!.montantCommande | number : '1.0-0' }} FCFA</strong>
     </div>
-  }
+  </div>
+}
 
-  <!-- SPLIT PANEL -->
-  <div class="row g-0 split-panel">
-
-    <!-- LEFT: fournisseur list -->
-    <div class="col-lg-3 col-md-4 supplier-col">
-      <div class="supplier-col-header">
-        @if (statut() === 'VALIDEE') {
-          <span><i class="pi pi-send me-1"></i>À commander</span>
-        } @else {
-          <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
-        }
-      </div>
-      <app-suggestion-fournisseur-list
-        [fournisseurs]="facade.fournisseurs()"
-        [selected]="facade.selectedFournisseur()"
-        [loading]="facade.loading()"
-        (fournisseurSelected)="onFournisseurSelected($event)"
-        (supprimerSuggestionRequest)="onSuggestionSupprimee($event)"
-        (supprimerSelectionRequest)="onSuggestionsSupprimeees($event)"
-        (fusionnerRequest)="onFusionnerSuggestions($event)"
-      />
-    </div>
-
-    <!-- RIGHT: product panel -->
-    <div class="col-lg-9 col-md-8 produit-col">
-      @if (facade.selectedFournisseur()) {
-        <app-suggestion-produit-panel
-          [fournisseur]="facade.selectedFournisseur()"
-          [lignes]="facade.lignesEnrichies()"
-          [loading]="facade.loadingLignes()"
-          [total]="facade.totalLignes()"
-          [page]="facade.page()"
-          [rows]="facade.rows()"
-          (commander)="onCommander()"
-          (commanderSelection)="onCommanderSelection()"
-          (commanderFiltre)="onCommanderFiltre($event)"
-          (quantiteChanged)="onQuantiteChanged($event)"
-          (resetQte)="onResetQte($event)"
-          (selectionChanged)="onSelectionChanged($event)"
-          (sanitizeRequest)="onSanitize()"
-          (filterChange)="onFilterChange($event)"
-          (pageChange)="onPageChange($event)"
-          (validerRequest)="onValider()"
-          (rejeterRequest)="onRejeter()"
-          (comparerRequest)="onComparer($event)"
-          (exportPdfRequest)="onExporterPdf()"
-          (exportCsvRequest)="onExporterCsv()"
-          (dispoRequest)="onVerifierDispo()"
-          (ligneSupprimer)="onLigneSupprimee($event)"
-          (lignesSupprimer)="onLignesSupprimeees($event)"
-          (ajouterProduit)="onAjouterProduit($event)"
-        />
+<!-- MODE LISTE -->
+@if (!editingFournisseur()) {
+  <div class="view-panel">
+    <div class="view-panel__header">
+      @if (statut() === 'VALIDEE') {
+        <span><i class="pi pi-send me-1"></i>À commander</span>
       } @else {
-        <div class="empty-state">
-          <i class="pi pi-arrow-left"></i>
-          @if (statut() === 'VALIDEE') {
-            <span>Sélectionnez un fournisseur pour voir ses commandes à passer</span>
-          } @else {
-            <span>Sélectionnez un fournisseur pour voir ses suggestions de réapprovisionnement</span>
-          }
-        </div>
+        <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
+      }
+      @if (statut() === 'GENEREE') {
+        <p-button
+          class="ms-auto"
+          label="Recalculer"
+          icon="pi pi-sync"
+          severity="warn"
+          size="small"
+          [loading]="facade.recalculEnCours()"
+          pTooltip="Déclencher un recalcul SEMOIS immédiat et régénérer le panier"
+          tooltipPosition="bottom"
+          (onClick)="onRecalculer()"
+        />
       }
     </div>
+    <app-suggestion-fournisseur-list
+      [fournisseurs]="facade.fournisseurs()"
+      [selected]="facade.selectedFournisseur()"
+      [loading]="facade.loading()"
+      (fournisseurSelected)="onFournisseurSelected($event)"
+      (supprimerSuggestionRequest)="onSuggestionSupprimee($event)"
+      (supprimerSelectionRequest)="onSuggestionsSupprimeees($event)"
+      (fusionnerRequest)="onFusionnerSuggestions($event)"
+    />
   </div>
+} @else {
+<!-- MODE DÉTAIL -->
+  <div class="view-panel">
+    <div class="view-panel__header view-panel__header--detail">
+      <p-button
+        icon="pi pi-arrow-left"
+        label="Retour"
+        [text]="true"
+        size="small"
+        (onClick)="onRetour()"
+      />
+      <span class="view-panel__title">{{ editingFournisseur()!.libelle }}</span>
+      <span class="view-panel__meta">
+        <i class="pi pi-tag"></i>&nbsp;{{ editingFournisseur()!.nbProduits }} produit(s)
+        &nbsp;·&nbsp;
+        {{ editingFournisseur()!.montantEstime | number : '1.0-0' }} FCFA
+      </span>
+      @if (editingFournisseur()!.nbUrgents > 0) {
+        <span class="view-panel__urgent">
+          <i class="pi pi-bolt"></i>&nbsp;{{ editingFournisseur()!.nbUrgents }} urgent(s)
+        </span>
+      }
+    </div>
+    @if (facade.selectedFournisseur()) {
+      <app-suggestion-produit-panel
+        [fournisseur]="facade.selectedFournisseur()"
+        [lignes]="facade.lignesEnrichies()"
+        [loading]="facade.loadingLignes()"
+        [total]="facade.totalLignes()"
+        [page]="facade.page()"
+        [rows]="facade.rows()"
+        [exportingPdf]="facade.exportingPdf()"
+        [exportingCsv]="facade.exportingCsv()"
+        (commander)="onCommander()"
+        (commanderSelection)="onCommanderSelection()"
+        (commanderFiltre)="onCommanderFiltre($event)"
+        (quantiteChanged)="onQuantiteChanged($event)"
+        (resetQte)="onResetQte($event)"
+        (selectionChanged)="onSelectionChanged($event)"
+        (sanitizeRequest)="onSanitize()"
+        (filterChange)="onFilterChange($event)"
+        (pageChange)="onPageChange($event)"
+        (validerRequest)="onValider()"
+        (rejeterRequest)="onRejeter()"
+        (comparerRequest)="onComparer($event)"
+        (exportPdfRequest)="onExporterPdf()"
+        (exportCsvRequest)="onExporterCsv()"
+        (dispoRequest)="onVerifierDispo()"
+        (ligneSupprimer)="onLigneSupprimee($event)"
+        (lignesSupprimer)="onLignesSupprimeees($event)"
+        (ajouterProduit)="onAjouterProduit($event)"
+      />
+    }
+  </div>
+}
 
-
-<p-toast position="center" ></p-toast>
+<p-toast position="center" />

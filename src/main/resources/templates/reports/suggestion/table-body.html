@@ -1,11 +1,11 @@
-<table class="main-table" xmlns:th="http://www.thymeleaf.org">
+<table class="main-table" >
   <thead>
     <tr>
       <th colspan="8" style="text-align:left; font-size:11px; font-weight:bold; border-bottom:0.5px solid #3989c6; padding-bottom:4px;">
         <span th:text="${suggestionReference}"></span>
-        &nbsp;—&nbsp;
+        —
         <span th:text="${fournisseurLibelle}"></span>
-        &nbsp;—&nbsp;
+        —
         <span th:text="${dateGeneration}"></span>
       </th>
     </tr>
@@ -16,8 +16,7 @@
       <th class="text-right">Qté suggérée</th>
       <th class="text-right">Prix achat</th>
       <th class="text-right">Montant</th>
-      <th class="text-center">Source</th>
-      <th class="text-center">Urgence</th>
+
     </tr>
   </thead>
   <tbody>
@@ -28,8 +27,6 @@
       <td class="text-right" th:text="${#numbers.formatInteger(itm.quantity, 1, 'WHITESPACE')}"></td>
       <td class="text-right" th:text="${#numbers.formatInteger(itm.prixAchat, 1, 'WHITESPACE')}"></td>
       <td class="text-right" th:text="${#numbers.formatInteger(itm.quantity * itm.prixAchat, 1, 'WHITESPACE')}"></td>
-      <td class="text-center" th:text="${itm.sourceCalcul}"></td>
-      <td class="text-center" th:text="${itm.niveauUrgence}"></td>
     </tr>
   </tbody>
   <tfoot class="datatable-footer">
@@ -42,7 +39,7 @@
       <td class="text-right">
         <strong th:text="${#numbers.formatInteger(totalMontant, 1, 'WHITESPACE')}"></strong>
       </td>
-      <td colspan="2"></td>
+
     </tr>
   </tfoot>
 </table>

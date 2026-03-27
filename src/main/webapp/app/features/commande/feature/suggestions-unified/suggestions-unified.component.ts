@@ -1,4 +1,4 @@
-import { Component, inject, effect, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -26,7 +26,12 @@ import { SuggestionService, SemoisFraicheur } from 'app/entities/commande/sugges
   ],
 })
 export class SuggestionsUnifiedComponent implements OnInit {
-  readonly activeSource = signal<SuggestionsSource>('REAPPRO');
+  /**
+   * Source active — computed dérivé directement du signal service.
+   * Toujours en phase avec le contenu (@if) et le style de l'onglet, qu'on navigue
+   * manuellement (clic) ou programmatiquement (facade après validation).
+   */
+  readonly activeSource = computed(() => this.commandCommonService.suggestionsActiveSource());
   readonly semoisFraicheur = signal<SemoisFraicheur | null>(null);
   /** Badge : nb suggestions GENEREE (tab Réapprovisionnement) */
   readonly countReappro = signal<number>(0);
@@ -37,13 +42,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
   private readonly modalService = inject(NgbModal);
 
-  constructor() {
-    // Synchronise la source active avec le signal du service (navigation externe)
-    effect(() => {
-      const source = this.commandCommonService.suggestionsActiveSource();
-      this.activeSource.set(source);
-    });
-  }
+  // Plus besoin de constructor/effect : activeSource est un computed pur.
 
   ngOnInit(): void {
     this.loadBadges();
@@ -66,9 +65,8 @@ export class SuggestionsUnifiedComponent implements OnInit {
   }
 
   setSource(source: SuggestionsSource): void {
-    this.activeSource.set(source);
+    // Une seule source de vérité : le signal du service.
     this.commandCommonService.suggestionsActiveSource.set(source);
-    // Recharger les badges à chaque changement d'onglet
     this.loadBadges();
   }
 

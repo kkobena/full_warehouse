@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.SuggestionLine_;
 import com.kobe.warehouse.domain.Suggestion_;
+import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import jakarta.persistence.criteria.SetJoin;
 import java.time.LocalDateTime;
@@ -33,6 +34,10 @@ public interface SuggestionRepository
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.typeSuggession), typeSuggession);
     }
 
+    default Specification<Suggestion> filterByStatut(StatutSuggession statut) {
+        return (root, query, cb) -> cb.equal(root.get(Suggestion_.statut), statut);
+    }
+
     default Specification<Suggestion> filterByFournisseurId(Integer fournisseurId) {
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.fournisseur).get(Fournisseur_.id), fournisseurId);
     }
@@ -57,11 +62,15 @@ public interface SuggestionRepository
     }
 
     /**
-     * Filter by date
+     * Filter by date (rétention)
      * @param maxDays nombre de jours conservation des suggestions
-     * @return the specification
      */
     default Specification<Suggestion> filterByDate(int maxDays) {
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Suggestion_.updatedAt), LocalDateTime.now().minusDays(maxDays));
     }
+
+    /**
+     * Compte les suggestions par statut (GENEREE, VALIDEE…) pour les badges de l'UI.
+     */
+    long countByStatut(StatutSuggession statut);
 }

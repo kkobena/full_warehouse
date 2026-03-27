@@ -75,6 +75,8 @@ public class SemoisCalculationService {
     private final AppConfigurationService appConfigurationService;
     /** Stock virtuel : commandes REQUESTED en attente de livraison. */
     private final OrderLineRepository orderLineRepository;
+    /** Batch v12 — crée/met à jour les Suggestions SEMOIS après recalcul. */
+    private final SemoisBatchJobService semoisBatchJobService;
 
     public SemoisCalculationService(
         SemoisConfigurationRepository semoisConfigRepository,
@@ -84,7 +86,8 @@ public class SemoisCalculationService {
         ProduitRepository produitRepository,
         StockProduitRepository stockProduitRepository,
         AppConfigurationService appConfigurationService,
-        OrderLineRepository orderLineRepository
+        OrderLineRepository orderLineRepository,
+        SemoisBatchJobService semoisBatchJobService
     ) {
         this.semoisConfigRepository = semoisConfigRepository;
         this.semoisClasseConfigRepository = semoisClasseConfigRepository;
@@ -94,6 +97,7 @@ public class SemoisCalculationService {
         this.stockProduitRepository = stockProduitRepository;
         this.appConfigurationService = appConfigurationService;
         this.orderLineRepository = orderLineRepository;
+        this.semoisBatchJobService = semoisBatchJobService;
     }
 
 
@@ -214,6 +218,13 @@ public class SemoisCalculationService {
         long duration = System.currentTimeMillis() - startTime;
         LOG.info("Recalcul SEMOIS terminé en {}ms - Succès: {}, Erreurs: {}",
             duration, totalSuccess.get(), totalErrors.get());
+
+        // v12 — Créer/mettre à jour les suggestions SEMOIS (paniers) après recalcul
+        try {
+            semoisBatchJobService.creerSuggestionBatch();
+        } catch (Exception e) {
+            LOG.error("Erreur lors de la mise à jour des suggestions SEMOIS batch (non bloquant)", e);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

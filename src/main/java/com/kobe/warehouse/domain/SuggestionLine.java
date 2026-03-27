@@ -40,6 +40,14 @@ public class SuggestionLine implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    /**
+     * true = quantité modifiée manuellement par le pharmacien.
+     * Le batch {@code creerSuggestionBatch()} ne touche pas ces lignes
+     * tant que ce flag est actif. Réinitialisé via l'UI ("Réinitialiser qté").
+     */
+    @Column(name = "quantite_modifiee_manuel", nullable = false)
+    private boolean quantiteModifieeManuel = false;
+
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "suggestionLines", allowSetters = true)
     private Suggestion suggestion;
@@ -78,6 +86,14 @@ public class SuggestionLine implements Serializable {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isQuantiteModifieeManuel() {
+        return quantiteModifieeManuel;
+    }
+
+    public void setQuantiteModifieeManuel(boolean quantiteModifieeManuel) {
+        this.quantiteModifieeManuel = quantiteModifieeManuel;
     }
 
     public Suggestion getSuggestion() {

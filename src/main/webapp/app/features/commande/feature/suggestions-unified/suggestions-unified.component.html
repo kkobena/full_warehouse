@@ -12,7 +12,7 @@
           [value]="semoisFraicheurLabel"
           [severity]="semoisFraicheurSeverity"
           icon="pi pi-clock"
-          pTooltip="Fraîcheur du dernier calcul SEMOIS. Le recalcul automatique est planifié selon la configuration."
+          pTooltip="Fraîcheur du dernier calcul SEMOIS. Le recalcul est planifié selon la configuration."
           tooltipPosition="bottom"
         />
       }
@@ -30,32 +30,62 @@
     </div>
   </div>
 
-  <!-- Barre des onglets de sélection de source -->
+  <!-- Barre des 3 onglets -->
   <div class="su-source-tabs-bar">
+
+    <!-- Onglet 1 : Réapprovisionnement (GENEREE) -->
     <button
       class="su-tab"
-      [class.su-tab--active]="activeSource() === 'FOURNISSEURS'"
-      (click)="setSource('FOURNISSEURS')"
+      [class.su-tab--active]="activeSource() === 'REAPPRO'"
+      (click)="setSource('REAPPRO')"
       type="button"
+      pTooltip="Suggestions générées par SEMOIS en attente de validation"
+      tooltipPosition="bottom"
     >
-      <i class="pi pi-building"></i>
-      Par fournisseur
+      <i class="pi pi-inbox"></i>
+      Réapprovisionnement
+      @if (countReappro() > 0) {
+        <span class="su-tab-badge su-tab-badge--primary">{{ countReappro() }}</span>
+      }
     </button>
+
+    <!-- Onglet 2 : Commandes à passer (VALIDEE) -->
     <button
       class="su-tab"
-      [class.su-tab--active]="activeSource() === 'SEMOIS'"
-      (click)="setSource('SEMOIS')"
+      [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
+      (click)="setSource('COMMANDES_A_PASSER')"
       type="button"
+      pTooltip="Suggestions validées en attente de commande fournisseur"
+      tooltipPosition="bottom"
     >
-      <i class="pi pi-chart-line"></i>
-      SEMOIS
+      <i class="pi pi-send"></i>
+      Commandes à passer
+      @if (countCommandesAPasser() > 0) {
+        <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
+      }
     </button>
+
+    <!-- Onglet 3 : Analyse des stocks (SEMOIS analytique, lecture seule) -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeSource() === 'ANALYSE'"
+      (click)="setSource('ANALYSE')"
+      type="button"
+      pTooltip="Analyse analytique SEMOIS — lecture seule (vue v_semois_suggestion)"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-chart-bar"></i>
+      Analyse des stocks
+    </button>
+
   </div>
 </div>
 
 <!-- ─── Contenu selon la source active ──────────────────────────────── -->
-@if (activeSource() === 'FOURNISSEURS') {
-  <app-suggestion-home />
+@if (activeSource() === 'REAPPRO') {
+  <app-suggestion-home [statut]="'GENEREE'" />
+} @else if (activeSource() === 'COMMANDES_A_PASSER') {
+  <app-suggestion-home [statut]="'VALIDEE'" />
 } @else {
   <app-semois-suggestions />
 }

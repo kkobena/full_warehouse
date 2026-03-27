@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.stock;
 
+import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
@@ -8,8 +11,6 @@ import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
-import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
@@ -21,16 +22,40 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface SuggestionProduitService {
+
+    /**
+     * @deprecated Décommissionné depuis v12. Le batch {@code SemoisBatchJobService.creerSuggestionBatch()}
+     *             remplace cette approche post-vente.
+     */
+    @Deprecated(since = "2026-03", forRemoval = false)
     void suggerer(List<QuantitySuggestion> quantitySuggestions, Magasin magasin, AppUser user);
 
-    Page<SuggestionProjection> getAllSuggestion(String search, Integer fournisseurId, TypeSuggession typeSuggession, Pageable pageable);
+    /**
+     * Liste paginée des suggestions, avec filtres optionnels.
+     * @param statut filtre par statut (GENEREE = Réapprovisionnement, VALIDEE = Commandes à passer). null = tous.
+     */
+    Page<SuggestionProjection> getAllSuggestion(String search, Integer fournisseurId,
+        TypeSuggession typeSuggession, StatutSuggession statut, Pageable pageable);
+
+    /**
+     * Compte les suggestions par statut — utilisé pour les badges onglets de l'UI.
+     */
+    long countByStatut(StatutSuggession statut);
 
     List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur();
 
+    /**
+     * Liste par fournisseur filtrée par statut (v12).
+     * @param statut GENEREE = tab Réapprovisionnement, VALIDEE = tab Commandes à passer
+     */
+    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(StatutSuggession statut);
+
     Optional<SuggestionDTO> getSuggestionById(Integer id);
 
-
     Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, String niveauUrgence, Pageable pageable);
+
+    /** Charge toutes les lignes d'une suggestion sans pagination (usage édition). */
+    List<SuggestionLineDTO> getAllSuggestionLines(Integer suggestionId, String search, String niveauUrgence);
 
     void fusionnerSuggestion(Set<Integer> ids) throws GenericError;
 
@@ -45,9 +70,9 @@ public interface SuggestionProduitService {
     void commanderSelection(CommanderSelectionDTO dto);
 
     /**
-     * Crée des commandes groupées par fournisseur depuis des suggestions SEMOIS.
-     * Chaque ligne contient produitId + fournisseurId + quantite.
+     * @deprecated Décommissionné depuis v12. Un seul chemin : {@code Suggestion} → {@code Commande}.
      */
+    @Deprecated(since = "2026-03", forRemoval = false)
     void createCommandesFromSemois(List<SemoisCommanderDTO.LigneSemois> lignes);
 
     BudgetCommandeDTO getBudgetCommande();
@@ -65,4 +90,10 @@ public interface SuggestionProduitService {
     byte[] exportToPdf(Integer id);
 
     int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus, Boolean suggerQuantitySold);
+
+    /**
+     * Réinitialise le flag {@code quantiteModifieeManuel} d'une ligne
+     * (le batch pourra à nouveau mettre à jour sa quantité).
+     */
+    void resetQuantiteManuelle(Integer suggestionLineId);
 }

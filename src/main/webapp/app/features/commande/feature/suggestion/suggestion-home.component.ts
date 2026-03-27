@@ -1,4 +1,4 @@
-import {Component, computed, inject, Injector, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, inject, input, Injector, signal} from '@angular/core';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonModule} from 'primeng/button';
@@ -15,7 +15,6 @@ import {DispoComparaisonComponent} from '../pharmaml/ui/dispo-comparaison/dispo-
 import {FournisseurSuggestionSummary, SuggestionLigneEnrichie} from './data-access/suggestion-enrichie.model';
 import {SemoisFraicheur} from 'app/entities/commande/suggestion/suggestion.service';
 import {NotificationService} from 'app/shared/services/notification.service';
-import {ErrorService} from 'app/shared/error.service';
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
@@ -32,27 +31,34 @@ import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dia
     DecimalPipe,
   ],
 })
-export class SuggestionHomeComponent implements OnInit {
+export class SuggestionHomeComponent {
   protected readonly facade = inject(SuggestionFacadeService);
   private readonly modalService = inject(NgbModal);
   private readonly injector = inject(Injector);
   private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+
+  /**
+   * Filtre par statut (v12) — signal input réactif :
+   * - 'GENEREE'  → onglet "Réapprovisionnement"
+   * - 'VALIDEE'  → onglet "Commandes à passer"
+   * - undefined  → tous
+   */
+  readonly statut = input<'GENEREE' | 'VALIDEE' | undefined>('GENEREE');
+
   readonly showHelp = signal(false);
-  // Sélection locale — pas de passage par facade.setSelections() pour éviter
-  // la boucle : setSelections → lignesEnrichies change → effect → deselectAll
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
 
-  // Computed pass-throughs for template readability
   readonly nbCritiques = computed(() =>
     this.facade.fournisseurs().filter(f => f.nbUrgents > 0).length,
   );
-
   readonly nbFournisseurs = computed(() => this.facade.fournisseurs().length);
 
-  ngOnInit(): void {
-    this.facade.loadAll();
+  constructor() {
+    // Réagit à chaque changement du statut (y compris l'init)
+    effect(() => {
+      this.facade.loadAll(this.statut());
+    });
   }
 
   onFournisseurSelected(f: FournisseurSuggestionSummary): void {
@@ -90,6 +96,7 @@ export class SuggestionHomeComponent implements OnInit {
   onResetQte(ligne: SuggestionLigneEnrichie): void {
     this.facade.resetQuantite(ligne);
   }
+
 
   onSelectionChanged(lignes: SuggestionLigneEnrichie[]): void {
     this.selectedLignes.set(lignes);
@@ -228,16 +235,13 @@ export class SuggestionHomeComponent implements OnInit {
   }
 
   onRecalculer(): void {
-    this.facade.recalculerSemois();
-  }
-
-  toggleHelp(): void {
-    this.showHelp.update(v => !v);
+    this.facade.recalculerSemois(this.statut());
   }
 
   refresh(): void {
-    this.facade.loadAll();
+    this.facade.loadAll(this.statut());
   }
+
 
   private openCommanderModal(
     fournisseur: FournisseurSuggestionSummary,

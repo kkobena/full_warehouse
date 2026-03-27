@@ -208,4 +208,19 @@ public interface ProduitRepository
      */
     @Query("SELECT p.id FROM Produit p WHERE p.id IN :ids")
     List<Integer> findIdsByIdIn(@Param("ids") Collection<Integer> ids);
+
+    /**
+     * Charge tous les produits éligibles au batch SEMOIS :
+     * actifs, non-DETAIL, avec FP principal défini.
+     * Fetch-join des stockProduits pour éviter le N+1 dans la boucle du batch.
+     */
+    @Query("""
+        SELECT DISTINCT p FROM Produit p
+        JOIN FETCH p.fournisseurProduitPrincipal fp
+        LEFT JOIN FETCH p.stockProduits sp
+        WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
+          AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
+          AND fp IS NOT NULL AND sp.storage.magasin.id=?1
+        """)
+    List<Produit> findAllSemoisEligibles(Integer magasinId);
 }

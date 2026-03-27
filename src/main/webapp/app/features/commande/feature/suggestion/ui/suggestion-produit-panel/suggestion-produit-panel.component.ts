@@ -79,6 +79,8 @@ export class SuggestionProduitPanelComponent {
   // ─── AG Grid ─────────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
   private gridApi: GridApi | null = null;
+  /** Clés mois courantes — évite de reconstruire les colonnes si elles n'ont pas changé. */
+  private currentMoisKeys: string[] = [];
 
   readonly rowSelection: RowSelectionOptions = {
     mode: 'multiRow',
@@ -87,7 +89,8 @@ export class SuggestionProduitPanelComponent {
     enableClickSelection: true,
   };
 
-  readonly columnDefs: ColDef<SuggestionLigneEnrichie>[] = [
+  // ── Colonnes statiques (gauche) ───────────────────────────────────────────
+  private readonly baseColumnDefs: ColDef<SuggestionLigneEnrichie>[] = [
     {
       field: 'codeCip',
       headerName: 'CIP',
@@ -122,11 +125,20 @@ export class SuggestionProduitPanelComponent {
       editable: true,
       type: 'numericColumn',
       cellEditor: 'agNumberCellEditor',
+      cellRenderer: (params: any) => {
+        const ligne: SuggestionLigneEnrichie = params.data;
+        const lock = ligne?.quantiteModifieeManuel
+          ? `<span class="ag-lock-icon" title="Quantité verrouillée (modifiée manuellement)">🔒</span> `
+          : '';
+        return `${lock}${params.value ?? 0}`;
+      },
       cellStyle: (params: any) => {
         const ligne: SuggestionLigneEnrichie = params.data;
-        return ligne?.quantiteModifiee
-          ? { backgroundColor: '#fffbeb', borderColor: '#f59e0b', fontWeight: 700 }
-          : null;
+        return ligne?.quantiteModifieeManuel
+          ? { backgroundColor: '#fffbeb', borderColor: '#f59e0b', fontWeight: 700, color: '#92400e' }
+          : ligne?.quantiteModifiee
+            ? { backgroundColor: '#eff6ff', fontWeight: 600 }
+            : null;
       },
     },
     {
@@ -152,26 +164,34 @@ export class SuggestionProduitPanelComponent {
       valueFormatter: (params: any) =>
         params.value != null ? Number(params.value).toLocaleString('fr-FR') : '—',
     },
-    {
-      headerName: '',
-      width: 110,
-      pinned: 'right',
-      sortable: false,
-      resizable: false,
-      suppressMovable: true,
-      cellRenderer: (params: any) => {
-        const ligne: SuggestionLigneEnrichie = params.data;
-        if (!ligne) return '';
-        const resetBtn = ligne.quantiteModifiee
-          ? `<button class="ag-action-btn ag-action-reset" data-action="reset" title="Réinitialiser la quantité">↩</button>`
-          : '';
-        const compareBtn = ligne.produitId
-          ? `<button class="ag-action-btn ag-action-compare" data-action="compare" title="Comparer les fournisseurs">🔍</button>`
-          : '';
-        const deleteBtn = `<button class="ag-action-btn ag-action-delete" data-action="delete" title="Retirer de la suggestion">🗑</button>`;
-        return `<div class="ag-actions-cell">${resetBtn}${compareBtn}${deleteBtn}</div>`;
-      },
+  ];
+
+  // ── Colonne actions (toujours épinglée à droite) ──────────────────────────
+  private readonly actionsColumnDef: ColDef<SuggestionLigneEnrichie> = {
+    headerName: '',
+    width: 110,
+    pinned: 'right' as const,
+    sortable: false,
+    resizable: false,
+    suppressMovable: true,
+    cellRenderer: (params: any) => {
+      const ligne: SuggestionLigneEnrichie = params.data;
+      if (!ligne) return '';
+      const resetBtn = ligne.quantiteModifieeManuel
+        ? `<button class="ag-action-btn ag-action-reset" data-action="reset" title="Déverrouiller — laisser SEMOIS recalculer la quantité">🔓</button>`
+        : '';
+      const compareBtn = ligne.produitId
+        ? `<button class="ag-action-btn ag-action-compare" data-action="compare" title="Comparer les fournisseurs">🔍</button>`
+        : '';
+      const deleteBtn = `<button class="ag-action-btn ag-action-delete" data-action="delete" title="Retirer de la suggestion">🗑</button>`;
+      return `<div class="ag-actions-cell">${resetBtn}${compareBtn}${deleteBtn}</div>`;
     },
+  };
+
+  /** Colonnes initiales (sans mois) — mises à jour dès que rowData arrive. */
+  columnDefs: ColDef<SuggestionLigneEnrichie>[] = [
+    ...this.baseColumnDefs,
+    this.actionsColumnDef,
   ];
 
   readonly defaultColDef: ColDef = {
@@ -201,16 +221,14 @@ export class SuggestionProduitPanelComponent {
     'ag-row-normal': (params: any) => params.data?.niveauUrgence === 'NORMAL',
   };
 
-  // Identifiant stable pour que AG Grid conserve la sélection lors du refresh rowData
   readonly getRowId = (params: any): string =>
     String(params.data?.id ?? `${params.data?.produitId}-${params.data?.libelle}`);
 
   constructor() {
-    // Sync signal → grid quand les lignes changent (pagination/filtre backend)
-    // On ne désélectionne PAS ici : AG Grid utilise getRowId pour maintenir la sélection
     effect(() => {
       const data = this.lignes();
       if (this.gridApi) {
+        this.syncMoisColumns(data);
         this.gridApi.setGridOption('rowData', data);
       }
     });
@@ -218,7 +236,34 @@ export class SuggestionProduitPanelComponent {
 
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
+    this.syncMoisColumns(this.lignes());
     this.gridApi.setGridOption('rowData', this.lignes());
+  }
+
+  // ── Génération dynamique des colonnes consommationMensuelle ───────────────
+  private syncMoisColumns(data: SuggestionLigneEnrichie[]): void {
+    const first = data.find(l => l.consommationMensuelle && Object.keys(l.consommationMensuelle).length > 0);
+    const newKeys = first ? Object.keys(first.consommationMensuelle!) : [];
+    if (JSON.stringify(newKeys) === JSON.stringify(this.currentMoisKeys)) return;
+    this.currentMoisKeys = newKeys;
+
+    const moisCols: ColDef<SuggestionLigneEnrichie>[] = newKeys.map(mois => ({
+      headerName: mois,
+      colId: `conso_${mois}`,
+      width: 65,
+      sortable: false,
+      resizable: true,
+      type: 'numericColumn',
+      valueGetter: (params: any) => params.data?.consommationMensuelle?.[mois] ?? 0,
+      valueFormatter: (params: any) => params.value > 0 ? String(params.value) : '—',
+      cellStyle: { fontSize: '11px', color: '#6b7280' },
+    }));
+
+    this.gridApi!.setGridOption('columnDefs', [
+      ...this.baseColumnDefs,
+      ...moisCols,
+      this.actionsColumnDef,
+    ]);
   }
 
   onSelectionChanged(): void {
@@ -248,9 +293,9 @@ export class SuggestionProduitPanelComponent {
     switch (action) {
       case 'reset':
         this.resetQte.emit(ligne);
-        // Refresh la cellule qté visuellement
+        // Optimistic update local — effacé visuellement avant retour API
+        event.node.setDataValue('quantiteModifieeManuel', false);
         event.node.setDataValue('quantiteModifiee', false);
-        event.node.setDataValue('quantite', ligne.quantiteCalculee);
         break;
       case 'compare':
         this.comparerRequest.emit(ligne);

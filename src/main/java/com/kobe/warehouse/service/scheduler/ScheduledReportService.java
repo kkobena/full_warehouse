@@ -139,7 +139,7 @@ public class ScheduledReportService {
         byte[] excelData,
         LocalDate startDate,
         LocalDate endDate
-    ) throws MessagingException {
+    ) {
         Set<String> recipients = scheduledReport.getEmailRecipients();
 
         String subject = String.format(

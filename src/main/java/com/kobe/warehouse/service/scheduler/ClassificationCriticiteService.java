@@ -164,7 +164,7 @@ public class ClassificationCriticiteService {
         boolean changementSignificatif = classeSuggeree != classeActuelle
             && batchProcessor.passeHysteresis(caCumulePct, classeActuelle, classeSuggeree, config);
 
-        int scoreTotal = (int) Math.max(0, Math.min(100, 100.0 - caCumulePct.doubleValue()));
+        int scoreTotal = (int) Math.clamp(100.0 - caCumulePct.doubleValue(), 0, 100);
 
         return new ClassificationScoreDTO(
             produitId,

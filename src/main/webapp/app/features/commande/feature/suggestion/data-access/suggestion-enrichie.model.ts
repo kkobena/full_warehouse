@@ -39,6 +39,8 @@ export interface SuggestionLigneEnrichie {
   // UI state
   selected: boolean;
   quantiteModifiee: boolean;
+  /** true = qté verrouillée manuellement — le batch SEMOIS ne la modifiera pas. */
+  quantiteModifieeManuel: boolean;
   commandee: boolean;
 }
 

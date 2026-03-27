@@ -1,8 +1,9 @@
-import { Component, inject, effect, signal } from '@angular/core';
+import { Component, inject, effect, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component';
 import { SemoisSuggestionsComponent } from '../semois-suggestions/semois-suggestions.component';
@@ -19,14 +20,18 @@ import { SuggestionService, SemoisFraicheur } from 'app/entities/commande/sugges
     ButtonModule,
     TagModule,
     TooltipModule,
+    BadgeModule,
     SuggestionHomeComponent,
     SemoisSuggestionsComponent,
-
   ],
 })
-export class SuggestionsUnifiedComponent {
-  readonly activeSource = signal<SuggestionsSource>('FOURNISSEURS');
+export class SuggestionsUnifiedComponent implements OnInit {
+  readonly activeSource = signal<SuggestionsSource>('REAPPRO');
   readonly semoisFraicheur = signal<SemoisFraicheur | null>(null);
+  /** Badge : nb suggestions GENEREE (tab Réapprovisionnement) */
+  readonly countReappro = signal<number>(0);
+  /** Badge : nb suggestions VALIDEE (tab Commandes à passer) */
+  readonly countCommandesAPasser = signal<number>(0);
 
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly suggestionService = inject(SuggestionService);
@@ -38,17 +43,33 @@ export class SuggestionsUnifiedComponent {
       const source = this.commandCommonService.suggestionsActiveSource();
       this.activeSource.set(source);
     });
+  }
 
-    // Charge la fraîcheur SEMOIS pour l'indicateur dans l'en-tête
+  ngOnInit(): void {
+    this.loadBadges();
     this.suggestionService.getSemoisFraicheur().subscribe({
       next: f => this.semoisFraicheur.set(f),
       error: () => this.semoisFraicheur.set(null),
     });
   }
 
+  /** Recharge les compteurs de badges pour les deux onglets actifs. */
+  loadBadges(): void {
+    this.suggestionService.countByStatut('GENEREE').subscribe({
+      next: n => this.countReappro.set(n),
+      error: () => this.countReappro.set(0),
+    });
+    this.suggestionService.countByStatut('VALIDEE').subscribe({
+      next: n => this.countCommandesAPasser.set(n),
+      error: () => this.countCommandesAPasser.set(0),
+    });
+  }
+
   setSource(source: SuggestionsSource): void {
     this.activeSource.set(source);
     this.commandCommonService.suggestionsActiveSource.set(source);
+    // Recharger les badges à chaque changement d'onglet
+    this.loadBadges();
   }
 
   get semoisFraicheurLabel(): string {

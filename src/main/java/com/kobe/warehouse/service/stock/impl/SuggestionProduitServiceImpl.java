@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
+import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
@@ -269,11 +270,15 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         String search,
         Integer fournisseurId,
         TypeSuggession typeSuggession,
+        StatutSuggession statut,
         Pageable pageable
     ) {
         Specification<Suggestion> specification = suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention());
         if (typeSuggession != null) {
             specification = specification.and(suggestionRepository.filterByType(typeSuggession));
+        }
+        if (statut != null) {
+            specification = specification.and(suggestionRepository.filterByStatut(statut));
         }
         if (fournisseurId != null) {
             specification = specification.and(suggestionRepository.filterByFournisseurId(fournisseurId));
@@ -283,6 +288,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         }
 
         return suggestionRepository.getAllSuggestion(specification, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByStatut(StatutSuggession statut) {
+        return suggestionRepository.countByStatut(statut);
     }
 
     @Override
@@ -303,11 +314,26 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(StatutSuggession statut) {
+        if (statut == null) {
+            return getSuggestionsParFournisseur();
+        }
+        return suggestionRepository.getParFournisseur(appConfigurationService.findSuggestionRetention(), statut);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, String niveauUrgence, Pageable pageable) {
         Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
         LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
         int nthMois = appConfigurationService.getNthMoisConsommation();
         return suggestionLineRepository.fetchSuggestionLinesWithConsommation(suggestionId, search, niveauUrgence, storageId, dateRetention, nthMois, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SuggestionLineDTO> getAllSuggestionLines(Integer suggestionId, String search, String niveauUrgence) {
+        return getSuggestionLinesByIdWithConsommation(suggestionId, search, niveauUrgence, Pageable.unpaged()).getContent();
     }
 
     @Override
@@ -488,7 +514,18 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         SuggestionLine line = suggestionLineRepository.findById(suggestionLine.id()).orElseThrow();
         line.setUpdatedAt(LocalDateTime.now());
         line.setQuantity(suggestionLine.quantity());
+        // S1.6 v12 — marquer comme modifiée manuellement : le batch ne touchera plus cette ligne
+        line.setQuantiteModifieeManuel(true);
         suggestionLineRepository.save(line);
+    }
+
+    @Override
+    public void resetQuantiteManuelle(Integer suggestionLineId) {
+        suggestionLineRepository.findById(suggestionLineId).ifPresent(line -> {
+            line.setQuantiteModifieeManuel(false);
+            line.setUpdatedAt(LocalDateTime.now());
+            suggestionLineRepository.save(line);
+        });
     }
 
     @Override

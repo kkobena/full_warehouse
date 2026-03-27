@@ -17,4 +17,6 @@ export class SuggestionLine {
   niveauUrgence?: string;
   joursRestants?: number | null;
   sourceCalcul?: string;
+  /** true = qté modifiée manuellement par le pharmacien (protégée du batch SEMOIS). */
+  quantiteModifieeManuel?: boolean;
 }

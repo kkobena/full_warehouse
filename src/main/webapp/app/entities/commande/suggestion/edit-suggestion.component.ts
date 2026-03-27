@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angul
 import { Suggestion } from './model/suggestion.model';
 import { SuggestionService } from './suggestion.service';
 import { MenuItem, PrimeIcons } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { SuggestionLine } from './model/suggestion-line.model';
 import { APPEND_TO, ITEMS_PER_PAGE, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
 import { Button } from 'primeng/button';
@@ -204,6 +204,7 @@ export class EditSuggestionComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ suggestion }) => {
       this.writableSignal.set(suggestion);
+      this.loadAll();
     });
   }
 
@@ -223,17 +224,19 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
+    this.loadAll();
+  }
+
+  loadAll(): void {
+    const id = this.writableSignal()?.id;
+    if (!id) return;
     this.loading = true;
-    const params = {
-      page: pageToLoad,
-      size: this.itemsPerPage,
-      ...this.buildParameters(),
-    };
-    this.suggestionService.queryItems(params).subscribe({
-      next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-      error: () => this.onError(),
-    });
+    this.suggestionService
+      .queryAllLines(id, this.search ?? undefined)
+      .subscribe({
+        next: lines => this.onSuccess(lines),
+        error: () => this.onError(),
+      });
   }
 
 
@@ -342,25 +345,15 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
-    if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
-      const params = {
-        page: this.page,
-        size: event.rows,
-        ...this.buildParameters(),
-      };
-      this.suggestionService.queryItems(params).subscribe({
-        next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError(),
-      });
+    // Toutes les lignes sont chargées en mémoire — pas de pagination serveur
+    if (event && this.suggestions.length === 0) {
+      this.loadAll();
     }
   }
 
-  private onSuccess(data: SuggestionLine[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.suggestions = data || [];
+  private onSuccess(lines: SuggestionLine[]): void {
+    this.suggestions = lines ?? [];
+    this.totalItems = this.suggestions.length;
     this.loading = false;
     if (this.suggestions.length > 0) {
       const first = this.suggestions.find(s => s.consommationMensuelle);

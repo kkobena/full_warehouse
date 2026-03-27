@@ -12,6 +12,7 @@ import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -19,7 +20,6 @@ import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.QuantitySoldException;
 import com.kobe.warehouse.service.errors.StockException;
@@ -28,21 +28,14 @@ import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +49,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final ProduitRepository produitRepository;
     private final SalesLineRepository salesLineRepository;
     private final StockProduitRepository stockProduitRepository;
-    private final SuggestionProduitService suggestionProduitService;
     private final LotService lotService;
     private final InventoryTransactionService inventoryTransactionService;
     private final SaleLineIdGeneratorService saleLineIdGeneratorService;
@@ -69,7 +61,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
-        SuggestionProduitService suggestionProduitService,
         LotService lotService,
         InventoryTransactionService inventoryTransactionService,
         SaleLineIdGeneratorService saleLineIdGeneratorService,
@@ -81,7 +72,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
         this.stockProduitRepository = stockProduitRepository;
-        this.suggestionProduitService = suggestionProduitService;
         this.lotService = lotService;
         this.inventoryTransactionService = inventoryTransactionService;
         this.saleLineIdGeneratorService = saleLineIdGeneratorService;
@@ -251,7 +241,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                     if (!forceStock) {
                         throw new StockInReserveException(rayonStock, reserveStock);
                     }
-                    // Option B : transfert implicite atomique, journalisé via RepartitionStockProduit
+                    //  transfert implicite atomique, journalisé via RepartitionStockProduit
                     int toTransfer = Math.min(reserveStock, quantityRequested - rayonStock);
                     repartitionStockService.transfertImpliciteReserveVersRayon(
                         produitId, mainStorage.getId(), reserveStorage.getId(), toTransfer);
@@ -326,7 +316,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public void save(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
-        List<QuantitySuggestion> quantitySuggestions = new ArrayList<>();
+        // S0.1 v12 — suggestionAuto décommissionné : le batch SEMOIS nocturne
+        // (SemoisBatchJobService.creerSuggestionBatch) gère désormais la création
+        // des suggestions. Plus aucun appel @Async ici.
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> {
                 Produit p = salesLine.getProduit();
@@ -334,17 +326,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 updateSaleLineLotSold(salesLine, stockProduit.getStorage());
                 save(salesLine, stockProduit);
                 this.inventoryTransactionService.save(salesLine);
-                quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
             });
         }
-        Magasin magasin = user.getMagasin();
-        List<QuantitySuggestion> suggestions = Collections.unmodifiableList(quantitySuggestions);
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                suggestionProduitService.suggerer(suggestions, magasin, user);
-            }
-        });
     }
 
     public Set<SalesLine> cloneSalesLine(Set<SalesLine> salesLines, Sales copy) {

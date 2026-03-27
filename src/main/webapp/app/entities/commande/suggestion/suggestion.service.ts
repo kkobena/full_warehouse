@@ -7,7 +7,7 @@ import { Suggestion } from './model/suggestion.model';
 import { Keys } from '../../../shared/model/keys.model';
 import { SuggestionLine } from './model/suggestion-line.model';
 import { FournisseurSuggestionSummary } from '../../../features/commande/feature/suggestion/data-access/suggestion-enrichie.model';
-import { IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
+import { IFournisseurProduit } from "../../../shared/model";
 
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 
@@ -19,8 +19,14 @@ export class SuggestionService {
 
   public resourceUrl = SERVER_API_URL + 'api/suggestions';
 
-  queryParFournisseur(): Observable<FournisseurSuggestionSummary[]> {
-    return this.http.get<FournisseurSuggestionSummary[]>(this.resourceUrl + '/par-fournisseur');
+  queryParFournisseur(statut?: 'GENEREE' | 'VALIDEE'): Observable<FournisseurSuggestionSummary[]> {
+    const params: Record<string, string> = {};
+    if (statut) params['statut'] = statut;
+    return this.http.get<FournisseurSuggestionSummary[]>(this.resourceUrl + '/par-fournisseur', { params });
+  }
+
+  countByStatut(statut: 'GENEREE' | 'VALIDEE'): Observable<number> {
+    return this.http.get<number>(`${this.resourceUrl}/count-by-statut`, { params: { statut } });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
@@ -32,11 +38,20 @@ export class SuggestionService {
   }
 
   queryItems(req?: any): Observable<HttpResponse<SuggestionLine[]>> {
-    const options = createRequestOptions(req);
-    return this.http.get<SuggestionLine[]>(this.resourceUrl + '/items', {
+    const { suggestionId, ...rest } = req ?? {};
+    const options = createRequestOptions(rest);
+    return this.http.get<SuggestionLine[]>(`${this.resourceUrl}/${suggestionId}/lines`, {
       params: options,
       observe: 'response',
     });
+  }
+
+  /** Charge toutes les lignes sans pagination — pour le composant d'édition. */
+  queryAllLines(id: number, search?: string, niveauUrgence?: string): Observable<SuggestionLine[]> {
+    const params: Record<string, string> = {};
+    if (search) params['search'] = search;
+    if (niveauUrgence) params['niveauUrgence'] = niveauUrgence;
+    return this.http.get<SuggestionLine[]>(`${this.resourceUrl}/${id}/all-lines`, { params });
   }
 
 
@@ -70,7 +85,12 @@ export class SuggestionService {
   }
 
   updateQuantity(item: SuggestionLine): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/update-quantity', item, { observe: 'response' });
+    return this.http.put(this.resourceUrl + '/lines/quantity', item, { observe: 'response' });
+  }
+
+  /** Réinitialise le flag quantiteModifieeManuel — le batch peut à nouveau calculer la qté. */
+  resetQuantiteManuelle(id: number): Observable<{}> {
+    return this.http.put(`${this.resourceUrl}/lines/${id}/reset-quantite`, {});
   }
 
   exportToPdf(id: number): Observable<Blob> {
@@ -86,7 +106,7 @@ export class SuggestionService {
   }
 
   getBudget(): Observable<BudgetCommande> {
-    return this.http.get<BudgetCommande>(`${this.resourceUrl}/budget`);
+    return this.http.get<BudgetCommande>(`${this.resourceUrl}/budget-commande`);
   }
 
   getSemoisFraicheur(): Observable<SemoisFraicheur> {

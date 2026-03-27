@@ -44,8 +44,6 @@ class SalesLineServiceBaseImplTest {
     @Mock
     private LogsService logsService;
 
-    @Mock
-    private SuggestionProduitService suggestionProduitService;
 
     @Mock
     private LotService lotService;
@@ -72,7 +70,6 @@ class SalesLineServiceBaseImplTest {
             produitRepository,
             salesLineRepository,
             stockProduitRepository,
-            suggestionProduitService,
             lotService,
             inventoryTransactionService,
             saleLineIdGeneratorService,

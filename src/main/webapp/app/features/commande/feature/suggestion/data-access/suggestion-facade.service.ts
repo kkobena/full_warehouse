@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { finalize, map } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { BudgetCommande, SemoisFraicheur, SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ErrorService } from 'app/shared/error.service';
@@ -60,8 +60,12 @@ export class SuggestionFacadeService {
 
   // ─── Public methods ──────────────────────────────────────────────────────────
 
-  /** Charge toutes les suggestions et le budget en parallèle. */
-  loadAll(): void {
+  /**
+   * Charge les suggestions par fournisseur et le budget.
+   * @param statut Filtre optionnel : 'GENEREE' (tab Réapprovisionnement) ou 'VALIDEE' (tab Commandes à passer).
+   *               Null = tous (comportement antérieur).
+   */
+  loadAll(statut?: 'GENEREE' | 'VALIDEE'): void {
     this.loading.set(true);
     this.fournisseurs.set([]);
     this.selectedFournisseur.set(null);
@@ -70,7 +74,7 @@ export class SuggestionFacadeService {
     this.currentFournisseurId = null;
 
     this.suggestionService
-      .queryParFournisseur()
+      .queryParFournisseur(statut)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: summaries => {
@@ -93,13 +97,13 @@ export class SuggestionFacadeService {
   }
 
   /** Déclenche un recalcul SEMOIS manuel puis recharge la fraîcheur. */
-  recalculerSemois(): void {
+  recalculerSemois(statut?: 'GENEREE' | 'VALIDEE'): void {
     this.recalculEnCours.set(true);
     this.suggestionService.recalculerSemois().subscribe({
       next: () => {
         this.notificationService.success('Recalcul SEMOIS déclenché. Les données seront mises à jour dans quelques instants.', 'SEMOIS');
         this.recalculEnCours.set(false);
-        this.loadAll();
+        this.loadAll(statut);
       },
       error: err => {
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Recalcul SEMOIS');
@@ -195,9 +199,36 @@ export class SuggestionFacadeService {
     this.suggestionService.updateQuantity(updatedLine).subscribe({
       next: () => {
         this.setQuantite(ligne, qte);
+        // Marquer localement comme verrouillée après édition manuelle
+        this.lignesEnrichies.update(list =>
+          list.map(l => l === ligne ? { ...l, quantiteModifiee: true, quantiteModifieeManuel: true } : l),
+        );
       },
       error: err => {
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Mise à jour quantité');
+      },
+    });
+  }
+
+  /**
+   * Réinitialise le flag quantiteModifieeManuel d'une ligne.
+   * Le batch SEMOIS pourra à nouveau calculer la quantité.
+   */
+  resetQuantite(ligne: SuggestionLigneEnrichie): void {
+    if (!ligne.id) return;
+    this.suggestionService.resetQuantiteManuelle(ligne.id).subscribe({
+      next: () => {
+        this.lignesEnrichies.update(list =>
+          list.map(l =>
+            l === ligne
+              ? { ...l, quantiteModifiee: false, quantiteModifieeManuel: false }
+              : l,
+          ),
+        );
+        this.notificationService.success('Quantité déverrouillée — le batch SEMOIS pourra la recalculer.', 'Réinitialiser');
+      },
+      error: err => {
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Réinitialiser qté');
       },
     });
   }
@@ -291,14 +322,6 @@ export class SuggestionFacadeService {
     this.lignesEnrichies.update(lignes => lignes.map(l => ({ ...l, selected })));
   }
 
-  /** Remet la quantité d'une ligne à sa valeur calculée. */
-  resetQuantite(ligne: SuggestionLigneEnrichie): void {
-    this.lignesEnrichies.update(lignes =>
-      lignes.map(l =>
-        l === ligne ? { ...l, quantite: l.quantiteCalculee, quantiteModifiee: false } : l,
-      ),
-    );
-  }
 
   /** Met à jour la quantité d'une ligne dans le signal local. */
   setQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
@@ -465,24 +488,15 @@ export class SuggestionFacadeService {
     this.loadingLignes.set(true);
     this.lignesEnrichies.set([]);
 
-    const req: Record<string, any> = { suggestionId, page: this.page(), size: this.rows() };
-    const search = this.searchText();
-    const urgence = this.urgenceFilter();
-    if (search) req['search'] = search;
-    if (urgence && urgence !== 'TOUS') req['niveauUrgence'] = urgence;
+    const search = this.searchText() || undefined;
+    const urgence = this.urgenceFilter() !== 'TOUS' ? this.urgenceFilter() : undefined;
 
     this.suggestionService
-      .queryItems(req)
-      .pipe(
-        map(res => {
-          const total = Number(res.headers.get('X-Total-Count') ?? res.body?.length ?? 0);
-          this.totalLignes.set(total);
-          return res.body ?? [];
-        }),
-        finalize(() => this.loadingLignes.set(false)),
-      )
+      .queryAllLines(suggestionId, search, urgence)
+      .pipe(finalize(() => this.loadingLignes.set(false)))
       .subscribe({
         next: lines => {
+          this.totalLignes.set(lines.length);
           const enrichies = lines.map(line => this.toEnrichie(line));
           this.lignesEnrichies.set(enrichies);
           const nbUrgents = enrichies.filter(l => l.niveauUrgence === 'URGENT').length;
@@ -518,7 +532,8 @@ export class SuggestionFacadeService {
       classeCriticite: undefined,
       sourceCalcul: (line.sourceCalcul ?? 'CLASSIQUE') as SourceCalcul,
       selected: false,
-      quantiteModifiee: false,
+      quantiteModifiee: !!line.quantiteModifieeManuel,
+      quantiteModifieeManuel: !!line.quantiteModifieeManuel,
       commandee: false,
     };
   }

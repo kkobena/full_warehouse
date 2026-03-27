@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.Suggestion_;
+import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import jakarta.persistence.EntityManager;
@@ -105,6 +106,52 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
             0,                        // nbUrgents (calculé côté frontend après chargement des lignes)
             toLong(row[5]),           // montantEstime
             (String) row[6]           // source
+        )).toList();
+    }
+
+    private static final String PAR_FOURNISSEUR_SQL_WITH_STATUT = """
+        SELECT
+            s.id                                          AS suggestion_id,
+            f.id                                          AS fournisseur_id,
+            f.libelle                                     AS libelle,
+            s.statut,
+            COUNT(sl.id)                                  AS nb_produits,
+            COALESCE(SUM(sl.quantity * fp.prix_achat), 0) AS montant_estime,
+            CASE
+                WHEN COUNT(sl.id) = 0 THEN 'STANDARD'
+                WHEN COUNT(sc.id) = 0 THEN 'STANDARD'
+                WHEN COUNT(sc.id) = COUNT(sl.id) THEN 'SEMOIS'
+                ELSE 'MIXTE'
+            END                                           AS source
+        FROM suggestion s
+        JOIN fournisseur f ON f.id = s.fournisseur_id
+        LEFT JOIN suggestion_line sl ON sl.suggestion_id = s.id
+        LEFT JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
+        LEFT JOIN semois_configuration sc ON sc.produit_id = fp.produit_id
+        WHERE s.updated_at >= NOW() - make_interval(days => :retentionDays)
+          AND s.statut = :statut
+        GROUP BY s.id, f.id, f.libelle, s.statut
+        ORDER BY f.libelle ASC
+        """;
+
+    @Override
+    public List<FournisseurSuggestionSummaryDTO> getParFournisseur(int retentionDays, StatutSuggession statut) {
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = entityManager
+            .createNativeQuery(PAR_FOURNISSEUR_SQL_WITH_STATUT)
+            .setParameter("retentionDays", retentionDays)
+            .setParameter("statut", statut.name())
+            .getResultList();
+
+        return rows.stream().map(row -> new FournisseurSuggestionSummaryDTO(
+            toInt(row[0]),
+            toInt(row[1]),
+            (String) row[2],
+            (String) row[3],
+            toLong(row[4]).intValue(),
+            0,
+            toLong(row[5]),
+            (String) row[6]
         )).toList();
     }
 

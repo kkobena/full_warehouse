@@ -111,3 +111,34 @@ $primary-blue: $pharma-primary;
     font-size: 0.75rem;
   }
 }
+
+/* ── Badges compteurs sur les onglets ───────────────────────────────── */
+.su-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 0.25rem;
+
+  &--primary {
+    background: $primary-blue;
+    color: #fff;
+  }
+
+  &--success {
+    background: #22c55e;
+    color: #fff;
+  }
+}
+
+/* Badge plus visible sur l'onglet inactif */
+.su-tab:not(.su-tab--active) .su-tab-badge {
+  opacity: 0.85;
+}
+

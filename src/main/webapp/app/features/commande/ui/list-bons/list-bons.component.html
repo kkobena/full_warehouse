@@ -1,224 +1,200 @@
-<div class="pharma-toolbar">
-  <div class="pharma-toolbar-header">
-    <i class="pi pi-list"></i>
-    <span>Liste des bons</span>
-  </div>
-  <p-toolbar>
-    <ng-template #start>
-      <div class="pharma-toolbar-filters">
-        <div class="pharma-search-input">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Rechercher" type="text" />
-          </p-iconfield>
-        </div>
-        <p-select
-          (onChange)="onFournisseurChange($event)"
-          [filter]="false"
-          [showClear]="true"
-          [options]="fournisseurs"
-          optionLabel="libelle"
-          optionValue="id"
-          placeholder="Fournisseur"
+<div class="view-panel">
+
+  <!-- ── BARRE D'ACTIONS ────────────────────────────────────────────────── -->
+  <div class="su-action-bar">
+    <div class="su-action-bar__filters">
+
+      <p-iconfield class="lb-search">
+        <p-inputicon class="pi pi-search" />
+        <input pInputText [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Référence, fournisseur…" type="text" />
+      </p-iconfield>
+
+      <p-select
+        (onChange)="onFournisseurChange($event)"
+        [showClear]="true"
+        [options]="fournisseurs"
+        optionLabel="libelle"
+        optionValue="id"
+        placeholder="Fournisseur"
+        appendTo="body"
+        class="lb-select"
+      />
+
+      <p-select
+        [(ngModel)]="selectedStatut"
+        (onChange)="onSearch()"
+        [options]="statutOptions"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        class="lb-select lb-select--statut"
+      />
+
+      <p-floatlabel variant="on" class="lb-date">
+        <p-datePicker
+          [(ngModel)]="dtStart"
+          (onSelect)="onSearch()"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          inputId="dtStart"
           appendTo="body"
         />
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtStart"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtStart"
-            appendTo="body"
-          />
-          <label for="dtStart">Date début</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtEnd"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtEnd"
-            appendTo="body"
-          />
-          <label for="dtEnd">Date fin</label>
-        </p-floatlabel>
+        <label for="dtStart">Début</label>
+      </p-floatlabel>
+
+      <p-floatlabel variant="on" class="lb-date">
+        <p-datePicker
+          [(ngModel)]="dtEnd"
+          (onSelect)="onSearch()"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          inputId="dtEnd"
+          appendTo="body"
+        />
+        <label for="dtEnd">Fin</label>
+      </p-floatlabel>
+
+    </div>
+    <div class="su-action-bar__actions">
+      <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+    </div>
+  </div>
+
+  <!-- ── LISTE DES CARTES ────────────────────────────────────────────────── -->
+  <div class="bon-list">
+
+    @if (loading) {
+      <div class="cl-loading">
+        <p-button [loading]="true" [text]="true" severity="secondary" />
+        <span>Chargement…</span>
       </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+    } @else if (deliveries.length === 0) {
+      <div class="cl-empty">
+        <i class="pi pi-inbox"></i>
+        <span>Aucun bon de livraison pour cette période.</span>
+        <small>Modifiez les filtres ou la plage de dates.</small>
+      </div>
+    }
+
+    @for (bon of deliveries; track bon.id) {
+
+      <!-- CARTE BON -->
+      <div class="bc" [class.bc--received]="isReceived(bon)">
+
+        <!-- Chevron expand -->
+        <button
+          class="bc__expand"
+          (click)="toggle(bon.id)"
+          [attr.aria-expanded]="isExpanded(bon.id)"
+          pTooltip="Voir les articles"
+          tooltipPosition="right"
+        >
+          <i class="pi" [class.pi-chevron-right]="!isExpanded(bon.id)" [class.pi-chevron-down]="isExpanded(bon.id)"></i>
+        </button>
+
+        <!-- Corps -->
+        <div class="bc__body">
+          <div class="bc__top">
+            <span class="bc__name">{{ bon.fournisseurLibelle }}</span>
+            <span class="bc__amount">{{ (bon.receiptAmount ?? bon.grossAmount) | number : '1.0-0' }}<small> F TTC</small></span>
+          </div>
+          <div class="bc__stats">
+            <span class="bc__stat bc__stat--count">
+              <i class="pi pi-tag"></i>{{ $any(bon).itemSize }} article{{ $any(bon).itemSize > 1 ? 's' : '' }}
+            </span>
+            <span class="bc__stat bc__stat--ref">
+              <i class="pi pi-file"></i>{{ $any(bon).receiptReference ?? bon.orderReference }}
+            </span>
+            <span class="bc__stat">
+              <i class="pi pi-calendar"></i>{{ $any(bon).receiptDate | date : 'dd/MM/yyyy' }}
+            </span>
+            <span class="bc__stat">
+              <i class="pi pi-user"></i>{{ $any(bon).createdUser }}
+            </span>
+            @if (isReceived(bon)) {
+              <span class="bc__badge" data-severity="warn">En attente de saisie</span>
+            } @else {
+              <span class="bc__badge" data-severity="success">Clôturé</span>
+            }
+          </div>
         </div>
+
+        <!-- Actions -->
+        <div class="bc__actions">
+          <button class="bc__action" (click)="exportPdf(bon, $event)" pTooltip="Imprimer BL" tooltipPosition="top">
+            <i class="pi pi-file-pdf"></i>
+          </button>
+          <button class="bc__action" (click)="printEtiquette(bon, $event)" pTooltip="Étiquettes" tooltipPosition="top">
+            <i class="pi pi-print"></i>
+          </button>
+        </div>
+
       </div>
-    </ng-template>
-  </p-toolbar>
+
+      <!-- DETAILS EXPANDÉS -->
+      @if (isExpanded(bon.id)) {
+        <div class="bc-detail">
+          <table class="bc-detail__table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Code</th>
+                <th>Libellé</th>
+                <th class="text-end">Stk.Init</th>
+                <th class="text-end">Stk.Final</th>
+                <th class="text-end">Qté reçue</th>
+                <th class="text-end">P.Achat</th>
+                <th class="text-end">P.Vente</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of $any(bon).receiptItems; track item.id; let i = $index) {
+                <tr>
+                  <td class="bc-detail__idx">{{ i + 1 }}</td>
+                  <td><span class="bc-detail__code">{{ item.fournisseurProduitEan || item.fournisseurProduitCip }}</span></td>
+                  <td class="bc-detail__libelle">{{ item.fournisseurProduitLibelle }}</td>
+                  <td class="text-end bc-detail__num">{{ item.initStock | number }}</td>
+                  <td class="text-end bc-detail__num">{{ item.afterStock | number }}</td>
+                  <td class="text-end bc-detail__num">{{ item.quantityReceived | number }}</td>
+                  <td class="text-end bc-detail__price">{{ item.orderCostAmount | number }}</td>
+                  <td class="text-end bc-detail__price">{{ item.orderUnitPrice | number }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="8" class="bc-detail__empty">Aucun article</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    }
+  </div>
+
+  <!-- ── PAGINATION ──────────────────────────────────────────────────────── -->
+  @if (totalItems > itemsPerPage) {
+    <div class="pagination-bar">
+      <p-button
+        icon="pi pi-angle-left"
+        severity="secondary"
+        size="small"
+        [disabled]="page === 0"
+        (onClick)="goToPage(page - 1)"
+        pTooltip="Page précédente"
+      />
+      <span class="pagination-info">Page {{ page + 1 }} / {{ totalPages }} · {{ totalItems }} bon(s)</span>
+      <p-button
+        icon="pi pi-angle-right"
+        severity="secondary"
+        size="small"
+        [disabled]="page >= totalPages - 1"
+        (onClick)="goToPage(page + 1)"
+        pTooltip="Page suivante"
+      />
+    </div>
+  }
+
 </div>
 
-@if (deliveries && deliveries.length > 0) {
-  <p-table
-    [lazy]="true"
-    [loading]="loading"
-    [paginator]="true"
-    (onLazyLoad)="lazyLoading($event)"
-    [rowExpandMode]="rowExpandMode"
-    [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [showCurrentPageReport]="true"
-    [totalRecords]="totalItems"
-    [value]="deliveries"
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
-    dataKey="id"
-    selectionMode="multiple"
-    [stripedRows]="true"
-    class="pharma-table mt-2"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 1%"></th>
-        <th style="width: 13%">Date</th>
-        <th style="width: 8%">Date reception</th>
-        <th style="width: 9%">Num.Bl</th>
-        <th style="width: 8%">Montant TTC</th>
-        <th style="width: 8%">Montant HT</th>
-        <th style="width: 8%">Taxe</th>
-        <th style="width: 7%">Nbre d'articles</th>
-        <th style="width: 13%">Fournisseur</th>
-        <th style="width: 12%">Opérateur</th>
-        <th style="width: 7%"></th>
-      </tr>
-    </ng-template>
-    <ng-template let-expanded="expanded" let-row #body>
-      <tr>
-        <td>
-          <p-button
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [pRowToggler]="row"
-            [rounded]="true"
-            [text]="true"
-            type="button"
-          />
-        </td>
-        <td>{{ row.createdDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
-        <td>
-          <span class="pharma-code">{{ row.receiptReference }}</span>
-        </td>
-        <td class="text-right amount-td-column">
-          <span class="pharma-total">{{ row.receiptAmount | number }}</span>
-        </td>
-        <td class="text-right amount-td-column">
-          <span class="pharma-total">{{ row.netAmount | number }}</span>
-        </td>
-        <td class="text-right amount-td-column">
-          <span class="pharma-total">{{ row.taxAmount | number }}</span>
-        </td>
-        <td class="text-right amount-td-column">{{ row.itemSize | number }}</td>
-        <td>
-          <div class="pharma-entity-name">{{ row.fournisseurLibelle }}</div>
-        </td>
-        <td>{{ row.createdUser }}</td>
-        <td class="text-right">
-          <div class="btn-group">
-            <p-button
-              [text]="true"
-              (click)="exportPdf(row)"
-              [rounded]="true"
-              class="ml-sm-1"
-              icon="pi pi-file-pdf"
-              pTooltip="Imprimer"
-              severity="warn"
-              size="small"
-            ></p-button>
-            <p-button
-              [text]="true"
-              (click)="printEtiquette(row)"
-              [rounded]="true"
-              class="ml-sm-1"
-              icon="pi pi-print"
-              pTooltip="Imprimer étiquettes"
-              severity="secondary"
-              size="small"
-            ></p-button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #expandedrow let-item>
-      <tr class="pharma-expanded-row">
-        <td colspan="12">
-          <div class="expanded-row-container">
-            <div class="activity-card activity-card-products">
-              <div class="activity-card-header">
-                <div class="activity-card-icon activity-card-icon-small">
-                  <i class="pi pi-list"></i>
-                </div>
-                <div class="activity-card-header-content">
-                  <h3 class="activity-card-title">Détails du bon de livraison</h3>
-                  <span class="activity-card-subtitle">
-                    {{ item.receiptReference }} — {{ item.fournisseurLibelle }}
-                    — {{ item.receiptDate | date: 'dd/MM/yyyy' }}
-                    ({{ item.receiptItems?.length }} article(s))
-                  </span>
-                </div>
-              </div>
-              <div class="activity-card-table-body">
-                <p-table
-                  class="pharma-table rowexpansion-table"
-                  [paginator]="true"
-                  [rowsPerPageOptions]="[10, 25, 50]"
-                  [rows]="10"
-                  [showCurrentPageReport]="true"
-                  [stripedRows]="true"
-                  [value]="item.receiptItems"
-                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} articles"
-                >
-                  <ng-template #header>
-                    <tr class="pharma-table-head">
-                      <th style="width: 4%">#</th>
-                      <th pSortableColumn="fournisseurProduitCip" style="width: 9%">
-                        Code <p-sortIcon field="fournisseurProduitCip" />
-                      </th>
-                      <th pSortableColumn="fournisseurProduitLibelle" style="width: 37%">
-                        Libellé <p-sortIcon field="fournisseurProduitLibelle" />
-                      </th>
-                      <th class="text-right" style="width: 8%">Stock.Init</th>
-                      <th class="text-right" style="width: 8%">Stock.Final</th>
-                      <th class="text-right" style="width: 9%">Qté.Livrée</th>
-                      <th class="text-right" style="width: 9%">Prix.Achat</th>
-                      <th class="text-right" style="width: 9%">Prix.Vente</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
-                    <tr class="pharma-row-hover">
-                      <td>
-                        <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                      </td>
-                      <td>
-                        <span class="pharma-code">{{ receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip }}</span>
-                      </td>
-                      <td>
-                        <span class="pharma-product-name">{{ receiptItem.fournisseurProduitLibelle }}</span>
-                      </td>
-                      <td class="text-right pharma-qty-value">{{ receiptItem.initStock | number }}</td>
-                      <td class="text-right pharma-qty-value">{{ receiptItem.afterStock | number }}</td>
-                      <td class="text-right pharma-qty-value">{{ receiptItem.quantityReceived | number }}</td>
-                      <td class="text-right pharma-price">{{ receiptItem.orderCostAmount | number }}</td>
-                      <td class="text-right pharma-price" style="font-weight: bold">{{ receiptItem.orderUnitPrice | number }}</td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-}
 <jhi-spinner #spinner></jhi-spinner>

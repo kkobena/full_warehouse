@@ -56,6 +56,7 @@ public class OrderLineDTO {
     private OrderLineId orderLineId;
     private LocalDate orderDate;
     private CommandeId compositeId;
+    private Integer couvertureStockJours;
 
     public OrderLineDTO() {}
 
@@ -438,6 +439,15 @@ public class OrderLineDTO {
 
     public OrderLineDTO setLots(Set<LotDTO> lots) {
         this.lots = lots;
+        return this;
+    }
+
+    public Integer getCouvertureStockJours() {
+        return couvertureStockJours;
+    }
+
+    public OrderLineDTO setCouvertureStockJours(Integer couvertureStockJours) {
+        this.couvertureStockJours = couvertureStockJours;
         return this;
     }
 }

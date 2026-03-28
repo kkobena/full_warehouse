@@ -1,128 +1,114 @@
 @import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/search-section';
 
-$pharma-danger: #d9534f; // Bootstrap 3 red (overrides shared)
-$pharma-border: #dfe3e8;
-$border-radius-sm: $pharma-radius-sm;
-$border-radius-lg: 12px;
+// Le composant occupe tout l'espace donné par detail-body (flex column)
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 
-// ============================================
-// HEADER TOOLBAR
-// ============================================
+// ── PANEL HEADER — même structure que suggestion-produit-panel ──────────────
 
-.pharma-sales-header {
-  position: relative;
-  z-index: 1000;
-  background: $pharma-white;
+.panel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.3rem 1rem;
+  background: $gray-50;
   border-bottom: 1px solid $gray-200;
-  padding: 0.5rem 1rem;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+// ── BANDEAUX CONTEXTUELS ─────────────────────────────────────────────────────
+
+.cr-banner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  box-shadow: $pharma-shadow-md;
-  min-height: 50px;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
   flex-shrink: 0;
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-    min-width: 0;
-
-    .back-button {
-      color: $gray-600;
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: $pharma-primary;
-        background-color: $pharma-primary-light;
-      }
-    }
-
-    .page-title {
-      h1 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: $gray-900;
-        line-height: 1.2;
-      }
-
-      .subtitle {
-        margin: 0;
-        font-size: 0.8rem;
-        color: $gray-500;
-        font-weight: 400;
-      }
-    }
+  &--locked {
+    background: #eff6ff;
+    border-left: 4px solid #60a5fa;
+    color: #1e3a5f;
+    i { color: #3b82f6; }
   }
 
-  .header-actions {
+  &--reliquat {
+    background: #fff7ed;
+    border-left: 4px solid #fb923c;
+    color: #7c2d12;
+    i { color: #f97316; }
+  }
+}
+
+// ── BARRE RECHERCHE / AJOUT PRODUIT — même structure que add-product-bar ────
+
+.add-product-bar {
+  border-bottom: 1px solid $gray-200;
+  background: $gray-50;
+  flex-shrink: 0;
+
+  .search-controls {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
+    gap: 0.375rem;
+    padding: 0.4rem 0.75rem;
     flex-wrap: wrap;
   }
 
-  .header-status {
-    flex: 0 0 100%;
-    margin: 0.25rem -1rem -0.5rem;
+  .fournisseur-select-input {
+    flex: 1;
+    min-width: 200px;
   }
+
+  .product-search-input {
+    flex: 2;
+    min-width: 200px;
+  }
+
+  .quantity-input-wrapper {
+    flex: 0 0 160px;
+  }
+
+  .produit-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem 0.4rem;
+    border-top: 1px solid $gray-200;
+    background: $pharma-primary-light;
+    animation: slideIn 0.2s ease;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: $pharma-primary-dark;
+    font-weight: 500;
+
+    i { font-size: 0.75rem; color: $pharma-primary; }
+  }
+
+  .low-stock {
+    color: $pharma-danger;
+    font-weight: 700;
+    i { color: $pharma-danger; }
+  }
+
 }
 
-@media (max-width: 768px) {
-  .pharma-sales-header {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-    padding: 0.75rem;
-
-    .header-left,
-    .header-actions {
-      width: 100%;
-    }
-
-    .header-actions {
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-  }
-}
-
-// ============================================
-// ORDER SEARCH SECTION
-// ============================================
-
-.order-search-section {
-
-  @include search-section(#2e7d97);
-}
-
-// ============================================
-// PHARMAML LOCKED BANNER
-// ============================================
-
-.pharmaml-locked-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 1rem;
-  background: var(--p-blue-50, #eff6ff);
-  border-left: 4px solid var(--p-blue-400, #60a5fa);
-  color: var(--p-blue-900, #1e3a5f);
-  font-size: 0.8rem;
-  margin: 0 0.75rem 0.5rem;
-  border-radius: 0 4px 4px 0;
-
-  i {
-    font-size: 1rem;
-    color: var(--p-blue-500, #3b82f6);
-  }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .section-locked {
@@ -131,96 +117,105 @@ $border-radius-lg: 12px;
   user-select: none;
 }
 
-// ============================================
-// RELIQUAT BANNER
-// ============================================
+// ── WRAPPER GRILLE — même structure que grid-wrapper ────────────────────────
 
-.reliquat-banner {
+.grid-wrapper {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-caption {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 1rem;
-  background: var(--p-orange-50, #fff7ed);
-  border-left: 4px solid var(--p-orange-400, #fb923c);
-  color: var(--p-orange-900, #7c2d12);
-  font-size: 0.8rem;
-  margin: 0 0.75rem;
-  border-radius: 0 4px 4px 0;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: $gray-100;
+  border-bottom: 1px solid $gray-200;
+  flex-shrink: 0;
 
-  i {
-    font-size: 1rem;
-    color: var(--p-orange-500, #f97316);
-    flex-shrink: 0;
+  &__count {
+    font-size: 0.78rem;
+    color: $gray-500;
+    white-space: nowrap;
   }
 
-  strong {
-    font-weight: 700;
-  }
-}
+  &__totals {
+    font-size: 0.78rem;
+    color: $gray-600;
+    white-space: nowrap;
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    strong { color: $pharma-primary; }
   }
 }
 
-@media (max-width: 1400px) {
-  .order-search-section .search-controls {
-    .fournisseur-select-input,
-    .product-search-input {
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .quantity-input-wrapper {
-      flex: 0 0 160px;
-    }
-  }
+.grid-body {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
 }
+
+.grid-empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: $gray-400;
+  font-size: 0.85rem;
+
+  i { font-size: 2rem; }
+}
+
+// ── PANNEAU PHARMAML (colonne latérale) ──────────────────────────────────────
+
+.pharmaml-col {
+  flex: 0 0 380px;
+  min-width: 280px;
+  border-left: 1px solid $gray-200;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Styles AG Grid ───────────────────────────────────────────────────────────
+
+:host ::ng-deep {
+  .pharma-row-danger {
+    background-color: #fde8ea !important;
+    border-left: 3px solid #dc3545 !important;
+  }
+
+  .pharma-row-warning {
+    background-color: #fff8e1 !important;
+    border-left: 3px solid #fd7e14 !important;
+  }
+
+  .ag-row { font-size: 0.82rem; }
+  .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
 
 @media (max-width: 1024px) {
-  .order-search-section .search-controls {
+  .add-product-bar .search-controls {
     .fournisseur-select-input,
-    .product-search-input {
-      flex: 1 1 calc(50% - 0.1875rem);
-      min-width: 200px;
-    }
-
-    .quantity-input-wrapper {
-      flex: 1 1 calc(50% - 0.1875rem);
-      min-width: 160px;
-    }
+    .product-search-input { flex: 1 1 calc(50% - 0.2rem); min-width: 180px; }
+    .quantity-input-wrapper { flex: 1 1 calc(50% - 0.2rem); }
   }
+
+  .pharmaml-col { flex: 0 0 280px; }
 }
 
 @media (max-width: 768px) {
-  .order-search-section {
-    margin: 0.5rem;
-
-    .search-controls {
-      flex-direction: column;
-
-      .fournisseur-select-input,
-      .product-search-input,
-      .quantity-input-wrapper {
-        flex: 1 1 100%;
-        width: 100%;
-        min-width: 100%;
-      }
-    }
-
-    .order-meta {
-      flex-direction: column;
-      align-items: stretch;
-
-      .meta-item {
-        width: 100%;
-      }
-    }
+  .add-product-bar .search-controls {
+    flex-direction: column;
+    .fournisseur-select-input,
+    .product-search-input,
+    .quantity-input-wrapper { flex: 1 1 100%; width: 100%; }
   }
 }

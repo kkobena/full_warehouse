@@ -1,0 +1,215 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/features/commande/commande-shared';
+
+$card-radius: 6px;
+
+// ── BARRE D'ACTIONS ───────────────────────────────────────────────────────────
+
+.rh-search {
+  flex: 1 1 180px;
+  min-width: 160px;
+  ::ng-deep input { height: 32px; font-size: 0.82rem; }
+}
+
+.rh-date {
+  ::ng-deep .p-datepicker-input { height: 32px; font-size: 0.82rem; }
+  ::ng-deep .p-datepicker-input-icon-container { height: 32px; }
+}
+
+// ── LISTE DES CARTES ─────────────────────────────────────────────────────────
+
+.commande-list {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.75rem 0;
+  gap: 0.4rem;
+  scrollbar-width: thin;
+}
+
+.cl-loading,
+.cl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: $gray-400;
+  font-size: 0.82rem;
+  text-align: center;
+
+  i { font-size: 1.5rem; }
+  small { font-size: 0.78rem; color: $gray-400; }
+}
+
+// ── CARTE COMMANDE ────────────────────────────────────────────────────────────
+
+.cc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.6rem 0.9rem;
+  border-radius: $card-radius;
+  border: 1px solid $pharma-border;
+  background: $gray-50;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #f59e0b;  // amber : réception en cours
+    transition: background-color 0.15s;
+  }
+
+  &--received {
+    background: #fffbeb;
+    border-color: #fde68a;
+
+    .cc__name { color: #92400e; }
+    .cc__amount { color: #b45309; }
+  }
+
+  &:hover {
+    border-color: #f59e0b;
+    background: #fef3c7;
+    box-shadow: $pharma-shadow-hover;
+  }
+}
+
+// Corps
+.cc__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cc__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.cc__name {
+  flex: 1;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: $gray-700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.cc__amount {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: $pharma-primary;
+  white-space: nowrap;
+
+  small {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: $gray-400;
+    margin-left: 1px;
+  }
+}
+
+.cc__stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cc__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.74rem;
+  color: $pharma-text-light;
+  font-weight: 500;
+  white-space: nowrap;
+
+  i { font-size: 0.7rem; color: $pharma-secondary; }
+
+  &--count {
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: rgba($pharma-primary, 0.1);
+    color: $pharma-primary-dark;
+    font-weight: 700;
+    font-size: 0.73rem;
+
+    i { color: $pharma-primary; }
+  }
+
+  &--ref {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: $gray-500;
+  }
+}
+
+.cc__badge { @extend .commande-badge; }
+
+// Actions
+.cc__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cc__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  transition: background-color 0.15s, transform 0.1s;
+  background: $gray-100;
+  color: $gray-500;
+
+  &:hover {
+    background: $gray-200;
+    color: $gray-700;
+    transform: scale(1.08);
+  }
+
+  &--primary {
+    background: rgba($pharma-primary, 0.08);
+    color: $pharma-primary;
+    &:hover { background: rgba($pharma-primary, 0.18); transform: scale(1.08); }
+  }
+}
+
+// ── DETAIL BODY ───────────────────────────────────────────────────────────────
+
+.detail-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

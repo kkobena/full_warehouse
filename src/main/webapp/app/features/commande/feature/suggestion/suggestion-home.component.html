@@ -19,24 +19,18 @@
 @if (!editingFournisseur()) {
   <div class="view-panel">
     <div class="view-panel__header">
-      @if (statut() === 'VALIDEE') {
-        <span><i class="pi pi-send me-1"></i>À commander</span>
-      } @else {
-        <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
-      }
-      @if (statut() === 'GENEREE') {
-        <p-button
-          class="ms-auto"
-          label="Recalculer"
-          icon="pi pi-sync"
-          severity="warn"
-          size="small"
-          [loading]="facade.recalculEnCours()"
-          pTooltip="Déclencher un recalcul SEMOIS immédiat et régénérer le panier"
-          tooltipPosition="bottom"
-          (onClick)="onRecalculer()"
-        />
-      }
+      <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
+      <p-button
+        class="ms-auto"
+        label="Recalculer"
+        icon="pi pi-sync"
+        severity="warn"
+        size="small"
+        [loading]="facade.recalculEnCours()"
+        pTooltip="Déclencher un recalcul SEMOIS immédiat et régénérer le panier"
+        tooltipPosition="bottom"
+        (onClick)="onRecalculer()"
+      />
     </div>
     <app-suggestion-fournisseur-list
       [fournisseurs]="facade.fournisseurs()"
@@ -46,6 +40,10 @@
       (supprimerSuggestionRequest)="onSuggestionSupprimee($event)"
       (supprimerSelectionRequest)="onSuggestionsSupprimeees($event)"
       (fusionnerRequest)="onFusionnerSuggestions($event)"
+      (validerRequest)="onValiderDirect($event)"
+      (exportPdfRequest)="onExportPdfDirect($event)"
+      (exportCsvRequest)="onExportCsvDirect($event)"
+      (commanderRequest)="onCommanderDirect($event)"
     />
   </div>
 } @else {

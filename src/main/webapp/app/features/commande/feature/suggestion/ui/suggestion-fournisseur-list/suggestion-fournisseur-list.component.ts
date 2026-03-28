@@ -23,6 +23,10 @@ export class SuggestionFournisseurListComponent {
   supprimerSuggestionRequest = output<number>();
   supprimerSelectionRequest = output<number[]>();
   fusionnerRequest = output<number[]>();
+  validerRequest = output<FournisseurSuggestionSummary>();
+  exportPdfRequest = output<FournisseurSuggestionSummary>();
+  exportCsvRequest = output<FournisseurSuggestionSummary>();
+  commanderRequest = output<FournisseurSuggestionSummary>();
 
   // Sélection multiple locale (pour bulk actions)
   readonly selectionMultiple = signal<FournisseurSuggestionSummary[]>([]);
@@ -77,12 +81,24 @@ export class SuggestionFournisseurListComponent {
     this.selectionMultiple.set([]);
   }
 
-  sourceSeverity(source: string): 'success' | 'info' | 'secondary' | 'warn' {
-    switch (source) {
-      case 'SEMOIS': return 'info';
-      case 'MIXTE': return 'warn';
-      default: return 'secondary';
-    }
+  onValider(f: FournisseurSuggestionSummary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.validerRequest.emit(f);
+  }
+
+  onExportPdf(f: FournisseurSuggestionSummary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.exportPdfRequest.emit(f);
+  }
+
+  onExportCsv(f: FournisseurSuggestionSummary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.exportCsvRequest.emit(f);
+  }
+
+  onCommander(f: FournisseurSuggestionSummary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.commanderRequest.emit(f);
   }
 
   statutSeverity(statut: string | undefined): 'success' | 'warn' | 'danger' | 'secondary' | 'info' {

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
-import { AppBonEnCoursComponent } from '../../ui/bon-en-cours/bon-en-cours.component';
+import { CommandeReceivedHomeComponent } from '../commande-received-home/commande-received-home.component';
 import { AppListBonsComponent } from '../../ui/list-bons/list-bons.component';
 
 @Component({
@@ -13,7 +13,7 @@ import { AppListBonsComponent } from '../../ui/list-bons/list-bons.component';
     NgbNavLink,
     NgbNavContent,
     NgbNavOutlet,
-    AppBonEnCoursComponent,
+    CommandeReceivedHomeComponent,
     AppListBonsComponent,
   ],
 })

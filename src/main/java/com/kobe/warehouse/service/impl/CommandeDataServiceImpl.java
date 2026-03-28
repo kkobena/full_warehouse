@@ -28,13 +28,17 @@ import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.report.CommandeReportReportService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +57,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommandeDataServiceImpl implements CommandeDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandeDataServiceImpl.class);
+
+    @PersistenceContext
+    private EntityManager em;
+
     private final CommandeRepository commandeRepository;
     private final ExportationCsvService exportationCsvService;
     private final CommandeReportReportService commandeReportService;
@@ -99,7 +107,23 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public CommandeDTO findOneById(CommandeId id) {
-        return new CommandeDTO(findId(id));
+        CommandeDTO dto = new CommandeDTO(findId(id));
+        enrichCouverture(dto.getOrderLines());
+        return dto;
+    }
+
+    private void enrichCouverture(List<OrderLineDTO> lines) {
+        if (lines == null || lines.isEmpty()) return;
+        List<Integer> ids = lines.stream().map(OrderLineDTO::getProduitId).toList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery(
+            "SELECT vsr.produit_id, vsr.couverture_stock_jours FROM v_stock_rotation vsr WHERE vsr.produit_id IN :ids"
+        ).setParameter("ids", ids).getResultList();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (Object[] row : rows) {
+            if (row[1] != null) map.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+        }
+        lines.forEach(l -> l.setCouvertureStockJours(map.get(l.getProduitId())));
     }
 
     @Override

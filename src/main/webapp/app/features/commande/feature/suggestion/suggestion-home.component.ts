@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, Injector, signal} from '@angular/core';
+import {Component, computed, effect, inject, input, Injector, signal, untracked} from '@angular/core';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonModule} from 'primeng/button';
@@ -19,6 +19,7 @@ import {SemoisFraicheur} from 'app/entities/commande/suggestion/suggestion.servi
 import {NotificationService} from 'app/shared/services/notification.service';
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { Toast } from "primeng/toast";
+import { CommandCommonService } from 'app/entities/commande/command-common.service';
 
 @Component({
   selector: 'app-suggestion-home',
@@ -40,6 +41,7 @@ export class SuggestionHomeComponent {
   private readonly injector = inject(Injector);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly commandCommonService = inject(CommandCommonService);
 
   /**
    * Filtre par statut (v12) — signal input réactif :
@@ -47,7 +49,7 @@ export class SuggestionHomeComponent {
    * - 'VALIDEE'  → onglet "Commandes à passer"
    * - undefined  → tous
    */
-  readonly statut = input<'GENEREE' | 'VALIDEE' | undefined>('GENEREE');
+  readonly statut = input<'GENEREE' | 'VALIDEE' | undefined>(undefined);
 
   readonly showHelp = signal(false);
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
@@ -62,6 +64,19 @@ export class SuggestionHomeComponent {
     // Réagit à chaque changement du statut (y compris l'init)
     effect(() => {
       this.facade.loadAll(this.statut());
+    });
+
+    // After loadAll(), selectedFournisseur is cleared. Re-select if still editing.
+    effect(() => {
+      const fournisseurs = this.facade.fournisseurs();
+      const editing = this.editingFournisseur();
+      if (editing && !this.facade.selectedFournisseur() && fournisseurs.length > 0) {
+        const match = fournisseurs.find(f => f.suggestionId === editing.suggestionId);
+        if (match) {
+          untracked(() => this.facade.selectFournisseur(match));
+          this.editingFournisseur.set(match);
+        }
+      }
     });
   }
 
@@ -287,6 +302,34 @@ export class SuggestionHomeComponent {
     this.facade.loadAll(this.statut());
   }
 
+
+  onValiderDirect(f: FournisseurSuggestionSummary): void {
+    if (!f.suggestionId) return;
+    this.confirmDialog.onConfirm(
+      () => {
+        this.editingFournisseur.set(f);
+        this.facade.valider(f.suggestionId!);
+      },
+      'Valider la suggestion',
+      `Valider la suggestion pour ${f.libelle} ? Elle passera en statut VALIDÉE.`,
+    );
+  }
+
+  onExportPdfDirect(f: FournisseurSuggestionSummary): void {
+    if (!f.suggestionId) return;
+    this.facade.selectFournisseur(f);
+    this.facade.exporterPdf();
+  }
+
+  onExportCsvDirect(f: FournisseurSuggestionSummary): void {
+    if (!f.suggestionId) return;
+    this.facade.selectFournisseur(f);
+    this.facade.exporterCsv();
+  }
+
+  onCommanderDirect(f: FournisseurSuggestionSummary): void {
+    this.onFournisseurSelected(f);
+  }
 
   private openCommanderModal(
     fournisseur: FournisseurSuggestionSummary,

@@ -1,4 +1,5 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -8,8 +9,11 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SuggestionHomeComponent } from '../suggestion/suggestion-home.component';
 import { SemoisSuggestionsComponent } from '../semois-suggestions/semois-suggestions.component';
 import { SemoisClasseConfigComponent } from '../semois-classe-config/semois-classe-config.component';
+import { CommandeRequestedHomeComponent } from '../commande-requested-home/commande-requested-home.component';
+import { AppListBonsComponent } from '../../ui/list-bons/list-bons.component';
 import { CommandCommonService, SuggestionsSource } from 'app/entities/commande/command-common.service';
 import { SuggestionService, SemoisFraicheur } from 'app/entities/commande/suggestion/suggestion.service';
+import { CommandeService } from 'app/entities/commande/commande.service';
 
 @Component({
   selector: 'app-suggestions-unified',
@@ -23,6 +27,8 @@ import { SuggestionService, SemoisFraicheur } from 'app/entities/commande/sugges
     BadgeModule,
     SuggestionHomeComponent,
     SemoisSuggestionsComponent,
+    CommandeRequestedHomeComponent,
+    AppListBonsComponent,
   ],
 })
 export class SuggestionsUnifiedComponent implements OnInit {
@@ -33,13 +39,14 @@ export class SuggestionsUnifiedComponent implements OnInit {
    */
   readonly activeSource = computed(() => this.commandCommonService.suggestionsActiveSource());
   readonly semoisFraicheur = signal<SemoisFraicheur | null>(null);
-  /** Badge : nb suggestions GENEREE (tab Réapprovisionnement) */
+  /** Badge : nb suggestions GENEREE + VALIDEE (tab Réapprovisionnement) */
   readonly countReappro = signal<number>(0);
-  /** Badge : nb suggestions VALIDEE (tab Commandes à passer) */
+  /** Badge : nb commandes REQUESTED (tab Commandes à passer, toujours affiché) */
   readonly countCommandesAPasser = signal<number>(0);
 
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly suggestionService = inject(SuggestionService);
+  private readonly commandeService = inject(CommandeService);
   private readonly modalService = inject(NgbModal);
 
   // Plus besoin de constructor/effect : activeSource est un computed pur.
@@ -54,13 +61,16 @@ export class SuggestionsUnifiedComponent implements OnInit {
 
   /** Recharge les compteurs de badges pour les deux onglets actifs. */
   loadBadges(): void {
-    this.suggestionService.countByStatut('GENEREE').subscribe({
-      next: n => this.countReappro.set(n),
+    forkJoin([
+      this.suggestionService.countByStatut('GENEREE'),
+      this.suggestionService.countByStatut('VALIDEE'),
+      this.commandeService.query({ size: 1, orderStatuts: ['REQUESTED'] }),
+    ]).subscribe({
+      next: ([g, v, cmdRes]) => {
+        this.countReappro.set(g + v);
+        this.countCommandesAPasser.set(Number(cmdRes.headers.get('X-Total-Count') ?? 0));
+      },
       error: () => this.countReappro.set(0),
-    });
-    this.suggestionService.countByStatut('VALIDEE').subscribe({
-      next: n => this.countCommandesAPasser.set(n),
-      error: () => this.countCommandesAPasser.set(0),
     });
   }
 

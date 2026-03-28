@@ -1,383 +1,221 @@
-<p-toast position="center" />
+<div class="d-flex flex-column h-100">
 
-<div class="container-fluid">
-  <div class="pharma-smart-content p-1">
-    <!-- HEADER TOOLBAR -->
-    <div class="pharma-sales-header">
-      <div class="header-left">
-        <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button"
-                  icon="pi pi-arrow-left" pTooltip="Retour" />
-        <div class="page-title">
-          <h1>Saisie de commande</h1>
-          <p class="subtitle">Création et modification de commande</p>
-        </div>
-      </div>
+  <!-- ── PANEL HEADER — actions ──────────────────────────────────────── -->
+  <div class="panel-header">
 
-      <div class="header-actions">
-        @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0)
-        > seuilMontantCommande) {
-          <p-tag
-            icon="pi pi-exclamation-triangle"
-            pTooltip="Le montant dépasse le seuil configuré ({{ seuilMontantCommande | number }} F)"
-            severity="warn"
-            tooltipPosition="bottom"
-            value="Montant élevé — validation titulaire"
-          />
-        }
-        <p-button (click)="onCreateBon()" class="action-btn" icon="pi pi-truck" label="Créer le bon"
-                  pTooltip="F9" severity="primary" size="small" tooltipPosition="bottom" />
+      <!-- Actions gauche -->
+      <div class="d-flex gap-2 align-items-center flex-wrap">
         @if (currentCommande?.commandeId && !isLocked) {
           <p-button
-            (click)="onImporterReponseCommande()"
-            class="action-btn"
-            icon="pi pi-download"
-            label="Importer réponse"
-            pTooltip="Importer la réponse EDI / fichier du grossiste"
-            severity="info"
-            size="small"
-            tooltipPosition="bottom"
-          />
-
-
-          <p-button
-            (click)="onImportSuggestion()"
-            class="action-btn"
             icon="pi pi-lightbulb"
             label="Depuis suggestion"
-            pTooltip="Importer les lignes d'une suggestion dans cette commande"
-            severity="help"
+            severity="primary"
             size="small"
+            pTooltip="Importer les lignes d'une suggestion dans cette commande"
+            tooltipPosition="bottom"
+            (click)="onImportSuggestion()"
+          />
+          <p-button
+            icon="pi pi-download"
+            label="Importer réponse"
+            severity="info"
+            size="small"
+            pTooltip="Importer la réponse EDI / fichier du grossiste"
+            tooltipPosition="bottom"
+            (click)="onImporterReponseCommande()"
+          />
+        }
+        @if (currentCommande?.commandeId) {
+          <p-button
+            icon="pi pi-truck"
+            label="Créer le bon"
+            severity="success"
+            size="small"
+            pTooltip="F9"
+            tooltipPosition="bottom"
+            (click)="onCreateBon()"
+          />
+        }
+        @if (selectedEl.length > 0 && !isLocked) {
+          <p-button
+            icon="pi pi-times"
+            label="Supprimer ({{ selectedEl.length }})"
+            severity="danger"
+            size="small"
+            (click)="confirmDeleteAll()"
+          />
+        }
+        @if (seuilMontantCommande > 0 && (currentCommande?.grossAmount ?? 0) > seuilMontantCommande) {
+          <p-tag
+            icon="pi pi-exclamation-triangle"
+            severity="warn"
+            value="Montant élevé"
+            [pTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
             tooltipPosition="bottom"
           />
         }
+      </div>
 
-        @if (selectedEl.length > 0 && !isLocked) {
-          <p-button (click)="confirmDeleteAll()" class="action-btn" icon="pi pi-times"
-                    label="Supprimer" severity="danger" size="small" />
+      <!-- Actions PharmaML — droite -->
+      <div>
+        @if (currentCommande?.commandeId) {
+          @if (isLocked || currentCommande?.orderStatus === 'RECEIVED') {
+            <p-splitbutton
+              [model]="pharmamlActions"
+              icon="pi pi-check-circle"
+              label="Actions réception"
+              severity="success"
+              size="small"
+            />
+          } @else {
+            <p-splitbutton
+              [model]="pharmamlActions"
+              icon="pi pi-send"
+              label="Actions PharmaML"
+              severity="info"
+              size="small"
+            />
+          }
         }
-
       </div>
 
-      <div class="header-status">
-        <app-commande-status-bar [commande]="currentCommande" />
-      </div>
+  </div>
+
+  <!-- ── BANDEAUX CONTEXTUELS ──────────────────────────────────────────── -->
+  @if (isLocked) {
+    <div class="cr-banner cr-banner--locked">
+      <i class="pi pi-lock"></i>
+      <span>Soumise via <strong>PharmaML</strong> — modifications désactivées.</span>
     </div>
+  }
+  @if (currentCommande?.reliquatDeCommandeId != null) {
+    <div class="cr-banner cr-banner--reliquat">
+      <i class="pi pi-arrow-right-arrow-left"></i>
+      <span>Reliquat de la commande <strong>#{{ currentCommande!.reliquatDeCommandeId }}</strong></span>
+    </div>
+  }
 
-    <!-- BANDEAU COMMANDE SOUMISE -->
-    @if (isLocked) {
-      <div class="pharmaml-locked-banner">
-        <i class="pi pi-lock"></i>
-        <span>Cette commande a été soumise via <strong>PharmaML</strong> — ajout, suppression et modification des quantités désactivés.</span>
+  <!-- ── BARRE RECHERCHE / AJOUT PRODUIT ──────────────────────────────── -->
+  <div [class.section-locked]="isLocked" class="add-product-bar">
+    <div class="search-controls">
+      <div class="fournisseur-select-input">
+        <p-select
+          #fournisseurBox
+          (onChange)="onProviderSelect()"
+          [(ngModel)]="selectedProvider"
+          [appendTo]="'body'"
+          [disabled]="isLocked"
+          [filter]="true"
+          [options]="fournisseurs"
+          class="w-100"
+          inputId="fournisseur-select"
+          optionLabel="libelle"
+          optionValue="id"
+          placeholder="Sélectionner un fournisseur..."
+        />
       </div>
-    }
-
-    <!-- BANDEAU RELIQUAT -->
-    @if (currentCommande?.reliquatDeCommandeId != null) {
-      <div class="reliquat-banner">
-        <i class="pi pi-arrow-right-arrow-left"></i>
-        <span>Cette commande est un <strong>reliquat</strong> créé automatiquement depuis la commande
-          <strong>#{{ currentCommande.reliquatDeCommandeId }}</strong>
-          suite à des ruptures fournisseur.
-        </span>
-      </div>
-    }
-
-    <!-- ORDER LINE SELECTION SECTION -->
-    <div [class.section-locked]="isLocked" class="order-search-section">
-      <div class="search-section-header">
-        <i class="pi pi-search"></i>
-        <span>Recherche de produits</span>
-      </div>
-
-      <div class="search-controls">
-        <div class="fournisseur-select-input">
-          <p-select
-            #fournisseurBox
-            (onChange)="onProviderSelect()"
-            [(ngModel)]="selectedProvider"
-            [appendTo]="'body'"
-            [disabled]="isLocked"
-            [filter]="true"
-            [options]="fournisseurs"
-            class="w-100"
-            inputId="fournisseur-select"
-            optionLabel="libelle"
-            optionValue="id"
-            placeholder="Sélectionner un fournisseur..."
-            size="large"
+      @if (!isLocked) {
+        <div class="product-search-input">
+          <app-commande-product-search
+            #productSearch
+            (productScanned)="onProductScanned($event)"
+            (productSelected)="onProductSelected($event)"
           />
         </div>
-        @if (!isLocked) {
-          <div class="product-search-input">
-            <app-commande-product-search
-              #productSearch
-              (productScanned)="onProductScanned($event)"
-              (productSelected)="onProductSelected($event)"
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <input
+              #quantityBox
+              (keydown.enter)="onQuantityBoxAction($event)"
+              [(ngModel)]="quantiteSaisie"
+              class="form-control"
+              pInputText
+              placeholder="Qté"
+              type="number"
             />
-          </div>
-
-          <div class="quantity-input-wrapper">
-            <p-inputgroup>
-              <input
-                #quantityBox
-                (keydown.enter)="onQuantityBoxAction($event)"
-                [(ngModel)]="quantiteSaisie"
-                class="form-control"
-                pInputText
-                placeholder="Quantité"
-                type="number"
+            <p-inputgroup-addon>
+              <p-button
+                (click)="onQuantity()"
+                [disabled]="!produitSelected"
+                icon="pi pi-plus"
+                severity="primary"
+                type="button"
               />
-              <p-inputgroup-addon>
-                <p-button
-                  (click)="onQuantity()"
-                  [disabled]="!produitSelected "
-                  icon="pi pi-plus"
-                  severity="primary"
-                  type="button"
-                />
-              </p-inputgroup-addon>
-            </p-inputgroup>
-          </div>
-        }
-
-      </div>
-
-      @if (produitSelected) {
-        <div class="order-meta">
-          <div class="meta-item">
-            <i class="pi pi-barcode"></i>
-            <span>CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span>
-          </div>
-          <div class="meta-item">
-            <i class="pi pi-tag"></i>
-            <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span>
-          </div>
-          @if (produitSelected?.totalQuantity !== undefined) {
-            <div [class.low-stock]="produitSelected.totalQuantity < 10" class="meta-item">
-              <i class="pi pi-database"></i>
-              <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
-            </div>
-          }
+            </p-inputgroup-addon>
+          </p-inputgroup>
         </div>
       }
     </div>
 
-    <!-- ORDER LINES TABLE -->
-    <div class="row g-2">
-      <div class="col-lg-8 col-12">
+    @if (produitSelected) {
+      <div class="produit-meta">
+        <span class="meta-item">
+          <i class="pi pi-barcode"></i>
+          {{ produitSelected?.fournisseurProduit?.codeCip }}
+        </span>
+        <span class="meta-item">
+          <i class="pi pi-tag"></i>
+          {{ produitSelected?.regularUnitPrice | number }} F
+        </span>
+        @if (produitSelected?.totalQuantity !== undefined) {
+          <span class="meta-item" [class.low-stock]="produitSelected!.totalQuantity! < 10">
+            <i class="pi pi-database"></i>
+            Stock : {{ produitSelected?.totalQuantity | number }}
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── GRILLE + PANNEAU PHARMAML ─────────────────────────────────────── -->
+  <div class="grid-wrapper flex-grow-1">
+
+    <!-- CAPTION — totaux + compteur lignes -->
+    @if (currentCommande && orderLines.length > 0) {
+      <div class="grid-caption">
+        <span class="grid-caption__count">{{ orderLines.length }} ligne(s)</span>
+        <span class="grid-caption__totals ms-auto">
+          Achat&nbsp;: <strong>{{ currentCommande.grossAmount | number }}&nbsp;F</strong>
+          &nbsp;·&nbsp;
+          Vente&nbsp;: <strong>{{ currentCommande.orderAmount | number }}&nbsp;F</strong>
+        </span>
+      </div>
+    }
+
+    <!-- CORPS : grille (+ PharmaML latéral) -->
+    <div class="grid-body d-flex overflow-hidden">
+
+      <!-- AG GRID -->
+      <div class="flex-grow-1 overflow-hidden h-100">
         @if (currentCommande) {
-          <p-table
-            [(selection)]="selectedEl"
-            [paginator]="true"
-            [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
-            [rows]="10"
-            [showGridlines]="true"
-            [value]="orderLines"
-            class="pharma-table"
-            dataKey="id"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th style="width: 2%">#</th>
-                <th style="width: 8%">Code</th>
-                <th style="width: 20%">Description</th>
-                <th class="text-right" style="width: 5%">Stock</th>
-                <th class="text-right" style="width: 8%">P.A</th>
-                <th style="width: 6%">P.A Machine</th>
-                <th class="text-right" style="width: 8%">P.U</th>
-                <th class="text-right" style="width: 6%">P.U Machine</th>
-                <th class="text-right" style="width: 8%">Qté</th>
-                <th class="text-right" style="width: 6%">Qté Ug</th>
-                @if (showLotColumn()) {
-                  <th style="width: 7%">Lots</th>
-                }
-                <th style="width: 6%"></th>
-                <th class="text-center" style="width: 2%">
-                  <p-tableHeaderCheckbox />
-                </th>
-              </tr>
-            </ng-template>
-
-            <ng-template #body let-orderLine let-rowIndex="rowIndex">
-              <tr [ngClass]="orderLineTableColor(orderLine)">
-                <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-
-                <td>
-                  <span class="pharma-code">{{ orderLine.produitCip }}</span>
-                </td>
-
-                <td>
-                  <span class="pharma-entity-name">{{ orderLine.produitLibelle }}</span>
-                </td>
-
-                <td style="text-align: right">{{ orderLine.initStock | number }}</td>
-
-                <td [pEditableColumnDisabled]="isLocked" class="amount-td-column" pEditableColumn>
-                  <p-cellEditor>
-                    <ng-template #input>
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
-                        [value]="orderLine.orderCostAmount"
-                        class="pharma-input-price"
-                        pInputText
-                        required
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span class="pharma-price">{{ orderLine.orderCostAmount | number }}</span>
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-
-                <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
-
-                <td [pEditableColumnDisabled]="isLocked" class="amount-td-column" pEditableColumn>
-                  <p-cellEditor>
-                    <ng-template #input>
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
-                        [value]="orderLine.orderUnitPrice"
-                        class="pharma-input-price"
-                        pInputText
-                        required
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span class="pharma-price">{{ orderLine.orderUnitPrice | number }}</span>
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-
-                <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
-
-                <td [pEditableColumnDisabled]="isLocked" class="amount-td-column" pEditableColumn>
-                  <p-cellEditor>
-                    <ng-template #input>
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
-                        [value]="orderLine.quantityRequested"
-                        class="pharma-input-qty"
-                        pInputText
-                        required
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span
-                        class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-
-                <td [pEditableColumnDisabled]="isLocked" class="amount-td-column" pEditableColumn
-                    pEditableColumnField="freeQty">
-                  <p-cellEditor>
-                    <ng-template #input>
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateFreeQtyRequested(orderLine, $event)"
-                        [value]="orderLine.freeQty"
-                        class="pharma-input-qty"
-                        pInputText
-                        required
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span class="pharma-qty-value">{{ orderLine.freeQty | number }}</span>
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-
-                @if (showLotColumn()) {
-                  <td>
-                    @for (lot of orderLine.lots; track lot.numLot) {
-                      <span>{{ lot.numLot }}</span>
-                    }
-                  </td>
-                }
-
-                <td style="text-align: right">
-                  <p-buttonGroup>
-                    <p-button
-                      (click)="editLigneInfos(orderLine)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-pencil"
-                      pTooltip="Modifier le produit"
-                      severity="success"
-                      tooltipPosition="left"
-                    />
-                    @if (orderLine.lots.length > 0 || showLotBtn) {
-                      <p-button
-                        (click)="onAddLot(orderLine)"
-                        [rounded]="true"
-                        [text]="true"
-                        icon="pi pi-box"
-                        pTooltip="Gérer le lot"
-                        severity="info"
-                        tooltipPosition="left"
-                      />
-                    }
-                    <p-button
-                      (click)="confirmDeleteItem(orderLine)"
-                      [disabled]="isLocked"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-trash"
-                      pTooltip="Supprimer"
-                      severity="danger"
-                      tooltipPosition="left"
-                    />
-                  </p-buttonGroup>
-                </td>
-
-                <td class="text-center" style="width: 5px">
-                  <p-tableCheckbox [value]="orderLine" />
-                </td>
-              </tr>
-            </ng-template>
-
-            @if (orderLines.length > 0) {
-              <ng-template #footer>
-                <tr class="pharma-table-footer">
-                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span>
-                  </td>
-                  <td class="amount-column text-right red-400">
-                    <span
-                      class="pharma-footer-total">{{ currentCommande.grossAmount | number }}</span>
-                  </td>
-                  <td class="amount-column text-right red-400" colspan="2">
-                    <span
-                      class="pharma-footer-total">{{ currentCommande.orderAmount | number }}</span>
-                  </td>
-                  <td class="amount-column text-right" colspan="3"></td>
-
-                  <td [attr.colspan]="showLotColumn() ? 5 : 4"></td>
-                </tr>
-              </ng-template>
-            }
-          </p-table>
-        }
-      </div>
-
-      <!-- PHARMAML PANEL : alertes + lastResult + dispo + historique -->
-      <div class="col-lg-4 col-12">
-        @if (currentCommande?.commandeId) {
-          <app-pharmaml-home
-            [commandeId]="currentCommande.commandeId!"
-            [commandeRef]="currentCommande.orderReference ?? ''"
-            [isSubmited]="isLocked"
-            [orderStatus]="currentCommande.orderStatus"
+          <ag-grid-angular
+            [theme]="theme"
+            [columnDefs]="columnDefs"
+            [defaultColDef]="defaultColDef"
+            [rowData]="orderLines"
+            [rowSelection]="rowSelection"
+            [rowClassRules]="rowClassRules"
+            [getRowId]="getRowId"
+            [singleClickEdit]="true"
+            [stopEditingWhenCellsLoseFocus]="true"
+            [animateRows]="true"
+            [enterNavigatesVerticallyAfterEdit]="true"
+            [enableCellEditingOnBackspace]="true"
+            (gridReady)="onGridReady($event)"
+            (selectionChanged)="onSelectionChanged()"
+            (cellValueChanged)="onCellValueChanged($event)"
+            (cellClicked)="onCellClicked($event)"
+            style="width: 100%; height: 100%;"
           />
-
+        } @else {
+          <div class="grid-empty-state">
+            <i class="pi pi-inbox"></i>
+            <span>Sélectionnez un fournisseur pour commencer</span>
+          </div>
         }
       </div>
+
     </div>
   </div>
+
 </div>

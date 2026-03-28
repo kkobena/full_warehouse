@@ -1,0 +1,164 @@
+// ══════════════════════════════════════════════════════════════════════════════
+// COMMANDE FEATURE — styles partagés
+// Importé par : suggestion-fournisseur-list, commande-requested-home,
+//               suggestion-home
+// Prérequis : @import 'app/shared/scss/pharma-nav' avant ce fichier
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ─── VIEW PANEL (liste + détail) ─────────────────────────────────────────────
+
+.view-panel {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 160px);
+  border: 1px solid $gray-200;
+  border-radius: $pharma-radius;
+  overflow: hidden;
+  margin: 0.75rem 0 1rem;
+  background: $pharma-white;
+}
+
+.view-panel__header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: $gray-100;
+  border-bottom: 1px solid $gray-200;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $gray-500;
+  flex-shrink: 0;
+  gap: 0.5rem;
+
+  &--detail {
+    text-transform: none;
+    gap: 0.75rem;
+  }
+}
+
+.view-panel__label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.view-panel__search {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  height: 30px;
+  padding: 0 0.5rem;
+}
+
+.view-panel__title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: $gray-700;
+}
+
+.view-panel__meta {
+  font-size: 0.8rem;
+  color: $gray-500;
+}
+
+.view-panel__urgent {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: $pharma-danger;
+}
+
+// ─── BULK TOOLBAR — style footer modal ────────────────────────────────────────
+
+.bulk-toolbar {
+  position: sticky;
+  bottom: 0;
+  background: $gray-50;
+  border-top: 1px solid $gray-200;
+  color: $gray-700;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.bulk-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $gray-600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+
+  &--info {
+    background: $pharma-info;
+    color: #fff;
+    border-color: $pharma-info;
+  }
+
+  &--danger {
+    background: $pharma-danger;
+    color: #fff;
+    border-color: $pharma-danger;
+  }
+}
+
+// ─── BADGE STATUT (réutilisé dans les cartes fournisseur et commande) ─────────
+
+.commande-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  &[data-severity='success']   { background: #d1fae5; color: #065f46; }
+  &[data-severity='warn']      { background: #fef3c7; color: #92400e; }
+  &[data-severity='info']      { background: #dbeafe; color: #1e40af; }
+  &[data-severity='danger']    { background: #fee2e2; color: #991b1b; }
+  &[data-severity='secondary'] { background: $gray-200; color: $gray-600; }
+}
+
+// ─── PAGINATION ───────────────────────────────────────────────────────────────
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid $gray-200;
+  background: $gray-50;
+  flex-shrink: 0;
+}
+
+.pagination-info {
+  font-size: 0.78rem;
+  color: $gray-500;
+}

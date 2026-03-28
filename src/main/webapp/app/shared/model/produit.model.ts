@@ -196,4 +196,6 @@ export class ProduitSearch {
   /** Stock réserve (SAFETY_STOCK) — informatif, non vendable directement. */
   reserveQuantity: number;
   regularUnitPrice: number;
+  /** Couverture stock en jours (depuis v_stock_rotation / SEMOIS). Null si pas de vélocité calculée. */
+  couvertureStockJours?: number;
 }

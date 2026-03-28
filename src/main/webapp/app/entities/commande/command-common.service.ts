@@ -1,13 +1,15 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { ICommande } from '../../shared/model/commande.model';
+import { CommandeId } from '../../shared/model/abstract-commande.model';
 
 /**
  * Source active dans les onglets de suggestions (v12).
- * - REAPPRO   → suggestions GENEREE (paniers à valider)
- * - COMMANDES_A_PASSER → suggestions VALIDEE (en attente de commande)
- * - ANALYSE   → vue analytique SEMOIS (lecture seule)
+ * - REAPPRO              → suggestions GENEREE (paniers à valider)
+ * - COMMANDES_A_PASSER   → suggestions VALIDEE (en attente de commande)
+ * - BONS_DE_LIVRAISON    → historique des bons de livraison (réception)
+ * - ANALYSE              → vue analytique SEMOIS (lecture seule)
  */
-export type SuggestionsSource = 'REAPPRO' | 'COMMANDES_A_PASSER' | 'ANALYSE';
+export type SuggestionsSource = 'REAPPRO' | 'COMMANDES_A_PASSER' | 'BONS_DE_LIVRAISON' | 'ANALYSE';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +19,9 @@ export class CommandCommonService {
   commandPreviousActiveNav: WritableSignal<string> = signal<string>('DASHBOARD');
   /** Source active dans le composant suggestions-unified */
   suggestionsActiveSource: WritableSignal<SuggestionsSource> = signal<SuggestionsSource>('REAPPRO');
+
+  /** Commande à ouvrir en mode édition après navigation vers "Commandes à passer" */
+  pendingOpenCommandeId = signal<CommandeId | null>(null);
 
   constructor() {}
 

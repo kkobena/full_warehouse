@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { BudgetCommande, SemoisFraicheur, SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -13,6 +13,7 @@ import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model'
 import { Keys } from 'app/shared/model/keys.model';
 import { CommanderModalResult } from './suggestion-commander.model';
 import { PharmamlApiService } from '../../../data-access/pharmaml-api.service';
+import { CommandCommonService } from 'app/entities/commande/command-common.service';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionFacadeService {
@@ -21,6 +22,7 @@ export class SuggestionFacadeService {
   private readonly errorService = inject(ErrorService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly pharmamlApiService = inject(PharmamlApiService);
+  private readonly commandCommonService = inject(CommandCommonService);
 
   // ─── Signals ────────────────────────────────────────────────────────────────
   readonly fournisseurs = signal<FournisseurSuggestionSummary[]>([]);
@@ -168,7 +170,9 @@ export class SuggestionFacadeService {
       this.notificationService.warning('Aucun fournisseur sélectionné.');
       return;
     }
+    let savedCommandeId: any = null;
     this.suggestionService.commander(fournisseur.suggestionId, modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined).pipe(
+      tap(commandeId => { savedCommandeId = commandeId; }),
       switchMap(commandeId => {
         if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
           const params = {
@@ -188,6 +192,10 @@ export class SuggestionFacadeService {
           ? `Commande transmise via PharmaML pour ${fournisseur.libelle}.`
           : `Commande passée avec succès pour ${fournisseur.libelle}.`;
         this.notificationService.success(msg, 'Commander');
+        if (savedCommandeId) {
+          this.commandCommonService.pendingOpenCommandeId.set(savedCommandeId);
+          this.commandCommonService.navigateToCommandesAPasser();
+        }
         this.loadAll(this.currentStatut);
       },
       error: err => {
@@ -215,11 +223,13 @@ export class SuggestionFacadeService {
       this.notificationService.warning('Aucune ligne à commander.');
       return;
     }
+    let savedCommandeId: any = null;
     this.suggestionService.commanderSelection({
       suggestionId: fournisseur.suggestionId,
       lignes: selection,
       fournisseurId: modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined,
     }).pipe(
+      tap(commandeId => { savedCommandeId = commandeId; }),
       switchMap(commandeId => {
         if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
           const params = {
@@ -239,6 +249,10 @@ export class SuggestionFacadeService {
           ? `Sélection transmise via PharmaML pour ${fournisseur.libelle}.`
           : `Commande (sélection) passée avec succès pour ${fournisseur.libelle}.`;
         this.notificationService.success(msg, 'Commander');
+        if (savedCommandeId) {
+          this.commandCommonService.pendingOpenCommandeId.set(savedCommandeId);
+          this.commandCommonService.navigateToCommandesAPasser();
+        }
         this.loadAll(this.currentStatut);
       },
       error: err => {

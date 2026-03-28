@@ -49,29 +49,40 @@
       }
     </button>
 
-    <!-- Onglet 2 : Commandes à passer (VALIDEE) -->
+    <!-- Onglet 2 : Commandes à passer (REQUESTED) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
       (click)="setSource('COMMANDES_A_PASSER')"
       type="button"
-      pTooltip="Suggestions validées en attente de commande fournisseur"
+      pTooltip="Commandes fournisseurs en cours de saisie"
       tooltipPosition="bottom"
     >
-      <i class="pi pi-send"></i>
+      <i class="pi pi-cart-plus"></i>
       Commandes à passer
-      @if (countCommandesAPasser() > 0) {
-        <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
-      }
+      <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
     </button>
 
-    <!-- Onglet 3 : Analyse des stocks (SEMOIS analytique, lecture seule) -->
+    <!-- Onglet 3 : Bons de livraison (historique réception) -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
+      (click)="setSource('BONS_DE_LIVRAISON')"
+      type="button"
+      pTooltip="Historique des bons de livraison reçus"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-truck"></i>
+      Bons de livraison
+    </button>
+
+    <!-- Onglet 4 : Analyse des stocks (SEMOIS analytique, lecture seule) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'ANALYSE'"
       (click)="setSource('ANALYSE')"
       type="button"
-      pTooltip="Analyse analytique SEMOIS — lecture seule (vue v_semois_suggestion)"
+      pTooltip="Analyse analytique"
       tooltipPosition="bottom"
     >
       <i class="pi pi-chart-bar"></i>
@@ -83,9 +94,11 @@
 
 <!-- ─── Contenu selon la source active ──────────────────────────────── -->
 @if (activeSource() === 'REAPPRO') {
-  <app-suggestion-home [statut]="'GENEREE'" />
+  <app-suggestion-home />
 } @else if (activeSource() === 'COMMANDES_A_PASSER') {
-  <app-suggestion-home [statut]="'VALIDEE'" />
+  <app-commande-requested-home (countChange)="countCommandesAPasser.set($event)" />
+} @else if (activeSource() === 'BONS_DE_LIVRAISON') {
+  <app-list-bons />
 } @else {
   <app-semois-suggestions />
 }

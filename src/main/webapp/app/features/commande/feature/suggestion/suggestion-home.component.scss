@@ -1,4 +1,5 @@
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/features/commande/commande-shared';
 @import 'app/shared/scss/table-common';
 
 
@@ -42,53 +43,4 @@
   }
 }
 
-// ============================================
-// VIEW PANEL (liste et détail)
-// ============================================
-
-.view-panel {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 160px);
-  border: 1px solid $gray-200;
-  border-radius: $pharma-radius;
-  overflow: hidden;
-  margin: 0.75rem 0 1rem;
-  background: $pharma-white;
-}
-
-.view-panel__header {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: $gray-100;
-  border-bottom: 1px solid $gray-200;
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $gray-500;
-  flex-shrink: 0;
-
-  &--detail {
-    text-transform: none;
-    gap: 0.75rem;
-  }
-}
-
-.view-panel__title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: $gray-700;
-}
-
-.view-panel__meta {
-  font-size: 0.8rem;
-  color: $gray-500;
-}
-
-.view-panel__urgent {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: $pharma-danger;
-}
+// view-panel, view-panel__header, etc. → dans commande-shared

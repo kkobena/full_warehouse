@@ -41,6 +41,7 @@ export interface AbstractOrderItem {
   orderLineId?: OrderLineId;
   compositeId?: CommandeId;
   orderDate?: string;
+  couvertureStockJours?: number;
 }
 
 export class OrderLineId {

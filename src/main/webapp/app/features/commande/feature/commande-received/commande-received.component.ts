@@ -80,6 +80,7 @@ import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dia
 export class CommandeReceivedComponent implements OnInit {
   commande = input.required<ICommande>();
   commandeChange = output<ICommande | null>();
+  retour = output<void>();
 
   protected orderLines: IOrderLine[] = [];
   protected search?: string;
@@ -128,7 +129,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected previousState(): void {
-    window.history.back();
+    this.retour.emit();
   }
 
   protected onFilterCommandeLines(): void {
@@ -201,14 +202,21 @@ export class CommandeReceivedComponent implements OnInit {
     const linesToUpdate = allLines.filter(
       l => (l.quantityReceivedTmp ?? l.quantityRequested ?? 0) !== (l.quantityRequested ?? 0),
     );
+    if (linesToUpdate.length === 0) return;
+    this.confirmDialog.onConfirm(
+      () => this.doToutValider(allLines, linesToUpdate),
+      'Tout valider',
+      `Marquer les ${linesToUpdate.length} ligne(s) en attente comme entièrement reçues ?\n\nLes quantités reçues seront égalisées aux quantités commandées.`,
+    );
+  }
+
+  private doToutValider(allLines: IOrderLine[], linesToUpdate: IOrderLine[]): void {
     for (const l of allLines) {
       l.quantityReceived = l.quantityRequested ?? 0;
       l.quantityReceivedTmp = l.quantityRequested ?? 0;
     }
-    // Réinitialise le filtre et affiche toutes les lignes mises à jour
     this.selectedFilter = 'ALL';
     this.orderLines = [...allLines];
-    if (linesToUpdate.length === 0) return;
     forkJoin(linesToUpdate.map(l => this.deliveryService.updateQuantityReceived(l))).subscribe({
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
     });

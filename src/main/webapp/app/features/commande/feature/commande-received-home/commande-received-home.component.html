@@ -1,0 +1,172 @@
+<p-toast position="center" />
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- MODE LISTE                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+@if (!editingCommande()) {
+  <div class="view-panel">
+
+    <!-- HEADER -->
+    <div class="su-action-bar">
+      <div class="su-action-bar__filters">
+
+        <p-iconfield class="rh-search">
+          <p-inputicon class="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            placeholder="Fournisseur, référence…"
+            [(ngModel)]="searchText"
+            (keyup.enter)="onSearch()"
+          />
+        </p-iconfield>
+
+        <p-floatlabel variant="on" class="rh-date">
+          <p-datePicker
+            [(ngModel)]="dtStart"
+            (onSelect)="onSearch()"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            inputId="rhDtStart"
+            appendTo="body"
+          />
+          <label for="rhDtStart">Début</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on" class="rh-date">
+          <p-datePicker
+            [(ngModel)]="dtEnd"
+            (onSelect)="onSearch()"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            inputId="rhDtEnd"
+            appendTo="body"
+          />
+          <label for="rhDtEnd">Fin</label>
+        </p-floatlabel>
+
+      </div>
+      <div class="su-action-bar__actions">
+        <p-button
+          icon="pi pi-search"
+          label="Rechercher"
+          severity="info"
+          size="small"
+          (onClick)="onSearch()"
+        />
+      </div>
+    </div>
+
+    <!-- LISTE DES CARTES -->
+    <div class="commande-list">
+
+      @if (loading()) {
+        <div class="cl-loading">
+          <p-progressSpinner strokeWidth="3" [style]="{ width: '32px', height: '32px' }" />
+        </div>
+      }
+
+      @if (!loading() && deliveries().length === 0) {
+        <div class="cl-empty">
+          <i class="pi pi-inbox"></i>
+          <span>Aucun bon en attente de saisie</span>
+          <small>Les bons réceptionnés non encore saisis apparaîtront ici.</small>
+        </div>
+      }
+
+      @for (d of deliveries(); track d.id) {
+        <div class="cc cc--received" (click)="onEditer(d)">
+
+          <!-- Corps de la carte -->
+          <div class="cc__body">
+            <div class="cc__top">
+              <span class="cc__name" [title]="d.fournisseurLibelle ?? d.fournisseur?.libelle">
+                {{ d.fournisseurLibelle ?? d.fournisseur?.libelle }}
+              </span>
+              <span class="cc__amount">{{ (d.receiptAmount ?? d.grossAmount) | number : '1.0-0' }}<small> F TTC</small></span>
+            </div>
+            <div class="cc__stats">
+              <span class="cc__stat cc__stat--count">
+                <i class="pi pi-tag"></i>{{ d.itemSize }} article{{ d.itemSize > 1 ? 's' : '' }}
+              </span>
+              <span class="cc__stat cc__stat--ref">
+                <i class="pi pi-file"></i>{{ d.receiptReference ?? d.orderReference }}
+              </span>
+              <span class="cc__stat">
+                <i class="pi pi-calendar"></i>{{ d.receiptDate | date : 'dd/MM/yyyy' }}
+              </span>
+              <span class="cc__badge" data-severity="warn">En attente de saisie</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="cc__actions">
+            <button
+              class="cc__action cc__action--primary"
+              (click)="onEditer(d); $event.stopPropagation()"
+              pTooltip="Ouvrir la réception"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-inbox"></i>
+            </button>
+            <button
+              class="cc__action"
+              (click)="exportPdf(d, $event)"
+              pTooltip="Imprimer BL"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-file-pdf"></i>
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalItems() > rows) {
+      <div class="pagination-bar">
+        <p-button
+          icon="pi pi-angle-left"
+          severity="secondary"
+          size="small"
+          [disabled]="currentPage() === 0"
+          (onClick)="goToPage(currentPage() - 1)"
+          pTooltip="Page précédente"
+        />
+        <span class="pagination-info">
+          Page {{ currentPage() + 1 }} / {{ totalPages() }}
+          &nbsp;·&nbsp; {{ totalItems() }} bon(s)
+        </span>
+        <p-button
+          icon="pi pi-angle-right"
+          severity="secondary"
+          size="small"
+          [disabled]="currentPage() >= totalPages() - 1"
+          (onClick)="goToPage(currentPage() + 1)"
+          pTooltip="Page suivante"
+        />
+      </div>
+    }
+
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- MODE DETAIL (réception)                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+@else {
+  <div class="view-panel view-panel--detail">
+
+    <div class="detail-body">
+      <app-commande-received
+        [commande]="editingCommande()!"
+        (commandeChange)="onCommandeChange($event)"
+        (retour)="onRetour()"
+      />
+    </div>
+
+  </div>
+}

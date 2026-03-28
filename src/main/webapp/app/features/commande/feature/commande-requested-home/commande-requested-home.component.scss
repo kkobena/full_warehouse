@@ -1,23 +1,12 @@
 @import 'app/shared/scss/pharma-nav';
 @import 'app/features/commande/commande-shared';
 
-// ─── Variables locales ────────────────────────────────────────────────────────
 $card-radius: 6px;
-$accent-urgent: $pharma-danger;
-$accent-active: $pharma-primary-dark;
 $accent-checked: $pharma-primary;
 
-// ─── Host ────────────────────────────────────────────────────────────────────
-:host {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: hidden;
-}
+// ── LISTE DES CARTES ─────────────────────────────────────────────────────────
 
-// ─── Conteneur liste ─────────────────────────────────────────────────────────
-.supplier-list {
+.commande-list {
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
@@ -28,14 +17,13 @@ $accent-checked: $pharma-primary;
   scrollbar-width: thin;
 }
 
-// ─── États vides / chargement ─────────────────────────────────────────────────
-.sl-loading,
-.sl-empty {
+.cl-loading,
+.cl-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   padding: 2rem 1rem;
   color: $gray-400;
   font-size: 0.82rem;
@@ -43,8 +31,9 @@ $accent-checked: $pharma-primary;
   i { font-size: 1.5rem; }
 }
 
-// ─── Carte fournisseur ────────────────────────────────────────────────────────
-.sc {
+// ── CARTE COMMANDE ───────────────────────────────────────────────────────────
+
+.cc {
   position: relative;
   display: flex;
   align-items: center;
@@ -56,7 +45,6 @@ $accent-checked: $pharma-primary;
   cursor: pointer;
   transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
 
-  // Barre latérale colorée
   &::before {
     content: '';
     position: absolute;
@@ -73,17 +61,8 @@ $accent-checked: $pharma-primary;
     border-color: $pharma-primary;
     background: $pharma-primary-light;
     box-shadow: $pharma-shadow-hover;
-  }
 
-  &--active {
-    border-color: $accent-active;
-    background: $pharma-primary-light;
-    box-shadow: 0 0 0 2px rgba(91, 137, 166, 0.2);
-
-    &::before { background: $accent-active; }
-
-    .sc__name   { color: $accent-active; }
-    .sc__amount { color: $accent-active; }
+    .cc__actions { opacity: 1; }
   }
 
   &--checked {
@@ -92,14 +71,9 @@ $accent-checked: $pharma-primary;
 
     &::before { background: $accent-checked; }
   }
-
-  &--urgent {
-    &::before { background: $accent-urgent; }
-  }
 }
 
-// ─── Zone checkbox ────────────────────────────────────────────────────────────
-.sc__check {
+.cc__check {
   flex-shrink: 0;
   width: 20px;
   display: flex;
@@ -107,8 +81,8 @@ $accent-checked: $pharma-primary;
   justify-content: center;
 }
 
-// ─── Corps : nom + stats sur la même ligne ────────────────────────────────────
-.sc__body {
+// Corps : nom + stats alignés horizontalement (même layout que sc__body)
+.cc__body {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -116,7 +90,7 @@ $accent-checked: $pharma-primary;
   gap: 0.2rem;
 }
 
-.sc__top {
+.cc__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -124,7 +98,7 @@ $accent-checked: $pharma-primary;
   min-width: 0;
 }
 
-.sc__name {
+.cc__name {
   flex: 1;
   font-size: 0.84rem;
   font-weight: 700;
@@ -136,15 +110,15 @@ $accent-checked: $pharma-primary;
   transition: color 0.15s;
 }
 
-// Stats en ligne — après le nom, avant le montant
-.sc__stats {
+// Stats en ligne après le nom
+.cc__stats {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.6rem;
 }
 
-.sc__stat {
+.cc__stat {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -166,17 +140,17 @@ $accent-checked: $pharma-primary;
     i { color: $pharma-primary; }
   }
 
-  &--urgent {
-    color: $accent-urgent;
-
-    i { color: $accent-urgent; }
+  &--ref {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: $gray-500;
   }
 }
 
-// Badge statut — utilise .commande-badge du shared, alias local pour rétro-compat
-.sc__badge { @extend .commande-badge; }
+// Badge → alias du shared
+.cc__badge { @extend .commande-badge; }
 
-.sc__amount {
+.cc__amount {
   flex-shrink: 0;
   font-size: 0.82rem;
   font-weight: 700;
@@ -193,14 +167,14 @@ $accent-checked: $pharma-primary;
 }
 
 // ─── Actions carte — toujours visibles ────────────────────────────────────────
-.sc__actions {
+.cc__actions {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
-.sc__action-sep {
+.cc__action-sep {
   width: 1px;
   height: 14px;
   background: $gray-200;
@@ -208,7 +182,7 @@ $accent-checked: $pharma-primary;
   flex-shrink: 0;
 }
 
-.sc__action {
+.cc__action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -248,4 +222,14 @@ $accent-checked: $pharma-primary;
   }
 }
 
-// bulk-toolbar, bulk-info, bulk-actions, bulk-btn → dans commande-shared
+// ── DETAIL BODY ──────────────────────────────────────────────────────────────
+
+.detail-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// view-panel, view-panel__header, bulk-toolbar, pagination-bar → commande-shared

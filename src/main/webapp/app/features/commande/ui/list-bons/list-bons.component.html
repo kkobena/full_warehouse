@@ -160,117 +160,43 @@
       </div>
     </div>
 
-    <!-- ── LISTE DES CARTES ────────────────────────────────────────────────── -->
-    <div class="bon-list">
+    <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
+    <div class="lb-grid-wrap">
+      <ag-grid-angular
+        [columnDefs]="blColDefs"
+        [defaultColDef]="defaultColDef"
+        [getRowId]="blGetRowId"
+        [loading]="loading"
+        [rowClassRules]="blRowClassRules"
+        [rowData]="deliveries"
+        [theme]="theme"
+        (cellClicked)="onBLCellClicked($event)"
+        style="width: 100%; height: 100%"
+      />
+    </div>
 
-      @if (loading) {
-        <div class="cl-loading">
-          <p-button [loading]="true" [text]="true" severity="secondary" />
-          <span>Chargement…</span>
-        </div>
-      } @else if (deliveries.length === 0) {
-        <div class="cl-empty">
+    <!-- ── FOOTER TOTAUX ──────────────────────────────────────────────────── -->
+    <div class="lb-totals-bar">
+      @if (countReceived() > 0) {
+        <span class="lb-totals-bar__pending">
           <i class="pi pi-inbox"></i>
-          <span>Aucun bon de livraison pour cette période.</span>
-          <small>Modifiez les filtres ou la plage de dates.</small>
-        </div>
+          {{ countReceived() }} en attente
+        </span>
       }
-
-      @for (bon of deliveries; track bon.id) {
-
-        <!-- CARTE BON RECEIVED (en attente de saisie) -->
-        @if (isReceived(bon)) {
-          <div class="bc bc--received bc--clickable" (click)="onEditerReceived(bon, $event)">
-
-            <!-- Corps -->
-            <div class="bc__body">
-              <div class="bc__top">
-                <span class="bc__name">{{ bon.fournisseurLibelle }}</span>
-                <span class="bc__amount">{{ (bon.receiptAmount ?? bon.grossAmount) | number : '1.0-0' }}
-                  <small> F TTC</small></span>
-              </div>
-              <div class="bc__stats">
-                <span class="bc__stat bc__stat--count">
-                  <i class="pi pi-tag"></i>{{ $any(bon).itemSize }} article{{
-                    $any(bon).itemSize > 1 ? 's' : ''
-                  }}
-                </span>
-                <span class="bc__stat bc__stat--ref">
-                  <i class="pi pi-file"></i>{{ $any(bon).receiptReference ?? bon.orderReference }}
-                </span>
-                <span class="bc__stat">
-                  <i class="pi pi-calendar"></i>{{ $any(bon).receiptDate | date : 'dd/MM/yyyy' }}
-                </span>
-                <span class="bc__stat">
-                  <i class="pi pi-user"></i>{{ $any(bon).createdUser }}
-                </span>
-                <span class="bc__badge" data-severity="warn">En attente de saisie</span>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="bc__actions">
-              <button
-                (click)="onEditerReceived(bon, $event)"
-                class="bc__action bc__action--primary"
-                pTooltip="Ouvrir la saisie"
-                tooltipPosition="top"
-              >
-                <i class="pi pi-inbox"></i>
-              </button>
-              <button (click)="exportPdf(bon, $event)" class="bc__action" pTooltip="Imprimer BL"
-                      tooltipPosition="top">
-                <i class="pi pi-file-pdf"></i>
-              </button>
-            </div>
-
-          </div>
-
-        } @else {
-          <!-- CARTE BON CLOSED (clôturé) -->
-          <div class="bc bc--clickable" (click)="onOuvrirClosed(bon)">
-
-            <!-- Corps -->
-            <div class="bc__body">
-              <div class="bc__top">
-                <span class="bc__name">{{ bon.fournisseurLibelle }}</span>
-                <span class="bc__amount">{{ (bon.receiptAmount ?? bon.grossAmount) | number : '1.0-0' }}
-                  <small> F TTC</small></span>
-              </div>
-              <div class="bc__stats">
-                <span class="bc__stat bc__stat--count">
-                  <i class="pi pi-tag"></i>{{ $any(bon).itemSize }} article{{
-                    $any(bon).itemSize > 1 ? 's' : ''
-                  }}
-                </span>
-                <span class="bc__stat bc__stat--ref">
-                  <i class="pi pi-file"></i>{{ $any(bon).receiptReference ?? bon.orderReference }}
-                </span>
-                <span class="bc__stat">
-                  <i class="pi pi-calendar"></i>{{ $any(bon).receiptDate | date : 'dd/MM/yyyy' }}
-                </span>
-                <span class="bc__stat">
-                  <i class="pi pi-user"></i>{{ $any(bon).createdUser }}
-                </span>
-                <span class="bc__badge" data-severity="success">Clôturé</span>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="bc__actions">
-              <button (click)="exportPdf(bon, $event)" class="bc__action" pTooltip="Imprimer BL"
-                      tooltipPosition="top">
-                <i class="pi pi-file-pdf"></i>
-              </button>
-              <button (click)="printEtiquette(bon, $event)" class="bc__action" pTooltip="Étiquettes"
-                      tooltipPosition="top">
-                <i class="pi pi-print"></i>
-              </button>
-            </div>
-
-          </div>
-        }
-
+      <span class="lb-totals-bar__sep ms-auto"></span>
+      <span class="lb-totals-bar__item">
+        {{ periodTotals()?.count ?? totalItems }} bon{{ (periodTotals()?.count ?? totalItems) > 1 ? 's' : '' }}
+      </span>
+      @if (periodTotals(); as t) {
+        <span class="lb-totals-bar__item">
+          Total HT achat : <strong>{{ t.totalGrossAmount | number:'1.0-0' }} F</strong>
+        </span>
+        <span class="lb-totals-bar__item">
+          Total HT net : <strong>{{ t.totalNetAmount | number:'1.0-0' }} F</strong>
+        </span>
+        <span class="lb-totals-bar__item">
+          TVA : <strong>{{ t.totalTaxAmount | number:'1.0-0' }} F</strong>
+        </span>
       }
     </div>
 

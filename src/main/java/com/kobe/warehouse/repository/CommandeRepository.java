@@ -1,15 +1,23 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Fournisseur_;
+import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLine_;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -19,6 +27,12 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.Optional;
 
 /**
  * Spring Data repository for the Commande entity.0
@@ -115,4 +129,56 @@ public interface CommandeRepository
     default Specification<Commande> dateReceiptBetween(LocalDate startDate, LocalDate endDate) {
         return (root, query, cb) -> cb.between(root.get(Commande_.receiptDate), startDate, endDate);
     }
+
+    default Specification<Commande> byStatut(EnumSet<OrderStatut> statuts) {
+        return (root, query, cb) -> root.get(Commande_.orderStatus).in(statuts);
+    }
+
+    default Specification<Commande> byFournisseur(Integer fournisseurId) {
+        return (root, query, cb) -> {
+            Join<Commande, Fournisseur> fournisseurJoin = root.join(Commande_.fournisseur);
+            return cb.equal(fournisseurJoin.get(Fournisseur_.id), fournisseurId);
+        };
+    }
+    default Specification<Commande> byUser(Integer userId) {
+        return (root, query, cb) -> {
+            Join<Commande, AppUser> appUserJoin = root.join(Commande_.user);
+            return cb.equal(appUserJoin.get(AppUser_.id), userId);
+        };
+    }
+
+    default Specification<Commande> bySearchRef(String searchRef) {
+        if (!StringUtils.hasLength(searchRef)) {
+            return null;
+        }
+        String search = searchRef.toUpperCase() + "%";
+        return (root, query, cb) -> cb.or(
+            cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
+            cb.like(cb.upper(root.get(Commande_.orderReference)), search)
+        );
+    }
+
+    default Specification<Commande> bySearchTerm(String searchTerm) {
+        if (!StringUtils.hasLength(searchTerm)) {
+            return null;
+        }
+        String search = searchTerm.toUpperCase().toUpperCase() + "%";
+        return (root, query, cb) -> {
+            query.distinct(true);
+            Join<Commande, OrderLine> linesJoin = root.join(Commande_.orderLines);
+            Join<OrderLine, FournisseurProduit> fpJoin = linesJoin.join(OrderLine_.fournisseurProduit);
+            Join<FournisseurProduit, Produit> produitJoin = fpJoin.join(FournisseurProduit_.produit);
+            Join<Commande, Fournisseur> fournisseurJoin = root.join(Commande_.fournisseur);
+            return cb.or(
+                cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
+                cb.like(cb.upper(root.get(Commande_.orderReference)), search),
+                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeCip)), search),
+                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeEan)), search),
+                cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), search),
+                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
+                cb.like(cb.upper(fournisseurJoin.get(Fournisseur_.libelle)), search)
+            );
+        };
+    }
+
 }

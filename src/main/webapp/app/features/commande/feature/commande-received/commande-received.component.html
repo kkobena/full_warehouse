@@ -1,17 +1,18 @@
 <p-toast position="center"/>
 
 <div class="cr-wrapper">
-  <!-- HEADER TOOLBAR -->
-  <div class="pharma-sales-header">
-    <div class="header-left">
-      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour"/>
-      <div class="page-title">
-        <h5>Réception de commande</h5>
-        <p class="subtitle">Validation et traitement des réceptions</p>
-      </div>
-    </div>
-
-    <div class="header-actions">
+  <!-- HEADER -->
+  <div class="view-panel__header view-panel__header--detail">
+    <p-button (click)="previousState()" icon="pi pi-arrow-left" [text]="true" size="small" pTooltip="Retour"/>
+    @if (currentCommande) {
+      <span class="view-panel__title">{{ currentCommande.fournisseur?.libelle }}</span>
+      <span class="view-panel__meta">
+        <i class="pi pi-file"></i>&nbsp;{{ currentCommande.receiptReference ?? currentCommande.orderReference }}
+        &nbsp;·&nbsp;
+        {{ currentCommande.receiptDate | date:'dd/MM/yyyy' }}
+      </span>
+    }
+    <div class="cr-header-actions">
       @if (lignesPcbAlert > 0) {
         <p-tag
           [value]="lignesPcbAlert + ' alerte(s) colisage'"
@@ -77,63 +78,47 @@
       }
       <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small"/>
     </div>
-
-    <div class="header-status">
-      <app-commande-status-bar [commande]="currentCommande" />
-    </div>
   </div>
 
-  <!-- FILTERS TOOLBAR -->
-  <div class="pharma-toolbar">
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters py-1">
-          <div>
-            <p-iconfield>
-              <p-inputicon class="pi pi-search"/>
-              <input
-                (keyup.enter)="onFilterCommandeLines()"
-                [(ngModel)]="search"
-                pInputText
-                placeholder="Taper pour rechercher"
-                type="text"
-              />
-            </p-iconfield>
-          </div>
-          <div>
-            <p-floatlabel variant="on">
-              <p-select
-                (onChange)="onFilterCommandeLines()"
-                [(ngModel)]="tris"
-                [fluid]="true"
-                [options]="sorts"
-                appendTo="body"
-                inputId="ordre"
-                optionLabel="label"
-                optionValue="code"
-                size="large"
-              />
-              <label for="ordre">Ordre</label>
-            </p-floatlabel>
-          </div>
-          <div>
-            <p-floatlabel variant="on">
-              <p-select
-                (onChange)="onFilterCommandeLines()"
-                [(ngModel)]="selectedFilter"
-                [fluid]="true"
-                [options]="filtres"
-                appendTo="body"
-                inputId="selectedFilter"
-                optionLabel="label"
-                optionValue="value"
-                size="large"
-              />
-              <label for="selectedFilter">Filtrer par</label>
-            </p-floatlabel>
-          </div>
-          <!-- Scan douchette -->
-          <div class="cr-scan-field">
+  <!-- FILTRES -->
+  <div class="su-action-bar">
+    <div class="su-action-bar__filters">
+      <p-iconfield>
+        <p-inputicon class="pi pi-search"/>
+        <input
+          (keyup.enter)="onFilterCommandeLines()"
+          [(ngModel)]="search"
+          pInputText
+          placeholder="Taper pour rechercher"
+          type="text"
+        />
+      </p-iconfield>
+      <p-floatlabel variant="on">
+        <p-select
+          (onChange)="onFilterCommandeLines()"
+          [(ngModel)]="tris"
+          [options]="sorts"
+          appendTo="body"
+          inputId="ordre"
+          optionLabel="label"
+          optionValue="code"
+        />
+        <label for="ordre">Ordre</label>
+      </p-floatlabel>
+      <p-floatlabel variant="on">
+        <p-select
+          (onChange)="onFilterCommandeLines()"
+          [(ngModel)]="selectedFilter"
+          [options]="filtres"
+          appendTo="body"
+          inputId="selectedFilter"
+          optionLabel="label"
+          optionValue="value"
+        />
+        <label for="selectedFilter">Filtrer par</label>
+      </p-floatlabel>
+      <!-- Scan douchette -->
+      <div class="cr-scan-field">
             <p-iconfield>
               <p-inputicon class="pi pi-qrcode"/>
               <input
@@ -180,10 +165,8 @@
                 }
               </span>
             }
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
+      </div>
+    </div>
   </div>
 
   <!-- MAIN CONTENT -->

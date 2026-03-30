@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -28,7 +29,7 @@ public abstract class CommandeWrapperDTO {
     private FournisseurDTO fournisseur;
     private boolean hasBeenSubmittedToPharmaML;
     private Integer reliquatDeCommandeId;
-
+    private  String createdUser;
     protected CommandeWrapperDTO() {}
 
     protected CommandeWrapperDTO(Commande commande) {
@@ -49,6 +50,8 @@ public abstract class CommandeWrapperDTO {
         receiptAmount = commande.getFinalAmount();
         hasBeenSubmittedToPharmaML = commande.isHasBeenSubmittedToPharmaML();
         reliquatDeCommandeId = commande.getReliquatDeCommandeId();
+        AppUser user1 = commande.getUser();
+        createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
     }
 
     public Integer getId() {
@@ -184,6 +187,14 @@ public abstract class CommandeWrapperDTO {
     public CommandeWrapperDTO setReceiptAmount(Integer receiptAmount) {
         this.receiptAmount = receiptAmount;
         return this;
+    }
+
+    public String getCreatedUser() {
+        return createdUser;
+    }
+
+    public void setCreatedUser(String createdUser) {
+        this.createdUser = createdUser;
     }
 
     public String getSequenceBon() {

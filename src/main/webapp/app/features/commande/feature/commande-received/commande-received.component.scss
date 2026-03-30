@@ -1,13 +1,24 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/features/commande/commande-shared';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-nav';
+
+// ── HOST (flex item dans .lb-detail-body) ──────────────────────────────────
+// Sans :host, le host-element reste à height:auto → chaîne flex brisée → grille à 0px
+
+:host {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  flex-direction: column;
+}
 
 // ── WRAPPER GLOBAL ─────────────────────────────────────────────────────────
 
 .cr-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
 }
@@ -142,94 +153,15 @@
   50%       { opacity: 0.5; }
 }
 
-$pharma-success: #5cb85c; // Bootstrap green (overrides shared)
-$border-radius-sm: $pharma-radius-sm;
-$border-radius-lg: 12px;
+// ── HEADER ACTIONS (partie droite du view-panel__header) ──────────────────
 
-// ============================================
-// HEADER TOOLBAR
-// ============================================
-
-.pharma-sales-header {
-  position: relative;
-  z-index: 1000;
-  background: $pharma-white;
-  border-bottom: 1px solid $gray-200;
-  padding: 0.5rem 1rem;
+.cr-header-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.4rem;
   flex-wrap: wrap;
-  box-shadow: $pharma-shadow-md;
-  min-height: 50px;
   flex-shrink: 0;
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-    min-width: 0;
-
-    .back-button {
-      color: $gray-600;
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: $pharma-primary;
-        background-color: $pharma-primary-light;
-      }
-    }
-
-    .page-title {
-      h1 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: $gray-900;
-        line-height: 1.2;
-      }
-
-      .subtitle {
-        margin: 0;
-        font-size: 0.8rem;
-        color: $gray-500;
-        font-weight: 400;
-      }
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-  }
-
-  .header-status {
-    flex: 0 0 100%;
-    margin: 0.25rem -1rem -0.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .pharma-sales-header {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-    padding: 0.75rem;
-
-    .header-left,
-    .header-actions {
-      width: 100%;
-    }
-
-    .header-actions {
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-  }
+  margin-left: auto;
 }
 
 // ============================================
@@ -238,7 +170,7 @@ $border-radius-lg: 12px;
 
 .reception-summary-card {
   background: $pharma-white;
-  border-radius: $border-radius-lg;
+  border-radius: 12px;
   box-shadow: $pharma-shadow-md;
   overflow: hidden;
   border: 1px solid $gray-200;

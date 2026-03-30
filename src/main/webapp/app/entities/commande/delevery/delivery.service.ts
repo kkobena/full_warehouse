@@ -10,6 +10,13 @@ import { CommandeId } from '../../../shared/model/abstract-commande.model';
 import { IStockEntryResult } from '../../../shared/model/stock-entry-result.model';
 import { IReceptionScanResult } from '../../../shared/model/reception-scan-result.model';
 
+export interface IDeliveryTotals {
+  count: number;
+  totalGrossAmount: number;
+  totalNetAmount: number;
+  totalTaxAmount: number;
+}
+
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
 
@@ -19,6 +26,7 @@ export class DeliveryService {
   private readonly http = inject(HttpClient);
 
   private readonly resourceUrl = SERVER_API_URL + 'api/commandes/data/entree-stock';
+  private readonly resourceUrlQuery = SERVER_API_URL + 'api/commandes';
   private readonly resourceUrl2 = SERVER_API_URL + 'api/commandes/entree-stock/create';
   private readonly resourceFinalyse = SERVER_API_URL + 'api/commandes/entree-stock/finalize';
   private readonly resourceUrlTransac = SERVER_API_URL + 'api/commandes/entree-stock';
@@ -61,7 +69,15 @@ export class DeliveryService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<IDelivery[]>(this.resourceUrl + '/list', {
+    return this.http.get<IDelivery[]>(this.resourceUrlQuery, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  fetchTotals(req?: any): Observable<HttpResponse<IDeliveryTotals>> {
+    const options = createRequestOptions(req);
+    return this.http.get<IDeliveryTotals>(`${this.resourceUrlQuery}/totaux`, {
       params: options,
       observe: 'response',
     });

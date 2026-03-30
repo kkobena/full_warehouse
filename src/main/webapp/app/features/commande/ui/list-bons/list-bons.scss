@@ -2,7 +2,14 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/features/commande/commande-shared';
 
-$card-radius: 6px;
+// ── OVERRIDE view-panel pour ce contexte ───────────────────────────────────────
+// Le chrome au-dessus (navbar ~56px + card ~26px + p-2 8px + su-toolbar ~86px)
+// dépasse les 160px supposés par _commande-shared. On corrige ici sans toucher
+// au fichier partagé.
+.view-panel {
+  height: calc(100vh - 195px);
+  margin: 0;
+}
 
 // ── BARRE D'ACTIONS ────────────────────────────────────────────────────────────
 
@@ -24,204 +31,52 @@ $card-radius: 6px;
   ::ng-deep .p-datepicker-input-icon-container { height: 32px; }
 }
 
-// ── LISTE DES CARTES ──────────────────────────────────────────────────────────
+// ── GRILLE BL ─────────────────────────────────────────────────────────────────
 
-.bon-list {
+.lb-grid-wrap {
   flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem 0.75rem 0;
-  gap: 0.4rem;
-  scrollbar-width: thin;
-}
-
-.cl-loading,
-.cl-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2.5rem 1rem;
-  color: $gray-400;
-  font-size: 0.82rem;
-  text-align: center;
-
-  i { font-size: 2rem; }
-  small { font-size: 0.78rem; color: $gray-400; }
-}
-
-// ── CARTE BON ─────────────────────────────────────────────────────────────────
-
-.bc {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.75rem 0.55rem 0.9rem;
-  border-radius: $card-radius;
-  border: 1px solid $pharma-border;
-  background: $gray-50;
-  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 4px;
-    bottom: 4px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: #10b981;  // vert : clôturé
-    transition: background-color 0.15s;
-  }
-
-  // Carte interactive (cursor pointer)
-  &--clickable { cursor: pointer; }
-
-  // ── Bon en cours de réception (RECEIVED) ──────────────────────────────────
-  &--received {
-    background: #fffbeb;
-    border-color: #fbbf24;
-
-    &::before { background: #f59e0b; }
-
-    .bc__name { color: #92400e; }
-    .bc__amount { color: #b45309; }
-
-    &:hover {
-      border-color: #f59e0b;
-      background: #fef3c7;
-      box-shadow: $pharma-shadow-hover;
-    }
-  }
-
-  &--clickable:hover:not(.bc--received) {
-    border-color: $pharma-primary;
-    background: $pharma-primary-light;
-    box-shadow: $pharma-shadow-hover;
-  }
-}
-
-// Corps
-.bc__body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-}
-
-.bc__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.bc__name {
-  flex: 1;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: $gray-700;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
 
-.bc__amount {
-  flex-shrink: 0;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: $pharma-primary;
-  white-space: nowrap;
-
-  small {
-    font-weight: 400;
-    font-size: 0.7rem;
-    color: $gray-400;
-    margin-left: 1px;
-  }
-}
-
-.bc__stats {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.bc__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.74rem;
-  color: $pharma-text-light;
-  font-weight: 500;
-  white-space: nowrap;
-
-  i { font-size: 0.7rem; color: $pharma-secondary; }
-
-  &--count {
-    padding: 1px 7px;
-    border-radius: 10px;
-    background: rgba($pharma-primary, 0.1);
-    color: $pharma-primary-dark;
-    font-weight: 700;
-    font-size: 0.73rem;
-
-    i { color: $pharma-primary; }
+  // Ligne RECEIVED : fond ambré léger
+  ::ng-deep .ag-row.row-received {
+    background: #fffbeb !important;
+    border-left: 3px solid #f59e0b;
   }
 
-  &--ref {
-    font-family: monospace;
-    font-size: 0.72rem;
-    color: $gray-500;
-  }
+  ::ng-deep .ag-row { cursor: pointer; }
 }
 
-.bc__badge { @extend .commande-badge; }
+// ── FOOTER TOTAUX ──────────────────────────────────────────────────────────────
 
-// Actions
-.bc__actions {
+.lb-totals-bar {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
-}
-
-.bc__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
+  gap: 1.25rem;
+  padding: 0.4rem 1rem;
   background: $gray-100;
+  border-top: 1px solid $gray-200;
+  font-size: 0.78rem;
   color: $gray-500;
-  transition: background-color 0.15s, transform 0.1s;
 
-  &:hover {
-    background: $gray-200;
-    color: $gray-700;
-    transform: scale(1.08);
+  strong { color: $pharma-primary; font-weight: 700; }
+
+  &__pending {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 700;
+    font-size: 0.72rem;
+    i { font-size: 0.7rem; }
   }
 
-  &--primary {
-    background: rgba($pharma-primary, 0.08);
-    color: $pharma-primary;
-
-    &:hover {
-      background: rgba($pharma-primary, 0.18);
-      transform: scale(1.08);
-    }
+  &__item {
+    white-space: nowrap;
   }
 }
 

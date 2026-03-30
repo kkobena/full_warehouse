@@ -1,104 +1,36 @@
-<div class="supplier-list">
-
-  @if (loading()) {
-    <div class="sl-loading">
-      <p-progressSpinner strokeWidth="3" [style]="{ width: '32px', height: '32px' }" />
-    </div>
-  }
-
-  @if (!loading() && fournisseurs().length === 0) {
-    <div class="sl-empty">
-      <i class="pi pi-inbox"></i>
-      <span>Aucune suggestion disponible</span>
-    </div>
-  }
-
-  @for (f of fournisseurs(); track f.suggestionId ?? f.fournisseurId) {
-    <div
-      class="sc"
-      [class.sc--active]="selected()?.suggestionId === f.suggestionId"
-      [class.sc--checked]="isSelected(f)"
-      [class.sc--urgent]="f.nbUrgents > 0 && selected()?.suggestionId !== f.suggestionId && !isSelected(f)"
-      (click)="select(f)"
-    >
-      <!-- Colonne gauche : checkbox -->
-      <div class="sc__check">
-        @if (f.suggestionId) {
-          <p-checkbox
-            [binary]="true"
-            [ngModel]="isSelected(f)"
-            (click)="toggleSelect(f, $event)"
-            pTooltip="Sélectionner"
-            tooltipPosition="right"
-          />
-        }
-      </div>
-
-      <!-- Corps principal -->
-      <div class="sc__body">
-        <div class="sc__top">
-          <span class="sc__name" [title]="f.libelle">{{ f.libelle }}</span>
-          <span class="sc__amount">{{ f.montantEstime | number : '1.0-0' }}<small> FCFA</small></span>
-        </div>
-        <div class="sc__stats">
-          <span class="sc__stat sc__stat--count">
-            <i class="pi pi-tag"></i>{{ f.nbProduits }} produit{{ f.nbProduits > 1 ? 's' : '' }}
-          </span>
-          @if (f.nbUrgents > 0) {
-            <span class="sc__stat sc__stat--urgent">
-              <i class="pi pi-bolt"></i>{{ f.nbUrgents }}
-            </span>
-          }
-          @if (f.statut) {
-            <span class="sc__badge" [attr.data-severity]="statutSeverity(f.statut)">
-              {{ f.statut }}
-            </span>
-          }
-        </div>
-      </div>
-
-      <!-- Actions — toujours visibles -->
-      @if (f.suggestionId) {
-        <div class="sc__actions">
-          @if (f.statut !== 'VALIDEE') {
-            <button class="sc__action sc__action--success" (click)="onValider(f, $event)" pTooltip="Valider" tooltipPosition="top">
-              <i class="pi pi-check"></i>
-            </button>
-          }
-          <button class="sc__action sc__action--primary" (click)="onCommander(f, $event)" pTooltip="Commander" tooltipPosition="top">
-            <i class="pi pi-shopping-cart"></i>
-          </button>
-          <button class="sc__action" (click)="onExportPdf(f, $event)" pTooltip="PDF" tooltipPosition="top">
-            <i class="pi pi-file-pdf"></i>
-          </button>
-          <button class="sc__action" (click)="onExportCsv(f, $event)" pTooltip="CSV" tooltipPosition="top">
-            <i class="pi pi-file-excel"></i>
-          </button>
-          <span class="sc__action-sep"></span>
-          <button class="sc__action sc__action--danger" (click)="onSupprimerSuggestion(f, $event)" pTooltip="Supprimer" tooltipPosition="top">
-            <i class="pi pi-trash"></i>
-          </button>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- Toolbar bulk (sticky bas) -->
-  @if (selectionCount() >= 2) {
-    <div class="bulk-toolbar">
-      <span class="bulk-info">
-        <i class="pi pi-check-square"></i> {{ selectionCount() }} sél.
-      </span>
-      <div class="bulk-actions">
-        @if (canFusionner()) {
-          <button class="bulk-btn bulk-btn--info" (click)="onFusionner()" title="Fusionner">
-            <i class="pi pi-sitemap"></i> Fusionner
-          </button>
-        }
-        <button class="bulk-btn bulk-btn--danger" (click)="onSupprimerSelection()" title="Supprimer">
-          <i class="pi pi-trash"></i> Supprimer
-        </button>
-      </div>
-    </div>
-  }
+<!-- GRILLE FOURNISSEURS -->
+<div class="sfl-grid-wrap">
+  <ag-grid-angular
+    [columnDefs]="colDefs"
+    [defaultColDef]="defaultColDef"
+    [getRowId]="getRowId"
+    [loading]="loading()"
+    [rowClassRules]="rowClassRules"
+    [rowData]="fournisseurs()"
+    [theme]="theme"
+    (cellClicked)="onCellClicked($event)"
+    style="width: 100%; height: 100%"
+  />
 </div>
+
+<!-- FOOTER TOTAUX -->
+<div class="sfl-totals-bar">
+  @if (selectionCount() > 0) {
+    <span class="sfl-totals-bar__selected">
+      <i class="pi pi-check-square"></i> {{ selectionCount() }} sél.
+    </span>
+  }
+  @if (totalUrgents() > 0) {
+    <span class="sfl-totals-bar__urgent">
+      <i class="pi pi-bolt"></i> {{ totalUrgents() }} urgent(s)
+    </span>
+  }
+  <span class="ms-auto"></span>
+  <span class="sfl-totals-bar__item">
+    {{ fournisseurs().length }} fournisseur{{ fournisseurs().length > 1 ? 's' : '' }}
+  </span>
+  <span class="sfl-totals-bar__item">
+    Total estimé : <strong>{{ totalMontant() | number:'1.0-0' }} F</strong>
+  </span>
+</div>
+

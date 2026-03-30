@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
+import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
@@ -28,4 +29,8 @@ public interface StockEntryDataService {
     Slice<DeliveryReceiptProjection> fetchAllReceipts(String searchTerm);
 
     List<DeliveryReceiptItemProjection> findAllByCommandeIdAndCommandeOrderDate(CommandeId id);
+
+    Page<DeliveryReceiptDTO> fetchAllWithoutDetail(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
+
+    DeliveryTotalsDTO computeTotals(DeliveryReceiptFilterDTO filter);
 }

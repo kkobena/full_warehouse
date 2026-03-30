@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
+import java.time.LocalDateTime;
+
 /**
  * Résumé agrégé d'une suggestion par fournisseur.
  * Retourné par GET /api/suggestions/par-fournisseur.
@@ -13,5 +15,6 @@ public record FournisseurSuggestionSummaryDTO(
     int nbProduits,
     int nbUrgents,
     long montantEstime,
-    String source
+    String source,
+    LocalDateTime updatedAt
 ) {}

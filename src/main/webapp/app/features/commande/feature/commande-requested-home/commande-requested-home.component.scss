@@ -1,225 +1,61 @@
 @import 'app/shared/scss/pharma-nav';
 @import 'app/features/commande/commande-shared';
 
-$card-radius: 6px;
-$accent-checked: $pharma-primary;
+// ── OVERRIDE view-panel (même chrome que list-bons) ───────────────────────────
+.view-panel {
+  height: calc(100vh - 195px);
+  margin: 0;
+}
 
-// ── LISTE DES CARTES ─────────────────────────────────────────────────────────
+// ── GRILLE COMMANDES ──────────────────────────────────────────────────────────
 
-.commande-list {
+.rq-grid-wrap {
   flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem 0.75rem 0;
-  gap: 0.4rem;
-  scrollbar-width: thin;
-}
-
-.cl-loading,
-.cl-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem 1rem;
-  color: $gray-400;
-  font-size: 0.82rem;
-
-  i { font-size: 1.5rem; }
-}
-
-// ── CARTE COMMANDE ───────────────────────────────────────────────────────────
-
-.cc {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.75rem 0.6rem 0.9rem;
-  border-radius: $card-radius;
-  border: 1px solid $pharma-border;
-  background: $gray-50;
-  cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 4px;
-    bottom: 4px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: transparent;
-    transition: background-color 0.15s;
-  }
-
-  &:hover {
-    border-color: $pharma-primary;
-    background: $pharma-primary-light;
-    box-shadow: $pharma-shadow-hover;
-
-    .cc__actions { opacity: 1; }
-  }
-
-  &--checked {
-    border-color: $accent-checked;
-    background: $pharma-primary-light;
-
-    &::before { background: $accent-checked; }
-  }
-}
-
-.cc__check {
-  flex-shrink: 0;
-  width: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-// Corps : nom + stats alignés horizontalement (même layout que sc__body)
-.cc__body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.cc__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.cc__name {
-  flex: 1;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: $gray-700;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  transition: color 0.15s;
+
+  ::ng-deep .ag-row.row-reliquat {
+    background: #fffbeb !important;
+    border-left: 3px solid #f59e0b;
+  }
+
+  ::ng-deep .ag-row.row-selected {
+    background: $pharma-primary-light !important;
+    border-left: 3px solid $pharma-primary;
+  }
+
+  ::ng-deep .ag-row { cursor: pointer; }
 }
 
-// Stats en ligne après le nom
-.cc__stats {
+// ── FOOTER TOTAUX ─────────────────────────────────────────────────────────────
+
+.rq-totals-bar {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-}
-
-.cc__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.76rem;
-  color: $pharma-text-light;
-  font-weight: 600;
-  white-space: nowrap;
-
-  i { font-size: 0.72rem; color: $pharma-secondary; }
-
-  &--count {
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: rgba($pharma-primary, 0.1);
-    color: $pharma-primary-dark;
-    font-weight: 700;
-    font-size: 0.75rem;
-
-    i { color: $pharma-primary; }
-  }
-
-  &--ref {
-    font-family: monospace;
-    font-size: 0.72rem;
-    color: $gray-500;
-  }
-}
-
-// Badge → alias du shared
-.cc__badge { @extend .commande-badge; }
-
-.cc__amount {
-  flex-shrink: 0;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: $pharma-primary;
-  white-space: nowrap;
-  transition: color 0.15s;
-
-  small {
-    font-weight: 400;
-    font-size: 0.7rem;
-    color: $gray-400;
-    margin-left: 1px;
-  }
-}
-
-// ─── Actions carte — toujours visibles ────────────────────────────────────────
-.cc__actions {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.cc__action-sep {
-  width: 1px;
-  height: 14px;
-  background: $gray-200;
-  margin: 0 3px;
-  flex-shrink: 0;
-}
-
-.cc__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  transition: background-color 0.15s, transform 0.1s;
+  gap: 1.25rem;
+  padding: 0.4rem 1rem;
   background: $gray-100;
+  border-top: 1px solid $gray-200;
+  font-size: 0.78rem;
   color: $gray-500;
 
-  &:hover {
-    background: $gray-200;
-    color: $gray-700;
-    transform: scale(1.08);
+  strong { color: $pharma-primary; font-weight: 700; }
+
+  &__selected {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: $pharma-primary-light;
+    color: $pharma-primary-dark;
+    font-weight: 700;
+    font-size: 0.72rem;
+    i { font-size: 0.7rem; }
   }
 
-  &--success {
-    background: rgba(#059669, 0.08);
-    color: #059669;
-    &:hover { background: rgba(#059669, 0.18); transform: scale(1.08); }
-  }
-
-  &--primary {
-    background: rgba($pharma-primary, 0.08);
-    color: $pharma-primary;
-    &:hover { background: rgba($pharma-primary, 0.18); transform: scale(1.08); }
-  }
-
-  &--danger {
-    background: rgba($pharma-danger, 0.08);
-    color: $pharma-danger;
-    &:hover { background: rgba($pharma-danger, 0.18); transform: scale(1.08); }
-  }
+  &__item { white-space: nowrap; }
 }
 
 // ── DETAIL BODY ──────────────────────────────────────────────────────────────
@@ -232,4 +68,4 @@ $accent-checked: $pharma-primary;
   flex-direction: column;
 }
 
-// view-panel, view-panel__header, bulk-toolbar, pagination-bar → commande-shared
+// view-panel__header, bulk-toolbar, pagination-bar → commande-shared

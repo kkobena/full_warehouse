@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, Injector, signal, untracked} from '@angular/core';
+import {Component, computed, effect, inject, input, Injector, signal, untracked, viewChild} from '@angular/core';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonModule} from 'primeng/button';
@@ -59,6 +59,11 @@ export class SuggestionHomeComponent {
     this.facade.fournisseurs().filter(f => f.nbUrgents > 0).length,
   );
   readonly nbFournisseurs = computed(() => this.facade.fournisseurs().length);
+
+  // ── Bulk actions (propagées depuis le composant enfant) ────────────────────
+  private readonly sfList = viewChild(SuggestionFournisseurListComponent);
+  readonly childSelectionCount = signal<number>(0);
+  readonly childCanFusionner   = signal<boolean>(false);
 
   constructor() {
     // Réagit à chaque changement du statut (y compris l'init)
@@ -266,6 +271,12 @@ export class SuggestionHomeComponent {
     modalRef.componentInstance.suggestionId = fournisseur.suggestionId;
     modalRef.componentInstance.header = `Disponibilité PharmaML — ${fournisseur.libelle}`;
   }
+
+  onChildSelectionCountChange(n: number): void { this.childSelectionCount.set(n); }
+  onChildCanFusionnerChange(b: boolean): void   { this.childCanFusionner.set(b); }
+
+  onFusionnerBulk(): void   { this.sfList()?.onFusionner(); }
+  onSupprimerBulk(): void   { this.sfList()?.onSupprimerSelection(); }
 
   onFusionnerSuggestions(ids: number[]): void {
     if (ids.length < 2) return;

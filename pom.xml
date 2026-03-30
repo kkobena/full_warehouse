@@ -7,7 +7,7 @@
   <parent>
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
-    <version>4.0.3</version>
+    <version>4.0.5</version>
     <relativePath/>
   </parent>
 
@@ -41,7 +41,7 @@
     <!-- Dependency versions -->
     <hibernate.version>7.2.1.Final</hibernate.version>
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
-    <flyway.version>11.11.2</flyway.version>
+    <flyway.version>11.14.1</flyway.version>
     <springdoc-openapi.version>2.7.0</springdoc-openapi.version>
     <openpdf.version>3.0.0</openpdf.version>
     <xhtmlrenderer.version>10.0.6</xhtmlrenderer.version>

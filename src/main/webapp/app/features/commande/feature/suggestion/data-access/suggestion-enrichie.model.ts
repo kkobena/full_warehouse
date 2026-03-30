@@ -14,6 +14,7 @@ export interface FournisseurSuggestionSummary {
   montantEstime: number;
   source: 'STANDARD' | 'SEMOIS' | 'MIXTE';
   statut?: string;
+  updatedAt?: string;
 }
 
 export interface SuggestionLigneEnrichie {

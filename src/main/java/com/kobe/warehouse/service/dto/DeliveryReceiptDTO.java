@@ -1,99 +1,40 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
-import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.Comparator;
 import java.util.List;
 
-public class DeliveryReceiptDTO {
+public class DeliveryReceiptDTO extends CommandeWrapperDTO {
 
-    private final Integer id;
-    private final CommandeId commandeId;
-
-    private final String receiptReference;
-
-    private final LocalDate receiptDate;
-
-    private final int discountAmount;
-
-    private final Integer receiptAmount;
-
-    private final LocalDateTime createdDate;
-
-    private final LocalDateTime modifiedDate;
-
-    private final String createdUser;
     private final Integer fournisseurId;
     private final String fournisseurLibelle;
-    private final Integer netAmount;
 
-    private final Integer taxAmount;
 
-    private final List<DeliveryReceiptItemDTO> receiptItems;
+    private final List<OrderLineDTO> orderLines;
     private final int itemSize;
 
     public DeliveryReceiptDTO(Commande commande) {
-        id = commande.getId().getId();
-        commandeId = commande.getId();
-        discountAmount = commande.getDiscountAmount();
-        receiptReference = commande.getReceiptReference();
-        receiptDate = commande.getReceiptDate();
-        receiptAmount = commande.getGrossAmount();
-        createdDate = commande.getCreatedAt();
-        modifiedDate = commande.getUpdatedAt();
-        AppUser user1 = commande.getUser();
-        createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
+        this(commande, commande
+            .getOrderLines()
+            .stream()
+            .map(OrderLineDTO::new)
+            .sorted(Comparator.comparing(OrderLineDTO::getProduitLibelle))
+            .toList());
+    }
 
+
+    public DeliveryReceiptDTO(Commande commande, List<OrderLineDTO> items) {
+        super(commande);
         Fournisseur fournisseur = commande.getFournisseur();
         fournisseurId = fournisseur.getId();
         fournisseurLibelle = fournisseur.getLibelle();
-        netAmount = commande.getHtAmount();
-        taxAmount = commande.getTaxAmount();
 
-        receiptItems = commande
-            .getOrderLines()
-            .stream()
-            .map(DeliveryReceiptItemDTO::new)
-            .sorted(Comparator.comparing(DeliveryReceiptItemDTO::getFournisseurProduitLibelle))
-            .toList();
-        itemSize = receiptItems.size();
+        orderLines = items;
+        itemSize = items.size();
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public String getReceiptReference() {
-        return receiptReference;
-    }
-
-    public LocalDate getReceiptDate() {
-        return receiptDate;
-    }
-
-    public Integer getDiscountAmount() {
-        return discountAmount;
-    }
-
-    public Integer getReceiptAmount() {
-        return receiptAmount;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public LocalDateTime getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public String getCreatedUser() {
-        return createdUser;
-    }
 
     public Integer getFournisseurId() {
         return fournisseurId;
@@ -103,20 +44,9 @@ public class DeliveryReceiptDTO {
         return fournisseurLibelle;
     }
 
-    public Integer getNetAmount() {
-        return netAmount;
-    }
 
-    public Integer getTaxAmount() {
-        return taxAmount;
-    }
-
-    public List<DeliveryReceiptItemDTO> getReceiptItems() {
-        return receiptItems;
-    }
-
-    public CommandeId getCommandeId() {
-        return commandeId;
+    public List<OrderLineDTO> getOrderLines() {
+        return orderLines;
     }
 
     public int getItemSize() {

@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule, DatePipe, DecimalPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -9,10 +9,19 @@ import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {InputTextModule} from 'primeng/inputtext';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {CheckboxModule} from 'primeng/checkbox';
 import {Toast} from 'primeng/toast';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AgGridAngular} from 'ag-grid-angular';
+import {
+  AllCommunityModule,
+  CellClickedEvent,
+  ClientSideRowModelModule,
+  ColDef,
+  GetRowIdFunc,
+  ModuleRegistry,
+  RowClassRules,
+  themeAlpine,
+} from 'ag-grid-community';
 import {ICommande} from 'app/shared/model/commande.model';
 import {CommandeId} from 'app/shared/model/abstract-commande.model';
 import {CommandeService} from '../../../../entities/commande/commande.service';
@@ -28,6 +37,8 @@ import {CommandeRequestedComponent} from '../commande-requested/commande-request
 import {CommandCommonService} from '../../../../entities/commande/command-common.service';
 import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
 
+ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
+
 @Component({
   selector: 'app-commande-requested-home',
   templateUrl: './commande-requested-home.component.html',
@@ -40,11 +51,10 @@ import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-
     TagModule,
     TooltipModule,
     InputTextModule,
-    ProgressSpinnerModule,
-    CheckboxModule,
     DecimalPipe,
     DatePipe,
     Toast,
+    AgGridAngular,
   ],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
@@ -73,6 +83,98 @@ export class CommandeRequestedHomeComponent implements OnInit {
     const fId = sel[0].fournisseur?.id;
     return sel.every(c => c.fournisseur?.id === fId);
   });
+
+  // ── Totaux page courante ───────────────────────────────────────────────────
+  readonly totalAmount = computed(() =>
+    this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0)
+  );
+
+  // ── AG Grid ───────────────────────────────────────────────────────────────
+  protected readonly theme = themeAlpine;
+  protected readonly defaultColDef: ColDef = { resizable: true, sortable: false, suppressHeaderMenuButton: true };
+  protected readonly getRowId: GetRowIdFunc<ICommande> = p => `${p.data.id}_${p.data.orderDate}`;
+  protected readonly rowClassRules: RowClassRules<ICommande> = {
+    'row-reliquat': p => !!p.data?.reliquatDeCommandeId,
+    'row-selected': p => !!p.data && this.isSelected(p.data),
+  };
+  private readonly gridRef = viewChild(AgGridAngular);
+
+  protected readonly colDefs: ColDef<ICommande>[] = [
+    {
+      colId: 'select',
+      headerName: '',
+      width: 36,
+      sortable: false,
+      cellRenderer: (p: any) => {
+        if (!p.data) return '';
+        const checked = this.isSelected(p.data);
+        return `<span data-action="select"
+          style="display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer;padding:0 4px">
+          <i class="pi ${checked ? 'pi-check-square' : 'pi-stop'}"
+             style="font-size:0.875rem;color:${checked ? '#5b89a6' : '#9ca3af'}"></i>
+        </span>`;
+      },
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Date',
+      width: 135,
+      sortable: true,
+      valueFormatter: p => p.value
+        ? new Date(p.value as string).toLocaleString('fr-FR', {dateStyle: 'short', timeStyle: 'short'})
+        : '—',
+    },
+    {
+      colId: 'fournisseur',
+      headerName: 'Fournisseur',
+      flex: 1,
+      minWidth: 140,
+      valueGetter: p => p.data?.fournisseur?.libelle ?? '—',
+    },
+    {
+      field: 'orderReference',
+      headerName: 'Référence',
+      width: 145,
+      cellStyle: {fontFamily: 'monospace', fontSize: '12px'},
+    },
+    {
+      field: 'itemSize',
+      headerName: 'Lignes',
+      width: 70,
+      type: 'numericColumn',
+    },
+    {
+      field: 'grossAmount',
+      headerName: 'Montant HT',
+      width: 120,
+      type: 'numericColumn',
+      valueFormatter: p => p.value != null ? Number(p.value).toLocaleString('fr-FR') : '—',
+    },
+    {
+      colId: 'reliquat',
+      headerName: '',
+      width: 85,
+      cellRenderer: (p: any) => {
+        if (!p.data?.reliquatDeCommandeId) return '';
+        return `<span style="padding:2px 6px;border-radius:10px;font-size:0.68rem;font-weight:700;background:#fef3c7;color:#92400e">RELIQUAT</span>`;
+      },
+    },
+    {
+      colId: 'actions',
+      headerName: '',
+      width: 115,
+      sortable: false,
+      cellRenderer: (p: any) => {
+        if (!p.data) return '';
+        return `<span style="display:flex;align-items:center;gap:2px">
+          <button data-action="receive" title="Réceptionner" style="background:rgba(5,150,105,0.1);color:#059669;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:12px"><i class="pi pi-inbox"></i></button>
+          <button data-action="csv" title="Export CSV" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-file-excel"></i></button>
+          <button data-action="pdf" title="Imprimer" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-print"></i></button>
+          <button data-action="delete" title="Supprimer" style="background:rgba(220,53,69,0.1);color:#dc3545;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:12px"><i class="pi pi-trash"></i></button>
+        </span>`;
+      },
+    },
+  ];
 
   private readonly commandeService = inject(CommandeService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -231,6 +333,25 @@ export class CommandeRequestedHomeComponent implements OnInit {
       const exists = sel.some(s => s.id === c.id);
       return exists ? sel.filter(s => s.id !== c.id) : [...sel, c];
     });
+    this.gridRef()?.api.refreshCells({columns: ['select'], force: true});
+  }
+
+  onCellClicked(event: CellClickedEvent<ICommande>): void {
+    if (!event.data) return;
+    const action = (event.event?.target as HTMLElement)?.closest('[data-action]')?.getAttribute('data-action');
+    if (action === 'select') {
+      this.toggleSelect(event.data, event.event as MouseEvent);
+    } else if (action === 'receive') {
+      this.onReceptionner(event.data, event.event as MouseEvent);
+    } else if (action === 'csv') {
+      this.exportCsv(event.data, event.event as MouseEvent);
+    } else if (action === 'pdf') {
+      this.exportPdf(event.data, event.event as MouseEvent);
+    } else if (action === 'delete') {
+      this.onSupprimerCommande(event.data, event.event as MouseEvent);
+    } else if (!action) {
+      this.onEditer(event.data);
+    }
   }
 
   onFusionner(): void {

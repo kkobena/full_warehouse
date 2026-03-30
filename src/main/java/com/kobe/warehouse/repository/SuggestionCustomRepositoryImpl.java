@@ -15,6 +15,8 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -78,14 +80,15 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
                 WHEN COUNT(sc.id) = 0 THEN 'STANDARD'
                 WHEN COUNT(sc.id) = COUNT(sl.id) THEN 'SEMOIS'
                 ELSE 'MIXTE'
-            END                                           AS source
+            END                                           AS source,
+            s.updated_at                                  AS updated_at
         FROM suggestion s
         JOIN fournisseur f ON f.id = s.fournisseur_id
         LEFT JOIN suggestion_line sl ON sl.suggestion_id = s.id
         LEFT JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
         LEFT JOIN semois_configuration sc ON sc.produit_id = fp.produit_id
         WHERE s.updated_at >= NOW() - make_interval(days => :retentionDays)
-        GROUP BY s.id, f.id, f.libelle, s.statut
+        GROUP BY s.id, f.id, f.libelle, s.statut, s.updated_at
         ORDER BY f.libelle ASC
         """;
 
@@ -105,7 +108,8 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
             toLong(row[4]).intValue(), // nbProduits
             0,                        // nbUrgents (calculé côté frontend après chargement des lignes)
             toLong(row[5]),           // montantEstime
-            (String) row[6]           // source
+            (String) row[6],          // source
+            toLocalDateTime(row[7])   // updatedAt
         )).toList();
     }
 
@@ -122,7 +126,8 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
                 WHEN COUNT(sc.id) = 0 THEN 'STANDARD'
                 WHEN COUNT(sc.id) = COUNT(sl.id) THEN 'SEMOIS'
                 ELSE 'MIXTE'
-            END                                           AS source
+            END                                           AS source,
+            s.updated_at                                  AS updated_at
         FROM suggestion s
         JOIN fournisseur f ON f.id = s.fournisseur_id
         LEFT JOIN suggestion_line sl ON sl.suggestion_id = s.id
@@ -130,7 +135,7 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
         LEFT JOIN semois_configuration sc ON sc.produit_id = fp.produit_id
         WHERE s.updated_at >= NOW() - make_interval(days => :retentionDays)
           AND s.statut = :statut
-        GROUP BY s.id, f.id, f.libelle, s.statut
+        GROUP BY s.id, f.id, f.libelle, s.statut, s.updated_at
         ORDER BY f.libelle ASC
         """;
 
@@ -151,8 +156,15 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
             toLong(row[4]).intValue(),
             0,
             toLong(row[5]),
-            (String) row[6]
+            (String) row[6],
+            toLocalDateTime(row[7])
         )).toList();
+    }
+
+    private static LocalDateTime toLocalDateTime(Object val) {
+        if (val instanceof Timestamp ts) return ts.toLocalDateTime();
+        if (val instanceof LocalDateTime ldt) return ldt;
+        return null;
     }
 
     private static Integer toInt(Object val) {

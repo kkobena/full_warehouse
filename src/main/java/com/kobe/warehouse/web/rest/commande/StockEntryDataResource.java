@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
+import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
@@ -9,12 +10,6 @@ import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -37,7 +35,7 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/list")
-    public ResponseEntity<List<DeliveryReceiptDTO>> fetch( DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
+    public ResponseEntity<List<DeliveryReceiptDTO>> fetch(DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
         Page<DeliveryReceiptDTO> page = stockEntryDataServicetryService.fetchAllReceipts(receiptFilter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -76,5 +74,17 @@ public class StockEntryDataResource {
     ) {
         return ResponseEntity.ok()
             .body(stockEntryDataServicetryService.findAllByCommandeIdAndCommandeOrderDate(new CommandeId(id, orderDate)));
+    }
+
+    @GetMapping("/commandes")
+    public ResponseEntity<List<DeliveryReceiptDTO>> fetchAll(DeliveryReceiptFilterDTO receiptFilter, Pageable pageable) {
+        Page<DeliveryReceiptDTO> page = stockEntryDataServicetryService.fetchAllWithoutDetail(receiptFilter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/commandes/totaux")
+    public ResponseEntity<DeliveryTotalsDTO> computeTotals(DeliveryReceiptFilterDTO receiptFilter) {
+        return ResponseEntity.ok(stockEntryDataServicetryService.computeTotals(receiptFilter));
     }
 }

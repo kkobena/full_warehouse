@@ -1,6 +1,6 @@
-import {Component, effect, inject, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, RouterModule} from '@angular/router';
+import { Component, effect, inject, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import {
   NgbNav,
   NgbNavChangeEvent,
@@ -8,21 +8,19 @@ import {
   NgbNavItem,
   NgbNavLink,
   NgbNavOutlet
-} from '@ng-bootstrap/ng-bootstrap';
-import {CommandCommonService} from '../../../../entities/commande/command-common.service';
-import {CommandeEnCoursComponent} from '../../ui/commande-en-cours/commande-en-cours.component';
-import {AppRetourFournisseurComponent} from '../retour-fournisseur/retour-fournisseur.component';
-import {AppRepartitionStockComponent} from '../repartition-stock/repartition-stock.component';
-import {ApproUnifiedDashboardComponent} from '../appro-unified-dashboard/appro-unified-dashboard.component';
-import {SuggestionsUnifiedComponent} from '../suggestions-unified/suggestions-unified.component';
-import {ReceptionHubComponent} from '../reception-hub/reception-hub.component';
-import {TranslateService} from '@ngx-translate/core';
-import {PrimeNG} from 'primeng/config';
+} from "@ng-bootstrap/ng-bootstrap";
+import { CommandCommonService } from "../../../../entities/commande/command-common.service";
+import { AppRetourFournisseurComponent } from "../retour-fournisseur/retour-fournisseur.component";
+import { AppRepartitionStockComponent } from "../repartition-stock/repartition-stock.component";
+import { ApproUnifiedDashboardComponent } from "../appro-unified-dashboard/appro-unified-dashboard.component";
+import { SuggestionsUnifiedComponent } from "../suggestions-unified/suggestions-unified.component";
+import { TranslateService } from "@ngx-translate/core";
+import { PrimeNG } from "primeng/config";
 
 @Component({
-  selector: 'app-commande-home',
-  templateUrl: './commande-home.component.html',
-  styleUrl: './commande-home.component.scss',
+  selector: "app-commande-home",
+  templateUrl: "./commande-home.component.html",
+  styleUrl: "./commande-home.component.scss",
   imports: [
     CommonModule,
     RouterModule,
@@ -31,16 +29,15 @@ import {PrimeNG} from 'primeng/config';
     NgbNavLink,
     NgbNavContent,
     NgbNavOutlet,
-    CommandeEnCoursComponent,
     AppRetourFournisseurComponent,
     AppRepartitionStockComponent,
     ApproUnifiedDashboardComponent,
-    SuggestionsUnifiedComponent,
-    ReceptionHubComponent,
-  ],
+    SuggestionsUnifiedComponent
+
+  ]
 })
 export class CommandeHomeComponent implements OnInit {
-  protected active = 'DASHBOARD';
+  protected active = "DASHBOARD";
 
   private readonly route = inject(ActivatedRoute);
   private readonly commandCommonService = inject(CommandCommonService);
@@ -59,13 +56,13 @@ export class CommandeHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
+    this.translate.use("fr");
+    this.translate.stream("primeng").subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
     this.route.queryParams.subscribe(params => {
-      if (params['tab']) {
-        this.active = params['tab'];
+      if (params["tab"]) {
+        this.active = params["tab"];
         this.commandCommonService.updateCommandPreviousActiveNav(this.active);
       } else {
         this.active = this.commandCommonService.commandPreviousActiveNav();

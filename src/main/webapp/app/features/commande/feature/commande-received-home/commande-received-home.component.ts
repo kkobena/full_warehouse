@@ -38,7 +38,6 @@ import { CommandeReceivedComponent } from '../commande-received/commande-receive
     DatePicker,
     FloatLabel,
     ProgressSpinnerModule,
-    DecimalPipe,
     DatePipe,
     Toast,
   ],
@@ -65,16 +64,16 @@ export class CommandeReceivedHomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.loadPage(0);
+  //  this.loadPage(0);
   }
 
   onSearch(): void {
-    this.loadPage(0);
+   // this.loadPage(0);
   }
 
   loadPage(page = 0): void {
     this.loading.set(true);
-    const query: any = { page, size: this.rows, search: this.searchText, statut: 'RECEIVED' };
+    const query: any = { page, size: this.rows, search: this.searchText};
     if (this.dtStart) query.fromDate = DATE_FORMAT_ISO_DATE(this.dtStart);
     if (this.dtEnd) query.toDate = DATE_FORMAT_ISO_DATE(this.dtEnd);
     this.deliveryService

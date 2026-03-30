@@ -18,10 +18,20 @@
 <!-- MODE LISTE -->
 @if (!editingFournisseur()) {
   <div class="view-panel">
-    <div class="view-panel__header">
-      <span><i class="pi pi-inbox me-1"></i>À réapprovisionner</span>
+    <div class="view-panel__header view-panel__header--list">
+      <span class="ms-auto"></span>
+      @if (childSelectionCount() >= 2) {
+        <span class="bulk-info"><i class="pi pi-check-square"></i> {{ childSelectionCount() }} sél.</span>
+        @if (childCanFusionner()) {
+          <button class="bulk-btn bulk-btn--info" (click)="onFusionnerBulk()" title="Fusionner">
+            <i class="pi pi-sitemap"></i> Fusionner
+          </button>
+        }
+        <button class="bulk-btn bulk-btn--danger" (click)="onSupprimerBulk()" title="Supprimer">
+          <i class="pi pi-trash"></i> Supprimer
+        </button>
+      }
       <p-button
-        class="ms-auto"
         label="Recalculer"
         icon="pi pi-sync"
         severity="warn"
@@ -44,6 +54,8 @@
       (exportPdfRequest)="onExportPdfDirect($event)"
       (exportCsvRequest)="onExportCsvDirect($event)"
       (commanderRequest)="onCommanderDirect($event)"
+      (selectionCountChange)="onChildSelectionCountChange($event)"
+      (canFusionnerChange)="onChildCanFusionnerChange($event)"
     />
   </div>
 } @else {

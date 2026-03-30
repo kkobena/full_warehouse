@@ -97,6 +97,16 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     int countByCommande(Commande commande);
 
     /**
+     * Recherche la première ligne d'une commande dont le CIP fournisseur correspond au code scanné.
+     * Utilisé pour la réception par scan CIP/DataMatrix.
+     */
+    @Query("SELECT o FROM OrderLine o WHERE o.commande.id = :commandeId AND o.fournisseurProduit.codeCip = :codeCip")
+    Optional<OrderLine> findFirstByCommandeIdAndCip(
+        @Param("commandeId") Integer commandeId,
+        @Param("codeCip") String codeCip
+    );
+
+    /**
      * Retourne les quantités en attente de livraison par produit (stock virtuel — Axe 1).
      * <p>
      * Sélectionne les lignes de commandes dont le statut est REQUESTED (envoyée au fournisseur,

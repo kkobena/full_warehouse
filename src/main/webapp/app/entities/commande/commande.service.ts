@@ -54,6 +54,17 @@ export interface IPharmaMlEnvoiResumee {
   createdAt: string;
 }
 
+export interface ICommandeLiteDTO {
+  id: number;
+  orderReference: string | null;
+}
+
+export interface IFournisseurStatsService {
+  tauxService: number;
+  delaiMoyen: number;
+  periodeJours: number;
+}
+
 export interface ICommandeDashboard {
   totalRequested: number;
   totalReceived: number;
@@ -242,6 +253,21 @@ export class CommandeService {
 
   getDashboard(): Observable<ICommandeDashboard> {
     return this.http.get<ICommandeDashboard>(`${this.resourceUrl}/dashboard`);
+  }
+
+  getStatsService(fournisseurId: number, periodeJours = 30): Observable<IFournisseurStatsService> {
+    return this.http.get<IFournisseurStatsService>(
+      `${this.resourceUrl}/fournisseurs/${fournisseurId}/stats-service`,
+      { params: { periodeJours: String(periodeJours) } },
+    );
+  }
+
+  createReliquat(commandeId: CommandeId): Observable<HttpResponse<ICommandeLiteDTO>> {
+    return this.http.post<ICommandeLiteDTO>(
+      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/reliquat`,
+      null,
+      { observe: 'response' },
+    );
   }
 
   importSuggestionIntoCommande(commandeId: CommandeId, suggestionId: number): Observable<HttpResponse<{}>> {

@@ -52,6 +52,10 @@ import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.dto.DataMatrixInfo;
+import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
+import com.kobe.warehouse.service.stock.DataMatrixParserService;
+import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.stock.ProduitService;
@@ -119,6 +123,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final LotStockLocationService lotStockLocationService;
     private final SuggestionReassortService suggestionReassortService;
     private final RuptureService ruptureService;
+    private final DataMatrixParserService dataMatrixParserService;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
@@ -166,7 +171,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         OrderLineRepository orderLineRepository,
         LotStockLocationService lotStockLocationService,
         SuggestionReassortService suggestionReassortService,
-        RuptureService ruptureService
+        RuptureService ruptureService,
+        DataMatrixParserService dataMatrixParserService
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -190,6 +196,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.lotStockLocationService = lotStockLocationService;
         this.suggestionReassortService = suggestionReassortService;
         this.ruptureService = ruptureService;
+        this.dataMatrixParserService = dataMatrixParserService;
     }
 
     @Override
@@ -485,6 +492,106 @@ public class StockEntryServiceImpl implements StockEntryService {
         OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
         updateItem(orderLine);
+    }
+
+    @Override
+    public ReceptionScanResultDTO processScanReception(Integer commandeId, String rawScan) {
+        // 1. Parser le code scanné (EAN-8, EAN-13, CIP-7, CIP-13, GS1 DataMatrix)
+        var parsedOpt = dataMatrixParserService.parse(rawScan);
+        BarcodeType barcodeType = dataMatrixParserService.detectBarcodeType(rawScan);
+
+        if (parsedOpt.isEmpty()) {
+            return new ReceptionScanResultDTO(false, null, null, null,
+                false, null, null, "Format de code non reconnu", barcodeType,
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+        }
+
+        DataMatrixInfo parsed = parsedOpt.get();
+        String cip = parsed.getProductCode();
+        if (cip == null || cip.isBlank()) {
+            return new ReceptionScanResultDTO(false, null, null, null,
+                false, null, null, "Aucun code produit identifié dans le scan", barcodeType,
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+        }
+
+        // 2. Identifier la ligne de commande par CIP
+        OrderLine line = orderLineRepository.findFirstByCommandeIdAndCip(commandeId, cip).orElse(null);
+        if (line == null) {
+            return new ReceptionScanResultDTO(false, null, null, cip,
+                false, null, null, "CIP " + cip + " absent de la commande", barcodeType,
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+        }
+
+        // 3. Vérification FMD — numéro de série (AI 21)
+        String serialNumber = parsed.serialNumber();
+        ReceptionScanResultDTO.FmdStatus fmdStatus;
+        String fmdWarning = null;
+        Integer produitId = line.getFournisseurProduit().getProduit().getId();
+
+        if (serialNumber != null && !serialNumber.isBlank()) {
+            boolean duplicate = lotRepository.existsBySerialNumberAndProduitId(serialNumber, produitId);
+            if (duplicate) {
+                fmdStatus = ReceptionScanResultDTO.FmdStatus.DUPLICATE;
+                fmdWarning = "⚠ Numéro de série FMD déjà enregistré pour ce produit — vérifiez l'authenticité de la boîte";
+            } else {
+                fmdStatus = ReceptionScanResultDTO.FmdStatus.PRESENT;
+            }
+        } else {
+            fmdStatus = ReceptionScanResultDTO.FmdStatus.ABSENT;
+        }
+
+        // 4. Incrémenter la quantité reçue de 1
+        int newQty = (line.getQuantityReceived() == null ? 0 : line.getQuantityReceived()) + 1;
+        line.setQuantityReceived(newQty);
+        updateItem(line);
+
+        // 5. Créer le lot automatiquement si DataMatrix complet + APP_GESTION_LOT actif
+        boolean lotCreated = false;
+        String lotNumero = null;
+        LocalDate lotPeremption = null;
+
+        boolean gestionLotActif = appConfigurationService.useLot().orElse(false);
+        if (gestionLotActif && parsed.hasBatchInfo() && parsed.hasExpiryDate()) {
+            Lot lot = new Lot();
+            lot.setOrderLine(line);
+            lot.setNumLot(parsed.batchNumber());
+            lot.setExpiryDate(parsed.expiryDate());
+            lot.setManufacturingDate(parsed.manufacturingDate());
+            lot.setQuantity(1);
+            lot.setFreeQty(0);
+            lot.setCurrentQuantity(1);
+            lot.setCreatedDate(LocalDateTime.now());
+            lot.setProduit(line.getFournisseurProduit().getProduit());
+            lot.setPrixAchat(line.getOrderCostAmount());
+            lot.setPrixUnit(line.getOrderUnitPrice());
+            lot.setStatut(StatutLot.AVAILABLE);
+            if (fmdStatus == ReceptionScanResultDTO.FmdStatus.PRESENT) {
+                lot.setSerialNumber(serialNumber);
+            }
+            lotRepository.save(lot);
+
+            lotCreated = true;
+            lotNumero = parsed.batchNumber();
+            lotPeremption = parsed.expiryDate();
+        }
+
+        String produitLibelle = line.getFournisseurProduit() != null &&
+            line.getFournisseurProduit().getProduit() != null
+            ? line.getFournisseurProduit().getProduit().getLibelle() : null;
+
+        return new ReceptionScanResultDTO(
+            true,
+            (long) line.getId().getId(),
+            produitLibelle,
+            cip,
+            lotCreated,
+            lotNumero,
+            lotPeremption,
+            fmdWarning,
+            barcodeType,
+            serialNumber,
+            fmdStatus
+        );
     }
 
     private OrderLine getOrderLine(OrderLineId id) {

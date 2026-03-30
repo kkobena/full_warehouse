@@ -1,0 +1,20 @@
+export type BarcodeType = 'EAN_8' | 'EAN_13' | 'CIP_7' | 'CIP_13' | 'DATAMATRIX' | 'UNKNOWN';
+
+/** Statut FMD (Falsified Medicines Directive) du scan. */
+export type FmdStatus = 'PRESENT' | 'ABSENT' | 'DUPLICATE';
+
+export interface IReceptionScanResult {
+  found: boolean;
+  orderLineId: number | null;
+  produitLibelle: string | null;
+  produitCip: string | null;
+  lotAutoCreated: boolean;
+  lotNumero: string | null;
+  lotPeremption: string | null;
+  warningMessage: string | null;
+  barcodeType: BarcodeType;
+  /** Numéro de série FMD (AI 21). Null si scan 1D ou absent du DataMatrix. */
+  serialNumber: string | null;
+  /** Statut FMD : PRESENT (OK), ABSENT (scan 1D / pas d'AI 21), DUPLICATE (alerte contrefaçon). */
+  fmdStatus: FmdStatus;
+}

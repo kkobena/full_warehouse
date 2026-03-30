@@ -1,6 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
@@ -9,20 +11,36 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Toast } from 'primeng/toast';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommonModule } from '@angular/common';
+import {
+  AllCommunityModule,
+  ClientSideRowModelModule,
+  ColDef,
+  GetRowIdFunc,
+  ModuleRegistry,
+  RowClassRules,
+  themeAlpine,
+} from 'ag-grid-community';
+import { AgGridAngular } from 'ag-grid-angular';
 import { SpinnerComponent } from 'app/shared/spinner/spinner.component';
 import { IDelivery } from 'app/shared/model/delevery.model';
+import { ICommande } from 'app/shared/model/commande.model';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
+import { IOrderLine } from 'app/shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { DATE_FORMAT_ISO_DATE } from 'app/shared/util/warehouse-util';
 import { DeliveryService } from '../../../../entities/commande/delevery/delivery.service';
 import { FournisseurService } from '../../../../entities/fournisseur/fournisseur.service';
 import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
+import { NotificationService } from 'app/shared/services/notification.service';
 import { handleBlobForTauri } from 'app/shared/util/tauri-util';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { EtiquetteComponent } from '../delivery/etiquette/etiquette.component';
-import { viewChild } from '@angular/core';
+import { CommandeReceivedComponent } from '../../feature/commande-received/commande-received.component';
+import { ReceptionConcordanceComponent } from '../reception-concordance/reception-concordance.component';
+
+ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
   selector: 'app-list-bons',
@@ -39,10 +57,15 @@ import { viewChild } from '@angular/core';
     InputTextModule,
     IconField,
     InputIcon,
+    Toast,
     SpinnerComponent,
+    CommandeReceivedComponent,
+    ReceptionConcordanceComponent,
+    AgGridAngular,
   ],
 })
 export class AppListBonsComponent implements OnInit {
+  // ── État liste ─────────────────────────────────────────────────────────────
   protected search = '';
   protected selectFournisseurId: number | null = null;
   protected dtStart: Date | null = new Date();
@@ -55,7 +78,9 @@ export class AppListBonsComponent implements OnInit {
   protected page = 0;
   protected totalItems = 0;
 
-  protected readonly expandedIds = new Set<number>();
+  // ── Modes master/detail ────────────────────────────────────────────────────
+  readonly editingReceived = signal<ICommande | null>(null);
+  readonly selectedClosed = signal<IDelivery | null>(null);
 
   protected readonly statutOptions = [
     { label: 'Tous les bons', value: null },
@@ -63,10 +88,82 @@ export class AppListBonsComponent implements OnInit {
     { label: 'Clôturé', value: 'CLOSED' },
   ];
 
+  // ── AG Grid (panneau consultation bon clôturé) ─────────────────────────────
+  protected readonly theme = themeAlpine;
+
+  protected readonly defaultColDef: ColDef<IOrderLine> = {
+    resizable: true,
+    sortable: false,
+    suppressHeaderMenuButton: true,
+  };
+
+  protected readonly rowClassRules: RowClassRules<IOrderLine> = {
+    'pharma-row-danger': p => !!p.data && p.data.costAmount !== p.data.orderCostAmount,
+    'pharma-row-warning': p =>
+      !!p.data &&
+      p.data.costAmount === p.data.orderCostAmount &&
+      p.data.regularUnitPrice !== p.data.orderUnitPrice,
+  };
+
+  protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
+
+  protected readonly closedColDefs: ColDef<IOrderLine>[] = [
+    {
+      field: 'produitCip',
+      headerName: 'Code',
+      width: 110,
+      cellStyle: { fontFamily: 'monospace', fontSize: '12px' },
+    },
+    {
+      field: 'produitLibelle',
+      headerName: 'Libellé',
+      flex: 2,
+      minWidth: 140,
+    },
+    {
+      field: 'initStock',
+      headerName: 'Stk.Init',
+      width: 90,
+      type: 'numericColumn',
+    },
+    {
+      field: 'afterStock',
+      headerName: 'Stk.Final',
+      width: 90,
+      type: 'numericColumn',
+    },
+    {
+      field: 'quantityReceived',
+      headerName: 'Qté reçue',
+      width: 100,
+      type: 'numericColumn',
+    },
+    {
+      field: 'orderCostAmount',
+      headerName: 'P.Achat',
+      width: 110,
+      type: 'numericColumn',
+      valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString('fr-FR') : '—'),
+    },
+    {
+      field: 'orderUnitPrice',
+      headerName: 'P.Vente',
+      width: 110,
+      type: 'numericColumn',
+      valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString('fr-FR') : '—'),
+    },
+  ];
+
+  readonly closedOrderLines = computed<IOrderLine[]>(
+    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? [],
+  );
+
   private readonly entityService = inject(DeliveryService);
   private readonly fournisseurService = inject(FournisseurService);
   private readonly modalService = inject(NgbModal);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
@@ -76,30 +173,19 @@ export class AppListBonsComponent implements OnInit {
     this.onSearch();
   }
 
+  // ── Recherche / pagination ─────────────────────────────────────────────────
+
   onSearch(): void {
     this.loadPage(0);
   }
 
   loadPage(page: number): void {
-    this.expandedIds.clear();
     this.fetchDeliveries(page, this.itemsPerPage);
   }
 
   onFournisseurChange(event: any): void {
     this.selectFournisseurId = event.value ?? null;
     setTimeout(() => this.onSearch(), 50);
-  }
-
-  protected toggle(id: number): void {
-    if (this.expandedIds.has(id)) {
-      this.expandedIds.delete(id);
-    } else {
-      this.expandedIds.add(id);
-    }
-  }
-
-  protected isExpanded(id: number): boolean {
-    return this.expandedIds.has(id);
   }
 
   protected isReceived(delivery: IDelivery): boolean {
@@ -114,6 +200,62 @@ export class AppListBonsComponent implements OnInit {
     if (p < 0 || p >= this.totalPages) return;
     this.loadPage(p);
   }
+
+  // ── Navigation master/detail ──────────────────────────────────────────────
+
+  onEditerReceived(delivery: IDelivery, event: Event): void {
+    event.stopPropagation();
+    this.spinner().show();
+    this.entityService
+      .find(delivery.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.spinner().hide();
+          if (res.body) this.editingReceived.set(res.body as unknown as ICommande);
+        },
+        error: () => {
+          this.spinner().hide();
+          this.notificationService.error('Erreur lors du chargement du bon', 'Erreur');
+        },
+      });
+  }
+
+  onRetourSaisie(): void {
+    this.editingReceived.set(null);
+    this.loadPage(this.page);
+  }
+
+  onCommandeChange(c: ICommande | null): void {
+    if (c) {
+      this.editingReceived.set(c);
+    } else {
+      this.onRetourSaisie();
+    }
+  }
+
+  onOuvrirClosed(delivery: IDelivery): void {
+    this.spinner().show();
+    this.entityService
+      .find(delivery.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.spinner().hide();
+          if (res.body) this.selectedClosed.set(res.body);
+        },
+        error: () => {
+          this.spinner().hide();
+          this.notificationService.error('Erreur lors du chargement du bon', 'Erreur');
+        },
+      });
+  }
+
+  onRetourConsultation(): void {
+    this.selectedClosed.set(null);
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   printEtiquette(delivery: IDelivery, event: Event): void {
     event.stopPropagation();
@@ -144,6 +286,8 @@ export class AppListBonsComponent implements OnInit {
       error: () => this.spinner().hide(),
     });
   }
+
+  // ── Chargement des données ────────────────────────────────────────────────
 
   private fetchDeliveries(page: number, size: number): void {
     this.loading = true;

@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
 import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
+import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
@@ -149,6 +150,18 @@ public class StockEntryResource {
     @PutMapping("/commandes/entree-stock/create")
     public ResponseEntity<DeliveryReceiptLiteDTO> updateBon(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLiteDTO) {
         return ResponseEntity.accepted().body(stockEntryService.updateBon(deliveryReceiptLiteDTO));
+    }
+
+    /**
+     * Traite un scan CIP ou DataMatrix pendant la saisie d'entrée en stock.
+     * Incrémente la quantité reçue de 1 et crée automatiquement un lot si APP_GESTION_LOT est actif.
+     */
+    @PostMapping("/commandes/entree-stock/scan-reception")
+    public ResponseEntity<ReceptionScanResultDTO> scanReception(
+        @RequestParam Integer commandeId,
+        @RequestBody String rawScan
+    ) {
+        return ResponseEntity.ok(stockEntryService.processScanReception(commandeId, rawScan));
     }
 
     @PostMapping(path = "/commandes/entree-stock/upload-new", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })

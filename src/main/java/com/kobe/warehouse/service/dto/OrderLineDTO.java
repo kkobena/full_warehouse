@@ -57,6 +57,8 @@ public class OrderLineDTO {
     private LocalDate orderDate;
     private CommandeId compositeId;
     private Integer couvertureStockJours;
+    /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
+    private Integer qteColis;
 
     public OrderLineDTO() {}
 
@@ -102,6 +104,7 @@ public class OrderLineDTO {
         updated = orderLine.getUpdated();
         afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
+        qteColis = fournisseurProduit.getQteColis();
     }
 
     public Integer getTvaId() {
@@ -448,6 +451,15 @@ public class OrderLineDTO {
 
     public OrderLineDTO setCouvertureStockJours(Integer couvertureStockJours) {
         this.couvertureStockJours = couvertureStockJours;
+        return this;
+    }
+
+    public Integer getQteColis() {
+        return qteColis;
+    }
+
+    public OrderLineDTO setQteColis(Integer qteColis) {
+        this.qteColis = qteColis;
         return this;
     }
 }

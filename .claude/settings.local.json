@@ -78,7 +78,12 @@
       "Bash(grep -rn \"original_commande_id\\\\|reliquat_de\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/resources/db/migration/ 2>/dev/null | head -5\ngrep -n \"original_commande_id\\\\|reliquat\" /c/Users/k.kobena/Documents/dev/full_warehouse/src/main/java/com/kobe/warehouse/domain/Commande.java | head -10)",
       "Bash(grep -E \"\\\\.\\(ts\\)$\")",
       "Bash(sed 's|../../../../../entities/repartition-stock/|../../../../../../entities/repartition-stock/|g' \"C:/Users/k.kobena/Documents/dev/full_warehouse/src/main/webapp/app/features/commande/ui/repartition-stock/suggestion-reassort/suggestion-reassort.component.ts\")",
-      "Bash(\"C:/Users/k.kobena/Documents/dev/full_warehouse/src/main/webapp/app/features/commande/feature/repartition-stock/ui/suggestion-reassort/suggestion-reassort.component.ts\")"
+      "Bash(\"C:/Users/k.kobena/Documents/dev/full_warehouse/src/main/webapp/app/features/commande/feature/repartition-stock/ui/suggestion-reassort/suggestion-reassort.component.ts\")",
+      "Bash(javac -version)",
+      "Bash(java -version)",
+      "Bash(JAVA_HOME=\"D:/jdk25\" \"D:/jdk25/bin/java\" -version 2>&1)",
+      "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress)",
+      "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress -Dskip.npm)"
     ],
     "deny": [],
     "ask": []

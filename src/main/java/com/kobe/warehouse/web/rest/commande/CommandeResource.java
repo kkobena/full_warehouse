@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
@@ -18,6 +19,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -166,6 +168,18 @@ public class CommandeResource {
             .build();
     }
 
+    /**
+     * Retourne le taux de service et le délai moyen de livraison pour un fournisseur
+     * sur une période glissante. Période par défaut : 30 jours.
+     */
+    @GetMapping("/commandes/fournisseurs/{fournisseurId}/stats-service")
+    public ResponseEntity<FournisseurStatsServiceDTO> getStatsService(
+        @PathVariable Integer fournisseurId,
+        @RequestParam(defaultValue = "30") int periodeJours
+    ) {
+        return ResponseEntity.ok(commandService.getStatsService(fournisseurId, periodeJours));
+    }
+
     @PutMapping("/commandes/change-grossiste")
     public ResponseEntity<Void> changeGrossiste(@RequestBody CommandeDTO commandeDTO) {
         commandService.changeGrossiste(commandeDTO);
@@ -176,6 +190,22 @@ public class CommandeResource {
     public ResponseEntity<Void> updateQuantityUG(@Valid @RequestBody OrderLineDTO orderLineDTO) {
         commandService.updateOrderLineQuantityUg(orderLineDTO);
         return ResponseEntity.accepted().build();
+    }
+
+    /**
+     * Crée un reliquat à partir d'une commande clôturée.
+     * Les lignes dont la quantité reçue est inférieure à la quantité commandée sont reportées
+     * dans une nouvelle commande REQUESTED avec le même fournisseur.
+     */
+    @PostMapping("/commandes/{id}/{orderDate}/reliquat")
+    public ResponseEntity<CommandeLiteDTO> createReliquat(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate
+    ) throws URISyntaxException {
+        CommandeLiteDTO result = commandService.createReliquat(new CommandeId(id, orderDate));
+        return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     @PostMapping("/commandes/{id}/{orderDate}/import-suggestion")

@@ -2,6 +2,146 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-nav';
 
+// ── WRAPPER GLOBAL ─────────────────────────────────────────────────────────
+
+.cr-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ── CONTENU PRINCIPAL (gauche + droite) ────────────────────────────────────
+
+.cr-content {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.cr-panel-left {
+  flex: 0 0 280px;
+  min-width: 240px;
+  max-width: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 0.75rem;
+  border-right: 1px solid $gray-200;
+  background: $pharma-white;
+}
+
+.cr-panel-right {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ── AG GRID ────────────────────────────────────────────────────────────────
+
+.cr-grid {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+}
+
+// ── FOOTER TOTAUX ──────────────────────────────────────────────────────────
+
+.cr-grid-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.4rem 1rem;
+  background: $gray-100;
+  border-top: 1px solid $gray-200;
+  font-size: 0.8rem;
+  color: $gray-600;
+
+  strong { color: $pharma-primary; font-weight: 700; }
+}
+
+// ── SCAN DOUCHETTE ──────────────────────────────────────────────────────────
+
+.cr-scan-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  input { min-width: 220px; }
+}
+
+.cr-scan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: fade-in 0.2s ease;
+
+  &--ok {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.25);
+  }
+
+  &--err {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Badges FMD ─────────────────────────────────────────────────────────────
+.cr-fmd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: help;
+  white-space: nowrap;
+  animation: fade-in 0.2s ease;
+
+  &--ok {
+    background: rgba(13, 110, 253, 0.08);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+  }
+
+  &--warn {
+    background: rgba(255, 193, 7, 0.12);
+    color: #b45309;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+
+  &--danger {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    animation: fade-in 0.2s ease, pulse-alert 1s ease 0.2s 3;
+  }
+}
+
+@keyframes pulse-alert {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
 $pharma-success: #5cb85c; // Bootstrap green (overrides shared)
 $border-radius-sm: $pharma-radius-sm;
 $border-radius-lg: 12px;

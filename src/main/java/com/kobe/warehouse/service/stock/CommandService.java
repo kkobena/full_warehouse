@@ -9,6 +9,7 @@ import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
+import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
@@ -77,4 +78,24 @@ public interface CommandService {
     void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId);
 
     void changeGrossiste(CommandeDTO commandeDTO);
+
+    /**
+     * Calcule le taux de service et le délai moyen de livraison pour un fournisseur
+     * sur une période glissante de {@code periodeJours} jours.
+     *
+     * @param fournisseurId identifiant du fournisseur
+     * @param periodeJours  nombre de jours en arrière (ex. 30, 60, 90)
+     */
+    FournisseurStatsServiceDTO getStatsService(Integer fournisseurId, int periodeJours);
+
+    /**
+     * Crée un reliquat à partir d'une commande clôturée.
+     * Les lignes dont la quantité reçue est inférieure à la quantité commandée
+     * sont reportées dans une nouvelle commande REQUESTED avec le même fournisseur.
+     *
+     * @param commandeId identifiant de la commande source (déjà CLOSED)
+     * @return la nouvelle commande reliquat (REQUESTED)
+     * @throws com.kobe.warehouse.service.errors.GenericError si aucune ligne partielle n'est détectée
+     */
+    CommandeLiteDTO createReliquat(CommandeId commandeId);
 }

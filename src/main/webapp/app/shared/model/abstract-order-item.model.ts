@@ -42,6 +42,8 @@ export interface AbstractOrderItem {
   compositeId?: CommandeId;
   orderDate?: string;
   couvertureStockJours?: number;
+  /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
+  qteColis?: number;
 }
 
 export class OrderLineId {

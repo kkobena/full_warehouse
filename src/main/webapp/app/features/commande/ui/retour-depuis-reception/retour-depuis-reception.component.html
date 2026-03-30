@@ -1,0 +1,109 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-replay me-2"></i>{{ header }}
+  </h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body rdr-body">
+
+  @if (retourLines.length === 0) {
+    <div class="rdr-empty">
+      <i class="pi pi-inbox"></i>
+      <span>Aucun article reçu sur cette commande</span>
+    </div>
+  } @else {
+    <!-- Barre de sélection rapide -->
+    <div class="rdr-toolbar">
+      <p-button
+        (click)="onSelectAll()"
+        icon="pi pi-check-square"
+        label="Tout sélectionner"
+        severity="secondary"
+        size="small"
+        [text]="true"
+      />
+      <p-button
+        (click)="onReset()"
+        icon="pi pi-times"
+        label="Réinitialiser"
+        severity="secondary"
+        size="small"
+        [text]="true"
+      />
+      <span class="rdr-summary ms-auto">
+        @if (hasSelection) {
+          <span class="badge bg-primary">{{ totalLignes }} ligne(s) — {{ totalUnites }} unité(s)</span>
+        }
+      </span>
+    </div>
+
+    <!-- Tableau des lignes -->
+    <div class="rdr-table-wrapper">
+      <table class="rdr-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Désignation</th>
+            <th class="text-end">Qté reçue</th>
+            <th class="text-end">Qté à retourner</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of retourLines; track row.orderLine.id) {
+            <tr [class.rdr-row--selected]="row.qtyRetour > 0">
+              <td class="rdr-code">{{ row.orderLine.produitCip }}</td>
+              <td class="rdr-libelle">{{ row.orderLine.produitLibelle }}</td>
+              <td class="text-end rdr-qty">{{ row.maxQty }}</td>
+              <td class="rdr-input-cell">
+                <p-inputnumber
+                  [(ngModel)]="row.qtyRetour"
+                  [min]="0"
+                  [max]="row.maxQty"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  inputStyleClass="rdr-qty-input"
+                  [inputStyle]="{'width': '60px', 'text-align': 'center'}"
+                  size="small"
+                />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Commentaire -->
+    <div class="rdr-comment mt-3">
+      <label class="form-label small fw-semibold">Commentaire (facultatif)</label>
+      <textarea
+        class="form-control form-control-sm"
+        [(ngModel)]="commentaire"
+        rows="2"
+        placeholder="Motif du retour, numéro d'avoir fournisseur…"
+      ></textarea>
+    </div>
+  }
+
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (click)="onCancel()"
+    label="Annuler"
+    severity="secondary"
+    size="small"
+    [text]="true"
+  />
+  <p-button
+    (click)="onSubmit()"
+    icon="pi pi-check"
+    label="Créer l'avoir"
+    severity="primary"
+    size="small"
+    [loading]="saving"
+    [disabled]="!hasSelection || saving"
+  />
+</div>

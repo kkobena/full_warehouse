@@ -33,6 +33,8 @@ public class LotDTO {
     private List<LotSoldDTO> lotSolds;
 
     private Integer currentQuantity;
+    /** Numéro de série FMD (AI 21 GS1 DataMatrix). Null si scan 1D ou non présent. */
+    private String serialNumber;
 
     public LotDTO(Lot lot) {
         id = lot.getId();
@@ -44,6 +46,7 @@ public class LotDTO {
         createdDate = lot.getCreatedDate();
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
+        serialNumber = lot.getSerialNumber();
     }
 
     public LotDTO() {}
@@ -156,12 +159,22 @@ public class LotDTO {
         return this;
     }
 
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public LotDTO setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+        return this;
+    }
+
     public Lot toEntity() {
         var ug = Optional.ofNullable(freeQty).orElse(0);
         return new Lot()
             .setNumLot(numLot)
             .setExpiryDate(expiryDate)
             .setManufacturingDate(manufacturingDate)
+            .setSerialNumber(serialNumber)
             .setQuantity(quantityReceived + ug)
             .setStatut(StatutLot.AVAILABLE)
             .setFreeQty(ug);

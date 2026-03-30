@@ -24,6 +24,7 @@ import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
+import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
@@ -1065,6 +1066,60 @@ public class CommandServiceImpl implements CommandService {
                 updateCommandeAmount(commande, orderLine);
             });
         commandeRepository.save(commande);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FournisseurStatsServiceDTO getStatsService(Integer fournisseurId, int periodeJours) {
+        LocalDate fromDate = LocalDate.now().minusDays(periodeJours);
+        Object[] row = commandeRepository.fetchStatsService(fournisseurId, fromDate);
+        if (row == null || row.length < 2 || row[0] == null) {
+            return new FournisseurStatsServiceDTO(0.0, 0.0, periodeJours);
+        }
+        double taux = Math.round(((Number) row[0]).doubleValue() * 10.0) / 10.0;
+        double delai = Math.round(((Number) row[1]).doubleValue() * 10.0) / 10.0;
+        return new FournisseurStatsServiceDTO(taux, delai, periodeJours);
+    }
+
+    @Override
+    public CommandeLiteDTO createReliquat(CommandeId commandeId) {
+        Commande source = findCommandeById(commandeId);
+        List<OrderLine> lignesPartielles = source.getOrderLines().stream()
+            .filter(ol -> (ol.getQuantityReceived() == null ? 0 : ol.getQuantityReceived()) < ol.getQuantityRequested())
+            .toList();
+        if (lignesPartielles.isEmpty()) {
+            throw new GenericError("Aucune ligne partielle détectée — reliquat impossible");
+        }
+        AppUser user = storageService.getUser();
+        Commande reliquat = new Commande();
+        reliquat.setId(commandeIdGeneratorService.getNextIdAsInt());
+        reliquat.setCreatedAt(LocalDateTime.now());
+        reliquat.setUpdatedAt(reliquat.getCreatedAt());
+        reliquat.setOrderStatus(OrderStatut.REQUESTED);
+        reliquat.setUser(user);
+        reliquat.setOrderReference(referenceService.buildNumCommande());
+        reliquat.setReceiptReference(reliquat.getOrderReference());
+        reliquat.setGrossAmount(0);
+        reliquat.setOrderAmount(0);
+        reliquat.setTaxAmount(0);
+        reliquat.setHtAmount(0);
+        reliquat.setDiscountAmount(0);
+        reliquat.setFournisseur(source.getFournisseur());
+        reliquat.setReliquatDeCommandeId(source.getId().getId());
+        for (OrderLine sourceLine : lignesPartielles) {
+            int qteManquante = sourceLine.getQuantityRequested()
+                - (sourceLine.getQuantityReceived() == null ? 0 : sourceLine.getQuantityReceived());
+            OrderLineDTO dto = new OrderLineDTO();
+            dto.setQuantityRequested(qteManquante);
+            dto.setQuantityReceived(0);
+            dto.setTotalQuantity(sourceLine.getInitStock() != null ? sourceLine.getInitStock() : 0);
+            OrderLine newLine = orderLineService.buildOrderLine(dto, sourceLine.getFournisseurProduit());
+            newLine.setCommande(reliquat);
+            updateCommandeAmount(reliquat, newLine);
+            reliquat.getOrderLines().add(newLine);
+        }
+        reliquat.setFinalAmount(reliquat.getOrderAmount());
+        return new CommandeLiteDTO(commandeRepository.save(reliquat));
     }
 
     private void updateCommandeAmount(Commande commande, OrderLine orderLine) {

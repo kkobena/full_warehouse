@@ -89,6 +89,11 @@ public class Lot implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 15)
     private StatutLot statut;
+
+    /** Numéro de série FMD (AI 21 GS1 DataMatrix). Null = non présent ou scan 1D. */
+    @Column(name = "serial_number", length = 50)
+    private String serialNumber;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Produit produit;
@@ -225,6 +230,15 @@ public class Lot implements Serializable {
 
     public Lot setProduit(Produit produit) {
         this.produit = produit;
+        return this;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public Lot setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
         return this;
     }
 

@@ -1,0 +1,136 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-file-check me-2"></i>{{ header }}
+  </h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="onCancel()"></button>
+</div>
+
+<div class="modal-body rf-body">
+
+  <!-- Tableau de comparaison BL ↔ Facture -->
+  <div class="rf-compare">
+    <div class="rf-compare__header">
+      <span></span>
+      <span class="rf-col-label"><i class="pi pi-calculator"></i> BL calculé</span>
+      <span class="rf-col-label"><i class="pi pi-file"></i> Facture fournisseur</span>
+      <span class="rf-col-label"><i class="pi pi-arrows-h"></i> Écart</span>
+    </div>
+
+    <!-- Ligne HT -->
+    <div class="rf-compare__row">
+      <span class="rf-row-label">Montant HT</span>
+      <span class="rf-val rf-val--ref">{{ blMontantHT | number }} F</span>
+      <span class="rf-val">
+        <p-inputnumber
+          [(ngModel)]="factureMontantHT"
+          [min]="0"
+          [useGrouping]="true"
+          inputStyleClass="rf-number-input"
+          [inputStyle]="{'width':'130px','text-align':'right'}"
+          size="small"
+        />
+      </span>
+      <span class="rf-val rf-ecart" [class.rf-ecart--ok]="ecartHT === 0" [class.rf-ecart--err]="ecartHT !== 0">
+        @if (ecartHT === 0) {
+          <i class="pi pi-check-circle"></i>
+        } @else {
+          <i class="pi pi-exclamation-triangle"></i>
+        }
+        {{ ecartHT | number }} F
+      </span>
+    </div>
+
+    <!-- Ligne TVA -->
+    <div class="rf-compare__row">
+      <span class="rf-row-label">TVA</span>
+      <span class="rf-val rf-val--ref">{{ blTVA | number }} F</span>
+      <span class="rf-val">
+        <p-inputnumber
+          [(ngModel)]="factureTVA"
+          [min]="0"
+          [useGrouping]="true"
+          inputStyleClass="rf-number-input"
+          [inputStyle]="{'width':'130px','text-align':'right'}"
+          size="small"
+        />
+      </span>
+      <span class="rf-val rf-ecart" [class.rf-ecart--ok]="ecartTVA === 0" [class.rf-ecart--err]="ecartTVA !== 0">
+        @if (ecartTVA === 0) {
+          <i class="pi pi-check-circle"></i>
+        } @else {
+          <i class="pi pi-exclamation-triangle"></i>
+        }
+        {{ ecartTVA | number }} F
+      </span>
+    </div>
+
+    <!-- Total TTC -->
+    <div class="rf-compare__row rf-compare__row--total">
+      <span class="rf-row-label fw-bold">Total TTC</span>
+      <span class="rf-val rf-val--ref fw-bold">{{ totalBL | number }} F</span>
+      <span class="rf-val fw-bold">{{ totalFacture | number }} F</span>
+      <span class="rf-val rf-ecart fw-bold"
+            [class.rf-ecart--ok]="ecartHT === 0 && ecartTVA === 0"
+            [class.rf-ecart--err]="ecartHT !== 0 || ecartTVA !== 0">
+        {{ (totalFacture - totalBL) | number }} F
+      </span>
+    </div>
+  </div>
+
+  <!-- Statut de réconciliation -->
+  <div class="rf-status mt-3" [class.rf-status--ok]="isReconcilie" [class.rf-status--warn]="!isReconcilie">
+    @if (isReconcilie) {
+      <i class="pi pi-check-circle"></i>
+      <span>Facture concordante — pas d'écart avec le bon de livraison</span>
+    } @else {
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>Écart détecté — vérifiez les montants avant validation</span>
+    }
+  </div>
+
+  <hr class="my-3"/>
+
+  <!-- Métadonnées de la facture -->
+  <div class="rf-meta">
+    <div class="rf-meta__field">
+      <label class="form-label small fw-semibold">Référence facture <span class="text-danger">*</span></label>
+      <input
+        class="form-control form-control-sm"
+        [(ngModel)]="factureReference"
+        type="text"
+        placeholder="Ex : FAC-2026-00123"
+        maxlength="50"
+      />
+    </div>
+    <div class="rf-meta__field">
+      <label class="form-label small fw-semibold">Date facture</label>
+      <p-datepicker
+        [(ngModel)]="factureDate"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        appendTo="body"
+        inputStyleClass="form-control form-control-sm"
+      />
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (click)="onCancel()"
+    label="Annuler"
+    severity="secondary"
+    size="small"
+    [text]="true"
+  />
+  <p-button
+    (click)="onSubmit()"
+    icon="pi pi-save"
+    [label]="isReconcilie ? 'Valider — Rapproché' : 'Enregistrer avec écart'"
+    [severity]="isReconcilie ? 'primary' : 'warn'"
+    size="small"
+    [loading]="saving"
+    [disabled]="!canSave || saving"
+  />
+</div>

@@ -35,7 +35,9 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "commande",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date", "order_status" }) },
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"receipt_reference", "fournisseur_id", "order_date",
+            "order_status"})},
     indexes = {
         @Index(columnList = "order_status", name = "order_status_index"),
         @Index(columnList = "order_date", name = "cmd_order_date_index"),
@@ -98,7 +100,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "order_status", length = 12, nullable = false)
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
-    @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "commande", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<OrderLine> orderLines = new ArrayList<>();
 
     @NotNull
@@ -124,9 +126,9 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     private boolean hasBeenSubmittedToPharmaML;
 
     /**
-     * ID de la commande originale dont cette commande est le clone.
-     * Renseigné uniquement lors d'une finalisation hors-date (orderDate != today).
-     * Permet de retrouver l'historique complet même après archivage.
+     * ID de la commande originale dont cette commande est le clone. Renseigné uniquement lors d'une
+     * finalisation hors-date (orderDate != today). Permet de retrouver l'historique complet même
+     * après archivage.
      */
     @Column(name = "original_commande_id")
     private Integer originalCommandeId;
@@ -400,7 +402,9 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Commande commande = (Commande) o;
         return Objects.equals(id, commande.id) && Objects.equals(orderDate, commande.orderDate);
     }

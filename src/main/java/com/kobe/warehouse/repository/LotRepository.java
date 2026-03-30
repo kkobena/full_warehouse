@@ -56,6 +56,9 @@ public interface LotRepository
     @Query("SELECT o FROM Lot o WHERE o.produit.id = :produitId ORDER BY o.createdDate DESC LIMIT 1")
     Optional<Lot> findLastReceivedByProduitId(Integer produitId);
 
+    /** Vérifie l'existence d'un numéro de série FMD pour un produit donné (détection doublon). */
+    boolean existsBySerialNumberAndProduitId(String serialNumber, Integer produitId);
+
     default Specification<Lot> filterByStock() {
         return (root, _, cb) -> cb.greaterThan(root.get(Lot_.quantity), 0);
     }

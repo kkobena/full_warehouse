@@ -72,6 +72,34 @@ public interface CommandeRepository
 
     Optional<Commande> findByOrderReference(String orderReference);
 
+    /**
+     * Calcule le taux de service et le délai moyen de livraison pour un fournisseur donné
+     * sur une période glissante. Retourne un tableau Object[] à deux colonnes :
+     * [0] taux_service DOUBLE (ratio qty_reçue / qty_commandée × 100),
+     * [1] delai_moyen  DOUBLE (nb jours moyen entre order_date et updated_at).
+     */
+    @Query(value = """
+        SELECT
+            COALESCE(
+                SUM(ol.quantity_received)::float / NULLIF(SUM(ol.quantity_requested), 0) * 100,
+                0
+            )                                                                           AS taux_service,
+            COALESCE(
+                AVG(EXTRACT(EPOCH FROM (c.updated_at - c.order_date::timestamp)) / 86400.0),
+                0
+            )                                                                           AS delai_moyen
+        FROM commande c
+             JOIN order_line ol ON ol.commande_id = c.id
+                                AND ol.commande_order_date = c.order_date
+        WHERE c.fournisseur_id = :fournisseurId
+          AND c.order_status   = 'CLOSED'
+          AND c.order_date     >= :fromDate
+        """, nativeQuery = true)
+    Object[] fetchStatsService(
+        @Param("fournisseurId") Integer fournisseurId,
+        @Param("fromDate") LocalDate fromDate
+    );
+
     default Specification<Commande> hasOrderStatut(OrderStatut orderStatut) {
         return (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), orderStatut);
     }

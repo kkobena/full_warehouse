@@ -33,7 +33,7 @@ $card-radius: 6px;
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0.75rem 0;
-  gap: 0;                   // pas de gap : les détails expandés s'accolent à la carte
+  gap: 0.4rem;
   scrollbar-width: thin;
 }
 
@@ -61,12 +61,10 @@ $card-radius: 6px;
   align-items: center;
   gap: 0.5rem;
   padding: 0.55rem 0.75rem 0.55rem 0.9rem;
-  border-radius: $card-radius $card-radius 0 0;
+  border-radius: $card-radius;
   border: 1px solid $pharma-border;
   background: $gray-50;
-  margin-bottom: 0;
-  margin-top: 0.4rem;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
 
   &::before {
     content: '';
@@ -79,6 +77,9 @@ $card-radius: 6px;
     background: #10b981;  // vert : clôturé
     transition: background-color 0.15s;
   }
+
+  // Carte interactive (cursor pointer)
+  &--clickable { cursor: pointer; }
 
   // ── Bon en cours de réception (RECEIVED) ──────────────────────────────────
   &--received {
@@ -93,39 +94,14 @@ $card-radius: 6px;
     &:hover {
       border-color: #f59e0b;
       background: #fef3c7;
+      box-shadow: $pharma-shadow-hover;
     }
   }
 
-  &:hover:not(.bc--received) {
+  &--clickable:hover:not(.bc--received) {
     border-color: $pharma-primary;
     background: $pharma-primary-light;
-  }
-}
-
-// Quand la carte est expandée : coins bas carrés (le détail suit immédiatement)
-.bc:has(+ .bc-detail) {
-  border-radius: $card-radius $card-radius 0 0;
-  border-bottom-color: transparent;
-}
-
-.bc__expand {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  border: none;
-  background: none;
-  color: $gray-400;
-  cursor: pointer;
-  font-size: 0.72rem;
-  transition: color 0.15s, background-color 0.15s;
-
-  &:hover {
-    background: $gray-200;
-    color: $gray-600;
+    box-shadow: $pharma-shadow-hover;
   }
 }
 
@@ -237,82 +213,126 @@ $card-radius: 6px;
     color: $gray-700;
     transform: scale(1.08);
   }
-}
 
-// ── SECTION DÉTAILS EXPANDÉE ──────────────────────────────────────────────────
+  &--primary {
+    background: rgba($pharma-primary, 0.08);
+    color: $pharma-primary;
 
-.bc-detail {
-  border: 1px solid $pharma-border;
-  border-top: none;
-  border-radius: 0 0 $card-radius $card-radius;
-  background: $pharma-white;
-  margin-bottom: 0.4rem;
-  overflow-x: auto;
-}
-
-.bc-detail__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-
-  thead tr {
-    background: $gray-100;
-
-    th {
-      padding: 0.3rem 0.5rem;
-      font-weight: 700;
-      font-size: 0.73rem;
-      color: $gray-500;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-      border-bottom: 1px solid $gray-200;
+    &:hover {
+      background: rgba($pharma-primary, 0.18);
+      transform: scale(1.08);
     }
   }
-
-  tbody tr {
-    border-bottom: 1px solid $gray-100;
-
-    &:last-child { border-bottom: none; }
-    &:hover { background: $gray-50; }
-
-    td { padding: 0.28rem 0.5rem; }
-  }
 }
 
-.bc-detail__idx {
-  color: $gray-400;
-  font-size: 0.72rem;
-  width: 28px;
-  text-align: center;
+// ── DETAIL BODY (mode saisie) ─────────────────────────────────────────────
+
+.lb-detail-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.bc-detail__code {
-  font-family: monospace;
-  font-size: 0.76rem;
-  color: $gray-600;
+// ── SPLIT-PANEL (consultation bon clôturé) ─────────────────────────────────
+
+.view-panel--split {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.bc-detail__libelle {
-  max-width: 240px;
+.lb-split {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  gap: 0;
+}
+
+.lb-split__left {
+  flex: 0 0 320px;
+  min-width: 260px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid $pharma-border;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background: $pharma-white;
+}
+
+.lb-split__right {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// ── CARTE MÉTADONNÉES (panneau gauche du split) ────────────────────────────
+
+.lb-meta-card {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid $pharma-border;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lb-meta-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lb-meta-card__supplier {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: $gray-800;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.bc-detail__num {
-  color: $gray-600;
-  font-weight: 600;
+.lb-meta-card__infos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
-.bc-detail__price {
-  color: $pharma-primary;
+.lb-meta-card__info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: $pharma-text-light;
+
+  i {
+    font-size: 0.74rem;
+    color: $pharma-secondary;
+    flex-shrink: 0;
+  }
+}
+
+.lb-meta-card__amount {
+  font-size: 0.88rem;
   font-weight: 700;
+  color: $pharma-primary;
+
+  small {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: $gray-400;
+    margin-left: 2px;
+  }
 }
 
-.bc-detail__empty {
-  text-align: center;
-  color: $gray-400;
-  padding: 1rem;
-  font-size: 0.8rem;
+.lb-meta-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }

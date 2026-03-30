@@ -8,6 +8,7 @@ import { ICommandeResponse } from '../../../shared/model/commande-response.model
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
 import { CommandeId } from '../../../shared/model/abstract-commande.model';
 import { IStockEntryResult } from '../../../shared/model/stock-entry-result.model';
+import { IReceptionScanResult } from '../../../shared/model/reception-scan-result.model';
 
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
@@ -140,6 +141,14 @@ export class DeliveryService {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-tva', this.resetdatePeremption(deliveryItem), {
       observe: 'response',
     });
+  }
+
+  scanReception(commandeId: number, rawScan: string): Observable<HttpResponse<IReceptionScanResult>> {
+    return this.http.post<IReceptionScanResult>(
+      `${this.resourceUrlTransac}/scan-reception?commandeId=${commandeId}`,
+      rawScan,
+      { observe: 'response', headers: { 'Content-Type': 'text/plain' } },
+    );
   }
 
   private resetdatePeremption(deliveryItem: IDeliveryItem): IDeliveryItem {

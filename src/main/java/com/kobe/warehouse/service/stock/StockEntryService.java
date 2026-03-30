@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
 import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
+import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
 import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import java.io.IOException;
@@ -55,4 +56,19 @@ public interface StockEntryService {
      * @return liste des produits concernés avec les quantités à déplacer
      */
     List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId,LocalDate orderDate);
+
+    /**
+     * Traite un scan CIP ou DataMatrix reçu pendant la saisie d'une entrée en stock.
+     * <ul>
+     *   <li>Identifie la ligne de commande correspondant au code scanné.</li>
+     *   <li>Incrémente la quantité reçue de 1.</li>
+     *   <li>Crée automatiquement un lot si le DataMatrix contient numéro de lot + date de
+     *       péremption ET que {@code APP_GESTION_LOT} est actif.</li>
+     * </ul>
+     *
+     * @param commandeId identifiant de la commande (BL en cours)
+     * @param rawScan    chaîne brute retournée par la douchette (1D ou 2D)
+     * @return résultat du traitement avec feedback pour l'UI
+     */
+    ReceptionScanResultDTO processScanReception(Integer commandeId, String rawScan);
 }

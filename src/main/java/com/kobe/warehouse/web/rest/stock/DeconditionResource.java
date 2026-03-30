@@ -4,11 +4,9 @@ import com.kobe.warehouse.service.DeconditionService;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -20,17 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-/** REST controller for managing {@link com.kobe.warehouse.domain.Decondition}. */
+/**
+ * REST controller for managing {@link com.kobe.warehouse.domain.Decondition}.
+ */
 @RestController
 @RequestMapping("/api")
 public class DeconditionResource {
 
-    private static final String ENTITY_NAME = "decondition";
     private final Logger log = LoggerFactory.getLogger(DeconditionResource.class);
     private final DeconditionService deconditionService;
 
-    @Value("${pharma-smart.clientApp.name}")
-    private String applicationName;
 
     public DeconditionResource(DeconditionService deconditionService) {
         this.deconditionService = deconditionService;
@@ -41,7 +38,7 @@ public class DeconditionResource {
      *
      * @param decondition the decondition to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new
-     *     decondition, or with status {@code 400 (Bad Request)} if the decondition has already an ID.
+     * decondition, or with status {@code 400 (Bad Request)} if the decondition has already an ID.
      */
     @PostMapping("/deconditions")
     public ResponseEntity<Void> createDecondition(@Valid @RequestBody DeconditionDTO decondition) {
@@ -54,14 +51,15 @@ public class DeconditionResource {
      * {@code GET /deconditions} : get all the deconditions.
      *
      * @param pageable the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of deconditions in
-     *     body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of deconditions
+     * in body.
      */
     @GetMapping("/deconditions")
     public ResponseEntity<List<DeconditionDTO>> getAllDeconditions(Pageable pageable) {
         log.debug("REST request to get a page of Deconditions");
         Page<DeconditionDTO> page = deconditionService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
+            ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

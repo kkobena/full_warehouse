@@ -13,36 +13,36 @@
         <p-iconfield class="rh-search">
           <p-inputicon class="pi pi-search" />
           <input
-            pInputText
-            type="text"
-            placeholder="Fournisseur, référence…"
-            [(ngModel)]="searchText"
             (keyup.enter)="onSearch()"
+            [(ngModel)]="searchText"
+            pInputText
+            placeholder="Fournisseur, référence…"
+            type="text"
           />
         </p-iconfield>
 
-        <p-floatlabel variant="on" class="rh-date">
+        <p-floatlabel class="rh-date" variant="on">
           <p-datePicker
-            [(ngModel)]="dtStart"
             (onSelect)="onSearch()"
-            [showIcon]="true"
+            [(ngModel)]="dtStart"
             [showButtonBar]="true"
+            [showIcon]="true"
+            appendTo="body"
             dateFormat="dd/mm/yy"
             inputId="rhDtStart"
-            appendTo="body"
           />
           <label for="rhDtStart">Début</label>
         </p-floatlabel>
 
-        <p-floatlabel variant="on" class="rh-date">
+        <p-floatlabel class="rh-date" variant="on">
           <p-datePicker
-            [(ngModel)]="dtEnd"
             (onSelect)="onSearch()"
-            [showIcon]="true"
+            [(ngModel)]="dtEnd"
             [showButtonBar]="true"
+            [showIcon]="true"
+            appendTo="body"
             dateFormat="dd/mm/yy"
             inputId="rhDtEnd"
-            appendTo="body"
           />
           <label for="rhDtEnd">Fin</label>
         </p-floatlabel>
@@ -50,11 +50,11 @@
       </div>
       <div class="su-action-bar__actions">
         <p-button
+          (onClick)="onSearch()"
           icon="pi pi-search"
           label="Rechercher"
           severity="info"
           size="small"
-          (onClick)="onSearch()"
         />
       </div>
     </div>
@@ -64,7 +64,7 @@
 
       @if (loading()) {
         <div class="cl-loading">
-          <p-progressSpinner strokeWidth="3" [style]="{ width: '32px', height: '32px' }" />
+          <p-progressSpinner [style]="{ width: '32px', height: '32px' }" strokeWidth="3" />
         </div>
       }
 
@@ -77,15 +77,16 @@
       }
 
       @for (d of deliveries(); track d.id) {
-        <div class="cc cc--received" (click)="onEditer(d)">
+        <div (click)="onEditer(d)" class="cc cc--received">
 
           <!-- Corps de la carte -->
           <div class="cc__body">
             <div class="cc__top">
-              <span class="cc__name" [title]="d.fournisseurLibelle ?? d.fournisseur?.libelle">
+              <span [title]="d.fournisseurLibelle ?? d.fournisseur?.libelle" class="cc__name">
                 {{ d.fournisseurLibelle ?? d.fournisseur?.libelle }}
               </span>
-              <span class="cc__amount">{{ (d.receiptAmount ?? d.grossAmount) | number : '1.0-0' }}<small> F TTC</small></span>
+              <span class="cc__amount">{{ (d.receiptAmount ?? d.grossAmount) | number : '1.0-0' }}
+                <small> F TTC</small></span>
             </div>
             <div class="cc__stats">
               <span class="cc__stat cc__stat--count">
@@ -104,16 +105,16 @@
           <!-- Actions -->
           <div class="cc__actions">
             <button
-              class="cc__action cc__action--primary"
               (click)="onEditer(d); $event.stopPropagation()"
+              class="cc__action cc__action--primary"
               pTooltip="Ouvrir la réception"
               tooltipPosition="top"
             >
               <i class="pi pi-inbox"></i>
             </button>
             <button
-              class="cc__action"
               (click)="exportPdf(d, $event)"
+              class="cc__action"
               pTooltip="Imprimer BL"
               tooltipPosition="top"
             >
@@ -129,42 +130,40 @@
     @if (totalItems() > rows) {
       <div class="pagination-bar">
         <p-button
+          (onClick)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 0"
           icon="pi pi-angle-left"
+          pTooltip="Page précédente"
           severity="secondary"
           size="small"
-          [disabled]="currentPage() === 0"
-          (onClick)="goToPage(currentPage() - 1)"
-          pTooltip="Page précédente"
         />
         <span class="pagination-info">
           Page {{ currentPage() + 1 }} / {{ totalPages() }}
           &nbsp;·&nbsp; {{ totalItems() }} bon(s)
         </span>
         <p-button
+          (onClick)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() >= totalPages() - 1"
           icon="pi pi-angle-right"
+          pTooltip="Page suivante"
           severity="secondary"
           size="small"
-          [disabled]="currentPage() >= totalPages() - 1"
-          (onClick)="goToPage(currentPage() + 1)"
-          pTooltip="Page suivante"
         />
       </div>
     }
 
   </div>
-}
-
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- MODE DETAIL (réception)                                                 -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-@else {
+} @else {
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- MODE DETAIL (réception)                                                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <div class="view-panel view-panel--detail">
 
     <div class="detail-body">
       <app-commande-received
-        [commande]="editingCommande()!"
         (commandeChange)="onCommandeChange($event)"
         (retour)="onRetour()"
+        [commande]="editingCommande()!"
       />
     </div>
 

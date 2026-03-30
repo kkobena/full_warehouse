@@ -12,19 +12,19 @@
           [value]="semoisFraicheurLabel"
           [severity]="semoisFraicheurSeverity"
           icon="pi pi-clock"
-          pTooltip="Fraîcheur du dernier calcul SEMOIS. Le recalcul est planifié selon la configuration."
+          pTooltip="Fraîcheur du dernier calcul automatique. Le recalcul est planifié selon la configuration."
           tooltipPosition="bottom"
         />
       }
       <div class="su-config-btn-wrap">
         <p-button
           icon="pi pi-sliders-h"
-          label="Config. SEMOIS"
+          label="Config. criticité"
           [outlined]="true"
           size="small"
-          pTooltip="Paramétrage des classes de criticité et modèles SEMOIS"
+          pTooltip="Paramétrage des classes de criticité et des règles de réapprovisionnement"
           tooltipPosition="bottom"
-          (onClick)="navigateToSemoisConfig()"
+          (onClick)="ouvrirConfigCriticite()"
         />
       </div>
     </div>
@@ -39,7 +39,7 @@
       [class.su-tab--active]="activeSource() === 'REAPPRO'"
       (click)="setSource('REAPPRO')"
       type="button"
-      pTooltip="Suggestions générées par SEMOIS en attente de validation"
+      pTooltip="Suggestions générées automatiquement en attente de validation"
       tooltipPosition="bottom"
     >
       <i class="pi pi-inbox"></i>
@@ -74,15 +74,18 @@
     >
       <i class="pi pi-truck"></i>
       Bons de livraison
+      @if (countBonsLivraison() > 0) {
+        <span class="su-tab-badge su-tab-badge--warn">{{ countBonsLivraison() }}</span>
+      }
     </button>
 
-    <!-- Onglet 4 : Analyse des stocks (SEMOIS analytique, lecture seule) -->
+    <!-- Onglet 4 : Analyse des stocks (lecture seule) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'ANALYSE'"
       (click)="setSource('ANALYSE')"
       type="button"
-      pTooltip="Analyse analytique"
+      pTooltip="Analyse des niveaux de stock et des seuils de réapprovisionnement"
       tooltipPosition="bottom"
     >
       <i class="pi pi-chart-bar"></i>

@@ -33,4 +33,6 @@ public interface StockEntryDataService {
     Page<DeliveryReceiptDTO> fetchAllWithoutDetail(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
     DeliveryTotalsDTO computeTotals(DeliveryReceiptFilterDTO filter);
+
+    long countByStatut(com.kobe.warehouse.domain.enumeration.OrderStatut statut);
 }

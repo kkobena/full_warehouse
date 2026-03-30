@@ -75,6 +75,10 @@ export class DeliveryService {
     });
   }
 
+  countByStatut(statut: string): Observable<number> {
+    return this.http.get<number>(`${this.resourceUrlQuery}/count`, { params: { statut } });
+  }
+
   fetchTotals(req?: any): Observable<HttpResponse<IDeliveryTotals>> {
     const options = createRequestOptions(req);
     return this.http.get<IDeliveryTotals>(`${this.resourceUrlQuery}/totaux`, {

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
@@ -86,5 +87,10 @@ public class StockEntryDataResource {
     @GetMapping("/commandes/totaux")
     public ResponseEntity<DeliveryTotalsDTO> computeTotals(DeliveryReceiptFilterDTO receiptFilter) {
         return ResponseEntity.ok(stockEntryDataServicetryService.computeTotals(receiptFilter));
+    }
+
+    @GetMapping("/commandes/count")
+    public ResponseEntity<Long> countByStatut(@RequestParam("statut") OrderStatut statut) {
+        return ResponseEntity.ok(stockEntryDataServicetryService.countByStatut(statut));
     }
 }

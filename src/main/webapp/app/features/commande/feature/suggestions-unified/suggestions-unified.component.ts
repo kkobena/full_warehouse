@@ -13,7 +13,7 @@ import { CommandeRequestedHomeComponent } from '../commande-requested-home/comma
 import { AppListBonsComponent } from '../../ui/list-bons/list-bons.component';
 import { CommandCommonService, SuggestionsSource } from 'app/entities/commande/command-common.service';
 import { SuggestionService, SemoisFraicheur } from 'app/entities/commande/suggestion/suggestion.service';
-import { CommandeService } from 'app/entities/commande/commande.service';
+import { DeliveryService } from 'app/entities/commande/delevery/delivery.service';
 
 @Component({
   selector: 'app-suggestions-unified',
@@ -43,10 +43,12 @@ export class SuggestionsUnifiedComponent implements OnInit {
   readonly countReappro = signal<number>(0);
   /** Badge : nb commandes REQUESTED (tab Commandes à passer, toujours affiché) */
   readonly countCommandesAPasser = signal<number>(0);
+  /** Badge : nb bons RECEIVED en attente de saisie */
+  readonly countBonsLivraison = signal<number>(0);
 
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly suggestionService = inject(SuggestionService);
-  private readonly commandeService = inject(CommandeService);
+  private readonly deliveryService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
 
   // Plus besoin de constructor/effect : activeSource est un computed pur.
@@ -59,16 +61,18 @@ export class SuggestionsUnifiedComponent implements OnInit {
     });
   }
 
-  /** Recharge les compteurs de badges pour les deux onglets actifs. */
+  /** Recharge les compteurs de badges pour tous les onglets. */
   loadBadges(): void {
-    forkJoin([
-      this.suggestionService.countByStatut('GENEREE'),
-      this.suggestionService.countByStatut('VALIDEE'),
-      this.commandeService.query({ size: 1, orderStatuts: ['REQUESTED'] }),
-    ]).subscribe({
-      next: ([g, v, cmdRes]) => {
-        this.countReappro.set(g + v);
-        this.countCommandesAPasser.set(Number(cmdRes.headers.get('X-Total-Count') ?? 0));
+    forkJoin({
+      generee:    this.suggestionService.countByStatut('GENEREE'),
+      validee:    this.suggestionService.countByStatut('VALIDEE'),
+      requested:  this.deliveryService.countByStatut('REQUESTED'),
+      received:   this.deliveryService.countByStatut('RECEIVED'),
+    }).subscribe({
+      next: ({ generee, validee, requested, received }) => {
+        this.countReappro.set(generee + validee);
+        this.countCommandesAPasser.set(requested);
+        this.countBonsLivraison.set(received);
       },
       error: () => this.countReappro.set(0),
     });
@@ -83,12 +87,12 @@ export class SuggestionsUnifiedComponent implements OnInit {
   get semoisFraicheurLabel(): string {
     const f = this.semoisFraicheur();
     if (!f) return '';
-    if (f.calculeRecent) return `SEMOIS · Récent`;
+    if (f.calculeRecent) return 'Calcul · Récent';
     if (f.dernierCalcul) {
       const d = new Date(f.dernierCalcul);
-      return `SEMOIS · ${d.toLocaleDateString('fr-FR')}`;
+      return `Calcul · ${d.toLocaleDateString('fr-FR')}`;
     }
-    return 'SEMOIS · Jamais calculé';
+    return 'Calcul · Jamais effectué';
   }
 
   get semoisFraicheurSeverity(): 'success' | 'warn' | 'danger' | 'secondary' {
@@ -97,7 +101,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
     return f.calculeRecent ? 'success' : 'warn';
   }
 
-  navigateToSemoisConfig(): void {
+  ouvrirConfigCriticite(): void {
     this.modalService.open(SemoisClasseConfigComponent, {
       size: 'lg',
       scrollable: true,

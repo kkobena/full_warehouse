@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
@@ -213,6 +214,11 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         return commandeRepository
             .findAll(buildSpecification(deliveryReceiptFilterDTO), sorted)
             .map(c -> new DeliveryReceiptDTO(c, List.of()));
+    }
+
+    @Override
+    public long countByStatut(OrderStatut statut) {
+        return commandeRepository.countByOrderStatus(statut);
     }
 
     @Override

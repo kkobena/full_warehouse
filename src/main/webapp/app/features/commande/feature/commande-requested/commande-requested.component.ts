@@ -400,7 +400,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     }
     this.loadFournisseurs();
     this.isLotActif();
-    this.loadSeuilMontant();
+    //this.loadSeuilMontant();
   }
 
   ngAfterViewInit(): void {

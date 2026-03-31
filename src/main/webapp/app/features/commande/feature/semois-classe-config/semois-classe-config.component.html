@@ -1,13 +1,14 @@
 <p-toast position="center"/>
 <div class="modal-header">
-  <h2 class="modal-title">Règles de réapprovisionnement — Paramètres par classe de criticité</h2>
+  <h2 class="modal-title">Paramètres d'approvisionnement par classe de criticité</h2>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
   <div class="config-info">
 
-      Ces paramètres s'appliquent à tous les produits de la classe. Ils sont utilisés pour calculer le stock objectif
-      et déclencher le réapprovisionnement automatique.
+      Ces paramètres définissent les règles de réapprovisionnement par classe (A+, A, B, C, D).
+      Ils permettent de calculer la quantité à commander (stock objectif) et le stock de sécurité
+      basé sur la VMM (Vente Mensuelle Moyenne) de chaque produit.
 
   </div>
 <div class="modal-body semois-classe-config">

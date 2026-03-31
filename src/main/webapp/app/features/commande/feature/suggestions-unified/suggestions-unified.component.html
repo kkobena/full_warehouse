@@ -4,7 +4,7 @@
   <!-- Header bleu : titre + indicateur fraîcheur + bouton config -->
   <div class="pharma-toolbar-header">
     <i class="pi pi-lightbulb"></i>
-    <span class="su-title">Suggestions de commande</span>
+    <span class="su-title">Gestion des approvisionnements</span>
 
     <div class="su-header-end ms-auto">
       @if (semoisFraicheur()) {
@@ -12,17 +12,17 @@
           [value]="semoisFraicheurLabel"
           [severity]="semoisFraicheurSeverity"
           icon="pi pi-clock"
-          pTooltip="Fraîcheur du dernier calcul automatique. Le recalcul est planifié selon la configuration."
+          pTooltip="Fraîcheur du calcul VMM (Vente Mensuelle Moyenne). Mise à jour automatique quotidienne selon le planning configuré."
           tooltipPosition="bottom"
         />
       }
       <div class="su-config-btn-wrap">
         <p-button
           icon="pi pi-sliders-h"
-          label="Config. criticité"
+          label="Classes produits"
           [outlined]="true"
           size="small"
-          pTooltip="Paramétrage des classes de criticité et des règles de réapprovisionnement"
+          pTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
           tooltipPosition="bottom"
           (onClick)="ouvrirConfigCriticite()"
         />
@@ -33,63 +33,63 @@
   <!-- Barre des 3 onglets -->
   <div class="su-source-tabs-bar">
 
-    <!-- Onglet 1 : Réapprovisionnement (GENEREE) -->
+    <!-- Onglet 1 : Propositions d'achat (GENEREE) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'REAPPRO'"
       (click)="setSource('REAPPRO')"
       type="button"
-      pTooltip="Suggestions générées automatiquement en attente de validation"
+      pTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
       tooltipPosition="bottom"
     >
       <i class="pi pi-inbox"></i>
-      Réapprovisionnement
+      Propositions d'achat
       @if (countReappro() > 0) {
         <span class="su-tab-badge su-tab-badge--primary">{{ countReappro() }}</span>
       }
     </button>
 
-    <!-- Onglet 2 : Commandes à passer (REQUESTED) -->
+    <!-- Onglet 2 : Commandes fournisseurs (REQUESTED) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
       (click)="setSource('COMMANDES_A_PASSER')"
       type="button"
-      pTooltip="Commandes fournisseurs en cours de saisie"
+      pTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
       tooltipPosition="bottom"
     >
       <i class="pi pi-cart-plus"></i>
-      Commandes à passer
+      Commandes fournisseurs
       <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
     </button>
 
-    <!-- Onglet 3 : Bons de livraison (historique réception) -->
+    <!-- Onglet 3 : Réceptions (bons de livraison à traiter) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
       (click)="setSource('BONS_DE_LIVRAISON')"
       type="button"
-      pTooltip="Historique des bons de livraison reçus"
+      pTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
       tooltipPosition="bottom"
     >
       <i class="pi pi-truck"></i>
-      Bons de livraison
+      Réceptions
       @if (countBonsLivraison() > 0) {
         <span class="su-tab-badge su-tab-badge--warn">{{ countBonsLivraison() }}</span>
       }
     </button>
 
-    <!-- Onglet 4 : Analyse des stocks (lecture seule) -->
+    <!-- Onglet 4 : Tableau de bord stock (lecture seule) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeSource() === 'ANALYSE'"
       (click)="setSource('ANALYSE')"
       type="button"
-      pTooltip="Analyse des niveaux de stock et des seuils de réapprovisionnement"
+      pTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
       tooltipPosition="bottom"
     >
       <i class="pi pi-chart-bar"></i>
-      Analyse des stocks
+      Tableau de bord stock
     </button>
 
   </div>

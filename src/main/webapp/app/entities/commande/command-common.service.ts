@@ -23,6 +23,9 @@ export class CommandCommonService {
   /** Commande à ouvrir en mode édition après navigation vers "Commandes à passer" */
   pendingOpenCommandeId = signal<CommandeId | null>(null);
 
+  /** Bon de livraison (commandeId) à ouvrir en mode édition après navigation vers "Bons de livraison" */
+  pendingOpenDeliveryId = signal<CommandeId | null>(null);
+
   constructor() {}
 
   updateCommand(commande: ICommande): void {
@@ -51,13 +54,11 @@ export class CommandCommonService {
     this.commandPreviousActiveNav.set('SUGGESTIONS');
   }
 
-  /** @deprecated Utiliser navigateToAnalyse() */
-  navigateToSemoisSuggestions(): void {
-    this.navigateToAnalyse();
+  /** Navigue vers l'onglet Bons de livraison (réceptions en attente) */
+  navigateToBonsLivraison(): void {
+    this.suggestionsActiveSource.set('BONS_DE_LIVRAISON');
+    this.commandPreviousActiveNav.set('SUGGESTIONS');
   }
 
-  /** @deprecated Utiliser navigateToReappro() */
-  navigateToFournisseursSuggestions(): void {
-    this.navigateToReappro();
-  }
+
 }

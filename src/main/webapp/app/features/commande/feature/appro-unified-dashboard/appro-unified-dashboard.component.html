@@ -14,7 +14,7 @@
             [value]="semoisFraicheurLabel"
             [severity]="semoisFraicheurSeverity"
             icon="pi pi-clock"
-            pTooltip="Fraîcheur des calculs SEMOIS — clic sur Recalculer pour forcer un recalcul immédiat"
+            pTooltip="Fraîcheur de la VMM (Vente Mensuelle Moyenne) — cliquer sur Recalculer VMM pour forcer un recalcul immédiat"
             tooltipPosition="bottom"
           />
         </span>
@@ -28,7 +28,7 @@
             icon="pi pi-exclamation-triangle"
             severity="danger"
             size="small"
-            pTooltip="Commander tous les articles SEMOIS en rupture/sous seuil"
+            pTooltip="Commander tous les articles en rupture ou sous le seuil de sécurité VMM"
             tooltipPosition="bottom"
             (onClick)="navigateToSemoisSuggestions()"
           />
@@ -51,12 +51,12 @@
             (onClick)="navigateToSuggestions()"
           />
           <p-button
-            label="Recalculer SEMOIS"
+            label="Recalculer VMM"
             icon="pi pi-sync"
             severity="warn"
             size="small"
             [loading]="recalculEnCours()"
-            pTooltip="Déclencher un recalcul SEMOIS immédiat (le recalcul automatique est planifié selon la configuration)"
+            pTooltip="Déclencher un recalcul immédiat de la VMM (Vente Mensuelle Moyenne) — mise à jour automatique quotidienne selon la configuration"
             tooltipPosition="bottom"
             (onClick)="recalculerSemois()"
           />
@@ -98,7 +98,7 @@
   <div class="row mt-1 kpi-row">
 
     <!-- ── Commandes en cours ── -->
-    <div class="col-6 col-md-2 mb-2">
+    <div class="col-6 col-md mb-2">
       <div class="card kpi-card kpi-card-compact primary-accent clickable" (click)="navigateToCommandeEnCours()">
         <div class="card-body">
           <div class="d-flex align-items-center gap-2">
@@ -114,8 +114,8 @@
     </div>
 
     <!-- ── À réceptionner ── -->
-    <div class="col-6 col-md-2 mb-2">
-      <div class="card kpi-card kpi-card-compact warning-accent">
+    <div class="col-6 col-md mb-2">
+      <div class="card kpi-card kpi-card-compact warning-accent clickable" (click)="navigateToReceptionEnAttente()">
         <div class="card-body">
           <div class="d-flex align-items-center gap-2">
             <div class="kpi-icon-sm text-warning"><i class="pi pi-truck"></i></div>
@@ -129,25 +129,9 @@
       </div>
     </div>
 
-    <!-- ── PharmaML ── -->
-    <div class="col-6 col-md-2 mb-2">
-      <div class="card kpi-card kpi-card-compact success-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-success"><i class="pi pi-send"></i></div>
-            <div>
-              <p class="kpi-label mb-0">PharmaML</p>
-              <span class="kpi-value-sm text-success">{{ db.totalPharmamlPending }}</span>
-              <p class="kpi-sublabel mb-0">En attente</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     @if (semoisDashboard(); as sd) {
-      <!-- ── Ruptures SEMOIS ── -->
-      <div class="col-6 col-md-2 mb-2">
+      <!-- ── Ruptures stock ── -->
+      <div class="col-6 col-md mb-2">
         <div class="card kpi-card kpi-card-compact danger-accent clickable" (click)="navigateToSemoisSuggestions()">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
@@ -155,15 +139,15 @@
               <div>
                 <p class="kpi-label mb-0">Ruptures</p>
                 <span class="kpi-value-sm text-danger">{{ sd.nbRupture }}</span>
-                <p class="kpi-sublabel mb-0">SEMOIS</p>
+                <p class="kpi-sublabel mb-0">Stock critique</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── Sous seuil SEMOIS ── -->
-      <div class="col-6 col-md-2 mb-2">
+      <!-- ── Sous seuil VMM ── -->
+      <div class="col-6 col-md mb-2">
         <div class="card kpi-card kpi-card-compact warning-accent clickable" (click)="navigateToSemoisSuggestions()">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
@@ -178,14 +162,14 @@
         </div>
       </div>
 
-      <!-- ── Stock OK SEMOIS ── -->
-      <div class="col-6 col-md-2 mb-2">
+      <!-- ── Stock OK ── -->
+      <div class="col-6 col-md mb-2">
         <div class="card kpi-card kpi-card-compact success-accent">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
               <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
               <div>
-                <p class="kpi-label mb-0">Stock OK</p>
+                <p class="kpi-label mb-0">Stock nominal</p>
                 <span class="kpi-value-sm text-success">{{ sd.nbOk }}</span>
                 <p class="kpi-sublabel mb-0">Optimal</p>
               </div>
@@ -198,7 +182,7 @@
 }
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION 4 — Alertes urgentes SEMOIS + Performance stock
+     SECTION 4 — Alertes de rupture + Santé du stock
 ════════════════════════════════════════════════════════════════════════════ -->
 @if (semoisDashboard(); as sd) {
   <div class="row mt-2">
@@ -276,14 +260,14 @@
         <div class="card-header">
           <h5 class="card-title">
             <i class="pi pi-percentage text-primary"></i>
-            Performance stock SEMOIS
+            Santé du stock
           </h5>
           <span class="text-muted small">{{ sd.totalProduits }} produits</span>
         </div>
         <div class="card-body">
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
-              <span class="text-success fw-semibold small">Produits OK</span>
+              <span class="text-success fw-semibold small">Produits couverts</span>
               <span class="text-success fw-bold small">{{ getTauxOk() | number: '1.0-1' }}%</span>
             </div>
             <p-progressBar [value]="getTauxOk()" [showValue]="false" />
@@ -322,7 +306,7 @@
   <div class="row mt-1">
 
     <!-- Commandes en cours -->
-    <div class="col-12 col-lg-4 mb-3">
+    <div class="col-12 col-lg-6 col-xl-6 col-md-12 mb-3">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
@@ -371,7 +355,7 @@
     </div>
 
     <!-- En attente de réception -->
-    <div class="col-12 col-lg-4 mb-3">
+    <div class="col-12 col-lg-6 col-xl-6 col-md-12  mb-3">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
@@ -408,52 +392,6 @@
             </ng-template>
             <ng-template #emptymessage>
               <tr><td colspan="4" class="text-center text-muted py-3 small">Aucune réception en attente</td></tr>
-            </ng-template>
-          </p-table>
-        </div>
-      </div>
-    </div>
-
-    <!-- PharmaML pending -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 data-card">
-        <div class="card-header">
-          <h5 class="card-title">
-            <i class="pi pi-send text-success"></i>
-            PharmaML — En attente
-          </h5>
-          <p-tag [value]="db.totalPharmamlPending.toString()" severity="secondary" />
-        </div>
-        <div class="card-body p-0">
-          <p-table
-            [value]="db.envoisPending"
-            [rows]="6"
-            [paginator]="db.envoisPending.length > 6"
-            class="pharma-table"
-            [rowHover]="true"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Grossiste</th>
-                <th class="text-center">Statut</th>
-                <th class="text-center">Date</th>
-                <th></th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr class="cursor-pointer" (click)="openCommandeFromEnvoi(row)">
-                <td class="small">{{ row.fournisseurLibelle }}</td>
-                <td class="text-center">
-                  <p-tag [severity]="pharmamlSeverity(row.statut)" [value]="row.statut" />
-                </td>
-                <td class="text-center text-muted small">{{ row.createdAt | date: 'dd/MM/yy' }}</td>
-                <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" (onClick)="openCommandeFromEnvoi(row)" />
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr><td colspan="4" class="text-center text-muted py-3 small">Aucun envoi en attente</td></tr>
             </ng-template>
           </p-table>
         </div>

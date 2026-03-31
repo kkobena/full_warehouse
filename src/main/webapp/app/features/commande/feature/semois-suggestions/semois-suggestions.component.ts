@@ -160,10 +160,7 @@ export class SemoisSuggestionsComponent implements OnInit {
     this.loadSuggestions();
   }
 
-  /**Navigation vers l'onglet Réapprovisionnement (panier auto-généré par batch). */
-  naviguerVersReappro(): void {
-    this.commandCommonService.suggestionsActiveSource.set('REAPPRO');
-  }
+
 
   /** Ouvre le formulaire d'exclusion pour un produit. */
   ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {

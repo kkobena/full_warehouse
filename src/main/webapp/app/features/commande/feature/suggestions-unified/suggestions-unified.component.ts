@@ -87,12 +87,12 @@ export class SuggestionsUnifiedComponent implements OnInit {
   get semoisFraicheurLabel(): string {
     const f = this.semoisFraicheur();
     if (!f) return '';
-    if (f.calculeRecent) return 'Calcul · Récent';
+    if (f.calculeRecent) return 'VMM · À jour';
     if (f.dernierCalcul) {
       const d = new Date(f.dernierCalcul);
-      return `Calcul · ${d.toLocaleDateString('fr-FR')}`;
+      return `VMM · ${d.toLocaleDateString('fr-FR')}`;
     }
-    return 'Calcul · Jamais effectué';
+    return 'VMM · Non initialisée';
   }
 
   get semoisFraicheurSeverity(): 'success' | 'warn' | 'danger' | 'secondary' {

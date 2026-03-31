@@ -1,29 +1,38 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { Router } from '@angular/router';
-import { HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { DatePipe, DecimalPipe, NgClass } from "@angular/common";
+import { Router } from "@angular/router";
+import { HttpResponse } from "@angular/common/http";
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { Tag } from 'primeng/tag';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TooltipModule } from 'primeng/tooltip';
-import { BadgeModule } from 'primeng/badge';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { ToolbarModule } from "primeng/toolbar";
+import { Tag } from "primeng/tag";
+import { ProgressBarModule } from "primeng/progressbar";
+import { SkeletonModule } from "primeng/skeleton";
+import { TooltipModule } from "primeng/tooltip";
+import { BadgeModule } from "primeng/badge";
 
-import { CommandeService, ICommandeDashboard, ICommandeResumee, IPharmaMlEnvoiResumee } from 'app/entities/commande/commande.service';
-import { SemoisService } from 'app/entities/semois/semois.service';
-import { SuggestionService, SemoisFraicheur, BudgetCommande } from 'app/entities/commande/suggestion/suggestion.service';
-import { CommandCommonService } from 'app/entities/commande/command-common.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { ErrorService } from 'app/shared/error.service';
-import { IReapproDashboard, ITopUrgentDTO } from 'app/shared/model/semois/semois-dashboard.model';
+import {
+  CommandeService,
+  ICommandeDashboard,
+  ICommandeResumee,
+  IPharmaMlEnvoiResumee
+} from "app/entities/commande/commande.service";
+import { SemoisService } from "app/entities/semois/semois.service";
+import {
+  BudgetCommande,
+  SemoisFraicheur,
+  SuggestionService
+} from "app/entities/commande/suggestion/suggestion.service";
+import { CommandCommonService } from "app/entities/commande/command-common.service";
+import { NotificationService } from "app/shared/services/notification.service";
+import { ErrorService } from "app/shared/error.service";
+import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois-dashboard.model";
 
 @Component({
-  selector: 'app-appro-unified-dashboard',
-  templateUrl: './appro-unified-dashboard.component.html',
-  styleUrls: ['./appro-unified-dashboard.component.scss'],
+  selector: "app-appro-unified-dashboard",
+  templateUrl: "./appro-unified-dashboard.component.html",
+  styleUrls: ["./appro-unified-dashboard.component.scss"],
   imports: [
     DatePipe,
     DecimalPipe,
@@ -35,8 +44,8 @@ import { IReapproDashboard, ITopUrgentDTO } from 'app/shared/model/semois/semois
     ProgressBarModule,
     SkeletonModule,
     TooltipModule,
-    BadgeModule,
-  ],
+    BadgeModule
+  ]
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
   readonly loadingCommandes = signal(true);
@@ -67,39 +76,47 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.lastRefresh.set(null);
 
     this.commandeService.getDashboard().subscribe({
-      next: data => { this.commandeDashboard.set(data); this.loadingCommandes.set(false); this.checkRefreshDone(); },
-      error: () => this.loadingCommandes.set(false),
+      next: data => {
+        this.commandeDashboard.set(data);
+        this.loadingCommandes.set(false);
+        this.checkRefreshDone();
+      },
+      error: () => this.loadingCommandes.set(false)
     });
 
     this.semoisService.getDashboard().subscribe({
-      next: (res: HttpResponse<IReapproDashboard>) => { this.semoisDashboard.set(res.body); this.loadingSemois.set(false); this.checkRefreshDone(); },
-      error: () => this.loadingSemois.set(false),
+      next: (res: HttpResponse<IReapproDashboard>) => {
+        this.semoisDashboard.set(res.body);
+        this.loadingSemois.set(false);
+        this.checkRefreshDone();
+      },
+      error: () => this.loadingSemois.set(false)
     });
 
     this.suggestionService.getSemoisFraicheur().subscribe({
       next: f => this.semoisFraicheur.set(f),
-      error: () => this.semoisFraicheur.set(null),
+      error: () => this.semoisFraicheur.set(null)
     });
 
     this.suggestionService.getBudget().subscribe({
       next: b => this.budget.set(b),
-      error: () => this.budget.set(null),
+      error: () => this.budget.set(null)
     });
   }
 
-  /** Déclenche un recalcul SEMOIS manuel puis recharge le dashboard. */
+  /** Déclenche un recalcul VMM manuel puis recharge le tableau de bord. */
   recalculerSemois(): void {
     this.recalculEnCours.set(true);
     this.suggestionService.recalculerSemois().subscribe({
       next: () => {
-        this.notificationService.success('Recalcul SEMOIS déclenché — mise à jour dans quelques instants.', 'SEMOIS');
+        this.notificationService.success("Recalcul VMM déclenché — mise à jour dans quelques instants.", "VMM");
         this.recalculEnCours.set(false);
         this.loadAll();
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Recalcul SEMOIS');
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Recalcul VMM");
         this.recalculEnCours.set(false);
-      },
+      }
     });
   }
 
@@ -123,38 +140,50 @@ export class ApproUnifiedDashboardComponent implements OnInit {
 
   getBudgetBarSeverity(): string {
     const pct = this.getBudgetPct();
-    if (pct >= 100) return 'danger';
-    if (pct >= 80) return 'warning';
-    return 'success';
+    if (pct >= 100) return "danger";
+    if (pct >= 80) return "warning";
+    return "success";
   }
 
   // ─── Navigation ──────────────────────────────────────────────────────────────
 
   openCommande(row: ICommandeResumee): void {
-    this.router.navigate(['/commande', row.id, row.orderDate, 'edit']);
+    const commandeId = { id: row.id, orderDate: row.orderDate };
+    if (row.orderStatus === 'RECEIVED') {
+      this.commandCommonService.pendingOpenDeliveryId.set(commandeId);
+      this.commandCommonService.navigateToBonsLivraison();
+    } else {
+      // REQUESTED (ou autre statut) → onglet Commandes à passer
+      this.commandCommonService.pendingOpenCommandeId.set(commandeId);
+      this.commandCommonService.navigateToCommandesAPasser();
+    }
   }
 
   openCommandeFromEnvoi(row: IPharmaMlEnvoiResumee): void {
-    this.router.navigate(['/commande', row.commandeId, row.commandeOrderDate, 'edit']);
+    this.router.navigate(["/commande", row.commandeId, row.commandeOrderDate, "edit"]);
   }
 
   navigateToSemoisSuggestions(): void {
-    this.commandCommonService.navigateToSemoisSuggestions();
+    this.commandCommonService.navigateToAnalyse();
   }
 
   navigateToCommandeEnCours(): void {
-    this.commandCommonService.updateCommandPreviousActiveNav('REQUESTED');
+    this.commandCommonService.navigateToCommandesAPasser();
+  }
+
+  navigateToReceptionEnAttente(): void {
+    this.commandCommonService.navigateToBonsLivraison();
   }
 
   navigateToSuggestions(): void {
-    this.commandCommonService.navigateToFournisseursSuggestions();
+    this.commandCommonService.navigateToReappro();
   }
 
   newCommande(): void {
-    this.router.navigate(['/commande', 'new']);
+    this.router.navigate(["/commande", "new"]);
   }
 
-  // ─── Calculs SEMOIS ───────────────────────────────────────────────────────────
+  // ─── Calculs VMM ─────────────────────────────────────────────────────────────
 
   getTauxOk(): number {
     const d = this.semoisDashboard();
@@ -169,53 +198,42 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   }
 
   getCouvertureMois(produit: ITopUrgentDTO): number {
-    if (!produit.vmm || produit.vmm === 0) return 0;
+    if (!produit.vmm || produit.vmm === 0 || produit.stockActuel < 0) return 0;
     return produit.stockActuel / produit.vmm;
   }
 
   getCouvertureClass(produit: ITopUrgentDTO): string {
     const mois = this.getCouvertureMois(produit);
-    if (mois < 0.5) return 'text-danger fw-bold';
-    if (mois < 1.0) return 'text-warning fw-semibold';
-    return 'text-success';
+    if (mois < 0.5) return "text-danger fw-bold";
+    if (mois < 1.0) return "text-warning fw-semibold";
+    return "text-success";
   }
 
-  getUrgenceSeverity(produit: ITopUrgentDTO): 'danger' | 'warn' {
-    return produit.stockActuel < produit.margeSecurite ? 'danger' : 'warn';
+  getUrgenceSeverity(produit: ITopUrgentDTO): "danger" | "warn" {
+    return produit.stockActuel < produit.margeSecurite ? "danger" : "warn";
   }
 
-  // ─── Fraîcheur SEMOIS ─────────────────────────────────────────────────────────
+  // ─── Fraîcheur VMM ───────────────────────────────────────────────────────────
 
   get semoisFraicheurLabel(): string {
     const f = this.semoisFraicheur();
-    if (!f) return 'Calcul inconnu';
-    if (f.calculeRecent) return 'Récent (< 24h)';
-    if (f.dernierCalcul) return `Calculé le ${new Date(f.dernierCalcul).toLocaleDateString('fr-FR')}`;
-    return 'Jamais calculé';
+    if (!f) return "VMM inconnue";
+    if (f.calculeRecent) return "VMM · À jour";
+    if (f.dernierCalcul) return `VMM · ${new Date(f.dernierCalcul).toLocaleDateString("fr-FR")}`;
+    return "VMM · Non initialisée";
   }
 
-  get semoisFraicheurSeverity(): 'success' | 'warn' | 'danger' | 'secondary' {
+  get semoisFraicheurSeverity(): "success" | "warn" | "danger" | "secondary" {
     const f = this.semoisFraicheur();
-    if (!f) return 'secondary';
-    if (f.calculeRecent) return 'success';
-    if (f.dernierCalcul) return 'warn';
-    return 'danger';
+    if (!f) return "secondary";
+    if (f.calculeRecent) return "success";
+    if (f.dernierCalcul) return "warn";
+    return "danger";
   }
 
-  // ─── Commandes ────────────────────────────────────────────────────────────────
-
-  pharmamlSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-    switch (statut) {
-      case 'PENDING': return 'info';
-      case 'SUBMITTED': return 'success';
-      case 'PARTIAL': return 'warn';
-      case 'REJECTED': case 'ERROR': return 'danger';
-      default: return 'secondary';
-    }
-  }
 
   formatAmount(amount: number): string {
-    return new Intl.NumberFormat('fr-FR').format(Math.round(amount / 100));
+    return new Intl.NumberFormat("fr-FR").format(Math.round(amount / 100));
   }
 }
 

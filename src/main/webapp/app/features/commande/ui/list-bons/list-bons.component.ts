@@ -1,7 +1,8 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, computed, DestroyRef, inject, Injector, OnInit, signal, viewChild } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { forkJoin } from "rxjs";
+import { filter } from "rxjs/operators";
 import { FormsModule } from "@angular/forms";
 import { CommonModule, DatePipe } from "@angular/common";
 import { ButtonModule } from "primeng/button";
@@ -40,6 +41,7 @@ import { showCommonModal } from "../../../../entities/sales/selling-home/sale-he
 import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
 import { CommandeReceivedComponent } from "../../feature/commande-received/commande-received.component";
 import { ReceptionConcordanceComponent } from "../reception-concordance/reception-concordance.component";
+import { CommandCommonService } from "app/entities/commande/command-common.service";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -261,6 +263,8 @@ export class AppListBonsComponent implements OnInit {
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly commandCommonService = inject(CommandCommonService);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   ngOnInit(): void {
@@ -268,6 +272,30 @@ export class AppListBonsComponent implements OnInit {
       .query({ page: 0, size: 999 })
       .subscribe((res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body ?? []));
     this.onSearch();
+
+    // Auto-ouverture depuis le tableau de bord : quand on clique sur un bon RECEIVED
+    toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
+      .pipe(
+        filter(id => id != null),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(pending => {
+        this.commandCommonService.pendingOpenDeliveryId.set(null);
+        this.spinner().show();
+        this.entityService.find(pending!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: res => {
+            this.spinner().hide();
+            if (res.body) {
+              this.editingReceived.set(res.body as unknown as ICommande);
+              this.loadPage(0);
+            }
+          },
+          error: () => {
+            this.spinner().hide();
+            this.notificationService.error("Erreur lors du chargement du bon de livraison", "Erreur");
+          },
+        });
+      });
   }
 
   // ── Recherche / pagination ─────────────────────────────────────────────────

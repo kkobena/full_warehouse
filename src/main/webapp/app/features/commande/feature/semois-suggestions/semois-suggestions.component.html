@@ -44,7 +44,7 @@
     <button
       type="button"
       class="btn btn-sm btn-outline-warning position-relative"
-      pTooltip="Gérer les produits temporairement exclus du batch SEMOIS"
+      pTooltip="Gérer les produits temporairement suspendus du calcul automatique des besoins"
       tooltipPosition="bottom"
       (click)="ouvrirGestionExclusions()"
     >
@@ -57,15 +57,7 @@
       }
     </button>
 
-    <p-button
-      label="Voir le panier"
-      icon="pi pi-shopping-cart"
-      severity="success"
-      size="small"
-      pTooltip="Les suggestions sont générées automatiquement par le batch SEMOIS. Consultez l'onglet Réapprovisionnement pour les commander."
-      tooltipPosition="bottom"
-      (onClick)="naviguerVersReappro()"
-    />
+
 
     <p-button
       label="Réinitialiser"
@@ -81,73 +73,12 @@
 <div class="alert alert-info d-flex align-items-center gap-2 mx-0 mt-2 mb-1 py-2" role="alert">
   <i class="pi pi-info-circle"></i>
   <small>
-    <strong>Vue analytique — lecture seule.</strong>
-    Les besoins de réapprovisionnement sont calculés automatiquement par le batch SEMOIS et disponibles dans l'onglet <strong>Réapprovisionnement</strong>.
+    <strong>Analyse des niveaux de stock — consultation uniquement.</strong>
+    Les quantités à commander sont calculées automatiquement d'après vos ventes mensuelles moyennes (VMM).
+    Rendez-vous dans l'onglet <strong>Réapprovisionnement</strong> pour valider et passer commande.
   </small>
 </div>
 
-<!-- KPI Cards — chiffres globaux (dashboard stats, pas page courante) -->
-<div class="row mt-2 kpi-row">
-  <div class="col-12 col-md-3 mb-2">
-    <div class="card kpi-card kpi-card-compact danger-accent">
-      <div class="card-body">
-        <div class="kpi-header d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-triangle"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Produits urgents</p>
-            <span class="kpi-value-sm text-danger">{{ urgentCount }}</span>
-            <p class="kpi-sublabel mb-0">Stock &lt; Marge sécurité</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-12 col-md-3 mb-2">
-    <div class="card kpi-card kpi-card-compact warning-accent">
-      <div class="card-body">
-        <div class="kpi-header d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-warning"><i class="pi pi-shopping-bag"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Produits à commander</p>
-            <span class="kpi-value-sm text-warning">{{ normalCount }}</span>
-            <p class="kpi-sublabel mb-0">Stock &lt; Objectif</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-12 col-md-3 mb-2">
-    <div class="card kpi-card kpi-card-compact success-accent">
-      <div class="card-body">
-        <div class="kpi-header d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Produits OK</p>
-            <span class="kpi-value-sm text-success">{{ okCount }}</span>
-            <p class="kpi-sublabel mb-0">Stock optimal</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-12 col-md-3 mb-2">
-    <div class="card kpi-card kpi-card-compact primary-accent">
-      <div class="card-body">
-        <div class="kpi-header d-flex align-items-center gap-3">
-          <div class="kpi-icon-sm text-primary"><i class="pi pi-box"></i></div>
-          <div>
-            <p class="kpi-label mb-0">Total SEMOIS</p>
-            <span class="kpi-value-sm text-primary">{{ totalItems() }}</span>
-            <p class="kpi-sublabel mb-0">Produits configurés</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Table des suggestions -->
 <div class="row mt-2">
@@ -262,7 +193,7 @@
                     severity="warn"
                     size="small"
                     [text]="true"
-                    pTooltip="Exclure temporairement ce produit du batch SEMOIS"
+                    pTooltip="Suspendre temporairement ce produit du calcul automatique des besoins"
                     tooltipPosition="left"
                     (onClick)="ouvrirExclureProduit(suggestion)"
                   />

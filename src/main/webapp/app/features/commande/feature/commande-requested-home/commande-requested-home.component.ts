@@ -36,6 +36,7 @@ import {CommandeImportResponseDialogComponent} from '../../../../entities/comman
 import {CommandeRequestedComponent} from '../commande-requested/commande-requested.component';
 import {CommandCommonService} from '../../../../entities/commande/command-common.service';
 import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
+import {CommandeRequestedActionsComponent} from './commande-requested-actions.component';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -55,6 +56,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     DatePipe,
     Toast,
     AgGridAngular,
+
   ],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
@@ -91,6 +93,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
 
   // ── AG Grid ───────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
+  protected readonly gridContext: {componentParent: CommandeRequestedHomeComponent} = {componentParent: this};
   protected readonly defaultColDef: ColDef = { resizable: true, sortable: false, suppressHeaderMenuButton: true };
   protected readonly getRowId: GetRowIdFunc<ICommande> = p => `${p.data.id}_${p.data.orderDate}`;
   protected readonly rowClassRules: RowClassRules<ICommande> = {
@@ -118,7 +121,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     {
       field: 'updatedAt',
       headerName: 'Date',
-      width: 135,
+      width: 145,
       sortable: true,
       valueFormatter: p => p.value
         ? new Date(p.value as string).toLocaleString('fr-FR', {dateStyle: 'short', timeStyle: 'short'})
@@ -134,13 +137,13 @@ export class CommandeRequestedHomeComponent implements OnInit {
     {
       field: 'orderReference',
       headerName: 'Référence',
-      width: 145,
+      width: 130,
       cellStyle: {fontFamily: 'monospace', fontSize: '12px'},
     },
     {
       field: 'itemSize',
       headerName: 'Lignes',
-      width: 70,
+      width: 80,
       type: 'numericColumn',
     },
     {
@@ -162,17 +165,12 @@ export class CommandeRequestedHomeComponent implements OnInit {
     {
       colId: 'actions',
       headerName: '',
-      width: 115,
+      width: 155,
+    //  pinned: 'right' as const,
       sortable: false,
-      cellRenderer: (p: any) => {
-        if (!p.data) return '';
-        return `<span style="display:flex;align-items:center;gap:2px">
-          <button data-action="receive" title="Réceptionner" style="background:rgba(5,150,105,0.1);color:#059669;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:12px"><i class="pi pi-inbox"></i></button>
-          <button data-action="csv" title="Export CSV" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-file-excel"></i></button>
-          <button data-action="pdf" title="Imprimer" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-print"></i></button>
-          <button data-action="delete" title="Supprimer" style="background:rgba(220,53,69,0.1);color:#dc3545;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:12px"><i class="pi pi-trash"></i></button>
-        </span>`;
-      },
+      resizable: false,
+    //  suppressMovable: true,
+      cellRenderer: CommandeRequestedActionsComponent,
     },
   ];
 
@@ -341,15 +339,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     const action = (event.event?.target as HTMLElement)?.closest('[data-action]')?.getAttribute('data-action');
     if (action === 'select') {
       this.toggleSelect(event.data, event.event as MouseEvent);
-    } else if (action === 'receive') {
-      this.onReceptionner(event.data, event.event as MouseEvent);
-    } else if (action === 'csv') {
-      this.exportCsv(event.data, event.event as MouseEvent);
-    } else if (action === 'pdf') {
-      this.exportPdf(event.data, event.event as MouseEvent);
-    } else if (action === 'delete') {
-      this.onSupprimerCommande(event.data, event.event as MouseEvent);
-    } else if (!action) {
+    } else if (event.column.getColId() !== 'actions' && !action) {
       this.onEditer(event.data);
     }
   }

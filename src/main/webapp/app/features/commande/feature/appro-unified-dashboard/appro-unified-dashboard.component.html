@@ -42,30 +42,12 @@
             (onClick)="newCommande()"
           />
           <p-button
-            label="Suggestions"
-            icon="pi pi-lightbulb"
+            icon="pi pi-refresh"
             severity="secondary"
             size="small"
-            pTooltip="Gérer les suggestions par fournisseur"
-            tooltipPosition="bottom"
-            (onClick)="navigateToSuggestions()"
-          />
-          <p-button
-            label="Recalculer VMM"
-            icon="pi pi-sync"
-            severity="warn"
-            size="small"
-            [loading]="recalculEnCours()"
-            pTooltip="Déclencher un recalcul immédiat de la VMM (Vente Mensuelle Moyenne) — mise à jour automatique quotidienne selon la configuration"
-            tooltipPosition="bottom"
-            (onClick)="recalculerSemois()"
-          />
-          <p-button
-            label="Actualiser"
-            icon="pi pi-refresh"
-            severity="info"
-            size="small"
             [loading]="isLoading"
+            pTooltip="Actualiser le tableau de bord"
+            tooltipPosition="bottom"
             (onClick)="loadAll()"
           />
         </div>
@@ -342,7 +324,7 @@
                 <td class="text-end pharma-price small">{{ formatAmount(row.grossAmount) }} F</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="info" (onClick)="openCommande(row)" />
+                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Ouvrir" (onClick)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>
@@ -386,7 +368,7 @@
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
                 <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
                 <td class="text-end">
-                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="warn" (onClick)="openCommande(row)" />
+                  <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Saisir la réception" (onClick)="openCommande(row)" />
                 </td>
               </tr>
             </ng-template>

@@ -201,6 +201,7 @@
             [animateRows]="true"
             [enterNavigatesVerticallyAfterEdit]="true"
             [enableCellEditingOnBackspace]="true"
+            [context]="gridContext"
             (gridReady)="onGridReady($event)"
             (selectionChanged)="onSelectionChanged()"
             (cellValueChanged)="onCellValueChanged($event)"

@@ -40,6 +40,17 @@
     />
   </div>
   <div class="su-action-bar__actions">
+    <!-- Recalcul VMM (déplacé depuis le tableau de bord) -->
+    <p-button
+      label="Recalculer VMM"
+      icon="pi pi-sync"
+      severity="warn"
+      size="small"
+      [loading]="recalculEnCours()"
+      pTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
+      tooltipPosition="bottom"
+      (onClick)="recalculerVmm()"
+    />
     <!-- Bouton exclusions avec badge -->
     <button
       type="button"

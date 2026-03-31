@@ -16,14 +16,6 @@
         (keyup.enter)="loadPage(0)"
         class="view-panel__search"
       />
-      <p-button
-        icon="pi pi-search"
-        severity="secondary"
-        size="small"
-        pTooltip="Rechercher"
-        tooltipPosition="bottom"
-        (onClick)="loadPage(0)"
-      />
       @if (selectionCount() >= 2) {
         <span class="bulk-info"><i class="pi pi-check-square"></i> {{ selectionCount() }} sél.</span>
         @if (canFusionner()) {
@@ -38,7 +30,7 @@
       <p-button
         icon="pi pi-upload"
         label="Importation"
-        severity="help"
+        severity="secondary"
         size="small"
         pTooltip="Importer une commande depuis un fichier"
         tooltipPosition="bottom"
@@ -63,6 +55,7 @@
         [rowClassRules]="rowClassRules"
         [rowData]="commandes()"
         [theme]="theme"
+        [context]="gridContext"
         (cellClicked)="onCellClicked($event)"
         style="width: 100%; height: 100%"
       />

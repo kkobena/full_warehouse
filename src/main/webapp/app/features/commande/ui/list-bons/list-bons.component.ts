@@ -26,6 +26,8 @@ import {
   themeAlpine
 } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
+import { ListBonsStatutComponent } from "./list-bons-statut.component";
+import { ListBonsActionsComponent } from "./list-bons-actions.component";
 import { SpinnerComponent } from "app/shared/spinner/spinner.component";
 import { IDelivery } from "app/shared/model/delevery.model";
 import { ICommande } from "app/shared/model/commande.model";
@@ -155,41 +157,19 @@ export class AppListBonsComponent implements OnInit {
     {
       colId: "statut",
       headerName: "Statut",
-      width: 160,
-      cellRenderer: (p: any) => {
-        const status = p.data?.orderStatus ?? p.data?.statut;
-        if (status === "RECEIVED") {
-          return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#fef3c7;color:#92400e">
-            <i class="pi pi-inbox"></i> En attente de saisie
-          </span>`;
-        }
-        return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#d1fae5;color:#065f46">
-          <i class="pi pi-check-circle"></i> Clôturé
-        </span>`;
-      }
+      width: 175,
+      cellRenderer: ListBonsStatutComponent
     },
     {
       colId: "actions",
       headerName: "",
-      width: 90,
+      width: 110,
       sortable: false,
-      cellRenderer: (p: any) => {
-        if (!p.data) return "";
-        const status = p.data.orderStatus ?? p.data.statut;
-        const receiveBtn = status === "RECEIVED"
-          ? `<button data-action="receive" title="Saisir la réception" style="background:rgba(59,130,246,0.1);color:#1d4ed8;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:12px"><i class="pi pi-inbox"></i></button>`
-          : "";
-        const etiBtn = status === "CLOSED"
-          ? `<button data-action="etiquette" title="Étiquettes" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-print"></i></button>`
-          : "";
-        return `<span style="display:flex;align-items:center;gap:2px">
-          ${receiveBtn}
-          <button data-action="pdf" title="Imprimer BL" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:12px;padding:2px 4px"><i class="pi pi-file-pdf"></i></button>
-          ${etiBtn}
-        </span>`;
-      }
+      cellRenderer: ListBonsActionsComponent
     }
   ];
+
+  protected readonly gridContext: { componentParent: AppListBonsComponent } = { componentParent: this };
 
   // ── Totaux comptables de la période (backend) ──────────────────────────────
   readonly periodTotals = signal<IDeliveryTotals | null>(null);
@@ -277,7 +257,7 @@ export class AppListBonsComponent implements OnInit {
     toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
       .pipe(
         filter(id => id != null),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(pending => {
         this.commandCommonService.pendingOpenDeliveryId.set(null);
@@ -293,7 +273,7 @@ export class AppListBonsComponent implements OnInit {
           error: () => {
             this.spinner().hide();
             this.notificationService.error("Erreur lors du chargement du bon de livraison", "Erreur");
-          },
+          }
         });
       });
   }
@@ -330,25 +310,15 @@ export class AppListBonsComponent implements OnInit {
   // ── Navigation master/detail ──────────────────────────────────────────────
 
   onBLCellClicked(event: CellClickedEvent<IDelivery>): void {
-    if (!event.data) return;
-    const action = (event.event?.target as HTMLElement)?.closest("[data-action]")?.getAttribute("data-action");
-    if (action === "receive") {
+    if (!event.data || event.column.getColId() === "actions") return;
+    if (this.isReceived(event.data)) {
       this.onEditerReceivedDelivery(event.data);
-    } else if (action === "pdf") {
-      this.exportPdf(event.data, event.event as MouseEvent);
-    } else if (action === "etiquette") {
-      this.printEtiquette(event.data, event.event as MouseEvent);
-    } else if (!action) {
-      // clic sur la ligne hors bouton → navigation
-      if (this.isReceived(event.data)) {
-        this.onEditerReceivedDelivery(event.data);
-      } else {
-        this.onOuvrirClosed(event.data);
-      }
+    } else {
+      this.onOuvrirClosed(event.data);
     }
   }
 
-  private onEditerReceivedDelivery(delivery: IDelivery): void {
+  protected onEditerReceivedDelivery(delivery: IDelivery): void {
     this.spinner().show();
     this.entityService
       .find(delivery.commandeId)

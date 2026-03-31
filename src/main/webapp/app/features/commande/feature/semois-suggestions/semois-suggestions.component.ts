@@ -14,8 +14,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ISemoisSuggestion, SemoisSuggestion } from 'app/shared/model/semois/semois-suggestion.model';
 import { ClasseCriticite, getClasseCriticiteInfo, CLASSE_CRITICITE_INFO } from 'app/shared/model/semois/classe-criticite.model';
 import { SemoisService } from 'app/entities/semois/semois.service';
+import { SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import { NotificationService } from 'app/shared/services/notification.service';
 import { IReapproDashboard } from 'app/shared/model/semois/semois-dashboard.model';
 import { SemoisExclureProduitComponent } from './ui/semois-exclure-produit/semois-exclure-produit.component';
 import { SemoisExclusionPanelComponent } from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
@@ -72,8 +74,13 @@ export class SemoisSuggestionsComponent implements OnInit {
     { label: 'Suffisant', value: 'OK' },
   ];
 
+  /** Recalcul VMM en cours */
+  readonly recalculEnCours = signal(false);
+
   private readonly semoisService = inject(SemoisService);
+  private readonly suggestionService = inject(SuggestionService);
   private readonly commandCommonService = inject(CommandCommonService);
+  private readonly notificationService = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
 
   // ── Compteurs KPI (depuis dashboard, pas page courante) ──────────────────
@@ -161,6 +168,23 @@ export class SemoisSuggestionsComponent implements OnInit {
   }
 
 
+
+  /** Déclenche un recalcul VMM immédiat puis recharge la liste. */
+  recalculerVmm(): void {
+    this.recalculEnCours.set(true);
+    this.suggestionService.recalculerSemois().subscribe({
+      next: () => {
+        this.notificationService.success('Recalcul VMM déclenché — mise à jour dans quelques instants.', 'VMM');
+        this.recalculEnCours.set(false);
+        this.loadDashboardStats();
+        this.loadSuggestions();
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors du recalcul VMM', 'VMM');
+        this.recalculEnCours.set(false);
+      },
+    });
+  }
 
   /** Ouvre le formulaire d'exclusion pour un produit. */
   ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {

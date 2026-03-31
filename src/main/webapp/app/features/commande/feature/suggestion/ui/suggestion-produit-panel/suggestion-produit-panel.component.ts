@@ -20,6 +20,7 @@ import {
   themeAlpine,
 } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
+import { SuggestionProduitActionsComponent } from './suggestion-produit-actions.component';
 import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from '../../data-access/suggestion-enrichie.model';
 import { CommandeProductSearchComponent } from '../../../../ui/commande-product-search/commande-product-search.component';
 import { ProduitSearch } from 'app/shared/model';
@@ -42,6 +43,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     CommandeProductSearchComponent,
     InputGroupModule,
     InputGroupAddonModule,
+    SuggestionProduitActionsComponent,
   ],
 })
 export class SuggestionProduitPanelComponent {
@@ -49,6 +51,7 @@ export class SuggestionProduitPanelComponent {
   fournisseur = input<FournisseurSuggestionSummary | null>(null);
   lignes = input<SuggestionLigneEnrichie[]>([]);
   loading = input(false);
+  showPage = input(false);
   total = input(0);
   page = input(0);
   rows = input(0);
@@ -252,19 +255,10 @@ export class SuggestionProduitPanelComponent {
     sortable: false,
     resizable: false,
     suppressMovable: true,
-    cellRenderer: (params: any) => {
-      const ligne: SuggestionLigneEnrichie = params.data;
-      if (!ligne) return '';
-      const resetBtn = ligne.quantiteModifieeManuel
-        ? `<button class="ag-action-btn ag-action-reset" data-action="reset" title="Déverrouiller — laisser SEMOIS recalculer la quantité">🔓</button>`
-        : '';
-      const compareBtn = ligne.produitId
-        ? `<button class="ag-action-btn ag-action-compare" data-action="compare" title="Comparer les fournisseurs">🔍</button>`
-        : '';
-      const deleteBtn = `<button class="ag-action-btn ag-action-delete" data-action="delete" title="Retirer de la suggestion">🗑</button>`;
-      return `<div class="ag-actions-cell">${resetBtn}${compareBtn}${deleteBtn}</div>`;
-    },
+    cellRenderer: SuggestionProduitActionsComponent,
   };
+
+  protected readonly gridContext: {componentParent: SuggestionProduitPanelComponent} = {componentParent: this};
 
   /** Colonnes initiales (sans mois) — mises à jour dès que rowData arrive. */
   columnDefs: ColDef<SuggestionLigneEnrichie>[] = [
@@ -293,7 +287,7 @@ export class SuggestionProduitPanelComponent {
     this.selectedLignes().reduce((s, l) => s + l.quantite * l.prixAchat, 0),
   );
 
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.rows())));
+ // readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.rows())));
 
   readonly rowClassRules = {
     'ag-row-urgent': (params: any) => params.data?.niveauUrgence === 'URGENT',
@@ -401,27 +395,22 @@ export class SuggestionProduitPanelComponent {
     this.quantiteChanged.emit({ ligne, qte });
   }
 
-  onCellClicked(event: CellClickedEvent): void {
-    const target = event.event?.target as HTMLElement;
-    const actionEl = target.closest('[data-action]');
-    if (!actionEl) return;
-    const action = actionEl.getAttribute('data-action');
-    const ligne = event.data as SuggestionLigneEnrichie;
-    if (!ligne) return;
-    switch (action) {
-      case 'reset':
-        this.resetQte.emit(ligne);
-        // Optimistic update local — effacé visuellement avant retour API
-        event.node.setDataValue('quantiteModifieeManuel', false);
-        event.node.setDataValue('quantiteModifiee', false);
-        break;
-      case 'compare':
-        this.comparerRequest.emit(ligne);
-        break;
-      case 'delete':
-        this.ligneSupprimer.emit(ligne);
-        break;
-    }
+  onCellClicked(_event: CellClickedEvent): void {
+    // Actions handled by SuggestionProduitActionsComponent renderer
+  }
+
+  // ── Méthodes appelées par SuggestionProduitActionsComponent ──────────────
+
+  onResetLigne(ligne: SuggestionLigneEnrichie): void {
+    this.resetQte.emit(ligne);
+  }
+
+  onComparerLigne(ligne: SuggestionLigneEnrichie): void {
+    this.comparerRequest.emit(ligne);
+  }
+
+  onSupprimerLigne(ligne: SuggestionLigneEnrichie): void {
+    this.ligneSupprimer.emit(ligne);
   }
 
   // ─── Pagination & filtres ────────────────────────────────────────────────────
@@ -485,7 +474,7 @@ export class SuggestionProduitPanelComponent {
   };
 
   goToPage(p: number): void {
-    if (p < 0 || p >= this.totalPages()) return;
+  //  if (p < 0 || p >= this.totalPages()) return;
     this._clearSelection();
     this.pageChange.emit({ page: p, rows: this.rows() });
   }
@@ -534,31 +523,11 @@ export class SuggestionProduitPanelComponent {
     });
   }
 
-  // ─── Helpers UI ─────────────────────────────────────────────────────────────
 
-  statutSeverity(statut: string | undefined): 'success' | 'warn' | 'danger' | 'secondary' | 'info' {
-    switch (statut) {
-      case 'VALIDEE': return 'success';
-      case 'EN_ATTENTE_VALIDATION': return 'warn';
-      case 'COMMANDEE': return 'info';
-      default: return 'secondary';
-    }
-  }
 
   canValider(): boolean {
     const s = this.fournisseur()?.statut;
     return s === 'GENEREE' || s === 'OPEN' || s === 'EN_ATTENTE_VALIDATION';
   }
 
-  canRejeter(): boolean {
-    const s = this.fournisseur()?.statut;
-    return s === 'GENEREE' || s === 'OPEN' || s === 'EN_ATTENTE_VALIDATION' || s === 'VALIDEE';
-  }
-
-  getRowClass(params: any): string {
-    const ligne: SuggestionLigneEnrichie = params.data;
-    if (ligne?.niveauUrgence === 'URGENT') return 'ag-row-urgent';
-    if (ligne?.niveauUrgence === 'NORMAL') return 'ag-row-normal';
-    return '';
-  }
 }

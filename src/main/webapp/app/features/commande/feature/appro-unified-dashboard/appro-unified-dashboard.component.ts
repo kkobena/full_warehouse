@@ -12,12 +12,7 @@ import { SkeletonModule } from "primeng/skeleton";
 import { TooltipModule } from "primeng/tooltip";
 import { BadgeModule } from "primeng/badge";
 
-import {
-  CommandeService,
-  ICommandeDashboard,
-  ICommandeResumee,
-  IPharmaMlEnvoiResumee
-} from "app/entities/commande/commande.service";
+import { CommandeService, ICommandeDashboard, ICommandeResumee } from "app/entities/commande/commande.service";
 import { SemoisService } from "app/entities/semois/semois.service";
 import {
   BudgetCommande,
@@ -25,8 +20,6 @@ import {
   SuggestionService
 } from "app/entities/commande/suggestion/suggestion.service";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
-import { NotificationService } from "app/shared/services/notification.service";
-import { ErrorService } from "app/shared/error.service";
 import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois-dashboard.model";
 
 @Component({
@@ -34,23 +27,14 @@ import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois
   templateUrl: "./appro-unified-dashboard.component.html",
   styleUrls: ["./appro-unified-dashboard.component.scss"],
   imports: [
-    DatePipe,
-    DecimalPipe,
-    NgClass,
-    TableModule,
-    ButtonModule,
-    ToolbarModule,
-    Tag,
-    ProgressBarModule,
-    SkeletonModule,
-    TooltipModule,
-    BadgeModule
+    DatePipe, DecimalPipe, NgClass,
+    TableModule, ButtonModule, ToolbarModule, Tag,
+    ProgressBarModule, SkeletonModule, TooltipModule, BadgeModule
   ]
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
   readonly loadingCommandes = signal(true);
   readonly loadingSemois = signal(true);
-  readonly recalculEnCours = signal(false);
   readonly lastRefresh = signal<Date | null>(null);
 
   readonly commandeDashboard = signal<ICommandeDashboard | null>(null);
@@ -63,8 +47,6 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
   private readonly router = inject(Router);
   private readonly commandCommonService = inject(CommandCommonService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
     this.loadAll();
@@ -104,22 +86,6 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     });
   }
 
-  /** Déclenche un recalcul VMM manuel puis recharge le tableau de bord. */
-  recalculerSemois(): void {
-    this.recalculEnCours.set(true);
-    this.suggestionService.recalculerSemois().subscribe({
-      next: () => {
-        this.notificationService.success("Recalcul VMM déclenché — mise à jour dans quelques instants.", "VMM");
-        this.recalculEnCours.set(false);
-        this.loadAll();
-      },
-      error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Recalcul VMM");
-        this.recalculEnCours.set(false);
-      }
-    });
-  }
-
   private checkRefreshDone(): void {
     if (!this.loadingCommandes() && !this.loadingSemois()) {
       this.lastRefresh.set(new Date());
@@ -130,38 +96,20 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     return this.loadingCommandes() || this.loadingSemois();
   }
 
-  // ─── Calculs budget ───────────────────────────────────────────────────────────
 
-  getBudgetPct(): number {
-    const b = this.budget();
-    if (!b || b.budgetIllimite || b.budgetMensuel === 0) return 0;
-    return Math.min(100, Math.round(((b.montantCommande + b.montantEstime) / b.budgetMensuel) * 100));
-  }
-
-  getBudgetBarSeverity(): string {
-    const pct = this.getBudgetPct();
-    if (pct >= 100) return "danger";
-    if (pct >= 80) return "warning";
-    return "success";
-  }
-
-  // ─── Navigation ──────────────────────────────────────────────────────────────
+  // ─── Navigation ──────────────────────────────────────────────────────────
 
   openCommande(row: ICommandeResumee): void {
     const commandeId = { id: row.id, orderDate: row.orderDate };
-    if (row.orderStatus === 'RECEIVED') {
+    if (row.orderStatus === "RECEIVED") {
       this.commandCommonService.pendingOpenDeliveryId.set(commandeId);
       this.commandCommonService.navigateToBonsLivraison();
     } else {
-      // REQUESTED (ou autre statut) → onglet Commandes à passer
       this.commandCommonService.pendingOpenCommandeId.set(commandeId);
       this.commandCommonService.navigateToCommandesAPasser();
     }
   }
 
-  openCommandeFromEnvoi(row: IPharmaMlEnvoiResumee): void {
-    this.router.navigate(["/commande", row.commandeId, row.commandeOrderDate, "edit"]);
-  }
 
   navigateToSemoisSuggestions(): void {
     this.commandCommonService.navigateToAnalyse();
@@ -175,15 +123,12 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.commandCommonService.navigateToBonsLivraison();
   }
 
-  navigateToSuggestions(): void {
-    this.commandCommonService.navigateToReappro();
-  }
 
   newCommande(): void {
     this.router.navigate(["/commande", "new"]);
   }
 
-  // ─── Calculs VMM ─────────────────────────────────────────────────────────────
+  // ─── Calculs VMM ─────────────────────────────────────────────────────────
 
   getTauxOk(): number {
     const d = this.semoisDashboard();
@@ -213,7 +158,7 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     return produit.stockActuel < produit.margeSecurite ? "danger" : "warn";
   }
 
-  // ─── Fraîcheur VMM ───────────────────────────────────────────────────────────
+  // ─── Fraîcheur VMM ───────────────────────────────────────────────────────
 
   get semoisFraicheurLabel(): string {
     const f = this.semoisFraicheur();
@@ -231,10 +176,8 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     return "danger";
   }
 
-
   formatAmount(amount: number): string {
     return new Intl.NumberFormat("fr-FR").format(Math.round(amount / 100));
   }
 }
-
 

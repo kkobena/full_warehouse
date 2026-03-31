@@ -155,7 +155,7 @@
 
       </div>
       <div class="su-action-bar__actions">
-        <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
+        <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="secondary"
                   size="small" />
       </div>
     </div>
@@ -168,6 +168,7 @@
         [getRowId]="blGetRowId"
         [loading]="loading"
         [rowClassRules]="blRowClassRules"
+        [context]="gridContext"
         [rowData]="deliveries"
         [theme]="theme"
         (cellClicked)="onBLCellClicked($event)"

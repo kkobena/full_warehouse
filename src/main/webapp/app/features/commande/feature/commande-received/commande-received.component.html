@@ -37,7 +37,7 @@
         label="Importer réponse"
         severity="info"
         size="small"
-        pTooltip="Importer la réponse EDI / fichier du grossiste"
+        pTooltip="Importer la réponse / fichier du grossiste"
         tooltipPosition="bottom"
       />
       <p-button
@@ -218,6 +218,7 @@
           [rowClassRules]="rowClassRules"
           [rowData]="orderLines"
           [theme]="theme"
+          [context]="gridContext"
           (cellClicked)="onCellClicked($event)"
           (cellValueChanged)="onCellValueChanged($event)"
           (gridReady)="onGridReady($event)"

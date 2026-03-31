@@ -64,6 +64,8 @@ import {
   themeAlpine
 } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
+import { CommandeReceivedActionsComponent } from "./commande-received-actions.component";
+import { CommandeReceivedStatutComponent } from "./commande-received-statut.component";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -126,6 +128,7 @@ export class CommandeReceivedComponent implements OnInit {
 
   protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
   protected columnDefs: ColDef<IOrderLine>[] = [];
+  protected readonly gridContext: { componentParent: CommandeReceivedComponent } = { componentParent: this };
 
   // ── Scan réception ────────────────────────────────────────────────────────
   protected scanValue = "";
@@ -227,7 +230,7 @@ export class CommandeReceivedComponent implements OnInit {
           error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
         });
       }
-    } else if (field === 'produitCip') {
+    } else if (field === "produitCip") {
       const newCip = (event.newValue as string)?.trim();
       const oldCip = (event.oldValue as string)?.trim();
       if (newCip && newCip !== "") {
@@ -255,25 +258,8 @@ export class CommandeReceivedComponent implements OnInit {
     }
   }
 
-  protected onCellClicked(event: CellClickedEvent<IOrderLine>): void {
-    if (!event.data) return;
-    const action = (event.event?.target as HTMLElement)?.closest("[data-action]")?.getAttribute("data-action");
-    if (!action) return;
-    const line = event.data;
-    switch (action) {
-      case "historique":
-        this.onShowPriceHistory(line);
-        break;
-      case "edit":
-        this.editLigneInfos(line);
-        break;
-      case "lot":
-        this.onAddLot(line);
-        break;
-      case "delete":
-        this.confirmDeleteItem(line);
-        break;
-    }
+  protected onCellClicked(_event: CellClickedEvent<IOrderLine>): void {
+    // Actions handled by CommandeReceivedActionsComponent renderer
   }
 
   // ── Business logic ────────────────────────────────────────────────────────
@@ -603,7 +589,7 @@ export class CommandeReceivedComponent implements OnInit {
     return (ol.initStock ?? 0) + (ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0) + (ol.freeQty ?? 0);
   }
 
-  private lineStatut(ol: IOrderLine): { label: string; severity: string } {
+  protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
     const rec = ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0;
     const cmd = ol.quantityRequested ?? 0;
     if (rec === cmd) return { label: "Servi", severity: "success" };
@@ -751,39 +737,14 @@ export class CommandeReceivedComponent implements OnInit {
         headerName: "Statut",
         colId: "statut",
         width: 83,
-        cellStyle: { display: "flex", alignItems: "center", justifyContent: "center" },
-        cellRenderer: (p: any) => {
-          if (!p.data) return "";
-          const s = this.lineStatut(p.data);
-          const palette: Record<string, [string, string]> = {
-            success: ["#198754", "rgba(25,135,84,0.1)"],
-            danger: ["#dc3545", "rgba(220,53,69,0.1)"],
-            info: ["#0dcaf0", "rgba(13,202,240,0.1)"],
-            warn: ["#ffc107", "rgba(255,193,7,0.15)"]
-          };
-          const [c, bg] = palette[s.severity] ?? ["#6c757d", "transparent"];
-          return `<span style="display:inline-flex;align-items:center;padding:2px 6px;border-radius:10px;font-size:0.65rem;font-weight:600;background:${bg};color:${c}">${s.label}</span>`;
-        }
+        cellRenderer: CommandeReceivedStatutComponent
       },
       {
         colId: "actions",
         headerName: "",
-        width: 150,
+        width: 160,
         sortable: false,
-        cellRenderer: (p: any) => {
-          const line: IOrderLine = p.data;
-          if (!line) return "";
-          const hasLot = (line.lots?.length ?? 0) > 0 || this.showLotBtn;
-          const lotBtns = hasLot
-            ? `<button data-action="lot" title="Gérer le lot" style="background:none;border:none;cursor:pointer;color:#0d6efd;font-size:13px;padding:2px"><i class="pi pi-box"></i></button>
-               <button data-action="delete" title="Supprimer" style="background:none;border:none;cursor:pointer;color:#dc3545;font-size:13px;padding:2px"><i class="pi pi-trash"></i></button>`
-            : "";
-          return `<span style="display:flex;align-items:center;gap:2px">
-            <button data-action="historique" title="Historique des prix" style="background:none;border:none;cursor:pointer;color:#6c757d;font-size:13px;padding:2px"><i class="pi pi-chart-line"></i></button>
-            <button data-action="edit" title="Modifier le produit" style="background:none;border:none;cursor:pointer;color:#198754;font-size:13px;padding:2px"><i class="pi pi-pencil"></i></button>
-            ${lotBtns}
-          </span>`;
-        }
+        cellRenderer: CommandeReceivedActionsComponent
       }
     ];
 

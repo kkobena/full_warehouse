@@ -234,6 +234,7 @@
         [singleClickEdit]="true"
         [stopEditingWhenCellsLoseFocus]="true"
         [suppressScrollOnNewData]="true"
+        [context]="gridContext"
         (gridReady)="onGridReady($event)"
         (selectionChanged)="onSelectionChanged()"
         (cellValueChanged)="onCellValueChanged($event)"
@@ -248,29 +249,32 @@
     </div>
   </div>
 
-  <!-- PAGINATION EXTERNE -->
-  @if (total() > rows()) {
-    <div class="pagination-bar">
-      <p-button
-        icon="pi pi-angle-left"
-        severity="secondary"
-        size="small"
-        [disabled]="page() === 0"
-        (onClick)="goToPage(page() - 1)"
-        pTooltip="Page précédente"
-      />
-      <span class="pagination-info">
+  @if (showPage()) {
+    <!-- PAGINATION EXTERNE -->
+    @if (total() > rows()) {
+      <div class="pagination-bar">
+        <p-button
+          icon="pi pi-angle-left"
+          severity="secondary"
+          size="small"
+          [disabled]="page() === 0"
+          (onClick)="goToPage(page() - 1)"
+          pTooltip="Page précédente"
+        />
+        <span class="pagination-info">
         Page {{ page() + 1 }} / {{ totalPages() }}
-        &nbsp;·&nbsp; {{ total() }} lignes
+          &nbsp;·&nbsp; {{ total() }} lignes
       </span>
-      <p-button
-        icon="pi pi-angle-right"
-        severity="secondary"
-        size="small"
-        [disabled]="page() >= totalPages() - 1"
-        (onClick)="goToPage(page() + 1)"
-        pTooltip="Page suivante"
-      />
-    </div>
+        <p-button
+          icon="pi pi-angle-right"
+          severity="secondary"
+          size="small"
+          [disabled]="page() >= totalPages() - 1"
+          (onClick)="goToPage(page() + 1)"
+          pTooltip="Page suivante"
+        />
+      </div>
+    }
   }
+
 </div>

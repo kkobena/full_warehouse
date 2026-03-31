@@ -35,8 +35,7 @@ import { ProduitSearch } from "../../../../shared/model";
 import { MenuItem } from "primeng/api";
 import { SplitButton } from "primeng/splitbutton";
 import { PharmamlApiService } from "../../data-access/pharmaml-api.service";
-import { EnvoiPharmamlComponent } from "../pharmaml";
-import { ReponsePharmamlComponent } from "../pharmaml";
+import { EnvoiPharmamlComponent, ReponsePharmamlComponent } from "../pharmaml";
 import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
 import { IPharmamlCommandeResponse } from "../../../../shared/model/pharmaml.model";
 import { CommandeProductSearchComponent } from "../../ui/commande-product-search/commande-product-search.component";
@@ -57,6 +56,7 @@ import {
   themeAlpine
 } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
+import { CommandeRequestedLineActionsComponent } from "./commande-requested-line-actions.component";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -172,11 +172,11 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
       cellRenderer: (p: any) => {
-        if (!p.data) return '';
+        if (!p.data) return "";
         const val = p.data.orderCostAmount != null
-          ? Number(p.data.orderCostAmount).toLocaleString('fr-FR') : '—';
+          ? Number(p.data.orderCostAmount).toLocaleString("fr-FR") : "—";
         if (p.data.costAmount != null && p.data.costAmount !== p.data.orderCostAmount) {
-          const tarif = Number(p.data.costAmount).toLocaleString('fr-FR');
+          const tarif = Number(p.data.costAmount).toLocaleString("fr-FR");
           return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
             <span>${val}</span>
             <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -196,11 +196,11 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix unitaire commandé — ⚠ indique un écart avec le tarif catalogue",
       cellRenderer: (p: any) => {
-        if (!p.data) return '';
+        if (!p.data) return "";
         const val = p.data.orderUnitPrice != null
-          ? Number(p.data.orderUnitPrice).toLocaleString('fr-FR') : '—';
+          ? Number(p.data.orderUnitPrice).toLocaleString("fr-FR") : "—";
         if (p.data.regularUnitPrice != null && p.data.regularUnitPrice !== p.data.orderUnitPrice) {
-          const tarif = Number(p.data.regularUnitPrice).toLocaleString('fr-FR');
+          const tarif = Number(p.data.regularUnitPrice).toLocaleString("fr-FR");
           return `<span style="display:flex;align-items:center;gap:4px;white-space:nowrap">
             <span>${val}</span>
             <span title="Tarif catalogue : ${tarif} F" style="display:inline-flex;align-items:center;gap:2px;color:#dc3545;font-size:0.7rem;font-weight:600;cursor:help">
@@ -230,25 +230,13 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     {
       colId: "actions",
       headerName: "",
-      width: 100,
+      width: 110,
       sortable: false,
-      suppressSizeToFit: true,
-      cellRenderer: (p: any) => {
-        const line: IOrderLine = p.data;
-        if (!line) return "";
-        const lotBtn =
-          (line.lots?.length ?? 0) > 0 || this.showLotBtn
-            ? `<button data-action="lot" title="Lots" style="background:none;border:none;cursor:pointer;color:#0d6efd;font-size:13px"><i class="pi pi-box"></i></button>`
-            : "";
-        const delDisabled = this.isLocked ? "disabled style=\"opacity:.4\"" : "";
-        return `
-          <button data-action="edit" title="Modifier" style="background:none;border:none;cursor:pointer;color:#198754;font-size:13px"><i class="pi pi-pencil"></i></button>
-          ${lotBtn}
-          <button data-action="delete" title="Supprimer" ${delDisabled} style="background:none;border:none;cursor:pointer;color:#dc3545;font-size:13px"><i class="pi pi-trash"></i></button>
-        `;
-      }
+      cellRenderer: CommandeRequestedLineActionsComponent
     }
   ];
+
+  protected readonly gridContext: { componentParent: CommandeRequestedComponent } = { componentParent: this };
 
   protected onGridReady(e: GridReadyEvent<IOrderLine>): void {
     this.gridApi = e.api;
@@ -290,19 +278,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   }
 
   protected onCellClicked(e: CellClickedEvent<IOrderLine>): void {
-    if (e.colDef.colId !== "actions" || !e.data) return;
-    const action = (e.event?.target as HTMLElement)?.closest("[data-action]")?.getAttribute("data-action");
-    switch (action) {
-      case "edit":
-        this.editLigneInfos(e.data);
-        break;
-      case "lot":
-        this.onAddLot(e.data);
-        break;
-      case "delete":
-        this.confirmDeleteItem(e.data);
-        break;
-    }
+    // Actions handled by CommandeRequestedLineActionsComponent renderer
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

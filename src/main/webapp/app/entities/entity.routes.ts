@@ -1,11 +1,7 @@
 import { Routes } from '@angular/router';
 
 const routes: Routes = [
-  {
-    path: 'ajustement',
-    data: { pageTitle: 'warehouseApp.ajustement.home.title' },
-    loadChildren: () => import('./ajustement/ajustement.route'),
-  },
+
   {
     path: 'categorie',
     data: { pageTitle: 'warehouseApp.categorie.home.title' },
@@ -15,7 +11,7 @@ const routes: Routes = [
   {
     path: 'commande',
     data: { pageTitle: 'warehouseApp.commande.home.title' },
-    loadChildren: () => import('./commande/commande.route'),
+    loadChildren: () => import('../features/commande/commande.route'),
   },
   {
     path: 'customer',
@@ -45,11 +41,7 @@ const routes: Routes = [
     loadChildren: () => import('./gamme-produit/gamme-produit.route'),
   },
 
-  {
-    path: 'inventory-transaction',
-    data: { pageTitle: 'warehouseApp.inventoryTransaction.home.title' },
-    loadChildren: () => import('./inventory-transaction/inventory-transaction.route'),
-  },
+
   {
     path: 'laboratoire',
     data: { pageTitle: 'warehouseApp.laboratoire.home.title' },
@@ -91,21 +83,13 @@ const routes: Routes = [
     loadChildren: () => import('./tva/tva.route'),
   },
 
-  {
-    path: 'produit',
-    data: { pageTitle: 'warehouseApp.produit.home.title' },
-    loadChildren: () => import('./produit/produit.route'),
-  },
+
   {
     path: 'tiers-payant',
     data: { pageTitle: 'warehouseApp.tiersPayant.home.title' },
     loadChildren: () => import('./tiers-payant/tiers-payant.route'),
   },
-  {
-    path: 'store-inventory',
-    data: { pageTitle: 'warehouseApp.storeInventory.home.title' },
-    loadChildren: () => import('./store-inventory/store-inventory.route'),
-  },
+
   {
     path: 'sales',
     data: { pageTitle: 'warehouseApp.storeInventory.home.title' },

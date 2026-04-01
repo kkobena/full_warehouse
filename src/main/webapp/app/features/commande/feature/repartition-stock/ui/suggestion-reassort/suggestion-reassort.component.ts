@@ -14,6 +14,7 @@ import {
   GridReadyEvent,
   ICellRendererParams,
   ValueFormatterParams,
+  CellClassParams,
   ModuleRegistry,
   AllCommunityModule,
 } from 'ag-grid-community';
@@ -104,7 +105,29 @@ export class AppSuggestionReassortComponent {
       minWidth: 100,
       type: 'numericColumn',
       valueFormatter: (params: ValueFormatterParams) => this.formatNumber(params.value),
-      cellClass: 'pharma-qty-value text-right',
+      cellClass: 'text-right',
+      cellStyle: (params: CellClassParams) => {
+        const stockActuel = params.data?.stockActuel ?? 0;
+        const seuilMini = params.data?.seuilMini ?? 0;
+        if (stockActuel <= 0) {
+          return { color: '#dc2626', fontWeight: '700', backgroundColor: '#fef2f2' };
+        }
+        if (stockActuel < seuilMini) {
+          return { color: '#c2410c', fontWeight: '600', backgroundColor: '#fff7ed' };
+        }
+        if (seuilMini > 0 && stockActuel <= seuilMini * 1.3) {
+          return { color: '#d97706', backgroundColor: '#fffbeb' };
+        }
+        return { color: '#16a34a' };
+      },
+      tooltipValueGetter: (params: any) => {
+        const stockActuel = params.data?.stockActuel ?? 0;
+        const seuilMini = params.data?.seuilMini ?? 0;
+        if (stockActuel <= 0) return '⛔ Rupture de stock';
+        if (stockActuel < seuilMini) return `⚠️ Stock critique — seuil mini : ${seuilMini}`;
+        if (seuilMini > 0 && stockActuel <= seuilMini * 1.3) return `⚠️ Stock faible — seuil mini : ${seuilMini}`;
+        return `✅ Stock OK`;
+      },
     },
     {
       headerName: 'Seuil Mini',
@@ -113,7 +136,15 @@ export class AppSuggestionReassortComponent {
       minWidth: 90,
       type: 'numericColumn',
       valueFormatter: (params: ValueFormatterParams) => this.formatNumber(params.value),
-      cellClass: 'pharma-qty-value text-right',
+      cellClass: 'text-right',
+      cellStyle: (params: CellClassParams) => {
+        const stockActuel = params.data?.stockActuel ?? 0;
+        const seuilMini = params.data?.seuilMini ?? 0;
+        if (seuilMini > 0 && stockActuel < seuilMini) {
+          return { fontWeight: '600', color: '#c2410c' };
+        }
+        return null;
+      },
     },
     {
       headerName: 'Stock Dispo',
@@ -146,7 +177,7 @@ export class AppSuggestionReassortComponent {
       maxWidth: 90,
       pinned: 'right',
       suppressSizeToFit: false,
-      cellRenderer: (params: ICellRendererParams) => {
+      cellRenderer: (_params: ICellRendererParams) => {
         return `
           <div class="flex justify-content-center">
             <button class="delete-btn p-button p-button-rounded p-button-text p-button-danger p-button-sm">
@@ -184,6 +215,7 @@ export class AppSuggestionReassortComponent {
     suppressMovableColumns: true,
     suppressMenuHide: true,
     enableBrowserTooltips: true,
+    tooltipShowDelay: 300,
     singleClickEdit: true,
     stopEditingWhenCellsLoseFocus: true,
     navigateToNextCell: params => {
@@ -221,7 +253,7 @@ export class AppSuggestionReassortComponent {
     this.suggestionsResource.reload();
   }
 
-  onCellValueChanged(event: CellValueChangedEvent, suggestion: ISuggestionReassort): void {
+  onCellValueChanged(event: CellValueChangedEvent, _suggestion: ISuggestionReassort): void {
     const ligne: ILigneReassort = event.data;
     const newQuantity = event.newValue;
     if (ligne.id && newQuantity > 0) {

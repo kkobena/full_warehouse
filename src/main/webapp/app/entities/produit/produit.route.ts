@@ -27,26 +27,8 @@ export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null |
   return of(new Produit());
 };
 const produitRoute: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('./produit.component').then(m => m.ProduitComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
-      defaultSort: 'id,asc',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/view',
-    loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),
-    resolve: {
-      produit: ProduitResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
-    },
-    canActivate: [UserRouteAccessService],
-  },
+
+
   {
     path: 'transaction',
     loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),

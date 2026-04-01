@@ -6,45 +6,97 @@
   <p-toolbar>
     <ng-template #start>
       <div class="pharma-toolbar-filters">
-        <div class="pharma-search-input">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Rechercher" type="text" />
-          </p-iconfield>
-        </div>
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtStart"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtStart"
-            appendTo="body"
-          />
-          <label for="dtStart">Date début</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtEnd"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtEnd"
-            appendTo="body"
-          />
-          <label for="dtEnd">Date fin</label>
-        </p-floatlabel>
+        @if (activeTab === 'historique') {
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Produit, opérateur…" type="text" />
+            </p-iconfield>
+          </div>
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [style]="{ 'max-width': '140px' }"
+              [(ngModel)]="dtStart"
+              (onSelect)="onSearch()"
+              [showIcon]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              inputId="dtStart"
+              appendTo="body"
+            />
+            <label for="dtStart">Date début</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [style]="{ 'max-width': '140px' }"
+              [(ngModel)]="dtEnd"
+              (onSelect)="onSearch()"
+              [showIcon]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              inputId="dtEnd"
+              appendTo="body"
+            />
+            <label for="dtEnd">Date fin</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="filterTypeRepartition"
+              [options]="typeRepartitionOptions"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onSearch()"
+              [style]="{ 'min-width': '170px' }"
+              inputId="filterType"
+              appendTo="body"
+            />
+            <label for="filterType">Type de mouvement</label>
+          </p-floatlabel>
+          @if (users.length > 1) {
+            <p-floatlabel variant="on">
+              <p-select
+                [(ngModel)]="filterUserId"
+                [options]="users"
+                optionLabel="login"
+                optionValue="id"
+                (onChange)="onSearch()"
+                [style]="{ 'min-width': '160px' }"
+                [showClear]="true"
+                placeholder="Tous les opérateurs"
+                inputId="filterUser"
+                appendTo="body"
+              />
+              <label for="filterUser">Opérateur</label>
+            </p-floatlabel>
+          }
+          @if (storages.length > 1) {
+            <p-floatlabel variant="on">
+              <p-select
+                [(ngModel)]="filterStorageId"
+                [options]="storages"
+                optionLabel="name"
+                optionValue="id"
+                (onChange)="onSearch()"
+                [style]="{ 'min-width': '150px' }"
+                [showClear]="true"
+                placeholder="Tous les emplacements"
+                inputId="filterStorage"
+                appendTo="body"
+              />
+              <label for="filterStorage">Emplacement</label>
+            </p-floatlabel>
+          }
+        }
       </div>
     </ng-template>
     <ng-template #end>
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
-          <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
-          <p-button (click)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+          @if (activeTab === 'historique') {
+            <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+            <p-button (click)="onResetFilters()" icon="pi pi-filter-slash" label="Réinitialiser" severity="secondary" size="small" />
+            <p-button (click)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+          }
         </div>
       </div>
     </ng-template>
@@ -66,7 +118,14 @@
         <span>Traçabilité</span>
       </a>
       <ng-template ngbNavContent>
-        <app-repartition-list [fromDate]="dtStart" [searchTerm]="search" [toDate]="dtEnd"></app-repartition-list>
+        <app-repartition-list
+          [fromDate]="dtStart"
+          [searchTerm]="search"
+          [toDate]="dtEnd"
+          [typeRepartition]="filterTypeRepartition"
+          [userId]="filterUserId"
+          [storageId]="filterStorageId"
+        />
       </ng-template>
     </ng-container>
 
@@ -76,7 +135,7 @@
         <span>Réassort suggéré – Rayon</span>
       </a>
       <ng-template ngbNavContent>
-        <app-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'"></app-suggestion-reassort>
+        <app-suggestion-reassort #suggestionRayon [typeReassort]="'RAYON'" />
       </ng-template>
     </ng-container>
 
@@ -86,7 +145,7 @@
         <span>Réassort suggéré – Réserve</span>
       </a>
       <ng-template ngbNavContent>
-        <app-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'"></app-suggestion-reassort>
+        <app-suggestion-reassort #suggestionReserve [typeReassort]="'RESERVE'" />
       </ng-template>
     </ng-container>
 
@@ -96,7 +155,7 @@
         <span>Transfert manuel stock Rayon / Réserve</span>
       </a>
       <ng-template ngbNavContent>
-        <app-manual-repartition></app-manual-repartition>
+        <app-manual-repartition />
       </ng-template>
     </ng-container>
   </div>

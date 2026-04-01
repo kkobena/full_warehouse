@@ -456,11 +456,11 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   // Alert/Notification Actions Methods
   protected voirPeremptions(): void {
-    this.router.navigate(['/produit'], { queryParams: { peremption: true } });
+    this.router.navigate(['/produits'], { queryParams: { peremption: true } });
   }
 
   protected voirRuptures(): void {
-    this.router.navigate(['/produit'], { queryParams: { rupture: true } });
+    this.router.navigate(['/produits'], { queryParams: { rupture: true } });
   }
 
   protected voirEntrees(): void {

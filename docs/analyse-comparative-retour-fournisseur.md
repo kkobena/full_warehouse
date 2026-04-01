@@ -231,3 +231,237 @@ cumul doublons). Toutefois, deux manques critiques le rendent **non production-r
 officine standard : l'absence de bon de retour PDF et le dysfonctionnement des filtres backend.
 Une fois ces points corrigés, le module atteindra le niveau mid-market des solutions Lgpi/
 Pharmagest. L'intégration EDI PharmaMl le hissera au niveau des solutions premium.
+
+---
+
+## 7. Plan d'implémentation par priorité
+
+> Séquence recommandée : P1.1 → P1.2 → P2.2 → P2.1 → P3.1 → P4.1
+
+### Récapitulatif
+
+| # | Fonctionnalité | Priorité | Effort estimé | Impact officine |
+|---|---|:---:|:---:|---|
+| P1.1 | Fix filtres backend (statut / dates / search) | **Critique** | 2 h | Recherche fonctionnelle |
+| P1.2 | Génération PDF bon de retour | **Critique** | 1,5 j | Document exigé par les grossistes |
+| P2.1 | Modification / suppression d'un retour | **Élevée** | 2 j | Correction d'erreurs de saisie |
+| P2.2 | Statut `PROCESSING` + bouton « En cours » | **Élevée** | 4 h | Workflow complet |
+| P3.1 | Envoi EDI PharmaMl | **Moyenne** | 3 j | Automatisation grossistes EDI |
+| P4.1 | Dashboard KPI retours | **Faible** | 2 j | Reporting direction |
+
+---
+
+### P1.1 — Fix filtres backend non branchés *(Critique — 2 h)*
+
+`RetourBonResource.getAllRetourBons` reçoit les paramètres `statut`, `dtStart`, `dtEnd` et
+`search` du frontend mais appelle `retourBonService.findAll(pageable)` sans les transmettre.
+
+**Backend — `RetourBonService` (interface) :**
+
+Remplacer la signature :
+```java
+Page<RetourBonDTO> findAll(Pageable pageable);
+```
+par :
+```java
+Page<RetourBonDTO> findAll(RetourBonStatut statut, LocalDate dtStart, LocalDate dtEnd,
+                            String search, Pageable pageable);
+```
+
+**Backend — `RetourBonServiceImpl` :**
+
+Implémenter avec `Specification` ou requête JPQL filtrée sur :
+- `dateMtv BETWEEN dtStart AND dtEnd`
+- `statut = ?` (si fourni)
+- `fournisseurLibelle ILIKE '%search%'` (si fourni)
+
+**Backend — `RetourBonResource` (ligne ~96) :**
+
+```java
+// Avant (broken) :
+Page<RetourBonDTO> page = retourBonService.findAll(pageable);
+
+// Après :
+Page<RetourBonDTO> page = retourBonService.findAll(statut, dtStart, dtEnd, search, pageable);
+```
+
+**Frontend :** aucun changement nécessaire — le composant envoie déjà les bons paramètres.
+
+---
+
+### P1.2 — Génération PDF du bon de retour *(Critique — 1,5 j)*
+
+Tous les concurrents génèrent un bon de retour imprimable. Les grossistes exigent ce document
+accompagnant la marchandise physique.
+
+**Backend — nouveau service `RetourBonPdfService` :**
+
+- Créer `service/report/RetourBonPdfService.java`
+- Réutiliser le pattern `CommonReportService` (Flying Saucer + Thymeleaf)
+- Injecter `RetourBonRepository` pour charger le bon avec ses items et lots
+- Méthode publique : `byte[] generatePdf(Long retourBonId)`
+
+**Backend — templates Thymeleaf :**
+
+Créer le dossier `src/main/resources/templates/retour/` avec :
+
+| Fichier | Contenu |
+|---|---|
+| `main.html` | Squelette principal (include header + body + footer) |
+| `header.html` | En-tête : fournisseur, date, n° bon de retour, référence commande |
+| `table-body.html` | Lignes : produit, CIP, n° lot, date expiration, quantité retournée, motif |
+| `table-footer.html` | Total lignes, total quantité, signature pharmacien |
+
+Réutiliser `common/css.html` et `common/portrait_table.html` (pattern identique à `delivery/`).
+
+**Backend — endpoint `RetourBonResource` :**
+
+```java
+@GetMapping("/retour-bons/{id}/pdf")
+public ResponseEntity<byte[]> getPdf(@PathVariable Long id) {
+    byte[] pdf = retourBonPdfService.generatePdf(id);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"retour-" + id + ".pdf\"")
+        .body(pdf);
+}
+```
+
+**Frontend — `retour-bon.service.ts` :**
+
+```typescript
+getPdf(id: number): Observable<Blob> {
+  return this.http.get(`${this.resourceUrl}/${id}/pdf`, { responseType: 'blob' });
+}
+```
+
+**Frontend — `retour-fournisseur.component.ts` :**
+
+- Ajouter bouton "Imprimer" (`pi-print`) sur chaque ligne de la liste
+- Méthode `downloadPdf(retour: IRetourBon)` : appelle le service et ouvre le blob dans un nouvel onglet
+
+---
+
+### P2.2 — Workflow statut `PROCESSING` *(Élevée — 4 h)*
+
+À implémenter avant P2.1 : un retour `PROCESSING` ne doit pas être modifiable.
+
+`RetourBonStatut` prévoit trois états (`VALIDATED → PROCESSING → CLOSED`) mais la transition
+vers `PROCESSING` n'est déclenchée par aucune action.
+
+**Backend — `RetourBonService` :**
+
+```java
+RetourBonDTO markAsProcessing(Long retourBonId);
+```
+
+**Backend — `RetourBonResource` :**
+
+```java
+@PatchMapping("/retour-bons/{id}/processing")
+public ResponseEntity<RetourBonDTO> markAsProcessing(@PathVariable Long id) { ... }
+```
+
+**Frontend — `retour-fournisseur.component.ts` :**
+
+- Bouton "Marquer en cours" visible uniquement sur les retours `VALIDATED`
+- Mettre à jour `getStatusSeverity()` / `getStatusLabel()` pour couvrir `PROCESSING`
+- Ajouter `PROCESSING` dans les options du filtre statut (déjà présent dans l'enum TypeScript)
+
+---
+
+### P2.1 — Modification et suppression d'un retour *(Élevée — 2 j)*
+
+Aucun endpoint `PUT` ni `DELETE` n'existe. Un pharmacien ne peut corriger une erreur sans
+recréer le retour entièrement. Règle métier : modification autorisée uniquement si `statut =
+VALIDATED`.
+
+**Backend — `RetourBonService` :**
+
+```java
+RetourBonDTO update(RetourBonDTO retourBonDTO);   // statut VALIDATED uniquement
+void delete(Long id);                              // statut VALIDATED uniquement
+```
+
+**Stratégie `update` :**
+
+1. Vérifier `statut = VALIDATED`, lever exception sinon
+2. Annuler les transactions stock des anciens items (inversion des mouvements)
+3. Supprimer les anciens `RetourBonItem`
+4. Recréer les nouveaux items via la logique existante de `createRetourBonItem`
+
+**Backend — `RetourBonResource` :**
+
+```java
+@PutMapping("/retour-bons/{id}")
+public ResponseEntity<RetourBonDTO> updateRetourBon(
+    @PathVariable Long id, @RequestBody RetourBonDTO dto) { ... }
+
+@DeleteMapping("/retour-bons/{id}")
+public ResponseEntity<Void> deleteRetourBon(@PathVariable Long id) { ... }
+```
+
+**Frontend :**
+
+- Bouton "Modifier" sur les retours `VALIDATED` dans la liste → navigation vers `SupplierReturnsComponent`
+- Passer `retourBonId` en query param ; le composant détecte le mode édition et pré-remplit les champs via `retourBonService.find(id)`
+- Soumettre `PUT` au lieu de `POST` à la validation
+- Bouton "Supprimer" avec confirmation `NgbModal` avant appel `DELETE`
+
+---
+
+### P3.1 — Intégration EDI PharmaMl *(Moyenne — 3 j)*
+
+`PharmaMlResource` expose `/api/pharmaml/retour/{commandeRef}/{orderId}` mais aucune liaison
+avec `RetourBon` n'est implémentée.
+
+**Backend — migration Flyway :**
+
+```sql
+-- V1.0.X__retour_bon_pharmaml_link.sql
+ALTER TABLE warehouse.retour_bon ADD COLUMN pharmaml_envoi_id BIGINT
+  REFERENCES warehouse.pharma_ml_envoi(id);
+```
+
+**Backend — `RetourBonEdiService` :**
+
+- `sendRetourViaPharmaml(Long retourBonId)` :
+  1. Construire le message EDI depuis `RetourBon` et ses items
+  2. Appeler l'API PharmaMl
+  3. Stocker la référence dans `PharmaMlEnvoi`, lier à `RetourBon`
+  4. Passer le statut à `PROCESSING` via `markAsProcessing()`
+- Polling / webhook : récupérer la réponse PharmaMl, alimenter automatiquement `ReponseRetourBon`
+
+**Backend — `RetourBonResource` :**
+
+```java
+@PostMapping("/retour-bons/{id}/send-edi")
+public ResponseEntity<RetourBonDTO> sendEdi(@PathVariable Long id) { ... }
+```
+
+**Frontend :**
+
+- Bouton "Envoyer par EDI" visible sur les retours `VALIDATED` dont le fournisseur est EDI-compatible
+- Indicateur d'envoi EDI dans la liste (icône réseau + date d'envoi)
+- Notification toaster sur réception de la réponse automatique
+
+---
+
+### P4.1 — Dashboard KPI retours fournisseur *(Faible — 2 j)*
+
+**Backend — endpoint `GET /api/retour-bons/stats` :**
+
+DTO `RetourBonStatsDTO` contenant :
+- `tauxAcceptationGlobal` : `acceptedQty / requestedQty × 100`
+- `montantRetoursPeriode` : somme `prixAchat × acceptedQty`
+- `topMotifsRetour[]` : motif + count, top 5
+- `delaiMoyenTraitement` : jours entre création et clôture
+- `statsByFournisseur[]` : fournisseur + taux d'acceptation + montant
+
+**Frontend — nouveau composant `RetourStatsDashboardComponent` :**
+
+- Route `/commande/retour-fournisseur/stats`
+- Graphe camembert : répartition par motif de retour (Chart.js)
+- Graphe barres : montant retourné par fournisseur
+- Tableau : taux d'acceptation par fournisseur sur la période sélectionnée
+- Filtres : mois en cours, trimestre, année, plage personnalisée

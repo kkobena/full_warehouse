@@ -19,6 +19,7 @@ import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
 import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
+import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.repository.RuptureRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
@@ -29,6 +30,7 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
 import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
 import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
@@ -37,6 +39,7 @@ import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmaMlEnvoiDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmamlCommandeResponse;
 import com.kobe.warehouse.service.pharmaml.dto.SubstitutionProposeeDTO;
+import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.service.settings.FileStorageService;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -70,6 +73,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
     private final OrderLineService orderLineService;
     private final FileStorageService fileStorageService;
     private final SuggestionLineRepository suggestionLineRepository;
+    private final RetourBonRepository retourBonRepository;
 
     // Services délégués
     private final PharmaMlPayloadBuilderService payloadBuilderService;
@@ -86,6 +90,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         OrderLineService orderLineService,
         FileStorageService fileStorageService,
         SuggestionLineRepository suggestionLineRepository,
+        RetourBonRepository retourBonRepository,
         PharmaMlPayloadBuilderService payloadBuilderService,
         PharmaMlHttpClientService httpClientService
     ) {
@@ -99,6 +104,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         this.orderLineService = orderLineService;
         this.fileStorageService = fileStorageService;
         this.suggestionLineRepository = suggestionLineRepository;
+        this.retourBonRepository = retourBonRepository;
         this.payloadBuilderService = payloadBuilderService;
         this.httpClientService = httpClientService;
     }
@@ -463,6 +469,57 @@ public class PharmaMlServiceImpl implements PharmaMlService {
         s.setSubstitut(substitutProduit);
         s.setType(TypeSubstitut.GENERIQUE);
         substitutRepository.save(s);
+    }
+
+    @Override
+    public void envoiRetourBon(Integer retourBonId) {
+        var retourBon = retourBonRepository.findById(retourBonId)
+            .orElseThrow(() -> new GenericError("RetourBon introuvable : " + retourBonId, "retourBonNotFound"));
+        var commande = retourBon.getCommande();
+        var fournisseur = commande.getFournisseur();
+        prevalidate(fournisseur);
+
+        List<LigneRetourDTO> lignes = retourBon.getRetourBonItems().stream()
+            .map(item -> new LigneRetourDTO(
+                item.getOrderLine().getFournisseurProduit().getCodeCip(),
+                item.getQtyMvt(),
+                item.getMotifRetour().getLibelle()
+            ))
+            .toList();
+
+        if (lignes.isEmpty()) {
+            throw new GenericError("Le retour ne contient aucune ligne", "retourBonEmpty");
+        }
+
+        String refMessage = payloadBuilderService.generateRefMessage();
+        PharmaMlEnvoi envoi = new PharmaMlEnvoi()
+            .setCommande(commande)
+            .setFournisseur(fournisseur)
+            .setRefMessage(refMessage)
+            .setStatut(PharmaMlStatut.PENDING)
+            .setTentatives(1)
+            .setDerniereTentative(LocalDateTime.now());
+        pharmaMlEnvoiRepository.save(envoi);
+
+        try {
+            var payload = payloadBuilderService.buildRetourPayload(commande, fournisseur, lignes, refMessage);
+            String fileName = httpClientService.generateFileName(commande.getOrderReference(), fournisseur.getLibelle());
+            httpClientService.sendSimpleMessage(payload, fournisseur, fileName, "REQ_RETOUR");
+
+            Path storageLocation = fileStorageService.getFilePharmamlStorageLocation();
+            envoi.setStatut(PharmaMlStatut.SUBMITTED)
+                .setXmlRequetePath(storageLocation.resolve("RET_" + fileName + ".xml").toString())
+                .setTotalLignes(lignes.size());
+            pharmaMlEnvoiRepository.save(envoi);
+
+            retourBon.setPharmamlEnvoi(envoi);
+            retourBonRepository.save(retourBon);
+        } catch (Exception e) {
+            envoi.setStatut(PharmaMlStatut.ERROR);
+            pharmaMlEnvoiRepository.save(envoi);
+            LOG.error("Erreur lors de l'envoi EDI du retour {}", retourBonId, e);
+            throw e;
+        }
     }
 
     private void prevalidate(Fournisseur fournisseur) {

@@ -6,10 +6,10 @@ import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { ProduitSearchAutocompleteScannerComponent } from 'app/shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { NotificationService } from 'app/shared/services/notification.service';
 import { IStockProduit } from 'app/shared/model/stock-produit.model';
 import { IStorage } from 'app/shared/model/magasin.model';
 import { ProduitSearch } from 'app/shared/model/produit.model';
@@ -18,9 +18,10 @@ import { StorageService } from '../../../../../../entities/storage/storage.servi
 
 export interface IManualRepartitionRequest {
   stockSourceId: number;
-  stockDestinationId: number;
+  stockDestinationId: number | null;
   quantity: number;
   seuilMini?: number;
+  createNewDestination: boolean;
 }
 
 export interface IRepartitionRow {
@@ -51,16 +52,14 @@ export interface IRepartitionRow {
     ProduitSearchAutocompleteScannerComponent,
     QuantiteProdutSaisieComponent,
   ],
-  providers: [MessageService],
 })
 export class AppManualRepartitionComponent implements OnInit {
   protected repartitionService = inject(RepartitionStockService);
   protected storageService = inject(StorageService);
-  protected messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
   protected produitbox = viewChild<ProduitSearchAutocompleteScannerComponent>('produitbox');
   protected quantityBox = viewChild<QuantiteProdutSaisieComponent>('quantityBox');
 
-  allStocks: IStockProduit[] = [];
   repartitionRows: IRepartitionRow[] = [];
   isSaving = false;
   produitSelected: ProduitSearch | null = null;
@@ -90,38 +89,32 @@ export class AppManualRepartitionComponent implements OnInit {
       return;
     }
     if (!this.selectedStorageId) {
-      this.messageService.add({ severity: 'warn', summary: 'Emplacement', detail: 'Veuillez sélectionner un emplacement' });
+      this.notificationService.warning('Veuillez sélectionner un emplacement', 'Emplacement');
       this.produitSelected = null;
       return;
     }
     const stockInSelectedStorage = produit.stocks?.find(s => s.storage === this.selectedStorageId);
     if (!stockInSelectedStorage) {
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Recherche',
-        detail: "Aucun stock trouvé pour ce produit dans l'emplacement sélectionné",
-      });
+      this.notificationService.info("Aucun stock trouvé pour ce produit dans l'emplacement sélectionné", 'Recherche');
       this.produitSelected = null;
       this.setProductBoxFocus();
       return;
     }
     if (!stockInSelectedStorage.quantite || stockInSelectedStorage.quantite <= 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Stock insuffisant',
-        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
-      });
+      this.notificationService.warning(
+        'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
+        'Stock insuffisant',
+      );
       this.produitSelected = null;
       this.setProductBoxFocus();
       return;
     }
     const otherStocks = produit.stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
     if (otherStocks.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Stock Réserve',
-        detail: 'Ce produit ne possède de réserve. Vous devez en créer une pour pouvoir effectuer une répartition.',
-      });
+      this.notificationService.warning(
+        'Ce produit ne possède de réserve. Vous devez en créer une pour pouvoir effectuer une répartition.',
+        'Stock Réserve',
+      );
       this.produitSelected = null;
       this.setProductBoxFocus();
     } else {
@@ -135,15 +128,14 @@ export class AppManualRepartitionComponent implements OnInit {
     }
     const stockInSelectedStorage = this.produitSelected.stocks?.find(s => s.storage === this.selectedStorageId);
     if (!stockInSelectedStorage) {
-      this.messageService.add({ severity: 'warn', summary: 'Stock', detail: 'Stock source non trouvé' });
+      this.notificationService.warning('Stock source non trouvé', 'Stock');
       return;
     }
     if (!stockInSelectedStorage.quantite || stockInSelectedStorage.quantite <= 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Stock insuffisant',
-        detail: 'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
-      });
+      this.notificationService.warning(
+        'La quantité disponible dans cet emplacement est insuffisante pour effectuer une répartition',
+        'Stock insuffisant',
+      );
       return;
     }
     const otherStocks = this.produitSelected.stocks?.filter(s => s.storage !== this.selectedStorageId) || [];
@@ -201,10 +193,6 @@ export class AppManualRepartitionComponent implements OnInit {
     this.repartitionRows = this.repartitionRows.filter(r => r.id !== row.id);
   }
 
-  protected onQuantityChange(row: IRepartitionRow): void {
-    this.validateRow(row);
-  }
-
   protected validateRow(row: IRepartitionRow): void {
     row.errors = [];
     row.isValid = true;
@@ -212,11 +200,12 @@ export class AppManualRepartitionComponent implements OnInit {
       row.errors.push('Stock source requis');
       row.isValid = false;
     }
-    if (!row.stockDestination) {
+    // Destination valide si : stockDestination sélectionné OU createNewDestination = true
+    if (!row.stockDestination && !row.createNewDestination) {
       row.errors.push('Stock destination requis');
       row.isValid = false;
     }
-    if (row.stockSource?.id === row.stockDestination?.id) {
+    if (row.stockSource?.id && row.stockDestination?.id && row.stockSource.id === row.stockDestination.id) {
       row.errors.push('Source et destination doivent être différents');
       row.isValid = false;
     }
@@ -230,43 +219,36 @@ export class AppManualRepartitionComponent implements OnInit {
     }
   }
 
-  protected get maxQuantityForRow(): (row: IRepartitionRow) => number {
-    return (row: IRepartitionRow) => row.stockSource?.qtyStock || 0;
-  }
-
   protected get isFormValid(): boolean {
     return this.repartitionRows.length > 0 && this.repartitionRows.every(row => row.isValid);
   }
 
   protected save(): void {
     if (!this.isFormValid) {
-      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Veuillez corriger les erreurs avant de soumettre' });
+      this.notificationService.warning('Veuillez corriger les erreurs avant de soumettre', 'Validation');
       return;
     }
     const requests: IManualRepartitionRequest[] = this.repartitionRows
-      .filter(row => row.isValid && row.stockSource && row.stockDestination)
+      .filter(row => row.isValid && row.stockSource && (row.stockDestination || row.createNewDestination))
       .map(row => ({
-        stockSourceId: row.stockSource.id,
-        stockDestinationId: row.stockDestination?.id,
+        stockSourceId: row.stockSource!.id,
+        stockDestinationId: row.stockDestination?.id ?? null,
         quantity: row.quantity,
         seuilMini: row.seuilMini,
+        createNewDestination: row.createNewDestination === true,
       }));
     this.isSaving = true;
     this.repartitionService.processManualRepartition(requests).subscribe({
       next: () => {
         this.isSaving = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: `${requests.length} répartition(s) effectuée(s) avec succès`,
-        });
+        this.notificationService.success(`${requests.length} répartition(s) effectuée(s) avec succès`);
         this.repartitionRows = [];
         this.produitSelected = null;
         this.setProductBoxFocus();
       },
       error: () => {
         this.isSaving = false;
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors du traitement des répartitions' });
+        this.notificationService.error('Erreur lors du traitement des répartitions');
       },
     });
   }
@@ -285,6 +267,12 @@ export class AppManualRepartitionComponent implements OnInit {
   protected enableCreateDestination(row: IRepartitionRow): void {
     row.createNewDestination = true;
     row.stockDestination = undefined;
+    this.validateRow(row);
+  }
+
+  protected cancelCreateDestination(row: IRepartitionRow): void {
+    row.createNewDestination = false;
+    row.stockDestination = row.availableDestinations.length > 0 ? row.availableDestinations[0] : undefined;
     this.validateRow(row);
   }
 

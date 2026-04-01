@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
+import com.kobe.warehouse.service.pharmaml.service.PharmaMlService;
+import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
 import com.kobe.warehouse.service.stock.RetourBonService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -20,10 +22,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,12 +46,14 @@ public class RetourBonResource {
     private static final String ENTITY_NAME = "retourBon";
     private final Logger log = LoggerFactory.getLogger(RetourBonResource.class);
     private final RetourBonService retourBonService;
+    private final PharmaMlService pharmaMlService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public RetourBonResource(RetourBonService retourBonService) {
+    public RetourBonResource(RetourBonService retourBonService, RetourBonPdfReportService retourBonPdfReportService, PharmaMlService pharmaMlService) {
         this.retourBonService = retourBonService;
+        this.pharmaMlService = pharmaMlService;
     }
 
     /**
@@ -79,24 +87,91 @@ public class RetourBonResource {
     }
 
     /**
-     * {@code GET  /retour-bons} : get all the retour bons.
+     * {@code GET  /retour-bons} : get all the retour bons with optional filters.
      *
+     * @param statut   optional status filter.
+     * @param dtStart  optional start date filter.
+     * @param dtEnd    optional end date filter.
+     * @param search   optional text search on fournisseur/reference.
      * @param pageable the pagination information.
-     * @param statut   filter by status.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of retour bons in body.
      */
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
-        @RequestParam(required = false, name = "") RetourStatut statut,
-        @RequestParam(required = false, name = "dtStart") LocalDate dtStart,
-        @RequestParam(required = false, name = "dtEnd") LocalDate dtEnd,
+        @RequestParam(required = false, name = "statut") RetourStatut statut,
+        @RequestParam(required = false, name = "dtStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
+        @RequestParam(required = false, name = "dtEnd") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
+        @RequestParam(required = false, name = "search") String search,
         Pageable pageable
     ) {
-        log.debug("REST request to get a page of RetourBons");
-        Page<RetourBonDTO> page = retourBonService.findAll(pageable);
-
+        log.debug("REST request to get a page of RetourBons: statut={}, dtStart={}, dtEnd={}, search={}", statut, dtStart, dtEnd, search);
+        Page<RetourBonDTO> page = retourBonService.findAll(statut, dtStart, dtEnd, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /retour-bons/:id/pdf} : generate a PDF for the retour bon.
+     *
+     * @param id the id of the retour bon.
+     * @return the PDF as byte array.
+     */
+    @GetMapping("/retour-bons/{id}/pdf")
+    public ResponseEntity<byte[]> getRetourBonPdf(@PathVariable Integer id) {
+        log.debug("REST request to generate PDF for RetourBon : {}", id);
+
+        byte[] pdf = retourBonService.export(id);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"retour-" + id + ".pdf\"")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdf);
+    }
+
+    /**
+     * {@code PATCH  /retour-bons/:id/processing} : mark a retour bon as processing.
+     *
+     * @param id the id of the retour bon.
+     * @return the updated retour bon.
+     */
+    @PatchMapping("/retour-bons/{id}/processing")
+    public ResponseEntity<RetourBonDTO> markAsProcessing(@PathVariable Integer id) {
+        log.debug("REST request to mark RetourBon as PROCESSING : {}", id);
+        RetourBonDTO result = retourBonService.markAsProcessing(id);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code PUT  /retour-bons/:id} : update an existing retour bon (statut VALIDATED only).
+     *
+     * @param id           the id of the retour bon to update.
+     * @param retourBonDTO the updated retourBonDTO.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the updated entity.
+     */
+    @PutMapping("/retour-bons/{id}")
+    public ResponseEntity<RetourBonDTO> updateRetourBon(@PathVariable Integer id, @Valid @RequestBody RetourBonDTO retourBonDTO) {
+        log.debug("REST request to update RetourBon : {}", id);
+        retourBonDTO.setId(id);
+        RetourBonDTO result = retourBonService.update(retourBonDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code DELETE  /retour-bons/:id} : delete a retour bon (statut VALIDATED only).
+     *
+     * @param id the id of the retour bon to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (No Content)}.
+     */
+    @DeleteMapping("/retour-bons/{id}")
+    public ResponseEntity<Void> deleteRetourBon(@PathVariable Integer id) {
+        log.debug("REST request to delete RetourBon : {}", id);
+        retourBonService.delete(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     /**
@@ -128,6 +203,21 @@ public class RetourBonResource {
         log.debug("REST request to get RetourBons by commande : {}, {}", commandeId, orderDate);
         List<RetourBonDTO> result = retourBonService.findAllByCommande(commandeId, orderDate);
         return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * {@code POST  /retour-bons/:id/send-edi} : envoie un bon de retour via EDI PharmaML.
+     *
+     * @param id the id of the retour bon.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)}.
+     */
+    @PostMapping("/retour-bons/{id}/send-edi")
+    public ResponseEntity<Void> sendEdi(@PathVariable Integer id) {
+        log.debug("REST request to send RetourBon via EDI PharmaML : {}", id);
+        pharmaMlService.envoiRetourBon(id);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     /**

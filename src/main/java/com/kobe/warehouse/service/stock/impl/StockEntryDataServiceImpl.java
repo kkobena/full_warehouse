@@ -200,7 +200,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     @Override
     public Slice<DeliveryReceiptProjection> fetchAllReceipts(String searchTerm) {
-        return commandeRepository.fetchAllReceipts(searchTerm, LocalDate.now().minusMonths(6), Pageable.ofSize(10));
+        return commandeRepository.fetchAllReceipts(searchTerm, LocalDate.now().minusMonths(12),OrderStatut.CLOSED, Pageable.ofSize(10));
     }
 
     @Override

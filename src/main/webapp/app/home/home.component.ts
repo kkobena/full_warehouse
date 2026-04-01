@@ -12,7 +12,6 @@ import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.compon
 import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component';
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
 import { Authority } from '../shared/constants/authority.constants';
-import CustomizableDashboardComponent from '../entities/dashboard/customizable-dashboard/customizable-dashboard.component';
 import { ResponsableCommandeDashboardComponent } from './responsable-commande-dashboard/responsable-commande-dashboard.component';
 import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
 import { VendeurDashboardComponent } from './vendeur-dashboard/vendeur-dashboard.component';

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock;
 
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import java.time.LocalDate;
@@ -21,12 +22,16 @@ public interface RetourBonService {
     RetourBonDTO create(RetourBonDTO retourBonDTO);
 
     /**
-     * Get all retour bons.
+     * Get all retour bons with optional filters.
      *
+     * @param statut   optional status filter.
+     * @param dtStart  optional start date filter.
+     * @param dtEnd    optional end date filter.
+     * @param search   optional text search on fournisseur / reference.
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RetourBonDTO> findAll(Pageable pageable);
+    Page<RetourBonDTO> findAll(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable);
 
     /**
      * Get retour bons by commande ID.
@@ -52,4 +57,31 @@ public interface RetourBonService {
      * @return the persisted entity.
      */
     ReponseRetourBonDTO createSupplierResponse(ReponseRetourBonDTO reponseRetourBonDTO);
+
+    /**
+     * Update an existing retour bon (only if statut = VALIDATED).
+     * Reverses stock of old items and recreates new ones.
+     *
+     * @param retourBonDTO the updated entity.
+     * @return the updated entity.
+     */
+    RetourBonDTO update(RetourBonDTO retourBonDTO);
+
+    /**
+     * Delete a retour bon (only if statut = VALIDATED).
+     * Reverses all stock movements before deletion.
+     *
+     * @param id the id of the entity to delete.
+     */
+    void delete(Integer id);
+
+    /**
+     * Mark a retour bon as processing (sent to supplier).
+     *
+     * @param id the id of the retour bon.
+     * @return the updated entity.
+     */
+    RetourBonDTO markAsProcessing(Integer id);
+
+    byte[] export(Integer id);
 }

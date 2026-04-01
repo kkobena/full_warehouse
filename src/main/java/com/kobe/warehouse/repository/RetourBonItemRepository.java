@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.RetourBonItem;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,8 @@ public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, In
 
     @Query("SELECT r FROM RetourBonItem r WHERE r.orderLine.id = :orderLineId")
     List<RetourBonItem> findAllByOrderLineId(@Param("orderLineId") Integer orderLineId);
+
+    @Modifying
+    @Query("DELETE FROM RetourBonItem r WHERE r.retourBon.id = :retourBonId")
+    void deleteAllByRetourBonId(@Param("retourBonId") Integer retourBonId);
 }

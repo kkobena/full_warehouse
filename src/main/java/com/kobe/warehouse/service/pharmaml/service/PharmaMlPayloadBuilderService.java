@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
 import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
+import com.kobe.warehouse.service.pharmaml.dto.LigneRetourDTO;
 import java.util.List;
 
 /**
@@ -47,6 +48,18 @@ public interface PharmaMlPayloadBuilderService {
      */
     CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes,
         Fournisseur fournisseur, String refMessage);
+
+    /**
+     * Construit le payload pour l'envoi d'un bon de retour fournisseur.
+     *
+     * @param commande    la commande d'origine du retour
+     * @param fournisseur le fournisseur destinataire
+     * @param lignes      les lignes de retour
+     * @param refMessage  la référence unique du message
+     * @return l'enveloppe CSRP prête à être sérialisée
+     */
+    CsrpEnveloppe buildRetourPayload(Commande commande, Fournisseur fournisseur,
+        List<LigneRetourDTO> lignes, String refMessage);
 
     /**
      * Génère une référence de message unique.

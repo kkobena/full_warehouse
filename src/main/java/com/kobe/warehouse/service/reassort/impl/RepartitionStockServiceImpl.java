@@ -176,12 +176,28 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
 
             boolean destIsReserveStorage =
                 stockProduitSrc.getStorage().getStorageType() == StorageType.PRINCIPAL;
+            Storage destStorage = destIsReserveStorage ? storageReserve : storagePrincipal;
+
             StockProduit stockProduitDest =
-                destIsReserveStorage ? getStockByStorage(produit.getStockProduits(), storageReserve)
-                    : getStockByStorage(produit.getStockProduits(), storagePrincipal);
+                getStockByStorage(produit.getStockProduits(), destStorage);
+
+            // Création automatique du StockProduit destination si demandé
             if (isNull(stockProduitDest)) {
-                throw new GenericError("Stock source inconnu");
+                if (!queryDto.createNewDestination()) {
+                    throw new GenericError(
+                        "Aucun emplacement réserve trouvé pour ce produit. Cochez 'Créer la réserve' pour le créer automatiquement.");
+                }
+                stockProduitDest = new StockProduit();
+                stockProduitDest.setProduit(produit);
+                stockProduitDest.setStorage(destStorage);
+                stockProduitDest.setQtyStock(0);
+                stockProduitDest.setQtyVirtual(0);
+                stockProduitDest.setQtyUG(0);
+                stockProduitDest.setCreatedAt(LocalDateTime.now());
+                stockProduitDest.setUpdatedAt(stockProduitDest.getCreatedAt());
+                stockProduitDest = stockProduitRepository.save(stockProduitDest);
             }
+
             int stockSrc = stockProduitSrc.getTotalStockQuantity();
             if (stockSrc <= queryDto.quantity()) {
                 continue;
@@ -189,7 +205,7 @@ public class RepartitionStockServiceImpl implements RepartitionStockService {
             int stockSrcFinal = stockSrc - queryDto.quantity();
 
             int destInitStock = stockProduitDest.getTotalStockQuantity();
-            int stockDestFinal = stockProduitDest.getTotalStockQuantity() + queryDto.quantity();
+            int stockDestFinal = destInitStock + queryDto.quantity();
 
             RepartitionStockProduit repartitionStockProduit = createBaseRepartitionStockProduit(
                 getCurrentUser());

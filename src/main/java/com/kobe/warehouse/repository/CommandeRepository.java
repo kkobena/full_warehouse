@@ -77,11 +77,12 @@ public interface CommandeRepository
     );
 
     @Query(
-        value = "SELECT c.id AS id, c.orderDate AS orderDate, c.receiptReference AS receiptReference, c.receiptDate AS receiptDate, c.orderAmount AS orderAmount,c.finalAmount AS receiptAmount, f.libelle AS fournisseurLibelle FROM Commande c JOIN c.fournisseur f WHERE LOWER(c.receiptReference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND c.orderDate>=:orderDateLimit  ORDER BY c.orderDate DESC"
+        value = "SELECT c.id AS id, c.orderDate AS orderDate, c.receiptReference AS receiptReference, c.receiptDate AS receiptDate, c.orderAmount AS orderAmount,c.finalAmount AS receiptAmount, f.libelle AS fournisseurLibelle FROM Commande c JOIN c.fournisseur f WHERE LOWER(c.receiptReference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND c.orderDate>=:orderDateLimit AND c.orderStatus=:orderStatus ORDER BY c.orderDate DESC"
     )
     Slice<DeliveryReceiptProjection> fetchAllReceipts(
         @Param("searchTerm") String searchTerm,
         @Param("orderDateLimit") LocalDate orderDateLimit,
+        @Param("orderStatus") OrderStatut orderStatut,
         Pageable pageable
     );
 

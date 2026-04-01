@@ -83,7 +83,8 @@
       "Bash(java -version)",
       "Bash(JAVA_HOME=\"D:/jdk25\" \"D:/jdk25/bin/java\" -version 2>&1)",
       "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress)",
-      "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress -Dskip.npm)"
+      "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress -Dskip.npm)",
+      "Bash(do grep:*)"
     ],
     "deny": [],
     "ask": []

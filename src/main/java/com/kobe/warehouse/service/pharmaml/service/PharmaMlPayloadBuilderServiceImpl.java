@@ -96,6 +96,20 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
     @Override
+    public CsrpEnveloppe buildRetourPayload(Commande commande, Fournisseur fournisseur,
+        List<LigneRetourDTO> lignes, String refMessage) {
+        CsrpEnveloppe ce = new CsrpEnveloppe();
+        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
+        ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
+        ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
+        ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_RETOUR);
+        ce.setEntete(buildEntete(fournisseur, refMessage));
+        ce.setCorps(buildCorpsRetour(commande, fournisseur, lignes));
+        return ce;
+    }
+
+    @Override
     public String generateRefMessage() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 14).toUpperCase();
     }

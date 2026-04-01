@@ -19,6 +19,9 @@ export class AppRepartitionListComponent implements OnInit {
   readonly searchTerm = input('');
   readonly fromDate = input<Date | null>(null);
   readonly toDate = input<Date | null>(null);
+  readonly typeRepartition = input<string | null>(null);
+  readonly userId = input<number | null>(null);
+  readonly storageId = input<number | null>(null);
 
   protected repartitionService = inject(RepartitionStockService);
   protected rowData: IRepartitionStockProduit[] = [];
@@ -38,6 +41,7 @@ export class AppRepartitionListComponent implements OnInit {
 
   protected loadAll(): void {
     this.loading = true;
+    const type = this.typeRepartition();
     this.repartitionService
       .query({
         page: this.page,
@@ -45,6 +49,9 @@ export class AppRepartitionListComponent implements OnInit {
         searchTerm: this.searchTerm(),
         dateDebut: DATE_FORMAT_ISO_DATE(this.fromDate()),
         dateFin: DATE_FORMAT_ISO_DATE(this.toDate()),
+        typeRepartition: type && type !== 'TOUT' ? type : undefined,
+        userId: this.userId() ?? undefined,
+        storageId: this.storageId() ?? undefined,
       })
       .subscribe({
         next: (res: HttpResponse<IRepartitionStockProduit[]>) => {

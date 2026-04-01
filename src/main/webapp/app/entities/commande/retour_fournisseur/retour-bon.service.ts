@@ -20,8 +20,12 @@ export class RetourBonService {
     return this.http.post<IRetourBon>(this.resourceUrl, retourBon, { observe: 'response' });
   }
 
-  update(retourBon: IRetourBon): Observable<EntityResponseType> {
-    return this.http.put<IRetourBon>(this.resourceUrl, retourBon, { observe: 'response' });
+  update(id: number, retourBon: IRetourBon): Observable<EntityResponseType> {
+    return this.http.put<IRetourBon>(`${this.resourceUrl}/${id}`, retourBon, { observe: 'response' });
+  }
+
+  delete(id: number): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   find(id: number): Observable<EntityResponseType> {
@@ -47,5 +51,17 @@ export class RetourBonService {
 
   createSupplierResponse(reponseRetourBon: IReponseRetourBon): Observable<ResponseEntityResponseType> {
     return this.http.post<IReponseRetourBon>(`${this.resourceUrl}/supplier-response`, reponseRetourBon, { observe: 'response' });
+  }
+
+  getPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${id}/pdf`, { responseType: 'blob' });
+  }
+
+  markAsProcessing(id: number): Observable<EntityResponseType> {
+    return this.http.patch<IRetourBon>(`${this.resourceUrl}/${id}/processing`, null, { observe: 'response' });
+  }
+
+  sendEdi(id: number): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${this.resourceUrl}/${id}/send-edi`, null, { observe: 'response' });
   }
 }

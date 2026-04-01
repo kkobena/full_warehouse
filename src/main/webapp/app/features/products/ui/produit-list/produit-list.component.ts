@@ -1,33 +1,33 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
-import { MenuModule } from 'primeng/menu';
-import { CheckboxModule } from 'primeng/checkbox';
-import { MenuItem } from 'primeng/api';
-import { FormsModule } from '@angular/forms';
-import { IProduit } from 'app/shared/model/produit.model';
-import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
+import { Component, computed, effect, input, output, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+import { TagModule } from "primeng/tag";
+import { MenuModule } from "primeng/menu";
+import { CheckboxModule } from "primeng/checkbox";
+import { MenuItem } from "primeng/api";
+import { FormsModule } from "@angular/forms";
+import { IProduit } from "app/shared/model/produit.model";
+import { EtaProduitComponent } from "app/shared/eta-produit/eta-produit.component";
 
 export type ProduitMenuAction =
-  | 'view'
-  | 'edit'
-  | 'print-label'
-  | 'commander'
-  | 'generiques'
-  | 'lots'
-  | 'suspend'
-  | 'activate'
-  | 'archive'
-  | 'delete';
+  | "view"
+  | "edit"
+  | "print-label"
+  | "commander"
+  | "generiques"
+  | "lots"
+  | "suspend"
+  | "activate"
+  | "archive"
+  | "delete";
 
 @Component({
-  selector: 'app-produit-list',
-  templateUrl: './produit-list.component.html',
-  styleUrls: ['./produit-list.component.scss'],
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, TagModule, MenuModule, CheckboxModule, EtaProduitComponent],
+  selector: "app-produit-list",
+  templateUrl: "./produit-list.component.html",
+  styleUrls: ["./produit-list.component.scss"],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, TooltipModule, TagModule, MenuModule, CheckboxModule, EtaProduitComponent]
 })
 export class ProduitListComponent {
   readonly produits = input.required<IProduit[]>();
@@ -102,12 +102,12 @@ export class ProduitListComponent {
     menu.toggle(event);
   }
 
-  protected stockSeverity(produit: IProduit): 'success' | 'warn' | 'danger' | 'secondary' {
+  protected stockSeverity(produit: IProduit): "success" | "warn" | "danger" | "secondary" {
     const qty = produit.totalQuantity ?? 0;
     const seuil = produit.seuilMini ?? 0;
-    if (qty <= 0) return 'danger';
-    if (seuil > 0 && qty < seuil) return 'warn';
-    return 'success';
+    if (qty <= 0) return "danger";
+    if (seuil > 0 && qty < seuil) return "warn";
+    return "success";
   }
 
   protected tauxMarge(produit: IProduit): number | null {
@@ -124,15 +124,15 @@ export class ProduitListComponent {
   }
 
   protected classeLabel(classe?: string): string {
-    if (!classe) return '—';
-    return classe.replace('_', '+');
+    if (!classe) return "—";
+    return classe.replace("_", "+");
   }
 
   private emit(action: ProduitMenuAction): void {
     if (this.currentMenuProduit) {
-      if (action === 'edit') {
+      if (action === "edit") {
         this.editRequested.emit(this.currentMenuProduit);
-      } else if (action === 'delete') {
+      } else if (action === "delete") {
         this.deleteRequested.emit(this.currentMenuProduit);
       } else {
         this.menuAction.emit({ action, produit: this.currentMenuProduit });
@@ -143,56 +143,56 @@ export class ProduitListComponent {
   private buildMenuItems(produit: IProduit): MenuItem[] {
     return [
       {
-        label: 'Voir le détail',
-        icon: 'pi pi-eye',
-        command: () => this.emit('view'),
+        label: "Voir le détail",
+        icon: "pi pi-eye",
+        command: () => this.emit("view")
       },
       {
-        label: 'Éditer',
-        icon: 'pi pi-pencil',
-        command: () => this.emit('edit'),
+        label: "Éditer",
+        icon: "pi pi-pencil",
+        command: () => this.emit("edit")
       },
       {
-        label: 'Imprimer étiquette',
-        icon: 'pi pi-tag',
-        command: () => this.emit('print-label'),
+        label: "Imprimer étiquette",
+        icon: "pi pi-tag",
+        command: () => this.emit("print-label")
       },
       { separator: true },
       {
-        label: 'Commander',
-        icon: 'pi pi-shopping-cart',
-        command: () => this.emit('commander'),
+        label: "Commander",
+        icon: "pi pi-shopping-cart",
+        command: () => this.emit("commander")
       },
       {
-        label: 'Génériques / substituts',
-        icon: 'pi pi-list',
-        command: () => this.emit('generiques'),
+        label: "Génériques / substituts",
+        icon: "pi pi-list",
+        command: () => this.emit("generiques")
       },
-      {
-        label: 'Lots actifs',
-        icon: 'pi pi-box',
-        command: () => this.emit('lots'),
-      },
+      /* {
+         label: 'Lots actifs',
+         icon: 'pi pi-box',
+         command: () => this.emit('lots'),
+       },*/
       { separator: true },
       produit.status === 1
         ? {
-            label: 'Réactiver',
-            icon: 'pi pi-play',
-            command: () => this.emit('activate'),
-          }
+          label: "Réactiver",
+          icon: "pi pi-play",
+          command: () => this.emit("activate")
+        }
         : {
-            label: 'Mettre en veille',
-            icon: 'pi pi-pause',
-            command: () => this.emit('suspend'),
-          },
+          label: "Mettre en veille",
+          icon: "pi pi-pause",
+          command: () => this.emit("suspend")
+        },
       { separator: true },
       {
-        label: 'Supprimer',
-        icon: 'pi pi-trash',
-        styleClass: 'text-danger',
+        label: "Supprimer",
+        icon: "pi pi-trash",
+        styleClass: "text-danger",
         disabled: (produit.totalQuantity ?? 0) > 0,
-        command: () => this.emit('delete'),
-      },
+        command: () => this.emit("delete")
+      }
     ];
   }
 }

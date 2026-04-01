@@ -1,4 +1,5 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {HttpResponse} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
@@ -8,7 +9,6 @@ import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {TagModule} from 'primeng/tag';
 import {ToastModule} from 'primeng/toast';
-import {RippleModule} from 'primeng/ripple';
 import {ToolbarModule} from 'primeng/toolbar';
 import {InputTextModule} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
@@ -16,8 +16,8 @@ import {InputIcon} from 'primeng/inputicon';
 import {SelectModule} from 'primeng/select';
 import {DatePicker} from 'primeng/datepicker';
 import {FloatLabel} from 'primeng/floatlabel';
-import {MessageService} from 'primeng/api';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NotificationService} from 'app/shared/services/notification.service';
 import {NgbConfirmDialogService} from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {WarehouseCommonModule} from 'app/shared/warehouse-common/warehouse-common.module';
 import {IRetourBon} from 'app/shared/model/retour-bon.model';
@@ -30,14 +30,13 @@ import {
   SupplierResponseModalComponent
 } from '../../../../entities/commande/retour_fournisseur/supplier-response-modal.component';
 import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-
-export type ExpandMode = 'single' | 'multiple';
+import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
+import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 
 @Component({
   selector: 'app-retour-fournisseur',
   templateUrl: './retour-fournisseur.component.html',
   styleUrls: ['./retour-fournisseur.scss'],
-  providers: [MessageService],
   imports: [
     CommonModule,
     FormsModule,
@@ -53,7 +52,6 @@ export type ExpandMode = 'single' | 'multiple';
     TooltipModule,
     TagModule,
     ToastModule,
-    RippleModule,
     WarehouseCommonModule,
   ],
 })
@@ -64,6 +62,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected dtEnd: Date | null = new Date();
   protected readonly statutOptions = [
     {label: 'En attente de réponse', value: RetourBonStatut.VALIDATED},
+    {label: 'En cours', value: RetourBonStatut.PROCESSING},
     {label: 'Clôturé', value: RetourBonStatut.CLOSED},
   ];
 
@@ -73,9 +72,10 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = signal<number>(0);
   protected readonly RetourBonStatut = RetourBonStatut;
-
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly retourBonService = inject(RetourBonService);
-  private readonly messageService = inject(MessageService);
+  private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly modalService = inject(NgbModal);
   private readonly router = inject(Router);
@@ -90,7 +90,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   }
 
   onNewRetour(): void {
-    this.router.navigate(['/commande/retour-fournisseur/new']);
+    void this.router.navigate(['/commande/retour-fournisseur/new']);
   }
 
   protected loadAll(): void {
@@ -113,7 +113,7 @@ export class AppRetourFournisseurComponent implements OnInit {
       ? this.retourBonService.queryByStatut(this.selectedStatut, query)
       : this.retourBonService.query(query);
 
-    observable.subscribe({
+    observable.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: HttpResponse<IRetourBon[]>) => {
         this.onSuccess(res.body, res.headers);
         this.loading.set(false);
@@ -191,30 +191,81 @@ export class AppRetourFournisseurComponent implements OnInit {
   }
 
   private onError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours',
+    this.notificationService.error('Erreur lors du chargement des retours');
+  }
+
+  protected downloadPdf(retourBon: IRetourBon): void {
+    this.retourBonService.getPdf(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (blob: Blob) => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'retour_bon');
+        } else {
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl);
+        }
+
+      },
+      error: () => {
+        this.notificationService.error('Impossible de générer le PDF');
+      },
+    });
+  }
+
+  protected editRetour(retourBon: IRetourBon): void {
+    void this.router.navigate(['/commande/retour-fournisseur', retourBon.id, 'edit']);
+  }
+
+  protected deleteRetour(retourBon: IRetourBon): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.retourBonService.delete(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.notificationService.success('Retour supprimé avec succès');
+            this.loadAll();
+          },
+          error: () => {
+            this.notificationService.error('Impossible de supprimer ce retour');
+          },
+        });
+      },
+      'Supprimer le retour',
+      `Supprimer le retour #${retourBon.id} (${retourBon.fournisseurLibelle}) ? Cette action est irréversible.`,
+    );
+  }
+
+  protected sendEdi(retourBon: IRetourBon): void {
+    this.retourBonService.sendEdi(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.notificationService.success('Retour envoyé via EDI PharmaML avec succès');
+        this.loadAll();
+      },
+      error: () => {
+        this.notificationService.error("Erreur lors de l'envoi EDI. Vérifiez la configuration PharmaML du fournisseur.");
+      },
+    });
+  }
+
+  protected markAsProcessing(retourBon: IRetourBon): void {
+    this.retourBonService.markAsProcessing(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.notificationService.success('Retour marqué en cours de traitement');
+        this.loadAll();
+      },
+      error: () => {
+        this.notificationService.error('Impossible de mettre à jour le statut');
+      },
     });
   }
 
   private saveSupplierResponse(reponseRetourBon: IReponseRetourBon): void {
     this.loading.set(true);
-    this.retourBonService.createSupplierResponse(reponseRetourBon).subscribe({
+    this.retourBonService.createSupplierResponse(reponseRetourBon).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Réponse fournisseur enregistrée avec succès',
-        });
+        this.notificationService.success('Réponse fournisseur enregistrée avec succès');
         this.loadAll();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Erreur lors de l'enregistrement de la réponse fournisseur",
-        });
+        this.notificationService.error("Erreur lors de l'enregistrement de la réponse fournisseur");
         this.loading.set(false);
       },
     });

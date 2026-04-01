@@ -38,5 +38,10 @@ public interface PharmaMlService {
 
     List<DispoGrossisteResultDTO> demanderDisponibiliteMulti(DispoMultiRequestDTO request);
 
-
+    /**
+     * Envoie un bon de retour fournisseur via EDI PharmaML.
+     *
+     * @param retourBonId l'identifiant du retour à envoyer
+     */
+    void envoiRetourBon(Integer retourBonId);
 }

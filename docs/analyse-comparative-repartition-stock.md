@@ -108,18 +108,19 @@ et Allwin appliquent le réassort directement sans étape de relecture.
 
 ## 4. Points d'amélioration identifiés
 
-### 4.1 Absence de filtre par opérateur et par type de répartition dans l'UI
+### 4.1 ✅ [IMPLÉMENTÉ] Filtres avancés dans l'historique
 
 Le backend `RepartitionStockResource` accepte les paramètres `userId`, `storageId` et
-`typeRepartition` comme filtres. L'interface `repartition-stock.component.html` n'expose
-**que** la recherche textuelle et la plage de dates — les filtres avancés ne sont pas
-encore branchés côté frontend.
+`typeRepartition` comme filtres. L'interface `repartition-stock.component.html` expose désormais :
+- **Filtre type de mouvement** : Tous / Automatique / Manuel (`p-select` — `typeRepartitionOptions`)
+- **Filtre opérateur** : sélecteur utilisateurs (affiché si > 1 utilisateur)
+- **Filtre emplacement** : sélecteur stockages (affiché si > 1 emplacement)
+- **Bouton Réinitialiser** pour remettre les filtres à zéro
+- **Export PDF** tenant compte des filtres actifs
+- La colonne **Type** (Auto/Manuel) a été ajoutée dans `repartition-list.component.html`
 
-**Impact :** le pharmacien ne peut pas filtrer l'historique par opérateur ou distinguer les
-mouvements automatiques des manuels directement dans l'interface.
-
-**Ce que fait le marché :** Winpharma et Lgpi offrent des filtres multi-critères (employé,
-emplacement, type, période) dans leurs vues d'historique de stock.
+> **Impact fermé** : le pharmacien peut désormais filtrer l'historique par opérateur, type de
+> mouvement et emplacement. Niveau de parité atteint avec Winpharma et Lgpi.
 
 ### 4.2 Pas de réconciliation d'inventaire intégrée
 
@@ -127,19 +128,25 @@ Le module répartition est découplé du module inventaire. Les solutions concur
 Lgpi iSPharma) proposent une vue **"écart inventaire → proposition de répartition"** : un
 écart constaté lors d'un inventaire peut directement générer une suggestion de réassort.
 
-### 4.3 Création de réserve depuis le transfert manuel — UX incomplète
+### 4.3 ✅ [IMPLÉMENTÉ] Création de réserve depuis le transfert manuel — UX complétée
 
-Le composant `manual-repartition` détecte correctement les cas où `canCreateReserve(row)` est
-vrai (storage `PRINCIPAL` sans `SAFETY_STOCK`), mais `enableCreateDestination()` ne déclenche
-pas encore la création effective côté backend (le champ `newDestinationStorageId` est présent
-dans `IRepartitionRow` mais non envoyé dans `IManualRepartitionRequest`).
+Le composant `manual-repartition` :
+- Affiche une carte "Nouvelle réserve" visuelle quand `createNewDestination = true`
+- Permet d'annuler la création via "Annuler" (retour à la sélection normale)
+- Envoie `createNewDestination: true` dans `IManualRepartitionRequest`
+- Le backend crée automatiquement le `StockProduit SAFETY_STOCK` si absent, puis effectue le
+  transfert FEFO dans la même transaction `@Transactional`
+- `validateRow()` accepte `createNewDestination = true` comme destination valide
 
-### 4.4 Absence de seuil d'alerte visuel sur le stock rayon
+### 4.4 ✅ [IMPLÉMENTÉ] Coloration conditionnelle des seuils dans AG Grid
 
-Les solutions Winpharma et Lgpi colorient les lignes produit en rouge/orange quand le stock rayon
-passe sous le `seuilMini`. L'onglet *Réassort suggéré* affiche bien `stockActuel` et `seuilMini`
-dans AG Grid mais sans mise en forme conditionnelle (pas de `cellStyle` dynamique sur la
-comparaison `stockActuel < seuilMini`).
+La colonne **Stock Actuel** dans `suggestion-reassort.component.ts` applique désormais :
+- 🔴 Rouge (`#dc2626`) + fond rose : stock = 0 (rupture)
+- 🟠 Orange foncé (`#c2410c`) + fond orangé : `stockActuel < seuilMini` (critique)
+- 🟡 Ambre (`#d97706`) + fond jaune : `stockActuel ≤ seuilMini × 1.3` (faible)
+- 🟢 Vert (`#16a34a`) : stock OK
+- La colonne **Seuil Mini** passe en rouge si le stock est en dessous
+- Tooltip contextuel sur chaque cellule (⛔ Rupture / ⚠️ Critique / ⚠️ Faible / ✅ OK)
 
 ### 4.5 Pas d'indicateur de performance (KPI) sur les transferts
 

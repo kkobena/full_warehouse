@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -54,6 +55,10 @@ public class RetourBon implements Serializable {
 
     @OneToMany(mappedBy = "retourBon")
     private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "pharmaml_envoi_id")
+    private PharmaMlEnvoi pharmamlEnvoi;
 
     public Integer getId() {
         return id;
@@ -123,6 +128,15 @@ public class RetourBon implements Serializable {
 
     public RetourBon setReponseRetourBons(List<ReponseRetourBon> reponseRetourBons) {
         this.reponseRetourBons = reponseRetourBons;
+        return this;
+    }
+
+    public PharmaMlEnvoi getPharmamlEnvoi() {
+        return pharmamlEnvoi;
+    }
+
+    public RetourBon setPharmamlEnvoi(PharmaMlEnvoi pharmamlEnvoi) {
+        this.pharmamlEnvoi = pharmamlEnvoi;
         return this;
     }
 }

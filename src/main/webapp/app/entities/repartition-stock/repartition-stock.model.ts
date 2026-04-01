@@ -3,12 +3,14 @@ import { IStockProduit } from '../../shared/model/stock-produit.model';
 export interface IRepartitionStockProduit {
   id?: number;
   userFullName?: string;
+  userId?: number;
   mvtQty?: number;
   created?: Date;
   produitName?: string;
   produitCode?: string;
   codeCip?: string;
   codeEanFabricant?: string;
+  typeRepartition?: string;
   stockProduitSrc?: IStockProduit;
   stockProduitDest?: IStockProduit;
   destFinalStock?: number;

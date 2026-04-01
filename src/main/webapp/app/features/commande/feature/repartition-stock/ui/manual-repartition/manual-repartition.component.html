@@ -111,7 +111,40 @@
 
             <td>
               <div class="stock-card destination-card">
-                @if (row.availableDestinations.length === 0) {
+                @if (row.createNewDestination) {
+                  <!-- Mode création d'une nouvelle réserve -->
+                  <div class="stock-card-inline new-reserve-card">
+                    <div class="storage-section">
+                      <span class="stock-storage-name text-success">
+                        <i class="pi pi-plus-circle me-1"></i>
+                        Nouvelle réserve
+                      </span>
+                      <span class="stock-type-badge reserve-badge">Réserve</span>
+                    </div>
+                    <div class="stock-info">
+                      <div class="stock-item">
+                        <label>Stock initial</label>
+                        <span class="stock-value current">0</span>
+                      </div>
+                      <div class="transfer-arrow">
+                        <i class="pi pi-arrow-right"></i>
+                      </div>
+                      <div class="stock-item">
+                        <label>Après transfert</label>
+                        <span class="stock-value after text-success fw-semibold">{{ row.quantity }}</span>
+                      </div>
+                    </div>
+                    <p-button
+                      (onClick)="cancelCreateDestination(row)"
+                      icon="pi pi-times"
+                      label="Annuler"
+                      severity="secondary"
+                      size="small"
+                      [text]="true"
+                      pTooltip="Annuler la création de réserve"
+                    />
+                  </div>
+                } @else if (row.availableDestinations.length === 0) {
                   <div class="no-destination">
                     <div class="no-destination-content">
                       <i class="pi pi-info-circle"></i>

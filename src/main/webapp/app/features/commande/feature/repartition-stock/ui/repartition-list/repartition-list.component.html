@@ -15,12 +15,13 @@
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 10%">Date</th>
-        <th style="width: 15%">Opérateur</th>
+        <th style="width: 13%">Opérateur</th>
         <th>Produit</th>
-        <th style="width: 12%">Code CIP</th>
-        <th style="width: 15%">Source</th>
-        <th style="width: 15%">Destination</th>
-        <th class="text-right" style="width: 8%">Quantité</th>
+        <th style="width: 10%">Code CIP</th>
+        <th style="width: 8%">Type</th>
+        <th style="width: 12%">Source</th>
+        <th style="width: 12%">Destination</th>
+        <th class="text-right" style="width: 7%">Quantité</th>
         <th class="text-right" style="width: 8%">Stock Src</th>
         <th class="text-right" style="width: 8%">Stock Dest</th>
       </tr>
@@ -38,6 +39,15 @@
         </td>
         <td>
           <span class="pharma-code">{{ item.codeCip }}</span>
+        </td>
+        <td>
+          @if (item.typeRepartition) {
+            <p-tag
+              [value]="item.typeRepartition === 'AUTO' ? 'Auto' : 'Manuel'"
+              [severity]="item.typeRepartition === 'AUTO' ? 'info' : 'secondary'"
+              [icon]="item.typeRepartition === 'AUTO' ? 'pi pi-bolt' : 'pi pi-user'"
+            />
+          }
         </td>
         <td>
           @if (item.stockProduitSrc) {
@@ -76,6 +86,6 @@
 } @else {
   <div class="alert alert-warning">
     <i class="pi pi-info-circle"></i>
-    Aucune répartition de stock trouvée
+    Aucune répartition de stock trouvée pour les critères sélectionnés
   </div>
 }

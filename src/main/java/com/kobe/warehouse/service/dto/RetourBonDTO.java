@@ -22,6 +22,8 @@ public class RetourBonDTO {
     private String receiptReference;
     private String fournisseurLibelle;
     private List<RetourBonItemDTO> retourBonItems = new ArrayList<>();
+    private Integer pharmamlEnvoiId;
+    private boolean ediCompatible;
 
     public RetourBonDTO() {}
 
@@ -39,6 +41,9 @@ public class RetourBonDTO {
         this.receiptReference = commande.getReceiptReference();
         this.fournisseurLibelle = fournisseur.getLibelle();
         this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
+        this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null ? retourBon.getPharmamlEnvoi().getId() : null;
+        var groupe = fournisseur.getGroupeFournisseur();
+        this.ediCompatible = groupe != null && org.springframework.util.StringUtils.hasLength(groupe.getUrlPharmaMl());
     }
 
     public Integer getId() {
@@ -136,6 +141,24 @@ public class RetourBonDTO {
 
     public RetourBonDTO setRetourBonItems(List<RetourBonItemDTO> retourBonItems) {
         this.retourBonItems = retourBonItems;
+        return this;
+    }
+
+    public Integer getPharmamlEnvoiId() {
+        return pharmamlEnvoiId;
+    }
+
+    public RetourBonDTO setPharmamlEnvoiId(Integer pharmamlEnvoiId) {
+        this.pharmamlEnvoiId = pharmamlEnvoiId;
+        return this;
+    }
+
+    public boolean isEdiCompatible() {
+        return ediCompatible;
+    }
+
+    public RetourBonDTO setEdiCompatible(boolean ediCompatible) {
+        this.ediCompatible = ediCompatible;
         return this;
     }
 }

@@ -124,9 +124,6 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   }
 
 
-  newCommande(): void {
-    this.router.navigate(["/commande", "new"]);
-  }
 
   // ─── Calculs VMM ─────────────────────────────────────────────────────────
 

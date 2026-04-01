@@ -1,53 +1,22 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/search-section';
+
+// ── Section de saisie (mixin partagé) ─────────────────────────────────────────
 
 .product-search-section {
-  background: #f9fafb;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  flex-shrink: 0;
-  margin-bottom: 1rem;
+  @include search-section(#2e7d97);
 
-  .search-section-header {
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #00a86b 0%, rgb(0, 117, 74) 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-
-    i {
-      font-size: 1.125rem;
-    }
-  }
-
+  // Overrides spécifiques au transfert de stock
   .search-controls {
-    padding: 0.75rem 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.625rem;
-    align-items: center;
-
     .storage-select-wrapper {
-      max-width: 220px;
-    }
-
-    .storage-select-wrapper,
-    .product-search-input {
-      flex: 1;
+      flex: 0 0 220px;
     }
 
     .search-actions {
       display: flex;
       gap: 0.5rem;
       align-items: center;
-    }
-
-    .ml-auto {
       margin-left: auto;
     }
   }
@@ -84,6 +53,17 @@
   &.destination-card {
     border-left-color: #2ecc71;
     background: #f8fff8;
+  }
+
+  // Carte "nouvelle réserve à créer" (mode createNewDestination)
+  &.destination-card .new-reserve-card {
+    border-left-color: #00a86b;
+    background: #f0fdf4;
+
+    .storage-section .stock-storage-name {
+      color: #16a34a;
+      font-weight: 600;
+    }
   }
 
   .stock-card-inline {

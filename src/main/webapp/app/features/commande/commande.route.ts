@@ -6,7 +6,7 @@ import {EMPTY, mergeMap, Observable, of} from 'rxjs';
 import {Authority} from 'app/shared/constants/authority.constants';
 import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
 import {Commande, ICommande} from 'app/shared/model/commande.model';
-import {CommandeService} from './commande.service';
+import {CommandeService} from '../../entities/commande/commande.service';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
@@ -46,7 +46,7 @@ const commandeRoute: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('../../features/commande/feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
+      import('./feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       defaultSort: 'id,asc',
@@ -58,7 +58,7 @@ const commandeRoute: Routes = [
   {
     path: 'new',
     loadComponent: () =>
-      import('../../features/commande/feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
+      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -71,7 +71,7 @@ const commandeRoute: Routes = [
   {
     path: ':id/:orderDate/edit',
     loadComponent: () =>
-      import('../../features/commande/feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
+      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -86,7 +86,7 @@ const commandeRoute: Routes = [
   {
     path: 'retour-fournisseur/new',
     loadComponent: () =>
-      import('../../features/commande/feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
+      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
         m => m.SupplierReturnsComponent,
       ),
     data: {
@@ -96,9 +96,21 @@ const commandeRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
+    path: 'retour-fournisseur/:id/edit',
+    loadComponent: () =>
+      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
+        m => m.SupplierReturnsComponent,
+      ),
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Modifier le Retour Fournisseur',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
     path: 'suggestions',
     loadComponent: () =>
-      import('../../features/commande/feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
+      import('./feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Suggestions de commande',
@@ -108,11 +120,11 @@ const commandeRoute: Routes = [
   {
     path: 'semois-classe-config',
     loadComponent: () =>
-      import('../../features/commande/feature/semois-classe-config/semois-classe-config.component').then(
+      import('./feature/semois-classe-config/semois-classe-config.component').then(
         m => m.SemoisClasseConfigComponent,
       ),
     data: {
-      authorities: [Authority.ADMIN],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Configuration SEMOIS — Classes de criticité',
     },
     canActivate: [UserRouteAccessService],

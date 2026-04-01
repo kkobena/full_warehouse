@@ -70,6 +70,8 @@ public final class Constant {
     public static final String TABLE_WIDTH = "width";
     public static final String PERIMES_TEMPLATE_FILE = "gestion_perimes/perimes/main";
     public static final String PERIMES_A_DETRUIRE_TEMPLATE_FILE = "gestion_perimes/produit_a_detruire/main";
+    public static final String RETOUR_BON_TEMPLATE_FILE = "retour/main";
+    public static final int RETOUR_BON_PAGE_SIZE = 40;
 
     private Constant() {}
 }

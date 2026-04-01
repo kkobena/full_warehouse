@@ -1,0 +1,16 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Bon de retour fournisseur</title>
+    <style th:replace="~{common/portrait_table}"></style>
+  </head>
+  <body>
+
+    <div class="invoice">
+      <div th:replace="~{common/commonheader}"></div>
+      <main>
+        <table th:replace="~{retour/table-body}"></table>
+      </main>
+    </div>
+  </body>
+</html>

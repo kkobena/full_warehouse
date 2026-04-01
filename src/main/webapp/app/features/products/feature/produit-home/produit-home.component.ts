@@ -1,37 +1,43 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { HttpHeaders } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TableLazyLoadEvent } from 'primeng/table';
-import { MenuItem, SelectItem } from 'primeng/api';
-import { TooltipModule } from 'primeng/tooltip';
-import { Authority } from 'app/shared/constants/authority.constants';
-import { IProduit } from 'app/shared/model/produit.model';
-import { IFamilleProduit } from 'app/shared/model/famille-produit.model';
-import { IRayon } from 'app/shared/model/rayon.model';
-import { FamilleProduitService } from 'app/entities/famille-produit/famille-produit.service';
-import { RayonService } from 'app/entities/rayon/rayon.service';
-import { ConfigurationService } from 'app/shared/configuration.service';
-import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
-import { ToastAlertComponent } from 'app/shared/toast-alert/toast-alert.component';
-import { ProductsApiService } from '../../data-access/services/products-api.service';
-import { ProduitListComponent, ProduitMenuAction } from '../../ui/produit-list/produit-list.component';
-import { ProduitDetailPanelComponent } from '../../ui/produit-detail-panel/produit-detail-panel.component';
+import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Router, RouterModule } from "@angular/router";
+import { FormsModule } from "@angular/forms";
+import { HttpHeaders } from "@angular/common/http";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { SelectModule } from "primeng/select";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { SplitButtonModule } from "primeng/splitbutton";
+import { ToolbarModule } from "primeng/toolbar";
+import { TableLazyLoadEvent } from "primeng/table";
+import { MenuItem, SelectItem } from "primeng/api";
+import { TooltipModule } from "primeng/tooltip";
+import { Authority } from "app/shared/constants/authority.constants";
+import { IProduit } from "app/shared/model/produit.model";
+import { IFamilleProduit } from "app/shared/model/famille-produit.model";
+import { IRayon } from "app/shared/model/rayon.model";
+import { FamilleProduitService } from "app/entities/famille-produit/famille-produit.service";
+import { RayonService } from "app/entities/rayon/rayon.service";
+import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
+import { ProductsApiService } from "../../data-access/services/products-api.service";
+import { ProduitListComponent, ProduitMenuAction } from "../../ui/produit-list/produit-list.component";
+import { ProduitDetailPanelComponent } from "../../ui/produit-detail-panel/produit-detail-panel.component";
+import {
+  ImportProduitModalComponent
+} from "../../../../entities/produit/import-produit-modal/import-produit-modal.component";
+import { IResponseDto } from "../../../../shared/util/response-dto";
+import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
+import {
+  ImportProduitReponseModalComponent
+} from "../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
 
 @Component({
-  selector: 'app-produit-home',
-  templateUrl: './produit-home.component.html',
-  styleUrls: ['./produit-home.component.scss'],
+  selector: "app-produit-home",
+  templateUrl: "./produit-home.component.html",
+  styleUrls: ["./produit-home.component.scss"],
   imports: [
     CommonModule,
     RouterModule,
@@ -46,8 +52,8 @@ import { ProduitDetailPanelComponent } from '../../ui/produit-detail-panel/produ
     TooltipModule,
     WarehouseCommonModule,
     ProduitListComponent,
-    ProduitDetailPanelComponent,
-  ],
+    ProduitDetailPanelComponent
+  ]
 })
 export class ProduitHomeComponent implements OnInit {
   protected readonly Authority = Authority;
@@ -64,26 +70,26 @@ export class ProduitHomeComponent implements OnInit {
   protected familles = signal<IFamilleProduit[]>([]);
   protected rayons = signal<IRayon[]>([]);
   protected filterOptions: SelectItem[] = [
-    { label: 'Produits actifs', value: 'ENABLE' },
-    { label: 'Produits désactivés', value: 'DISABLE' },
-    { label: 'Déconditionnables', value: 'DECONDITIONNABLE' },
-    { label: 'Déconditionnés', value: 'DECONDITIONNE' },
-    { label: 'Tous', value: 'ALL' },
+    { label: "Produits actifs", value: "ENABLE" },
+    { label: "Produits désactivés", value: "DISABLE" },
+    { label: "Déconditionnables", value: "DECONDITIONNABLE" },
+    { label: "Déconditionnés", value: "DECONDITIONNE" },
+    { label: "Tous", value: "ALL" }
   ];
 
-  protected search = '';
-  protected selectedFilter = 'ENABLE';
+  protected search = "";
+  protected selectedFilter = "ENABLE";
   protected selectedFamilleId: number | null = null;
   protected selectedRayonId: number | null = null;
   protected page = 0;
-  protected rows = 15;
-  protected sortField = 'libelle';
+  protected rows = 10;
+  protected sortField = "libelle";
   protected sortOrder = 1;
 
   protected importMenuItems: MenuItem[] = [
-    { label: 'Nouvelle installation', icon: 'pi pi-file-excel', command: () => this.onImport('NOUVELLE_INSTALLATION') },
-    { label: 'Basculement', icon: 'pi pi-filter', command: () => this.onImport('BASCULEMENT') },
-    { label: 'Basculement prestige', icon: 'pi pi-file', command: () => this.onImport('BASCULEMENT_PRESTIGE') },
+    { label: "Nouvelle installation", icon: "pi pi-file-excel", command: () => this.onImport("NOUVELLE_INSTALLATION") },
+    { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
+    { label: "Basculement prestige", icon: "pi pi-file", command: () => this.onImport("BASCULEMENT_PRESTIGE") }
   ];
 
   private readonly api = inject(ProductsApiService);
@@ -92,7 +98,7 @@ export class ProduitHomeComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly configurationService = inject(ConfigurationService);
+
 
   ngOnInit(): void {
     this.loadReferentiels();
@@ -128,19 +134,19 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   protected onEditRequested(produit: IProduit): void {
-    this.router.navigate(['/produit', produit.id, 'edit']);
+    this.router.navigate(["/produits", produit.id, "edit"]);
   }
 
   protected onDeleteRequested(produit: IProduit): void {
     this.confirmDialog.onConfirm(
       () => this.deleteProduit(produit),
-      'Suppression',
-      `Voulez-vous supprimer le produit "${produit.libelle}" ?`,
+      "Suppression",
+      `Voulez-vous supprimer le produit "${produit.libelle}" ?`
     );
   }
 
   protected onNewProduit(): void {
-    this.router.navigate(['/produit/new']);
+    this.router.navigate(["/produits/new"]);
   }
 
   protected onSelectionChanged(produits: IProduit[]): void {
@@ -151,9 +157,9 @@ export class ProduitHomeComponent implements OnInit {
     const list = this.selectedProduits();
     const count = list.length;
     this.confirmDialog.onConfirm(
-      () => this.executeBulk(list, 'DISABLE'),
-      'Mettre en veille',
-      `Mettre en veille ${count} produit(s) sélectionné(s) ?`,
+      () => this.executeBulk(list, "DISABLE"),
+      "Mettre en veille",
+      `Mettre en veille ${count} produit(s) sélectionné(s) ?`
     );
   }
 
@@ -161,9 +167,9 @@ export class ProduitHomeComponent implements OnInit {
     const list = this.selectedProduits();
     const count = list.length;
     this.confirmDialog.onConfirm(
-      () => this.executeBulk(list, 'ENABLE'),
-      'Réactiver',
-      `Réactiver ${count} produit(s) sélectionné(s) ?`,
+      () => this.executeBulk(list, "ENABLE"),
+      "Réactiver",
+      `Réactiver ${count} produit(s) sélectionné(s) ?`
     );
   }
 
@@ -172,20 +178,20 @@ export class ProduitHomeComponent implements OnInit {
     this.clearSelectionTrigger.update(v => v + 1);
   }
 
-  private executeBulk(list: IProduit[], status: 'ENABLE' | 'DISABLE'): void {
+  private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
     let completed = 0;
     for (const produit of list) {
       this.api.patchStatus(produit.id!, status).subscribe({
         next: () => {
           completed++;
           this.produits.update(all =>
-            all.map(p => p.id === produit.id ? { ...p, status: status === 'ENABLE' ? 0 : 1 } : p),
+            all.map(p => p.id === produit.id ? { ...p, status: status === "ENABLE" ? 0 : 1 } : p)
           );
           if (completed === list.length) {
             this.selectedProduits.set([]);
             this.clearSelectionTrigger.update(v => v + 1);
           }
-        },
+        }
       });
     }
   }
@@ -193,56 +199,56 @@ export class ProduitHomeComponent implements OnInit {
   protected onMenuAction(event: { action: ProduitMenuAction; produit: IProduit }): void {
     const { action, produit } = event;
     switch (action) {
-      case 'view':
+      case "view":
         this.selectedProduit.set(produit);
         break;
-      case 'commander':
-        this.router.navigate(['/commande'], { queryParams: { produitId: produit.id } });
+      case "commander":
+        this.router.navigate(["/commande"], { queryParams: { produitId: produit.id } });//Ne marche pas
         break;
-      case 'lots':
-        this.router.navigate(['/produit', produit.id, 'lots']);
+      case "lots":
+        this.router.navigate(["/produits", produit.id, "lots"]);//Est-ce encore utile ? vu qu'on a les lot dans ce composant C:\Users\k.kobena\Documents\dev\full_warehouse\src\main\webapp\app\features\products\ui\produit-stock-tab\produit-stock-tab.component.ts
         break;
-      case 'generiques':
-        this.router.navigate(['/produit', produit.id, 'generiques']);
+      case "generiques":
+        this.router.navigate(["/produits", produit.id, "generiques"]);// Il n'existe pas de composant encore
         break;
-      case 'print-label':
-        this.router.navigate(['/produit', produit.id, 'print-label']);
+      case "print-label":
+        this.router.navigate(["/produits", produit.id, "print-label"]);//Utiliser ngModal voir C:\Users\k.kobena\Documents\dev\full_warehouse\src\main\webapp\app\features\commande\ui\delivery\etiquette
         break;
-      case 'suspend':
+      case "suspend":
         this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, 'DISABLE'),
-          'Mettre en veille',
-          `Mettre en veille "${produit.libelle}" ? Le produit sera masqué des ventes et des commandes.`,
+          () => this.changeStatus(produit, "DISABLE"),
+          "Mettre en veille",
+          `Mettre en veille "${produit.libelle}" ? Le produit sera masqué des ventes et des commandes.`
         );
         break;
-      case 'activate':
+      case "activate":
         this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, 'ENABLE'),
-          'Réactiver',
-          `Réactiver "${produit.libelle}" ?`,
+          () => this.changeStatus(produit, "ENABLE"),
+          "Réactiver",
+          `Réactiver "${produit.libelle}" ?`
         );
         break;
-      case 'archive':
+      case "archive":
         this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, 'DISABLE'),
-          'Archiver',
-          `Archiver "${produit.libelle}" ? Cette action désactivera le produit.`,
+          () => this.changeStatus(produit, "DISABLE"),
+          "Archiver",
+          `Archiver "${produit.libelle}" ? Cette action désactivera le produit.`
         );
         break;
     }
   }
 
-  private changeStatus(produit: IProduit, status: 'ENABLE' | 'DISABLE'): void {
+  private changeStatus(produit: IProduit, status: "ENABLE" | "DISABLE"): void {
     this.api.patchStatus(produit.id!, status).subscribe({
       next: () => {
         // Mise à jour locale immédiate sans rechargement complet
         this.produits.update(list =>
-          list.map(p => p.id === produit.id ? { ...p, status: status === 'ENABLE' ? 0 : 1 } : p),
+          list.map(p => p.id === produit.id ? { ...p, status: status === "ENABLE" ? 0 : 1 } : p)
         );
         if (this.selectedProduit()?.id === produit.id) {
-          this.selectedProduit.update(p => p ? { ...p, status: status === 'ENABLE' ? 0 : 1 } : null);
+          this.selectedProduit.update(p => p ? { ...p, status: status === "ENABLE" ? 0 : 1 } : null);
         }
-      },
+      }
     });
   }
 
@@ -251,17 +257,17 @@ export class ProduitHomeComponent implements OnInit {
     const req: any = {
       page: this.page,
       size: this.rows,
-      search: this.search || '',
-      sort: [`${this.sortField},${this.sortOrder === 1 ? 'asc' : 'desc'}`],
+      search: this.search || "",
+      sort: [`${this.sortField},${this.sortOrder === 1 ? "asc" : "desc"}`]
     };
 
-    if (this.selectedFilter === 'DECONDITIONNABLE') {
+    if (this.selectedFilter === "DECONDITIONNABLE") {
       req.deconditionnable = true;
-      req.status = 'ENABLE';
-    } else if (this.selectedFilter === 'DECONDITIONNE') {
+      req.status = "ENABLE";
+    } else if (this.selectedFilter === "DECONDITIONNE") {
       req.deconditionne = true;
-      req.status = 'ENABLE';
-    } else if (this.selectedFilter !== 'ALL') {
+      req.status = "ENABLE";
+    } else if (this.selectedFilter !== "ALL") {
       req.status = this.selectedFilter;
     }
 
@@ -270,12 +276,12 @@ export class ProduitHomeComponent implements OnInit {
 
     this.api.query(req).subscribe({
       next: (res) => this.onSuccess(res.body ?? [], res.headers),
-      error: () => this.loading.set(false),
+      error: () => this.loading.set(false)
     });
   }
 
   private onSuccess(data: IProduit[], headers: HttpHeaders): void {
-    this.totalItems.set(Number(headers.get('X-Total-Count') ?? 0));
+    this.totalItems.set(Number(headers.get("X-Total-Count") ?? 0));
     this.produits.set(data);
     this.loading.set(false);
     this.selectedProduits.set([]);
@@ -283,19 +289,33 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private deleteProduit(produit: IProduit): void {
-    this.router.navigate(['/produit', produit.id, 'edit']);
+    this.router.navigate(["/produits", produit.id, "edit"]);
   }
 
   private loadReferentiels(): void {
-    this.familleService.query({ search: '' }).subscribe({
-      next: res => this.familles.set(res.body ?? []),
+    this.familleService.query({ search: "" }).subscribe({
+      next: res => this.familles.set(res.body ?? [])
     });
-    this.rayonService.query({ search: '', page: 0, size: 9999 }).subscribe({
-      next: res => this.rayons.set(res.body ?? []),
+    this.rayonService.query({ search: "", page: 0, size: 9999 }).subscribe({
+      next: res => this.rayons.set(res.body ?? [])
     });
+  }
+  private onImport(type: string): void {
+    const modalRef = this.modalService.open(ImportProduitModalComponent, {
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
+    });
+    modalRef.componentInstance.type = type;
+    modalRef.closed.subscribe(reason => {
+      if (reason) {
+        this.showResponse(reason);
+        this.loadPage();
+      }
+    });
+  }
+  private showResponse(responsedto: IResponseDto): void {
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
 
-  private onImport(type: string): void {
-    this.router.navigate(['/produit'], { queryParams: { import: type } });
-  }
 }

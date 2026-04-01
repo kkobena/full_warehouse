@@ -121,11 +121,7 @@ export class NavigationService {
           routerLink: '/produit/transaction',
           faIcon: faEye,
         },
-        {
-          label: this.translateLabel('ajustement'),
-          routerLink: '/ajustement',
-          faIcon: faSlidersH,
-        },   {
+          {
           label: 'Ajustements de stock',
           routerLink: '/features-ajustement',
           faIcon: faSlidersH,
@@ -134,12 +130,6 @@ export class NavigationService {
           label: this.translateFullLabel('gestionPerimes.title'),
           routerLink: '/gestion-peremption',
           faIcon: faCalendarTimes,
-        },
-        {
-          label: 'Gestion inventaire',
-          routerLink: '/store-inventory',
-          faIcon: faClipboardList,
-          authorities: [Authority.STORE_INVENTORY, Authority.ADMIN],
         }, {
           label: this.translateLabel('entities.storeInventory'),
           routerLink: '/inventaire',

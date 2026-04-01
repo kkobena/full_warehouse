@@ -43,7 +43,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     CommandeProductSearchComponent,
     InputGroupModule,
     InputGroupAddonModule,
-    SuggestionProduitActionsComponent,
+
   ],
 })
 export class SuggestionProduitPanelComponent {

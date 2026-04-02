@@ -77,6 +77,30 @@ pub struct MailConfig {
     pub email: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JobsConfig {
+    #[serde(default = "default_jobs_nightly_pipeline_cron", rename = "nightly-pipeline-cron")]
+    pub nightly_pipeline_cron: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SemoisConfig {
+    #[serde(default = "default_semois_freeze_delay_days", rename = "freeze-delay-days")]
+    pub freeze_delay_days: u32,
+    #[serde(default = "default_semois_batch_size", rename = "batch-size")]
+    pub batch_size: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ViewsConfig {
+    #[serde(default = "default_views_dashboards_cron", rename = "dashboards-cron")]
+    pub dashboards_cron: String,
+    #[serde(default = "default_views_analytique_cron", rename = "analytique-cron")]
+    pub analytique_cron: String,
+    #[serde(default = "default_views_reporting_cron", rename = "reporting-cron")]
+    pub reporting_cron: String,
+}
+
 // Default values for JVM configuration
 fn default_heap_min() -> String {
     "2g".to_string()
@@ -139,9 +163,60 @@ fn default_mail_email() -> String {
     String::new()
 }
 
+// Default values for Jobs configuration
+fn default_jobs_nightly_pipeline_cron() -> String {
+    "0 0 9 * * *".to_string()
+}
+
+// Default values for Semois configuration
+fn default_semois_freeze_delay_days() -> u32 {
+    30
+}
+fn default_semois_batch_size() -> u32 {
+    100
+}
+
+// Default values for Views configuration
+fn default_views_dashboards_cron() -> String {
+    "0 */15 8-20 * * *".to_string()
+}
+fn default_views_analytique_cron() -> String {
+    "0 0 8-20 * * *".to_string()
+}
+fn default_views_reporting_cron() -> String {
+    "0 0 9,12,15,18 * * *".to_string()
+}
+
 // Default value for Port-Com configuration
 fn default_port_com() -> String {
     "".to_string()
+}
+
+impl Default for JobsConfig {
+    fn default() -> Self {
+        Self {
+            nightly_pipeline_cron: default_jobs_nightly_pipeline_cron(),
+        }
+    }
+}
+
+impl Default for SemoisConfig {
+    fn default() -> Self {
+        Self {
+            freeze_delay_days: default_semois_freeze_delay_days(),
+            batch_size: default_semois_batch_size(),
+        }
+    }
+}
+
+impl Default for ViewsConfig {
+    fn default() -> Self {
+        Self {
+            dashboards_cron: default_views_dashboards_cron(),
+            analytique_cron: default_views_analytique_cron(),
+            reporting_cron: default_views_reporting_cron(),
+        }
+    }
 }
 
 impl Default for JvmConfig {
@@ -213,6 +288,12 @@ pub struct AppConfig {
     pub mail: MailConfig,
     #[serde(default = "default_port_com", rename = "port-com")]
     pub port_com: String,
+    #[serde(default)]
+    pub jobs: JobsConfig,
+    #[serde(default)]
+    pub semois: SemoisConfig,
+    #[serde(default)]
+    pub views: ViewsConfig,
 }
 
 impl Default for AppConfig {
@@ -248,6 +329,9 @@ impl Default for AppConfig {
             fne: FneConfig::default(),
             mail: MailConfig::default(),
             port_com: default_port_com(),
+            jobs: JobsConfig::default(),
+            semois: SemoisConfig::default(),
+            views: ViewsConfig::default(),
         }
     }
 }
@@ -407,6 +491,9 @@ impl AppConfig {
                     config.fne    = seed.fne;
                     config.mail   = seed.mail;
                     config.port_com = seed.port_com;
+                    config.jobs   = seed.jobs;
+                    config.semois = seed.semois;
+                    config.views  = seed.views;
                     println!("Merged user-tunable fields from {:?}", path);
                 }
             }
@@ -461,6 +548,9 @@ impl AppConfig {
             fne: FneConfig::default(),
             mail: MailConfig::default(),
             port_com: default_port_com(),
+            jobs: JobsConfig::default(),
+            semois: SemoisConfig::default(),
+            views: ViewsConfig::default(),
         }
     }
 

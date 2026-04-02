@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { SERVER_API_URL } from '../../app.constants';
+
 
 import { PrixReference } from './model/prix-reference.model';
 import { Observable } from 'rxjs';

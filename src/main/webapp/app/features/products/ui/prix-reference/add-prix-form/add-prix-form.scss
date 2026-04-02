@@ -1,0 +1,9 @@
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+
+

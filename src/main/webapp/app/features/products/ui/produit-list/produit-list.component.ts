@@ -19,6 +19,7 @@ export type ProduitMenuAction =
   | "generiques"
   | "add-detail"
   | "decondition"
+  | "prix-reference"
   | "suspend"
   | "activate"
   | "archive"
@@ -168,6 +169,11 @@ export class ProduitListComponent {
         label: "Génériques / substituts",
         icon: "pi pi-list",
         command: () => this.emit("generiques")
+      },
+      {
+        label: "Prix de référence",
+        icon: "pi pi-euro",
+        command: () => this.emit("prix-reference")
       },
       ...(produit.deconditionnable ? [
         { separator: true },

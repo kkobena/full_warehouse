@@ -65,18 +65,8 @@ export const PRODUCTS_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
     },
     canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/detail',
-    loadComponent: () => import('../../entities/produit/detail-produit-form/detail-produit-form.component').then(m => m.DetailProduitFormComponent),
-    resolve: {
-      produit: ProductResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
-    },
-    canActivate: [UserRouteAccessService],
-  },
+  }
+
 ];
 
 export default PRODUCTS_ROUTES;

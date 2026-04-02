@@ -290,7 +290,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
-  private readonly pharmamlApi = inject(PharmamlApiService);
+
 
   // ─── PharmaML actions ────────────────────────────────────────────────────────
 

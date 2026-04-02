@@ -47,7 +47,6 @@ export class ProduitStockTabComponent {
     return !!reserve && (reserve.qtyStock ?? 0) > 0;
   });
 
-  // ── Phase 10 : couverture cible + seuil calculé ─────────────
 
   /** Délai livraison du fournisseur principal (jours), fallback 7 j */
   protected delaiLivraison = computed<number>(
@@ -91,7 +90,6 @@ export class ProduitStockTabComponent {
     return (rayon.seuilMini ?? 0) < sc;
   });
 
-  // ── Phase 11 : FEFO ─────────────────────────────────────────
 
   /** Lots triés FEFO : du plus proche au plus lointain */
   protected lotsFEFO = computed<ILotPeremption[]>(() =>

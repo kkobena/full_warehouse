@@ -236,6 +236,36 @@ pub async fn start_backend(app: &AppHandle) -> Result<u32, String> {
 
     let port_com_arg = format!("--port-com={}", config.port_com);
 
+    // pharma-smart.jobs
+    let jobs_nightly_cron_arg = format!(
+        "--pharma-smart.jobs.nightly-pipeline-cron={}",
+        config.jobs.nightly_pipeline_cron
+    );
+
+    // pharma-smart.semois
+    let semois_freeze_delay_arg = format!(
+        "--pharma-smart.semois.freeze-delay-days={}",
+        config.semois.freeze_delay_days
+    );
+    let semois_batch_size_arg = format!(
+        "--pharma-smart.semois.batch-size={}",
+        config.semois.batch_size
+    );
+
+    // pharma-smart.views
+    let views_dashboards_cron_arg = format!(
+        "--pharma-smart.views.dashboards-cron={}",
+        config.views.dashboards_cron
+    );
+    let views_analytique_cron_arg = format!(
+        "--pharma-smart.views.analytique-cron={}",
+        config.views.analytique_cron
+    );
+    let views_reporting_cron_arg = format!(
+        "--pharma-smart.views.reporting-cron={}",
+        config.views.reporting_cron
+    );
+
     let mut args: Vec<&str> = Vec::new();
 
     // Memory configuration
@@ -297,6 +327,15 @@ pub async fn start_backend(app: &AppHandle) -> Result<u32, String> {
     args.push(&mail_email_arg);
 
     args.push(&port_com_arg);
+
+    args.push(&jobs_nightly_cron_arg);
+
+    args.push(&semois_freeze_delay_arg);
+    args.push(&semois_batch_size_arg);
+
+    args.push(&views_dashboards_cron_arg);
+    args.push(&views_analytique_cron_arg);
+    args.push(&views_reporting_cron_arg);
 
     let (mut rx, child) = java_command.args(args).spawn().map_err(|e| {
         format!(

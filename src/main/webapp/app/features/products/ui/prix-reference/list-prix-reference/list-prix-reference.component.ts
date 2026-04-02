@@ -1,24 +1,22 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { PrixReferenceService } from '../prix-reference.service';
-import { PrixReference } from '../model/prix-reference.model';
-import { CommonModule } from '@angular/common';
-import { AddPrixFormComponent } from '../add-prix-form/add-prix-form.component';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Card } from 'primeng/card';
-import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { ConfirmationService } from 'primeng/api';
+import { Component, inject, OnInit } from "@angular/core";
+import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { PrixReferenceService } from "../prix-reference.service";
+import { PrixReference } from "../model/prix-reference.model";
+import { CommonModule } from "@angular/common";
+import { AddPrixFormComponent } from "../add-prix-form/add-prix-form.component";
+import { Button } from "primeng/button";
+import { Tooltip } from "primeng/tooltip";
+import { Card } from "primeng/card";
+import { IProduit, ITiersPayant } from "../../../../../shared/model";
+import { showCommonModal } from "../../../../../entities/sales/selling-home/sale-helper";
+import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
-  selector: 'jhi-list-prix-reference',
-  imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
-  providers: [ConfirmationService],
-  templateUrl: './list-prix-reference.component.html',
-  styleUrls: ['../../common-modal.component.scss', './list-prix-reference.component.scss'],
+  selector: "app-list-prix-reference",
+  imports: [CommonModule, Button, Tooltip, Card],
+
+  templateUrl: "./list-prix-reference.component.html",
+  styleUrls: ["./list-prix-reference.component.scss"]
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;
@@ -28,7 +26,8 @@ export class ListPrixReferenceComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly entityService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+
 
   constructor() {
     this.load();
@@ -62,20 +61,20 @@ export class ListPrixReferenceComponent implements OnInit {
   }
 
   protected onConfirmDelete(prixReference: PrixReference): void {
-    this.confimDialog().onConfirm(() => this.onDelete(prixReference), 'Suppression', 'Voulez-vous vraiment supprimer cette ligne ?');
+    this.confirmDialog.onConfirm(() => this.onDelete(prixReference), "Suppression", "Voulez-vous vraiment supprimer cette ligne ?");
   }
 
   protected onCancel(prixReference: PrixReference): void {
-    const message = prixReference.enabled ? 'Voulez-vous vraiment désactver cette ligne ?' : 'Voulez-vous vraiment activer cette ligne ?';
-    this.confimDialog().onConfirm(
+    const message = prixReference.enabled ? "Voulez-vous vraiment désactver cette ligne ?" : "Voulez-vous vraiment activer cette ligne ?";
+    this.confirmDialog.onConfirm(
       () => {
         prixReference.enabled = !prixReference.enabled;
         this.entityService.update(prixReference).subscribe(() => {
           this.load();
         });
       },
-      'Activation/Désactivation',
-      message,
+      "Activation/Désactivation",
+      message
     );
   }
 
@@ -95,16 +94,16 @@ export class ListPrixReferenceComponent implements OnInit {
         isFromProduit: this.isFromProduit,
         produit: this.produit,
         tiersPayant: this.tiersPayant,
-        entity: entity ? entity : null,
+        entity: entity ? entity : null
       },
       () => {
         this.load();
       },
-      'lg',
+      "lg",
       null,
       () => {
         this.load();
-      },
+      }
     );
   }
 

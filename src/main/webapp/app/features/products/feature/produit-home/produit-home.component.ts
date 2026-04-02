@@ -39,6 +39,7 @@ import { ProduitEtiquetteModalComponent } from "../../ui/etiquette-modal/produit
 import { ProduitDetailFormModalComponent } from "../../ui/detail-form-modal/produit-detail-form-modal.component";
 import { ProduitDeconditionModalComponent } from "../../ui/decondition-modal/produit-decondition-modal.component";
 import { NotificationService } from "app/shared/services/notification.service";
+import { ListPrixReferenceComponent } from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
 
 @Component({
   selector: "app-produit-home",
@@ -265,6 +266,9 @@ export class ProduitHomeComponent implements OnInit {
           `Archiver "${produit.libelle}" ? Cette action désactivera le produit.`
         );
         break;
+      case "prix-reference":
+        this.openPrixReference(produit);
+        break;
     }
   }
 
@@ -363,6 +367,17 @@ export class ProduitHomeComponent implements OnInit {
       }
       ref.closed.subscribe(() => this.refreshProduit(produit.id!));
     });
+  }
+
+  private openPrixReference(produit: IProduit): void {
+    const ref = this.modalService.open(ListPrixReferenceComponent, {
+      size: "lg",
+      centered: true,
+      backdrop: "static"
+    });
+    const inst = ref.componentInstance as ListPrixReferenceComponent;
+    inst.produit = produit;
+    inst.isFromProduit = true;
   }
 
   private openDecondition(produit: IProduit): void {

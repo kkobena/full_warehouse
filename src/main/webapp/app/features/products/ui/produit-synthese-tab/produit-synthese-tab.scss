@@ -1,2 +1,17 @@
 
 @import 'app/shared/scss/table-common';
+
+.synthese-section-full {
+  grid-column: 1 / -1;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}

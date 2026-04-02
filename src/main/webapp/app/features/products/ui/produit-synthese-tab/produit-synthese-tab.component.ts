@@ -1,21 +1,43 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { ILotPeremption } from '../../data-access/services/products-api.service';
+import { PrixReference } from '../prix-reference/model/prix-reference.model';
+import { PrixReferenceService } from '../prix-reference/prix-reference.service';
+import { AddPrixFormComponent } from '../prix-reference/add-prix-form/add-prix-form.component';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 
 @Component({
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
-  imports: [CommonModule, TooltipModule],
+  imports: [CommonModule, TooltipModule, ButtonModule],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
   readonly lots = input<ILotPeremption[]>([]);
   readonly loadingIndicateurs = input<boolean>(false);
+
+  protected prixReferences = signal<PrixReference[]>([]);
+
+  private readonly prixReferenceService = inject(PrixReferenceService);
+  private readonly modalService = inject(NgbModal);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+
+  constructor() {
+    effect(() => {
+      const id = this.produit()?.id;
+      if (id) {
+        this.loadPrixReferences(id);
+      }
+    });
+  }
 
   protected readonly margeAbsolue = computed(() => {
     const p = this.produit();
@@ -90,5 +112,51 @@ export class ProduitSyntheseTabComponent {
   protected formatDate(date?: any): string {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('fr-FR');
+  }
+
+  protected onAddPrix(): void {
+    this.openPrixModal();
+  }
+
+  protected onEditPrix(prix: PrixReference): void {
+    this.openPrixModal(prix);
+  }
+
+  protected onDeletePrix(prix: PrixReference): void {
+    this.confirmDialog.onConfirm(
+      () => this.prixReferenceService.delete(prix.id!).subscribe(() => this.loadPrixReferences(this.produit().id!)),
+      'Suppression',
+      'Voulez-vous vraiment supprimer ce prix de référence ?'
+    );
+  }
+
+  protected onTogglePrix(prix: PrixReference): void {
+    const msg = prix.enabled ? 'Désactiver ce prix de référence ?' : 'Activer ce prix de référence ?';
+    this.confirmDialog.onConfirm(
+      () => {
+        prix.enabled = !prix.enabled;
+        this.prixReferenceService.update(prix).subscribe(() => this.loadPrixReferences(this.produit().id!));
+      },
+      'Activation/Désactivation',
+      msg
+    );
+  }
+
+  private loadPrixReferences(produitId: number): void {
+    this.prixReferenceService.query(produitId).subscribe(res => {
+      this.prixReferences.set(res.body ?? []);
+    });
+  }
+
+  private openPrixModal(entity?: PrixReference): void {
+    showCommonModal(
+      this.modalService,
+      AddPrixFormComponent,
+      { isFromProduit: true, produit: this.produit(), entity: entity ?? null },
+      () => this.loadPrixReferences(this.produit().id!),
+      'lg',
+      null,
+      () => this.loadPrixReferences(this.produit().id!)
+    );
   }
 }

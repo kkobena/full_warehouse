@@ -9,7 +9,7 @@ import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomple
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from "../../../shared/model";
 import { FormsModule } from '@angular/forms';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 

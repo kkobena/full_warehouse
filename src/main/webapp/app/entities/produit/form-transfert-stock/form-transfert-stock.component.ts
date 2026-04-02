@@ -9,7 +9,7 @@ import { ErrorService } from '../../../shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from "../../../shared/model";
 import { IStockProduit } from '../../../shared/model/stock-produit.model';
 import { RepartitionStockService } from '../../repartition-stock/repartition-stock.service';
 

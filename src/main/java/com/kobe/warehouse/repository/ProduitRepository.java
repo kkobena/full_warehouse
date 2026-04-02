@@ -66,6 +66,8 @@ public interface ProduitRepository
 
     Produit findFirstByParentId(Integer parentId);
 
+    List<Produit> findAllByParentId(Integer parentId);
+
     List<Produit> findAllByParentIdIsNull();
 
     Optional<Produit> findOneByLibelle(String libelle);

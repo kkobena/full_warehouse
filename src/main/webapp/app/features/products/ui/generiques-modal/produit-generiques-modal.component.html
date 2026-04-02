@@ -1,0 +1,91 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-list me-2"></i>Génériques / substituts
+  </h5>
+  <button type="button" class="btn-close" (click)="close()" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body">
+  <div class="px-3 pt-3 pb-2 border-bottom">
+    <div class="fw-semibold" style="font-size: 0.88rem">{{ produit.libelle }}</div>
+    @if (produit.codeCip) {
+      <small class="text-muted">CIP : {{ produit.codeCip }}</small>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--p-primary-color)"></i>
+    </div>
+  }
+
+  @if (!loading() && substituts().length === 0) {
+    <div class="text-center py-4 text-muted" style="font-size: 0.85rem">
+      <i class="pi pi-inbox" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem"></i>
+      Aucun générique/substitut enregistré pour ce produit.
+    </div>
+  }
+
+  @if (!loading() && substituts().length > 0) {
+    <p-table
+      [value]="substituts()"
+      [scrollable]="true"
+      scrollHeight="350px"
+      [tableStyle]="{ 'min-width': '100%' }"
+      class="pharma-table"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 35%">Libellé</th>
+          <th style="width: 18%">CIP</th>
+          <th style="width: 15%">Type</th>
+          <th style="width: 12%; text-align: right">PV</th>
+          <th style="width: 12%; text-align: right">Stock</th>
+          <th style="width: 8%"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-s>
+        <tr class="pharma-table-head">
+          <td style="font-size: 0.82rem">{{ s.produit.libelle }}</td>
+          <td>
+            @if (s.produit.codeCip) {
+              <span class="gen-cip-badge">{{ s.produit.codeCip }}</span>
+            }
+          </td>
+          <td>
+            <span
+              class="badge"
+              [class.bg-primary]="s.typeSubstitut === 'GENERIQUE'"
+              [class.bg-info]="s.typeSubstitut === 'THERAPEUTIQUE'"
+              style="font-size: 0.65rem"
+            >{{ s.typeSubstitutLibelle }}</span>
+          </td>
+          <td style="text-align: right; font-size: 0.82rem">
+            {{ s.produit.regularUnitPrice | number:'1.0-0' }} F
+          </td>
+          <td style="text-align: right">
+            <p-tag
+              [value]="(s.produit.totalQuantity ?? 0).toString()"
+              [severity]="stockSeverity(s.produit)"
+            />
+          </td>
+          <td style="text-align: center">
+            @if (s.produit.status === 1) {
+              <span class="badge bg-secondary" style="font-size: 0.65rem">Inactif</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Fermer"
+    severity="secondary"
+    [outlined]="true"
+    size="small"
+    (onClick)="close()"
+  />
+</div>

@@ -6,11 +6,13 @@ import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.ProduitIndicateursDTO;
 import com.kobe.warehouse.service.dto.VenteMoisDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.stock.ProduitIndicateursService;
 import com.kobe.warehouse.service.stock.ProduitService;
+import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +55,7 @@ public class ProduitResource {
     private final ProduitService produitService;
     private final ProductActivityService productActivityService;
     private final ProduitIndicateursService produitIndicateursService;
+    private final EtiquetteExportReportServiceImpl etiquetteExportReportService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
@@ -59,12 +64,14 @@ public class ProduitResource {
         ProduitRepository produitRepository,
         ProduitService produitService,
         ProductActivityService productActivityService,
-        ProduitIndicateursService produitIndicateursService
+        ProduitIndicateursService produitIndicateursService,
+        EtiquetteExportReportServiceImpl etiquetteExportReportService
     ) {
         this.produitRepository = produitRepository;
         this.produitService = produitService;
         this.productActivityService = productActivityService;
         this.produitIndicateursService = produitIndicateursService;
+        this.etiquetteExportReportService = etiquetteExportReportService;
     }
 
     /**
@@ -289,5 +296,25 @@ public class ProduitResource {
     ) {
         return ResponseEntity.ok()
             .body(produitService.searchProductsByStorage(storageId, search, pageable));
+    }
+
+    @GetMapping("/produits/{id}/generiques")
+    public ResponseEntity<List<SubstitutDTO>> getGeneriques(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(produitService.findGeneriques(id));
+    }
+
+    @GetMapping("/produits/{id}/etiquettes")
+    public ResponseEntity<byte[]> getEtiquettes(
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(defaultValue = "1") int startAt
+    ) {
+        var produit = produitRepository.findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+        byte[] pdf = etiquetteExportReportService.exportForProduit(produit, qty, startAt);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "etiquettes-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 }

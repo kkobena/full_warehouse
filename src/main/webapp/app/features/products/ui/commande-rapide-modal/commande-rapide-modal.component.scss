@@ -1,0 +1,123 @@
+
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+:host {
+  @include modal-theme;
+}
+.cr-produit-info {
+  padding: 0.6rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid var(--p-primary-color);
+}
+
+.cr-produit-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.cr-produit-libelle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.cr-cip-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #1a6fa8;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cr-produit-prix-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.cr-prix-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cr-prix-label {
+  font-size: 0.65rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cr-prix-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  &.cr-pv { color: #198754; }
+  &.cr-stock-zero { color: #dc3545; }
+}
+
+.cr-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.cr-details-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.cr-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cr-detail-label {
+  font-size: 0.68rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cr-detail-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cr-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: #e8f4fd;
+  border: 1px solid #b6d9f7;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.cr-total-label {
+  font-size: 0.8rem;
+  color: #1a6fa8;
+  font-weight: 500;
+}
+
+.cr-total-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a6fa8;
+}

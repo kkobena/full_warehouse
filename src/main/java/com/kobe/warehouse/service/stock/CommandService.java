@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
@@ -18,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface CommandService {
     CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commande);
+
+    CommandeLiteDTO createCommandeRapide(CommandeRapideDTO dto);
 
     CommandeLiteDTO createOrUpdateOrderLine(OrderLineDTO orderLineDTO);
 

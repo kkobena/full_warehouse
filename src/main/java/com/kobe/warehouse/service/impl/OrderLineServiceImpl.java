@@ -14,6 +14,8 @@ import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.OrderLineService;
+import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -91,6 +93,24 @@ public class OrderLineServiceImpl implements OrderLineService {
         if (ObjectUtils.isNotEmpty(orderLineDTO.getProvisionalCode())) {
             orderLine.setProvisionalCode(orderLineDTO.getProvisionalCode());
         }
+        return orderLine;
+    }
+
+    @Override
+    public OrderLine buildOrderLine(CommandeRapideDTO commandeRapideDTO) {
+        FournisseurProduit fournisseurProduit = fournisseurProduitService.getOne(commandeRapideDTO.fournisseurProduitId())
+            .orElseThrow(() -> new GenericError("FournisseurProduit introuvable : " + commandeRapideDTO.fournisseurProduitId(), "fpNotFound"));
+
+        OrderLine orderLine = new OrderLine();
+        orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
+        orderLine.createdAt(LocalDateTime.now());
+        orderLine.setUpdatedAt(orderLine.getCreatedAt());
+        orderLine.setInitStock(commandeRapideDTO.totalQuantity());
+        orderLine.setQuantityRequested(commandeRapideDTO.quantityRequested());
+        orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
+        orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
+        orderLine.setFournisseurProduit(fournisseurProduit);
+
         return orderLine;
     }
 

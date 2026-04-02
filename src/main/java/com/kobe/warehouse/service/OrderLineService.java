@@ -8,6 +8,8 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SuggestionLine;
+import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import java.util.List;
@@ -23,6 +25,7 @@ public interface OrderLineService {
     OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) throws GenericError;
 
     OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit);
+    OrderLine buildOrderLine(CommandeRapideDTO commandeRapideDTO);
 
     Pair<OrderLine, OrderLine> updateOrderLineQuantityRequested(OrderLineDTO orderLineDTO);
 

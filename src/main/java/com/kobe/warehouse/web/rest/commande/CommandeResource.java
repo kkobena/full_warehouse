@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
@@ -46,6 +47,14 @@ public class CommandeResource {
 
     public CommandeResource(CommandService commandService) {
         this.commandService = commandService;
+    }
+
+    @PostMapping("/commandes/rapide")
+    public ResponseEntity<CommandeLiteDTO> createCommandeRapide(@Valid @RequestBody CommandeRapideDTO dto) throws URISyntaxException {
+        CommandeLiteDTO commande = commandService.createCommandeRapide(dto);
+        return ResponseEntity.created(new URI("/api/commandes/" + commande.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, commande.getId().toString()))
+            .body(commande);
     }
 
     @PostMapping("/commandes")

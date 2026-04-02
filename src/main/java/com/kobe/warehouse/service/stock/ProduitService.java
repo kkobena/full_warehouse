@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import jakarta.validation.constraints.NotNull;
@@ -94,4 +95,6 @@ public interface ProduitService {
     Produit updateProduit(Produit produit);
     void deleteProduit(Integer id);
     void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status);
+
+    List<SubstitutDTO> findGeneriques(Integer produitId);
 }

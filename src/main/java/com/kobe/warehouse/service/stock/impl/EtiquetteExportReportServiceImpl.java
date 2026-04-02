@@ -4,6 +4,7 @@ import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.pdf.EtiquetteBarcodeReplacedElement;
@@ -137,6 +138,29 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         etiquettes.addAll(finalItems.stream().map(e -> buildEtiquetteDTO(e, date, rasionSociale)).toList());
 
         return etiquettes;
+    }
+
+    public byte[] exportForProduit(Produit produit, int qty, int startAt) {
+        String magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        List<EtiquetteDTO> etiquettes = new ArrayList<>();
+        if (startAt > 1) {
+            for (int i = 1; i < startAt; i++) {
+                etiquettes.add(new EtiquetteDTO().setPrint(false));
+            }
+        }
+        FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+        EtiquetteDTO dto = new EtiquetteDTO()
+            .setCode(fournisseurProduit.getCodeCip())
+            .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
+            .setPrint(true)
+            .setDate(date)
+            .setLibelle(produit.getLibelle())
+            .setMagasin(magasin);
+        for (int i = 0; i < qty; i++) {
+            etiquettes.add(dto);
+        }
+        return printEtiquettes(etiquettes, startAt);
     }
 
     private EtiquetteDTO buildEtiquetteDTO(OrderLine item, String date, String rasionSociale) {

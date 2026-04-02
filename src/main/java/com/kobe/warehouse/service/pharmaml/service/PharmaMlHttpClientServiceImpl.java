@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Substitut;
 import com.kobe.warehouse.domain.SubstitutionProposee;
 import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
@@ -577,8 +578,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             .setStatut(statut);
     }
 
-    private void enregistrerSubstitutLocal(com.kobe.warehouse.domain.Produit produit,
-        com.kobe.warehouse.domain.Produit substitutProduit) {
+    private void enregistrerSubstitutLocal(Produit produit,
+        Produit substitutProduit) {
         if (substitutRepository.existsByProduitAndSubstitut(produit, substitutProduit)) return;
         Substitut s = new Substitut();
         s.setProduit(produit);
@@ -660,12 +661,10 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             Unmarshaller unmarshaller = JAXB_RESPONSE_CONTEXT.createUnmarshaller();
             CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(
                 new StringReader(httpResponse.body()));
-            // GESCOM v1.x répond avec REP_COMMANDE (pas REP_INFOS)
             List<LigneNReponse> lignes = getLigneNReponses(response);
             if (!CollectionUtils.isEmpty(lignes)) {
                 return lignes.stream().map(this::ligneNReponseToInfoProduitDTO).toList();
             }
-            // Fallback : REP_INFOS (versions GESCOM plus récentes)
             RepInfos repInfos = getRepInfos(response);
             if (repInfos != null && !CollectionUtils.isEmpty(repInfos.getLignes())) {
                 return repInfos.getLignes().stream().map(this::toInfoProduitDTO).toList();

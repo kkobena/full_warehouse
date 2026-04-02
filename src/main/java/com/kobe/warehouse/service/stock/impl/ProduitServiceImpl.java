@@ -18,6 +18,7 @@ import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
@@ -25,6 +26,7 @@ import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -69,12 +71,14 @@ public class ProduitServiceImpl implements ProduitService {
     private final StockProduitRepository stockProduitRepository;
     private final RayonProduitRepository rayonProduitRepository;
     private final SuggestionReassortService suggestionReassortService;
+    private final SubstitutRepository substitutRepository;
 
     public ProduitServiceImpl(
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
-        ObjectMapper objectMapper, StorageService storageService, LogsService logsService, StockProduitRepository stockProduitRepository, RayonProduitRepository rayonProduitRepository, SuggestionReassortService suggestionReassortService
+        ObjectMapper objectMapper, StorageService storageService, LogsService logsService, StockProduitRepository stockProduitRepository, RayonProduitRepository rayonProduitRepository, SuggestionReassortService suggestionReassortService,
+        SubstitutRepository substitutRepository
     ) {
 
         this.produitRepository = produitRepository;
@@ -86,6 +90,7 @@ public class ProduitServiceImpl implements ProduitService {
         this.stockProduitRepository = stockProduitRepository;
         this.rayonProduitRepository = rayonProduitRepository;
         this.suggestionReassortService = suggestionReassortService;
+        this.substitutRepository = substitutRepository;
     }
 
     /**
@@ -460,6 +465,14 @@ public class ProduitServiceImpl implements ProduitService {
             produit.setStatus(status);
             produitRepository.save(produit);
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubstitutDTO> findGeneriques(Integer produitId) {
+        return substitutRepository.findAllByProduitId(produitId).stream()
+            .map(SubstitutDTO::new)
+            .toList();
     }
 
     private StockProduit buildStockProduitFromStockProduitDTO(StockProduitDTO dto, StockProduit stockProduit) {

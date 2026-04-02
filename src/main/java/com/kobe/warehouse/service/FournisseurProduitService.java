@@ -252,4 +252,9 @@ public class FournisseurProduitService {
     public FournisseurProduit save(FournisseurProduit fournisseurProduit) {
         return fournisseurProduitRepository.save(fournisseurProduit);
     }
+
+    public Optional<FournisseurProduit> getOne(Integer id) {
+        return fournisseurProduitRepository.findById(id);
+    }
+
 }

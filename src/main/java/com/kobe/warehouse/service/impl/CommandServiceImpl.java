@@ -21,6 +21,7 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
@@ -126,11 +127,22 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commande) {
-        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commande)));
+    public CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO,orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst()))));
     }
 
-    private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
+    @Override
+    public CommandeLiteDTO createCommandeRapide(CommandeRapideDTO dto) {
+
+        OrderLine orderLine=orderLineService.buildOrderLine(dto);
+        CommandeDTO commandeDTO = new CommandeDTO();
+        commandeDTO.setFournisseurId(orderLine.getFournisseurProduit().getFournisseur().getId());
+
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO,orderLine)));
+      //  return createNewCommandeFromCommandeDTO(commandeDTO);
+    }
+
+    private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO, OrderLine orderLine) {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
         commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
@@ -138,7 +150,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(user);
         commande.setOrderReference(referenceService.buildNumCommande());
-        OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
+     //   OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
         commande.setOrderAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());
         commande.setFinalAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());

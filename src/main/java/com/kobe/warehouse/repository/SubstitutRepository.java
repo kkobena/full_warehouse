@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface SubstitutRepository extends JpaRepository<Substitut, Integer> {
 
     boolean existsByProduitAndSubstitut(Produit produit, Produit substitut);
+
+    java.util.List<Substitut> findAllByProduitId(Integer produitId);
 }

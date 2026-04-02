@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IProduit } from 'app/shared/model/produit.model';
+import { ISubstitut } from 'app/shared/model/substitut.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { IVenteMois } from '../../models/vente-mois.model';
 
@@ -45,6 +46,19 @@ export class ProductsApiService {
         observe: 'response',
       })
       .pipe(map(res => res.body ?? []));
+  }
+
+  getGeneriques(id: number): Observable<ISubstitut[]> {
+    return this.http
+      .get<ISubstitut[]>(`${this.resourceUrl}/${id}/generiques`, { observe: 'response' })
+      .pipe(map(res => res.body ?? []));
+  }
+
+  getEtiquettes(id: number, qty = 1, startAt = 1): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${id}/etiquettes`, {
+      params: { qty: qty.toString(), startAt: startAt.toString() },
+      responseType: 'blob',
+    });
   }
 
   patchStatus(id: number, status: 'ENABLE' | 'DISABLE'): Observable<void> {

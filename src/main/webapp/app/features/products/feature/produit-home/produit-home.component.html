@@ -100,6 +100,17 @@
     </span>
   </div>
 
+  <!-- Hint premier usage -->
+  @if (showHint() && !panelOpen()) {
+    <div class="produit-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu <i class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.</span>
+      <button type="button" class="produit-hint-close" (click)="dismissHint()" aria-label="Fermer">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
   <!-- Barre d'actions groupées -->
   @if (hasSelection()) {
     <div class="bulk-action-bar">

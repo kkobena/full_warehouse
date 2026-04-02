@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-tag me-2"></i>Imprimer étiquettes
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body">
+  <div class="et-produit-info mb-1">
+    <div class="fw-semibold" style="font-size: 0.88rem">{{ produit.libelle }}</div>
+    @if (produit.codeCip) {
+      <span class="et-cip-badge">{{ produit.codeCip }}</span>
+    }
+    @if (produit.regularUnitPrice) {
+      <div style="font-size: 0.78rem; color: #198754; margin-top: 2px; font-weight: 600">
+        {{ produit.regularUnitPrice | number:'1.0-0' }} F
+      </div>
+    }
+  </div>
+
+  <div class="row g-3">
+    <div class="col-6">
+      <label class="form-label et-label">Nombre d'étiquettes <span class="text-danger">*</span></label>
+      <p-inputNumber #qtyInput
+        [(ngModel)]="qty"
+        [min]="1"
+        [max]="64"
+        [showButtons]="true"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+    <div class="col-6">
+      <label class="form-label et-label">Position de départ</label>
+      <p-inputNumber
+        [(ngModel)]="startAt"
+        [min]="1"
+        [max]="65"
+        [showButtons]="true"
+        [style]="{ width: '100%' }"
+      />
+      <small class="text-muted" style="font-size: 0.7rem">Planche A4 de 65 étiquettes</small>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    severity="secondary"
+    [outlined]="true"
+    size="small"
+    (onClick)="cancel()"
+    [disabled]="loading()"
+  />
+  <p-button
+    label="Imprimer"
+    icon="pi pi-download"
+    size="small"
+    [loading]="loading()"
+    [disabled]="qty < 1"
+    (onClick)="onPrint()"
+  />
+</div>

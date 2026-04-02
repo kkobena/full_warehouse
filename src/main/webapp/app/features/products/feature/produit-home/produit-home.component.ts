@@ -33,6 +33,15 @@ import { showCommonModal } from "../../../../entities/sales/selling-home/sale-he
 import {
   ImportProduitReponseModalComponent
 } from "../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
+import {
+  CommandeRapideModalComponent
+} from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
+import {
+  ProduitGeneriquesModalComponent
+} from "../../ui/generiques-modal/produit-generiques-modal.component";
+import {
+  ProduitEtiquetteModalComponent
+} from "../../ui/etiquette-modal/produit-etiquette-modal.component";
 
 @Component({
   selector: "app-produit-home",
@@ -63,6 +72,7 @@ export class ProduitHomeComponent implements OnInit {
   protected loading = signal(false);
   protected selectedProduit = signal<IProduit | null>(null);
   protected panelOpen = computed(() => this.selectedProduit() !== null);
+  protected showHint = signal<boolean>(localStorage.getItem('produit-list-hint-dismissed') !== '1');
   protected selectedProduits = signal<IProduit[]>([]);
   protected hasSelection = computed(() => this.selectedProduits().length > 0);
   protected clearSelectionTrigger = signal(0);
@@ -131,6 +141,11 @@ export class ProduitHomeComponent implements OnInit {
 
   protected onClosePanel(): void {
     this.selectedProduit.set(null);
+  }
+
+  protected dismissHint(): void {
+    localStorage.setItem('produit-list-hint-dismissed', '1');
+    this.showHint.set(false);
   }
 
   protected onEditRequested(produit: IProduit): void {
@@ -203,16 +218,13 @@ export class ProduitHomeComponent implements OnInit {
         this.selectedProduit.set(produit);
         break;
       case "commander":
-        this.router.navigate(["/commande"], { queryParams: { produitId: produit.id } });//Ne marche pas
-        break;
-      case "lots":
-        this.router.navigate(["/produits", produit.id, "lots"]);//Est-ce encore utile ? vu qu'on a les lot dans ce composant C:\Users\k.kobena\Documents\dev\full_warehouse\src\main\webapp\app\features\products\ui\produit-stock-tab\produit-stock-tab.component.ts
+        this.openCommandeRapide(produit);
         break;
       case "generiques":
-        this.router.navigate(["/produits", produit.id, "generiques"]);// Il n'existe pas de composant encore
+        this.openGeneriques(produit);
         break;
       case "print-label":
-        this.router.navigate(["/produits", produit.id, "print-label"]);//Utiliser ngModal voir C:\Users\k.kobena\Documents\dev\full_warehouse\src\main\webapp\app\features\commande\ui\delivery\etiquette
+        this.openEtiquette(produit);
         break;
       case "suspend":
         this.confirmDialog.onConfirm(
@@ -300,6 +312,24 @@ export class ProduitHomeComponent implements OnInit {
       next: res => this.rayons.set(res.body ?? [])
     });
   }
+  private openGeneriques(produit: IProduit): void {
+    const ref = this.modalService.open(ProduitGeneriquesModalComponent, { size: 'lg', centered: true });
+    ref.componentInstance.produit = produit;
+  }
+
+  private openEtiquette(produit: IProduit): void {
+    const ref = this.modalService.open(ProduitEtiquetteModalComponent, { size: 'lg', centered: true });
+    ref.componentInstance.produit = produit;
+  }
+
+  private openCommandeRapide(produit: IProduit): void {
+    const ref = this.modalService.open(CommandeRapideModalComponent, {
+      size: 'lg',
+      centered: true,
+    });
+    ref.componentInstance.produit = produit;
+  }
+
   private onImport(type: string): void {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',

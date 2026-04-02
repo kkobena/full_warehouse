@@ -1,0 +1,124 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-shopping-cart me-2"></i>Commande rapide
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body">
+
+  @if (loading()) {
+    <div class="text-center py-3">
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem; color: var(--p-primary-color)"></i>
+    </div>
+  }
+
+  @if (!loading() && fournisseurs().length === 0) {
+    <div class="alert alert-warning mb-0">
+      <i class="pi pi-exclamation-triangle me-2"></i>
+      Aucun fournisseur n'est associé à ce produit.
+    </div>
+  }
+
+  @if (!loading() && fournisseurs().length > 0) {
+    <div class="cr-produit-info mb-3">
+      <div class="cr-produit-header">
+        <div class="cr-produit-libelle">{{ produit.libelle }}</div>
+        @if (produit.codeCip) {
+          <span class="cr-cip-badge">{{ produit.codeCip }}</span>
+        }
+      </div>
+      <div class="cr-produit-prix-row">
+        @if (produit.regularUnitPrice) {
+          <div class="cr-prix-item">
+            <span class="cr-prix-label">Prix de vente</span>
+            <span class="cr-prix-value cr-pv">{{ produit.regularUnitPrice | number:'1.0-0' }} F</span>
+          </div>
+        }
+        @if (produit.totalQuantity != null) {
+          <div class="cr-prix-item">
+            <span class="cr-prix-label">Stock actuel</span>
+            <span class="cr-prix-value" [class.cr-stock-zero]="produit.totalQuantity === 0">
+              {{ produit.totalQuantity }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label cr-label">Fournisseur <span class="text-danger">*</span></label>
+      <p-select
+        [options]="fournisseurs()"
+        [(ngModel)]="selectedFournisseurProduit"
+        optionLabel="fournisseurLibelle"
+        (onChange)="onFournisseurChange()"
+        placeholder="Sélectionner un fournisseur..."
+        [style]="{ width: '100%' }"
+      />
+    </div>
+
+    @if (selectedFournisseurProduit) {
+      <div class="cr-details-row mb-3">
+        <div class="cr-detail-item">
+          <span class="cr-detail-label">Prix d'achat</span>
+          <span class="cr-detail-value">{{ selectedFournisseurProduit.prixAchat | number:'1.0-0' }} F</span>
+        </div>
+        @if (selectedFournisseurProduit.prixUni) {
+          <div class="cr-detail-item">
+            <span class="cr-detail-label">Prix uni frs</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit.prixUni | number:'1.0-0' }} F</span>
+          </div>
+        }
+        @if (selectedFournisseurProduit.qteColis) {
+          <div class="cr-detail-item">
+            <span class="cr-detail-label">Qté / colis</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit.qteColis }}</span>
+          </div>
+        }
+        @if (selectedFournisseurProduit.qteMinimaleCommande) {
+          <div class="cr-detail-item">
+            <span class="cr-detail-label">Qté min</span>
+            <span class="cr-detail-value">{{ selectedFournisseurProduit.qteMinimaleCommande }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label cr-label">Quantité <span class="text-danger">*</span></label>
+      <p-inputNumber #quantiteInput
+        [(ngModel)]="quantite"
+        [min]="1"
+        [showButtons]="true"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+
+    @if (selectedFournisseurProduit?.prixAchat && quantite > 0) {
+      <div class="cr-total">
+        <span class="cr-total-label">Montant estimé (achat)</span>
+        <span class="cr-total-value">{{ totalEstime | number:'1.0-0' }} F</span>
+      </div>
+    }
+  }
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    severity="secondary"
+    [outlined]="true"
+    size="small"
+    (onClick)="cancel()"
+    [disabled]="submitting()"
+  />
+  <p-button
+    label="Commander"
+    icon="pi pi-check"
+    size="small"
+    [disabled]="!selectedFournisseurProduit || quantite < 1 || loading()"
+    [loading]="submitting()"
+    (onClick)="onSubmit()"
+  />
+</div>

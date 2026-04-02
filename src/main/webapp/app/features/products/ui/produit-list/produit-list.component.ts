@@ -17,7 +17,6 @@ export type ProduitMenuAction =
   | "print-label"
   | "commander"
   | "generiques"
-  | "lots"
   | "suspend"
   | "activate"
   | "archive"
@@ -168,11 +167,6 @@ export class ProduitListComponent {
         icon: "pi pi-list",
         command: () => this.emit("generiques")
       },
-      /* {
-         label: 'Lots actifs',
-         icon: 'pi pi-box',
-         command: () => this.emit('lots'),
-       },*/
       { separator: true },
       produit.status === 1
         ? {

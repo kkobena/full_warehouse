@@ -9,6 +9,15 @@ import { ISubstitut } from 'app/shared/model/substitut.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { IVenteMois } from '../../models/vente-mois.model';
 
+export interface IDeconditionRecord {
+  id?: number;
+  qtyMvt?: number;
+  dateMtv?: string;
+  stockBefore?: number;
+  stockAfter?: number;
+  user?: { firstName?: string; lastName?: string; login?: string };
+}
+
 export interface ILotPeremption {
   id?: number;
   numLot?: string;
@@ -67,6 +76,27 @@ export class ProductsApiService {
         params: { status },
         observe: 'body',
       });
+  }
+
+  createProduitDetail(produit: IProduit): Observable<HttpResponse<IProduit>> {
+    return this.http.post<IProduit>(this.resourceUrl, produit, { observe: 'response' });
+  }
+
+  updateProduitDetail(produit: IProduit): Observable<HttpResponse<IProduit>> {
+    return this.http.put<IProduit>(`${this.resourceUrl}/detail`, produit, { observe: 'response' });
+  }
+
+  createDecondition(decondition: { qtyMvt: number; produitId: number }): Observable<HttpResponse<unknown>> {
+    return this.http.post<unknown>(`${SERVER_API_URL}api/deconditions`, decondition, { observe: 'response' });
+  }
+
+  getDeconditions(produitId: number): Observable<IDeconditionRecord[]> {
+    return this.http
+      .get<IDeconditionRecord[]>(`${SERVER_API_URL}api/deconditions`, {
+        params: { produitId: produitId.toString() },
+        observe: 'response',
+      })
+      .pipe(map(res => res.body ?? []));
   }
 
   getLots(produitId: number, dayCount = 180): Observable<ILotPeremption[]> {

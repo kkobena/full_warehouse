@@ -1,0 +1,68 @@
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+.dc-produit-info {
+  padding: 0.6rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid var(--p-primary-color);
+}
+
+.dc-produit-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  i { color: var(--p-primary-color); }
+}
+
+.dc-produit-libelle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.dc-cip-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #1a6fa8;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.dc-stock-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dc-stock-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dc-stock-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--p-primary-700, #1a6fa8);
+
+  &.dc-stock-zero { color: #dc3545; }
+}
+
+.dc-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}

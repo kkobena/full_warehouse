@@ -14,6 +14,7 @@ import { ProduitStockTabComponent } from '../produit-stock-tab/produit-stock-tab
 import { ProduitFournisseursTabComponent } from '../produit-fournisseurs-tab/produit-fournisseurs-tab.component';
 import { ProduitHistoriqueTabComponent } from '../produit-historique-tab/produit-historique-tab.component';
 import { ProduitMouvementsTabComponent } from '../produit-mouvements-tab/produit-mouvements-tab.component';
+import { ProduitDeconditionsTabComponent } from '../produit-deconditions-tab/produit-deconditions-tab.component';
 
 @Component({
   selector: 'app-produit-detail-panel',
@@ -31,6 +32,7 @@ import { ProduitMouvementsTabComponent } from '../produit-mouvements-tab/produit
     ProduitFournisseursTabComponent,
     ProduitHistoriqueTabComponent,
     ProduitMouvementsTabComponent,
+    ProduitDeconditionsTabComponent,
   ],
 })
 export class ProduitDetailPanelComponent {
@@ -55,28 +57,41 @@ export class ProduitDetailPanelComponent {
 
   private readonly api = inject(ProductsApiService);
 
+  /** Track produit ID to avoid resetting the active tab on same-produit refresh */
+  private currentProduitId: number | null = null;
+
   constructor() {
     effect(() => {
       const p = this.produit();
-      if (p?.id) {
-        // Reset à chaque changement de produit
-        this.fullProduit.set(null);
-        this.indicateurs.set(null);
-        this.lots.set([]);
-        this.ventes.set([]);
+      if (!p?.id) return;
+
+      const isNewProduit = p.id !== this.currentProduitId;
+      this.currentProduitId = p.id;
+
+      // Reset data
+      this.fullProduit.set(null);
+      this.indicateurs.set(null);
+      this.lots.set([]);
+      this.ventes.set([]);
+
+      // Only reset tab when switching to a different produit
+      if (isNewProduit) {
         this.activeTab.set('synthese');
-        this.loadFull(p.id);
-        this.loadIndicateurs(p.id);
-        this.loadLots(p.id);
       }
+
+      this.loadFull(p.id);
+      this.loadIndicateurs(p.id);
+      this.loadLots(p.id);
     });
   }
 
   protected onTabChange(tab: string | number): void {
     const tabId = String(tab);
     this.activeTab.set(tabId);
+    const id = this.produit().id;
+    if (!id) return;
     if (tabId === 'historique' && this.ventes().length === 0) {
-      this.loadVentes(this.produit().id!);
+      this.loadVentes(id);
     }
   }
 
@@ -86,7 +101,9 @@ export class ProduitDetailPanelComponent {
 
   protected onRefreshRequested(): void {
     const id = this.produit().id;
-    if (id) this.loadFull(id);
+    if (!id) return;
+    this.loadFull(id);
+    this.loadLots(id);
   }
 
   protected classeLabel(classe?: string): string {

@@ -33,15 +33,12 @@ import { showCommonModal } from "../../../../entities/sales/selling-home/sale-he
 import {
   ImportProduitReponseModalComponent
 } from "../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
-import {
-  CommandeRapideModalComponent
-} from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
-import {
-  ProduitGeneriquesModalComponent
-} from "../../ui/generiques-modal/produit-generiques-modal.component";
-import {
-  ProduitEtiquetteModalComponent
-} from "../../ui/etiquette-modal/produit-etiquette-modal.component";
+import { CommandeRapideModalComponent } from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
+import { ProduitGeneriquesModalComponent } from "../../ui/generiques-modal/produit-generiques-modal.component";
+import { ProduitEtiquetteModalComponent } from "../../ui/etiquette-modal/produit-etiquette-modal.component";
+import { ProduitDetailFormModalComponent } from "../../ui/detail-form-modal/produit-detail-form-modal.component";
+import { ProduitDeconditionModalComponent } from "../../ui/decondition-modal/produit-decondition-modal.component";
+import { NotificationService } from "app/shared/services/notification.service";
 
 @Component({
   selector: "app-produit-home",
@@ -72,7 +69,7 @@ export class ProduitHomeComponent implements OnInit {
   protected loading = signal(false);
   protected selectedProduit = signal<IProduit | null>(null);
   protected panelOpen = computed(() => this.selectedProduit() !== null);
-  protected showHint = signal<boolean>(localStorage.getItem('produit-list-hint-dismissed') !== '1');
+  protected showHint = signal<boolean>(localStorage.getItem("produit-list-hint-dismissed") !== "1");
   protected selectedProduits = signal<IProduit[]>([]);
   protected hasSelection = computed(() => this.selectedProduits().length > 0);
   protected clearSelectionTrigger = signal(0);
@@ -108,6 +105,7 @@ export class ProduitHomeComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
 
 
   ngOnInit(): void {
@@ -144,12 +142,26 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   protected dismissHint(): void {
-    localStorage.setItem('produit-list-hint-dismissed', '1');
+    localStorage.setItem("produit-list-hint-dismissed", "1");
     this.showHint.set(false);
   }
 
   protected onEditRequested(produit: IProduit): void {
-    this.router.navigate(["/produits", produit.id, "edit"]);
+    if (produit.typeProduit === "DETAIL") {
+      const ref = this.modalService.open(ProduitDetailFormModalComponent, {
+        size: "lg",
+        centered: true,
+        backdrop: "static"
+      });
+
+      const decon = ref.componentInstance as ProduitDetailFormModalComponent;
+      decon.entity = produit;
+      decon.produit = produit.parent;
+      ref.closed.subscribe(() => this.refreshProduit(produit.id!));
+    } else {
+      this.router.navigate(["/produits", produit.id, "edit"]);
+    }
+
   }
 
   protected onDeleteRequested(produit: IProduit): void {
@@ -225,6 +237,12 @@ export class ProduitHomeComponent implements OnInit {
         break;
       case "print-label":
         this.openEtiquette(produit);
+        break;
+      case "add-detail":
+        this.openDetailForm(produit);
+        break;
+      case "decondition":
+        this.openDecondition(produit);
         break;
       case "suspend":
         this.confirmDialog.onConfirm(
@@ -312,29 +330,80 @@ export class ProduitHomeComponent implements OnInit {
       next: res => this.rayons.set(res.body ?? [])
     });
   }
+
   private openGeneriques(produit: IProduit): void {
-    const ref = this.modalService.open(ProduitGeneriquesModalComponent, { size: 'lg', centered: true });
+    const ref = this.modalService.open(ProduitGeneriquesModalComponent, { size: "lg", centered: true });
     ref.componentInstance.produit = produit;
   }
 
   private openEtiquette(produit: IProduit): void {
-    const ref = this.modalService.open(ProduitEtiquetteModalComponent, { size: 'lg', centered: true });
+    const ref = this.modalService.open(ProduitEtiquetteModalComponent, { size: "lg", centered: true });
     ref.componentInstance.produit = produit;
   }
 
   private openCommandeRapide(produit: IProduit): void {
     const ref = this.modalService.open(CommandeRapideModalComponent, {
-      size: 'lg',
-      centered: true,
+      size: "lg",
+      centered: true
     });
     ref.componentInstance.produit = produit;
   }
 
+  private openDetailForm(produit: IProduit): void {
+    this.api.getById(produit.id!).subscribe(full => {
+      const ref = this.modalService.open(ProduitDetailFormModalComponent, {
+        size: "lg",
+        centered: true,
+        backdrop: "static"
+      });
+      const inst = ref.componentInstance as ProduitDetailFormModalComponent;
+      inst.produit = full;
+      if (full.produits?.length) {
+        inst.entity = full.produits[0];
+      }
+      ref.closed.subscribe(() => this.refreshProduit(produit.id!));
+    });
+  }
+
+  private openDecondition(produit: IProduit): void {
+    this.api.getById(produit.id!).subscribe(full => {
+      if (!full.produits?.length) {
+        this.notificationService.warning(
+          "Le produit n'a pas de détail configuré. Configurez-le d'abord.",
+          "Déconditionnement impossible"
+        );
+        return;
+      }
+      const ref = this.modalService.open(ProduitDeconditionModalComponent, {
+        size: "lg",
+        centered: true,
+        backdrop: "static"
+      });
+      (ref.componentInstance as ProduitDeconditionModalComponent).produit = full;
+      ref.closed.subscribe(() => this.refreshProduit(produit.id!));
+    });
+  }
+
+  /**
+   * Rafraîchit le produit dans la liste et dans le panneau de détail
+   * sans recharger toute la page, en préservant l'onglet actif.
+   */
+  private refreshProduit(id: number): void {
+    this.api.getById(id).subscribe(fresh => {
+      // Mise à jour en place dans la liste
+      this.produits.update(list => list.map(p => p.id === id ? { ...fresh } : p));
+      // Mise à jour du produit sélectionné (même id → le panel ne réinitialise pas l'onglet actif)
+      if (this.selectedProduit()?.id === id) {
+        this.selectedProduit.set({ ...fresh });
+      }
+    });
+  }
+
   private onImport(type: string): void {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
-      backdrop: 'static',
-      size: 'lg',
-      centered: true,
+      backdrop: "static",
+      size: "lg",
+      centered: true
     });
     modalRef.componentInstance.type = type;
     modalRef.closed.subscribe(reason => {
@@ -344,8 +413,10 @@ export class ProduitHomeComponent implements OnInit {
       }
     });
   }
+
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {
+    }, "lg");
   }
 
 }

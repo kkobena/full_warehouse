@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
-import { IProduit } from '../../shared/model/produit.model';
+import { IProduit } from "../../shared/model";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -12,7 +12,6 @@ import { InputText } from 'primeng/inputtext';
 import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'jhi-decondition',

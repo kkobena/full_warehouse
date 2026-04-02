@@ -1,0 +1,127 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-box me-2"></i>
+    {{ entity ? 'Modifier le détail' : 'Ajouter un détail' }}
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
+</div>
+
+<form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
+  <div class="modal-body">
+
+    <!-- Produit parent info -->
+    <div class="df-produit-info mb-3">
+      <div class="df-produit-header">
+        <i class="pi pi-box"></i>
+        <span class="df-produit-libelle">{{ produit?.libelle }}</span>
+        @if (produit?.codeCip) {
+          <span class="df-cip-badge">{{ produit.codeCip }}</span>
+        }
+      </div>
+      <div class="df-prix-row">
+        <div class="df-prix-item">
+          <span class="df-prix-label">Prix achat boîte</span>
+          <span class="df-prix-value">{{ produit.costAmount ?? 0 | number:'1.0-0' }} F</span>
+        </div>
+        <div class="df-prix-item">
+          <span class="df-prix-label">Prix vente boîte</span>
+          <span class="df-prix-value df-pv">{{ produit.regularUnitPrice ?? 0 | number:'1.0-0' }} F</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nombre d'unités -->
+    <div class="mb-3">
+      <label class="form-label df-label" for="itemQty">
+        Unités par conditionnement <span class="text-danger">*</span>
+      </label>
+      <p-inputNumber
+        #itemQty
+        inputId="itemQty"
+        formControlName="itemQty"
+        [min]="2"
+        [showButtons]="true"
+        [style]="{ width: '100%' }"
+      />
+      @if (editForm.get('itemQty')!.invalid && editForm.get('itemQty')!.touched) {
+        <small class="text-danger">
+          @if (editForm.get('itemQty')?.errors?.['required']) { Ce champ est requis. }
+          @else if (editForm.get('itemQty')?.errors?.['min']) { La valeur minimale est 2. }
+        </small>
+      }
+    </div>
+
+    <!-- Prix calculés -->
+    <div class="df-prices-row mb-3">
+      <div class="flex-grow-1">
+        <label class="form-label df-label" for="costAmount">
+          Prix achat unitaire <span class="text-danger">*</span>
+        </label>
+        <p-inputNumber
+          inputId="costAmount"
+          formControlName="costAmount"
+          [min]="0"
+          [style]="{ width: '100%' }"
+        />
+        @if (editForm.get('costAmount')!.invalid && editForm.get('costAmount')!.touched) {
+          <small class="text-danger">Ce champ est requis.</small>
+        }
+      </div>
+      <div class="flex-grow-1">
+        <label class="form-label df-label" for="regularUnitPrice">
+          Prix vente unitaire <span class="text-danger">*</span>
+        </label>
+        <p-inputNumber
+          inputId="regularUnitPrice"
+          formControlName="regularUnitPrice"
+          [min]="0"
+          [style]="{ width: '100%' }"
+        />
+        @if (editForm.get('regularUnitPrice')!.invalid && editForm.get('regularUnitPrice')!.touched) {
+          <small class="text-danger">Ce champ est requis.</small>
+        }
+      </div>
+    </div>
+
+    <!-- Libellé -->
+    <div class="mb-3">
+      <label class="form-label df-label" for="libelle">
+        Libellé <span class="text-danger">*</span>
+      </label>
+      <input
+        pInputText
+        id="libelle"
+        formControlName="libelle"
+        type="text"
+        autocomplete="off"
+        class="w-100"
+      />
+      @if (editForm.get('libelle')!.invalid && editForm.get('libelle')!.touched) {
+        <small class="text-danger">Ce champ est requis.</small>
+      }
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      label="Annuler"
+      severity="secondary"
+      [outlined]="true"
+      size="small"
+      type="button"
+      (onClick)="cancel()"
+      [disabled]="isSaving"
+    />
+    <p-button
+      label="Enregistrer"
+      icon="pi pi-check"
+      size="small"
+      type="submit"
+      [disabled]="editForm.invalid || isSaving"
+      [loading]="isSaving"
+    />
+  </div>
+</form>
+
+

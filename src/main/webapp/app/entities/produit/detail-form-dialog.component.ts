@@ -6,19 +6,19 @@ import { Observable } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { InputText } from 'primeng/inputtext';
 import { InputNumber } from 'primeng/inputnumber';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { ErrorService } from '../../shared/error.service';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-detail-form-dialog',
   templateUrl: './detail-form-dialog.component.html',
   styleUrls: ['./detail-form-dialog.scss'],
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button, Card, ToastAlertComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button, Card, ToastAlertComponent],
 })
 export class DetailFormDialogComponent implements OnInit, AfterViewInit {
   produit?: Produit;
@@ -45,7 +45,7 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
     } else {
       this.updateForm(this.produit);
     }
-    console.log('produit detail', this.produit);
+
   }
 
   ngAfterViewInit(): void {

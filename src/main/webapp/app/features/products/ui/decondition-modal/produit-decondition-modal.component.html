@@ -1,0 +1,83 @@
+<div class="modal-header">
+  <h4 class="modal-title">Déconditionner le produit</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+
+        @if (isNotValid) {
+          <div class="alert alert-dismissible alert-danger">
+            <strong>Stock insuffisant</strong>
+          </div>
+        }
+
+        <!-- Produit info -->
+        <div class="form-field form-field-full">
+          <div class="info-box">
+            <i class="pi pi-box me-2"></i>
+            <span class="info-label fw-bold">{{ produit?.libelle }}</span>
+            @if (produit?.codeCip) {
+              <span class="text-muted ms-2">({{ produit.codeCip }})</span>
+            }
+          </div>
+        </div>
+
+        <!-- Stock actuel -->
+        <div class="form-field form-field-full">
+          <span class="field-label">Stock actuel</span>
+          <div class="info-box info-highlight">
+            <span class="info-value">{{ produit.totalQuantity ?? 0 }}</span>
+          </div>
+        </div>
+
+        <!-- Quantité -->
+        <div class="form-field form-field-full">
+          <label for="qtyMvt">
+            Nombre de cartons à déconditionner<span class="required">*</span>
+          </label>
+          <p-input-number
+            #qtyMvt
+            formControlName="qtyMvt"
+            inputId="qtyMvt"
+            name="qtyMvt"
+            [min]="1"
+            [showButtons]="true"
+            autocomplete="off"
+            (onInput)="onQuantitySoldBoxChanged($event)"
+          />
+          @if (editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)) {
+            <div>
+              @if (editForm.get('qtyMvt')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est requis.</small>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      [raised]="true"
+      severity="secondary"
+      type="button"
+    />
+    <p-button
+      [disabled]="editForm.invalid || isSaving || isNotValid"
+      [loading]="isSaving"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit"
+    />
+  </div>
+</form>

@@ -17,6 +17,8 @@ export type ProduitMenuAction =
   | "print-label"
   | "commander"
   | "generiques"
+  | "add-detail"
+  | "decondition"
   | "suspend"
   | "activate"
   | "archive"
@@ -167,6 +169,20 @@ export class ProduitListComponent {
         icon: "pi pi-list",
         command: () => this.emit("generiques")
       },
+      ...(produit.deconditionnable ? [
+        { separator: true },
+        {
+          label: "Configurer le détail",
+          icon: "pi pi-sliders-h",
+          command: () => this.emit("add-detail")
+        },
+        {
+          label: "Déconditionner",
+          icon: "pi pi-box",
+          disabled: (produit.totalQuantity ?? 0) <=0 ||  produit.produits.length === 0,
+          command: () => this.emit("decondition")
+        }
+      ] : []),
       { separator: true },
       produit.status === 1
         ? {

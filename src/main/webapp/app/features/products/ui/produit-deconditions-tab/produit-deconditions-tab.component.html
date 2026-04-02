@@ -1,0 +1,37 @@
+<p-table
+  [value]="details"
+  class="pharma-table"
+  [tableStyle]="{ 'min-width': '100%' }"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th>Libellé</th>
+      <th>Code CIP</th>
+      <th class="text-end">Unités / boîte</th>
+      <th class="text-end">Prix achat</th>
+      <th class="text-end">Prix vente</th>
+      <th class="text-end">Stock</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-det>
+    <tr>
+      <td>{{ det.libelle }}</td>
+      <td><code>{{ det.codeCip ?? '—' }}</code></td>
+      <td class="text-end">{{ det.itemQty ?? '—' }}</td>
+      <td class="text-end">{{ det.costAmount ?? 0 | number:'1.0-0' }} F</td>
+      <td class="text-end">{{ det.regularUnitPrice ?? 0 | number:'1.0-0' }} F</td>
+      <td class="text-end" [class.dc-stock-zero]="(det.totalQuantity ?? 0) <= 0">
+        {{ det.totalQuantity ?? 0 }}
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="text-center text-muted py-3">
+        <i class="pi pi-inbox me-2"></i>Aucun produit déconditionné
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

@@ -125,6 +125,20 @@
           }
         </ng-template>
       </ng-container>
+
+      @if (richProduit().deconditionnable) {
+        <ng-container ngbNavItem="deconditions">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-box"></i>
+            <span>Déconditionnés</span>
+          </a>
+          <ng-template ngbNavContent>
+            <app-produit-deconditions-tab
+              [produit]="richProduit()"
+            />
+          </ng-template>
+        </ng-container>
+      }
     </div>
     <div class="pharma-nav-tabs-outlet">
       <div [ngbNavOutlet]="nav"></div>

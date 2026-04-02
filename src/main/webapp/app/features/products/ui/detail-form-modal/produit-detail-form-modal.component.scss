@@ -1,0 +1,79 @@
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+.df-produit-info {
+  padding: 0.6rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid var(--p-primary-color);
+}
+
+.df-produit-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+
+  i { color: var(--p-primary-color); }
+}
+
+.df-produit-libelle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.df-cip-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #1a6fa8;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.df-prix-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.df-prix-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.df-prix-label {
+  font-size: 0.65rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.df-prix-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  &.df-pv { color: #198754; }
+}
+
+.df-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.df-prices-row {
+  display: flex;
+  gap: 1rem;
+}

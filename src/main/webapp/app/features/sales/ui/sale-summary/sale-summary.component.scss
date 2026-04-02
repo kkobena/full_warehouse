@@ -186,37 +186,47 @@ $border-radius-sm: 6px;
 // ============================================
 
 .amount-to-pay {
-  background: #fee2e2;
-  border: 2px solid #fca5a5;
-  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 3px solid #28a745;
+  padding: 0.6rem 1rem;
+  margin-top: 0.25rem;
   margin-bottom: 0.3rem;
-  box-shadow: $shadow-sm;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+  border-radius: 10px;
+  animation: pulseSuccess 2.5s ease-in-out infinite;
 
   .amount-label {
-    color: #991b1b;
-    font-weight: 700;
-    font-size: 0.8125rem;
+    color: #155724;
+    font-weight: 800;
+    font-size: 0.875rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
 
     &::before {
-      background: #991b1b;
-      width: 5px;
-      height: 5px;
+      display: none;
     }
   }
 
-  .amount-value {
-    color: #991b1b;
-    font-size: 1.125rem;
+  .amount-to-pay-value {
+    color: #155724;
+    font-size: 1.75rem !important;
     font-weight: 900;
+    font-family: 'Courier New', monospace;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   &:hover {
-    box-shadow: $shadow-md;
-    transform: translateY(-1px);
-    border-color: #f87171;
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.35);
+    transform: translateY(-2px);
+    border-color: #1e7e34;
+    animation-play-state: paused;
   }
+}
+
+@keyframes pulseSuccess {
+  0%, 100% { box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25); }
+  50% { box-shadow: 0 4px 18px rgba(40, 167, 69, 0.45); }
 }
 
 // ============================================
@@ -309,14 +319,14 @@ $border-radius-sm: 6px;
   }
 
   .amount-to-pay {
-    padding: 0.35rem 0.75rem;
+    padding: 0.5rem 0.75rem;
 
     .amount-label {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
     }
 
-    .amount-value {
-      font-size: 1rem;
+    .amount-to-pay-value {
+      font-size: 1.375rem !important;
     }
   }
 
@@ -350,10 +360,10 @@ $border-radius-sm: 6px;
   }
 
   .amount-to-pay {
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 1rem;
 
-    .amount-value {
-      font-size: 1.125rem;
+    .amount-to-pay-value {
+      font-size: 1.5rem !important;
     }
   }
 }

@@ -1,51 +1,97 @@
 @import '../../../../shared/scss/pharma-nav';
 
-// Styles pour les items du dropdown autocomplete
-.product-item {
+// ====================================
+// ITEM ROW dans le dropdown
+// ====================================
+.product-item-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  font-size: 0.9rem;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
 
-  .code {
-    min-width: 100px;
-    color: var(--text-color-secondary);
+  .product-cip {
+    min-width: 90px;
     font-family: monospace;
+    font-size: 0.8rem;
+    color: #6c757d;
+    flex-shrink: 0;
   }
 
-  .name {
+  .product-name {
     flex: 1;
     font-weight: 500;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .price {
-    min-width: 100px;
+  .product-item-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .product-price {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #4a7189;
+    min-width: 60px;
     text-align: right;
-    color: var(--primary-color);
-    font-weight: 600;
+  }
+}
+
+// ====================================
+// BADGE DE STOCK COLORÉ
+// ====================================
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: default;
+
+  &.stock-ok {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    i { color: #28a745; }
   }
 
-  .stock-badge {
-    padding: 0.25rem 0.5rem;
-    background-color: var(--red-100);
-    color: var(--red-700);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
+  &.stock-low {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    i { color: #fd7e14; }
   }
 
-  &.stockless {
-    opacity: 0.6;
-
-    .name {
-      text-decoration: line-through;
-    }
+  &.stock-out {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    i { color: #dc3545; }
   }
 }
 
 .reserve-badge {
-  color: var(--orange-600);
-  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem 0.4rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffd97d;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: 600;
+}
+
+.stockless {
+  color: #adb5bd !important;
 }

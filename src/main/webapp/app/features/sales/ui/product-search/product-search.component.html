@@ -18,31 +18,35 @@
     dataKey="id"
     placeholder=" ">
     <ng-template #item let-item>
-      <div [style]="{ width: '100%' }">
-        <span [class.stockless]="item.totalQuantity <= 0" style="width: 20%; display: inline-block">
+      <div class="product-item-row">
+        <span [class.stockless]="item.totalQuantity <= 0" class="product-cip">
           {{ item.fournisseurProduit?.codeCip }}
         </span>
-        <span [class.stockless]="item.totalQuantity <= 0">
+        <span [class.stockless]="item.totalQuantity <= 0" class="product-name">
           {{ item.libelle }}
         </span>
-        <span [class.stockless]="item.totalQuantity <= 0" class="float-right">
-          {{ item.fournisseurProduit?.prixUni | number }}
-        </span>
-
-      <!--  <span class="float-right" style="display: inline-flex; align-items: center; gap: 6px;">
-          <span [class.stockless]="item.totalQuantity <= 0" title="Stock rayon">
-            <i class="pi pi-database" style="font-size: 0.75rem"></i> {{ item.totalQuantity | number }}
+        <span class="product-item-right">
+        <span
+            class="stock-badge"
+            [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
+            [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+            [class.stock-out]="item.totalQuantity <= 0"
+            [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity">
+            <i class="pi"
+               [class.pi-check-circle]="item.totalQuantity > 5"
+               [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+               [class.pi-times-circle]="item.totalQuantity <= 0"></i>
+            {{ item.totalQuantity | number }}
           </span>
           @if ((item.reserveQuantity || 0) > 0) {
-            <span class="reserve-badge" title="Stock réserve">
-              <i class="pi pi-box" style="font-size: 0.75rem"></i> {{ item.reserveQuantity | number }}
+            <span class="reserve-badge" [title]="'Réserve : ' + item.reserveQuantity">
+              <i class="pi pi-box" style="font-size: 0.7rem"></i> {{ item.reserveQuantity | number }}
             </span>
           }
-          <span [class.stockless]="item.totalQuantity <= 0">
+          <span [class.stockless]="item.totalQuantity <= 0" class="product-price">
             {{ item.fournisseurProduit?.prixUni | number }}
           </span>
-        </span>-->
-
+        </span>
       </div>
     </ng-template>
   </p-autoComplete>

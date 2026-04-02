@@ -118,7 +118,7 @@ export class NavigationService {
         },
         {
           label: this.translateLabel('entities.inventoryTransaction'),
-          routerLink: '/produit/transaction',
+          routerLink: '/produits/transaction',
           faIcon: faEye,
         },
           {

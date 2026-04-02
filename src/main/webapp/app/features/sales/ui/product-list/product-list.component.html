@@ -143,62 +143,68 @@
         </td>
 
         <!-- QTÉ.D - Éditable au click -->
-        <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center">
+        <td [pEditableColumn]="line.quantityRequested" pEditableColumnField="quantityRequested" class="text-center editable-cell">
           <p-cellEditor>
             <ng-template #input>
               <input
                 type="number"
                 pInputText
                 [value]="line.quantityRequested"
-
                 (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value) "
                 (focus)="$event.target.select()"
                 min="1"
                 class="pharma-input-qty" />
             </ng-template>
             <ng-template #output>
-              <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
+              <span class="editable-cell-output">
+                <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
+                <i class="pi pi-pencil edit-hint-icon"></i>
+              </span>
             </ng-template>
           </p-cellEditor>
         </td>
 
         <!-- QTÉ.S - Éditable au click -->
-        <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center">
+        <td [pEditableColumn]="line.quantitySold" pEditableColumnField="quantitySold" class="text-center editable-cell">
           <p-cellEditor>
             <ng-template #input>
               <input
                 type="number"
                 pInputText
                 [value]="line.quantitySold"
-
                 (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value)"
                 (focus)="$event.target.select()"
                 min="0"
                 class="pharma-input-qty" />
             </ng-template>
             <ng-template #output>
-              <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+              <span class="editable-cell-output">
+                <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+                <i class="pi pi-pencil edit-hint-icon"></i>
+              </span>
             </ng-template>
           </p-cellEditor>
         </td>
 
         <!-- PU - Éditable si autorisé -->
         @if (canEditPrice()) {
-          <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right">
+          <td [pEditableColumn]="line.regularUnitPrice" pEditableColumnField="regularUnitPrice" class="text-right editable-cell">
             <p-cellEditor>
               <ng-template #input>
                 <input
                   type="number"
                   pInputText
                   [value]="line.regularUnitPrice"
-
                   (keydown.enter)="onPriceChange(line, $any($event.target).value) "
                   (focus)="$event.target.select()"
                   min="0"
                   class="pharma-input-price" />
               </ng-template>
               <ng-template #output>
-                <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
+                <span class="editable-cell-output">
+                  <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
+                  <i class="pi pi-pencil edit-hint-icon"></i>
+                </span>
               </ng-template>
             </p-cellEditor>
           </td>

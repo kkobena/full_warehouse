@@ -528,7 +528,7 @@ $devis-indigo-light: #e8eaf6;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: $border-radius;
   color: $gray-700;
   text-decoration: none;
@@ -536,16 +536,41 @@ $devis-indigo-light: #e8eaf6;
   cursor: pointer;
   margin-bottom: 0.25rem;
   position: relative;
+  border-left: 3px solid transparent;
 
-  i {
+  i.sale-tab-icon {
     font-size: 1.125rem;
     width: 1.5rem;
     text-align: center;
+    flex-shrink: 0;
   }
 
-  span:not(.link-arrow) {
+  // Ancien span simple (fallback)
+  span:not(.link-arrow):not(.sale-tab-content):not(.sale-tab-label):not(.sale-tab-subtitle) {
     flex: 1;
     font-weight: 500;
+  }
+
+  // Nouveau bloc label + sous-titre
+  .sale-tab-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .sale-tab-label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      line-height: 1.2;
+    }
+
+    .sale-tab-subtitle {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: $gray-500;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
   }
 
   .link-arrow {
@@ -558,18 +583,37 @@ $devis-indigo-light: #e8eaf6;
   &:hover {
     background: rgba($pharma-primary, 0.08);
     color: $pharma-primary;
+    border-left-color: $pharma-primary;
 
     .link-arrow {
       opacity: 1;
+    }
+
+    .sale-tab-content {
+      .sale-tab-subtitle {
+        color: darken($pharma-primary, 8%);
+      }
     }
   }
 
   &.active {
     background: $pharma-primary;
     color: white;
+    border-left-color: darken($pharma-primary, 15%);
 
     .link-arrow {
       opacity: 1;
+      color: white;
+    }
+
+    .sale-tab-content {
+      .sale-tab-subtitle {
+        color: rgba(255, 255, 255, 0.80);
+      }
+    }
+
+    i.sale-tab-icon {
+      color: white;
     }
   }
 }

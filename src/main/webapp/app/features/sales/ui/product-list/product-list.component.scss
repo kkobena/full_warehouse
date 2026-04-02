@@ -367,6 +367,50 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 // ====================================
+// AFFORDANCE CELLULES ÉDITABLES
+// PrimeNG ajoute la classe .p-editable-column sur les td
+// ====================================
+::ng-deep .pharma-table .p-datatable-tbody td.p-editable-column {
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: #ddeef8 !important;
+    box-shadow: inset 0 0 0 2px #5b89a6;
+
+    .edit-hint-icon {
+      opacity: 1 !important;
+    }
+  }
+
+  &:focus-within,
+  &.p-cell-editing {
+    background: #e8f5e9 !important;
+    box-shadow: inset 0 0 0 2px $pharma-success;
+  }
+}
+
+// Wrapper de la valeur + icône crayon dans les cellules éditables
+.editable-cell-output {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  justify-content: center;
+
+  .edit-hint-icon {
+    font-size: 0.65rem;
+    color: rgba(91, 137, 166, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+  }
+}
+
+// Pour les colonnes prix (alignées à droite)
+td.text-right .editable-cell-output {
+  justify-content: flex-end;
+}
 // FOOTER DU TABLEAU
 // ====================================
 .pharma-footer-label {

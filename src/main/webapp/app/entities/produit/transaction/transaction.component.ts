@@ -11,7 +11,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { PanelModule } from 'primeng/panel';
 import { AuditingComponent } from '../auditing/auditing.component';
 import { ProduitAuditingParam } from '../../../shared/model/produit-record.model';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from "../../../shared/model";
 import { ProduitAuditingParamService } from './produit-auditing-param.service';
 import { BadgeModule } from 'primeng/badge';
 import {

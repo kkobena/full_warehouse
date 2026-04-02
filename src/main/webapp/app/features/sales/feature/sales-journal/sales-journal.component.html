@@ -191,7 +191,7 @@
               } @else if (sale.natureVente === 'CARNET') {
                 <td><span class="pharma-badge pharma-badge-info">Carnet</span></td>
               } @else {
-                <td><span class="pharma-badge pharma-badge-info">VNO</span></td>
+                <td><span class="pharma-badge pharma-badge-info" pTooltip="Vente sans ordonnance" tooltipPosition="top">Comptant</span></td>
               }
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>

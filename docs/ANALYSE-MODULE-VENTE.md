@@ -268,18 +268,18 @@ sales/
 
 ## 5. Tableau de Priorisation UX
 
-| # | Problème | Impact | Effort | Priorité |
-|---|----------|--------|--------|----------|
-| P4 | Montant à payer non dominant visuellement | 🔴 Élevé | 🟢 Faible | **P0** |
-| P1 | Indicateur stock masqué | 🔴 Élevé | 🟡 Moyen | **P0** |
-| P6 | Libellé "VNO" cryptique | 🟡 Moyen | 🟢 Faible | **P1** |
-| P9 | Cellules éditables sans affordance | 🟡 Moyen | 🟢 Faible | **P1** |
-| P5 | CTA absent dans état vide panier | 🟡 Moyen | 🟢 Faible | **P1** |
-| P3 | Section paiement visible panier vide | 🟡 Moyen | 🟢 Faible | **P1** |
-| P7 | Drawer bloqué si vente en cours | 🟡 Moyen | 🟡 Moyen | **P2** |
-| P8 | Absence de stepper visuel | 🟠 Moyen | 🟡 Moyen | **P2** |
-| P2 | Navigation tabs peu intuitive | 🟠 Moyen | 🟡 Moyen | **P2** |
-| P10 | Erreurs sans action corrective | 🟠 Moyen | 🟠 Élevé | **P3** |
+| # | Problème | Impact | Effort | Priorité | Statut |
+|---|----------|--------|--------|----------|--------|
+| P4 | Montant à payer non dominant visuellement | 🔴 Élevé | 🟢 Faible | **P0** | ✅ Implémenté |
+| P1 | Indicateur stock masqué | 🔴 Élevé | 🟡 Moyen | **P0** | ✅ Implémenté |
+| P6 | Libellé "VNO" cryptique | 🟡 Moyen | 🟢 Faible | **P1** | ✅ Implémenté |
+| P9 | Cellules éditables sans affordance | 🟡 Moyen | 🟢 Faible | **P1** | ✅ Implémenté |
+| P7 | Drawer bloqué si vente en cours | 🟡 Moyen | 🟡 Moyen | **P2** | ✅ Implémenté |
+| P2 | Navigation tabs peu intuitive | 🟠 Moyen | 🟡 Moyen | **P2** | ✅ Implémenté |
+| ~~P5~~ | ~~CTA absent dans état vide panier~~ | ~~🟡 Moyen~~ | ~~🟢 Faible~~ | ~~**P1**~~ | 🚫 Décommissionné |
+| ~~P3~~ | ~~Section paiement visible panier vide~~ | ~~🟡 Moyen~~ | ~~🟢 Faible~~ | ~~**P1**~~ | 🚫 Décommissionné |
+| ~~P8~~ | ~~Absence de stepper visuel~~ | ~~🟠 Moyen~~ | ~~🟡 Moyen~~ | ~~**P2**~~ | 🚫 Décommissionné |
+| ~~P10~~ | ~~Erreurs sans action corrective~~ | ~~🟠 Moyen~~ | ~~🟠 Élevé~~ | ~~**P3**~~ | 🚫 Décommissionné |
 
 ---
 

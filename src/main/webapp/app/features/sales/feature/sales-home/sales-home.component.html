@@ -128,6 +128,8 @@
           label="En attente"
           severity="info"
           size="small"
+          pTooltip="Voir les ventes en attente"
+          tooltipPosition="left"
         />
       }
 
@@ -180,8 +182,11 @@
             <!-- Tab COMPTANT -->
             <ng-container ngbNavItem="comptant">
               <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-wallet"></i>
-                <span>Comptant</span>
+                <i class="pi pi-wallet sale-tab-icon"></i>
+                <span class="sale-tab-content">
+                  <span class="sale-tab-label">Comptant</span>
+                  <span class="sale-tab-subtitle">Sans ordonnance</span>
+                </span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
@@ -210,8 +215,11 @@
             @if (!isDevisMode()) {
               <ng-container ngbNavItem="assurance">
                 <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-shield"></i>
-                  <span>Assurance</span>
+                  <i class="pi pi-shield sale-tab-icon"></i>
+                  <span class="sale-tab-content">
+                    <span class="sale-tab-label">Assurance</span>
+                    <span class="sale-tab-subtitle">Tiers payant</span>
+                  </span>
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
@@ -230,8 +238,11 @@
             <!-- Tab CARNET -->
             <ng-container ngbNavItem="carnet">
               <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-book"></i>
-                <span>Carnet</span>
+                <i class="pi pi-book sale-tab-icon"></i>
+                <span class="sale-tab-content">
+                  <span class="sale-tab-label">Carnet</span>
+                  <span class="sale-tab-subtitle">Vente à crédit</span>
+                </span>
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>

@@ -55,7 +55,17 @@ export const PRODUCTS_ROUTES: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
-
+  {
+    path: 'transaction',
+    loadComponent: () => import('../../entities/produit/transaction/transaction.component').then(m => m.TransactionComponent),
+    resolve: {
+      produit: ProductResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+    },
+    canActivate: [UserRouteAccessService],
+  },
   {
     path: ':id/detail',
     loadComponent: () => import('../../entities/produit/detail-produit-form/detail-produit-form.component').then(m => m.DetailProduitFormComponent),

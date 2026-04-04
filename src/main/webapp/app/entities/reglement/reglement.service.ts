@@ -65,4 +65,9 @@ export class ReglementService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/pdf`, { params: options, responseType: 'blob' });
   }
+
+  exportExcel(req?: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/export`, { params: options, responseType: 'blob' });
+  }
 }

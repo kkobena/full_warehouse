@@ -4,7 +4,9 @@ export interface IGroupeTiersPayant {
   adresse?: string;
   telephone?: string;
   telephoneFixe?: string;
+  email?: string;
   ordreTrisFacture?: string;
+  delaiReglement?: number;
 }
 
 export class GroupeTiersPayant implements IGroupeTiersPayant {
@@ -14,5 +16,7 @@ export class GroupeTiersPayant implements IGroupeTiersPayant {
     public adresse?: string,
     public telephone?: string,
     public telephoneFixe?: string,
+    public email?: string,
+    public delaiReglement?: number,
   ) {}
 }

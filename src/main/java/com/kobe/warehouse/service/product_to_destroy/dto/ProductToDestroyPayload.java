@@ -15,7 +15,8 @@ public record ProductToDestroyPayload(
     boolean editing,
     Integer magasinId,
     Integer id,
-    Integer stockInitial
+    Integer stockInitial,
+    Integer storageId   // emplacement LotStockLocation ciblé ; null = cascade automatique
 ) {
     public ProductToDestroyPayload {
         if (quantity < 1) {

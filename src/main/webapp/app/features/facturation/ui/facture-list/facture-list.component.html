@@ -26,11 +26,14 @@
       <th>Tiers-payant</th>
       <th class="text-end">Dossiers</th>
       <th class="text-end">Montant brut</th>
+      <th class="text-end">Remise vente</th>
+      <th class="text-end">Remise forfait.</th>
       <th class="text-end">Montant net</th>
       <th class="text-end">Réglé</th>
       <th class="text-end">Restant</th>
       <th>Statut</th>
       <th>Date édition</th>
+      <th style="width: 7rem"></th>
     </tr>
   </ng-template>
 
@@ -47,6 +50,8 @@
       <td><span class="pharma-entity-name">{{ facture.tiersPayantName }}</span></td>
       <td class="text-end">{{ facture.itemsCount | number }}</td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantAttendu | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ facture.montantRemiseVente | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ facture.remiseForfetaire | number }}</span></td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantNet | number }}</span></td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantRegle | number }}</span></td>
       <td class="text-end">
@@ -61,12 +66,73 @@
         }
       </td>
       <td class="small text-muted">{{ facture.created | date: 'dd/MM/yyyy' }}</td>
+      <td class="text-center" (click)="$event.stopPropagation()">
+        <p-buttonGroup>
+          <p-button
+            (onClick)="onRowSelect(facture)"
+            [rounded]="true"
+            [text]="true"
+            icon="pi pi-eye"
+            pTooltip="Voir détail"
+            tooltipPosition="left"
+            severity="secondary"
+            size="small"
+          />
+          @if (!facture.fneResponse && !facture.factureProvisoire) {
+            <p-button
+              (onClick)="onConfirmCertification(facture)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-shield"
+              pTooltip="Certifier FNE"
+              tooltipPosition="left"
+              severity="info"
+              size="small"
+            />
+          }
+          @if (facture.fneResponse) {
+            <p-button
+              (onClick)="onViewFne(facture)"
+              [text]="true"
+              icon="pi pi-verified"
+              [rounded]="true"
+              pTooltip="Voir certificat FNE"
+              severity="help"
+              size="small"
+              tooltipPosition="left"
+            />
+          }
+          @if (facture.statut === 'NOT_PAID' && !facture.factureProvisoire) {
+            <p-button
+              (onClick)="onDeleteSingle(facture)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-trash"
+              pTooltip="Supprimer"
+              severity="danger"
+              tooltipPosition="left"
+              size="small"
+            />
+          }
+          <p-button
+            (click)="exportPdf(facture)"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            icon="pi pi-file-pdf"
+            pTooltip="Exporter en Pdf"
+            severity="warn"
+          />
+
+        </p-buttonGroup>
+
+      </td>
     </tr>
   </ng-template>
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="10">
+      <td colspan="13">
         <div class="alert alert-warning m-2">Aucune facture trouvée — affinez la recherche</div>
       </td>
     </tr>

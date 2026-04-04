@@ -1,78 +1,116 @@
 <p-toast position="center" />
 
-<div class="pharma-toolbar">
+<!-- ─── Shell toolbar : header + barre des 2 onglets ──────────────── -->
+<div class="pharma-toolbar su-parent-toolbar">
+
+  <!-- Header bleu : titre -->
   <div class="pharma-toolbar-header">
     <i class="pi pi-replay"></i>
-    <span>Retours fournisseur</span>
+    <span class="su-title">Retours fournisseur</span>
   </div>
-  <p-toolbar>
-    <ng-template #start>
-      <div class="pharma-toolbar-filters">
-        <div class="pharma-search-input">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText placeholder="Rechercher" type="text" />
-          </p-iconfield>
-        </div>
-        <p-floatlabel variant="on">
-          <p-select
-            [style]="{ 'max-width': '150px', 'min-width': '120px' }"
-            [(ngModel)]="selectedStatut"
-            (onChange)="onSearch()"
-            [options]="statutOptions"
-            optionLabel="label"
-            optionValue="value"
-            [showClear]="true"
-            appendTo="body"
-            inputId="statut"
-          />
-          <label for="statut">Statut</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtStart"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtStart"
-            appendTo="body"
-          />
-          <label for="dtStart">Date début</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [style]="{ 'max-width': '150px' }"
-            [(ngModel)]="dtEnd"
-            (onSelect)="onSearch()"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            inputId="dtEnd"
-            appendTo="body"
-          />
-          <label for="dtEnd">Date fin</label>
-        </p-floatlabel>
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="pharma-toolbar-actions">
-        <div class="pharma-button-group">
-          <p-button (click)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
-          <p-button (click)="onNewRetour()" icon="pi pi-undo" label="Nouveau retour" severity="primary" size="small" />
-        </div>
-      </div>
-    </ng-template>
-  </p-toolbar>
+
+  <!-- Barre des 2 onglets -->
+  <div class="su-source-tabs-bar">
+
+    <!-- Onglet 1 : Retours en attente (VALIDATED + PROCESSING) -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeTab() === 'EN_ATTENTE'"
+      (click)="setTab('EN_ATTENTE')"
+      type="button"
+      pTooltip="Retours en attente de réponse fournisseur ou en cours de traitement"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-clock"></i>
+      En attente
+      @if (countEnAttente() > 0) {
+        <span class="su-tab-badge su-tab-badge--warn">{{ countEnAttente() }}</span>
+      }
+    </button>
+
+    <!-- Onglet 2 : Historique (CLOSED) -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
+      (click)="setTab('HISTORIQUE')"
+      type="button"
+      pTooltip="Historique des retours clôturés (avoir fournisseur reçu)"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-history"></i>
+      Historique
+    </button>
+
+  </div>
 </div>
 
-<div class="pharma-table">
+<!-- ─── Barre de filtres (su-action-bar, cohérent avec list-bons) ────── -->
+<div class="su-action-bar">
+  <div class="su-action-bar__filters">
+
+    <!-- Recherche texte -->
+    <p-iconfield class="lb-search">
+      <p-inputicon class="pi pi-search" />
+      <input [(ngModel)]="search" (keyup.enter)="onSearch()" pInputText
+             placeholder="Fournisseur, référence…" type="text" />
+    </p-iconfield>
+
+    <!-- Filtre statut : visible uniquement sur l'onglet "En attente" -->
+    @if (activeTab() === 'EN_ATTENTE') {
+      <p-select
+        [(ngModel)]="selectedStatut"
+        (onChange)="onSearch()"
+        [options]="enAttenteStatutOptions"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="false"
+        appendTo="body"
+        placeholder="Statut"
+      />
+    }
+
+    <p-floatlabel class="lb-date" variant="on">
+      <p-datePicker
+        [(ngModel)]="dtStart"
+        (onSelect)="onSearch()"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        dateFormat="dd/mm/yy"
+        inputId="dtStart"
+        appendTo="body"
+      />
+      <label for="dtStart">Début</label>
+    </p-floatlabel>
+
+    <p-floatlabel class="lb-date" variant="on">
+      <p-datePicker
+        [(ngModel)]="dtEnd"
+        (onSelect)="onSearch()"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        dateFormat="dd/mm/yy"
+        inputId="dtEnd"
+        appendTo="body"
+      />
+      <label for="dtEnd">Fin</label>
+    </p-floatlabel>
+
+  </div>
+  <div class="su-action-bar__actions">
+    <p-button (onClick)="onNewRetour()" icon="pi pi-plus" label="Nouveau retour"
+              severity="primary" size="small" />
+    <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher"
+              severity="info" size="small" />
+  </div>
+</div>
+
+<div>
   <p-table
     [value]="retourBons()"
     [rows]="itemsPerPage"
     [totalRecords]="totalRecords()"
     [loading]="loading()"
+    class="p-datatable-sm"
     [paginator]="true"
     [rowsPerPageOptions]="[10, 20, 30, 50]"
     [lazy]="true"
@@ -90,7 +128,7 @@
         <th>Fournisseur</th>
         <th class="text-center">Nb. Lignes</th>
         <th class="text-center">Qté Totale</th>
-        <th class="text-center">Qté Accepté</th>
+        <th class="text-center">Qté Acceptée</th>
         <th>Statut</th>
         <th>Commentaire</th>
         <th class="text-center">Actions</th>
@@ -133,6 +171,7 @@
         </td>
         <td class="text-center">
           <div class="d-flex justify-content-center gap-1">
+            <!-- Impression disponible sur tous les onglets -->
             <p-button
               icon="pi pi-print"
               [text]="true"
@@ -143,71 +182,76 @@
               pTooltip="Imprimer le bon de retour"
               tooltipPosition="top"
             />
-            @if (retourBon.statut === RetourBonStatut.VALIDATED) {
-              <p-button
-                icon="pi pi-file-edit"
-                [text]="true"
-                [rounded]="true"
-                severity="info"
-                size="small"
-                (onClick)="editRetour(retourBon)"
-                pTooltip="Modifier le retour"
-                tooltipPosition="top"
-              />
-              <p-button
-                icon="pi pi-trash"
-                [text]="true"
-                [rounded]="true"
-                severity="danger"
-                size="small"
-                (onClick)="deleteRetour(retourBon)"
-                pTooltip="Supprimer le retour"
-                tooltipPosition="top"
-              />
-              <p-button
-                icon="pi pi-send"
-                [text]="true"
-                [rounded]="true"
-                severity="warn"
-                size="small"
-                (onClick)="markAsProcessing(retourBon)"
-                pTooltip="Marquer en cours de traitement"
-                tooltipPosition="top"
-              />
-              @if (retourBon.ediCompatible) {
+
+            <!-- Actions d'édition : uniquement onglet "En attente" + statut VALIDATED -->
+            @if (activeTab() === 'EN_ATTENTE') {
+              @if (retourBon.statut === RetourBonStatut.VALIDATED) {
                 <p-button
-                  icon="pi pi-sitemap"
+                  icon="pi pi-file-edit"
                   [text]="true"
                   [rounded]="true"
-                  severity="secondary"
+                  severity="info"
                   size="small"
-                  (onClick)="sendEdi(retourBon)"
-                  pTooltip="Envoyer via EDI PharmaML"
+                  (onClick)="editRetour(retourBon)"
+                  pTooltip="Modifier le retour"
+                  tooltipPosition="top"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="danger"
+                  size="small"
+                  (onClick)="deleteRetour(retourBon)"
+                  pTooltip="Supprimer le retour"
+                  tooltipPosition="top"
+                />
+                <p-button
+                  icon="pi pi-send"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="warn"
+                  size="small"
+                  (onClick)="markAsProcessing(retourBon)"
+                  pTooltip="Marquer en cours de traitement (envoyé au fournisseur)"
+                  tooltipPosition="top"
+                />
+                @if (retourBon.ediCompatible) {
+                  <p-button
+                    icon="pi pi-sitemap"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="secondary"
+                    size="small"
+                    (onClick)="sendEdi(retourBon)"
+                    pTooltip="Envoyer via EDI PharmaML"
+                    tooltipPosition="top"
+                  />
+                }
+                <p-button
+                  icon="pi pi-check-square"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="success"
+                  size="small"
+                  (onClick)="setSupplierResponse(retourBon)"
+                  pTooltip="Saisir la réponse fournisseur"
+                  tooltipPosition="top"
+                />
+              } @else if (retourBon.statut === RetourBonStatut.PROCESSING) {
+                <p-button
+                  icon="pi pi-check-square"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="success"
+                  size="small"
+                  (onClick)="setSupplierResponse(retourBon)"
+                  pTooltip="Saisir la réponse fournisseur"
                   tooltipPosition="top"
                 />
               }
-              <p-button
-                icon="pi pi-check-square"
-                [text]="true"
-                [rounded]="true"
-                severity="success"
-                size="small"
-                (onClick)="setSupplierResponse(retourBon)"
-                pTooltip="Saisir la réponse fournisseur"
-                tooltipPosition="top"
-              />
-            } @else if (retourBon.statut === RetourBonStatut.PROCESSING) {
-              <p-button
-                icon="pi pi-check-square"
-                [text]="true"
-                [rounded]="true"
-                severity="success"
-                size="small"
-                (onClick)="setSupplierResponse(retourBon)"
-                pTooltip="Saisir la réponse fournisseur"
-                tooltipPosition="top"
-              />
             } @else {
+              <!-- Historique : lecture seule, juste un indicateur clôturé -->
               <i class="pi pi-check-circle text-success" pTooltip="Clôturé" tooltipPosition="top"></i>
             }
           </div>
@@ -220,8 +264,20 @@
         <td colspan="10" class="pharma-empty-message">
           <div class="pharma-empty-content">
             <i class="pi pi-inbox"></i>
-            <p>Aucun retour fournisseur trouvé</p>
-            <small>Utilisez le bouton "Nouveau retour" pour créer un retour</small>
+            @if (activeTab() === 'EN_ATTENTE') {
+              <p>Aucun retour en attente</p>
+              <small>Tous les retours ont été traités ou utilisez "Nouveau retour" pour en créer un</small>
+            } @else {
+              <p>Aucun retour dans l'historique</p>
+              <small>Les retours clôturés (avoir reçu) apparaîtront ici</small>
+            }
+            <p-button
+              (onClick)="onNewRetour()"
+              icon="pi pi-plus"
+              label="Nouveau retour"
+              severity="primary"
+              size="small"
+            />
           </div>
         </td>
       </tr>
@@ -245,7 +301,7 @@
                       <th>Produit</th>
                       <th style="width: 120px">Lot</th>
                       <th class="text-center" style="width: 100px">Qté Retournée</th>
-                      <th class="text-center" style="width: 100px">Qté Accepté</th>
+                      <th class="text-center" style="width: 100px">Qté Acceptée</th>
                       <th style="width: 200px">Motif de retour</th>
                     </tr>
                   </thead>

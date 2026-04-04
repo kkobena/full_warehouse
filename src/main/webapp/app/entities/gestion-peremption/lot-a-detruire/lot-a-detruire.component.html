@@ -8,14 +8,14 @@
 
     <p-toolbar>
       <ng-template #start>
+        <!-- Filtres PRIMAIRES : toujours visibles -->
         <div class="pharma-toolbar-filters">
           <p-select
             (onChange)="onFilterChange()"
             [(ngModel)]="selectedType"
             [options]="types"
-            [style]="{ 'min-width': '100px' }"
+            [style]="{ 'min-width': '120px' }"
             optionLabel="label"
-            size="large"
           ></p-select>
 
           <p-floatlabel variant="on">
@@ -31,81 +31,6 @@
             /></p-iconfield>
             <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
           </p-floatlabel>
-
-          <jhi-date-picker
-            [(ngModel)]="fromDate"
-            [id]="'dateDebut'"
-            [label]="'warehouseApp.labels.du'"
-            [style]="{ 'max-width': '140px' }"
-          ></jhi-date-picker>
-
-          <jhi-date-picker
-            [(ngModel)]="toDate"
-            [id]="'dateFin'"
-            [label]="'warehouseApp.labels.au'"
-            [style]="{ 'max-width': '140px' }"
-          ></jhi-date-picker>
-
-          @if (!isMono) {
-            <p-floatlabel variant="on">
-              <p-select
-                size="large"
-                [style]="{ 'min-width': '150px' }"
-                (onChange)="onMagasinChange()"
-                [(ngModel)]="selectedMagasin"
-                [options]="magasins"
-                [showClear]="true"
-                appendTo="body"
-                optionLabel="fullName"
-                id="magasins"
-              ></p-select>
-              <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
-            </p-floatlabel>
-            <p-floatlabel variant="on">
-              <p-select
-                size="large"
-                (onChange)="onStorageChange()"
-                [(ngModel)]="selectedStorage"
-                [options]="storages"
-                [style]="{ 'min-width': '150px' }"
-                id="storages"
-                appendTo="body"
-                [showClear]="true"
-                optionLabel="name"
-              ></p-select>
-              <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
-            </p-floatlabel>
-          }
-          <p-floatlabel variant="on" class="mr-1">
-            <p-select
-              (onChange)="onSearch()"
-              [(ngModel)]="selectedRayon"
-              [options]="rayons"
-              [showClear]="true"
-              [style]="{ 'min-width': '200px' }"
-              filter="true"
-              id="rayons"
-              appendTo="body"
-              optionLabel="libelle"
-              size="large"
-            ></p-select>
-            <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on" class="mr-1">
-            <p-select
-              (onChange)="onSearch()"
-              appendTo="body"
-              [(ngModel)]="selectedFournisseur"
-              [options]="fournisseurs"
-              [showClear]="true"
-              [style]="{ 'min-width': '200px' }"
-              filter="true"
-              id="fournisseurs"
-              optionLabel="libelle"
-              size="large"
-            ></p-select>
-            <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
-          </p-floatlabel>
         </div>
       </ng-template>
 
@@ -120,6 +45,16 @@
               severity="info"
               type="button"
             ></p-button>
+
+            <p-button
+              (click)="toggleAdvancedFilters()"
+              [outlined]="true"
+              [severity]="showAdvancedFilters ? 'contrast' : 'secondary'"
+              [icon]="showAdvancedFilters ? 'pi pi-filter-slash' : 'pi pi-sliders-h'"
+              [label]="showAdvancedFilters ? 'Masquer filtres' : 'Filtres avancés'"
+              type="button"
+            ></p-button>
+
             <p-splitbutton
               [model]="exportMenus"
               [raised]="true"
@@ -127,21 +62,113 @@
               label="{{ 'warehouseApp.buttons.export' | translate }}"
               severity="help"
             ></p-splitbutton>
-            @if (selectedItems?.length > 1) {
-              <p-button
-                (click)="onDestroyAll()"
-                [raised]="true"
-                icon="pi pi-trash"
-                label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
-                severity="danger"
-                type="button"
-              ></p-button>
-            }
           </div>
         </div>
       </ng-template>
     </p-toolbar>
+
+    <!-- Filtres AVANCÉS -->
+    @if (showAdvancedFilters) {
+      <div class="advanced-filters-row">
+        <jhi-date-picker
+          [(ngModel)]="fromDate"
+          [id]="'dateDebut'"
+          [label]="'warehouseApp.labels.du'"
+          [style]="{ 'max-width': '140px' }"
+        ></jhi-date-picker>
+
+        <jhi-date-picker
+          [(ngModel)]="toDate"
+          [id]="'dateFin'"
+          [label]="'warehouseApp.labels.au'"
+          [style]="{ 'max-width': '140px' }"
+        ></jhi-date-picker>
+
+        @if (!isMono) {
+          <p-floatlabel variant="on">
+            <p-select
+              [style]="{ 'min-width': '150px' }"
+              (onChange)="onMagasinChange()"
+              [(ngModel)]="selectedMagasin"
+              [options]="magasins"
+              [showClear]="true"
+              appendTo="body"
+              optionLabel="fullName"
+              id="magasins"
+            ></p-select>
+            <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <p-select
+              (onChange)="onStorageChange()"
+              [(ngModel)]="selectedStorage"
+              [options]="storages"
+              [style]="{ 'min-width': '150px' }"
+              id="storages"
+              appendTo="body"
+              [showClear]="true"
+              optionLabel="name"
+            ></p-select>
+            <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
+          </p-floatlabel>
+        }
+
+        <p-floatlabel variant="on">
+          <p-select
+            (onChange)="onSearch()"
+            [(ngModel)]="selectedRayon"
+            [options]="rayons"
+            [showClear]="true"
+            [style]="{ 'min-width': '180px' }"
+            filter="true"
+            id="rayons"
+            appendTo="body"
+            optionLabel="libelle"
+          ></p-select>
+          <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on">
+          <p-select
+            (onChange)="onSearch()"
+            appendTo="body"
+            [(ngModel)]="selectedFournisseur"
+            [options]="fournisseurs"
+            [showClear]="true"
+            [style]="{ 'min-width': '180px' }"
+            filter="true"
+            id="fournisseurs"
+            optionLabel="libelle"
+          ></p-select>
+          <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
+        </p-floatlabel>
+
+        <p-button
+          (click)="resetFilters()"
+          [outlined]="true"
+          icon="pi pi-times"
+          label="Réinitialiser"
+          severity="secondary"
+          size="small"
+        ></p-button>
+      </div>
+    }
   </div>
+
+  <!-- Bulk action bar -->
+  @if (selectedItems?.length >= 1) {
+    <div class="bulk-action-bar">
+      <span class="bulk-count">{{ selectedItems.length }} lot(s) sélectionné(s)</span>
+      <p-button
+        (onClick)="onDestroyAll()"
+        [outlined]="true"
+        icon="pi pi-trash"
+        label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
+        severity="danger"
+        size="small"
+      />
+    </div>
+  }
 
   @if (productToDestroySum) {
     <div class="row g-4 mb-2">
@@ -202,13 +229,13 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th>Libellé produit</th>
+          <th pSortableColumn="produitName">Libellé produit <p-sortIcon field="produitName" /></th>
           <th>Code produit</th>
           <th>Numéro lot</th>
-          <th>Date de péremption</th>
-          <th>Quantité</th>
-          <th>Prix.Achat</th>
-          <th>Prix.vente</th>
+          <th pSortableColumn="datePeremption">Date de péremption <p-sortIcon field="datePeremption" /></th>
+          <th pSortableColumn="quantity">Quantité <p-sortIcon field="quantity" /></th>
+          <th pSortableColumn="prixAchat">Prix.Achat <p-sortIcon field="prixAchat" /></th>
+          <th pSortableColumn="prixUni">Prix.vente <p-sortIcon field="prixUni" /></th>
           <th>Statut</th>
           <th>Fournisseur</th>
 
@@ -219,7 +246,8 @@
         </tr>
       </ng-template>
       <ng-template let-data #body>
-        <tr>
+        <tr [class.table-danger]="data.peremptionStatut?.days < 0"
+            [class.table-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
           <td class="pharma-product-name">
             {{ data.produitName }}
           </td>
@@ -265,7 +293,20 @@
                 ></p-button>
               </div>
             } @else {
-              <p-tag [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate: { date: data.dateDestruction }" />
+              <div class="d-flex align-items-center gap-1">
+                <p-tag [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate: { date: data.dateDestruction }" />
+                @if (data.produitId) {
+                  <a
+                    [routerLink]="['/produits', data.produitId, 'transaction']"
+                    class="btn btn-link btn-sm p-0 ms-1"
+                    pTooltip="Voir les transactions RETRAIT_PERIME pour ce produit"
+                    tooltipPosition="left"
+                    title="Historique transactions"
+                  >
+                    <i class="pi pi-history text-info"></i>
+                  </a>
+                }
+              </div>
             }
           </td>
         </tr>

@@ -1,0 +1,137 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Procès-Verbal de Destruction de Médicaments</title>
+    <style th:replace="~{common/reglement/css}"></style>
+    <style>
+      .pv-title {
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 10px 0;
+        border-bottom: 2px solid #333;
+        padding-bottom: 6px;
+      }
+      .pv-ref {
+        text-align: center;
+        font-size: 8pt;
+        color: #555;
+        font-style: italic;
+        margin-bottom: 8px;
+      }
+      .pv-meta {
+        width: 100%;
+        margin-bottom: 10px;
+        border-collapse: collapse;
+        font-size: 9pt;
+      }
+      .pv-meta td {
+        padding: 3px 6px;
+        vertical-align: top;
+      }
+      .pv-meta .label {
+        font-weight: bold;
+        width: 30%;
+      }
+      .pv-intro {
+        font-size: 9pt;
+        margin: 8px 0;
+        line-height: 1.5;
+      }
+      .signature-zone {
+        margin-top: 20px;
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .signature-zone td {
+        padding: 6px 10px;
+        vertical-align: top;
+        width: 50%;
+      }
+      .signature-box {
+        border: 1px solid #999;
+        min-height: 70px;
+        padding: 6px;
+        font-size: 8pt;
+      }
+      .archive-mention {
+        font-size: 7.5pt;
+        color: #666;
+        font-style: italic;
+        border-top: 1px solid #ccc;
+        margin-top: 16px;
+        padding-top: 6px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheadertable}"></header>
+    <div class="invoice">
+      <main>
+        <!-- Titre officiel -->
+        <div class="pv-title">Procès-Verbal de Destruction de Médicaments</div>
+        <div class="pv-ref">
+          Document officiel de traçabilité — Destruction de produits pharmaceutiques périmés
+        </div>
+
+        <!-- Métadonnées PV -->
+        <table class="pv-meta">
+          <tr>
+            <td class="label">N° du PV :</td>
+            <td th:text="${pvNumero}"></td>
+            <td class="label">Date de destruction :</td>
+            <td th:text="${pvDate}"></td>
+          </tr>
+          <tr>
+            <td class="label">Pharmacien titulaire :</td>
+            <td th:text="${pharmacienNom}"></td>
+            <td class="label">Établissement :</td>
+            <td th:text="${magasin != null ? magasin.name : ''}"></td>
+          </tr>
+          <tr th:if="${magasin != null and magasin.address != null}">
+            <td class="label">Adresse :</td>
+            <td colspan="3" th:text="${magasin.address}"></td>
+          </tr>
+        </table>
+
+        <!-- Déclaration introductive -->
+        <p class="pv-intro">
+          Je soussigné(e), <strong th:text="${pharmacienNom}"></strong>, pharmacien(ne) titulaire
+          de l'officine <strong th:text="${magasin != null ? magasin.name : ''}"></strong>,
+          certifie avoir procédé à la destruction des médicaments périmés ci-dessous,
+          conformément à la réglementation pharmaceutique en vigueur.
+        </p>
+
+        <!-- Tableau des produits détruits -->
+        <table th:replace="~{gestion_perimes/pv_destruction/body}"></table>
+
+        <!-- Zones de signature -->
+        <table class="signature-zone">
+          <tr>
+            <td>
+              <div class="signature-box">
+                <strong>Signature du Pharmacien Titulaire</strong><br/>
+                <span th:text="${pharmacienNom}"></span><br/><br/>
+                Date : <span th:text="${pvDate}"></span>
+              </div>
+            </td>
+            <td>
+              <div class="signature-box">
+                <strong>Cachet de l'Officine</strong><br/><br/><br/>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Mention d'archivage -->
+        <div class="archive-mention">
+          Document à conserver conformément à la réglementation pharmaceutique locale en vigueur —
+          Original : Archives officine · Copie : Autorité compétente si demandé
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+

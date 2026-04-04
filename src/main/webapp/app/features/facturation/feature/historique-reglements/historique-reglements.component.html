@@ -107,6 +107,14 @@
               label="Imprimer"
               severity="warn"
             />
+            <p-button
+              (click)="onExportExcel()"
+              [loading]="loadingExcel"
+              [raised]="true"
+              icon="pi pi-file-excel"
+              label="Excel"
+              severity="success"
+            />
           </div>
         </div>
       </ng-template>

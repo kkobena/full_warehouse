@@ -2,20 +2,30 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ScheduledReportFrequency;
 import com.kobe.warehouse.domain.enumeration.ScheduledReportType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * Entity for scheduled automatic report generation
@@ -42,7 +52,7 @@ public class ScheduledReport implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "frequency", nullable = false,length = 15)
+    @Column(name = "frequency", nullable = false, length = 15)
     private ScheduledReportFrequency frequency;
 
     @Column(name = "execution_time")
@@ -59,13 +69,13 @@ public class ScheduledReport implements Serializable {
     private boolean active = true;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "email_recipients", length = 200)
-    private Set<String> emailRecipients=new HashSet<>(); // Comma-separated emails
+    private Set<String> emailRecipients = new HashSet<>(); // Comma-separated emails
 
     @Column(name = "include_pdf", nullable = false)
     private boolean includePdf = true;
 
     @Column(name = "include_excel", nullable = false)
-    private boolean includeExcel ;
+    private boolean includeExcel;
 
     @Column(name = "last_execution")
     private LocalDateTime lastExecution;

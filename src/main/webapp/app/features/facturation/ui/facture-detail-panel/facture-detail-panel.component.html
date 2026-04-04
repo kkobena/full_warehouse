@@ -30,6 +30,29 @@
           tooltipPosition="left"
           (onClick)="onExportPdf()"
         />
+        @if (!certifieBlob()) {
+          <p-button
+            (onClick)="onConfirmCertification()"
+            [loading]="certificationLoading"
+            [text]="true"
+            icon="pi pi-shield"
+            pTooltip="Certifier FNE"
+            severity="info"
+            size="small"
+            tooltipPosition="left"
+          />
+        }
+        @if (facture().fneResponse) {
+          <p-button
+            (onClick)="onViewFne()"
+            [text]="true"
+            icon="pi pi-eye"
+            pTooltip="Voir certificat FNE"
+            severity="secondary"
+            size="small"
+            tooltipPosition="left"
+          />
+        }
         <p-button
           icon="pi pi-times"
           [text]="true"
@@ -91,7 +114,8 @@
           </ng-template>
         </ng-container>
 
-        <!-- Onglet Régler -->
+        <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées) -->
+        @if (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID') {
         <ng-container ngbNavItem="regler">
           <a class="pharma-nav-tab-link" ngbNavLink>
             <i class="pi pi-money-bill"></i>
@@ -104,6 +128,7 @@
               [reglementFactureDossiers]="reglementDossiers()" />
           </ng-template>
         </ng-container>
+        }
 
         <!-- Onglet Versements -->
         <ng-container ngbNavItem="versements">

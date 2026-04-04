@@ -2,6 +2,7 @@ import { PeremptionStatut } from './peremption-statut';
 
 export class ProductToDestroy {
   id: number;
+  produitId?: number;
   produitName: string;
   produitCodeCip: string;
   numLot: string;
@@ -29,6 +30,9 @@ export class ProductToDestroyPayload {
   magasinId?: number;
   id?: number;
   stockInitial?: number;
+  /** Identifiant de l'emplacement de stockage cible (LotStockLocation).
+   *  Si null, le backend applique une cascade automatique sur toutes les localisations. */
+  storageId?: number;
 }
 
 export class ProductsToDestroyPayload {

@@ -8,6 +8,7 @@ import static org.springframework.util.StringUtils.hasText;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.LotStockLocation;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
@@ -15,6 +16,7 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.LotRepository;
+import com.kobe.warehouse.repository.LotStockLocationRepository;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProductsToDestroyRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -51,6 +53,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
 
     private final ProductsToDestroyRepository productsToDestroyRepository;
     private final LotRepository lotRepository;
+    private final LotStockLocationRepository lotStockLocationRepository;
     private final FournisseurProduitRepository fournisseurRepository;
     private final UserService userService;
     private final StorageService storageService;
@@ -63,6 +66,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     public ProductsToDestroyServiceImpl(
         ProductsToDestroyRepository productsToDestroyRepository,
         LotRepository lotRepository,
+        LotStockLocationRepository lotStockLocationRepository,
         FournisseurProduitRepository fournisseurRepository,
         UserService userService,
         StorageService storageService,
@@ -74,6 +78,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     ) {
         this.productsToDestroyRepository = productsToDestroyRepository;
         this.lotRepository = lotRepository;
+        this.lotStockLocationRepository = lotStockLocationRepository;
         this.fournisseurRepository = fournisseurRepository;
         this.userService = userService;
         this.storageService = storageService;
@@ -95,8 +100,8 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         }
         for (ProductToDestroyPayload productToDestroyPayload1 : productToDestroyPayload.products()) {
             ProductsToDestroy productsToDestroy = addProductQuantity(productToDestroyPayload1, null, magasin);
-            updateStock(productsToDestroy);
-            updateLot(productsToDestroy);
+            updateStock(productsToDestroy, productToDestroyPayload1.storageId());
+            updateLot(productsToDestroy, productToDestroyPayload1.storageId());
         }
     }
 
@@ -241,7 +246,9 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     public void closeLastEdition() {
         this.productsToDestroyRepository.findAllByEditingTrueAndCreatedEquals(LocalDate.now(), this.userService.getUser().getId()).forEach(
                 productsToDestroy -> {
-                    updateStock(productsToDestroy);
+                    // Pour la clôture manuelle (editing=true), on n'a pas de storageId connu
+                    // → cascade automatique sur toutes les localisations du lot
+                    updateStock(productsToDestroy, null);
                     productsToDestroy.setEditing(false);
                     productsToDestroy.setUpdated(LocalDateTime.now());
                     inventoryTransactionService.save(productsToDestroy);
@@ -285,63 +292,110 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         return this.stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(magasinId, produitId);
     }
 
-    private void updateStock(ProductsToDestroy productsToDestroy) {
+    /**
+     * Met à jour StockProduit (stock niveau produit par emplacement).
+     * Si storageId fourni → cible uniquement ce storage.
+     * Sinon → déduit d'abord du PRINCIPAL, puis des autres (comportement historique).
+     */
+    private void updateStock(ProductsToDestroy productsToDestroy, Integer storageId) {
         int quantity = productsToDestroy.getQuantity();
         List<StockProduit> stockProduits = findStockProduits(
             productsToDestroy.getMagasin().getId(),
             productsToDestroy.getFournisseurProduit().getProduit().getId()
         );
+        if (stockProduits.isEmpty()) return;
 
-        if (!stockProduits.isEmpty()) {
-            Map<Boolean, List<StockProduit>> partiton = stockProduits
+        if (nonNull(storageId)) {
+            // Cibler uniquement le StockProduit du storage sélectionné
+            stockProduits.stream()
+                .filter(sp -> sp.getStorage().getId().equals(storageId))
+                .findFirst()
+                .ifPresent(sp -> {
+                    int newQty = Math.max(sp.getQtyStock() - quantity, 0);
+                    sp.setQtyStock(newQty);
+                    sp.setUpdatedAt(LocalDateTime.now());
+                    stockProduitRepository.save(sp);
+                });
+        } else {
+            // Comportement historique : PRINCIPAL d'abord, puis les autres
+            Map<Boolean, List<StockProduit>> partition = stockProduits
                 .stream()
                 .collect(Collectors.partitioningBy(s -> s.getStorage().getStorageType() == StorageType.PRINCIPAL));
-            List<StockProduit> stockOfPointOfSale = partiton.get(true);
-            if (!CollectionUtils.isEmpty(stockOfPointOfSale)) {
-                StockProduit stockProduit = stockOfPointOfSale.getFirst();
-                if (stockProduit.getQtyStock() >= quantity) {
-                    stockProduit.setQtyStock(stockProduit.getQtyStock() - quantity);
-                    quantity -= stockProduit.getQtyStock();
-                } else {
-                    if (stockProduit.getQtyStock() > 0) {
-                        stockProduit.setQtyStock(0);
-                        quantity -= stockProduit.getQtyStock();
-                    }
-                }
-                stockProduit.setUpdatedAt(LocalDateTime.now());
-                this.stockProduitRepository.save(stockProduit);
+
+            int remaining = quantity;
+            List<StockProduit> principal = partition.get(true);
+            if (!CollectionUtils.isEmpty(principal)) {
+                StockProduit sp = principal.getFirst();
+                int toDeduct = Math.min(sp.getQtyStock(), remaining);
+                sp.setQtyStock(sp.getQtyStock() - toDeduct);
+                remaining -= toDeduct;
+                sp.setUpdatedAt(LocalDateTime.now());
+                stockProduitRepository.save(sp);
             }
-            if (quantity > 0) {
-                List<StockProduit> others = partiton.get(false);
+            if (remaining > 0) {
+                List<StockProduit> others = partition.get(false);
                 if (!CollectionUtils.isEmpty(others)) {
-                    for (StockProduit stockProduit : others) {
-                        if (quantity <= 0) {
-                            return;
-                        }
-                        if (stockProduit.getQtyStock() >= quantity) {
-                            stockProduit.setQtyStock(stockProduit.getQtyStock() - quantity);
-                            quantity -= stockProduit.getQtyStock();
-                        } else {
-                            if (stockProduit.getQtyStock() > 0) {
-                                stockProduit.setQtyStock(0);
-                                quantity -= stockProduit.getQtyStock();
-                            }
-                        }
-                        stockProduit.setUpdatedAt(LocalDateTime.now());
-                        this.stockProduitRepository.save(stockProduit);
+                    for (StockProduit sp : others) {
+                        if (remaining <= 0) break;
+                        int toDeduct = Math.min(sp.getQtyStock(), remaining);
+                        if (toDeduct <= 0) continue;
+                        sp.setQtyStock(sp.getQtyStock() - toDeduct);
+                        remaining -= toDeduct;
+                        sp.setUpdatedAt(LocalDateTime.now());
+                        stockProduitRepository.save(sp);
                     }
                 }
             }
         }
     }
 
-    private void updateLot(ProductsToDestroy productsToDestroy) {
-        if (hasText(productsToDestroy.getNumLot())) {
-            this.lotRepository.findByNumLot(productsToDestroy.getNumLot()).ifPresent(lot -> {
-                    lot.setQuantity(lot.getQuantity() - productsToDestroy.getQuantity());
-                    lot.setUpdated(LocalDateTime.now());
-                    this.lotRepository.save(lot);
+    /**
+     * Met à jour Lot.quantity ET LotStockLocation.qty pour la bonne localisation.
+     *
+     * @param storageId si fourni → met à jour uniquement ce LotStockLocation ;
+     *                  sinon → cascade sur toutes les localisations du lot (PRINCIPAL en premier).
+     */
+    private void updateLot(ProductsToDestroy productsToDestroy, Integer storageId) {
+        if (!hasText(productsToDestroy.getNumLot())) return;
+        this.lotRepository.findByNumLot(productsToDestroy.getNumLot()).ifPresent(lot -> {
+            int qty = productsToDestroy.getQuantity();
+            // 1. Mettre à jour le total du lot
+            int newLotQty = Math.max(lot.getQuantity() - qty, 0);
+            lot.setQuantity(newLotQty);
+            lot.setUpdated(LocalDateTime.now());
+            this.lotRepository.save(lot);
+
+            // 2. Mettre à jour LotStockLocation
+            updateLotStockLocations(lot, qty, storageId);
+        });
+    }
+
+    /**
+     * Décrémente les entrées LotStockLocation pour un lot donné.
+     * Si storageId fourni → cible cette localisation précise.
+     * Sinon → cascade PRINCIPAL en premier, puis les autres par qty décroissante.
+     */
+    private void updateLotStockLocations(Lot lot, int quantity, Integer storageId) {
+        if (nonNull(storageId)) {
+            // Cibler la localisation exacte
+            this.lotStockLocationRepository.findByLotIdAndStorageId(lot.getId(), storageId)
+                .ifPresent(lsl -> {
+                    int newQty = Math.max(lsl.getQty() - quantity, 0);
+                    lsl.setQty(newQty);
+                    this.lotStockLocationRepository.save(lsl);
                 });
+        } else {
+            // Cascade sur toutes les localisations disponibles (PRINCIPAL d'abord)
+            List<LotStockLocation> locations = this.lotStockLocationRepository.findAvailableByLotId(lot.getId());
+            int remaining = quantity;
+            for (LotStockLocation lsl : locations) {
+                if (remaining <= 0) break;
+                int toDeduct = Math.min(lsl.getQty(), remaining);
+                if (toDeduct <= 0) continue;
+                lsl.setQty(lsl.getQty() - toDeduct);
+                remaining -= toDeduct;
+                this.lotStockLocationRepository.save(lsl);
+            }
         }
     }
 
@@ -368,6 +422,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         FournisseurProduit fournisseurProduit = productToDestroy.getFournisseurProduit();
         productToDestroyDTO.setProduitCodeCip(fournisseurProduit.getCodeCip());
         productToDestroyDTO.setProduitName(fournisseurProduit.getProduit().getLibelle());
+        productToDestroyDTO.setProduitId(fournisseurProduit.getProduit().getId());
         productToDestroyDTO.setQuantity(productToDestroy.getQuantity());
         productToDestroyDTO.setDatePeremption(DateUtil.formatFr(productToDestroy.getDatePeremption()));
         productToDestroyDTO.setDateDestruction(DateUtil.formatFr(productToDestroy.getDateDestuction()));

@@ -28,6 +28,7 @@ import { RayonService } from '../../rayon/rayon.service';
 import { MagasinService } from '../../magasin/magasin.service';
 import { StorageService } from '../../storage/storage.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { PeremptionStatut } from '../model/peremption-statut';
@@ -59,6 +60,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
     Tooltip,
     DatePickerComponent,
     SpinnerComponent,
+    RouterLink,
   ],
   templateUrl: './lot-a-detruire.component.html',
   styleUrl: './lot-a-detruire.component.scss',
@@ -83,6 +85,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected rayons: IRayon[] = [];
   protected magasins: IMagasin[] = [];
   protected fournisseurs: IFournisseur[] = [];
+  protected showAdvancedFilters = false;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
   protected loading!: boolean;
@@ -173,6 +176,22 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.onSearch();
   }
 
+  protected toggleAdvancedFilters(): void {
+    this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  protected resetFilters(): void {
+    this.selectedType = this.types[2];
+    this.searchTerm = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.selectedFournisseur = null;
+    this.selectedRayon = null;
+    this.selectedMagasin = null;
+    this.selectedStorage = null;
+    this.onSearch();
+  }
+
   protected onMagasinChange(): void {
     this.fetchStorages();
     this.onSearch();
@@ -207,10 +226,18 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   }
 
   protected onDestroyAll(): void {
+    const count = this.selectedItems?.length ?? 0;
+    const totalQty = this.selectedItems?.reduce((s, i) => s + (i.quantity ?? 0), 0) ?? 0;
+    const totalValeur = this.selectedItems?.reduce((s, i) => s + (i.prixAchat ?? 0) * (i.quantity ?? 0), 0) ?? 0;
+    const message =
+      `Détruire définitivement ${count} lot(s) ?\n` +
+      `Quantité totale : ${totalQty.toLocaleString('fr-FR')} unités\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString('fr-FR')} FCFA\n\n` +
+      `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.destroyAll(),
-      'Confirmation',
-      'Voulez-vous détruire tous les stocks de ces produits ?',
+      'Confirmer la destruction groupée',
+      message,
     );
   }
 

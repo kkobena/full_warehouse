@@ -1,4 +1,6 @@
 <div class="row">
+
+
   <div class="col-2 col-md-2 col-sm-2">
     <!-- Modern Navigation Sidebar -->
     <div class="pharma-nav-sidebar">
@@ -14,6 +16,9 @@
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-calendar-times"></i>
                 <span>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}</span>
+                @if (lotPerimesCount > 0) {
+                  <span class="badge bg-danger ms-auto">{{ lotPerimesCount > 99 ? '99+' : (lotPerimesCount | number) }}</span>
+                }
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
@@ -25,6 +30,9 @@
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-trash"></i>
                 <span>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</span>
+                @if (lotADetruireCount > 0) {
+                  <span class="badge bg-warning text-dark ms-auto">{{ lotADetruireCount > 99 ? '99+' : (lotADetruireCount | number) }}</span>
+                }
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
@@ -37,7 +45,36 @@
     </div>
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 pharma-smart-content p-2">
+  <div class="col-10 col-md-10 col-sm-10 pharma-smart-content p-1">
+    <!-- Bandeau d'alerte proactif péremptions -->
+
+    @if (peremptionAlertService.peremptionCount() > 0 && !alertDismissed()) {
+      <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-2 py-2" role="alert">
+        <i class="pi pi-exclamation-circle flex-shrink-0"></i>
+        <div class="flex-grow-1">
+          <strong>{{ peremptionAlertService.peremptionCount() }} produit(s) périmé(s)</strong>
+          nécessitent une action —
+          <a class="alert-link" (click)="active = 'lot-perimes'" style="cursor:pointer">
+            Consulter les lots périmés
+          </a>
+          ou les
+          <a class="alert-link" (click)="active = 'lot-a-detruire'" style="cursor:pointer">
+            lots à détruire
+          </a>.
+        </div>
+        <button type="button" class="btn-close" (click)="dismissAlert()" aria-label="Fermer"></button>
+      </div>
+    }
+    @if (peremptionAlertService.ruptureCount() > 0 && !alertDismissed()) {
+      <div class="alert alert-warning alert-dismissible d-flex align-items-center gap-2 mb-2 py-2" role="alert">
+        <i class="pi pi-info-circle flex-shrink-0"></i>
+        <div class="flex-grow-1">
+          <strong>{{ peremptionAlertService.ruptureCount() }} produit(s) en rupture</strong> —
+          <a class="alert-link" [routerLink]="['/reports/stock']" style="cursor:pointer">Voir le rapport stock</a>
+        </div>
+        <button type="button" class="btn-close" (click)="dismissAlert()" aria-label="Fermer"></button>
+      </div>
+    }
     <div [ngbNavOutlet]="nav"></div>
   </div>
 </div>

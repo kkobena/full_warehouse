@@ -48,6 +48,7 @@ public class TiersPayantDto implements Serializable {
     private List<AssuredCustomerDTO> clients = new ArrayList<>();
     private Integer plafondJournalierClient;
     private Integer plafondConsoClient;
+    private Integer delaiReglement;
     private String ncc;
 
     public TiersPayantDto() {}
@@ -356,7 +357,12 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public TiersPayantDto buildLite(TiersPayant tiersPayant) {
-        return this.setId(tiersPayant.getId()).setName(tiersPayant.getName()).setFullName(tiersPayant.getFullName());
+    public Integer getDelaiReglement() {
+        return delaiReglement;
+    }
+
+    public TiersPayantDto setDelaiReglement(Integer delaiReglement) {
+        this.delaiReglement = delaiReglement;
+        return this;
     }
 }

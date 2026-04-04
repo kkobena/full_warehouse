@@ -42,6 +42,7 @@ public interface TiersPayantMapper {
             .setModelFacture(tiersPayant.getModelFacture())
             .setGroupeTiersPayant(tiersPayant.getGroupeTiersPayant())
             .setCreated(tiersPayant.getCreated())
+            .setDelaiReglement(tiersPayant.getDelaiReglement())
             .setUpdated(tiersPayant.getUpdated());
     }
 
@@ -101,6 +102,7 @@ public interface TiersPayantMapper {
             .setTelephoneFixe(dto.getTelephoneFixe())
             .setBeExclude(dto.isToBeExclude())
             .setModelFacture(dto.getModelFacture())
+            .setDelaiReglement(dto.getDelaiReglement())
             .setGroupeTiersPayant(fromId(dto.getGroupeTiersPayantId()));
 
         entity.setUpdated(LocalDateTime.now());

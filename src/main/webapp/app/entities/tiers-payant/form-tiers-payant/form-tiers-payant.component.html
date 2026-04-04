@@ -55,6 +55,48 @@
               }
             }
           </div>
+
+          <!-- Téléphone -->
+          <div class="form-field form-field-full">
+            <label for="telephone">Téléphone <span class="required">*</span></label>
+            <input
+              [class.ng-invalid]="editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="telephone"
+              id="telephone"
+              pInputText
+              pKeyFilter="int"
+              type="tel"
+            />
+            @if (editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched) {
+              @if (editForm.get('telephone')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="form-field form-field-full">
+            <label for="email">Email <span class="required">*</span></label>
+            <input
+              [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="email"
+              id="email"
+              pInputText
+              type="email"
+            />
+            @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+              @if (editForm.get('email')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('email')?.errors?.email) {
+                <small class="p-error">Adresse email invalide</small>
+              }
+            }
+          </div>
         </div>
       </p-card>
 
@@ -94,12 +136,6 @@
             <label for="codeOrganisme">Code organisme</label>
             <input autocomplete="off" class="w-full" formControlName="codeOrganisme" id="codeOrganisme" pInputText pKeyFilter="alphanum" />
           </div>
-
-          <!-- Téléphone -->
-          <div class="form-field form-field-full">
-            <label for="telephone">Téléphone</label>
-            <input autocomplete="off" class="w-full" formControlName="telephone" id="telephone" pInputText pKeyFilter="int" type="tel" />
-          </div>
         </div>
       </p-card>
     </div>
@@ -116,6 +152,12 @@
         </ng-template>
 
         <div class="form-grid-compact">
+          <!-- Délai de règlement -->
+          <div class="form-field form-field-full">
+            <label for="delaiReglement">Délai de règlement (jours)</label>
+            <p-input-number [fluid]="true" [min]="0" autocomplete="off" formControlName="delaiReglement" id="delaiReglement"> </p-input-number>
+          </div>
+
           <!-- Nombre maxi de bordereau -->
           <div class="form-field form-field-full">
             <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>

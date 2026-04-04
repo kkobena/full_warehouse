@@ -31,6 +31,7 @@ import { FactureListComponent } from '../../ui/facture-list/facture-list.compone
 import { FactureDetailPanelComponent } from '../../ui/facture-detail-panel/facture-detail-panel.component';
 import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
+import { Toast } from "primeng/toast";
 
 @Component({
   selector: 'app-facturation-home',
@@ -46,6 +47,7 @@ import { PrimeNG } from "primeng/config";
     FactureKpiBannerComponent,
     FactureListComponent,
     FactureDetailPanelComponent,
+    Toast
   ],
   templateUrl: './facturation-home.component.html',
   styleUrl: './facturation-home.component.scss',

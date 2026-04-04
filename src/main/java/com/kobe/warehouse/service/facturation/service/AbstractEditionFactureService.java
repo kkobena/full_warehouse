@@ -141,7 +141,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
         );
     }
 
-    protected void buildAndSaveFacture(
+    protected void buildAndSaveFacture__(
         FactureTiersPayant factureGroup,
         TiersPayant tiersPayant,
         List<ThirdPartySaleLine> saleLines,
@@ -212,6 +212,129 @@ public abstract class AbstractEditionFactureService implements EditionService {
                     montantNet.doubleValue(), montantHt.doubleValue(), tva));
         });
         factureTiersPayant.setRepartitions(finalFacturesRepartitions);
+    }
+
+
+    protected void buildAndSaveFacture(
+        FactureTiersPayant factureGroup,
+        TiersPayant tiersPayant,
+        List<ThirdPartySaleLine> saleLines,
+        LocalDateTime dateCreation,
+        int year,
+        int lastFactureNumero,
+        int generationCode,
+        EditionSearchParams editionSearchParams
+    ) {
+
+        FactureTiersPayant factureTiersPayant = buildAndPersistFacture(
+            factureGroup, tiersPayant, dateCreation, year, lastFactureNumero, generationCode, editionSearchParams
+        );
+        List<RepartitionTiersPayantParTva> allRepartitions = attachSaleLinesToFacture(factureTiersPayant, saleLines);
+        List<RepartitionTiersPayantParTva> aggregated = aggregateRepartitionsByTva(allRepartitions);
+        applyTotalsAndRepartitions(factureTiersPayant, aggregated);
+        this.facturationRepository.saveAndFlush(factureTiersPayant);
+    }
+
+    private FactureTiersPayant buildAndPersistFacture(
+        FactureTiersPayant factureGroup,
+        TiersPayant tiersPayant,
+        LocalDateTime dateCreation,
+        int year,
+        int numero,
+        int generationCode,
+        EditionSearchParams params
+    ) {
+        FactureTiersPayant facture = new FactureTiersPayant()
+            .setId(this.factureIdGeneratorService.nextId())
+            .setCreated(dateCreation)
+            .setUpdated(dateCreation)
+            .setGenerationCode(generationCode)
+            .setRemiseForfetaire(tiersPayant.getRemiseForfaitaire())
+            .setTiersPayant(tiersPayant)
+            .setDebutPeriode(params.startDate())
+            .setFinPeriode(params.endDate())
+            .setFactureProvisoire(params.factureProvisoire())
+            .setUser(this.userService.getUser())
+            .setNumFacture(getFactureNumber(year, numero));
+
+        if (factureGroup != null) {
+            facture.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
+        }
+
+        return this.facturationRepository.saveAndFlush(facture);
+    }
+
+    private List<RepartitionTiersPayantParTva> attachSaleLinesToFacture(
+        FactureTiersPayant factureTiersPayant,
+        List<ThirdPartySaleLine> saleLines
+    ) {
+        List<RepartitionTiersPayantParTva> allRepartitions = new ArrayList<>();
+
+        for (ThirdPartySaleLine saleLine : saleLines) {
+            List<RepartitionTiersPayantParTva> repartitions = saleLine.getRepartitions();
+            if (!CollectionUtils.isEmpty(repartitions)) {
+                allRepartitions.addAll(repartitions);
+            }
+            saleLine.setFactureTiersPayant(factureTiersPayant);
+            factureTiersPayant.getFacturesDetails().add(saleLine);
+            thirdPartySaleLineRepository.saveAndFlush(saleLine);
+        }
+
+        return allRepartitions;
+    }
+
+    /**
+     * Applique les totaux et les répartitions agrégées à la facture.
+     * Les montants sont dérivés des répartitions agrégées (source unique de vérité)
+     * pour garantir la cohérence entre les deux.
+     */
+    private void applyTotalsAndRepartitions(
+        FactureTiersPayant facture,
+        List<RepartitionTiersPayantParTva> aggregated
+    ) {
+        BigDecimal ttc = BigDecimal.ZERO;
+        BigDecimal tva = BigDecimal.ZERO;
+        BigDecimal net = BigDecimal.ZERO;
+        BigDecimal ht = BigDecimal.ZERO;
+
+        for (RepartitionTiersPayantParTva r : aggregated) {
+            ttc = ttc.add(BigDecimal.valueOf(r.montantTtc()));
+            tva = tva.add(BigDecimal.valueOf(r.montantTva()));
+            net = net.add(BigDecimal.valueOf(r.montantNet()));
+            ht = ht.add(BigDecimal.valueOf(r.montantHt()));
+        }
+
+        facture.setMontantTtc(ttc);
+        facture.setMontantTva(tva);
+        facture.setMontantNet(net);
+        facture.setMontantHt(ht);
+        facture.setRepartitions(aggregated);
+    }
+
+    private List<RepartitionTiersPayantParTva> aggregateRepartitionsByTva(
+        List<RepartitionTiersPayantParTva> repartitions
+    ) {
+        return repartitions.stream()
+            .collect(Collectors.groupingBy(RepartitionTiersPayantParTva::tva))
+            .entrySet().stream()
+            .map(entry -> sumRepartitionGroup(entry.getKey(), entry.getValue()))
+            .toList();
+    }
+
+    private RepartitionTiersPayantParTva sumRepartitionGroup(int tva, List<RepartitionTiersPayantParTva> group) {
+        BigDecimal ttc = BigDecimal.ZERO;
+        BigDecimal tvaAmount = BigDecimal.ZERO;
+        BigDecimal net = BigDecimal.ZERO;
+        BigDecimal ht = BigDecimal.ZERO;
+
+        for (RepartitionTiersPayantParTva r : group) {
+            ttc = ttc.add(BigDecimal.valueOf(r.montantTtc()));
+            tvaAmount = tvaAmount.add(BigDecimal.valueOf(r.montantTva()));
+            net = net.add(BigDecimal.valueOf(r.montantNet()));
+            ht = ht.add(BigDecimal.valueOf(r.montantHt()));
+        }
+
+        return new RepartitionTiersPayantParTva(ttc.doubleValue(), tvaAmount.doubleValue(), net.doubleValue(), ht.doubleValue(), tva);
     }
 
     protected int getLastFactureNumero() {

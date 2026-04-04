@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.facturation;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
+import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
@@ -238,11 +239,14 @@ public class EditionFactureResource {
     public ResponseEntity<FacturationKpiDto> getKpi(
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "organismeId", required = false) Integer organismeId
+        @RequestParam(name = "organismeId", required = false) Integer organismeId,
+        @RequestParam(name = "groupeId", required = false) Integer groupeId,
+        @RequestParam(name = "typeFacture", required = false,defaultValue = "ALL") TypeFacture typeFacture
+
     ) {
         LocalDate effectiveFrom = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
         LocalDate effectiveTo = toDate != null ? toDate : LocalDate.now();
-        return ResponseEntity.ok(editionService.getKpi(effectiveFrom, effectiveTo, organismeId));
+        return ResponseEntity.ok(editionService.getKpi(effectiveFrom, effectiveTo, organismeId,groupeId, typeFacture));
     }
 
     @GetMapping("/edition-factures/export")

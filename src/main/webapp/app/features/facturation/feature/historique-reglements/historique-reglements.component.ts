@@ -63,6 +63,7 @@ export class HistoriqueReglementsComponent implements OnInit {
   protected expandedRows: Record<string, boolean> = {};
   protected loadingBtn = false;
   protected loadingPdf = false;
+  protected loadingExcel = false;
   protected factureGroup = false;
   protected search: string | null = null;
   protected modelStartDate: Date;
@@ -191,6 +192,30 @@ export class HistoriqueReglementsComponent implements OnInit {
         },
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF'),
+      });
+  }
+
+  onExportExcel(): void {
+    this.loadingExcel = true;
+    this.reglementService
+      .exportExcel(this.buildParams())
+      .pipe(
+        finalize(() => (this.loadingExcel = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'reglements-factures', 'xlsx');
+          } else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'reglements-factures.xlsx';
+            a.click();
+          }
+        },
+        error: err =>
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export Excel'),
       });
   }
 

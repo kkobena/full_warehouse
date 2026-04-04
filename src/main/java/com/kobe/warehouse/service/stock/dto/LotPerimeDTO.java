@@ -1,53 +1,34 @@
 package com.kobe.warehouse.service.stock.dto;
 
-
-
+import java.util.List;
 
 public class LotPerimeDTO {
 
+    // ...existing fields...
     private Integer produitId;
-
     private Integer id;
-
-
     private String numLot;
-
-
     private String fournisseur;
-
-
     private String produitName;
-
-
     private String produitCode;
-
-
     private String datePeremption;
-
-
     private int quantity;
-
-
     private int prixAchat;
-
-
     private int prixVente;
-
-
     private int prixTotalVente;
-
-
     private int prixTotaAchat;
-
-
     private String statutPerime;
-
-
     private String rayonName;
-
     private String familleProduitName;
-
     private PeremptionStatut peremptionStatut;
+
+    /**
+     * Localisations où ce lot est présent avec du stock.
+     * Vide = lot sans LotStockLocation connu (mode sans gestion multi-emplacement).
+     * Taille 1 = lot dans un seul emplacement.
+     * Taille > 1 = lot multi-emplacement → l'utilisateur doit choisir.
+     */
+    private List<LotLocationDTO> locations = List.of();
 
     public String getDatePeremption() {
         return datePeremption;
@@ -176,5 +157,13 @@ public class LotPerimeDTO {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public List<LotLocationDTO> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<LotLocationDTO> locations) {
+        this.locations = locations != null ? locations : List.of();
     }
 }

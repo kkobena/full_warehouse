@@ -5,92 +5,147 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
-      <div class="form-grid-compact">
-        <div [hidden]="true" class="form-group">
-          <input class="w-full" formControlName="id" id="id" name="id" readonly type="hidden" />
-        </div>
+    <input formControlName="id" id="id" name="id" type="hidden" />
 
-        <div class="form-field form-field-full">
-          <label for="field_name">Libellé</label>
-          <input #name autocomplete="off" class="w-full" formControlName="name" id="field_name" name="name" pInputText type="text" />
-          @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
-            <div>
+    <div class="card-grid-2col">
+      <!-- Section 1: Champs Obligatoires -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header section-header-required">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>Champs Obligatoires</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Libellé -->
+          <div class="form-field form-field-full">
+            <label for="field_name">Libellé <span class="required">*</span></label>
+            <input
+              #name
+              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="name"
+              id="field_name"
+              pInputText
+              type="text"
+            />
+            @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
               @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
               }
-            </div>
-          }
-        </div>
+            }
+          </div>
 
-        <div class="form-field form-field-full">
-          <label for="ordreTrisFacture">Ordre de tris des factures</label>
-          <p-select
-            [filter]="false"
-            [options]="ordreTrisFacture"
-            formControlName="ordreTrisFacture"
-            id="ordreTrisFacture"
-            name="ordreTrisFacture"
-            optionLabel="value"
-            optionValue="key"
-            placeholder="Sélectionner un ordre"
-            size="large"
-          >
-          </p-select>
-        </div>
+          <!-- Téléphone -->
+          <div class="form-field form-field-full">
+            <label for="field_telephone">Téléphone <span class="required">*</span></label>
+            <input
+              [class.ng-invalid]="editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="telephone"
+              id="field_telephone"
+              pInputText
+              pKeyFilter="int"
+              type="tel"
+            />
+            @if (editForm.get('telephone')?.invalid && editForm.get('telephone')?.touched) {
+              @if (editForm.get('telephone')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+            }
+          </div>
 
-        <div class="form-field form-field-full">
-          <label for="field_adresse">Adresse</label>
-          <input autocomplete="off" class="w-full" formControlName="adresse" id="field_adresse" name="v" pInputText type="text" />
+          <!-- Email -->
+          <div class="form-field form-field-full">
+            <label for="field_email">Email </label>
+            <input
+              [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="email"
+              id="field_email"
+              pInputText
+              type="email"
+            />
+            @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+              @if (editForm.get('email')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('email')?.errors?.email) {
+                <small class="p-error">Adresse email invalide</small>
+              }
+            }
+          </div>
         </div>
+      </p-card>
 
-        <div class="form-field form-field-full">
-          <label for="field_telephone">Téléphone</label>
-          <input
-            autocomplete="off"
-            class="w-full"
-            formControlName="telephone"
-            id="field_telephone"
-            name="telephone"
-            pInputText
-            pKeyFilter="int"
-            type="text"
-          />
-        </div>
+      <!-- Section 2: Informations Générales -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Informations Générales</span>
+          </div>
+        </ng-template>
 
-        <div class="form-field form-field-full">
-          <label for="field_telephoneFixe">Téléphone fixe</label>
-          <input
-            autocomplete="off"
-            formControlName="telephoneFixe"
-            id="field_telephoneFixe"
-            name="telephoneFixe"
-            pInputText
-            class="w-full"
-            pKeyFilter="int"
-            type="text"
-          />
+        <div class="form-grid-compact">
+          <!-- Ordre de tris des factures -->
+          <div class="form-field form-field-full">
+            <label for="ordreTrisFacture">Ordre de tris des factures</label>
+            <p-select
+              [filter]="false"
+              [fluid]="true"
+              [options]="ordreTrisFacture"
+              formControlName="ordreTrisFacture"
+              id="ordreTrisFacture"
+              optionLabel="value"
+              optionValue="key"
+              placeholder="Sélectionner un ordre"
+            >
+            </p-select>
+          </div>
+
+          <!-- Délai de règlement -->
+          <div class="form-field form-field-full">
+            <label for="delaiReglement">Délai de règlement (jours)</label>
+            <p-input-number [fluid]="true" [min]="0" autocomplete="off" formControlName="delaiReglement" id="delaiReglement"> </p-input-number>
+          </div>
+
+          <!-- Adresse -->
+          <div class="form-field form-field-full">
+            <label for="field_adresse">Adresse</label>
+            <input autocomplete="off" class="w-full" formControlName="adresse" id="field_adresse" pInputText type="text" />
+          </div>
+
+          <!-- Téléphone fixe -->
+          <div class="form-field form-field-full">
+            <label for="field_telephoneFixe">Téléphone fixe</label>
+            <input
+              autocomplete="off"
+              class="w-full"
+              formControlName="telephoneFixe"
+              id="field_telephoneFixe"
+              pInputText
+              pKeyFilter="int"
+              type="text"
+            />
+          </div>
         </div>
-      </div>
-    </p-card>
+      </p-card>
+    </div>
   </div>
 
-  <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
-      [raised]="true"
-      class="mr-2"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    ></p-button>
+  <div class="form-actions-compact">
+    <p-button (click)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
-      [raised]="true"
+      [loading]="isSaving"
       icon="pi pi-check"
       label="Enregistrer"
-      severity="success"
+      severity="primary"
       type="submit"
     ></p-button>
   </div>

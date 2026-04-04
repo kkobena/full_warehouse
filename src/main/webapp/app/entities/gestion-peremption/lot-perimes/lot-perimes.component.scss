@@ -1,6 +1,49 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/bulk-action-bar';
+
 .p-floatlabel {
   min-width: 90px !important;
 }
+
+// ── Filtres avancés ──────────────────────────────────────────────────
+.advanced-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 6px 6px;
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── KPI cards interactives ───────────────────────────────────────────
+.kpi-card {
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.kpi-clickable {
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color, #3b82f6);
+    outline-offset: 2px;
+  }
+}
+

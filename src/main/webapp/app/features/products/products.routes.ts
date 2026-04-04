@@ -65,6 +65,17 @@ export const PRODUCTS_ROUTES: Routes = [
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
     },
     canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':id/transaction',
+    loadComponent: () => import('../../entities/produit/transaction/transaction.component').then(m => m.TransactionComponent),
+    resolve: {
+      produit: ProductResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+    },
+    canActivate: [UserRouteAccessService],
   }
 
 ];

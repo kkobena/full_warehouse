@@ -7,20 +7,18 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Lot_;
-import com.kobe.warehouse.domain.Magasin_;
+import com.kobe.warehouse.domain.LotStockLocation;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
-import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.StockProduit_;
-import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -59,6 +57,7 @@ public interface LotRepository
     /** Vérifie l'existence d'un numéro de série FMD pour un produit donné (détection doublon). */
     boolean existsBySerialNumberAndProduitId(String serialNumber, Integer produitId);
 
+
     default Specification<Lot> filterByStock() {
         return (root, _, cb) -> cb.greaterThan(root.get(Lot_.quantity), 0);
     }
@@ -72,120 +71,107 @@ public interface LotRepository
     }
 
     default Specification<Lot> filterByProduitId(Integer produitId) {
-        if (isNull(produitId)) {
-            return null; // No filter if id is null
-        }
+        if (isNull(produitId)) return null;
         return (root, _, cb) ->
-            cb.equal(
-                root.get(Lot_.produit).get(Produit_.id),
-                produitId
-            );
+            cb.equal(root.get(Lot_.produit).get(Produit_.id), produitId);
     }
 
     default Specification<Lot> filterByNumLot(String numLot) {
-        if (!hasText(numLot)) {
-            return null; // No filter if numLot is empty or null
-        }
+        if (!hasText(numLot)) return null;
         return (root, _, cb) -> cb.like(cb.upper(root.get(Lot_.numLot)), "%" + numLot.toLowerCase() + "%");
     }
 
     default Specification<Lot> filterBySearchTerm(String searchTerm) {
-        if (!hasText(searchTerm)) {
-            return null; // No filter if numLot is empty or null
-        }
+        if (!hasText(searchTerm)) return null;
         String search = searchTerm.trim().toUpperCase() + "%";
-
-
         return (root, _, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
             SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
-
             return cb.or(
                 cb.like(root.get(Lot_.numLot), search),
                 cb.like(produitJoin.get(Produit_.codeEanLaboratoire), search),
-                cb.like(
-                    cb.upper(
-                        produitJoin.get(Produit_.libelle)
-                    ),
-                    search
-                ),
+                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
                 cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeCip), search),
                 cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeEan), search)
             );
         };
-
     }
 
     default Specification<Lot> filterByDayCount(int dayCount) {
-        if (dayCount <= 0) {
-            return null; // No filter if dayCount is negative
-        }
+        if (dayCount <= 0) return null;
         return (root, _, cb) -> cb.lessThanOrEqualTo(root.get(Lot_.expiryDate), LocalDate.now().plusDays(dayCount));
     }
 
     default Specification<Lot> filterByFromDate(LocalDate fromDate) {
-        if (isNull(fromDate)) {
-            return null; // No filter if fromDate is null
-        }
+        if (isNull(fromDate)) return null;
         return (root, _, cb) -> cb.greaterThanOrEqualTo(root.get(Lot_.expiryDate), fromDate);
     }
 
     default Specification<Lot> filterByDateRange(LocalDate fromDate, LocalDate toDate) {
-        if (isNull(fromDate) || isNull(toDate)) {
-            return null; // No filter if fromDate or toDate is null
-        }
+        if (isNull(fromDate) || isNull(toDate)) return null;
         return (root, _, cb) -> cb.between(root.get(Lot_.expiryDate), fromDate, toDate);
     }
 
     default Specification<Lot> filterByFournisseurId(Integer fournisseurId) {
-        if (isNull(fournisseurId)) {
-            return null; // No filter if fournisseurId is null
-        }
-        return (root, _, cb) ->
-
-
-        {
+        if (isNull(fournisseurId)) return null;
+        return (root, _, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
             SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
             Join<FournisseurProduit, Fournisseur> fournisseurJoin = fournisseurProduitJoin.join(FournisseurProduit_.fournisseur);
-
             return cb.equal(fournisseurJoin.get(Fournisseur_.id), fournisseurId);
         };
     }
 
     default Specification<Lot> filterByRayonId(Integer rayonId) {
-        if (isNull(rayonId)) {
-            return null; // No filter if rayonId is null
-        }
-
+        if (isNull(rayonId)) return null;
         return (root, query, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
-            Join<Produit, RayonProduit> rayonJoin = produitJoin.join(Produit_.rayonProduits); // collection join
-
+            Join<Produit, RayonProduit> rayonJoin = produitJoin.join(Produit_.rayonProduits);
             return cb.equal(rayonJoin.get(RayonProduit_.id), rayonId);
         };
     }
 
     default Specification<Lot> filterByFamilleProduitId(Integer familleProduitId) {
-        if (isNull(familleProduitId)) {
-            return null; // No filter if familleProduitId is null
-        }
+        if (isNull(familleProduitId)) return null;
         return (root, _, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
             return cb.equal(produitJoin.get(Produit_.famille).get(FamilleProduit_.id), familleProduitId);
         };
-
     }
 
+    /**
+     * Filtre les lots présents dans un magasin donné via LotStockLocation.
+     * Remplace l'ancienne jointure StockProduit (niveau produit) par une sous-requête
+     * sur LotStockLocation (niveau lot) — source de vérité pour le multi-stockage.
+     */
     default Specification<Lot> filterByMagasinId(Integer magasinId) {
-        if (isNull(magasinId)) {
-            return null; // No filter if id is null
-        }
+        if (isNull(magasinId)) return null;
         return (root, query, cb) -> {
-            Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
+            Subquery<Integer> sq = query.subquery(Integer.class);
+            Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
+            sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
+              .where(
+                  cb.equal(lsl.get("storage").get("magasin").get("id"), magasinId)
+              );
+            return root.get(Lot_.id).in(sq);
+        };
+    }
 
-            SetJoin<Produit, StockProduit> st = produitJoin.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
-            return cb.equal(st.get(StockProduit_.storage).get(Storage_.magasin).get(Magasin_.id), magasinId);
+    /**
+     * Filtre les lots ayant du stock (qty > 0) dans un emplacement de stockage précis.
+     * Utilise LotStockLocation comme source de vérité.
+     */
+    default Specification<Lot> filterByStorageId(Integer storageId) {
+        if (isNull(storageId)) return null;
+        return (root, query, cb) -> {
+            Subquery<Integer> sq = query.subquery(Integer.class);
+            Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
+            sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
+              .where(
+                  cb.equal(lsl.get("storage").get("id"), storageId),
+                  cb.greaterThan(lsl.<Integer>get("qty"), 0)
+              );
+            return root.get(Lot_.id).in(sq);
         };
     }
 
@@ -207,8 +193,12 @@ public interface LotRepository
             }
         }
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));
-        spec = add(spec, filterByMagasinId(param.getMagasinId()));
-
+        // Priorité storage > magasin : si un storage précis est sélectionné, on filtre par storage
+        if (nonNull(param.getStorageId())) {
+            spec = add(spec, filterByStorageId(param.getStorageId()));
+        } else {
+            spec = add(spec, filterByMagasinId(param.getMagasinId()));
+        }
         return spec;
     }
 }

@@ -9,7 +9,6 @@ import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {TagModule} from 'primeng/tag';
 import {ToastModule} from 'primeng/toast';
-import {ToolbarModule} from 'primeng/toolbar';
 import {InputTextModule} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -33,6 +32,8 @@ import {showCommonModal} from '../../../../entities/sales/selling-home/sale-help
 import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 
+export type RetourTab = 'EN_ATTENTE' | 'HISTORIQUE';
+
 @Component({
   selector: 'app-retour-fournisseur',
   templateUrl: './retour-fournisseur.component.html',
@@ -41,7 +42,6 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
     CommonModule,
     FormsModule,
     ButtonModule,
-    ToolbarModule,
     InputTextModule,
     IconField,
     InputIcon,
@@ -57,13 +57,19 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
 })
 export class AppRetourFournisseurComponent implements OnInit {
   protected search = '';
-  protected selectedStatut: RetourBonStatut | null = null;
-  protected dtStart: Date | null = new Date();
-  protected dtEnd: Date | null = new Date();
-  protected readonly statutOptions = [
+  protected selectedStatut: RetourBonStatut | null = RetourBonStatut.VALIDATED;
+  protected dtStart: Date | null = null;
+  protected dtEnd: Date | null = null;
+
+  /** Onglet actif : retours en cours (VALIDATED/PROCESSING) ou historique (CLOSED) */
+  protected activeTab = signal<RetourTab>('EN_ATTENTE');
+  /** Badge : nb de retours VALIDATED en attente d'action */
+  protected countEnAttente = signal<number>(0);
+
+  /** Options de filtre selon l'onglet actif */
+  protected readonly enAttenteStatutOptions = [
     {label: 'En attente de réponse', value: RetourBonStatut.VALIDATED},
-    {label: 'En cours', value: RetourBonStatut.PROCESSING},
-    {label: 'Clôturé', value: RetourBonStatut.CLOSED},
+    {label: 'En cours de traitement', value: RetourBonStatut.PROCESSING},
   ];
 
   protected retourBons = signal<IRetourBon[]>([]);
@@ -81,6 +87,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   private readonly router = inject(Router);
 
   ngOnInit(): void {
+    this.loadCountEnAttente();
     this.loadAll();
   }
 
@@ -91,6 +98,18 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   onNewRetour(): void {
     void this.router.navigate(['/commande/retour-fournisseur/new']);
+  }
+
+  /** Bascule vers l'onglet cible et recharge les données */
+  protected setTab(tab: RetourTab): void {
+    if (this.activeTab() === tab) return;
+    this.activeTab.set(tab);
+    this.search = '';
+    this.dtStart = null;
+    this.dtEnd = null;
+    this.selectedStatut = tab === 'EN_ATTENTE' ? RetourBonStatut.VALIDATED : RetourBonStatut.CLOSED;
+    this.page.set(0);
+    this.loadAll();
   }
 
   protected loadAll(): void {
@@ -109,9 +128,13 @@ export class AppRetourFournisseurComponent implements OnInit {
       query.search = this.search;
     }
 
-    const observable = this.selectedStatut
-      ? this.retourBonService.queryByStatut(this.selectedStatut, query)
-      : this.retourBonService.query(query);
+    // Forcer CLOSED pour l'onglet Historique, sinon utiliser le filtre statut courant
+    const statutToUse: RetourBonStatut =
+      this.activeTab() === 'HISTORIQUE'
+        ? RetourBonStatut.CLOSED
+        : (this.selectedStatut ?? RetourBonStatut.VALIDATED);
+
+    const observable = this.retourBonService.queryByStatut(statutToUse, query);
 
     observable.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: HttpResponse<IRetourBon[]>) => {
@@ -192,6 +215,18 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   private onError(): void {
     this.notificationService.error('Erreur lors du chargement des retours');
+  }
+
+  /** Charge le compteur badge EN_ATTENTE (retours VALIDATED non encore traités) */
+  private loadCountEnAttente(): void {
+    this.retourBonService.queryByStatut(RetourBonStatut.VALIDATED, {page: 0, size: 1})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IRetourBon[]>) => {
+          this.countEnAttente.set(Number(res.headers.get('X-Total-Count')) || 0);
+        },
+        error: () => { /* compteur silencieux */ },
+      });
   }
 
   protected downloadPdf(retourBon: IRetourBon): void {

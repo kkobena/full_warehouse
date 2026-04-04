@@ -18,6 +18,19 @@ public interface LotStockLocationRepository extends JpaRepository<LotStockLocati
     Optional<LotStockLocation> findByLotIdAndStorageId(@Param("lotId") int lotId, @Param("storageId") int storageId);
 
     /**
+     * Toutes les localisations d'un lot avec du stock (qty > 0),
+     * triées : stockage PRINCIPAL d'abord (ordinal 0), puis les autres par qty décroissante.
+     */
+    @Query("""
+        SELECT lsl FROM LotStockLocation lsl
+        JOIN lsl.storage s
+        WHERE lsl.lot.id = :lotId
+          AND lsl.qty > 0
+        ORDER BY s.storageType ASC, lsl.qty DESC
+        """)
+    List<LotStockLocation> findAvailableByLotId(@Param("lotId") Integer lotId);
+
+    /**
      * Lots disponibles dans un storage pour un produit donné, triés FEFO :
      * péremption la plus proche en premier, null en dernier.
      */

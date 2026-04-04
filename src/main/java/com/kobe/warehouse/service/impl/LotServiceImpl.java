@@ -1,9 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
@@ -15,6 +11,7 @@ import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
+import com.kobe.warehouse.repository.LotStockLocationRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
@@ -22,14 +19,9 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
+import com.kobe.warehouse.service.stock.dto.LotLocationDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,12 +32,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 @Service
 @Transactional
 public class LotServiceImpl implements LotService {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final LotRepository lotRepository;
+    private final LotStockLocationRepository lotStockLocationRepository;
     private final AppConfigurationService appConfigurationService;
     private final ProduitRepository produitRepository;
     private final LotServiceReportService lotServiceReportService;
@@ -53,13 +57,14 @@ public class LotServiceImpl implements LotService {
 
     public LotServiceImpl(
         LotRepository lotRepository,
+        LotStockLocationRepository lotStockLocationRepository,
         AppConfigurationService appConfigurationService,
         ProduitRepository produitRepository,
         LotServiceReportService lotServiceReportService,
         OrderLineService orderLineService
     ) {
         this.lotRepository = lotRepository;
-
+        this.lotStockLocationRepository = lotStockLocationRepository;
         this.appConfigurationService = appConfigurationService;
         this.produitRepository = produitRepository;
         this.lotServiceReportService = lotServiceReportService;
@@ -103,10 +108,10 @@ public class LotServiceImpl implements LotService {
     @Transactional(readOnly = true)
     public List<Lot> findByProduitId(Integer produitId) {
         return this.lotRepository.findByProduitId(
-                produitId,
-                LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption()),
-                StatutLot.AVAILABLE
-            );
+            produitId,
+            LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption()),
+            StatutLot.AVAILABLE
+        );
     }
 
     @Override
@@ -129,6 +134,7 @@ public class LotServiceImpl implements LotService {
             });
         }
     }
+
     @Override
     public void adjustLots(Produit produit, int qtyDelta) {
         if (qtyDelta == 0) return;
@@ -189,19 +195,17 @@ public class LotServiceImpl implements LotService {
     @Override
     @Transactional(readOnly = true)
     public Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable) {
-        boolean useLot = this.appConfigurationService.useLot().orElse(false);
         if (isNull(lotFilterParam.getDayCount()) && (isNull(lotFilterParam.getToDate()) && isNull(lotFilterParam.getFromDate()))) {
             lotFilterParam.setDayCount(this.appConfigurationService.getNombreJourAlertPeremption());
         }
-        if (useLot) {
-            return buildLotPerimePage(lotFilterParam, buildPageable(pageable, true));
-        }
-        return buildProduitPerimePage(lotFilterParam, buildPageable(pageable, false));
+        return buildLotPerimePage(lotFilterParam, buildPageable(pageable));
+
+
     }
 
-    private Pageable buildPageable(Pageable pageable, boolean useLot) {
-        String sortBy = useLot ? "expiryDate" : "libelle";
-        Sort sort = Sort.by(Direction.DESC, sortBy);
+    private Pageable buildPageable(Pageable pageable) {
+
+        Sort sort = Sort.by(Direction.DESC, "expiryDate");
         if (pageable.isPaged()) {
             return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         }
@@ -212,12 +216,10 @@ public class LotServiceImpl implements LotService {
     @Override
     @Transactional(readOnly = true)
     public LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam) {
-        boolean useLot = this.appConfigurationService.useLot().orElse(false);
-        if (useLot) {
-            return this.lotRepository.fetchPerimeSum(this.lotRepository.buildCombinedSpecification(lotFilterParam));
-        }
-        return this.produitRepository.fetchPerimeSum(this.produitRepository.buildCombinedSpecification(lotFilterParam));
+        return this.lotRepository.fetchPerimeSum(this.lotRepository.buildCombinedSpecification(lotFilterParam));
+
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -236,34 +238,61 @@ public class LotServiceImpl implements LotService {
 
     private Page<LotPerimeDTO> buildLotPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {
         return this.lotRepository.findAll(this.lotRepository.buildCombinedSpecification(lotFilterParam), pageable).map(lot -> {
-                FournisseurProduit fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
-                Produit produit = fournisseurProduit.getProduit();
-                LotPerimeDTO lotPerime = new LotPerimeDTO();
-                lotPerime.setProduitId(produit.getId());
-                lotPerime.setId(lot.getId());
-                lotPerime.setNumLot(lot.getNumLot());
-                lotPerime.setQuantity(lot.getQuantity());
-                lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
-                lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
-                buildCommon(lotPerime, produit, fournisseurProduit);
-                return lotPerime;
-            });
+            FournisseurProduit fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
+            Produit produit = fournisseurProduit.getProduit();
+            LotPerimeDTO lotPerime = new LotPerimeDTO();
+            lotPerime.setProduitId(produit.getId());
+            lotPerime.setId(lot.getId());
+            lotPerime.setNumLot(lot.getNumLot());
+            lotPerime.setQuantity(lot.getQuantity());
+            lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
+            lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
+            buildCommon(lotPerime, produit, fournisseurProduit);
+
+            // Construire la liste des emplacements depuis LotStockLocation
+            if (lotFilterParam.getStorageId() != null) {
+                // Filtre storage actif → une seule localisation, quantité précise dans ce storage
+                this.lotStockLocationRepository
+                    .findByLotIdAndStorageId(lot.getId(), lotFilterParam.getStorageId())
+                    .ifPresent(lsl -> {
+                        lotPerime.setLocations(List.of(new LotLocationDTO(
+                            lsl.getStorage().getId(),
+                            lsl.getStorage().getName(),
+                            lsl.getQty()
+                        )));
+                        lotPerime.setQuantity(lsl.getQty());
+                    });
+            } else {
+                // Pas de filtre → toutes les localisations disponibles (PRINCIPAL en premier)
+                List<LotLocationDTO> locs = this.lotStockLocationRepository
+                    .findAvailableByLotId(lot.getId())
+                    .stream()
+                    .map(lsl -> new LotLocationDTO(
+                        lsl.getStorage().getId(),
+                        lsl.getStorage().getName(),
+                        lsl.getQty()
+                    ))
+                    .toList();
+                lotPerime.setLocations(locs);
+            }
+            return lotPerime;
+        });
     }
 
     private Page<LotPerimeDTO> buildProduitPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {
         return this.produitRepository.findAll(this.produitRepository.buildCombinedSpecification(lotFilterParam), pageable).map(produit -> {
-                FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-                Set<StockProduit> stockProduits = produit.getStockProduits();
-                LotPerimeDTO lotPerime = new LotPerimeDTO();
-                lotPerime.setProduitId(produit.getId());
-                lotPerime.setId(produit.getId());
-                lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
-                //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
-                //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
-                buildCommon(lotPerime, produit, fournisseurProduit);
+            FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
+            Set<StockProduit> stockProduits = produit.getStockProduits();
+            LotPerimeDTO lotPerime = new LotPerimeDTO();
+            lotPerime.setProduitId(produit.getId());
+            lotPerime.setId(produit.getId());
+            lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
+            //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
+            //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
+            buildCommon(lotPerime, produit, fournisseurProduit);
 
-                return lotPerime;
-            });
+            return lotPerime;
+        });
     }
 
     private void buildCommon(LotPerimeDTO lotPerime, Produit produit, FournisseurProduit fournisseurProduit) {

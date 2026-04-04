@@ -8,6 +8,7 @@ public class ProductToDestroyDTO {
 
     private Integer id;
 
+    private Integer produitId;
 
     private String produitName;
 
@@ -177,5 +178,13 @@ public class ProductToDestroyDTO {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getProduitId() {
+        return produitId;
+    }
+
+    public void setProduitId(Integer produitId) {
+        this.produitId = produitId;
     }
 }

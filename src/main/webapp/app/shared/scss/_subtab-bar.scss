@@ -1,0 +1,164 @@
+// ====================================
+// PHARMA SMART — SUBTAB BAR
+// ====================================
+// Pattern de barre d'onglets sous le header bleu (pharma-toolbar-header).
+// Utilisé dans suggestions-unified, retour-fournisseur, et tout composant
+// ayant besoin d'une navigation en onglets légère au sein d'un même écran.
+//
+// USAGE :
+//   @import 'app/shared/scss/subtab-bar';   ← dans votre component.scss
+//
+// HTML minimal :
+//   <div class="pharma-toolbar su-parent-toolbar">
+//     <div class="pharma-toolbar-header">...</div>
+//     <div class="su-source-tabs-bar">
+//       <button class="su-tab" [class.su-tab--active]="...">...</button>
+//     </div>
+//   </div>
+// ====================================
+
+// La variable $pharma-primary est définie dans _pharma-toolbar.scss.
+// Ce fichier doit être importé APRÈS pharma-toolbar, ou bien l'import
+// de pharma-toolbar suffit (il déclare $pharma-primary en premier).
+
+// ── Toolbar parent (colle le header au subtab bar sans espace) ───────────
+.su-parent-toolbar {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-bottom: none !important;
+}
+
+// ── Titre dans le header bleu ────────────────────────────────────────────
+.su-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+// ── Slot droit du header bleu (tag fraîcheur, bouton config…) ───────────
+.su-header-end {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+// Bouton outlined sur fond sombre (ex : "Classes produits", "Nouveau retour")
+.su-config-btn-wrap {
+  ::ng-deep .p-button {
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    background: transparent !important;
+
+    .p-button-icon,
+    .p-button-label {
+      color: #fff !important;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+}
+
+// ── Barre d'onglets (fond blanc, juste sous le header bleu) ─────────────
+.su-source-tabs-bar {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 0.5rem;
+  min-height: 40px;
+}
+
+// ── Onglet individuel ────────────────────────────────────────────────────
+.su-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0 1.125rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+
+  i {
+    font-size: 0.875rem;
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+  }
+
+  // Soulignement actif
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0.875rem;
+    right: 0.875rem;
+    height: 2px;
+    background: $pharma-primary;
+    border-radius: 2px 2px 0 0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  &:hover:not(.su-tab--active) {
+    color: $pharma-primary;
+    i { opacity: 0.9; }
+  }
+
+  &:focus { outline: none; }
+  &:focus-visible {
+    outline: 2px solid rgba($pharma-primary, 0.35);
+    outline-offset: -2px;
+    border-radius: 2px;
+  }
+
+  &--active {
+    color: $pharma-primary;
+    font-weight: 600;
+    i { opacity: 1; }
+    &::after { opacity: 1; }
+  }
+}
+
+// ── Badges compteurs sur les onglets ─────────────────────────────────────
+.su-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 0.25rem;
+
+  &--primary { background: $pharma-primary;  color: #fff; }
+  &--success { background: #22c55e;          color: #fff; }
+  &--warn    { background: #f59e0b;          color: #fff; }
+  &--danger  { background: #ef4444;          color: #fff; }
+  &--info    { background: #3b82f6;          color: #fff; }
+}
+
+// Badge légèrement atténué sur l'onglet inactif
+.su-tab:not(.su-tab--active) .su-tab-badge {
+  opacity: 0.85;
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────
+@media (max-width: 576px) {
+  .su-tab {
+    padding: 0 0.625rem;
+    font-size: 0.75rem;
+  }
+}
+

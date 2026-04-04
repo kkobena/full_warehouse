@@ -10,6 +10,8 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine_;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.TiersPayant_;
+import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiRow;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -20,7 +22,11 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -190,5 +196,124 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         query.select(cb.count(root));
         TypedQuery<Long> typedQuery = em.createQuery(query);
         return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public Optional<FacturationKpiRow> getKpiData(
+        LocalDate fromDate,
+        LocalDate toDate,
+        Integer organismeId,
+        Integer groupeId,
+        TypeFacture typeFacture,
+        int delaiReglementDefaut
+    ) {
+        StringBuilder sql = buildSqlQuery(organismeId, groupeId, typeFacture);
+
+        var query = em.createNativeQuery(sql.toString());
+        query.setParameter("fromDate", fromDate);
+        query.setParameter("toDate", toDate);
+        query.setParameter("delaiDefaut", delaiReglementDefaut);
+
+        switch (typeFacture) {
+            case INDIVIDUAL -> {
+                if (organismeId != null) query.setParameter("organismeId", organismeId);
+            }
+            case GROUPED -> {
+                if (groupeId != null) query.setParameter("groupeId", groupeId);
+            }
+            case ALL -> {
+                if (organismeId != null) query.setParameter("organismeId", organismeId);
+                if (groupeId != null)    query.setParameter("groupeId", groupeId);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = query.getResultList();
+        if (rows == null || rows.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(FacturationKpiRow.from(rows.getFirst()));
+    }
+
+    /**
+     * Construit dynamiquement la requête SQL native pour les KPI.
+     *
+     * <p>La jointure ET la colonne {@code delai_reglement} varient selon {@link TypeFacture} :</p>
+     * <ul>
+     *   <li>{@code INDIVIDUAL} — {@code JOIN tiers_payant} ; {@code delai_reglement} issu de {@code tp}.</li>
+     *   <li>{@code GROUPED}    — {@code JOIN groupe_tiers_payant} ; {@code delai_reglement} issu de {@code gtp}.</li>
+     *   <li>{@code ALL}        — {@code LEFT JOIN} des deux tables ;
+     *       {@code COALESCE(tp.delai_reglement, gtp.delai_reglement, :delaiDefaut)}.</li>
+     * </ul>
+     */
+    private static @NonNull StringBuilder buildSqlQuery(Integer organismeId, Integer groupeId, TypeFacture typeFacture) {
+        // ── En-tête SELECT commun ──────────────────────────────────────────
+        String selectHead =
+            """
+            SELECT
+                COALESCE(SUM(CAST(f.montant_net AS bigint)), 0),
+                COALESCE(SUM(f.montant_regle), 0),
+                COUNT(f.id),
+                SUM(CASE WHEN f.statut <> 'PAID' THEN 1 ELSE 0 END),
+            """;
+
+        StringBuilder sql = new StringBuilder(selectHead);
+
+        // ── Colonne retard + JOIN selon le type ───────────────────────────
+        switch (typeFacture) {
+            case INDIVIDUAL -> {
+                sql.append(
+                    """
+                        SUM(CASE WHEN f.statut <> 'PAID'
+                                  AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
+                             THEN 1 ELSE 0 END)
+                    FROM facture_tiers_payant f
+                    JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+                    WHERE f.invoice_date BETWEEN :fromDate AND :toDate
+                      AND f.groupe_tiers_payant_id IS NULL
+                      AND f.groupe_facture_tiers_payant_id IS NULL
+                    """);
+                if (organismeId != null) {
+                    sql.append("  AND f.tiers_payant_id = :organismeId");
+                }
+            }
+            case GROUPED -> {
+                sql.append(
+                    """
+                        SUM(CASE WHEN f.statut <> 'PAID'
+                                  AND f.invoice_date + make_interval(days => COALESCE(gtp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
+                             THEN 1 ELSE 0 END)
+                    FROM facture_tiers_payant f
+                    JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id
+                    WHERE f.invoice_date BETWEEN :fromDate AND :toDate
+                    AND f.groupe_facture_tiers_payant_id IS NULL
+
+                    """);
+                if (groupeId != null) {
+                    sql.append("  AND f.groupe_tiers_payant_id = :groupeId ");
+                }
+            }
+            case ALL -> {
+                sql.append(
+                    """
+                        SUM(CASE WHEN f.statut <> 'PAID'
+                                  AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, gtp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
+                             THEN 1 ELSE 0 END)
+                    FROM facture_tiers_payant f
+                    LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+                    LEFT JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id
+                    WHERE f.invoice_date BETWEEN :fromDate AND :toDate
+                      AND f.groupe_facture_tiers_payant_id IS NULL
+                    """);
+
+            }
+        }
+        if (organismeId != null) {
+            sql.append("  AND f.tiers_payant_id = :organismeId ");
+        }
+        if (groupeId != null) {
+            sql.append("  AND f.groupe_tiers_payant_id = :groupeId ");
+        }
+        return sql;
     }
 }

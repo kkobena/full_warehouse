@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
+import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
@@ -24,6 +25,7 @@ import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.FactureItemDto;
 import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiRow;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
@@ -248,21 +250,25 @@ public class EditionDataServiceImpl implements EditionDataService {
         return facturationRepository.getInfoTiersPayantByFactureId(factureItemId.getId(), factureItemId.getInvoiceDate());
     }
 
+    private static final int DELAI_REGLEMENT_DEFAUT = 30;
+
     @Override
     @Transactional(readOnly = true)
-    public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId) {
-        return facturationRepository.getKpiData(fromDate, toDate, organismeId)
-            .map(row -> {
-                long totalFacture = row[0] != null ? ((Number) row[0]).longValue() : 0L;
-                long totalRegle = row[1] != null ? ((Number) row[1]).longValue() : 0L;
-                long countFactures = row[2] != null ? ((Number) row[2]).longValue() : 0L;
-                long countImpayees = row[3] != null ? ((Number) row[3]).longValue() : 0L;
-                long countEnRetard = row[4] != null ? ((Number) row[4]).longValue() : 0L;
-                long totalRestant = totalFacture - totalRegle;
-                double taux = totalFacture > 0 ? (double) totalRegle / totalFacture * 100 : 0.0;
-                return new FacturationKpiDto(totalFacture, totalRegle, totalRestant, taux, countFactures, countImpayees, countEnRetard);
-            })
-            .orElse(new FacturationKpiDto(0L, 0L, 0L, 0.0, 0L, 0L, 0L));
+    public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId, Integer groupeId, TypeFacture typeFacture) {
+        FacturationKpiRow row = facturationRepository
+            .getKpiData(fromDate, toDate, organismeId, groupeId,typeFacture, DELAI_REGLEMENT_DEFAUT)
+            .orElse(FacturationKpiRow.empty());
+        long totalRestant = row.totalFacture() - row.totalRegle();
+        double taux = row.totalFacture() > 0 ? (double) row.totalRegle() / row.totalFacture() * 100 : 0.0;
+        return new FacturationKpiDto(
+            row.totalFacture(),
+            row.totalRegle(),
+            totalRestant,
+            taux,
+            row.countFactures(),
+            row.countImpayees(),
+            row.countEnRetard()
+        );
     }
 
     @Override

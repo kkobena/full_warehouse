@@ -81,7 +81,7 @@ public class ScheduledReportService {
     /**
      * Execute a single report
      */
-    public void executeReport(ScheduledReport scheduledReport) throws Exception {
+    public void executeReport(ScheduledReport scheduledReport) {
         log.info("Executing scheduled report: {} ({})", scheduledReport.getReportName(), scheduledReport.getReportType());
 
         byte[] pdfData = null;

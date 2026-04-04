@@ -46,6 +46,9 @@ public class GroupeTiersPayant implements Serializable {
     @Column(name = "ordre_tris_facture", length = 20)
     private OrdreTrisFacture ordreTrisFacture;
 
+    @Column(name = "email", length = 100)
+    private String email;
+
     @ColumnDefault("30")
     @Column(name = "delai_reglement")
     private Integer delaiReglement = 30;
@@ -103,6 +106,15 @@ public class GroupeTiersPayant implements Serializable {
 
     public GroupeTiersPayant setTelephoneFixe(String telephoneFixe) {
         this.telephoneFixe = telephoneFixe;
+        return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public GroupeTiersPayant setEmail(String email) {
+        this.email = email;
         return this;
     }
 

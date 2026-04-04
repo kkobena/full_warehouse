@@ -11,11 +11,19 @@ import { BadgeModule } from "primeng/badge";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
+import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 
 import { FactureApiService } from "../../data-access/services/facture-api.service";
+import { CertificationApiService } from "../../data-access/services/certification-api.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
-import { IFacture, IInvoiceSearchParams } from "../../data-access/models";
+import { IFacture, IFneResponse, IInvoiceSearchParams } from "../../data-access/models";
+import { ButtonGroup } from "primeng/buttongroup";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
+import { FactureId } from "../../../../entities/facturation/facture.model";
+import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 
 @Component({
   selector: "app-facture-list",
@@ -25,7 +33,8 @@ import { IFacture, IInvoiceSearchParams } from "../../data-access/models";
     ButtonModule,
     TooltipModule,
     InputTextModule,
-    BadgeModule
+    BadgeModule,
+    ButtonGroup
   ],
   templateUrl: "./facture-list.component.html",
   styleUrl: "./facture-list.component.scss"
@@ -37,15 +46,20 @@ export class FactureListComponent {
   readonly factureSelected = output<IFacture>();
 
   protected loading = false;
+  protected certifying = false;
   protected page = 0;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected selectedFactures = signal<IFacture[]>([]);
 
   protected readonly store = inject(FacturationStore);
   private readonly factureApiService = inject(FactureApiService);
+  private readonly certificationApiService = inject(CertificationApiService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly modalService = inject(NgbModal);
 
   constructor() {
     // Déclenche le rechargement dès que le parent pousse de nouveaux paramètres
@@ -83,9 +97,124 @@ export class FactureListComponent {
       case "PARTIALLY_PAID":
         return "warn";
       case "NOT_PAID":
-        return "danger";
+        return "warn";
       default:
         return "secondary";
+    }
+  }
+  exportPdf(f: IFacture): void {
+
+    if (!f?.factureItemId) return;
+    this.factureApiService
+      .exportToPdf(f.factureItemId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: blob => {
+          const name = f.numFacture ?? "facture";
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, name, "pdf");
+          } else {
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl);
+          }
+        },
+        error: err =>
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Export PDF")
+      });
+  }
+
+  onDeleteSingle(facture: IFacture): void {
+    if (!facture.factureItemId) return;
+    this.confirmDialog.onConfirm(
+      () =>
+        this.factureApiService
+          .delete(facture.factureItemId!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.store.removeFactureFromList(facture.factureItemId!.id);
+              this.notificationService.success("Facture supprimée", "Suppression");
+            },
+            error: err =>
+              this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression")
+          }),
+      "Suppression facture",
+      `Supprimer la facture ${facture.numFacture} ?`
+    );
+  }
+
+  onViewFne(facture: IFacture): void {
+    const fneResponse: IFneResponse = facture.fneResponse;
+    if (fneResponse) {
+      this.openFneCertificateViewer(fneResponse.token, fneResponse.reference);
+    }
+
+  }
+
+  private onCertifySingle(facture: IFacture): void {
+    this.certifying = true;
+    this.certificationApiService.certify(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: response => {
+        this.certifying = false;
+        const fneResponse = response.body;
+        if (fneResponse) {
+          this.confirmDialog.onConfirm(
+            () => this.openFneCertificateViewer(fneResponse.token, fneResponse.reference),
+            "Certification Réussie",
+            `Facture certifiée avec succès.\nRéférence: ${fneResponse.reference}\n\nVoulez-vous visualiser la facture certifiée FNE ?`
+          );
+        }
+
+      },
+      error: err => {
+        this.certifying = false;
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
+
+      }
+    });
+  }
+
+  openFneCertificateViewer(tokenUrl: string, reference: string): void {
+    const modalRef = this.modalService.open(FneCertificateViewerComponent, {
+      backdrop: "static",
+      size: "xl",
+      centered: true,
+      modalDialogClass: "fne-certificate-modal"
+    });
+    modalRef.componentInstance.tokenUrl = tokenUrl;
+    modalRef.componentInstance.reference = reference;
+  }
+
+
+  private onCertifyGroupInvoice(facture: IFacture): void {
+    this.certifying = true;
+    this.certificationApiService.certifyGroupe(facture.factureItemId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.certifying = false;
+        this.notificationService.success("Toutes les factures du groupe ont été certifiées avec succès auprès du FNE.", "Certification groupe");
+
+      },
+      error: err => {
+        this.certifying = false;
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur de certification FNE");
+      }
+    });
+  }
+
+  onConfirmCertification(facture: IFacture): void {
+
+    this.confirmDialog.onConfirm(() => this.onCertify(facture), "Confirmer la certification", `Certifier la facture ${facture.numFacture} auprès du FNE ?`
+    );
+  }
+
+  private onCertify(facture: IFacture): void {
+    if (!facture.factureItemId) return;
+    if (facture.groupeFactureId) {
+      this.onCertifyGroupInvoice(facture);
+    } else {
+      this.onCertifySingle(facture);
     }
   }
 

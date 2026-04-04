@@ -16,6 +16,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
 import { Select } from 'primeng/select';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
@@ -32,6 +33,7 @@ import { Select } from 'primeng/select';
     ToastAlertComponent,
     Card,
     Select,
+    InputNumber,
   ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
@@ -45,10 +47,12 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
+    telephone: [null, [Validators.required]],
+    email: [],
     adresse: [],
-    telephone: [],
     telephoneFixe: [],
     ordreTrisFacture: [],
+    delaiReglement: [30],
   });
   private readonly errorService = inject(ErrorService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
@@ -79,10 +83,12 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
     this.editForm.patchValue({
       id: groupeTiersPayant.id,
       name: groupeTiersPayant.name,
-      adresse: groupeTiersPayant.adresse,
       telephone: groupeTiersPayant.telephone,
+      email: groupeTiersPayant.email,
+      adresse: groupeTiersPayant.adresse,
       telephoneFixe: groupeTiersPayant.telephoneFixe,
       ordreTrisFacture: groupeTiersPayant.ordreTrisFacture,
+      delaiReglement: groupeTiersPayant.delaiReglement ?? 30,
     });
   }
 
@@ -105,10 +111,12 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
       ...new GroupeTiersPayant(),
       id: this.editForm.get(['id']).value,
       name: this.editForm.get(['name']).value,
-      adresse: this.editForm.get(['adresse']).value,
       telephone: this.editForm.get(['telephone']).value,
+      email: this.editForm.get(['email']).value,
+      adresse: this.editForm.get(['adresse']).value,
       telephoneFixe: this.editForm.get(['telephoneFixe']).value,
       ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value,
+      delaiReglement: this.editForm.get(['delaiReglement']).value,
     };
   }
 

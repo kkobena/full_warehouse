@@ -58,13 +58,13 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     id: [],
     name: [null, [Validators.required]],
     fullName: [null, [Validators.required]],
+    telephone: [null, [Validators.required]],
+    email: [null, [Validators.required, Validators.email]],
     ncc: [],
     groupeTiersPayantId: [],
     codeOrganisme: [],
-    telephone: [],
     montantMaxParFcture: [],
     nbreBordereaux: [1],
-    email: [],
     remiseForfaitaire: [],
     plafondConso: [],
     plafondAbsolu: [],
@@ -73,6 +73,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     plafondConsoClient: [],
     plafondJournalierClient: [],
     plafondAbsoluClient: [],
+    delaiReglement: [30],
   });
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -142,12 +143,12 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       id: tiersPayant.id,
       name: tiersPayant.name,
       fullName: tiersPayant.fullName,
+      telephone: tiersPayant.telephone,
+      email: tiersPayant.email,
       groupeTiersPayantId: tiersPayant.groupeTiersPayant?.id,
       codeOrganisme: tiersPayant.codeOrganisme,
-      telephone: tiersPayant.telephone,
       montantMaxParFcture: tiersPayant.montantMaxParFcture,
       nbreBordereaux: tiersPayant.nbreBordereaux,
-      email: tiersPayant.email,
       remiseForfaitaire: tiersPayant.remiseForfaitaire,
       plafondConso: tiersPayant.plafondConso,
       plafondAbsolu: tiersPayant.plafondAbsolu,
@@ -159,6 +160,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondJournalierClient: tiersPayant.plafondJournalierClient,
       plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
       ncc: tiersPayant.ncc,
+      delaiReglement: tiersPayant.delaiReglement ?? 30,
     });
   }
 
@@ -168,15 +170,15 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       id: this.editForm.get(['id']).value,
       name: this.editForm.get(['name']).value,
       fullName: this.editForm.get(['fullName']).value,
+      telephone: this.editForm.get(['telephone']).value,
+      email: this.editForm.get(['email']).value,
       nbreBordereaux: this.editForm.get(['nbreBordereaux']).value,
       remiseForfaitaire: this.editForm.get(['remiseForfaitaire']).value,
-      email: this.editForm.get(['email']).value,
       categorie: this.categorie,
       plafondAbsolu: this.editForm.get(['plafondAbsolu']).value,
       plafondConso: this.editForm.get(['plafondConso']).value,
       montantMaxParFcture: this.editForm.get(['montantMaxParFcture']).value,
       codeOrganisme: this.editForm.get(['codeOrganisme']).value,
-      telephone: this.editForm.get(['telephone']).value,
       groupeTiersPayantId: this.editForm.get(['groupeTiersPayantId']).value,
       modelFacture: this.editForm.get(['modelFacture']).value,
       toBeExclude: this.editForm.get(['toBeExclude']).value,
@@ -184,6 +186,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondJournalierClient: this.editForm.get(['plafondJournalierClient']).value,
       plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
       ncc: this.editForm.get(['ncc']).value,
+      delaiReglement: this.editForm.get(['delaiReglement']).value,
     };
   }
 }

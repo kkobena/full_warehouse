@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.Objects.nonNull;
 
 @Service
 public class FneServiceImpl implements FneService {
@@ -75,6 +74,7 @@ public class FneServiceImpl implements FneService {
     private FneInvoice buildFromFacture(FactureTiersPayant factureTiersPayant, Magasin magasin) {
 
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
+        validateTiersPayantContact(tiersPayant);
         FneInvoice fneInvoice = new FneInvoice();
         if (tiersPayant.getCategorie() == TiersPayantCategorie.CARNET) {
             fneInvoice.setTemplate("B2C");
@@ -90,6 +90,11 @@ public class FneServiceImpl implements FneService {
         return fneInvoice;
     }
 
+    private void validateTiersPayantContact(TiersPayant tiersPayant) {
+        if (!StringUtils.hasText(tiersPayant.getTelephone()) || !StringUtils.hasText(tiersPayant.getEmail())) {
+            throw new GenericError("Le tiers payant doit avoir un numéro de téléphone et une adresse email valides pour la certification FNE.");
+        }
+    }
 
     private List<FneInvoiceItem> retrieveInvoiceItems(FactureTiersPayant factureTiersPayant, TiersPayant tiersPayant) {
         if (tiersPayant.getCategorie() == TiersPayantCategorie.ASSURANCE) {
@@ -100,9 +105,10 @@ public class FneServiceImpl implements FneService {
     }
 
     private FneResponse createInvoice(FactureTiersPayant factureTiersPayant) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        FneInvoice fneInvoice = buildFromFacture(factureTiersPayant, magasin);
         try {
-            Magasin magasin = storageService.getConnectedUserMagasin();
-            FneInvoice fneInvoice = buildFromFacture(factureTiersPayant, magasin);
+
             log.info("fneInvoice --- {}", fneInvoice);
 
 
@@ -139,7 +145,7 @@ public class FneServiceImpl implements FneService {
 
         } catch (Exception e) {
             log.error("Error creating FNE invoice", e);
-            throw new GenericError("Failed to create FNE invoice: " + e.getMessage());
+            throw new GenericError("L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
         }
     }
 

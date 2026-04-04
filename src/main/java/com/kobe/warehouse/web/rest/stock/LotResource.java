@@ -86,6 +86,7 @@ public class LotResource {
         return ResponseEntity.ok().body(lotService.findPerimeSum(lotFilterParam));
     }
 
+
     @GetMapping("/lot/pdf")
     public ResponseEntity<byte[]> generatePdf(LotFilterParam lotFilterParam) {
         return lotService.generatePdf(lotFilterParam);

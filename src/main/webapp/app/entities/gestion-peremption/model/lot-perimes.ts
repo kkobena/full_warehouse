@@ -1,5 +1,12 @@
 import { PeremptionStatut } from './peremption-statut';
 
+/** Représente la présence d'un lot dans un emplacement précis avec sa quantité disponible. */
+export interface LotLocation {
+  storageId: number;
+  storageName: string;
+  qty: number;
+}
+
 export class LotPerimes {
   id: number;
   numLot: string;
@@ -17,6 +24,13 @@ export class LotPerimes {
   familleProduitName: string;
   peremptionStatut: PeremptionStatut;
   produitId: number;
+  /**
+   * Localisations (LotStockLocation) où ce lot est présent avec du stock.
+   * [] = pas de données multi-emplacement.
+   * length === 1 = lot dans un seul emplacement → retrait ciblé automatique.
+   * length > 1  = lot multi-site → l'utilisateur doit choisir l'emplacement.
+   */
+  locations: LotLocation[] = [];
 }
 
 export class LotFilterParam {

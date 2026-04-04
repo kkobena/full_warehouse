@@ -1,53 +1,50 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
-import { LotService } from '../../commande/lot/lot.service';
-import { LotFilterParam, LotPerimes, LotPerimeValeurSum } from '../model/lot-perimes';
-import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { MenuItem } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ToolbarModule } from 'primeng/toolbar';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
-import { Params } from '../../../shared/model/enumerations/params.model';
-import { ConfigurationService } from '../../../shared/configuration.service';
-import { RayonService } from '../../rayon/rayon.service';
-import { IRayon } from '../../../shared/model/rayon.model';
-import { IFournisseur } from '../../../shared/model/fournisseur.model';
-import { FournisseurService } from '../../fournisseur/fournisseur.service';
-import { MagasinService } from '../../magasin/magasin.service';
-import { IMagasin } from '../../../shared/model/magasin.model';
-import { Storage } from '../../storage/storage.model';
-import { StorageService } from '../../storage/storage.service';
-import { FloatLabel } from 'primeng/floatlabel';
-import { SelectModule } from 'primeng/select';
-import { TranslatePipe } from '@ngx-translate/core';
-import { IFamilleProduit } from '../../../shared/model/famille-produit.model';
-import { KeyFilter } from 'primeng/keyfilter';
-import { Button } from 'primeng/button';
-import { SplitButton } from 'primeng/splitbutton';
-import { RouterLink } from '@angular/router';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { PeremptionStatut } from '../model/peremption-statut';
-import { ProductToDestroyService } from '../product-to-destroy.service';
-import { ProductsToDestroyPayload, ProductToDestroyPayload } from '../model/product-to-destroy';
-import { Divider } from 'primeng/divider';
-import { RemoveButtonTextComponent } from '../../../shared/cta/remove-button-text.component';
-import { CtaComponent } from '../../../shared/cta/cta.component';
-import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
-import { saveAs } from 'file-saver';
-import { extractFileName2 } from '../../../shared/util/file-utils';
-import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
-import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { NotificationService } from '../../../shared/services/notification.service';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from "@angular/core";
+import { LotService } from "../../commande/lot/lot.service";
+import { LotFilterParam, LotLocation, LotPerimes, LotPerimeValeurSum } from '../model/lot-perimes';
+import { DATE_FORMAT_ISO_DATE } from "../../../shared/util/warehouse-util";
+import { MenuItem } from "primeng/api";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
+import { ToolbarModule } from "primeng/toolbar";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { FormsModule } from "@angular/forms";
+import { InputText } from "primeng/inputtext";
+import { RayonService } from "../../rayon/rayon.service";
+import { IRayon } from "../../../shared/model/rayon.model";
+import { IFournisseur } from "../../../shared/model/fournisseur.model";
+import { FournisseurService } from "../../fournisseur/fournisseur.service";
+import { MagasinService } from "../../magasin/magasin.service";
+import { IMagasin } from "../../../shared/model";
+import { Storage } from "../../storage/storage.model";
+import { StorageService } from "../../storage/storage.service";
+import { FloatLabel } from "primeng/floatlabel";
+import { SelectModule } from "primeng/select";
+import { TranslatePipe } from "@ngx-translate/core";
+import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
+import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
+import { KeyFilter } from "primeng/keyfilter";
+import { Button } from "primeng/button";
+import { SplitButton } from "primeng/splitbutton";
+import { RouterLink } from "@angular/router";
+import { DatePipe, DecimalPipe } from "@angular/common";
+import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
+import { Tag } from "primeng/tag";
+import { PeremptionStatut } from "../model/peremption-statut";
+import { ProductToDestroyService } from "../product-to-destroy.service";
+import { ProductsToDestroyPayload, ProductToDestroyPayload } from "../model/product-to-destroy";
+import { Divider } from "primeng/divider";
+import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
+import { saveAs } from "file-saver";
+import { extractFileName2 } from "../../../shared/util/file-utils";
+import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
+import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonGroup } from "primeng/buttongroup";
 import { Tooltip } from "primeng/tooltip";
 
 @Component({
-  selector: 'jhi-lot-perimes',
+  selector: "jhi-lot-perimes",
   imports: [
     ToolbarModule,
     IconField,
@@ -66,18 +63,16 @@ import { Tooltip } from "primeng/tooltip";
     TableModule,
     Tag,
     Divider,
-    RemoveButtonTextComponent,
-    CtaComponent,
     DatePickerComponent,
     SpinnerComponent,
     ButtonGroup,
     Tooltip
   ],
-  templateUrl: './lot-perimes.component.html',
-  styleUrl: './lot-perimes.component.scss',
+  templateUrl: "./lot-perimes.component.html",
+  styleUrl: "./lot-perimes.component.scss"
 })
 export class LotPerimesComponent implements OnInit, AfterViewInit {
-  protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');
+  protected checkbox = viewChild<TableHeaderCheckbox>("checkbox");
   protected payload: ProductsToDestroyPayload = null;
   protected exportMenus: MenuItem[];
   protected selectedLotPerimes: LotPerimes[] = [];
@@ -86,17 +81,23 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected rayons: IRayon[] = [];
   protected magasins: IMagasin[] = [];
   protected fournisseurs: IFournisseur[] = [];
+  protected famillesProduit: IFamilleProduit[] = [];
   protected selectedMagasin: IMagasin = null;
   protected selectedStorage: Storage = null;
   protected selectedFournisseur: IFournisseur = null;
   protected selectedFamilleProduit: IFamilleProduit = null;
   protected selectedRayon: IRayon = null;
-  protected isMono = true;
   protected data: LotPerimes[] = [];
   protected dayCount: number;
   protected searchTerm: string;
   protected fromDate: Date = null;
   protected toDate: Date = null;
+  protected showAdvancedFilters = false;
+  /**
+   * Stocke le storageId sélectionné par l'utilisateur pour chaque lot multi-site.
+   * Clé = lot.id, Valeur = storageId choisi.
+   */
+  protected selectedLocationMap = new Map<number, number>();
 
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
@@ -104,53 +105,55 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected totalItems = 0;
   protected types: any[] = [
     {
-      label: 'Déjà périmé',
-      value: 'PERIME',
+      label: "Déjà périmé",
+      value: "PERIME"
     },
     {
-      label: 'En cours',
-      value: 'EN_COURS',
+      label: "En cours",
+      value: "EN_COURS"
     },
     {
-      label: 'Tout',
-      value: 'ALL',
-    },
+      label: "Tout",
+      value: "ALL"
+    }
   ];
   protected selectedType: any = null;
-  private readonly configurationService = inject(ConfigurationService);
   private readonly rayonService = inject(RayonService);
   private readonly fournisseurService = inject(FournisseurService);
+  private readonly familleProduitService = inject(FamilleProduitService);
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private readonly productToDestroyService = inject(ProductToDestroyService);
-  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly lotService = inject(LotService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+  }
 
   ngOnInit(): void {
     this.selectedType = this.types[2];
     this.findConfigStock();
     this.fetchFournisseur();
+    this.fetchFamillesProduit();
     this.getSum();
     this.exportMenus = [
       {
-        label: 'PDF',
-        icon: 'pi pi-file-pdf',
-        command: () => this.exportPdf(),
+        label: "PDF",
+        icon: "pi pi-file-pdf",
+        command: () => this.exportPdf()
       },
       {
-        label: 'Excel',
-        icon: 'pi pi-file-excel',
-        command: () => this.onExport('excel'),
+        label: "Excel",
+        icon: "pi pi-file-excel",
+        command: () => this.onExport("excel")
       },
       {
-        label: 'Csv',
-        icon: 'pi pi-file-export',
-        command: () => this.onExport('csv'),
-      },
+        label: "Csv",
+        icon: "pi pi-file-export",
+        command: () => this.onExport("csv")
+      }
     ];
     this.onSearch();
   }
@@ -174,6 +177,45 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     this.onSearch();
   }
 
+  /** Toggle panneau filtres avancés */
+  protected toggleAdvancedFilters(): void {
+    this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  /** KPI card 1 — Lots déjà périmés */
+  protected filterByPerimes(): void {
+    this.selectedType = this.types.find(t => t.value === "PERIME");
+    this.dayCount = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.onSearch();
+  }
+
+  /** KPI card 3 — Prochaines péremptions dans 30j */
+  protected filterByUpcoming30(): void {
+    this.selectedType = this.types.find(t => t.value === "EN_COURS");
+    this.dayCount = 30;
+    this.fromDate = null;
+    this.toDate = null;
+    this.onSearch();
+  }
+
+  /** Réinitialise tous les filtres */
+  protected resetFilters(): void {
+    this.selectedType = this.types[2];
+    this.dayCount = null;
+    this.searchTerm = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.selectedFournisseur = null;
+    this.selectedRayon = null;
+    this.selectedFamilleProduit = null;
+    this.selectedMagasin = null;
+    this.selectedStorage = null;
+    this.selectedLocationMap.clear();
+    this.onSearch();
+  }
+
   protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
@@ -182,11 +224,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
         .fetchLotPerimes({
           page: this.page,
           size: event.rows,
-          ...this.buidParams(),
+          ...this.buidParams()
         })
         .subscribe({
           next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -198,18 +240,48 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.lotPerimeValeurSum = null;
-      },
+      }
     });
   }
 
-  protected getSeverity(status: PeremptionStatut): 'danger' | 'warn' | 'info' {
-    if (!status) return 'info';
-    if (status.days < 0) return 'danger';
-    if (status.days === 0) return 'warn';
-    return 'info';
+  protected getSeverity(status: PeremptionStatut): "danger" | "warn" | "info" {
+    if (!status) return "info";
+    if (status.days < 0) return "danger";
+    if (status.days === 0) return "warn";
+    return "info";
+  }
+
+  /** Retourne true si le lot est dans plusieurs emplacements */
+  protected isMultiLocation(lot: LotPerimes): boolean {
+    return lot.locations?.length > 1;
+  }
+
+  /** Retourne la localisation unique du lot, ou undefined si multi/aucune */
+  protected getSingleLocation(lot: LotPerimes): LotLocation | undefined {
+    return lot.locations?.length === 1 ? lot.locations[0] : undefined;
+  }
+
+  /** Enregistre le choix d'emplacement de l'utilisateur pour un lot multi-site */
+  protected onLocationSelect(lot: LotPerimes, storageId: number): void {
+    this.selectedLocationMap.set(lot.id, storageId);
+  }
+
+  /** Résout le storageId à utiliser pour un lot donné */
+  protected resolveStorageId(lot: LotPerimes): number | undefined {
+    if (lot.locations?.length === 1) {
+      return lot.locations[0].storageId;
+    }
+    return this.selectedLocationMap.get(lot.id) ?? this.selectedStorage?.id;
   }
 
   protected confirmRetirerDialog(lot: LotPerimes): void {
+    if (this.isMultiLocation(lot) && !this.resolveStorageId(lot)) {
+      this.notificationService.error(
+        'Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retirer.',
+        'Emplacement requis',
+      );
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.retirerStock(lot),
       'Confirmation',
@@ -217,11 +289,27 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     );
   }
 
+  protected confirmRetourFournisseurDialog(lot: LotPerimes): void {
+    this.confirmDialog.onConfirm(
+      () => this.retirerStock(lot),
+      "Retour fournisseur",
+      `Voulez-vous initier un retour fournisseur pour le lot "${lot.numLot}" (${lot.produitName}) ?`
+    );
+  }
+
   protected confirmAll(): void {
+    const count = this.selectedLotPerimes.length;
+    const totalQty = this.selectedLotPerimes.reduce((s, l) => s + (l.quantity ?? 0), 0);
+    const totalValeur = this.selectedLotPerimes.reduce((s, l) => s + (l.prixAchat ?? 0) * (l.quantity ?? 0), 0);
+    const message =
+      `Retirer ${count} lot(s) du stock ?\n` +
+      `Quantité totale : ${totalQty.toLocaleString("fr-FR")} unités\n` +
+      `Valeur achat estimée : ${totalValeur.toLocaleString("fr-FR")} FCFA\n\n` +
+      `⚠️ Cette action est irréversible.`;
     this.confirmDialog.onConfirm(
       () => this.retirerStock(),
-      'Confirmation',
-      'Voulez-vous tout retirer du stock ?',
+      "Confirmer le retrait groupé",
+      message
     );
   }
 
@@ -232,7 +320,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
         this.spinner().hide();
         window.open(URL.createObjectURL(blod));
       },
-      error: () => this.spinner().hide(),
+      error: () => this.spinner().hide()
     });
   }
 
@@ -242,15 +330,15 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       next: resp => {
         this.spinner().hide();
         const blob = resp.body;
-        saveAs(blob, extractFileName2(resp.headers.get('Content-disposition'), format, 'liste_de_produit_perimes'));
+        saveAs(blob, extractFileName2(resp.headers.get("Content-disposition"), format, "liste_de_produit_perimes"));
       },
       error: () => {
         this.spinner().hide();
-        this.notificationService.error('Une erreur est survenue', 'Erreur');
+        this.notificationService.error("Une erreur est survenue", "Erreur");
       },
       complete: () => {
         this.spinner().hide();
-      },
+      }
     });
   }
 
@@ -261,14 +349,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   private findConfigStock(): void {
-    const stockParam = this.configurationService.getParamByKey(Params.APP_GESTION_STOCK);
-    if (stockParam) {
-      this.isMono = Number(stockParam.value) === 0;
-      if (!this.isMono) {
-        this.fetchMagasin();
-      }
-      this.fetchRayon();
-    }
+    this.fetchMagasin();
+    this.fetchRayon();
   }
 
   private buidParams(): LotFilterParam {
@@ -282,12 +364,12 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       familleProduitId: this.selectedFamilleProduit?.id,
       magasinId: this.selectedMagasin?.id,
       storageId: this.selectedStorage?.id,
-      type: this.selectedType?.value,
+      type: this.selectedType?.value
     };
   }
 
   private onSuccess(data: LotPerimes[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
     this.data = data || [];
     this.loading = false;
@@ -304,11 +386,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       .fetchLotPerimes({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams(),
+        ...this.buidParams()
       })
       .subscribe({
         next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -317,7 +399,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         storageId: this.selectedStorage?.id,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
@@ -328,10 +410,18 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
+      });
+  }
+
+  private fetchFamillesProduit(): void {
+    this.familleProduitService
+      .query({ page: 0, size: 9999 })
+      .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
+        this.famillesProduit = res.body || [];
       });
   }
 
@@ -347,6 +437,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       quantity: lot.quantity,
       produitId: lot.produitId,
       fournisseurId: this.selectedFournisseur?.id,
+      // Résolution de l'emplacement :
+      // 1. Lot dans 1 seul emplacement → automatique
+      // 2. Lot multi-site → utiliser la sélection utilisateur ou le filtre storage
+      // 3. null → cascade automatique backend (PRINCIPAL en premier)
+      storageId: this.resolveStorageId(lot),
     };
   }
 
@@ -355,9 +450,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       magasinId: this.selectedMagasin?.id,
       products: lot
         ? [this.buildPayload(lot)]
-        : this.selectedLotPerimes.map(d => {
-            return this.buildPayload(d);
-          }),
+        : this.selectedLotPerimes.map(d => this.buildPayload(d))
     };
   }
 
@@ -370,8 +463,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.spinner().hide();
-        this.notificationService.error('Une erreur est survenue', 'Erreur');
-      },
+        this.notificationService.error("Une erreur est survenue", "Erreur");
+      }
     });
   }
 }

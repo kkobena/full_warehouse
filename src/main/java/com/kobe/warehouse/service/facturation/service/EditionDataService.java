@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
@@ -56,7 +57,7 @@ public interface EditionDataService {
 
     InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId);
 
-    FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId);
+    FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId , Integer groupeId, TypeFacture typeFacture);
 
     byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup);
 

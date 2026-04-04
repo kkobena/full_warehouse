@@ -133,13 +133,23 @@ const routes: Routes = [
   },
   {
     path: 'reglement-facture',
-    data: { pageTitle: 'Réglement de facture' },
-    loadChildren: () => import('./reglement/reglement.route'),
+    redirectTo: 'facturation',
+    pathMatch: 'prefix',
+  },
+  {
+    path: 'facturation',
+    data: { pageTitle: 'Facturation & Règlements' },
+    loadChildren: () => import('../features/facturation/facturation.routes'),
   },
   {
     path: 'gestion-differe',
-    data: { pageTitle: 'Gestion des différés' },
-    loadChildren: () => import('./differes/differe.route'),
+    redirectTo: 'differes',
+    pathMatch: 'prefix',
+  },
+  {
+    path: 'differes',
+    data: { pageTitle: 'Différés' },
+    loadChildren: () => import('../features/differes/differes.routes'),
   },
   {
     path: 'gestion-peremption',

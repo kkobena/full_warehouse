@@ -101,6 +101,20 @@ pub struct ViewsConfig {
     pub reporting_cron: String,
 }
 
+/// Configuration de la connexion PostgreSQL (utilisée pour le ping de disponibilité).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DatabaseConfig {
+    /// Hôte PostgreSQL (défaut : localhost)
+    #[serde(default = "default_db_host")]
+    pub host: String,
+    /// Port PostgreSQL (défaut : 5432)
+    #[serde(default = "default_db_port")]
+    pub port: u16,
+    /// Délai maximum (en secondes) pour attendre PostgreSQL avant d'abandonner (défaut : 30s)
+    #[serde(default = "default_db_check_timeout_secs", rename = "check-timeout-secs")]
+    pub check_timeout_secs: u64,
+}
+
 // Default values for JVM configuration
 fn default_heap_min() -> String {
     "2g".to_string()
@@ -187,6 +201,17 @@ fn default_views_reporting_cron() -> String {
     "0 0 9,12,15,18 * * *".to_string()
 }
 
+// Default values for Database configuration
+fn default_db_host() -> String {
+    "localhost".to_string()
+}
+fn default_db_port() -> u16 {
+    5432
+}
+fn default_db_check_timeout_secs() -> u64 {
+    30
+}
+
 // Default value for Port-Com configuration
 fn default_port_com() -> String {
     "".to_string()
@@ -215,6 +240,16 @@ impl Default for ViewsConfig {
             dashboards_cron: default_views_dashboards_cron(),
             analytique_cron: default_views_analytique_cron(),
             reporting_cron: default_views_reporting_cron(),
+        }
+    }
+}
+
+impl Default for DatabaseConfig {
+    fn default() -> Self {
+        Self {
+            host: default_db_host(),
+            port: default_db_port(),
+            check_timeout_secs: default_db_check_timeout_secs(),
         }
     }
 }
@@ -294,6 +329,9 @@ pub struct AppConfig {
     pub semois: SemoisConfig,
     #[serde(default)]
     pub views: ViewsConfig,
+    /// Configuration PostgreSQL pour le ping de disponibilité au démarrage.
+    #[serde(default)]
+    pub database: DatabaseConfig,
 }
 
 impl Default for AppConfig {
@@ -332,14 +370,17 @@ impl Default for AppConfig {
             jobs: JobsConfig::default(),
             semois: SemoisConfig::default(),
             views: ViewsConfig::default(),
+            database: DatabaseConfig::default(),
         }
     }
 }
 
 impl AppConfig {
     /// Check whether a directory is actually writable by attempting to create a temp file.
+    /// Q8 : Le nom du fichier test inclut le PID pour éviter les collisions
+    ///       en cas de démarrage simultané de plusieurs instances.
     fn is_dir_writable(dir: &PathBuf) -> bool {
-        let test = dir.join(".pharmasmart_write_test");
+        let test = dir.join(format!(".pharmasmart_write_test_{}", std::process::id()));
         if fs::write(&test, b"").is_ok() {
             let _ = fs::remove_file(&test);
             true
@@ -494,6 +535,7 @@ impl AppConfig {
                     config.jobs   = seed.jobs;
                     config.semois = seed.semois;
                     config.views  = seed.views;
+                    config.database = seed.database;
                     println!("Merged user-tunable fields from {:?}", path);
                 }
             }
@@ -551,12 +593,14 @@ impl AppConfig {
             jobs: JobsConfig::default(),
             semois: SemoisConfig::default(),
             views: ViewsConfig::default(),
+            database: DatabaseConfig::default(),
         }
     }
 
-    /// Save configuration to the writable config directory.
-    /// Uses $PROGRAMDATA\PharmaSmart when available so the write never fails
-    /// due to Program Files write restrictions.
+    /// Sauvegarde la configuration dans le répertoire de config accessible en écriture.
+    /// Utilise `$PROGRAMDATA\PharmaSmart` si disponible pour éviter les erreurs de droits
+    /// dans Program Files.
+    #[allow(dead_code)] // Utilisé par le tableau de bord de configuration (future UI)
     pub fn save(&self, app: &AppHandle) -> Result<(), String> {
         let config_dir = Self::writable_config_dir(app);
         let config_path = config_dir.join("config.json");

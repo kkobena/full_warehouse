@@ -59,6 +59,17 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
         """)
     List<SemoisSuggestionView> findAllUrgents();
 
+    /**
+     * Compte les produits urgents (rupture + sous seuil) depuis v_semois_suggestion.
+     * Utilisé pour le badge de notification de la navbar et du tableau de bord.
+     * Urgents = rupture (stock_actuel < marge_securite) + sous seuil (marge_securite <= stock_actuel < stock_objectif)
+     */
+    @Query(value = """
+        SELECT COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel < stock_objectif)
+        FROM v_semois_suggestion
+        """, nativeQuery = true)
+    Long countUrgentProducts();
+
     /** Fournisseurs distincts ayant au moins un produit SEMOIS configuré. */
     @Query(value = """
         SELECT DISTINCT fournisseur_id, fournisseur_libelle

@@ -1,5 +1,3 @@
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<jhi-toast-alert #alert></jhi-toast-alert>
 <div class="pharma-smart-content">
   <!-- Modern Pharma Toolbar (Compact) -->
   <div class="pharma-toolbar pharma-toolbar-compact">
@@ -187,7 +185,7 @@
 
   @if (data && data.length) {
     <p-table
-      class="pharma-table"
+      class="p-datatable-sm"
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
       [loading]="loading"
@@ -233,7 +231,7 @@
             {{ data.numLot }}
           </td>
           <td>
-            {{ data.datePeremption }}
+            {{ data.datePeremption | date:'dd/MM/yyyy' }}
           </td>
           <td class="text-right amount-column">
             <span class="pharma-qty-value">{{ data.quantity | number }}</span>
@@ -245,7 +243,7 @@
             <span class="pharma-price">{{ data.prixUni | number }}</span>
           </td>
           <td class="text-center">
-            <p-tag [value]="data.peremptionStatut.libelle" [severity]="getSeverity(data.peremptionStatut)" />
+            <p-tag [value]="data.peremptionStatut?.libelle ?? ''" [severity]="getSeverity(data.peremptionStatut)" />
           </td>
 
           <td class="pharma-entity-name">

@@ -23,6 +23,11 @@
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-th-large"></i>
                   <span>Tableau de bord</span>
+                  @if (alertBadgeService.urgentCount() > 0) {
+                    <span class="badge rounded-pill bg-danger sidebar-nav-badge ms-auto">
+                      {{ alertBadgeService.urgentCount() > 99 ? '99+' : alertBadgeService.urgentCount() }}
+                    </span>
+                  }
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
@@ -35,6 +40,11 @@
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-lightbulb"></i>
                   <span>Commandes &amp; Réceptions</span>
+                  @if (alertBadgeService.ruptureCount() > 0) {
+                    <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                      {{ alertBadgeService.ruptureCount() > 99 ? '99+' : alertBadgeService.ruptureCount() }}
+                    </span>
+                  }
                   <span class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>

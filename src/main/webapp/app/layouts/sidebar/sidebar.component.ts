@@ -1,7 +1,10 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { fromEvent } from 'rxjs';
+import { TooltipModule } from 'primeng/tooltip';
 import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { NavItem } from '../navbar/navbar-item.model';
@@ -14,17 +17,18 @@ import { LayoutService } from '../../core/config/layout.service';
 import { environment } from 'environments/environment';
 import { NavigationService } from '../../core/config/navigation.service';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { AlertBadgeService } from '../../shared/services/alert-badge.service';
 
 @Component({
   selector: 'jhi-sidebar',
-
-  imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule],
+  imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule, TooltipModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
 export default class SidebarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
   protected version = '';
+  protected readonly isMobileSignal = signal(window.innerWidth <= 768);
   navItems: NavItem[] = [];
   expandedItems = new Set<string>();
   protected layoutService = inject(LayoutService);
@@ -33,8 +37,8 @@ export default class SidebarComponent implements OnInit {
   private readonly themeService = inject(ThemeService);
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
-
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  protected readonly alertBadgeService = inject(AlertBadgeService);
 
   themes: Theme[];
   selectedTheme: string;
@@ -49,13 +53,29 @@ export default class SidebarComponent implements OnInit {
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }
+
+
+    fromEvent(window, 'resize')
+      .pipe(takeUntilDestroyed(inject(DestroyRef)))
+      .subscribe(() => this.isMobileSignal.set(window.innerWidth <= 768));
+
     effect(() => {
-      this.navItems = this.buildNavItem();
+      // Reactive : rebuilt when account or alert counts change
+      const items = this.buildNavItem();
+      const ruptureCount    = this.alertBadgeService.ruptureCount();
+      const urgentCount     = this.alertBadgeService.urgentCount();
+      const peremptionCount = this.alertBadgeService.peremptionCount();
+      this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
+      this.navItems = items;
     });
   }
 
   ngOnInit(): void {
-    // this.themes = this.themeService.getThemes();
+    this.alertBadgeService.init();
+  }
+
+  protected isMobile(): boolean {
+    return this.isMobileSignal();
   }
 
   protected isCollapsed(): boolean {
@@ -96,33 +116,21 @@ export default class SidebarComponent implements OnInit {
 
   protected onParentMenuClick(label: string): void {
     if (this.isCollapsed()) {
-      // If sidebar is collapsed, expand it and show the menu
       this.toggleSidebar();
       this.expandItem(label);
     } else {
-      // If sidebar is expanded, toggle the menu item
       this.toggleItem(label);
     }
   }
 
   protected onMenuItemClick(clickHandler?: () => void): void {
-    if (clickHandler) {
-      clickHandler();
-    }
-    // Collapse sidebar if it's expanded when clicking a menu item without children
-    if (!this.isCollapsed()) {
-      this.toggleSidebar();
-    }
+    if (clickHandler) clickHandler();
+    if (!this.isCollapsed()) this.toggleSidebar();
   }
 
   protected onSubmenuItemClick(clickHandler?: () => void): void {
-    if (clickHandler) {
-      clickHandler();
-    }
-    // Collapse sidebar if it's expanded when clicking a submenu item
-    if (!this.isCollapsed()) {
-      this.toggleSidebar();
-    }
+    if (clickHandler) clickHandler();
+    if (!this.isCollapsed()) this.toggleSidebar();
   }
 
   protected changeTheme(themeName: string): void {
@@ -145,48 +153,26 @@ export default class SidebarComponent implements OnInit {
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
     const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    if (!Array.isArray(authorities)) {
-      authorities = [authorities];
-    }
+    if (!userIdentity) return false;
+    if (!Array.isArray(authorities)) authorities = [authorities];
     return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
   }
 
   private buildNavItem(): NavItem[] {
     const account = this.account();
 
-    // Authenticated user menu items
     if (account) {
       return this.navigationService.buildNavItems({
         additionalAccountMenuItems: [
-          {
-            label: 'Menu horizontal',
-            faIcon: faBars,
-            click: () => this.layoutService.toggleLayout(),
-          },
-          {
-            label: 'Se déconnecter',
-            faIcon: 'sign-out-alt',
-            click: () => this.logout(),
-          },
+          { label: 'Menu horizontal', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+          { label: 'Se déconnecter', faIcon: 'sign-out-alt', click: () => this.logout() },
         ],
       });
     }
 
-    // Unauthenticated user menu items
     const additionalAccountMenuItems: NavItem[] = [
-      {
-        label: 'Menu vertical',
-        faIcon: faBars,
-        click: () => this.layoutService.toggleLayout(),
-      },
-      {
-        label: 'Se connecter',
-        faIcon: 'sign-out-alt',
-        click: () => this.login(),
-      },
+      { label: 'Menu vertical', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+      { label: 'Se connecter', faIcon: 'sign-out-alt', click: () => this.login() },
     ];
     if (this.tauriPrinterService.isRunningInTauri()) {
       additionalAccountMenuItems.unshift({
@@ -198,4 +184,39 @@ export default class SidebarComponent implements OnInit {
 
     return this.navigationService.buildUnauthenticatedNavItems(additionalAccountMenuItems);
   }
+
+  /**
+   * Applique les mêmes badges que la navbar sur les items du sidebar :
+   * - /commande       → max(ruptureCount, urgentCount) — danger
+   * - /gestion-peremption → peremptionCount — danger
+   * - Parents         → somme propagée des enfants
+   */
+  private applyNavBadges(
+    items: NavItem[],
+    ruptureCount: number,
+    urgentCount: number,
+    peremptionCount: number,
+  ): void {
+    for (const item of items) {
+      if (item.children?.length) {
+        this.applyNavBadges(item.children, ruptureCount, urgentCount, peremptionCount);
+        const total = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
+        item.badge = total > 0 ? total : undefined;
+        item.badgeSeverity = total > 0 ? 'danger' : undefined;
+      } else {
+        if (item.routerLink === '/commande') {
+          const total = Math.max(ruptureCount, urgentCount);
+          item.badge = total > 0 ? total : undefined;
+          item.badgeSeverity = 'danger';
+        } else if (item.routerLink === '/gestion-peremption') {
+          item.badge = peremptionCount > 0 ? peremptionCount : undefined;
+          item.badgeSeverity = 'danger';
+        } else {
+          item.badge = undefined;
+          item.badgeSeverity = undefined;
+        }
+      }
+    }
+  }
 }
+

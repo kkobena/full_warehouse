@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
 import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
@@ -233,5 +234,53 @@ public class EditionFactureResource {
         return ResponseEntity.ok().body(editionService.findDossierFacture(new FactureItemId(id, invoiceDate), isGroup));
     }
 
+    @GetMapping("/edition-factures/kpi")
+    public ResponseEntity<FacturationKpiDto> getKpi(
+        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(name = "toDate", required = false) LocalDate toDate,
+        @RequestParam(name = "organismeId", required = false) Integer organismeId
+    ) {
+        LocalDate effectiveFrom = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate effectiveTo = toDate != null ? toDate : LocalDate.now();
+        return ResponseEntity.ok(editionService.getKpi(effectiveFrom, effectiveTo, organismeId));
+    }
+
+    @GetMapping("/edition-factures/export")
+    public ResponseEntity<byte[]> exportInvoicesToExcel(
+        @RequestParam(name = "startDate", required = false) LocalDate startDate,
+        @RequestParam(name = "endDate", required = false) LocalDate endDate,
+        @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
+        @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
+        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
+        @RequestParam(name = "search", required = false) String search
+    ) {
+        InvoiceSearchParams params = new InvoiceSearchParams(
+            startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
+            endDate != null ? endDate : LocalDate.now(),
+            Set.of(), tiersPayantIds != null ? tiersPayantIds : Set.of(),
+            factureProvisoire, statuts, search
+        );
+        String fileName = "factures_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
+        return Utils.exportExcel(editionService.exportInvoicesToExcel(params, false), fileName);
+    }
+
+    @GetMapping("/edition-factures/groupes/export")
+    public ResponseEntity<byte[]> exportGroupInvoicesToExcel(
+        @RequestParam(name = "startDate", required = false) LocalDate startDate,
+        @RequestParam(name = "endDate", required = false) LocalDate endDate,
+        @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
+        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
+        @RequestParam(name = "search", required = false) String search
+    ) {
+        InvoiceSearchParams params = new InvoiceSearchParams(
+            startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
+            endDate != null ? endDate : LocalDate.now(),
+            groupIds != null ? groupIds : Set.of(), Set.of(),
+            factureProvisoire, statuts, search
+        );
+        String fileName = "factures_groupes_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
+        return Utils.exportExcel(editionService.exportInvoicesToExcel(params, true), fileName);
+    }
 
 }

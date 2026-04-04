@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
+import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
 import com.kobe.warehouse.service.dto.DashboardAlertCountDTO;
-import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,9 +26,12 @@ public class DashboardAlertService {
     private EntityManager entityManager;
 
     private final StockAlertReportService stockAlertReportService;
+    private final SemoisSuggestionViewRepository semoisSuggestionViewRepository;
 
-    public DashboardAlertService(StockAlertReportService stockAlertReportService) {
+    public DashboardAlertService(StockAlertReportService stockAlertReportService,
+                                  SemoisSuggestionViewRepository semoisSuggestionViewRepository) {
         this.stockAlertReportService = stockAlertReportService;
+        this.semoisSuggestionViewRepository = semoisSuggestionViewRepository;
     }
 
     /**
@@ -54,7 +57,23 @@ public class DashboardAlertService {
         // Get recent price modifications count (last 24 hours)
         Long prixModifCount = getRecentPriceModificationsCount();
 
-        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount);
+        // Get SEMOIS urgent products count (rupture + sous seuil — produits à commander)
+        Long urgentCount = getUrgentProductsCount();
+
+        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount);
+    }
+
+    /**
+     * Count SEMOIS urgent products (rupture + sous seuil = stock_actuel < stock_objectif, vmm > 0)
+     * Uses v_semois_suggestion view via repository
+     */
+    private Long getUrgentProductsCount() {
+        try {
+            Long count = semoisSuggestionViewRepository.countUrgentProducts();
+            return count != null ? count : 0L;
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     /**

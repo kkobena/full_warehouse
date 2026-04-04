@@ -150,6 +150,9 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
     @Column(name = "ncc", length = 100)
     private String ncc; //Identifiant contribuable
 
+    @ColumnDefault("30")
+    @Column(name = "delai_reglement")
+    private Integer delaiReglement = 30;
 
 
     public TiersPayant() {}
@@ -415,6 +418,16 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
         this.ncc = ncc;
         return this;
     }
+
+    public Integer getDelaiReglement() {
+        return delaiReglement;
+    }
+
+    public TiersPayant setDelaiReglement(Integer delaiReglement) {
+        this.delaiReglement = delaiReglement;
+        return this;
+    }
+
     public String getModelFilePath() {
         return Objects.requireNonNullElse(modelFacture, "default");
     }

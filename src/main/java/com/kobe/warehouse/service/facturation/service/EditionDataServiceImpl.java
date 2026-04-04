@@ -23,6 +23,7 @@ import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.FactureItemDto;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
@@ -31,6 +32,7 @@ import com.kobe.warehouse.service.facturation.specification.EditionDataSpecifica
 import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import com.kobe.warehouse.service.fne.service.FneService;
+import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,23 +61,27 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     private static final Logger log = LoggerFactory.getLogger(EditionDataServiceImpl.class);
 
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final FacturationPdfExportService facturationPdfExportService;
     private final GroupeFacturePdfExportService groupeFacturePdfExportService;
+    private final ReportExcelExportService reportExcelExportService;
 
 
     public EditionDataServiceImpl(
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationPdfExportService facturationPdfExportService,
-        GroupeFacturePdfExportService groupeFacturePdfExportService
+        GroupeFacturePdfExportService groupeFacturePdfExportService,
+        ReportExcelExportService reportExcelExportService
     ) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationPdfExportService = facturationPdfExportService;
         this.groupeFacturePdfExportService = groupeFacturePdfExportService;
-
+        this.reportExcelExportService = reportExcelExportService;
     }
 
     @Override
@@ -242,6 +248,60 @@ public class EditionDataServiceImpl implements EditionDataService {
         return facturationRepository.getInfoTiersPayantByFactureId(factureItemId.getId(), factureItemId.getInvoiceDate());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId) {
+        return facturationRepository.getKpiData(fromDate, toDate, organismeId)
+            .map(row -> {
+                long totalFacture = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+                long totalRegle = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+                long countFactures = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+                long countImpayees = row[3] != null ? ((Number) row[3]).longValue() : 0L;
+                long countEnRetard = row[4] != null ? ((Number) row[4]).longValue() : 0L;
+                long totalRestant = totalFacture - totalRegle;
+                double taux = totalFacture > 0 ? (double) totalRegle / totalFacture * 100 : 0.0;
+                return new FacturationKpiDto(totalFacture, totalRegle, totalRestant, taux, countFactures, countImpayees, countEnRetard);
+            })
+            .orElse(new FacturationKpiDto(0L, 0L, 0L, 0.0, 0L, 0L, 0L));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup) {
+        String[] headers = {
+            "N° Facture", "Tiers-Payant", "Début période", "Fin période",
+            "Montant (FCFA)", "Réglé (FCFA)", "Restant (FCFA)",
+            "Statut", "Date facture", "Délai (j)", "Date échéance", "En retard"
+        };
+        String title = isGroup ? "Factures groupées" : "Factures tiers-payant";
+        List<FactureDto> data;
+        if (isGroup) {
+            data = facturationRepository.fetchGroupedInvoices(facturationRepository.aGroupedFacture(params), Pageable.unpaged()).getContent();
+        } else {
+            data = facturationRepository.fetchInvoices(facturationRepository.aFacture(params), Pageable.unpaged()).getContent();
+        }
+        try {
+            return reportExcelExportService.createExcelReport(title, headers, data, (row, f) -> {
+                int col = 0;
+                row.createCell(col++).setCellValue(f.getNumFacture() != null ? f.getNumFacture() : "");
+                row.createCell(col++).setCellValue(f.getTiersPayantName() != null ? f.getTiersPayantName() : "");
+                row.createCell(col++).setCellValue(f.getDebutPeriode() != null ? f.getDebutPeriode().format(DATE_FMT) : "");
+                row.createCell(col++).setCellValue(f.getFinPeriode() != null ? f.getFinPeriode().format(DATE_FMT) : "");
+                row.createCell(col++).setCellValue(f.getMontantNet() != null ? f.getMontantNet() : 0);
+                row.createCell(col++).setCellValue(f.getMontantRegle() != null ? f.getMontantRegle() : 0);
+                int restant = (f.getMontantNet() != null ? f.getMontantNet() : 0) - (f.getMontantRegle() != null ? f.getMontantRegle() : 0);
+                row.createCell(col++).setCellValue(restant);
+                row.createCell(col++).setCellValue(f.getStatut() != null ? f.getStatut().name() : "");
+                row.createCell(col++).setCellValue(f.getCreated() != null ? f.getCreated().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "");
+                row.createCell(col++).setCellValue(f.getDelaiReglement() != null ? f.getDelaiReglement() : 30);
+                row.createCell(col++).setCellValue(f.getDateEcheance() != null ? f.getDateEcheance().format(DATE_FMT) : "");
+                row.createCell(col).setCellValue(Boolean.TRUE.equals(f.getEnRetard()) ? "Oui" : "Non");
+            });
+        } catch (Exception e) {
+            log.error("Erreur lors de la génération Excel factures", e);
+            throw new GenericError("Erreur génération Excel");
+        }
+    }
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
         Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = thirdPartySaleLineRepository.canceledCriteria();
@@ -445,6 +505,8 @@ public class EditionDataServiceImpl implements EditionDataService {
         AssuredCustomerDTO assuredCustomerDTO = buildCustomerInfos(customer, clientTiersPayant.getNum());
         factureItemDto.setCustomer(assuredCustomerDTO);
         factureItemDto.setAyantsDroit(buildCustomerInfos(sales.getAyantDroit(), null));
+        factureItemDto.setMatricule(clientTiersPayant.getNum());
+        factureItemDto.setNumeroAssurance(customer != null ? customer.getNumAyantDroit() : null);
 
         return factureItemDto;
     }

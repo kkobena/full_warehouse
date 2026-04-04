@@ -75,6 +75,27 @@ mod windows_printer {
     PRINTER_ENUM_LOCAL, PRINTER_HANDLE, PRINTER_INFO_2W,
   };
 
+  // ─── I6 : RAII guard — garantit que ClosePrinter est toujours appelé ──────
+
+  /// Assure la fermeture du handle imprimante dans tous les chemins de code,
+  /// y compris les retours anticipés sur erreur.
+  struct PrinterGuard(PRINTER_HANDLE);
+
+  impl Drop for PrinterGuard {
+      fn drop(&mut self) {
+          // # Safety : self.0 est un handle valide obtenu via OpenPrinterW.
+          unsafe { let _ = ClosePrinter(self.0); }
+      }
+  }
+
+  // ─── C2 : Sanitisation pour PowerShell ────────────────────────────────────
+
+  /// Échappe les apostrophes pour une interpolation sûre dans un script PowerShell.
+  /// `'` → `''` est la convention d'échappement standard de PowerShell.
+  fn sanitize_for_powershell(s: &str) -> String {
+      s.replace('\'', "''")
+  }
+
   /// Get list of available printers on Windows
     pub fn get_printers_windows() -> Result<Vec<PrinterInfo>, String> {
         unsafe {
@@ -251,13 +272,13 @@ mod windows_printer {
         send_raw_to_printer(&esc_pos_data, printer_name)
     }
 
-    /// Send raw bytes directly to printer (for ESC/POS commands)
+    /// Send raw bytes directly to printer (for ESC/POS commands).
+    /// I6 : `PrinterGuard` garantit que `ClosePrinter` est appelé dans tous les chemins.
     pub fn send_raw_to_printer(data: &[u8], printer_name: &str) -> Result<(), String> {
         unsafe {
             let printer_name_wide = string_to_wide(printer_name);
             let mut printer_handle = PRINTER_HANDLE::default();
 
-            // Open printer
             let result = OpenPrinterW(
                 PWSTR(printer_name_wide.as_ptr() as *mut u16),
                 &mut printer_handle as *mut _,
@@ -267,6 +288,9 @@ mod windows_printer {
             if result.is_err() {
                 return Err(format!("Failed to open printer: {}", printer_name));
             }
+
+            // RAII : ClosePrinter est appelé automatiquement à la sortie de ce scope.
+            let _guard = PrinterGuard(printer_handle);
 
             // Start print job
             let doc_name = string_to_wide("POS Receipt");
@@ -279,14 +303,14 @@ mod windows_printer {
 
             let job_id = StartDocPrinterW(printer_handle, 1, &doc_info);
             if job_id == 0 {
-                let _ = ClosePrinter(printer_handle);
+                // _guard drop → ClosePrinter appelé
                 return Err("Failed to start print job".to_string());
             }
 
             // Start page
             if !StartPagePrinter(printer_handle).as_bool() {
                 let _ = EndDocPrinter(printer_handle);
-                let _ = ClosePrinter(printer_handle);
+                // _guard drop → ClosePrinter appelé
                 return Err("Failed to start page".to_string());
             }
 
@@ -299,10 +323,10 @@ mod windows_printer {
                 &mut bytes_written,
             );
 
-            // End page and document
+            // Fermeture propre du travail d'impression
             let _ = EndPagePrinter(printer_handle);
             let _ = EndDocPrinter(printer_handle);
-            let _ = ClosePrinter(printer_handle);
+            // _guard drop → ClosePrinter appelé
 
             if !write_result.as_bool() {
                 return Err("Failed to write data to printer".to_string());
@@ -320,15 +344,22 @@ mod windows_printer {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_millis();
-        let temp_file = temp_dir.join(format!("pharmasmart_receipt_{}.png", timestamp));
+        // Q9 : Inclut le PID pour éviter les collisions en cas d'impressions simultanées.
+        let temp_file = temp_dir.join(format!(
+            "pharmasmart_receipt_{}_{}.png",
+            std::process::id(),
+            timestamp
+        ));
 
         // Write PNG to temp file
         std::fs::write(&temp_file, image_bytes)
             .map_err(|e| format!("Failed to write temp file: {}", e))?;
 
-        // Build PowerShell script (memory-efficient: use String::with_capacity)
-        let temp_file_path = temp_file.to_str().unwrap().replace("\\", "\\\\");
-        let mut ps_script = String::with_capacity(1500); // Pre-allocate to avoid reallocations
+        // C2 : Échappe les apostrophes pour éviter l'injection de code PowerShell.
+        let temp_file_path = temp_file.to_str().unwrap().replace('\\', "\\\\");
+        let safe_printer_name = sanitize_for_powershell(printer_name);
+
+        let mut ps_script = String::with_capacity(1500);
 
         ps_script.push_str(&format!(
             r#"$file = '{}'
@@ -361,7 +392,7 @@ $printDoc.Add_PrintPage($printHandler)
 $printDoc.Print()
 $img.Dispose()
 "#,
-            temp_file_path, printer_name
+            temp_file_path, safe_printer_name // C2 : utilise le nom sanitisé
         ));
 
         // Execute PowerShell command
@@ -407,27 +438,25 @@ $img.Dispose()
     /// Convert PCWSTR to String
     ///
     /// # Safety
-    /// This function dereferences a raw pointer and must be called in an unsafe context
+    /// This function dereferences a raw pointer and must be called in an unsafe context.
+    /// The pointer must be non-null and point to a valid null-terminated UTF-16 string.
     unsafe fn pwstr_to_string(pwstr: PCWSTR) -> String {
         if pwstr.is_null() {
             return String::new();
         }
-
-        // Use as_wide() method which is available in newer Windows crate versions
-        pwstr.to_string().unwrap_or_default()
+        // Rust 2024 : les appels unsafe dans une unsafe fn requièrent un bloc unsafe explicite.
+        unsafe { pwstr.to_string().unwrap_or_default() }
     }
 
     /// Convert PWSTR to String (for mutable wide strings)
     ///
     /// # Safety
-    /// This function dereferences a raw pointer and must be called in an unsafe context
+    /// This function dereferences a raw pointer and must be called in an unsafe context.
     unsafe fn pwstr_to_string_from_pwstr(pwstr: PWSTR) -> String {
         if pwstr.is_null() {
             return String::new();
         }
-
-        // Convert PWSTR to PCWSTR and use the same conversion
-        pwstr_to_string(PCWSTR(pwstr.0 as *const u16))
+        unsafe { pwstr_to_string(PCWSTR(pwstr.0 as *const u16)) }
     }
 
     /// Convert String to wide string (UTF-16)

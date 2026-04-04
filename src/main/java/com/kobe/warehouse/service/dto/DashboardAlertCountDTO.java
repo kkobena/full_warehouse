@@ -6,12 +6,13 @@ package com.kobe.warehouse.service.dto;
  */
 public record DashboardAlertCountDTO(
     Long peremptionCount,      // Produits en voie de péremption
-    Long ruptureCount,         // Produits en rupture de stock
+    Long ruptureCount,         // Produits en rupture de stock (StockAlertType.RUPTURE)
     Long entreeCount,          // Nouvelles entrées en stock (dernières 24h)
     Long ajustementCount,      // Ajustements récents (dernières 24h)
-    Long prixModifCount        // Modifications de prix récentes (dernières 24h)
+    Long prixModifCount,       // Modifications de prix récentes (dernières 24h)
+    Long urgentCount           // Produits SEMOIS urgents (rupture + sous seuil — à commander)
 ) {
     public DashboardAlertCountDTO() {
-        this(0L, 0L, 0L, 0L, 0L);
+        this(0L, 0L, 0L, 0L, 0L, 0L);
     }
 }

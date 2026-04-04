@@ -1,0 +1,30 @@
+@import 'app/shared/scss/table-common';
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--p-surface-100, #f8f9fa);
+  border: 1px solid var(--p-surface-200, #e9ecef);
+  border-radius: 6px;
+  margin: 0.5rem 0;
+
+  .bulk-count {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--p-text-color, #333);
+  }
+}
+
+.clickable-row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--p-surface-50, #fafafa);
+  }
+
+  &.selected-row {
+    background: rgba(0, 140, 186, 0.08);
+    border-left: 3px solid #008cba;
+  }
+}

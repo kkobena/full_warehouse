@@ -104,7 +104,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
   onRemoveAll(): void {
     this.confimDialog().onConfirm(
       () => {
-        this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
+        this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id.id) }).subscribe({
           next: () => {
             this.selectedDatas = [];
             this.fetchData();

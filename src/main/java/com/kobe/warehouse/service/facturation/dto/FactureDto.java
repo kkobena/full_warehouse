@@ -39,6 +39,7 @@ public class FactureDto extends FactureDtoWrapper {
     private InvoiceStatut statut;
     private List<FactureItemDto> items;
     private FneResponse fneResponse;
+    private Integer delaiReglement = 30;
 
     public FactureDto() {}
 
@@ -61,7 +62,8 @@ public class FactureDto extends FactureDtoWrapper {
         Integer itemMontantRegle,
         Long itemsCount,
         Integer montant,
-        FneResponse fneResponse
+        FneResponse fneResponse,
+        Integer delaiReglement
     ) {
         this.created = created;
         this.factureId = id;
@@ -82,6 +84,7 @@ public class FactureDto extends FactureDtoWrapper {
         this.itemsCount = itemsCount;
         this.montant = montant;
         this.fneResponse = fneResponse;
+        this.delaiReglement = Objects.requireNonNullElse(delaiReglement, 30);
     }
 
     public FactureDto(
@@ -98,7 +101,8 @@ public class FactureDto extends FactureDtoWrapper {
         Integer montantVente,
         Long itemsCount,
         Integer montant,
-        Integer montantRemiseVente
+        Integer montantRemiseVente,
+        Integer delaiReglement
     ) {
         this.factureItemId = new FactureItemId(id, invoiceDate);
         this.montantRegle = montantRegle;
@@ -114,6 +118,7 @@ public class FactureDto extends FactureDtoWrapper {
         this.itemsCount = itemsCount;
         this.montant = montant;
         this.montantRemiseVente = montantRemiseVente;
+        this.delaiReglement = Objects.requireNonNullElse(delaiReglement, 30);
     }
 
     public List<FactureItemDto> getItems() {
@@ -347,5 +352,29 @@ public class FactureDto extends FactureDtoWrapper {
     public FactureDto setStatut(InvoiceStatut statut) {
         this.statut = statut;
         return this;
+    }
+
+    public Integer getDelaiReglement() {
+        return delaiReglement;
+    }
+
+    public FactureDto setDelaiReglement(Integer delaiReglement) {
+        this.delaiReglement = Objects.requireNonNullElse(delaiReglement, 30);
+        return this;
+    }
+
+    public LocalDate getDateEcheance() {
+        if (finPeriode == null) {
+            return null;
+        }
+        return finPeriode.plusDays(Objects.requireNonNullElse(delaiReglement, 30));
+    }
+
+    public Boolean getEnRetard() {
+        LocalDate echeance = getDateEcheance();
+        if (echeance == null) {
+            return false;
+        }
+        return statut != InvoiceStatut.PAID && echeance.isBefore(LocalDate.now());
     }
 }

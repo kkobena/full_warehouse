@@ -1,5 +1,6 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/bulk-action-bar';
 
 
 .produit-home-layout {
@@ -7,43 +8,6 @@
   flex-direction: column;
   height: calc(100vh - 60px);
   overflow: hidden;
-}
-
-.produit-hint {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  margin-bottom: 0.25rem;
-  background: #e8f4fd;
-  border: 1px solid #b6d9f7;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: #1a6fa8;
-
-  i.pi-info-circle {
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
-  span {
-    flex: 1;
-  }
-}
-
-.produit-hint-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #1a6fa8;
-  padding: 0 0.25rem;
-  line-height: 1;
-  opacity: 0.7;
-  flex-shrink: 0;
-
-  &:hover {
-    opacity: 1;
-  }
 }
 
 .split-container {
@@ -117,24 +81,6 @@
 .legend-sep {
   color: $pharma-border;
   font-size: 0.8rem;
-}
-
-// Barre d'actions groupées
-.bulk-action-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background: #eff6ff;
-  border-bottom: 1px solid #bfdbfe;
-  flex-shrink: 0;
-}
-
-.bulk-count {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #1e40af;
-  margin-right: 0.25rem;
 }
 
 /* Overrides toolbar margin since it's embedded in the layout flow */

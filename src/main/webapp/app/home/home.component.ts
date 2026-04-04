@@ -1,25 +1,25 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { AccountService } from 'app/core/auth/account.service';
-import { Account } from 'app/core/auth/account.model';
-import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
-import { CardModule } from 'primeng/card';
-import { HalfyearlyDataComponent } from './halfyearly/halfyearly-data/halfyearly-data.component';
-import { YearlyDataComponent } from './yearly/yearly-data/yearly-data.component';
-import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.component';
-import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component';
-import { DailyDataComponent } from './daily/daily-data/daily-data.component';
-import { Authority } from '../shared/constants/authority.constants';
-import { ResponsableCommandeDashboardComponent } from './responsable-commande-dashboard/responsable-commande-dashboard.component';
-import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
-import { VendeurDashboardComponent } from './vendeur-dashboard/vendeur-dashboard.component';
+import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import { Router, RouterModule } from "@angular/router";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { AccountService } from "app/core/auth/account.service";
+import { Account } from "app/core/auth/account.model";
+import { WarehouseCommonModule } from "../shared/warehouse-common/warehouse-common.module";
+import { CardModule } from "primeng/card";
+import { HalfyearlyDataComponent } from "./halfyearly/halfyearly-data/halfyearly-data.component";
+import { YearlyDataComponent } from "./yearly/yearly-data/yearly-data.component";
+import { MonthlyDataComponent } from "./monthly/monthly-data/monthly-data.component";
+import { WeeklyDataComponent } from "./weekly/weekly-data/weekly-data.component";
+import { DailyDataComponent } from "./daily/daily-data/daily-data.component";
+import { Authority } from "../shared/constants/authority.constants";
+import { CaissierDashboardComponent } from "./caissier-dashboard/caissier-dashboard.component";
+import { VendeurDashboardComponent } from "./vendeur-dashboard/vendeur-dashboard.component";
+import { CommandeHomeComponent } from "../features/commande/feature/commande-home/commande-home.component";
 
 @Component({
-  selector: 'jhi-home',
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  selector: "jhi-home",
+  templateUrl: "./home.component.html",
+  styleUrl: "./home.component.scss",
   imports: [
     WarehouseCommonModule,
     RouterModule,
@@ -29,14 +29,14 @@ import { VendeurDashboardComponent } from './vendeur-dashboard/vendeur-dashboard
     MonthlyDataComponent,
     WeeklyDataComponent,
     DailyDataComponent,
-    ResponsableCommandeDashboardComponent,
     CaissierDashboardComponent,
     VendeurDashboardComponent,
-  ],
+    CommandeHomeComponent
+  ]
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);
-  active = 'daily';
+  active = "daily";
   private readonly destroy$ = new Subject<void>();
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
@@ -50,7 +50,7 @@ export default class HomeComponent implements OnInit, OnDestroy {
   }
 
   login(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(["/login"]);
   }
 
   ngOnDestroy(): void {

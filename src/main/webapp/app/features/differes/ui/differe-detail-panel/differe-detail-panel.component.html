@@ -1,0 +1,128 @@
+@if (differe()) {
+  <div class="detail-panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="panel-title-block">
+        <div class="panel-libelle">{{ differe().firstName }} {{ differe().lastName }}</div>
+        <div class="panel-meta">
+          <span class="pharma-badge pharma-badge-danger">Reste : {{ differe().rest | number }} FCFA</span>
+          <span class="text-muted ms-2" style="font-size: 0.75rem">
+            Total : {{ differe().saleAmount | number }} — Payé : {{ differe().paidAmount | number }}
+          </span>
+        </div>
+      </div>
+      <div class="panel-actions">
+        <p-button icon="pi pi-times" [text]="true" size="small" severity="secondary"
+                  pTooltip="Fermer" (onClick)="onClose()" />
+      </div>
+    </div>
+
+    <!-- Monnaie -->
+    @if (monnaie() > 0) {
+      <div class="monnaie-bar">
+        <i class="pi pi-info-circle"></i>
+        <span>Monnaie à rendre : <strong>{{ monnaie() | number }} FCFA</strong></span>
+      </div>
+    }
+
+    <!-- Onglets ngbNav -->
+    <div class="pharma-nav-tabs-container flex-1-overflow">
+      <div #nav="ngbNav" [activeId]="activeTab()" (activeIdChange)="onTabChange($event)"
+           class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+
+        <!-- Onglet Détail -->
+        <ng-container ngbNavItem="detail">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-list"></i>
+            <span>Détail</span>
+          </a>
+          <ng-template ngbNavContent>
+            <p-table [value]="differe().differeItems ?? []" [stripedRows]="true"
+                     [paginator]="true" [rows]="10" class="p-datatable-sm">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Référence</th>
+                  <th>Date</th>
+                  <th class="text-right">Montant</th>
+                  <th class="text-right">Payé</th>
+                  <th class="text-right">Restant</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-item>
+                <tr>
+                  <td><span class="pharma-code">{{ item.reference }}</span></td>
+                  <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                  <td class="text-right"><span class="pharma-price">{{ item.amount | number }}</span></td>
+                  <td class="text-right"><span class="pharma-price">{{ item.paidAmount | number }}</span></td>
+                  <td class="text-right">
+                    <span [class.pharma-total]="(item.restAmount ?? 0) > 0">{{ item.restAmount | number }}</span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr><td colspan="5" class="text-center p-3 text-muted">Aucun article</td></tr>
+              </ng-template>
+            </p-table>
+          </ng-template>
+        </ng-container>
+
+        <!-- Onglet Régler -->
+        <ng-container ngbNavItem="regler">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-money-bill"></i>
+            <span>Régler</span>
+          </a>
+          <ng-template ngbNavContent>
+            <div class="regler-panel">
+              <app-reglement-differe-form
+                [differe]="differe()"
+                [isSaving]="isSaving"
+                (reglementParams)="onSaveReglement($event)"
+                (rendu)="onMonnaieChange($event)" />
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- Onglet Historique -->
+        <ng-container ngbNavItem="historique">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-history"></i>
+            <span>Historique</span>
+          </a>
+          <ng-template ngbNavContent>
+            @if (loadingReglements) {
+              <div class="d-flex justify-content-center p-4">
+                <p-progressSpinner [style]="{ width: '40px', height: '40px' }" />
+              </div>
+            } @else {
+              <p-table [value]="reglements()" [stripedRows]="true"
+                       [paginator]="true" [rows]="10" class="p-datatable-sm">
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>Opérateur</th>
+                    <th class="text-right">Versé</th>
+                    <th class="text-right">Solde après</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-r>
+                  <tr>
+                    <td>{{ r.lastName }}</td>
+                    <td class="text-right"><span class="pharma-total">{{ r.paidAmount | number }}</span></td>
+                    <td class="text-right"><span class="pharma-price">{{ r.solde | number }}</span></td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr><td colspan="3" class="text-center p-3 text-muted">Aucun versement</td></tr>
+                </ng-template>
+              </p-table>
+            }
+          </ng-template>
+        </ng-container>
+      </div>
+
+      <div class="pharma-nav-tabs-outlet">
+        <div [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
+  </div>
+}

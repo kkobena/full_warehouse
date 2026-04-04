@@ -14,13 +14,10 @@ import { BadgeModule } from "primeng/badge";
 
 import { CommandeService, ICommandeDashboard, ICommandeResumee } from "app/entities/commande/commande.service";
 import { SemoisService } from "app/entities/semois/semois.service";
-import {
-  BudgetCommande,
-  SemoisFraicheur,
-  SuggestionService
-} from "app/entities/commande/suggestion/suggestion.service";
+import { BudgetCommande, SemoisFraicheur, SuggestionService } from "app/entities/commande/suggestion/suggestion.service";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
 import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois-dashboard.model";
+import { AlertBadgeService } from "app/shared/services/alert-badge.service";
 
 @Component({
   selector: "app-appro-unified-dashboard",
@@ -29,8 +26,8 @@ import { IReapproDashboard, ITopUrgentDTO } from "app/shared/model/semois/semois
   imports: [
     DatePipe, DecimalPipe, NgClass,
     TableModule, ButtonModule, ToolbarModule, Tag,
-    ProgressBarModule, SkeletonModule, TooltipModule, BadgeModule
-  ]
+    ProgressBarModule, SkeletonModule, TooltipModule, BadgeModule,
+  ],
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
   readonly loadingCommandes = signal(true);
@@ -47,8 +44,16 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
   private readonly router = inject(Router);
   private readonly commandCommonService = inject(CommandCommonService);
+  /** Service partagé — source unique de vérité pour tous les compteurs d'alertes */
+  readonly alertBadgeService = inject(AlertBadgeService);
+
+  /** Compatible avec l'usage template existant : peremptionCount() */
+  peremptionCount(): number {
+    return this.alertBadgeService.peremptionCount();
+  }
 
   ngOnInit(): void {
+    this.alertBadgeService.init();
     this.loadAll();
   }
 
@@ -58,33 +63,29 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.lastRefresh.set(null);
 
     this.commandeService.getDashboard().subscribe({
-      next: data => {
-        this.commandeDashboard.set(data);
-        this.loadingCommandes.set(false);
-        this.checkRefreshDone();
-      },
-      error: () => this.loadingCommandes.set(false)
+      next: data => { this.commandeDashboard.set(data); this.loadingCommandes.set(false); this.checkRefreshDone(); },
+      error: () => this.loadingCommandes.set(false),
     });
 
     this.semoisService.getDashboard().subscribe({
-      next: (res: HttpResponse<IReapproDashboard>) => {
-        this.semoisDashboard.set(res.body);
-        this.loadingSemois.set(false);
-        this.checkRefreshDone();
-      },
-      error: () => this.loadingSemois.set(false)
+      next: (res: HttpResponse<IReapproDashboard>) => { this.semoisDashboard.set(res.body); this.loadingSemois.set(false); this.checkRefreshDone(); },
+      error: () => this.loadingSemois.set(false),
     });
 
     this.suggestionService.getSemoisFraicheur().subscribe({
       next: f => this.semoisFraicheur.set(f),
-      error: () => this.semoisFraicheur.set(null)
+      error: () => this.semoisFraicheur.set(null),
     });
 
     this.suggestionService.getBudget().subscribe({
       next: b => this.budget.set(b),
-      error: () => this.budget.set(null)
+      error: () => this.budget.set(null),
     });
+
+    this.alertBadgeService.refresh();
   }
+
+  navigateToPeremptions(): void { this.router.navigate(['/gestion-peremption']); }
 
   private checkRefreshDone(): void {
     if (!this.loadingCommandes() && !this.loadingSemois()) {
@@ -92,10 +93,7 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     }
   }
 
-  get isLoading(): boolean {
-    return this.loadingCommandes() || this.loadingSemois();
-  }
-
+  get isLoading(): boolean { return this.loadingCommandes() || this.loadingSemois(); }
 
   // ─── Navigation ──────────────────────────────────────────────────────────
 
@@ -110,20 +108,9 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     }
   }
 
-
-  navigateToSemoisSuggestions(): void {
-    this.commandCommonService.navigateToAnalyse();
-  }
-
-  navigateToCommandeEnCours(): void {
-    this.commandCommonService.navigateToCommandesAPasser();
-  }
-
-  navigateToReceptionEnAttente(): void {
-    this.commandCommonService.navigateToBonsLivraison();
-  }
-
-
+  navigateToSemoisSuggestions(): void { this.commandCommonService.navigateToAnalyse(); }
+  navigateToCommandeEnCours(): void   { this.commandCommonService.navigateToCommandesAPasser(); }
+  navigateToReceptionEnAttente(): void { this.commandCommonService.navigateToBonsLivraison(); }
 
   // ─── Calculs VMM ─────────────────────────────────────────────────────────
 

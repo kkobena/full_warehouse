@@ -2,8 +2,6 @@
 // This module handles sending ESC/POS commands to customer displays via different connection types
 
 use serde::{Deserialize, Serialize};
-use std::io::Write;
-use std::net::TcpStream;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -51,8 +49,7 @@ async fn send_to_serial_display(
 
     #[cfg(feature = "serialport")]
     {
-        use serialport::SerialPort;
-
+        // SerialPort trait importé ici uniquement pour les méthodes spécifiques au port série
         let mut port = serialport::new(port_name, baud_rate)
             .timeout(std::time::Duration::from_millis(1000))
             .open()
@@ -112,28 +109,40 @@ async fn send_to_usb_display(
     }
 }
 
-/// Send data to network customer display via TCP/IP
+/// Send data to network customer display via TCP/IP.
+/// C4 : Utilise `tokio::net::TcpStream` async pour ne pas bloquer le thread Tokio.
 async fn send_to_network_display(
     data: &[u8],
     config: &CustomerDisplayConnectionConfig,
 ) -> Result<String, String> {
+    use tokio::io::AsyncWriteExt;
+    use std::time::Duration;
+
     let ip_address = config
         .ip_address
         .as_ref()
         .ok_or("IP address not specified")?;
-    let port = config.port.unwrap_or(9100); // Default raw printing port
+    let port = config.port.unwrap_or(9100);
 
     let address = format!("{}:{}", ip_address, port);
 
-    let mut stream = TcpStream::connect(&address)
-        .map_err(|e| format!("Failed to connect to network display at {}: {}", address, e))?;
+    // Connexion avec timeout de 5 secondes pour éviter un blocage indéfini.
+    let mut stream = tokio::time::timeout(
+        Duration::from_secs(5),
+        tokio::net::TcpStream::connect(&address),
+    )
+    .await
+    .map_err(|_| format!("Timeout de connexion à l'afficheur réseau {} (5s)", address))?
+    .map_err(|e| format!("Failed to connect to network display at {}: {}", address, e))?;
 
     stream
         .write_all(data)
+        .await
         .map_err(|e| format!("Failed to write to network display: {}", e))?;
 
     stream
         .flush()
+        .await
         .map_err(|e| format!("Failed to flush network stream: {}", e))?;
 
     Ok(format!(
@@ -205,6 +214,13 @@ mod tests {
         let data = vec![0x1B, 0x40]; // ESC @
         let result = send_to_network_display(&data, &config).await;
 
-        assert!(result.is_err() || result.is_ok());
+        // Q5 : Test corrigé — la connexion DOIT échouer car l'hôte est injoignable.
+        assert!(result.is_err(), "Connexion à 192.168.1.99:9100 devrait échouer en test");
+        let err_msg = result.unwrap_err();
+        assert!(
+            err_msg.contains("Failed to connect") || err_msg.contains("Timeout"),
+            "Message d'erreur inattendu : {}",
+            err_msg
+        );
     }
 }

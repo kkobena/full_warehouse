@@ -43,4 +43,5 @@ export enum Authority {
   MVT_CAISSE = 'mvt-caisse',
   BALANCE_CAISSE = 'balance-caisse',
   TABLEAU_PHARMACIEN = 'tableau-pharmacien',
+  EDITION_FACTURATION = 'edition-factures',
 }

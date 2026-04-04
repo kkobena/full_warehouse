@@ -15,6 +15,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
@@ -44,6 +45,10 @@ public class GroupeTiersPayant implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "ordre_tris_facture", length = 20)
     private OrdreTrisFacture ordreTrisFacture;
+
+    @ColumnDefault("30")
+    @Column(name = "delai_reglement")
+    private Integer delaiReglement = 30;
 
     public GroupeTiersPayant() {}
 
@@ -98,6 +103,15 @@ public class GroupeTiersPayant implements Serializable {
 
     public GroupeTiersPayant setTelephoneFixe(String telephoneFixe) {
         this.telephoneFixe = telephoneFixe;
+        return this;
+    }
+
+    public Integer getDelaiReglement() {
+        return delaiReglement;
+    }
+
+    public GroupeTiersPayant setDelaiReglement(Integer delaiReglement) {
+        this.delaiReglement = delaiReglement;
         return this;
     }
 }

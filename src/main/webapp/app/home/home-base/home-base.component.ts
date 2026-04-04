@@ -5,7 +5,6 @@ import {
   faChartBar,
   faChartLine,
   faChartPie,
-  faClock,
   faCommentsDollar,
   faCreditCard,
   faShippingFast,
@@ -31,9 +30,8 @@ import { ToggleButtonChangeEvent, ToggleButtonModule } from 'primeng/togglebutto
 import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
 import { ToggleStateService } from './toggle-state.service';
 import { SelectModule } from 'primeng/select';
-import { ButtonModule } from 'primeng/button';
-import { BadgeModule } from 'primeng/badge';
 import { Router } from '@angular/router';
+import { AlertBadgeService } from '../../shared/services/alert-badge.service';
 
 interface TopSelection {
   label: string;
@@ -51,8 +49,6 @@ interface TopSelection {
     ChartModule,
     ToggleButtonModule,
     SelectModule,
-    ButtonModule,
-    BadgeModule,
   ],
   templateUrl: './home-base.component.html',
   styleUrl: './home-base.component.scss',
@@ -66,15 +62,16 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected readonly faChartLine = faChartLine;
   protected readonly faChartPie = faChartPie;
   protected readonly faCreditCard = faCreditCard;
-  protected readonly faClock = faClock;
   protected readonly tops: TopSelection[] = TOPS;
 
-  // Alert counters
-  protected peremptionCount = 0;
-  protected ruptureCount = 0;
-  protected entreeCount = 0;
-  protected ajustementCount = 0;
-  protected prixModifCount = 0;
+  // Alert counters — via AlertBadgeService (signaux)
+  protected readonly alertBadgeService = inject(AlertBadgeService);
+
+  get peremptionCount(): number { return this.alertBadgeService.peremptionCount(); }
+  get ruptureCount(): number    { return this.alertBadgeService.ruptureCount(); }
+  get ajustementCount(): number { return this.alertBadgeService.ajustementCount(); }
+  get prixModifCount(): number  { return this.alertBadgeService.prixModifCount(); }
+  get urgentCount(): number     { return this.alertBadgeService.urgentCount(); }
 
   protected venteRecord: VenteRecord | null = null;
   protected canceled: VenteRecord | null = null;
@@ -131,12 +128,12 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeChartStyles();
     this.loadDashboardData();
-    this.loadAlertCounts();
+    this.alertBadgeService.init();
     interval(120000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadDashboardData();
-        this.loadAlertCounts();
+        this.alertBadgeService.refresh();
       });
   }
 
@@ -147,41 +144,15 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   protected loadDashboardData(): void {
     const sources = {
-      ca: this.dashboardService.fetchCa({
-        categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: this.dashboardPeriode,
-      }),
-      caAchat: this.dashboardService.fetchCaAchat({
-        dashboardPeriode: this.dashboardPeriode,
-      }),
-      caTypeVente: this.dashboardService.fetchCaByTypeVente({
-        dashboardPeriode: this.dashboardPeriode,
-      }),
-      byModePaiment: this.dashboardService.getCaByModePaiment({
-        dashboardPeriode: this.dashboardPeriode,
-      }),
-      produitCa: this.produitStatService.fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value,
-      }),
-      produitAmount: this.produitStatService.fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value,
-      }),
-      twentyEighty: this.produitStatService.fetch20x80({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.QUANTITY_SOLD,
-      }),
-      twentyEightyMontant: this.produitStatService.fetch20x80({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.AMOUNT,
-      }),
-      tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
-        dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value,
-      }),
+      ca: this.dashboardService.fetchCa({ categorieChiffreAffaire: TypeCa.CA, dashboardPeriode: this.dashboardPeriode }),
+      caAchat: this.dashboardService.fetchCaAchat({ dashboardPeriode: this.dashboardPeriode }),
+      caTypeVente: this.dashboardService.fetchCaByTypeVente({ dashboardPeriode: this.dashboardPeriode }),
+      byModePaiment: this.dashboardService.getCaByModePaiment({ dashboardPeriode: this.dashboardPeriode }),
+      produitCa: this.produitStatService.fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD, limit: this.TOP_MAX_QUANTITY?.value }),
+      produitAmount: this.produitStatService.fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT, limit: this.TOP_MAX_AMOUNT?.value }),
+      twentyEighty: this.produitStatService.fetch20x80({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD }),
+      twentyEightyMontant: this.produitStatService.fetch20x80({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT }),
+      tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({ dashboardPeriode: this.dashboardPeriode, limit: this.TOP_MAX_TP?.value }),
     };
 
     forkJoin(sources).subscribe({
@@ -203,28 +174,14 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   protected onTopQuantityChange(): void {
     this.produitStatService
-      .fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value,
-      })
-      .subscribe(res => {
-        this.onFetchPoduitCaSuccess(res.body);
-        this.buildQuantityChart();
-      });
+      .fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD, limit: this.TOP_MAX_QUANTITY?.value })
+      .subscribe(res => { this.onFetchPoduitCaSuccess(res.body); this.buildQuantityChart(); });
   }
 
   protected onTopAmountChange(): void {
     this.produitStatService
-      .fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value,
-      })
-      .subscribe(res => {
-        this.onFetchPoduitAmountSuccess(res.body);
-        this.buildAmountChart();
-      });
+      .fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT, limit: this.TOP_MAX_AMOUNT?.value })
+      .subscribe(res => { this.onFetchPoduitAmountSuccess(res.body); this.buildAmountChart(); });
   }
 
   protected onToggleChange(evt: ToggleButtonChangeEvent): void {
@@ -233,14 +190,8 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   protected onTopTiersPayantChange(): void {
     this.tiersPayantService
-      .fetchAchatTiersPayant({
-        dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value,
-      })
-      .subscribe(res => {
-        this.onFetchTiersPayantSuccess(res.body);
-        this.buildTiersPayantChart();
-      });
+      .fetchAchatTiersPayant({ dashboardPeriode: this.dashboardPeriode, limit: this.TOP_MAX_TP?.value })
+      .subscribe(res => { this.onFetchTiersPayantSuccess(res.body); this.buildTiersPayantChart(); });
   }
 
   private onCaSuccess(ca: VenteRecordWrapper | null): void {
@@ -249,9 +200,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.canceled = ca.canceled;
   }
 
-  private onCaAchatSuccess(achatRecordIn: AchatRecord | null): void {
-    this.achatRecord = achatRecordIn;
-  }
+  private onCaAchatSuccess(achatRecordIn: AchatRecord | null): void { this.achatRecord = achatRecordIn; }
 
   private onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
     if (!venteByTypeRecords) return;
@@ -259,13 +208,8 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.assurance = venteByTypeRecords.find(e => e.typeVente === 'ThirdPartySales')?.venteRecord;
   }
 
-  private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
-    this.venteModePaiments = venteModePaimentRecords;
-  }
-
-  private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void {
-    this.tiersPayantAchat = tps;
-  }
+  private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void { this.venteModePaiments = venteModePaimentRecords; }
+  private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void { this.tiersPayantAchat = tps; }
 
   private onFetchPoduitCaSuccess(productStatRecords: ProductStatRecord[] | []): void {
     this.rowQuantity = productStatRecords;
@@ -289,33 +233,29 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   private computeAmountTopQuantity(): void {
     this.totalQuantityToQuantity = this.rowQuantity.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopQuantity = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalAmountTopQuantity  = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
   }
 
   private computeAmountTopAmount(): void {
     this.totalQuantityTopAmount = this.rowAmount.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalAmountTopAmount   = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
   }
 
   private computeAmountrow20x80Amount(): void {
-    if (this.row20x80Montant?.length) {
-      this.totalAmount20x80 = this.row20x80Montant[0].totalGlobal;
-    }
+    if (this.row20x80Montant?.length) this.totalAmount20x80 = this.row20x80Montant[0].totalGlobal;
     this.totalAmountAvg = this.row20x80Montant?.reduce((sum, p) => sum + p.pourcentage, 0);
   }
 
   private computeAmountrow20x80(): void {
-    if (this.row20x80?.length) {
-      this.totalQuantity20x80 = this.row20x80[0].totalGlobal;
-    }
+    if (this.row20x80?.length) this.totalQuantity20x80 = this.row20x80[0].totalGlobal;
     this.totalQuantityAvg = this.row20x80?.reduce((sum, p) => sum + p.pourcentage, 0);
   }
 
   private initializeChartStyles(): void {
-    this.documentStyle = getComputedStyle(document.documentElement);
-    this.textColor = textColor(this.documentStyle);
+    this.documentStyle      = getComputedStyle(document.documentElement);
+    this.textColor          = textColor(this.documentStyle);
     this.textColorSecondary = textColorSecondary(this.documentStyle);
-    this.surfaceBorder = surfaceBorder(this.documentStyle);
+    this.surfaceBorder      = surfaceBorder(this.documentStyle);
   }
 
   private buildAllCharts(): void {
@@ -328,15 +268,8 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   private buildQuantityChart(): void {
     this.quantityChartData = {
-      labels: this.rowQuantity.map(p => p.libelle.slice(0, 20)), // Truncate labels
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Quantité vendue',
-          backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'),
-          data: this.rowQuantity.map(p => p.quantitySold),
-        },
-      ],
+      labels: this.rowQuantity.map(p => p.libelle.slice(0, 20)),
+      datasets: [{ type: 'bar', label: 'Quantité vendue', backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'), data: this.rowQuantity.map(p => p.quantitySold) }],
     };
     this.quantityChartOptions = this.getCommonChartOptions();
   }
@@ -344,14 +277,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private buildAmountChart(): void {
     this.amountChartData = {
       labels: this.rowAmount.map(p => p.libelle.slice(0, 20)),
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Montant HT',
-          backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
-          data: this.rowAmount.map(p => p.montantHt),
-        },
-      ],
+      datasets: [{ type: 'bar', label: 'Montant HT', backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'), data: this.rowAmount.map(p => p.montantHt) }],
     };
     this.amountChartOptions = this.getCommonChartOptions();
   }
@@ -360,19 +286,8 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.twentyEightyChartData = {
       labels: this.row20x80.map(p => p.libelle.slice(0, 20)),
       datasets: [
-        {
-          type: 'line',
-          label: '% Montant',
-          borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
-          tension: 0.4,
-          data: this.row20x80.map(p => p.pourcentage),
-        },
-        {
-          type: 'bar',
-          label: 'Montant HT',
-          backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
-          data: this.row20x80.map(p => p.total),
-        },
+        { type: 'line', label: '% Montant', borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'), tension: 0.4, data: this.row20x80.map(p => p.pourcentage) },
+        { type: 'bar',  label: 'Montant HT', backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'), data: this.row20x80.map(p => p.total) },
       ],
     };
     this.twentyEightyChartOptions = this.getCommonChartOptions();
@@ -381,29 +296,17 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private buildModePaimentChart(): void {
     this.modePaimentChartData = {
       labels: this.venteModePaiments.map(p => p.libelle),
-      datasets: [
-        {
-          data: this.venteModePaiments.map(p => p.paidAmount),
-          backgroundColor: backgroundColor(this.documentStyle),
-          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle),
-        },
-      ],
+      datasets: [{ data: this.venteModePaiments.map(p => p.paidAmount), backgroundColor: backgroundColor(this.documentStyle), hoverBackgroundColor: hoverBackgroundColor(this.documentStyle) }],
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
   }
 
   private buildTiersPayantChart(): void {
-    const bgs = backgroundColor(this.documentStyle);
+    const bgs    = backgroundColor(this.documentStyle);
     const hovers = hoverBackgroundColor(this.documentStyle);
     this.tiersPayantChartData = {
       labels: this.tiersPayantAchat.map(p => p.tiersPayantName),
-      datasets: [
-        {
-          data: this.tiersPayantAchat.map(p => p.montantTtc),
-          backgroundColor: bgs.reverse(),
-          hoverBackgroundColor: hovers.reverse(),
-        },
-      ],
+      datasets: [{ data: this.tiersPayantAchat.map(p => p.montantTtc), backgroundColor: bgs.reverse(), hoverBackgroundColor: hovers.reverse() }],
     };
     this.tiersPayantChartOptions = this.getCommonPieChartOptions();
   }
@@ -412,85 +315,23 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     return {
       maintainAspectRatio: false,
       aspectRatio: 0.8,
-      plugins: {
-        legend: {
-          labels: {
-            color: this.textColor,
-          },
-        },
-      },
+      plugins: { legend: { labels: { color: this.textColor } } },
       scales: {
-        y: {
-          ticks: {
-            color: this.textColorSecondary,
-          },
-          grid: {
-            color: this.surfaceBorder,
-          },
-        },
-        x: {
-          ticks: {
-            color: this.textColorSecondary,
-          },
-          grid: {
-            color: this.surfaceBorder,
-          },
-        },
+        y: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
+        x: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
       },
     };
   }
 
   private getCommonPieChartOptions(): any {
-    return {
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            color: this.textColor,
-            usePointStyle: true,
-          },
-        },
-      },
-    };
+    return { plugins: { legend: { position: 'bottom', labels: { color: this.textColor, usePointStyle: true } } } };
   }
 
-  // Alert/Notification Actions Methods
-  protected voirPeremptions(): void {
-    this.router.navigate(['/produits'], { queryParams: { peremption: true } });
-  }
+  // ─── Actions de navigation ────────────────────────────────────────────────
 
-  protected voirRuptures(): void {
-    this.router.navigate(['/produits'], { queryParams: { rupture: true } });
-  }
-
-  protected voirEntrees(): void {
-    this.router.navigate(['/stock-entree']);
-  }
-
-  protected voirAjustements(): void {
-    this.router.navigate(['/ajustement']);
-  }
-
-  protected voirModifPrix(): void {
-    this.router.navigate(['/produit'], { queryParams: { prixModif: true } });
-  }
-
-  private loadAlertCounts(): void {
-    this.dashboardService.getAlertCounts().subscribe({
-      next: res => {
-        const alertCounts = res.body;
-        if (alertCounts) {
-          this.peremptionCount = alertCounts.peremptionCount;
-          this.ruptureCount = alertCounts.ruptureCount;
-          this.entreeCount = alertCounts.entreeCount;
-          this.ajustementCount = alertCounts.ajustementCount;
-          this.prixModifCount = alertCounts.prixModifCount;
-        }
-      },
-      error() {
-        // En cas d'erreur, garder les valeurs par défaut (0)
-        console.error("Erreur lors du chargement des compteurs d'alertes");
-      },
-    });
-  }
+  protected voirPeremptions(): void { this.router.navigate(['/gestion-peremption']); }
+  protected voirRuptures(): void    { this.router.navigate(['/produits'], { queryParams: { rupture: true } }); }
+  protected voirUrgents(): void     { this.router.navigate(['/commande'],  { queryParams: { tab: 'SUGGESTIONS' } }); }
+  protected voirAjustements(): void { this.router.navigate(['/ajustement']); }
+  protected voirModifPrix(): void   { this.router.navigate(['/produit'],   { queryParams: { prixModif: true } }); }
 }

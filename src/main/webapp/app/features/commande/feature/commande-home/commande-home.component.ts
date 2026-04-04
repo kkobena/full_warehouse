@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import {
@@ -16,6 +16,16 @@ import { ApproUnifiedDashboardComponent } from "../appro-unified-dashboard/appro
 import { SuggestionsUnifiedComponent } from "../suggestions-unified/suggestions-unified.component";
 import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
+import { AlertBadgeService } from "../../../../shared/services/alert-badge.service";
+import { BreadcrumbService } from "../../../../shared/components/breadcrumb/breadcrumb.service";
+
+/** Labels fil d'Ariane pour chaque onglet */
+const TAB_LABELS: Record<string, string> = {
+  DASHBOARD:         'Tableau de bord Appro',
+  SUGGESTIONS:       'Commandes & Réceptions',
+  REPARTITION_STOCK: 'Répartition & Transferts',
+  RETOUR_FOURNISSEUR:'Retours fournisseurs',
+};
 
 @Component({
   selector: "app-commande-home",
@@ -33,7 +43,6 @@ import { PrimeNG } from "primeng/config";
     AppRepartitionStockComponent,
     ApproUnifiedDashboardComponent,
     SuggestionsUnifiedComponent
-
   ]
 })
 export class CommandeHomeComponent implements OnInit {
@@ -43,14 +52,17 @@ export class CommandeHomeComponent implements OnInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
+  protected readonly alertBadgeService = inject(AlertBadgeService);
+  private readonly breadcrumbService = inject(BreadcrumbService);
 
   constructor() {
-    // Réagit aux changements de nav déclenchés depuis les composants enfants
-    // (ex: semois-dashboard → SEMOIS_SUGGESTIONS)
+    inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
+
     effect(() => {
       const nav = this.commandCommonService.commandPreviousActiveNav();
       if (nav !== this.active) {
         this.active = nav;
+        this.breadcrumbService.setTabCrumb(TAB_LABELS[nav] ?? nav);
       }
     });
   }
@@ -67,11 +79,16 @@ export class CommandeHomeComponent implements OnInit {
       } else {
         this.active = this.commandCommonService.commandPreviousActiveNav();
       }
+      this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
     });
+    this.alertBadgeService.init();
   }
 
   protected onNavChange(evt: NgbNavChangeEvent): void {
     this.active = evt.nextId;
     this.commandCommonService.updateCommandPreviousActiveNav(this.active);
+    this.breadcrumbService.setTabCrumb(TAB_LABELS[this.active] ?? this.active);
   }
 }
+
+

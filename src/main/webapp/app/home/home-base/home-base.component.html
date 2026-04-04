@@ -4,59 +4,64 @@
     <!-- Quick Actions - Notifications & Alerts -->
     <div class="quick-actions d-flex gap-2 align-items-center">
       @if (peremptionCount > 0) {
-        <p-button
+        <button
           type="button"
-          label="Péremptions"
-          icon="pi pi-clock"
-          severity="danger"
-          size="small"
-          [badge]="peremptionCount.toString()"
+          class="quick-alert-card quick-alert-danger"
           (click)="voirPeremptions()"
-        ></p-button>
+          title="Voir les lots périmés dans Gestion Péremptions"
+        >
+          <i class="pi pi-clock"></i>
+          <span class="quick-alert-label">Péremptions</span>
+          <span class="quick-alert-badge">{{ peremptionCount }}</span>
+        </button>
       }
       @if (ruptureCount > 0) {
-        <p-button
+        <button
           type="button"
-          label="Ruptures Stock"
-          icon="pi pi-exclamation-triangle"
-          severity="danger"
-          size="small"
-          [badge]="ruptureCount.toString()"
+          class="quick-alert-card quick-alert-danger"
           (click)="voirRuptures()"
-        ></p-button>
+          title="Voir les ruptures de stock"
+        >
+          <i class="pi pi-exclamation-triangle"></i>
+          <span class="quick-alert-label">Ruptures</span>
+          <span class="quick-alert-badge">{{ ruptureCount }}</span>
+        </button>
       }
-      <!--  @if (entreeCount > 0) {
-        <p-button
+      @if (urgentCount > 0) {
+        <button
           type="button"
-          label="Entrées Stock"
-          icon="pi pi-arrow-down"
-          severity="success"
-          size="small"
-          [badge]="entreeCount.toString()"
-          (click)="voirEntrees()"
-        ></p-button>
-      }-->
+          class="quick-alert-card quick-alert-warn"
+          (click)="voirUrgents()"
+          title="Produits à réapprovisionner en urgence — couverture de stock insuffisante (rupture + sous seuil)"
+        >
+          <i class="pi pi-shopping-bag"></i>
+          <span class="quick-alert-label">À commander</span>
+          <span class="quick-alert-badge">{{ urgentCount }}</span>
+        </button>
+      }
       @if (ajustementCount > 0) {
-        <p-button
+        <button
           type="button"
-          label="Ajustements"
-          icon="pi pi-sliders-h"
-          severity="info"
-          size="small"
-          [badge]="ajustementCount.toString()"
+          class="quick-alert-card quick-alert-info"
           (click)="voirAjustements()"
-        ></p-button>
+          title="Voir les ajustements de stock"
+        >
+          <i class="pi pi-sliders-h"></i>
+          <span class="quick-alert-label">Ajustements</span>
+          <span class="quick-alert-badge">{{ ajustementCount }}</span>
+        </button>
       }
       @if (prixModifCount > 0) {
-        <p-button
+        <button
           type="button"
-          label="Modif. Prix"
-          icon="pi pi-dollar"
-          severity="warn"
-          size="small"
-          [badge]="prixModifCount.toString()"
+          class="quick-alert-card quick-alert-warn"
           (click)="voirModifPrix()"
-        ></p-button>
+          title="Voir les modifications de prix"
+        >
+          <i class="pi pi-dollar"></i>
+          <span class="quick-alert-label">Modif. Prix</span>
+          <span class="quick-alert-badge">{{ prixModifCount }}</span>
+        </button>
       }
     </div>
 

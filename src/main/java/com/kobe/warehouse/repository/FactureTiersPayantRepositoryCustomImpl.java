@@ -81,7 +81,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 cb.sum(details.get(ThirdPartySaleLine_.montantRegle)),
                 cb.count(details),
                 cb.sum(details.get(ThirdPartySaleLine_.montant)),
-                root.get(FactureTiersPayant_.fneResponse)
+                root.get(FactureTiersPayant_.fneResponse),
+                tiersPayantJoin.get(TiersPayant_.delaiReglement)
             )
         );
 
@@ -99,7 +100,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             root.get(FactureTiersPayant_.factureProvisoire),
             root.get(FactureTiersPayant_.numFacture),
             groupe.get(FactureTiersPayant_.numFacture),
-            tiersPayantJoin.get(TiersPayant_.fullName)
+            tiersPayantJoin.get(TiersPayant_.fullName),
+            tiersPayantJoin.get(TiersPayant_.delaiReglement)
         );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
@@ -140,7 +142,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 cb.sum(sale.get(Sales_.salesAmount)),
                 cb.count(details),
                 cb.sum(detailsVenete.get(ThirdPartySaleLine_.montant)),
-                cb.sum(sale.get(Sales_.discountAmount))
+                cb.sum(sale.get(Sales_.discountAmount)),
+                groupeTp.get(GroupeTiersPayant_.delaiReglement)
             )
         );
         query.groupBy(
@@ -152,7 +155,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             root.get(FactureTiersPayant_.finPeriode),
             root.get(FactureTiersPayant_.factureProvisoire),
             root.get(FactureTiersPayant_.numFacture),
-            groupeTp.get(GroupeTiersPayant_.name)
+            groupeTp.get(GroupeTiersPayant_.name),
+            groupeTp.get(GroupeTiersPayant_.delaiReglement)
         );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);

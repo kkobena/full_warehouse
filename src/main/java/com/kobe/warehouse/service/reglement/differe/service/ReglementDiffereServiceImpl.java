@@ -42,6 +42,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReglementDiffereServiceImpl implements ReglementDiffereService {
 
+    private static final Logger log = LoggerFactory.getLogger(ReglementDiffereServiceImpl.class);
+
     private final DifferePaymentRepository differePaymentRepository;
     private final SalesRepository salesRepository;
     private final CustomerRepository customerRepository;
@@ -62,6 +67,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     private final DiffereReceiptService differeReceiptService;
     private final TransactionIdGeneratorService transactionIdGeneratorService;
     private final ReferenceService referenceService;
+    private final ReportExcelExportService reportExcelExportService;
 
     public ReglementDiffereServiceImpl(
         DifferePaymentRepository differePaymentRepository,
@@ -72,7 +78,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         BanqueRepository banqueRepository,
         DiffereReceiptService differeReceiptService,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        ReferenceService referenceService
+        ReferenceService referenceService,
+        ReportExcelExportService reportExcelExportService
     ) {
         this.differePaymentRepository = differePaymentRepository;
         this.salesRepository = salesRepository;
@@ -83,6 +90,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         this.differeReceiptService = differeReceiptService;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
         this.referenceService = referenceService;
+        this.reportExcelExportService = reportExcelExportService;
     }
 
     @Override
@@ -216,6 +224,24 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     @Override
     public byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException {
         return this.differeReceiptService.generateEscPosReceiptForTauri(getReglementDiffereReceipt(idReglement));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportDifferesToExcel(Integer customerId, Set<PaymentStatus> paymentStatuses) {
+        List<DiffereDTO> data = getDiffere(customerId, paymentStatuses, Pageable.unpaged()).getContent();
+        String[] headers = { "Client", "Montant vendu (FCFA)", "Montant payé (FCFA)", "Solde restant (FCFA)" };
+        try {
+            return reportExcelExportService.createExcelReport("Différés clients", headers, data, (row, d) -> {
+                row.createCell(0).setCellValue(d.customerfullName());
+                row.createCell(1).setCellValue(d.saleAmount() != null ? d.saleAmount() : 0L);
+                row.createCell(2).setCellValue(d.paidAmount() != null ? d.paidAmount() : 0L);
+                row.createCell(3).setCellValue(d.rest() != null ? d.rest() : 0L);
+            });
+        } catch (Exception e) {
+            log.error("Erreur génération Excel différés", e);
+            throw new RuntimeException("Erreur génération Excel différés");
+        }
     }
 
     @Override

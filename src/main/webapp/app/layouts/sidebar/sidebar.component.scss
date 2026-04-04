@@ -255,6 +255,25 @@
       margin: 0;
     }
 
+    //Séparateur de groupe dans le sous-menu ─────────────────
+    .submenu-divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0.4rem 0.75rem;
+      list-style: none;
+    }
+
+    //En-tête de groupe non-cliquable ────────────────────────
+    .submenu-group-label {
+      padding: 0.5rem 0.75rem 0.2rem 3rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(255, 255, 255, 0.4);
+      pointer-events: none;
+      list-style: none;
+    }
+
     .submenu-link {
       display: flex;
       align-items: center;
@@ -431,3 +450,47 @@
     }
   }
 }
+
+// ─── Badges d'alerte dans la sidebar ─────────────────────────────────────────
+
+// Badge pill affiché dans les liens (sidebar étendu)
+.sidebar-badge {
+  font-size: 0.6rem;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  line-height: 16px;
+  flex-shrink: 0;
+}
+
+// Dot rouge affiché sur l'icône quand la sidebar est réduite
+.nav-icon {
+  position: relative;
+}
+
+.sidebar-badge-dot {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #2c3e50;
+  display: block;
+}
+
+// Alignement flex pour les liens qui ont un badge pill
+.nav-link,
+.submenu-link {
+  display: flex;
+  align-items: center;
+}
+
+// Backdrop mobile — ferme la sidebar au clic en dehors (B1)
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1049; // juste en dessous de la sidebar (1050)
+}
+

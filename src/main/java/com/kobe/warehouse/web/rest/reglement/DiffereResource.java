@@ -136,4 +136,15 @@ public class DiffereResource {
     public ResponseEntity<DiffereSummary> getDiffereSummary(@RequestParam(name = "customerId", required = false) Integer customerId) {
         return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
     }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportDifferesToExcel(
+        @RequestParam(name = "customerId", required = false) Integer customerId
+    ) {
+        String fileName = "differes_" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
+        return Utils.exportExcel(
+            reglementDiffereService.exportDifferesToExcel(customerId, Set.of(PaymentStatus.IMPAYE)),
+            fileName
+        );
+    }
 }

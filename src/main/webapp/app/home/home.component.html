@@ -1,4 +1,5 @@
 @if (account() !== null) {
+
   <!-- Dashboard Admin avec navigation -->
   @if (isAdmin()) {
     <div class="container-fluid">
@@ -94,7 +95,7 @@
 
   <!-- Dashboard Responsable Commande -->
   @if (isResponsableCommande() && !isAdmin()) {
-    <jhi-responsable-commande-dashboard></jhi-responsable-commande-dashboard>
+    <app-commande-home></app-commande-home>
   }
 
   <!-- Dashboard Caissier -->

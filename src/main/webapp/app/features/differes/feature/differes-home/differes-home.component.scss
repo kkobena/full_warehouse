@@ -1,0 +1,60 @@
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/bulk-action-bar';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+.split-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+  min-height: 0;
+}
+
+.list-column {
+  flex: 1;
+  overflow: auto;
+  transition: flex 0.2s ease;
+  border-right: 1px solid #e2e8f0;
+}
+
+.split-container.panel-open .list-column {
+  flex: 0 0 42%;
+  max-width: 42%;
+}
+
+.detail-column {
+  flex: 0 0 58%;
+  max-width: 58%;
+  overflow-y: auto;
+  background: #fff;
+}
+
+@media (max-width: 1024px) {
+  .split-container.panel-open {
+    flex-direction: column;
+
+    .list-column,
+    .detail-column {
+      flex: none;
+      max-width: 100%;
+      width: 100%;
+      border-right: none;
+    }
+
+    .list-column {
+      border-bottom: 1px solid #e2e8f0;
+      max-height: 40%;
+    }
+
+    .detail-column {
+      flex: 1;
+    }
+  }
+}

@@ -1,0 +1,127 @@
+<div class="pharma-smart-content p-1">
+
+
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-credit-card"></i>
+      <span class="pharma-toolbar-title">Ventes à crédit (différés)</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="customerId"
+              [options]="store.clients()"
+              [showClear]="true"
+              [fluid]="true"
+              appendTo="body"
+              id="dhClient"
+              inputId="dhClient"
+              optionLabel="fullName"
+              optionValue="id"
+            />
+            <label for="dhClient">Client</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="statut"
+              [options]="typesDifferes"
+              appendTo="body"
+              id="dhStatut"
+              inputId="dhStatut"
+              optionLabel="label"
+              optionValue="id"
+              [fluid]="true"
+            />
+            <label for="dhStatut">Statut</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="dhDu"
+              inputId="dhDu"
+            />
+            <label for="dhDu">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="dhAu"
+              inputId="dhAu"
+            />
+            <label for="dhAu">Au</label>
+          </p-floatlabel>
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [loading]="store.loading()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              (click)="exportPdf()"
+              [loading]="loadingPdf"
+              [raised]="true"
+              icon="pi pi-file-pdf"
+              label="PDF"
+              severity="warn"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+  <!-- KPI Banner -->
+  <app-differe-kpi-banner [summary]="store.summary()" />
+  <!-- Hint premier usage -->
+  @if (showHint() && !panelOpen()) {
+    <div class="pharma-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Cliquez sur un client pour afficher le détail de ses ventes à crédit et procéder au règlement.</span>
+      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  <!-- Split container -->
+  <div class="split-container" [class.panel-open]="panelOpen()">
+    <div class="list-column">
+      <app-differe-list [searchParams]="currentSearchParams()" />
+    </div>
+
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-differe-detail-panel [differe]="store.selectedDiffere()" />
+      </div>
+    }
+  </div>
+
+</div>

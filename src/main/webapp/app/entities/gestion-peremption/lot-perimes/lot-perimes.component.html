@@ -20,7 +20,7 @@
           <p-floatlabel variant="on" [style]="{ 'min-width': '90px' }">
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input
+              <input pSize="small"
                 (keyup.enter)="onSearch()"
                 [(ngModel)]="searchTerm"
                 [style]="{ 'max-width': '200px' }"
@@ -150,17 +150,6 @@
               label="{{ 'warehouseApp.buttons.export' | translate }}"
               severity="help"
             ></p-splitbutton>
-
-            @if (selectedLotPerimes?.length > 1) {
-              <p-button
-                (click)="confirmAll()"
-                [raised]="true"
-                icon="pi pi-trash"
-                label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
-                severity="danger"
-                type="button"
-              ></p-button>
-            }
           </div>
         </div>
       </ng-template>
@@ -168,6 +157,22 @@
   </div>
 
   <p-divider></p-divider>
+
+  <!-- Bulk action bar -->
+  @if (selectedLotPerimes?.length >= 1) {
+    <div class="bulk-action-bar">
+      <span class="bulk-count">{{ selectedLotPerimes.length }} lot(s) sélectionné(s)</span>
+      <p-button
+        (onClick)="confirmAll()"
+        [outlined]="true"
+        icon="pi pi-trash"
+        label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
+        severity="danger"
+        size="small"
+      />
+    </div>
+  }
+
   @if (lotPerimeValeurSum) {
     <div class="row g-4 mb-2">
       <div class="col-12 col-md-6 col-lg-3">
@@ -239,7 +244,7 @@
         [showGridlines]="true"
         [totalRecords]="totalItems"
         [value]="data"
-        class="pharma-table"
+        class="p-datatable-sm"
         dataKey="id"
         selectionMode="multiple"
       >
@@ -258,23 +263,30 @@
             <th class="table-all-checkbos">
               <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
             </th>
-            <th></th>
+            <th>Actions</th>
           </tr>
         </ng-template>
         <ng-template #body let-data>
-          <tr>
-            <td class="pharma-product-name">
-              {{ data.produitName }}
-            </td>
+          <tr [class.table-danger]="data.peremptionStatut?.days < 0"
+              [class.table-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
+            <td>
+                 <span class="pharma-product-name">
+                 {{ data.produitName }}
+              </span>
 
-            <td class="pharma-code">
-              {{ data.produitCode }}
             </td>
-            <td class="pharma-code">
-              {{ data.numLot }}
+            <td >
+              <span class="pharma-code">
+                 {{ data.produitCode }}
+              </span>
+
+            </td>
+            <td >
+              <span class="pharma-badge  pharma-badge-info"> {{ data.numLot }}</span>
+
             </td>
             <td>
-              {{ data.datePeremption }}
+              {{ data.datePeremption | date:'dd/MM/yyyy' }}
             </td>
             <td class="text-right amount-column">
               <span class="pharma-qty-value">{{ data.quantity | number }}</span>
@@ -286,7 +298,7 @@
               <span class="pharma-price">{{ data.prixVente | number }}</span>
             </td>
             <td class="text-center">
-              <p-tag [severity]="getSeverity(data.peremptionStatut)" [value]="data.peremptionStatut.libelle" />
+              <p-tag [severity]="getSeverity(data.peremptionStatut)" [value]="data.peremptionStatut?.libelle ?? ''" />
             </td>
             <td class="pharma-entity-name">
               {{ data.fournisseur }}
@@ -297,18 +309,14 @@
             <td class="text-center">
               <p-tableCheckbox [value]="data"></p-tableCheckbox>
             </td>
-            <td class="text-right">
-              <div class="btn-group">
-                <jhi-remove-tex-button (click)="confirmRetirerDialog(data)"></jhi-remove-tex-button>
-                <jhi-cta
-                  (click)="confirmRetirerDialog(data)"
-                  [isText]="true"
-                  [raised]="false"
-                  [tooltip]="'warehouseApp.buttons.retourFournisseur'"
-                  icon="pi pi-reply"
-                  severity="info"
-                ></jhi-cta>
-              </div>
+            <td >
+            <p-buttonGroup>
+              <p-button [text]="true" icon="pi pi-trash" pTooltip="Supprimer" tooltipPosition="left" severity="danger" (click)="confirmDestroyDialog(data)"/>
+
+              <p-button [text]="true" icon="pi pi-reply" pTooltip="Faire un retour" tooltipPosition="left" severity="info" (click)="confirmDestroyDialog(data)"/>
+            </p-buttonGroup>
+
+
             </td>
           </tr>
         </ng-template>
@@ -320,7 +328,5 @@
     </div>
   }
 </div>
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<jhi-toast-alert #alert></jhi-toast-alert>
 
 <jhi-spinner #spinner></jhi-spinner>

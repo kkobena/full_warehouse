@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -240,6 +241,28 @@ public interface FacturationRepository
             """
     )
     DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
+
+    @Query(value = """
+        SELECT
+            COALESCE(SUM(CAST(f.montant_net AS bigint)), 0),
+            COALESCE(SUM(f.montant_regle), 0),
+            COUNT(f.id),
+            SUM(CASE WHEN f.statut <> 'PAID' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN f.statut <> 'PAID'
+                      AND f.fin_periode IS NOT NULL
+                      AND f.fin_periode + make_interval(days => COALESCE(tp.delai_reglement, 30)) < CURRENT_DATE
+                 THEN 1 ELSE 0 END)
+        FROM warehouse.facture_tiers_payant f
+        LEFT JOIN warehouse.tiers_payant tp ON tp.id = f.tiers_payant_id
+        WHERE f.invoice_date BETWEEN :fromDate AND :toDate
+          AND (:organismeId IS NULL OR f.tiers_payant_id = :organismeId)
+          AND f.groupe_facture_tiers_payant_id IS NULL
+        """, nativeQuery = true)
+    Optional<Object[]> getKpiData(
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate,
+        @Param("organismeId") Integer organismeId
+    );
 
     default Specification<FactureTiersPayant> aFacture(InvoiceSearchParams invoiceSearchParams) {
         return (root, query, cb) -> {

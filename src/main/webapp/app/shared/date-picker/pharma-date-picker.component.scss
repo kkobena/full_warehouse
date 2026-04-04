@@ -1,0 +1,150 @@
+// ── Palette PharmaSmart (identique à ngb-confirm-dialog) ──────────────────────
+$pharma-primary:        #5b89a6;
+$pharma-primary-light:  rgba(91, 137, 166, 0.15);
+$pharma-primary-hover:  #4a7590;
+$pharma-bg-header:      linear-gradient(135deg, #f0f7fa 0%, #e8f4f8 100%);
+$pharma-border:         #d1e3ed;
+$pharma-text-title:     #1f2937;
+$pharma-text-body:      #374151;
+$pharma-footer-bg:      #f9fafb;
+$pharma-footer-border:  #e5e7eb;
+
+:host {
+  display: block;
+}
+
+.pharma-dp-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pharma-dp-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: $pharma-text-body;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0;
+
+  i {
+    color: $pharma-primary;
+    font-size: 0.8rem;
+  }
+}
+
+.pharma-dp-input {
+  font-size: 0.82rem;
+  color: $pharma-text-title;
+  border-color: $pharma-border;
+  background-color: #fff;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:focus {
+    border-color: $pharma-primary;
+    box-shadow: 0 0 0 0.2rem $pharma-primary-light;
+    outline: none;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.pharma-dp-btn {
+  border-color: $pharma-border;
+  background: $pharma-bg-header;
+  color: $pharma-primary;
+  padding: 0 0.55rem;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background-color: $pharma-primary;
+    color: #fff;
+    border-color: $pharma-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $pharma-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 0.85rem;
+  }
+}
+
+// ── Footer du calendrier ───────────────────────────────────────────────────────
+.pharma-dp-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border-top: 1px solid $pharma-footer-border;
+  background-color: $pharma-footer-bg;
+  gap: 0.4rem;
+}
+
+.pharma-dp-footer-today {
+  // Identique à .confirm-btn + .confirm-btn-accept (ngb-confirm-dialog)
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid $pharma-primary;
+  color: $pharma-primary;
+  background: transparent;
+
+  i { font-size: 0.85rem; }
+
+  &:hover {
+    background: $pharma-primary;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $pharma-primary;
+    outline-offset: 2px;
+  }
+}
+
+.pharma-dp-footer-close {
+  // Identique à .confirm-btn + .confirm-btn-reject mais neutre (fermer)
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid $pharma-footer-border;
+  color: $pharma-text-body;
+  background: transparent;
+
+  i { font-size: 0.85rem; }
+
+  &:hover {
+    background: $pharma-text-body;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $pharma-primary;
+    outline-offset: 2px;
+  }
+}
+

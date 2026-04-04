@@ -24,6 +24,8 @@ public class FactureItemDto {
     private AssuredCustomerDTO ayantsDroit;
     private AssuranceSaleId assuranceSaleId;
     private SaleId comppsiteSaleId;
+    private String matricule;
+    private String numeroAssurance;
 
     public AssuredCustomerDTO getAyantsDroit() {
         return ayantsDroit;
@@ -49,6 +51,24 @@ public class FactureItemDto {
 
     public FactureItemDto setComppsiteSaleId(SaleId comppsiteSaleId) {
         this.comppsiteSaleId = comppsiteSaleId;
+        return this;
+    }
+
+    public String getMatricule() {
+        return matricule;
+    }
+
+    public FactureItemDto setMatricule(String matricule) {
+        this.matricule = matricule;
+        return this;
+    }
+
+    public String getNumeroAssurance() {
+        return numeroAssurance;
+    }
+
+    public FactureItemDto setNumeroAssurance(String numeroAssurance) {
+        this.numeroAssurance = numeroAssurance;
         return this;
     }
 

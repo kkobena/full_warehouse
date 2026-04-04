@@ -10,6 +10,7 @@ import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
@@ -17,6 +18,7 @@ import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,5 +56,8 @@ public interface EditionDataService {
 
     InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId);
 
+    FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId);
+
+    byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup);
 
 }

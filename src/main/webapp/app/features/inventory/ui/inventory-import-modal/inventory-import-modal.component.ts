@@ -1,18 +1,18 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Button } from 'primeng/button';
-import { ProgressSpinner } from 'primeng/progressspinner';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InventoryApiService } from '../../data-access/services/inventory-api.service';
-import { InventoryStore } from '../../data-access/store/inventory.store';
-import { ImportResultRecord } from '../../models';
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { Button } from "primeng/button";
+import { ProgressSpinner } from "primeng/progressspinner";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { InventoryApiService } from "../../data-access/services/inventory-api.service";
+import { InventoryStore } from "../../data-access/store/inventory.store";
+import { ImportResultRecord } from "../../models";
 
 @Component({
-  selector: 'app-inventory-import-modal',
+  selector: "app-inventory-import-modal",
   imports: [CommonModule, Button, ProgressSpinner],
-  templateUrl: './inventory-import-modal.component.html',
-  styleUrl: './inventory-import-modal.component.scss',
+  templateUrl: "./inventory-import-modal.component.html",
+  styleUrl: "./inventory-import-modal.component.scss"
 })
 export class InventoryImportModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
@@ -59,22 +59,23 @@ export class InventoryImportModalComponent implements OnInit {
           const result = resp.body ?? null;
           this.importResult.set(result);
           this.store.setLastImportResult(result);
-          this.store.emitEvent('IMPORT_COMPLETED', result);
+          this.store.emitEvent("IMPORT_COMPLETED", result);
           // Refresh progress after import
           this.api.getProgress(this.inventoryId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
               next: progressResp => {
                 this.store.setProgress(progressResp.body ?? null);
-                this.store.emitEvent('PROGRESS_UPDATED', progressResp.body);
+                this.store.emitEvent("PROGRESS_UPDATED", progressResp.body);
               },
-              error: () => {},
+              error: () => {
+              }
             });
         },
         error: err => {
           this.isUploading.set(false);
           this.errorMessage.set(err?.error?.message ?? err?.message ?? "Erreur lors de l'import");
-        },
+        }
       });
   }
 

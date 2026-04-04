@@ -1,0 +1,56 @@
+
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-receipt"></i>
+            <span>Facturation</span>
+          </div>
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+
+              <ng-container ngbNavItem="factures">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-list"></i>
+                  <span>Factures</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-facturation-home />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="historique">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-history"></i>
+                  <span>Historique règlements</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-historique-reglements />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="edition">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-plus"></i>
+                  <span>Édition de factures</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-facturation-edition />
+                </ng-template>
+              </ng-container>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8 ">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+

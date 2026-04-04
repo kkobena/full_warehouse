@@ -1,0 +1,143 @@
+@import 'app/shared/scss/table-common';
+
+.reglement-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  gap: 0.35rem;
+}
+
+// ── Formulaire ──────────────────────────────────────────────────
+.reglement-form-wrapper {
+  flex-shrink: 0;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+// ── Indicateur de sélection partielle ───────────────────────────
+.selection-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  background: #eff6ff;
+  border-bottom: 1px solid #bfdbfe;
+  font-size: 0.78rem;
+  color: #1e40af;
+  font-weight: 500;
+  flex-shrink: 0;
+
+  .pi {
+    font-size: 0.85rem;
+  }
+}
+
+.selection-amount {
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-left: 0.25rem;
+}
+
+// ── Table ───────────────────────────────────────────────────────
+.reglement-table-wrapper {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+.table-caption-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-caption-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+// ── Divers ──────────────────────────────────────────────────────
+.row-partial-paid {
+  background: rgba(22, 163, 74, 0.04);
+}
+
+.pharma-date-range {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+// ── Cellule montant versé éditable (mode GROUPE partiel) ─────────
+.editable-amount-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-align: right;
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+  font-weight: 600;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+  display: block;
+
+  &:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    outline: none;
+  }
+}
+
+::ng-deep .p-datatable-tbody td.editable-cell.p-editable-column {
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: #ddeef8 !important;
+    box-shadow: inset 0 0 0 2px #5b89a6;
+
+    .edit-hint-icon {
+      opacity: 1 !important;
+    }
+  }
+
+  &.p-cell-editing {
+    background: #e8f5e9 !important;
+    box-shadow: inset 0 0 0 2px #16a34a;
+  }
+}
+
+.editable-cell-output {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+
+  .edit-hint-icon {
+    font-size: 0.6rem;
+    color: rgba(91, 137, 166, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+  }
+}
+
+.no-facture-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex: 1;
+  color: #94a3b8;
+
+  .pi {
+    font-size: 2rem;
+    opacity: 0.4;
+  }
+
+  span {
+    font-size: 0.85rem;
+  }
+}

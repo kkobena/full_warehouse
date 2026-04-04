@@ -1,22 +1,20 @@
-<nav class="shadow-sm navbar navbar-dark navbar-expand-md bg-primary" data-cy="navbar">
+<nav class="shadow-sm navbar navbar-dark navbar-expand-md bg-primary" aria-label="Navigation principale" data-cy="navbar">
   <div class="container-fluid">
     <a (click)="collapseNavbar()" class="navbar-brand logo" routerLink="/">
       <span class="logo-img"></span>
       <span class="navbar-title mr-2" jhiTranslate="global.title">Pharma Smart</span>
       <span class="navbar-version">{{ version }}</span>
     </a>
-    <a
+    <button
+      type="button"
       (click)="toggleNavbar()"
+      [attr.aria-expanded]="!isNavbarCollapsed()"
       aria-controls="navbarResponsive"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
+      aria-label="Ouvrir/fermer la navigation"
       class="navbar-toggler d-lg-none"
-      data-target="#navbarResponsive"
-      data-toggle="collapse"
-      href="javascript:void(0);"
     >
       <fa-icon icon="bars"></fa-icon>
-    </a>
+    </button>
 
     <div [ngbCollapse]="isNavbarCollapsed()" class="navbar-collapse collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
@@ -29,41 +27,64 @@
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
             >
-              <a ngbDropdownToggle class="nav-link dropdown-toggle" href="javascript:void(0);">
-                <span>
+              <button ngbDropdownToggle type="button" class="nav-link btn btn-link dropdown-toggle">
+                <span class="d-flex align-items-center gap-1">
                   @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
                   <span>{{ isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label }}</span>
+                  @if (item.badge > 0) {
+                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+                      {{ item.badge > 99 ? '99+' : item.badge }}
+                    </span>
+                  }
                 </span>
-              </a>
+              </button>
               <ul ngbDropdownMenu class="dropdown-menu">
-                @for (child of item.children; track child.label) {
-                  <li>
-                    <a
-                      (click)="child.click ? child.click() : collapseNavbar()"
-                      class="dropdown-item"
-                      [routerLink]="child.routerLink"
-                      routerLinkActive="active"
-                      [routerLinkActiveOptions]="{ exact: true }"
-                    >
-                      @if (child.faIcon) {
-                        <fa-icon [icon]="child.faIcon" [fixedWidth]="true"></fa-icon>
-                      }
-                      <span>{{ child.label }}</span>
-                    </a>
-                  </li>
+                @for (child of item.children; track $index) {
+                  @if (child.divider) {
+                    <li><hr class="dropdown-divider"></li>
+                  } @else if (child.groupLabel) {
+                    <li><h6 class="dropdown-header">{{ child.groupLabel }}</h6></li>
+                  } @else {
+                    <li>
+                      <a
+                        (click)="child.click ? child.click() : collapseNavbar()"
+                        class="dropdown-item d-flex align-items-center justify-content-between"
+                        [routerLink]="child.routerLink"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                      >
+                        <span>
+                          @if (child.faIcon) {
+                            <fa-icon [icon]="child.faIcon" [fixedWidth]="true"></fa-icon>
+                          }
+                          <span>{{ child.label }}</span>
+                        </span>
+                        @if (child.badge > 0) {
+                          <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} ms-2">
+                            {{ child.badge > 99 ? '99+' : child.badge }}
+                          </span>
+                        }
+                      </a>
+                    </li>
+                  }
                 }
               </ul>
             </li>
           } @else {
             <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
               <a class="nav-link" [routerLink]="item.routerLink" (click)="item.click ? item.click() : collapseNavbar()">
-                <span>
+                <span class="d-flex align-items-center gap-1">
                   @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
                   <span>{{ item.label }}</span>
+                  @if (item.badge > 0) {
+                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+                      {{ item.badge > 99 ? '99+' : item.badge }}
+                    </span>
+                  }
                 </span>
               </a>
             </li>

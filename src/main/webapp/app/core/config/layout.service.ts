@@ -1,141 +1,70 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { computed, Injectable, signal } from '@angular/core';
 
 export type LayoutMode = 'navbar' | 'sidebar';
 
 const LAYOUT_STORAGE_KEY = 'pharmasmart_layout_mode';
 const SIDEBAR_COLLAPSED_KEY = 'pharmasmart_sidebar_collapsed';
 
-/**
- * Service for managing application layout mode (navbar vs sidebar).
- * Layout preference is persisted in localStorage.
- */
 @Injectable({
   providedIn: 'root',
 })
 export class LayoutService {
-  private layoutModeSubject: BehaviorSubject<LayoutMode>;
-  public layoutMode$: Observable<LayoutMode>;
+  readonly layoutMode = signal<LayoutMode>(this.loadEffectiveLayoutMode());
+  readonly sidebarCollapsed = signal<boolean>(this.loadSidebarCollapsed());
 
-  private sidebarCollapsedSubject: BehaviorSubject<boolean>;
-  public sidebarCollapsed$: Observable<boolean>;
+  readonly isSidebarMode = computed(() => this.layoutMode() === 'sidebar');
+  readonly isNavbarMode = computed(() => this.layoutMode() === 'navbar');
 
-  constructor() {
-    const storedMode = this.loadLayoutMode();
-    this.layoutModeSubject = new BehaviorSubject<LayoutMode>(storedMode);
-    this.layoutMode$ = this.layoutModeSubject.asObservable();
-
-    const storedCollapsed = this.loadSidebarCollapsed();
-    this.sidebarCollapsedSubject = new BehaviorSubject<boolean>(storedCollapsed);
-    this.sidebarCollapsed$ = this.sidebarCollapsedSubject.asObservable();
-  }
-
-  /**
-   * Get current layout mode
-   */
-  getLayoutMode(): LayoutMode {
-    return this.layoutModeSubject.value;
-  }
-
-  /**
-   * Check if current layout is sidebar
-   */
   isSidebar(): boolean {
-    return this.layoutModeSubject.value === 'sidebar';
+    return this.layoutMode() === 'sidebar';
   }
 
-  /**
-   * Check if current layout is navbar
-   */
-  isNavbar(): boolean {
-    return this.layoutModeSubject.value === 'navbar';
-  }
-
-  /**
-   * Set layout mode
-   */
   setLayoutMode(mode: LayoutMode): void {
-    this.layoutModeSubject.next(mode);
-    this.saveLayoutMode(mode);
+    this.layoutMode.set(mode);
+    this.saveToStorage(LAYOUT_STORAGE_KEY, mode);
   }
 
-  /**
-   * Toggle between navbar and sidebar
-   */
   toggleLayout(): void {
-    const newMode: LayoutMode = this.isSidebar() ? 'navbar' : 'sidebar';
-    this.setLayoutMode(newMode);
+    this.setLayoutMode(this.isSidebar() ? 'navbar' : 'sidebar');
   }
 
-  /**
-   * Load layout mode from localStorage
-   */
-  private loadLayoutMode(): LayoutMode {
-    try {
-      const stored = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (stored === 'navbar' || stored === 'sidebar') {
-        return stored;
-      }
-    } catch (error) {
-      console.error('Failed to load layout mode:', error);
-    }
-    return 'navbar'; // Default to navbar
-  }
-
-  /**
-   * Save layout mode to localStorage
-   */
-  private saveLayoutMode(mode: LayoutMode): void {
-    try {
-      localStorage.setItem(LAYOUT_STORAGE_KEY, mode);
-    } catch (error) {
-      console.error('Failed to save layout mode:', error);
-    }
-  }
-
-  /**
-   * Get current sidebar collapsed state
-   */
   isSidebarCollapsed(): boolean {
-    return this.sidebarCollapsedSubject.value;
+    return this.sidebarCollapsed();
   }
 
-  /**
-   * Set sidebar collapsed state
-   */
   setSidebarCollapsed(collapsed: boolean): void {
-    this.sidebarCollapsedSubject.next(collapsed);
-    this.saveSidebarCollapsed(collapsed);
+    this.sidebarCollapsed.set(collapsed);
+    this.saveToStorage(SIDEBAR_COLLAPSED_KEY, String(collapsed));
   }
 
-  /**
-   * Toggle sidebar collapsed state
-   */
   toggleSidebarCollapsed(): void {
     this.setSidebarCollapsed(!this.isSidebarCollapsed());
   }
 
-  /**
-   * Load sidebar collapsed state from localStorage
-   */
-  private loadSidebarCollapsed(): boolean {
-    try {
-      const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-      return stored === 'true';
-    } catch (error) {
-      console.error('Failed to load sidebar collapsed state:', error);
+  private loadEffectiveLayoutMode(): LayoutMode {
+    const stored = this.loadFromStorage(LAYOUT_STORAGE_KEY, 'navbar');
+    // Sur petit écran (< 768px), forcer navbar — la sidebar n'a pas de sens sur mobile
+    if (stored === 'sidebar' && typeof window !== 'undefined' && window.innerWidth < 768) {
+      return 'navbar';
     }
-    return false; // Default to expanded
+    return stored === 'navbar' || stored === 'sidebar' ? stored : 'navbar';
   }
 
-  /**
-   * Save sidebar collapsed state to localStorage
-   */
-  private saveSidebarCollapsed(collapsed: boolean): void {
+  private loadSidebarCollapsed(): boolean {
+    return this.loadFromStorage(SIDEBAR_COLLAPSED_KEY, 'false') === 'true';
+  }
+
+  private loadFromStorage(key: string, defaultValue: string): string {
     try {
-      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed.toString());
-    } catch (error) {
-      console.error('Failed to save sidebar collapsed state:', error);
+      return localStorage.getItem(key) ?? defaultValue;
+    } catch {
+      return defaultValue;
     }
+  }
+
+  private saveToStorage(key: string, value: string): void {
+    try {
+      localStorage.setItem(key, value);
+    } catch { /* silently ignore storage errors */ }
   }
 }

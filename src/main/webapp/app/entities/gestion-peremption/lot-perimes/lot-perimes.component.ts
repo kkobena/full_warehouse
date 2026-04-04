@@ -28,7 +28,7 @@ import { KeyFilter } from 'primeng/keyfilter';
 import { Button } from 'primeng/button';
 import { SplitButton } from 'primeng/splitbutton';
 import { RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { PeremptionStatut } from '../model/peremption-statut';
@@ -40,9 +40,11 @@ import { CtaComponent } from '../../../shared/cta/cta.component';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { saveAs } from 'file-saver';
 import { extractFileName2 } from '../../../shared/util/file-utils';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonGroup } from "primeng/buttongroup";
+import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'jhi-lot-perimes',
@@ -59,6 +61,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     Button,
     SplitButton,
     RouterLink,
+    DatePipe,
     DecimalPipe,
     TableModule,
     Tag,
@@ -66,9 +69,9 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     RemoveButtonTextComponent,
     CtaComponent,
     DatePickerComponent,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
     SpinnerComponent,
+    ButtonGroup,
+    Tooltip
   ],
   templateUrl: './lot-perimes.component.html',
   styleUrl: './lot-perimes.component.scss',
@@ -122,8 +125,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   private readonly productToDestroyService = inject(ProductToDestroyService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly lotService = inject(LotService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
 
   ngAfterViewInit(): void {}
 
@@ -199,32 +202,26 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  protected getSeverity(status: PeremptionStatut) {
-    if (status.days < 0) {
-      return 'danger';
-    } else if (status.days === 0) {
-      return 'warn';
-    }
+  protected getSeverity(status: PeremptionStatut): 'danger' | 'warn' | 'info' {
+    if (!status) return 'info';
+    if (status.days < 0) return 'danger';
+    if (status.days === 0) return 'warn';
     return 'info';
   }
 
   protected confirmRetirerDialog(lot: LotPerimes): void {
-    this.confimDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.retirerStock(lot),
       'Confirmation',
       'Voulez-vous retirer la quantité du stock ?',
-      null,
-      () => {},
     );
   }
 
   protected confirmAll(): void {
-    this.confimDialog().onConfirm(
+    this.confirmDialog.onConfirm(
       () => this.retirerStock(),
       'Confirmation',
-      'Voulez-vous tout retirer du  stock ?',
-      null,
-      () => {},
+      'Voulez-vous tout retirer du stock ?',
     );
   }
 
@@ -249,7 +246,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.spinner().hide();
-        this.alert().showError('Une erreur est survenue');
+        this.notificationService.error('Une erreur est survenue', 'Erreur');
       },
       complete: () => {
         this.spinner().hide();
@@ -279,7 +276,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       dayCount: this.dayCount,
       searchTerm: this.searchTerm,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
-      toDate: DATE_FORMAT_ISO_DATE(this.fromDate),
+      toDate: DATE_FORMAT_ISO_DATE(this.toDate),   // ✅ BUG CORRIGÉ (était fromDate)
       fournisseurId: this.selectedFournisseur?.id,
       rayonId: this.selectedRayon?.id,
       familleProduitId: this.selectedFamilleProduit?.id,
@@ -373,7 +370,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.spinner().hide();
-        this.alert().showError('Une erreur est survenue');
+        this.notificationService.error('Une erreur est survenue', 'Erreur');
       },
     });
   }

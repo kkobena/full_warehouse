@@ -1,0 +1,171 @@
+<div class=" pharma-smart-content p-1">
+
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-receipt"></i>
+      <span class="pharma-toolbar-title">Factures tiers-payants</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+
+          <div class="d-flex align-items-center gap-2">
+            <label class="input-label mb-0 small">Groupées</label>
+            <p-toggleswitch [(ngModel)]="factureGroupees" (onChange)="onGroupToggle()" />
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <label class="input-label mb-0 small">Provisoires</label>
+            <p-toggleswitch [(ngModel)]="factureProvisoire" (onChange)="onSearch()" />
+          </div>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="fhDu"
+              inputId="fhDu"
+            />
+            <label for="fhDu">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="fhAu"
+              inputId="fhAu"
+            />
+            <label for="fhAu">Au</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedStatut"
+              [options]="statutOptions"
+              [showClear]="true"
+              appendTo="body"
+              id="fhStatut"
+              optionLabel="value"
+              optionValue="code"
+              style="width: 180px"
+            />
+
+          </p-floatlabel>
+
+          @if (factureGroupees) {
+            <p-floatlabel variant="on">
+              <p-autoComplete
+                (completeMethod)="searchGroupTiersPayant($event)"
+                [(ngModel)]="selectedGroupeTiersPayants"
+                [forceSelection]="true"
+                [minQueryLength]="minLength"
+                [multiple]="true"
+                [suggestions]="groupeTiersPayants"
+                appendTo="body"
+                id="fhGroupe"
+                inputId="fhGroupe"
+                optionLabel="name"
+              />
+              <label for="fhGroupe">Groupe TP</label>
+            </p-floatlabel>
+          } @else {
+            <p-floatlabel variant="on">
+              <p-autoComplete
+                (completeMethod)="searchTiersPayant($event)"
+                [(ngModel)]="selectedTiersPayants"
+                [forceSelection]="true"
+                [minQueryLength]="minLength"
+                [multiple]="true"
+                [suggestions]="tiersPayants"
+                appendTo="body"
+                id="fhTp"
+                inputId="fhTp"
+                optionLabel="fullName"
+              />
+              <label for="fhTp">Tiers-payant</label>
+            </p-floatlabel>
+          }
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [loading]="store.loading()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              (click)="onExport()"
+              [loading]="loadingExport"
+              [raised]="true"
+              icon="pi pi-file-excel"
+              label="Excel"
+              severity="success"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+  <!-- KPI Banner -->
+  <app-facture-kpi-banner [kpi]="store.kpi()" [loading]="store.kpiLoading()" />
+
+  <!-- Hint premier usage -->
+  @if (showHint() && !panelOpen()) {
+    <div class="pharma-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Cliquez sur une ligne pour afficher le détail et régler la facture. Utilisez les filtres pour affiner la recherche.</span>
+      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  <!-- Bulk action bar -->
+  @if (store.hasSelection()) {
+    <div class="bulk-action-bar">
+      <span class="bulk-count">{{ store.selectedFactures().length }} facture(s) sélectionnée(s)</span>
+      <p-button
+        (onClick)="onDeleteSelected()"
+        [outlined]="true"
+        icon="pi pi-trash"
+        label="Supprimer la sélection"
+        severity="danger"
+        size="small"
+      />
+    </div>
+  }
+
+  <!-- Split container: liste + panneau détail -->
+  <div class="split-container" [class.panel-open]="panelOpen()">
+    <div class="list-column">
+      <app-facture-list [searchParams]="currentSearchParams()" />
+    </div>
+
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-facture-detail-panel [facture]="store.selectedFacture()" />
+      </div>
+    }
+  </div>
+
+</div>

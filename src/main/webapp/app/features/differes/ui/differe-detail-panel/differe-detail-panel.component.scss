@@ -1,0 +1,62 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/shared/scss/table-common';
+
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.875rem 1rem 0.5rem;
+  border-bottom: 1px solid $pharma-border;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.panel-title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-libelle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $pharma-text;
+}
+
+.panel-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.monnaie-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: rgba(67, 172, 106, 0.1);
+  border-bottom: 1px solid rgba(67, 172, 106, 0.3);
+  color: #43ac6a;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.regler-panel {
+  padding: 1rem;
+  max-width: 420px;
+}

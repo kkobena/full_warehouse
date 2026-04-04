@@ -1,0 +1,49 @@
+<p-table
+  (onLazyLoad)="lazyLoading($event)"
+  [lazy]="true"
+  [loading]="loading"
+  [paginator]="true"
+  [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+  [rows]="itemsPerPage"
+  [showCurrentPageReport]="true"
+  [stripedRows]="true"
+  [totalRecords]="store.totalItems()"
+  [value]="store.differes()"
+  class="p-datatable-sm"
+  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} différés"
+  dataKey="customerId"
+>
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th>Client</th>
+      <th class="text-end">Total différé</th>
+      <th class="text-end">Payé</th>
+      <th class="text-end">Restant</th>
+      <th class="text-end">Articles</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-differe>
+    <tr
+      (click)="onRowSelect(differe)"
+      [ngClass]="{ 'selected-row': store.selectedDiffere()?.customerId === differe.customerId }"
+      class="clickable-row"
+    >
+      <td><span class="pharma-entity-name">{{ differe.firstName }} {{ differe.lastName }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ differe.saleAmount | number }}</span></td>
+      <td class="text-end"><span class="pharma-price">{{ differe.paidAmount | number }}</span></td>
+      <td class="text-end">
+        <span [class.pharma-total]="(differe.rest ?? 0) > 0">{{ differe.rest | number }}</span>
+      </td>
+      <td class="text-end">{{ differe.differeItems?.length | number }}</td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">
+        <div class="alert alert-warning m-2">Aucun différé trouvé — affinez la recherche</div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

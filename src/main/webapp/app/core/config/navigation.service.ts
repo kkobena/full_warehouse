@@ -3,6 +3,7 @@ import {AccountService} from 'app/core/auth/account.service';
 import {TranslateService} from '@ngx-translate/core';
 import {NavItem} from 'app/layouts/navbar/navbar-item.model';
 import {Authority} from 'app/shared/constants/authority.constants';
+import { PeremptionAlertService } from '../../shared/services/peremption-alert.service';
 import {
   faBook,
   faBoxes,
@@ -53,32 +54,62 @@ export interface NavigationOptions {
 export class NavigationService {
   private readonly accountService = inject(AccountService);
   private readonly translate = inject(TranslateService);
+  private readonly peremptionAlertService = inject(PeremptionAlertService);
 
   buildNavItems(options: NavigationOptions = {}): NavItem[] {
     const account = this.accountService.trackCurrentAccount()();
     const allItems: NavItem[] = [];
 
-    // Add "Nouvelle Vente" (New Sale) if requested
-    /*  if (options.includeNewSale) {
+    // ── Accès directs par rôle ────────────────────────────────────────────
+    if (account) {
+      const isAdmin      = this.hasAnyAuthority([Authority.ADMIN], account.authorities);
+      const isCaissier   = this.hasAnyAuthority([Authority.ROLE_CAISSIER], account.authorities);
+      const isVendeur    = this.hasAnyAuthority([Authority.ROLE_VENDEUR], account.authorities);
+      const isRespCmd    = this.hasAnyAuthority([Authority.ROLE_RESPONSABLE_COMMANDE], account.authorities);
+      const isPharmacien = this.hasAnyAuthority([Authority.ROLE_PHARMACIEN, Authority.HOME_DASHBOARD], account.authorities);
+
+      // Nouvelle Vente — Caissier/Admin → comptant ; Vendeur → prévente uniquement
+      if (isCaissier || isAdmin || this.hasAnyAuthority([Authority.SALES], account.authorities)) {
         allItems.push({
-          label: this.translateLabel('nouvelleVente'),
-          faIcon: faBasketShopping,
-          authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-          routerLink: '/sales/false/new',
+          label: 'Nouvelle Vente',
+          faIcon: faShoppingBag,
+          routerLink: '/sales-home',
+          badgeSeverity: 'success',
         });
-      }*/
+      } else if (isVendeur) {
+        allItems.push({
+          label: 'Nouvelle Prévente',
+          faIcon: faShoppingBag,
+          routerLink: '/sales-home/prevente',
+          badgeSeverity: 'success',
+        });
+      }
+
+      // Mon Tableau de Bord — Resp. Commande → CommmandeHome ; autres rôles → /
+      if (!isAdmin) {
+        if (isRespCmd) {
+          allItems.push({
+            label: 'Tableau de Bord Appro',
+            faIcon: faChartBar,
+            routerLink: '/commande',
+          });
+        } else if (isCaissier || isVendeur || isPharmacien) {
+          allItems.push({
+            label: 'Mon Tableau de Bord',
+            faIcon: faChartBar,
+            routerLink: '/',
+          });
+        }
+      }
+    }
 
     // Gestion Courante
     allItems.push({
-      label: this.translateLabel('menuGestionCourrante'),
+      label: this.translateLabel('menuGestionCourante'),
       faIcon: faThList,
       authorities: [Authority.GESTION_COURANT, Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.SALES],
       children: [
-        /* {
-           label: this.translateLabel('entities.sales'),
-           routerLink: '/sales',
-           faIcon: faShoppingBag,
-         },*/
+
         {
           label: this.translateLabel('entities.sales'),
           routerLink: '/sales-home/gestion',
@@ -95,9 +126,12 @@ export class NavigationService {
     });
 
     // Gestion Stock
+    const perimesCount = this.peremptionAlertService.urgentCount();
     allItems.push({
       label: this.translateLabel('menuGestionStock'),
       faIcon: faTruckFast,
+      badge: perimesCount,
+      badgeSeverity: perimesCount > 0 ? 'danger' : undefined,
       authorities: [
         Authority.ROLE_RESPONSABLE_COMMANDE,
         Authority.GESTION_STOCK,
@@ -130,6 +164,8 @@ export class NavigationService {
           label: this.translateFullLabel('gestionPerimes.title'),
           routerLink: '/gestion-peremption',
           faIcon: faCalendarTimes,
+          badge: perimesCount,
+          badgeSeverity: 'danger',
         }, {
           label: this.translateLabel('entities.storeInventory'),
           routerLink: '/inventaire',
@@ -152,17 +188,12 @@ export class NavigationService {
       children: [
         {
           label: this.translateLabel('facturation.factures'),
-          routerLink: '/edition-factures',
+          routerLink: '/facturation',
           faIcon: faFileInvoice,
         },
         {
-          label: this.translateLabel('facturation.reglements'),
-          routerLink: '/reglement-facture',
-          faIcon: faMoneyBill,
-        },
-        {
           label: this.translateLabel('facturation.differes'),
-          routerLink: '/gestion-differe',
+          routerLink: '/differes',
           faIcon: faMoneyCheckAlt,
         },
         {
@@ -178,59 +209,37 @@ export class NavigationService {
       ],
     });
 
-    // Référentiel
+    // Référentiel — regroupé en 3 groupes (AX8 : Miller's Law)
     allItems.push({
       label: this.translateLabel('referentiel'),
       faIcon: faBook,
-      authorities: [Authority.REFERENTIEL, Authority.ADMIN],
+      authorities: [Authority.REFERENTIEL, Authority.ADMIN, Authority.ROLE_PHARMACIEN],
       children: [
-        {label: this.translateLabel('entities.rayon'), routerLink: '/rayon', faIcon: faStream},
+        // ── Groupe Produits ──────────────────────────────────────────
+        { label: 'Produits', groupLabel: 'Produits' } as any,
+        { label: this.translateLabel('entities.rayon'),         routerLink: '/rayon',          faIcon: faStream },
+        { label: this.translateLabel('entities.formeProduit'),  routerLink: '/forme-produit',  faIcon: faPills },
+        { label: this.translateLabel('entities.familleProduit'),routerLink: '/famille-produit', faIcon: faBoxes },
+        { label: this.translateLabel('gammeProduit'),           routerLink: '/gamme-produit',  faIcon: faMapMarker },
+        { label: this.translateLabel('laboratoire'),            routerLink: '/laboratoire',    faIcon: faBuilding },
+        // ── Groupe Commercial ─────────────────────────────────────────
+        { label: '__divider__', divider: true } as any,
+        { label: 'Commercial', groupLabel: 'Commercial' } as any,
         {
           label: this.translateLabel('entities.remise'),
           routerLink: '/remises',
           authorities: [Authority.ADMIN, Authority.REMISE],
           faIcon: faPercent,
         },
-        {label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable},
-        {
-          label: this.translateLabel('entities.fournisseur'),
-          routerLink: '/fournisseur',
-          faIcon: faTruck
-        },
-        {label: this.translateLabel('entities.tva'), routerLink: '/tva', faIcon: faDollarSign},
-        {
-          label: this.translateLabel('entities.formeProduit'),
-          routerLink: '/forme-produit',
-          faIcon: faPills,
-        },
-        {
-          label: this.translateLabel('entities.familleProduit'),
-          routerLink: '/famille-produit',
-          faIcon: faBoxes,
-        },
-        {
-          label: this.translateLabel('gammeProduit'),
-          routerLink: '/gamme-produit',
-          faIcon: faMapMarker
-        },
-        {label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding},
-
-        {
-          label: this.translateLabel('motifAjustement'),
-          routerLink: '/motif-ajustement',
-          faIcon: faExclamationTriangle,
-        },
-        {
-          label: 'Motif Retour Produit',
-          routerLink: '/motif-retour-produit',
-          faIcon: faSchoolCircleExclamation,
-        },
-        {
-          label: 'Modes de paiement',
-          routerLink: '/mode-payments',
-          faIcon: faSdCard,
-        },
-
+        { label: this.translateLabel('entities.tableau'), routerLink: '/tableaux',      faIcon: faTable },
+        { label: this.translateLabel('entities.tva'),     routerLink: '/tva',           faIcon: faDollarSign },
+        { label: 'Modes de paiement',                     routerLink: '/mode-payments', faIcon: faSdCard },
+        // ── Groupe Organisation ───────────────────────────────────────
+        { label: '__divider__', divider: true } as any,
+        { label: 'Organisation', groupLabel: 'Organisation' } as any,
+        { label: this.translateLabel('entities.fournisseur'), routerLink: '/fournisseur',         faIcon: faTruck },
+        { label: this.translateLabel('motifAjustement'),      routerLink: '/motif-ajustement',    faIcon: faExclamationTriangle },
+        { label: 'Motif Retour Produit',                      routerLink: '/motif-retour-produit', faIcon: faSchoolCircleExclamation },
         {
           label: this.translateLabel('parametre'),
           routerLink: '/parametre',
@@ -240,7 +249,12 @@ export class NavigationService {
       ],
     });
 
-    // Rapports
+    // Rapports & Statistiques
+    // ── Matrice visibilité ─────────────────────────────────────────────────
+    // CA                 → Admin + Resp. Commande (impact commandes / achats)
+    // Stock & Inventaire → Admin + Resp. Commande (cœur de métier)
+    // Clients/Fourn.     → Admin + Resp. Commande (performance fournisseurs)
+    // Trésorerie/Finance → Admin + Caissier  (encaissements, non pertinent Resp.)
     allItems.push({
       label: 'Rapports & Statistiques',
       faIcon: faChartBar,
@@ -258,17 +272,17 @@ export class NavigationService {
           faIcon: faBoxes,
           authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
         },
-        /*  {
-            label: 'Trésorerie & Finance',
-            routerLink: '/reports/finance',
-            faIcon: faWallet,
-            authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-          },*/
         {
           label: 'Clients & Fournisseurs',
           routerLink: '/reports/partners',
           faIcon: faUsers,
           authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+        },
+        {
+          label: 'Trésorerie & Finance',
+          routerLink: '/reports/finance',
+          faIcon: faWallet,
+          authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
         },
       ],
     });

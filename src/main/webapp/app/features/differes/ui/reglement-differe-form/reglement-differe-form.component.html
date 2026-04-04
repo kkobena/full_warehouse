@@ -1,0 +1,76 @@
+<form (ngSubmit)="save()" [formGroup]="reglementForm" class="reglement-differe-form">
+  <!-- Date -->
+  <div class="form-field-full">
+    <p-inputgroup>
+      <p-inputgroup-addon><i class="pi pi-calendar"></i></p-inputgroup-addon>
+      <p-datePicker [defaultDate]="maxDate" [maxDate]="maxDate" [showButtonBar]="true"
+                    appendTo="body" dateFormat="dd/mm/yy" formControlName="paymentDate"
+                    id="rdDatePaiement" selectOtherMonths="true" />
+    </p-inputgroup>
+  </div>
+
+  <!-- Mode de paiement -->
+  <div class="form-field-full">
+    <p-inputgroup>
+      <p-inputgroup-addon><i class="pi pi-credit-card"></i></p-inputgroup-addon>
+      <p-select [fluid]="true" [options]="paymentModes" appendTo="body" formControlName="modePaimentCode"
+                optionLabel="libelle" optionValue="code" placeholder="Mode de paiement" />
+    </p-inputgroup>
+  </div>
+
+  <!-- Montant -->
+  <div class="form-field-full">
+    <p-inputgroup>
+      <p-inputgroup-addon><i class="pi pi-money-bill"></i></p-inputgroup-addon>
+      <p-inputNumber autocomplete="off" formControlName="amount" placeholder="Montant" />
+    </p-inputgroup>
+  </div>
+
+  <!-- Infos bancaires -->
+  @if (showBanqueInfo) {
+    <div class="bank-info-section" formGroupName="banqueInfo">
+      <p-divider align="left">
+        <div class="divider-content">
+          <i class="pi pi-building"></i>
+          <span>Informations bancaires</span>
+        </div>
+      </p-divider>
+
+      <div class="bank-fields">
+        <div class="form-field-full">
+          <p-inputgroup>
+            <p-inputgroup-addon><i class="pi pi-building"></i><span class="addon-label">Nom</span></p-inputgroup-addon>
+            <input formControlName="nom" pInputText placeholder="Nom de la banque" />
+          </p-inputgroup>
+          @if (reglementForm.get('banqueInfo').get('nom')?.invalid && reglementForm.get('banqueInfo').get('nom')?.touched) {
+            <small class="p-error">Ce champ est obligatoire.</small>
+          }
+        </div>
+
+        @if (reglementForm.get('modePaimentCode')?.value === CH) {
+          <div class="form-field-full">
+            <p-inputgroup>
+              <p-inputgroup-addon><i class="pi pi-hashtag"></i><span class="addon-label">N°</span></p-inputgroup-addon>
+              <input formControlName="code" pInputText placeholder="Numéro de chèque" />
+            </p-inputgroup>
+            @if (reglementForm.get('banqueInfo').get('code')?.invalid && reglementForm.get('banqueInfo').get('code')?.touched) {
+              <small class="p-error">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="form-field-full">
+          <p-inputgroup>
+            <p-inputgroup-addon><i class="pi pi-user"></i><span class="addon-label">Bénéf.</span></p-inputgroup-addon>
+            <input formControlName="beneficiaire" pInputText placeholder="Bénéficiaire" />
+          </p-inputgroup>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="form-actions">
+    <p-button [disabled]="!valid || !validMontantSaisi() || isSaving()" [loading]="isSaving()"
+              icon="pi pi-check" label="Valider" severity="success" type="submit" />
+  </div>
+</form>

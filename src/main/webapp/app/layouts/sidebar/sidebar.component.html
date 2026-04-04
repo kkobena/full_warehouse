@@ -1,4 +1,4 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed()">
+<aside class="sidebar" role="navigation" aria-label="Menu latéral" [class.collapsed]="isCollapsed()">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     @if (!isCollapsed()) {
@@ -27,7 +27,7 @@
   }
 
   <!-- Navigation Menu -->
-  <nav class="sidebar-nav">
+  <nav class="sidebar-nav" aria-label="Menu principal">
     <ul class="nav-list">
       @for (item of navItems; track item.label) {
         <li class="nav-item">
@@ -38,14 +38,23 @@
               routerLinkActive="active"
               class="nav-link"
               [class.collapsed-item]="isCollapsed()"
-              [title]="isCollapsed() ? item.label : ''"
+              [pTooltip]="isCollapsed() ? item.label : null"
+              tooltipPosition="right"
               (click)="onMenuItemClick()"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
+                @if (isCollapsed() && item.badge > 0) {
+                  <span class="sidebar-badge-dot bg-{{ item.badgeSeverity ?? 'danger' }}"></span>
+                }
               </span>
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.label }}</span>
+                @if (item.badge > 0) {
+                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
+                    {{ item.badge > 99 ? '99+' : item.badge }}
+                  </span>
+                }
               }
             </a>
           }
@@ -56,7 +65,8 @@
               (click)="onMenuItemClick(item.click)"
               class="nav-link clickable"
               [class.collapsed-item]="isCollapsed()"
-              [title]="isCollapsed() ? item.label : ''"
+              [pTooltip]="isCollapsed() ? item.label : null"
+              tooltipPosition="right"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -77,20 +87,28 @@
             >
               <a
                 class="nav-link has-children"
+                role="button"
                 [class.collapsed-item]="isCollapsed()"
                 [class.expanded]="isExpanded(item.label)"
-                [title]="isCollapsed() ? item.label : ''"
+                [pTooltip]="isCollapsed() ? item.label : null"
+                tooltipPosition="right"
+                [attr.aria-expanded]="!isCollapsed() && isExpanded(item.label)"
+                [attr.aria-controls]="'submenu-' + item.label"
                 (click)="onParentMenuClick(item.label)"
               >
                 <span class="nav-icon">
                   <fa-icon [icon]="item.faIcon"></fa-icon>
+                  @if (isCollapsed() && item.badge > 0) {
+                    <span class="sidebar-badge-dot bg-{{ item.badgeSeverity ?? 'danger' }}"></span>
+                  }
                 </span>
                 @if (!isCollapsed()) {
-                  <span class="nav-label">
-                    {{ item.label }}
-                  </span>
-                }
-                @if (!isCollapsed()) {
+                  <span class="nav-label">{{ item.label }}</span>
+                  @if (item.badge > 0) {
+                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
+                      {{ item.badge > 99 ? '99+' : item.badge }}
+                    </span>
+                  }
                   <span class="nav-arrow">
                     <fa-icon [icon]="isExpanded(item.label) ? faChevronDown : faChevronRight"></fa-icon>
                   </span>
@@ -99,27 +117,37 @@
 
               <!-- Submenu (inline when sidebar expanded) -->
               @if (isExpanded(item.label) && !isCollapsed()) {
-                <ul class="submenu">
+                <ul class="submenu" [id]="'submenu-' + item.label" role="list">
                   @for (child of item.children; track child.label) {
-                    <li class="submenu-item">
-                      @if (child.routerLink) {
-                        <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link" (click)="onSubmenuItemClick()">
-                          <span class="submenu-icon">
-                            <fa-icon [icon]="child.faIcon"></fa-icon>
-                          </span>
-                          <span class="submenu-label">{{ child.label }}</span>
-                        </a>
-                      }
-
-                      @if (child.click && !child.routerLink) {
-                        <a (click)="onSubmenuItemClick(child.click)" class="submenu-link clickable">
-                          <span class="submenu-icon">
-                            <fa-icon [icon]="child.faIcon"></fa-icon>
-                          </span>
-                          <span class="submenu-label">{{ child.label }}</span>
-                        </a>
-                      }
-                    </li>
+                    @if (child.divider) {
+                      <li class="submenu-divider" role="separator"></li>
+                    } @else if (child.groupLabel) {
+                      <li class="submenu-group-label">{{ child.groupLabel }}</li>
+                    } @else {
+                      <li class="submenu-item">
+                        @if (child.routerLink) {
+                          <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link" (click)="onSubmenuItemClick()">
+                            <span class="submenu-icon">
+                              <fa-icon [icon]="child.faIcon"></fa-icon>
+                            </span>
+                            <span class="submenu-label">{{ child.label }}</span>
+                            @if (child.badge > 0) {
+                              <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
+                                {{ child.badge > 99 ? '99+' : child.badge }}
+                              </span>
+                            }
+                          </a>
+                        }
+                        @if (child.click && !child.routerLink) {
+                          <a (click)="onSubmenuItemClick(child.click)" class="submenu-link clickable">
+                            <span class="submenu-icon">
+                              <fa-icon [icon]="child.faIcon"></fa-icon>
+                            </span>
+                            <span class="submenu-label">{{ child.label }}</span>
+                          </a>
+                        }
+                      </li>
+                    }
                   }
                 </ul>
               }
@@ -129,25 +157,35 @@
                 <ul class="submenu-flyout">
                   <li class="flyout-header">{{ item.label }}</li>
                   @for (child of item.children; track child.label) {
-                    <li class="submenu-item">
-                      @if (child.routerLink) {
-                        <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link">
-                          <span class="submenu-icon">
-                            <fa-icon [icon]="child.faIcon"></fa-icon>
-                          </span>
-                          <span class="submenu-label">{{ child.label }}</span>
-                        </a>
-                      }
-
-                      @if (child.click && !child.routerLink) {
-                        <a (click)="child.click()" class="submenu-link clickable">
-                          <span class="submenu-icon">
-                            <fa-icon [icon]="child.faIcon"></fa-icon>
-                          </span>
-                          <span class="submenu-label">{{ child.label }}</span>
-                        </a>
-                      }
-                    </li>
+                    @if (child.divider) {
+                      <li class="submenu-divider" role="separator"></li>
+                    } @else if (child.groupLabel) {
+                      <li class="submenu-group-label">{{ child.groupLabel }}</li>
+                    } @else {
+                      <li class="submenu-item">
+                        @if (child.routerLink) {
+                          <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link">
+                            <span class="submenu-icon">
+                              <fa-icon [icon]="child.faIcon"></fa-icon>
+                            </span>
+                            <span class="submenu-label">{{ child.label }}</span>
+                            @if (child.badge > 0) {
+                              <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
+                                {{ child.badge > 99 ? '99+' : child.badge }}
+                              </span>
+                            }
+                          </a>
+                        }
+                        @if (child.click && !child.routerLink) {
+                          <a (click)="child.click()" class="submenu-link clickable">
+                            <span class="submenu-icon">
+                              <fa-icon [icon]="child.faIcon"></fa-icon>
+                            </span>
+                            <span class="submenu-label">{{ child.label }}</span>
+                          </a>
+                        }
+                      </li>
+                    }
                   }
                 </ul>
               }
@@ -157,6 +195,11 @@
       }
     </ul>
   </nav>
+
+  <!-- Backdrop mobile (ferme la sidebar au clic extérieur sur petit écran) -->
+  @if (!isCollapsed() && isMobile()) {
+    <div class="sidebar-backdrop" (click)="toggleSidebar()" aria-hidden="true"></div>
+  }
 
   <!-- Sidebar Footer -->
   @if (!isCollapsed()) {

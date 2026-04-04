@@ -52,4 +52,6 @@ public interface ReglementDiffereService {
     ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
 
     byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException;
+
+    byte[] exportDifferesToExcel(Integer customerId, Set<PaymentStatus> paymentStatuses);
 }

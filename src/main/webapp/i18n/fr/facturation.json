@@ -1,0 +1,12 @@
+{
+  "facturation": {
+    "title": "Facturation & Règlements",
+    "factures": "Factures",
+    "reglements": "Règlements",
+    "differes": "Différés",
+    "tiersPayant": "Tiers Payants",
+    "client": "Clients",
+    "historiqueReglements": "Historique règlements"
+  }
+}
+

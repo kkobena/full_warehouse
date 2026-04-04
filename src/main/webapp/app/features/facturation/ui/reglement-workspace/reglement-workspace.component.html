@@ -1,0 +1,166 @@
+<div class="reglement-workspace">
+
+  @if (dossierFactureProjectionSignal()) {
+
+    <!-- Formulaire inline -->
+    <div class="reglement-form-wrapper">
+      <app-reglement-form
+        (partialPayment)="onPartielReglement($event)"
+        (reglementParams)="onSaveReglement($event)"
+        [allSelection]="checkbox()?.checked"
+        [dossierIds]="dossierIds()"
+        [facture]="dossierFactureProjectionSignal()"
+        [isSaving]="isSaving"
+        [montantAPayer]="totalAmount"
+        [typeFacture]="mode() === 'GROUPE' ? ModeEditionReglement.GROUP : ModeEditionReglement.SINGLE"
+      />
+    </div>
+
+    <!-- Indicateur sélection partielle -->
+    @if (partialPayment() && factureDossierSelectionnes().length > 0) {
+      <div class="selection-summary">
+        <i class="pi pi-check-square"></i>
+        <span>{{ factureDossierSelectionnes().length }} dossier(s) sélectionné(s)</span>
+        <span class="selection-amount">→ {{ montantAPayer() | number }} FCFA</span>
+      </div>
+    }
+
+    <!-- Table des dossiers -->
+    <div class="reglement-table-wrapper">
+      <p-table
+        #factureDossierTable
+        (selectionChange)="onSelectChange($event)"
+        [selection]="factureDossierSelectionnes()"
+        [globalFilterFields]="['bonNumber', 'customerFullName', 'matricule', 'numFacture', 'organismeName']"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30, 50,100]"
+        [rows]="100"
+        [scrollable]="true"
+        scrollHeight="flex"
+        [showCurrentPageReport]="true"
+        [stripedRows]="true"
+        [value]="reglementFactureDossiersSignal()"
+        class="p-datatable-sm"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossiers"
+        dataKey="id"
+        selectionMode="multiple"
+      >
+        <ng-template #caption>
+          <div class="table-caption-compact">
+            <span class="table-caption-title">
+              {{ mode() === 'GROUPE' ? 'Factures groupées' : 'Dossiers' }}
+            </span>
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input pSize="small"
+                (input)="factureDossierTable.filterGlobal($event.target['value'], 'contains')"
+                pInputText
+                placeholder="Filtrer..."
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            @if (mode() === 'GROUPE') {
+              <th>Organisme</th>
+              <th>Période</th>
+              <th>N° Facture</th>
+              <th class="text-end">Dossiers</th>
+              <th class="text-end">Montant</th>
+              <th class="text-end">Payé</th>
+              <th class="text-end" style="width: 150px">Versé</th>
+            } @else {
+              <th>Réf. Bon</th>
+              <th>Nom / Prénom(s)</th>
+              <th>Matricule</th>
+              <th>Date vente</th>
+              <th class="text-end">Montant</th>
+              <th class="text-end">Payé</th>
+              <th class="text-end">Restant</th>
+            }
+            @if (partialPayment()) {
+              <th class="text-center" style="width: 3rem">
+                <p-tableHeaderCheckbox #checkbox />
+              </th>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-item>
+          <tr [class.row-partial-paid]="item.montantPaye > 0">
+            @if (mode() === 'GROUPE') {
+              <td><span class="pharma-entity-name">{{ item.organismeName }}</span></td>
+              <td>
+                <span class="pharma-date-range">
+                  Du {{ item.debutPeriode | date: 'dd/MM/yy' }} au {{ item.finPeriode | date: 'dd/MM/yy' }}
+                </span>
+              </td>
+              <td><span class="pharma-code">{{ item.numFacture }}</span></td>
+              <td class="text-end"><span class="pharma-qty-value">{{ item.itemsCount | number }}</span></td>
+              <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
+              <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
+              @if (editableIds().has(item.id)) {
+                <td class="text-end editable-cell" pEditableColumn style="width: 110px; max-width: 110px; overflow: hidden">
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (keyup)="onMontantVerseChange(item)"
+                        [(ngModel)]="item.montantVerse"
+                        (focus)="$event.target.select()"
+                        class="editable-amount-input"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                      <span class="editable-cell-output justify-content-end">
+                        <span class="pharma-price">{{ item.montantVerse | number }}</span>
+                        <i class="pi pi-pencil edit-hint-icon"></i>
+                      </span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+              } @else {
+                <td class="text-end"><span class="pharma-price">{{ item.montantVerse | number }}</span></td>
+              }
+            } @else {
+              <td><span class="pharma-code">{{ item.bonNumber }}</span></td>
+              <td><span class="pharma-entity-name">{{ item.customerFullName }}</span></td>
+              <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
+              <td>{{ item.saleDate | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
+              <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
+              <td class="text-end">
+                <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
+              </td>
+            }
+            @if (partialPayment()) {
+              <td class="text-center">
+                <p-tableCheckbox [value]="item" />
+              </td>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="8">
+              <div class="alert alert-warning m-2">Aucun dossier trouvé</div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+  } @else {
+    <div class="no-facture-placeholder">
+      <i class="pi pi-file-edit"></i>
+      <span>Aucune facture chargée</span>
+    </div>
+  }
+
+</div>

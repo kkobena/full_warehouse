@@ -1,0 +1,251 @@
+<div class="pharma-smart-content">
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-history"></i>
+      <span class="pharma-toolbar-title">Historique des règlements factures</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div class="d-flex align-items-center gap-2 me-2">
+            <label class="input-label mb-0 small">Groupés</label>
+            <p-toggleswitch [(ngModel)]="factureGroup" (onChange)="onSearch()" />
+          </div>
+
+          <p-floatlabel variant="on">
+            <input
+              [(ngModel)]="search"
+              id="hrSearch"
+              pInputText
+              style="width: 160px"
+              type="text"
+            />
+            <label for="hrSearch">Recherche libre</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="hrDu"
+              inputId="hrDu"
+            />
+            <label for="hrDu">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="hrAu"
+              inputId="hrAu"
+            />
+            <label for="hrAu">Au</label>
+          </p-floatlabel>
+
+          @if (factureGroup) {
+            <p-floatlabel variant="on">
+              <p-autoComplete
+                (completeMethod)="searchGroupeTiersPayant($event)"
+                [(ngModel)]="selectedGroupeTiersPayant"
+                [forceSelection]="true"
+                [suggestions]="groupeTiersPayants"
+                appendTo="body"
+                id="hrGroupe"
+                inputId="hrGroupe"
+                optionLabel="name"
+              />
+              <label for="hrGroupe">Groupe tiers-payant</label>
+            </p-floatlabel>
+          } @else {
+            <p-floatlabel variant="on">
+              <p-autoComplete
+                (completeMethod)="searchTiersPayant($event)"
+                [(ngModel)]="selectedTiersPayant"
+                [forceSelection]="true"
+                [minQueryLength]="minLength"
+                [suggestions]="tiersPayants"
+                appendTo="body"
+                id="hrTp"
+                inputId="hrTp"
+                optionLabel="fullName"
+              />
+              <label for="hrTp">Tiers-payant</label>
+            </p-floatlabel>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [loading]="loadingBtn"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              (click)="onPrintPdf()"
+              [loading]="loadingPdf"
+              [raised]="true"
+              icon="pi pi-file-pdf"
+              label="Imprimer"
+              severity="warn"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Table -->
+  <div class="px-2">
+    <p-table
+      #reglementTable
+      [(selection)]="selectedDatas"
+      [expandedRowKeys]="expandedRows"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
+      [rows]="15"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 370px)"
+      [showCurrentPageReport]="true"
+      [stripedRows]="true"
+      [value]="datas"
+      class="p-datatable-sm"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
+      dataKey="id.id"
+      groupRowsBy="organismeId"
+      rowGroupMode="subheader"
+      selectionMode="multiple"
+      sortField="organisme"
+      sortMode="single"
+    >
+      <!-- Caption: filtre local + suppression sélection -->
+      <ng-template #caption>
+        <div class="d-flex justify-content-between align-items-center">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
+            <input
+              (input)="reglementTable.filterGlobal($event.target['value'], 'contains')"
+              [style]="{ width: '280px' }"
+              pInputText
+              placeholder="Filtrer dans la liste..."
+              type="text"
+            />
+          </p-iconfield>
+          @if (selectedDatas.length > 0) {
+            <p-button
+              (click)="onDeleteAll()"
+              [raised]="true"
+              icon="pi pi-trash"
+              label="Supprimer la sélection ({{ selectedDatas.length }})"
+              severity="danger"
+            />
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Organisme</th>
+          <th>Code facture</th>
+          <th>Mode règlement</th>
+          <th class="text-end">Montant attendu</th>
+          <th class="text-end">Montant réglé</th>
+          <th class="text-end">Restant</th>
+          <th class="text-center">Date</th>
+          <th>Opérateur</th>
+          <th class="text-center">Actions</th>
+          <th class="text-center">
+            <p-tableHeaderCheckbox />
+          </th>
+        </tr>
+      </ng-template>
+
+      <!-- Sous-en-tête de groupe -->
+      <ng-template #groupheader let-r>
+        <tr>
+          <td colspan="3" class="fw-bold">
+            <i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}
+          </td>
+          <td colspan="3" class="text-end fw-bold">
+            Total : <span class="pharma-total">{{ getTotalByGroupe(r.organismeId) | number }}</span>
+          </td>
+          <td colspan="4"></td>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-r>
+        <tr>
+          <td></td>
+          <td><span class="pharma-code">{{ r.codeFacture }}</span></td>
+          <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
+          <td class="text-end"><span class="pharma-price">{{ r.montantAttendu }}</span></td>
+          <td class="text-end"><span class="pharma-total">{{ r.paidAmount }}</span></td>
+          <td class="text-end"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+          <td class="text-center small text-muted">{{ r.created }}</td>
+          <td class="small">{{ r.user }}</td>
+          <td class="text-center">
+            <p-buttonGroup>
+              <p-button
+                (click)="onView(r)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-eye"
+                pTooltip="Voir le détail"
+                severity="info"
+                size="small"
+              />
+              <p-button
+                (click)="onPrint(r)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-print"
+                pTooltip="Imprimer le reçu"
+                severity="secondary"
+                size="small"
+              />
+              <p-button
+                (click)="onDelete(r)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                severity="danger"
+                size="small"
+              />
+            </p-buttonGroup>
+          </td>
+          <td class="text-center">
+            <p-tableCheckbox [value]="r" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="10">
+            <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez les filtres</div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>

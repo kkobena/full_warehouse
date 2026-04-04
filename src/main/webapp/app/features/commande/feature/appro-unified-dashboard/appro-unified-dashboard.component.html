@@ -160,6 +160,38 @@
         </div>
       </div>
     }
+
+    <!-- ── Lots périmés (partagé depuis /api/dashboard/alert-counts) ── -->
+    <div class="col-6 col-md mb-2">
+      <div
+        class="card kpi-card kpi-card-compact clickable"
+        [class.danger-accent]="peremptionCount() > 0"
+        [class.success-accent]="peremptionCount() === 0"
+        (click)="peremptionCount() > 0 && navigateToPeremptions()"
+        pTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
+        tooltipPosition="bottom"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2">
+            <div [class.text-danger]="peremptionCount() > 0" [class.text-success]="peremptionCount() === 0" class="kpi-icon-sm">
+              <i class="pi pi-clock"></i>
+            </div>
+            <div>
+              <p class="kpi-label mb-0">Péremptions</p>
+              <span
+                class="kpi-value-sm"
+                [class.text-danger]="peremptionCount() > 0"
+                [class.text-success]="peremptionCount() === 0"
+              >{{ peremptionCount() }}</span>
+              <p class="kpi-sublabel mb-0">
+                @if (peremptionCount() > 0) { lots à traiter } @else { RAS }
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 }
 
@@ -190,7 +222,7 @@
           <p-table
             [value]="sd.topUrgents"
             [rows]="7"
-            class="pharma-table"
+            class="p-datatable-sm"
             [rowHover]="true"
           >
             <ng-template #header>
@@ -302,7 +334,7 @@
             [value]="db.commandesRequested"
             [rows]="6"
             [paginator]="db.commandesRequested.length > 6"
-            class="pharma-table"
+            class="p-datatable-sm"
             [rowHover]="true"
           >
             <ng-template #header>
@@ -351,7 +383,7 @@
             [value]="db.commandesReceived"
             [rows]="6"
             [paginator]="db.commandesReceived.length > 6"
-            class="pharma-table"
+            class="p-datatable-sm"
             [rowHover]="true"
           >
             <ng-template #header>

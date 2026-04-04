@@ -8,7 +8,7 @@ import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum } from '.
 import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { PrimeNG } from 'primeng/config';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from "../../../shared/model";
 import { Storage } from '../../storage/storage.model';
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { IRayon } from '../../../shared/model/rayon.model';
@@ -27,16 +27,16 @@ import { FournisseurService } from '../../fournisseur/fournisseur.service';
 import { RayonService } from '../../rayon/rayon.service';
 import { MagasinService } from '../../magasin/magasin.service';
 import { StorageService } from '../../storage/storage.service';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Tag } from 'primeng/tag';
 import { Tooltip } from 'primeng/tooltip';
 import { PeremptionStatut } from '../model/peremption-statut';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { saveAs } from 'file-saver';
 import { extractFileName2 } from '../../../shared/util/file-utils';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'jhi-lot-a-detruire',
@@ -52,13 +52,12 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     Toolbar,
     FormsModule,
     TranslatePipe,
+    DatePipe,
     DecimalPipe,
     TableModule,
     Tag,
     Tooltip,
     DatePickerComponent,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
     SpinnerComponent,
   ],
   templateUrl: './lot-a-detruire.component.html',
@@ -114,8 +113,8 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
 
   ngAfterViewInit(): void {
     this.translate.use('fr');
@@ -150,24 +149,18 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.getSum();
   }
 
-  protected getSeverity(status: PeremptionStatut) {
-    if (status.days < 0) {
-      return 'danger';
-    } else if (status.days === 0) {
-      return 'warn';
-    }
+  protected getSeverity(status: PeremptionStatut): 'danger' | 'warn' | 'info' {
+    if (!status) return 'info';
+    if (status.days < 0) return 'danger';
+    if (status.days === 0) return 'warn';
     return 'info';
   }
 
   protected confirmDestroyDialog(id: number): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.destroy(id);
-      },
+    this.confirmDialog.onConfirm(
+      () => this.destroy(id),
       'Confirmation',
       'Êtes-vous sûr de vouloir détruire ce stock ?',
-      null,
-      () => {},
     );
   }
 
@@ -214,14 +207,10 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   }
 
   protected onDestroyAll(): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.destroyAll();
-      },
+    this.confirmDialog.onConfirm(
+      () => this.destroyAll(),
       'Confirmation',
-      'Voulez-vous detruire tous les stocks de ces produits ?',
-      null,
-      () => {},
+      'Voulez-vous détruire tous les stocks de ces produits ?',
     );
   }
 
@@ -305,7 +294,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.spinner().hide();
-        this.alert().showError('Une erreur est survenue');
+        this.notificationService.error('Une erreur est survenue', 'Erreur');
       },
       complete: () => {
         this.spinner().hide();
@@ -351,11 +340,12 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.spinner().hide();
     this.ngbPaginationPage = this.page ?? 1;
     this.loading = false;
-    this.alert().showError('Une erreur est survenue');
+    this.notificationService.error('Une erreur est survenue', 'Erreur');
   }
 
   private loadPage(page?: number): void {
-    this.spinner().hide();
+    // spinner affiché au début, masqué dans onSuccess/onError
+    this.loading = true;
     const pageToLoad: number = page || this.page || 1;
     this.productToDestroyService
       .query({

@@ -133,17 +133,7 @@ export class AjustementHomeComponent implements OnInit {
     });
   }
 
-  protected directionLabel(qtyMvt: number): string {
-    return (qtyMvt ?? 0) >= 0 ? 'ENTRÉE' : 'SORTIE';
-  }
 
-  protected directionSeverity(qtyMvt: number): 'success' | 'danger' {
-    return (qtyMvt ?? 0) >= 0 ? 'success' : 'danger';
-  }
-
-  protected directionIcon(qtyMvt: number): string {
-    return (qtyMvt ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down';
-  }
 
   protected hasEntrees(lines: IAjustement[]): boolean {
     return lines.some(l => (l.qtyMvt ?? 0) >= 0);

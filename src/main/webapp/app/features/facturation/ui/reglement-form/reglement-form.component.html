@@ -1,0 +1,65 @@
+<form (ngSubmit)="save()" [formGroup]="reglementForm" class="reglement-form">
+
+  <!-- Grille inline : tous les champs sur une ligne -->
+  <div class="form-grid">
+
+    <div class="toggle-field">
+      <p-toggleswitch formControlName="partialPayment" inputId="partialPayment" />
+      <label for="partialPayment">Tout régler</label>
+    </div>
+    <input pSize="small"
+           [readonly]="isReadOnly"
+           class="amount-input"
+           formControlName="amount"
+           pInputText
+           pKeyFilter="int"
+           placeholder="Montant"
+    />
+
+
+    <p-select size="small"
+              [fluid]="true"
+              [options]="paymentModes"
+              dataKey="code"
+              formControlName="modePaimentCode"
+              optionLabel="libelle"
+              optionValue="code"
+              placeholder="Mode de paiement"
+    />
+    <p-datePicker size="small"
+                  [defaultDate]="maxDate"
+                  [maxDate]="maxDate"
+                  [showButtonBar]="true"
+                  appendTo="body"
+                  dateFormat="dd/mm/yy"
+                  formControlName="paymentDate"
+                  inputId="datePaiement"
+                  placeholder="Date paiement"
+                  selectOtherMonths="true"
+    />
+
+
+    <p-button
+      [disabled]="!valid || !validMontantSaisi() || isSaving()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Valider"
+      size="small"
+      severity="success"
+      type="submit"
+    />
+
+  </div>
+
+  <!-- Infos bancaires (si chèque / virement) -->
+  @if (showBanqueInfo) {
+    <div class="bank-fields" formGroupName="banqueInfo">
+      <input pSize="small" formControlName="nom" pInputText placeholder="Nom de la banque" />
+      @if (reglementForm.get('modePaimentCode')!.value === CH) {
+        <input pSize="small" formControlName="code" pInputText pKeyFilter="alphanum" placeholder="N° chèque" />
+      }
+      <input pSize="small" formControlName="beneficiaire" pInputText placeholder="Bénéficiaire" />
+    </div>
+  }
+
+</form>

@@ -20,6 +20,7 @@ export type ProduitMenuAction =
   | "add-detail"
   | "decondition"
   | "prix-reference"
+  | "saisir-lots"
   | "suspend"
   | "activate"
   | "archive"
@@ -174,6 +175,14 @@ export class ProduitListComponent {
         label: "Prix de référence",
         icon: "pi pi-euro",
         command: () => this.emit("prix-reference")
+      },
+      { separator: true },
+      {
+        label: "Saisir un lot",
+        icon: "pi pi-tag",
+        disabled: (produit.totalQuantity ?? 0) <= 0,
+        pTooltip: (produit.totalQuantity ?? 0) <= 0 ? "Stock vide — impossible de saisir un lot" : undefined,
+        command: () => this.emit("saisir-lots")
       },
       ...(produit.deconditionnable ? [
         { separator: true },

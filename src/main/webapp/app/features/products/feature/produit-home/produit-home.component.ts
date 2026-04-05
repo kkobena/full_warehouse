@@ -40,6 +40,7 @@ import { ProduitDetailFormModalComponent } from "../../ui/detail-form-modal/prod
 import { ProduitDeconditionModalComponent } from "../../ui/decondition-modal/produit-decondition-modal.component";
 import { NotificationService } from "app/shared/services/notification.service";
 import { ListPrixReferenceComponent } from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
+import { LotSaisieProduitModalComponent } from "../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component";
 
 @Component({
   selector: "app-produit-home",
@@ -269,6 +270,9 @@ export class ProduitHomeComponent implements OnInit {
       case "prix-reference":
         this.openPrixReference(produit);
         break;
+      case "saisir-lots":
+        this.openSaisirLot(produit);
+        break;
     }
   }
 
@@ -378,6 +382,20 @@ export class ProduitHomeComponent implements OnInit {
     const inst = ref.componentInstance as ListPrixReferenceComponent;
     inst.produit = produit;
     inst.isFromProduit = true;
+  }
+
+  private openSaisirLot(produit: IProduit): void {
+    const ref = this.modalService.open(LotSaisieProduitModalComponent, {
+      size: "md",
+      centered: true,
+      backdrop: "static"
+    });
+    (ref.componentInstance as LotSaisieProduitModalComponent).produit = produit;
+    ref.closed.subscribe(reason => {
+      if (reason === "saved") {
+        this.refreshProduit(produit.id!);
+      }
+    });
   }
 
   private openDecondition(produit: IProduit): void {

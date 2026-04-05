@@ -45,6 +45,11 @@ public class LotResource {
         return ResponseEntity.ok(lotService.addLot(lot));
     }
 
+    @PostMapping("/lot/add-sur-produit")
+    public ResponseEntity<LotDTO> addLotSurProduit(@Valid @RequestBody LotDTO lot) {
+        return ResponseEntity.ok(lotService.addLotSurProduit(lot));
+    }
+
     @PutMapping("/lot/remove-to-commande")
     public ResponseEntity<Void> removeLotToCommande(@RequestBody LotDTO lot) {
         lotService.remove(lot);

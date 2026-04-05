@@ -135,14 +135,14 @@ public class StockEntryServiceImpl implements StockEntryService {
     };
 
     private final Predicate<OrderLine> lotPredicate = orderLine -> {
-        if (BooleanUtils.isTrue(orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
+
             return (
                 !CollectionUtils.isEmpty(orderLine.getLots()) &&
                 orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
                 orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
             );
-        }
-        return true;
+
+
     };
 
     private final Predicate<OrderLine> cipNotSet = orderLine ->

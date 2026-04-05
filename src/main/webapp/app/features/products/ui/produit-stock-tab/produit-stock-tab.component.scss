@@ -300,6 +300,13 @@ $pharma-dark:          #374151;
   padding: 0.4rem 0.75rem;
   background: $gray-50;
   border-bottom: 1px solid $pharma-border;
+
+  // Le bouton "Saisir un lot" est poussé à droite via margin-left auto sur l'avant-dernier élément
+  // (.fefo-urgent-badge ou .fefo-subtitle prennent le margin-left: auto)
+  p-button {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
 }
 
 .fefo-subtitle {
@@ -310,7 +317,6 @@ $pharma-dark:          #374151;
 }
 
 .fefo-urgent-badge {
-  margin-left: auto;
   font-size: 0.6rem;
   font-weight: 700;
   color: $pharma-danger;
@@ -381,9 +387,23 @@ $pharma-dark:          #374151;
   }
 }
 
-// ── Barre totaux ─────────────────────────────────────────────
-.stock-total-bar {
+// ── Pas de lots (produit en stock sans lot enregistré) ───────
+.fefo-no-lots {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 1rem 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: $pharma-warning-bg;
+  border: 1px solid $pharma-warning-bd;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: $pharma-dark;
+}
+
+
+// ── Barre totaux ─────────────────────────────────────────────
+.stock-total-bar {  display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;

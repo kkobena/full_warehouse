@@ -4,6 +4,8 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ public class RetourBonDTO {
     private LocalDate receiptDate;
     private String receiptReference;
     private String fournisseurLibelle;
+    private Integer fournisseurId;
+    private boolean horsCommande;
     private List<RetourBonItemDTO> retourBonItems = new ArrayList<>();
     private Integer pharmamlEnvoiId;
     private boolean ediCompatible;
@@ -33,17 +37,28 @@ public class RetourBonDTO {
         this.user = new UserDTO(retourBon.getUser());
         this.statut = retourBon.getStatut();
         this.commentaire = retourBon.getCommentaire();
+        this.horsCommande = retourBon.isHorsCommande();
         Commande commande = retourBon.getCommande();
-        Fournisseur fournisseur = commande.getFournisseur();
-        this.commandeId = commande.getId().getId();
-        this.commandeOrderDate = commande.getOrderDate();
-        this.receiptDate = commande.getReceiptDate();
-        this.receiptReference = commande.getReceiptReference();
-        this.fournisseurLibelle = fournisseur.getLibelle();
+        Fournisseur fournisseur = null;
+        if (commande != null) {
+            fournisseur = commande.getFournisseur();
+            this.commandeId = commande.getId().getId();
+            this.commandeOrderDate = commande.getOrderDate();
+            this.receiptDate = commande.getReceiptDate();
+            this.receiptReference = commande.getReceiptReference();
+        } else if (retourBon.getFournisseur() != null) {
+            // Retour hors commande — fournisseur direct
+            fournisseur = retourBon.getFournisseur();
+        }
+        if (fournisseur != null) {
+            this.fournisseurLibelle = fournisseur.getLibelle();
+            this.fournisseurId = fournisseur.getId();
+            var groupe = fournisseur.getGroupeFournisseur();
+            this.ediCompatible = !this.horsCommande && groupe != null
+                && StringUtils.hasLength(groupe.getUrlPharmaMl());
+        }
         this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
         this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null ? retourBon.getPharmamlEnvoi().getId() : null;
-        var groupe = fournisseur.getGroupeFournisseur();
-        this.ediCompatible = groupe != null && org.springframework.util.StringUtils.hasLength(groupe.getUrlPharmaMl());
     }
 
     public Integer getId() {
@@ -159,6 +174,24 @@ public class RetourBonDTO {
 
     public RetourBonDTO setEdiCompatible(boolean ediCompatible) {
         this.ediCompatible = ediCompatible;
+        return this;
+    }
+
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public RetourBonDTO setFournisseurId(Integer fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
+
+    public boolean isHorsCommande() {
+        return horsCommande;
+    }
+
+    public RetourBonDTO setHorsCommande(boolean horsCommande) {
+        this.horsCommande = horsCommande;
         return this;
     }
 }

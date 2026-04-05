@@ -1,0 +1,219 @@
+<!-- Modal header -->
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-reply me-2 text-info"></i>
+    Retour fournisseur — <strong>{{ lot.produitName }}</strong>
+  </h5>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
+</div>
+
+<!-- Modal body -->
+<div class="modal-body">
+
+  <!-- Spinner pendant la résolution -->
+  @if (isResolving()) {
+    <div class="text-center py-3">
+      <i class="pi pi-spin pi-spinner fs-4 text-primary"></i>
+      <p class="text-muted mt-2 mb-0">Résolution en cours…</p>
+    </div>
+  }
+
+  @if (!isResolving()) {
+
+    <!-- Informations du lot (lecture seule) -->
+    <div class="alert alert-info mb-3 p-2">
+      <div class="row g-2 text-center">
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block mb-1">N° Lot</small>
+          <span class="pharma-badge pharma-badge-info">{{ lot.numLot }}</span>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block mb-1">Date péremption</small>
+          <strong class="text-danger">{{ lot.datePeremption | date:'dd/MM/yyyy' }}</strong>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block mb-1">Stock disponible</small>
+          <strong>{{ lot.quantity | number }}</strong>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block mb-1">Fournisseur</small>
+          @if (resolutionStatut() === 'COMMANDE_TROUVEE') {
+            <span>{{ fournisseurName || '—' }}</span>
+          } @else if (resolutionStatut() === 'HORS_COMMANDE_UN_FOURN') {
+            <span class="text-warning fw-semibold">{{ fournisseurLibelle() }}</span>
+          } @else {
+            <span class="text-muted">—</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bandeau état HORS_COMMANDE_UN_FOURN -->
+    @if (resolutionStatut() === 'HORS_COMMANDE_UN_FOURN') {
+      <div class="alert alert-warning mb-3 py-2">
+        <i class="pi pi-exclamation-triangle me-2"></i>
+        <strong>Lot hors commande</strong> — Ce lot n'est pas rattaché à une réception.
+        Le retour sera créé sans référence de commande.
+        <br><small>Fournisseur déduit automatiquement : <strong>{{ fournisseurLibelle() }}</strong></small>
+        <br>
+        <button type="button" class="btn btn-link btn-sm p-0 mt-1" (click)="switchToCommandeManuelle()">
+          <i class="pi pi-search me-1"></i>Rattacher à une commande manuellement
+        </button>
+      </div>
+    }
+
+    <!-- Bandeau état FOURNISSEUR_INCONNU -->
+    @if (resolutionStatut() === 'FOURNISSEUR_INCONNU') {
+      <div class="alert alert-danger mb-3 py-2">
+        <i class="pi pi-times-circle me-2"></i>
+        <strong>Fournisseur introuvable</strong> — Aucun fournisseur n'est associé à ce produit.
+        <br>
+        <small>
+          Veuillez compléter la fiche produit avant de créer un retour fournisseur,
+          ou <a [routerLink]="['/commande', 'retour-fournisseur']" (click)="cancel()">créer le retour manuellement</a>.
+        </small>
+      </div>
+    }
+
+    <!-- Formulaire principal (masqué si fournisseur inconnu) -->
+    @if (resolutionStatut() !== 'FOURNISSEUR_INCONNU') {
+      <form [formGroup]="form">
+        <div class="row g-3">
+
+          <!-- Sélecteur fournisseur (état HORS_COMMANDE_MULTI) -->
+          @if (resolutionStatut() === 'HORS_COMMANDE_MULTI') {
+            <div class="col-12">
+              <div class="alert alert-warning py-2 mb-2">
+                <i class="pi pi-exclamation-triangle me-2"></i>
+                <strong>Plusieurs fournisseurs disponibles</strong> — Sélectionnez le fournisseur à créditer.
+              </div>
+              <label class="form-label fw-semibold">
+                Fournisseur <span class="text-danger">*</span>
+              </label>
+              <p-select
+                formControlName="fournisseurId"
+                [options]="fournisseurs()"
+                optionLabel="libelle"
+                optionValue="id"
+                placeholder="Sélectionner un fournisseur…"
+                appendTo="body"
+                [style]="{ 'width': '100%' }"
+              />
+            </div>
+          }
+
+          <!-- Motif de retour (obligatoire) -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Motif de retour <span class="text-danger">*</span>
+            </label>
+            <p-select
+              formControlName="motifRetourId"
+              [options]="motifs()"
+              optionLabel="libelle"
+              optionValue="id"
+              placeholder="Sélectionner un motif de retour..."
+              [showClear]="true"
+              appendTo="body"
+              [style]="{ 'width': '100%' }"
+            />
+            @if (form.get('motifRetourId')?.invalid && form.get('motifRetourId')?.touched) {
+              <small class="text-danger">
+                <i class="pi pi-exclamation-triangle me-1"></i>Le motif de retour est obligatoire.
+              </small>
+            }
+          </div>
+
+          <!-- Quantité à retourner -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">
+              Quantité à retourner <span class="text-danger">*</span>
+            </label>
+            <p-inputNumber
+              formControlName="quantity"
+              [min]="1"
+              [max]="lot.quantity"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [inputStyle]="{ 'width': '100%', 'text-align': 'center' }"
+            />
+            <small class="text-muted">Maximum : <strong>{{ lot.quantity | number }}</strong></small>
+            @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+              <small class="text-danger d-block">
+                <i class="pi pi-exclamation-triangle me-1"></i>
+                Quantité invalide (entre 1 et {{ lot.quantity | number }}).
+              </small>
+            }
+          </div>
+
+          <!-- Avoir estimé -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Avoir estimé</label>
+            <div class="alert alert-success py-2 mb-0 text-center">
+              <strong class="fs-5">{{ avoirEstime | number }} FCFA</strong>
+              <small class="d-block text-muted mt-1">
+                {{ quantityValue | number }} × {{ lot.prixAchat | number }} FCFA/unité
+              </small>
+            </div>
+          </div>
+
+          <!-- Commentaire (optionnel) -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Commentaire (optionnel)</label>
+            <textarea
+              class="form-control"
+              formControlName="commentaire"
+              rows="2"
+              placeholder="Commentaire libre (facultatif)..."
+            ></textarea>
+          </div>
+
+          <!-- Panneau fallback Phase 2 : commande manuelle -->
+          @if (commandeNotFound()) {
+            <div class="col-12">
+              <div class="alert alert-warning mb-2">
+                <i class="pi pi-exclamation-triangle me-2"></i>
+                <strong>Commande source introuvable</strong> — Saisissez l'ID de la commande manuellement,
+                ou <a [routerLink]="['/commande', 'retour-fournisseur']" (click)="cancel()">créez le retour depuis le module Retour Fournisseur</a>.
+              </div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">ID Commande <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" formControlName="commandeRef" placeholder="Ex: 12345" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Date de la commande</label>
+                  <jhi-date-picker formControlName="commandeDate" [id]="'commandeDate'" [label]="'Date commande'" />
+                </div>
+              </div>
+            </div>
+          }
+
+        </div>
+      </form>
+    }
+
+  }<!-- fin @if !isResolving -->
+
+</div>
+
+<!-- Modal footer -->
+<div class="modal-footer">
+  <p-button (onClick)="cancel()" label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" />
+  @if (resolutionStatut() !== 'FOURNISSEUR_INCONNU') {
+    <p-button
+      (onClick)="save()"
+      [label]="isHorsCommande ? 'Créer le retour hors commande' : 'Créer le retour'"
+      icon="pi pi-check"
+      [severity]="isHorsCommande ? 'warn' : 'success'"
+      type="submit"
+      [disabled]="!canSave()"
+      [loading]="isSaving()"
+      [pTooltip]="isHorsCommande ? 'Crée un bon de retour sans référence de commande' : 'Crée un bon de retour fournisseur'"
+      tooltipPosition="top"
+    />
+  }
+</div>
+

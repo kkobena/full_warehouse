@@ -24,6 +24,7 @@ public class RetourBonItemDTO {
     private Integer orderLineQuantityRequested;
     private Integer orderLineQuantityReceived;
     private Integer acceptedQty;
+    private Integer prixAchat;
 
     public RetourBonItemDTO() {}
 
@@ -58,6 +59,7 @@ public class RetourBonItemDTO {
         this.initStock = item.getInitStock();
         this.afterStock = item.getAfterStock();
         this.acceptedQty = item.getAcceptedQty();
+        this.prixAchat = item.getPrixAchat();
     }
 
     public Integer getId() {
@@ -218,6 +220,15 @@ public class RetourBonItemDTO {
 
     public RetourBonItemDTO setOrderLineQuantityReceived(Integer orderLineQuantityReceived) {
         this.orderLineQuantityReceived = orderLineQuantityReceived;
+        return this;
+    }
+
+    public Integer getPrixAchat() {
+        return prixAchat;
+    }
+
+    public RetourBonItemDTO setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
         return this;
     }
 }

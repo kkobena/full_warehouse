@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -49,9 +50,23 @@ public class RetourBon implements Serializable {
     @OneToMany(mappedBy = "retourBon")
     private List<RetourBonItem> retourBonItems = new ArrayList<>();
 
-    @ManyToOne(optional = false)
-    @NotNull
+    @ManyToOne
+    @JoinColumns(
+        {
+            @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+        }
+    )
     private Commande commande;
+
+    /** Fournisseur direct — renseigné quand horsCommande = true (déduit via FournisseurProduit.principal) */
+    @ManyToOne
+    @JoinColumn(name = "fournisseur_id")
+    private Fournisseur fournisseur;
+
+    /** true = bon de retour créé sans référence à une commande (lot hors entrée en stock) */
+    @Column(name = "hors_commande", nullable = false)
+    private boolean horsCommande = false;
 
     @OneToMany(mappedBy = "retourBon")
     private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
@@ -137,6 +152,24 @@ public class RetourBon implements Serializable {
 
     public RetourBon setPharmamlEnvoi(PharmaMlEnvoi pharmamlEnvoi) {
         this.pharmamlEnvoi = pharmamlEnvoi;
+        return this;
+    }
+
+    public Fournisseur getFournisseur() {
+        return fournisseur;
+    }
+
+    public RetourBon setFournisseur(Fournisseur fournisseur) {
+        this.fournisseur = fournisseur;
+        return this;
+    }
+
+    public boolean isHorsCommande() {
+        return horsCommande;
+    }
+
+    public RetourBon setHorsCommande(boolean horsCommande) {
+        this.horsCommande = horsCommande;
         return this;
     }
 }

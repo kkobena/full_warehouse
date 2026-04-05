@@ -46,7 +46,7 @@ public class Lot implements Serializable {
     @Column(name = "num_lot", nullable = false, length = 20)
     private String numLot;
 
-    @NotNull
+
     @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumns(
         {

@@ -8,6 +8,7 @@ import { IProduit } from 'app/shared/model/produit.model';
 import { ISubstitut } from 'app/shared/model/substitut.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { IVenteMois } from '../../models/vente-mois.model';
+import { ILot } from 'app/shared/model/lot.model';
 
 export interface IDeconditionRecord {
   id?: number;
@@ -106,5 +107,9 @@ export class ProductsApiService {
         observe: 'response',
       })
       .pipe(map(res => res.body ?? []));
+  }
+
+  addLotHorsCommande(lot: ILot): Observable<HttpResponse<ILot>> {
+    return this.http.post<ILot>(`${SERVER_API_URL}api/lot/add-sur-produit`, lot, { observe: 'response' });
   }
 }

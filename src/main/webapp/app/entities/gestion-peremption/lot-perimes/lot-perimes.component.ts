@@ -26,7 +26,7 @@ import { FamilleProduitService } from "../../famille-produit/famille-produit.ser
 import { KeyFilter } from "primeng/keyfilter";
 import { Button } from "primeng/button";
 import { SplitButton } from "primeng/splitbutton";
-import { RouterLink } from "@angular/router";
+import { RouterLink, Router } from "@angular/router";
 import { DatePipe, DecimalPipe } from "@angular/common";
 import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
 import { Tag } from "primeng/tag";
@@ -39,9 +39,12 @@ import { saveAs } from "file-saver";
 import { extractFileName2 } from "../../../shared/util/file-utils";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonGroup } from "primeng/buttongroup";
 import { Tooltip } from "primeng/tooltip";
+import { RetourFournisseurPerimeDialogComponent } from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
+import { RetourGroupePerimeDialogComponent } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
 
 @Component({
   selector: "jhi-lot-perimes",
@@ -127,7 +130,9 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly lotService = inject(LotService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly modalService = inject(NgbModal);
   private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
 
   ngAfterViewInit(): void {
   }
@@ -290,11 +295,28 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   protected confirmRetourFournisseurDialog(lot: LotPerimes): void {
-    this.confirmDialog.onConfirm(
-      () => this.retirerStock(lot),
-      "Retour fournisseur",
-      `Voulez-vous initier un retour fournisseur pour le lot "${lot.numLot}" (${lot.produitName}) ?`
-    );
+    if (this.isMultiLocation(lot) && !this.resolveStorageId(lot)) {
+      this.notificationService.error(
+        'Ce lot est présent dans plusieurs emplacements. Veuillez sélectionner un emplacement avant de retourner.',
+        'Emplacement requis',
+      );
+      return;
+    }
+
+    const modalRef = this.modalService.open(RetourFournisseurPerimeDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.lot = lot;
+
+    modalRef.closed.subscribe(() => {
+      this.notificationService.success(
+        `Retour fournisseur créé avec succès pour le lot "${lot.numLot}".`,
+        'Succès',
+      );
+      this.loadPage();
+    });
   }
 
   protected confirmAll(): void {
@@ -311,6 +333,32 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       "Confirmer le retrait groupé",
       message
     );
+  }
+
+  protected confirmRetourGroupeDialog(): void {
+    if (this.selectedLotPerimes.length === 0) return;
+
+    const modalRef = this.modalService.open(RetourGroupePerimeDialogComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.lots = [...this.selectedLotPerimes];
+
+    modalRef.closed.subscribe((result: any) => {
+      if (result?.totalCreated > 0) {
+        this.notificationService.success(
+          `${result.totalCreated} retour(s) fournisseur créé(s) avec succès.`,
+          'Succès',
+        );
+      }
+      this.selectedLotPerimes = [];
+      this.loadPage();
+    });
+  }
+
+  protected navigateToRetours(): void {
+    void this.router.navigate(['/commande/retour-fournisseur']);
   }
 
   private exportPdf(): void {

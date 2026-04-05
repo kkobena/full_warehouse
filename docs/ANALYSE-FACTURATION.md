@@ -1,6 +1,6 @@
 # Plan d'Implémentation — Module Facturation (Officine)
 
-> **Contexte :** Pharma-Smart — Spring Boot 4 / Angular 20 / PostgreSQL  
+> **Contexte :** Pharma-Smart — Spring Boot 4 / Angular 21 / PostgreSQL  18
 > **Base existante :** `FactureTiersPayant`, `ThirdPartySaleLine`, `TiersPayant`, `GroupeTiersPayant`,
 > `InvoicePayment extends PaymentTransaction`, patterns Specification + CriteriaQuery + PDF Thymeleaf
 
@@ -151,7 +151,7 @@ GET /api/edition-factures/recapitulatif/excel?annee=2025&mois=3
 
 - **Composant** : `facturation/recapitulatif/recapitulatif.component.ts`
 - **Filtres** : mois/année (`p-select`), tiers-payant (autocomplete), type
-- **Tableau AG Grid** : Organisme | Solde N-1 | Facturé | Réglé | Restant | Taux
+- **Tableau p-table** : Organisme | Solde N-1 | Facturé | Réglé | Restant | Taux
 - **Actions** : Export PDF par organisme | Export global Excel
 - **Chart.js** : Bar chart réglé vs restant par organisme
 
@@ -627,13 +627,13 @@ public class FacturationPdfExportServiceImpl implements FacturationPdfExportServ
     private final FactureTemplateConfigRepository templateConfigRepository;
 
     @Override
-    public Resource export(List<FactureTiersPayant> factures) throws ReportFileExportException {
+    public byte[]  export(List<FactureTiersPayant> factures) throws ReportFileExportException {
         // Toutes les factures d'un même batch ont le même modèle
         FactureTiersPayant first = factures.getFirst();
         if (hasCustomTemplate(first)) {
             return customReportService.printToPdf(factures);
         }
-        return reportService.printToPdf(factures);   // chemin existant, inchangé
+        return reportService.exportReportToPdf(factures);   // chemin existant, inchangé
     }
 
     private boolean hasCustomTemplate(FactureTiersPayant facture) {

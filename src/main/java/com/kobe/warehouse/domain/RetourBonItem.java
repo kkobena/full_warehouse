@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
@@ -39,8 +40,14 @@ public class RetourBonItem implements Serializable {
     @JoinColumn(name = "motif_retour_id", referencedColumnName = "id")
     private MotifRetourProduit motifRetour;
 
-    @ManyToOne(optional = false)
-    @NotNull
+    /** Ligne de commande source — nullable pour les retours "hors commande" */
+    @ManyToOne
+    @JoinColumns(
+        {
+            @JoinColumn(name = "orderline_id", referencedColumnName = "id"),
+            @JoinColumn(name = "orderline_order_date", referencedColumnName = "order_date"),
+        }
+    )
     private OrderLine orderLine;
 
     @ManyToOne

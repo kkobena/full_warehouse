@@ -2,8 +2,13 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
+import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
+import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
+import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
+import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.pharmaml.service.PharmaMlService;
+import com.kobe.warehouse.service.report.excel.RetourBonExcelCsvReportService;
 import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
 import com.kobe.warehouse.service.stock.RetourBonService;
 import com.kobe.warehouse.web.util.HeaderUtil;
@@ -47,13 +52,20 @@ public class RetourBonResource {
     private final Logger log = LoggerFactory.getLogger(RetourBonResource.class);
     private final RetourBonService retourBonService;
     private final PharmaMlService pharmaMlService;
+    private final RetourBonExcelCsvReportService retourBonExcelCsvReportService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public RetourBonResource(RetourBonService retourBonService, RetourBonPdfReportService retourBonPdfReportService, PharmaMlService pharmaMlService) {
+    public RetourBonResource(
+        RetourBonService retourBonService,
+        RetourBonPdfReportService retourBonPdfReportService,
+        PharmaMlService pharmaMlService,
+        RetourBonExcelCsvReportService retourBonExcelCsvReportService
+    ) {
         this.retourBonService = retourBonService;
         this.pharmaMlService = pharmaMlService;
+        this.retourBonExcelCsvReportService = retourBonExcelCsvReportService;
     }
 
     /**
@@ -218,6 +230,90 @@ public class RetourBonResource {
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code GET /retour-bons/resolution-lot} : pré-résout un lot pour déterminer
+     * l'état initial du formulaire "Retour fournisseur".
+     *
+     * @param lotId l'identifiant du lot.
+     * @return le DTO de résolution (COMMANDE_TROUVEE / HORS_COMMANDE_UN_FOURN / HORS_COMMANDE_MULTI / FOURNISSEUR_INCONNU).
+     */
+    @GetMapping("/retour-bons/resolution-lot")
+    public ResponseEntity<RetourBonLotResolutionDTO> resolveLot(@RequestParam Integer lotId) {
+        log.debug("REST request to resolve lot {} for retour fournisseur", lotId);
+        return ResponseEntity.ok(retourBonService.resolveLot(lotId));
+    }
+
+    /**
+     * {@code POST /retour-bons/from-expired-lots} : Crée plusieurs RetourBon depuis une liste de lots périmés (batch).
+     * Traitement "best-effort" : retourne les succès ET les erreurs.
+     *
+     * @param request la requête batch.
+     * @return le {@link ResponseEntity} avec statut {@code 200 (OK)} et le résultat batch.
+     */
+    @PostMapping("/retour-bons/from-expired-lots")
+    public ResponseEntity<RetourBonBatchResultDTO> createFromExpiredLots(@Valid @RequestBody RetourBonFromLotsRequest request) {
+        log.debug("REST request to create RetourBons from expired lots batch: {} lots", request.getLots().size());
+        RetourBonBatchResultDTO result = retourBonService.createFromExpiredLots(request);
+        return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * {@code POST /retour-bons/from-expired-lot} : Crée un RetourBon depuis un lot périmé.
+     * Résout automatiquement la Commande source via Lot → OrderLine → Commande.
+     *
+     * @param request la requête contenant lotId, motifRetourId et quantity.
+     * @return le {@link ResponseEntity} avec statut {@code 201 (Created)} et le RetourBonDTO créé.
+     * @throws URISyntaxException si la syntaxe de l'URI de localisation est incorrecte.
+     */
+    @PostMapping("/retour-bons/from-expired-lot")
+    public ResponseEntity<RetourBonDTO> createFromExpiredLot(@Valid @RequestBody RetourBonFromLotRequest request)
+        throws URISyntaxException {
+        log.debug("REST request to create RetourBon from expired lot: {}", request);
+        RetourBonDTO result = retourBonService.createFromExpiredLot(request);
+        return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code GET /retour-bons/export} : export Excel ou CSV des bons de retour.
+     *
+     * @param format  "excel" ou "csv"
+     * @param statut  filtre optionnel sur le statut
+     * @param dtStart filtre date début
+     * @param dtEnd   filtre date fin
+     * @param search  recherche textuelle
+     * @return le fichier en bytes.
+     */
+    @GetMapping("/retour-bons/export")
+    public ResponseEntity<byte[]> exportRetourBons(
+        @RequestParam(defaultValue = "excel") String format,
+        @RequestParam(required = false) RetourStatut statut,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
+        @RequestParam(required = false) String search
+    ) {
+        log.debug("REST request to export RetourBons: format={}, statut={}, dtStart={}, dtEnd={}", format, statut, dtStart, dtEnd);
+        try {
+            if ("csv".equalsIgnoreCase(format)) {
+                byte[] csv = retourBonExcelCsvReportService.exportToCsv(statut, dtStart, dtEnd, search);
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.csv\"")
+                    .header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
+                    .body(csv);
+            } else {
+                byte[] excel = retourBonExcelCsvReportService.exportToExcel(statut, dtStart, dtEnd, search);
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.xlsx\"")
+                    .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(excel);
+            }
+        } catch (Exception e) {
+            log.error("Error exporting RetourBons", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     /**

@@ -209,6 +209,16 @@
         severity="danger"
         size="small"
       />
+      <p-button
+        (onClick)="confirmRetourGroupeDialog()"
+        [outlined]="true"
+        icon="pi pi-reply"
+        label="Retour fournisseur groupé"
+        severity="info"
+        size="small"
+        pTooltip="Créer un bon de retour fournisseur pour les lots sélectionnés"
+        tooltipPosition="top"
+      />
     </div>
   }
 
@@ -275,15 +285,21 @@
         </div>
       </div>
 
-      <!-- KPI 4 — Retours fournisseur (informatif) -->
+      <!-- KPI 4 — Retours fournisseur (cliquable → module retour-fournisseur) -->
       <div class="col-12 col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm border rounded-3 bg-success-subtle kpi-card">
+        <div class="card h-100 shadow-sm border rounded-3 bg-success-subtle kpi-card kpi-clickable"
+             (click)="navigateToRetours()"
+             pTooltip="Cliquez pour voir les retours fournisseur en cours"
+             role="button" tabindex="0">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="fw-semibold fs-6 text-success">{{ 'warehouseApp.gestionPerimes.labels.retours' | translate }}</span>
               <i class="pi pi-reply text-success opacity-50"></i>
             </div>
             <p class="fs-3 fw-bold text-success mb-0">{{ lotPerimeValeurSum.retoursFourn | number }}</p>
+            <small class="text-muted">
+              <i class="pi pi-external-link me-1"></i>Voir les retours en cours
+            </small>
           </div>
         </div>
       </div>

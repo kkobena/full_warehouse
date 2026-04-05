@@ -2,7 +2,11 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
+import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
+import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
+import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
+import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -84,4 +88,33 @@ public interface RetourBonService {
     RetourBonDTO markAsProcessing(Integer id);
 
     byte[] export(Integer id);
+
+    /**
+     * Crée un RetourBon depuis un lot périmé.
+     * Résout automatiquement la Commande source via Lot → OrderLine → Commande.
+     *
+     * @param request la requête contenant lotId, motifRetourId et quantity.
+     * @return le RetourBonDTO créé.
+     * @throws com.kobe.warehouse.service.errors.RetourBonCommandeNotFoundException
+     *         si le lot n'est pas rattaché à une commande de réception.
+     */
+    RetourBonDTO createFromExpiredLot(RetourBonFromLotRequest request);
+
+    /**
+     * Crée plusieurs RetourBon depuis une liste de lots périmés (batch).
+     *
+     *
+     * @param request la requête batch contenant la liste de lots.
+     * @return le résultat batch avec les RetourBon créés et les erreurs.
+     */
+    RetourBonBatchResultDTO createFromExpiredLots(RetourBonFromLotsRequest request);
+
+    /**
+     * Pré-résout un lot pour déterminer l'état du formulaire "Retour fournisseur" :
+     * COMMANDE_TROUVEE / HORS_COMMANDE_UN_FOURN / HORS_COMMANDE_MULTI / FOURNISSEUR_INCONNU.
+     *
+     * @param lotId l'identifiant du lot.
+     * @return le DTO de résolution.
+     */
+    RetourBonLotResolutionDTO resolveLot(Integer lotId);
 }

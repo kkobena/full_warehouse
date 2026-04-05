@@ -8,6 +8,44 @@
 
     <div class="invoice">
       <div th:replace="~{common/commonheader}"></div>
+
+      <!-- ── Sous-en-tête : fournisseur + référence commande (ou badge hors commande) ── -->
+      <div style="padding: 4px 10px 6px 10px; margin-bottom: 4px">
+        <table style="width: 100%; border-collapse: collapse; font-size: 9px">
+          <tbody>
+            <tr>
+              <td style="width: 55%; vertical-align: top">
+                <!-- Fournisseur -->
+                <strong>Fournisseur :</strong>
+                <span th:if="${retourBon.fournisseurLibelle ne null}"
+                      th:text="${retourBon.fournisseurLibelle}"
+                      style="font-weight: 600"></span>
+                <span th:if="${retourBon.fournisseurLibelle == null}" style="color: #888">—</span>
+              </td>
+              <td style="width: 45%; text-align: right; vertical-align: top">
+                <!-- Retour avec commande -->
+                <span th:if="${!retourBon.horsCommande and retourBon.receiptReference ne null}">
+                  <strong>Réf. commande :</strong>
+                  <span th:text="${retourBon.receiptReference}"></span>
+                </span>
+                <span th:if="${!retourBon.horsCommande and retourBon.receiptDate ne null}"
+                      th:text="${' — ' + #temporals.format(retourBon.receiptDate, 'dd/MM/yyyy')}"
+                      style="color: #555"></span>
+
+                <!-- Retour HORS commande -->
+                <span th:if="${retourBon.horsCommande}"
+                      style="background: #fff3cd; color: #856404; border: 0.5px solid #ffc107;
+                             padding: 1px 5px; border-radius: 3px; font-size: 8px; font-weight: 600">
+                  ⚠ RETOUR HORS COMMANDE
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Séparateur -->
+        <hr style="border: none; border-top: 0.5px solid #ccc; margin: 4px 0 0 0" />
+      </div>
+
       <main>
         <table th:replace="~{retour/table-body}"></table>
       </main>

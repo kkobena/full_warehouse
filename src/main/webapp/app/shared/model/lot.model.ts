@@ -14,6 +14,8 @@ export interface ILot {
   linkedId?: number;
   freeQuantity?: number;
   freeQty?: number;
+  /** Utilisé pour la saisie de lot hors commande (sans OrderLine). */
+  produitId?: number;
 }
 
 export class Lot implements ILot {
@@ -29,5 +31,6 @@ export class Lot implements ILot {
     public expiryDate?: string,
     public ugQuantityReceived?: number,
     public quantityReceived?: number,
+    public produitId?: number,
   ) {}
 }

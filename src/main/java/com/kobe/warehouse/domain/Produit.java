@@ -99,7 +99,8 @@ public class Produit implements Serializable {
     private Integer qtySeuilMini = 1;
 
     @Column(name = "check_expiry_date", columnDefinition = "boolean default false")
-    private Boolean checkExpiryDate= false;
+    private Boolean checkExpiryDate= false;//TODO: to remove
+    //Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits numériques, etc.)
 
     @NotAudited
     @Column(name = "chiffre", columnDefinition = "boolean default true")

@@ -101,6 +101,14 @@
               severity="primary" size="small" />
     <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher"
               severity="info" size="small" />
+    <p-splitbutton
+      [model]="exportMenus"
+      icon="pi pi-download"
+      label="Exporter"
+      severity="help"
+      size="small"
+      pTooltip="Exporter la liste en Excel ou CSV"
+    />
   </div>
 </div>
 
@@ -150,8 +158,15 @@
           <small>{{ retourBon.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</small>
         </td>
         <td>
-          <div class="font-weight-bold">{{ retourBon.receiptReference }}</div>
-          <small class="text-muted">{{ retourBon.receiptDate | date: 'dd/MM/yyyy' }}</small>
+          @if (retourBon.horsCommande) {
+            <span class="badge bg-warning text-dark me-1" pTooltip="Retour créé sans référence de commande (lot hors entrée en stock)" tooltipPosition="top">
+              <i class="pi pi-exclamation-triangle me-1"></i>Hors commande
+            </span>
+            <small class="text-muted">{{ retourBon.fournisseurLibelle }}</small>
+          } @else {
+            <div class="font-weight-bold">{{ retourBon.receiptReference }}</div>
+            <small class="text-muted">{{ retourBon.receiptDate | date: 'dd/MM/yyyy' }}</small>
+          }
         </td>
         <td>{{ retourBon.fournisseurLibelle }}</td>
         <td class="text-center">

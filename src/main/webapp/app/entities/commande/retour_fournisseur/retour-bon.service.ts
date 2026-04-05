@@ -6,6 +6,12 @@ import { createRequestOptions } from 'app/shared/util/request-util';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
 import { IReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
 import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
+import {
+  RetourBonBatchResult,
+  RetourBonLotResolution,
+  RetourFournisseurBatchRequest,
+  RetourFournisseurRequest,
+} from 'app/entities/gestion-peremption/model/retour-fournisseur-request';
 
 type EntityResponseType = HttpResponse<IRetourBon>;
 type EntityArrayResponseType = HttpResponse<IRetourBon[]>;
@@ -64,4 +70,37 @@ export class RetourBonService {
   sendEdi(id: number): Observable<HttpResponse<void>> {
     return this.http.post<void>(`${this.resourceUrl}/${id}/send-edi`, null, { observe: 'response' });
   }
+
+  createFromExpiredLot(request: RetourFournisseurRequest): Observable<HttpResponse<IRetourBon>> {
+    return this.http.post<IRetourBon>(`${this.resourceUrl}/from-expired-lot`, request, { observe: 'response' });
+  }
+
+  createFromExpiredLots(request: RetourFournisseurBatchRequest): Observable<HttpResponse<RetourBonBatchResult>> {
+    return this.http.post<RetourBonBatchResult>(`${this.resourceUrl}/from-expired-lots`, request, { observe: 'response' });
+  }
+
+  /**
+   * Pré-résout un lot pour déterminer l'état initial du formulaire "Retour fournisseur".
+   * @param lotId l'identifiant du lot
+   */
+  resolveLot(lotId: number): Observable<HttpResponse<RetourBonLotResolution>> {
+    return this.http.get<RetourBonLotResolution>(`${this.resourceUrl}/resolution-lot`, {
+      params: { lotId: lotId.toString() },
+      observe: 'response',
+    });
+  }
+
+  /**
+   * Exporte les bons de retour en Excel ou CSV selon les filtres actifs.
+   * @param format 'excel' ou 'csv'
+   * @param params filtres : statut, dtStart, dtEnd, search
+   */
+  export(format: 'excel' | 'csv', params: Record<string, string>): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/export`, {
+      params: { format, ...params },
+      responseType: 'blob',
+    });
+  }
 }
+
+

@@ -1,0 +1,168 @@
+<!-- Modal header -->
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-reply me-2 text-info"></i>
+    Retour fournisseur groupé
+    <span class="badge bg-secondary ms-2">{{ lots.length }} lot(s)</span>
+  </h5>
+  <button type="button" class="btn-close" (click)="close()" aria-label="Fermer"></button>
+</div>
+
+<!-- Modal body -->
+<div class="modal-body">
+
+  @if (!result()) {
+    <!-- Formulaire de saisie -->
+    <form [formGroup]="form">
+
+      <!-- Motif commun pour tous les lots -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">
+          Motif de retour (commun à tous les lots) <span class="text-danger">*</span>
+        </label>
+        <p-select
+          formControlName="motifRetourId"
+          [options]="motifs()"
+          optionLabel="libelle"
+          optionValue="id"
+          placeholder="Sélectionner un motif de retour..."
+          [showClear]="true"
+          appendTo="body"
+          [style]="{ 'width': '100%' }"
+        />
+        @if (form.get('motifRetourId')?.invalid && form.get('motifRetourId')?.touched) {
+          <small class="text-danger">
+            <i class="pi pi-exclamation-triangle me-1"></i>Le motif est obligatoire.
+          </small>
+        }
+      </div>
+
+      <!-- Tableau des lots avec quantités modifiables -->
+      <p-table
+        [value]="lots"
+        [showGridlines]="true"
+        scrollHeight="320px"
+        [scrollable]="true"
+        class="p-datatable-sm"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 40px" class="text-center">✓</th>
+            <th>Produit</th>
+            <th style="width: 90px" class="text-center">N° Lot</th>
+            <th style="width: 90px" class="text-center">Exp.</th>
+            <th style="width: 120px" class="text-center">Qté à retourner</th>
+            <th style="width: 120px" class="text-right">Avoir estimé</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-lot let-i="rowIndex">
+          @let itemGroup = getItemGroup(i);
+          <tr [class.opacity-50]="!itemGroup.get('included')?.value">
+            <td class="text-center">
+              <input type="checkbox" [formControl]="$any(itemGroup.get('included'))" class="form-check-input" />
+            </td>
+            <td>
+              <span class="pharma-product-name">{{ lot.produitName }}</span>
+              <small class="text-muted d-block">{{ (lot.fournisseur ?? lot.founisseur) || '—' }}</small>
+            </td>
+            <td class="text-center">
+              <span class="pharma-badge pharma-badge-info">{{ lot.numLot }}</span>
+            </td>
+            <td class="text-center">
+              <small [class.text-danger]="lot.peremptionStatut?.days < 0">
+                {{ lot.datePeremption | date:'dd/MM/yy' }}
+              </small>
+            </td>
+            <td class="text-center">
+              <p-inputnumber
+                [formControl]="$any(itemGroup.get('quantity'))"
+                [min]="1"
+                [max]="lot.quantity"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+                [inputStyle]="{ 'width': '70px', 'text-align': 'center' }"
+                [disabled]="!itemGroup.get('included')?.value"
+              />
+              <small class="text-muted d-block">/ {{ lot.quantity | number }}</small>
+            </td>
+            <td class="text-right fw-semibold">
+              {{ (itemGroup.get('quantity')?.value ?? 0) * (lot.prixAchat ?? 0) | number }} FCFA
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <!-- Résumé avoir total -->
+      <div class="alert alert-success mt-3 py-2 d-flex justify-content-between align-items-center">
+        <span>
+          <i class="pi pi-wallet me-2"></i>
+          <strong>{{ selectedCount }}</strong> lot(s) sélectionné(s)
+        </span>
+        <span>
+          Avoir total estimé : <strong class="fs-5">{{ totalAvoir | number }} FCFA</strong>
+        </span>
+      </div>
+
+    </form>
+
+  } @else {
+    <!-- Résultat du batch -->
+    @let batchResult = result()!;
+
+    <div class="text-center mb-3">
+      @if (batchResult.totalErrors === 0) {
+        <i class="pi pi-check-circle text-success" style="font-size: 3rem"></i>
+        <h5 class="text-success mt-2">{{ batchResult.totalCreated }} retour(s) créé(s) avec succès</h5>
+      } @else if (batchResult.totalCreated > 0) {
+        <i class="pi pi-exclamation-triangle text-warning" style="font-size: 3rem"></i>
+        <h5 class="text-warning mt-2">Résultat partiel : {{ batchResult.totalCreated }} créé(s), {{ batchResult.totalErrors }} erreur(s)</h5>
+      } @else {
+        <i class="pi pi-times-circle text-danger" style="font-size: 3rem"></i>
+        <h5 class="text-danger mt-2">Aucun retour créé</h5>
+      }
+    </div>
+
+    @if (batchResult.errors?.length > 0) {
+      <div class="alert alert-danger p-2">
+        <strong>Lots en erreur :</strong>
+        <ul class="mb-0 mt-1">
+          @for (err of batchResult.errors; track err.lotId) {
+            <li><strong>{{ err.lotNumero }}</strong> — {{ err.message }}</li>
+          }
+        </ul>
+      </div>
+    }
+  }
+
+</div>
+
+<!-- Modal footer -->
+<div class="modal-footer">
+  @if (!result()) {
+    <p-button
+      (onClick)="close()"
+      label="Annuler"
+      icon="pi pi-times"
+      severity="secondary"
+      [outlined]="true"
+    />
+    <p-button
+      (onClick)="save()"
+      label="Créer les retours"
+      icon="pi pi-check"
+      severity="success"
+      [disabled]="!canSave()"
+      [loading]="isSaving()"
+    />
+  } @else {
+    <p-button
+      (onClick)="close()"
+      label="Fermer"
+      icon="pi pi-times"
+      severity="secondary"
+    />
+  }
+</div>
+

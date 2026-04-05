@@ -9,6 +9,7 @@ import { IProduitIndicateurs } from 'app/features/products/models/produit-indica
 import { ILotPeremption } from 'app/features/products/data-access/services/products-api.service';
 import { FormStockProduitComponent } from 'app/entities/produit/form-stock-produit/form-stock-produit.component';
 import { FormTransfertStockComponent } from 'app/entities/produit/form-transfert-stock/form-transfert-stock.component';
+import { LotSaisieProduitModalComponent } from '../lot-saisie-produit-modal/lot-saisie-produit-modal.component';
 
 @Component({
   selector: 'app-produit-stock-tab',
@@ -163,5 +164,21 @@ export class ProduitStockTabComponent {
       () => this.refreshRequested.emit(),
       () => {},
     );
+  }
+
+  protected onSaisirLot(): void {
+    const stock = this.produit().totalQuantity ?? 0;
+    if (stock <= 0) return;
+    const modalRef = this.modalService.open(LotSaisieProduitModalComponent, {
+      size: 'md',
+      centered: true,
+      backdrop: 'static',
+    });
+    (modalRef.componentInstance as LotSaisieProduitModalComponent).produit = this.produit();
+    modalRef.closed.subscribe(reason => {
+      if (reason === 'saved') {
+        this.refreshRequested.emit();
+      }
+    });
   }
 }

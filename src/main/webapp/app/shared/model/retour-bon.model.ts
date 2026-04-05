@@ -14,6 +14,8 @@ export interface IRetourBon {
   commandeOrderReference?: string;
   receiptReference?: string;
   fournisseurLibelle?: string;
+  fournisseurId?: number;
+  horsCommande?: boolean;
   retourBonItems?: IRetourBonItem[];
   pharmamlEnvoiId?: number;
   ediCompatible?: boolean;

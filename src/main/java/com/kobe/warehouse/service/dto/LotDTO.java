@@ -35,6 +35,8 @@ public class LotDTO {
     private Integer currentQuantity;
     /** Numéro de série FMD (AI 21 GS1 DataMatrix). Null si scan 1D ou non présent. */
     private String serialNumber;
+    /** Id du produit — utilisé pour la saisie de lot hors commande (sans OrderLine). */
+    private Integer produitId;
 
     public LotDTO(Lot lot) {
         id = lot.getId();
@@ -165,6 +167,15 @@ public class LotDTO {
 
     public LotDTO setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+        return this;
+    }
+
+    public Integer getProduitId() {
+        return produitId;
+    }
+
+    public LotDTO setProduitId(Integer produitId) {
+        this.produitId = produitId;
         return this;
     }
 

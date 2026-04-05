@@ -258,6 +258,17 @@
             <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
           </span>
         }
+        <p-button
+          icon="pi pi-plus"
+          label="Saisir un lot"
+          size="small"
+          severity="primary"
+          [outlined]="true"
+          [disabled]="(produit().totalQuantity ?? 0) <= 0"
+          pTooltip="Saisir un nouveau lot hors commande"
+          tooltipPosition="left"
+          (onClick)="onSaisirLot()"
+        />
       </div>
       <div class="fefo-table">
         <div class="fefo-row fefo-head">
@@ -283,6 +294,21 @@
           </div>
         }
       </div>
+    </div>
+  } @else if ((produit().totalQuantity ?? 0) > 0) {
+    <!-- Produit en stock mais sans lots enregistrés -->
+    <div class="fefo-no-lots">
+      <i class="pi pi-info-circle me-1"></i>
+      Aucun lot enregistré pour ce produit.
+      <p-button
+        icon="pi pi-plus"
+        label="Saisir un lot"
+        size="small"
+        severity="primary"
+        [outlined]="true"
+        pTooltip="Saisir un nouveau lot hors commande"
+        (onClick)="onSaisirLot()"
+      />
     </div>
   }
 

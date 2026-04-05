@@ -15,6 +15,20 @@ import org.springframework.http.ResponseEntity;
 public interface LotService {
     LotDTO addLot(LotDTO lot);
 
+    /**
+     * Crée un lot directement rattaché à un produit, sans OrderLine.
+     * Utilisé pour la saisie de lot hors commande depuis la fiche produit.
+     * <ul>
+     *   <li>numLot et expiryDate sont obligatoires.</li>
+     *   <li>La quantité doit être ≤ au stock total du produit.</li>
+     *   <li>Aucun mouvement de stock n'est généré.</li>
+     * </ul>
+     *
+     * @param lot DTO contenant produitId, numLot, expiryDate, quantity
+     * @return le lot créé
+     */
+    LotDTO addLotSurProduit(LotDTO lot);
+
     LotDTO editLot(LotDTO lot);
 
     void remove(LotDTO lot);

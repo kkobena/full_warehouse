@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.LotStockLocationRepository;
@@ -80,6 +81,48 @@ public class LotServiceImpl implements LotService {
         lotEntity.setPrixUnit(orderLine.getOrderUnitPrice());
         lotEntity.setPrixAchat(orderLine.getOrderCostAmount());
         lotEntity.setOrderLine(orderLine);
+        return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
+    }
+
+    @Override
+    public LotDTO addLotSurProduit(LotDTO lot) {
+        if (lot.getProduitId() == null) {
+            throw new GenericError("Le produitId est obligatoire pour la saisie de lot hors commande", "produitIdManquant");
+        }
+        if (lot.getNumLot() == null || lot.getNumLot().isBlank()) {
+            throw new GenericError("Le numéro de lot est obligatoire", "numLotManquant");
+        }
+        if (lot.getExpiryDate() == null) {
+            throw new GenericError("La date de péremption est obligatoire", "expiryDateManquante");
+        }
+        Produit produit = this.produitRepository.findById(lot.getProduitId())
+            .orElseThrow(() -> new GenericError("Produit introuvable", "produitIntrouvable"));
+
+        int totalStock = produit.getStockProduits().stream()
+            .mapToInt(StockProduit::getQtyStock).sum();
+        int lotQty = Optional.ofNullable(lot.getQuantityReceived()).orElse(0)
+            + Optional.ofNullable(lot.getFreeQty()).orElse(0);
+        if (lotQty <= 0) {
+            throw new GenericError("La quantité doit être supérieure à 0", "quantiteInvalide");
+        }
+        if (lotQty > totalStock) {
+            throw new GenericError(
+                "La quantité du lot (" + lotQty + ") ne peut pas dépasser le stock du produit (" + totalStock + ")",
+                "quantiteDepasseStock"
+            );
+        }
+
+        FournisseurProduit fp = produit.getFournisseurProduitPrincipal();
+        int prixAchat = fp != null ? fp.getPrixAchat() : produit.getCostAmount();
+        int prixUnit  = fp != null ? fp.getPrixUni()   : produit.getRegularUnitPrice();
+
+        Lot lotEntity = lot.toEntity();
+        lotEntity.setCurrentQuantity(lotEntity.getQuantity());
+        lotEntity.setCreatedDate(LocalDateTime.now());
+        lotEntity.setPrixAchat(prixAchat);
+        lotEntity.setPrixUnit(prixUnit);
+        lotEntity.setProduit(produit);
+        // Pas d'OrderLine → saisie hors commande
         return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
     }
 
@@ -238,20 +281,49 @@ public class LotServiceImpl implements LotService {
 
     private Page<LotPerimeDTO> buildLotPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {
         return this.lotRepository.findAll(this.lotRepository.buildCombinedSpecification(lotFilterParam), pageable).map(lot -> {
-            FournisseurProduit fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
-            Produit produit = fournisseurProduit.getProduit();
+            // Fix NPE : un lot hors commande (saisi depuis la fiche produit) n'a pas d'OrderLine
+            FournisseurProduit fournisseurProduit;
+            Produit produit;
+            if (lot.getOrderLine() != null) {
+                fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
+                produit = fournisseurProduit.getProduit();
+            } else if (lot.getProduit() != null) {
+                produit = lot.getProduit();
+                fournisseurProduit = produit.getFournisseurProduitPrincipal();
+            } else {
+                // Lot orphelin sans produit ni commande → DTO minimal
+                LotPerimeDTO orphan = new LotPerimeDTO();
+                orphan.setId(lot.getId());
+                orphan.setNumLot(lot.getNumLot());
+                orphan.setQuantity(lot.getQuantity());
+                if (lot.getExpiryDate() != null) {
+                    orphan.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
+                    orphan.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
+                }
+                return orphan;
+            }
             LotPerimeDTO lotPerime = new LotPerimeDTO();
             lotPerime.setProduitId(produit.getId());
             lotPerime.setId(lot.getId());
             lotPerime.setNumLot(lot.getNumLot());
             lotPerime.setQuantity(lot.getQuantity());
-            lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
-            lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
-            buildCommon(lotPerime, produit, fournisseurProduit);
+            if (lot.getExpiryDate() != null) {
+                lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
+                lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
+            }
+            if (fournisseurProduit != null) {
+                buildCommon(lotPerime, produit, fournisseurProduit);
+            } else {
+                // Lot hors commande sans fournisseur principal → infos produit uniquement
+                lotPerime.setProduitName(produit.getLibelle());
+                FamilleProduit familleProduit = produit.getFamille();
+                if (familleProduit != null) {
+                    lotPerime.setFamilleProduitName(familleProduit.getLibelle());
+                }
+            }
 
             // Construire la liste des emplacements depuis LotStockLocation
             if (lotFilterParam.getStorageId() != null) {
-                // Filtre storage actif → une seule localisation, quantité précise dans ce storage
                 this.lotStockLocationRepository
                     .findByLotIdAndStorageId(lot.getId(), lotFilterParam.getStorageId())
                     .ifPresent(lsl -> {
@@ -263,7 +335,6 @@ public class LotServiceImpl implements LotService {
                         lotPerime.setQuantity(lsl.getQty());
                     });
             } else {
-                // Pas de filtre → toutes les localisations disponibles (PRINCIPAL en premier)
                 List<LotLocationDTO> locs = this.lotStockLocationRepository
                     .findAvailableByLotId(lot.getId())
                     .stream()

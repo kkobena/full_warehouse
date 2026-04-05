@@ -1,0 +1,62 @@
+
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+:host {
+  @include modal-theme;
+}
+
+.lot-stock-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #e8f4f8;
+  border: 1px solid #b0cfe0;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: #374151;
+  margin-bottom: 1.25rem;
+
+  strong {
+    color: #5b89a6;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+
+  &.required::after {
+    content: ' *';
+    color: #dc3545;
+  }
+}
+
+.optional {
+  font-weight: 400;
+  color: #6b7280;
+  font-size: 0.72rem;
+}
+
+.field-error {
+  font-size: 0.72rem;
+  color: #dc3545;
+}
+
+.w-100 {
+  width: 100%;
+}
+

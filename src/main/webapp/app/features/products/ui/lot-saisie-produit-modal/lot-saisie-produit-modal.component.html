@@ -1,0 +1,108 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-tag me-2"></i>Saisir un lot — {{ produit?.libelle }}
+  </h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Info stock -->
+  <div class="lot-stock-info">
+    <i class="pi pi-box me-1"></i>
+    Stock disponible&nbsp;:
+    <strong>{{ totalStock() | number }} unité(s)</strong>
+    &nbsp;— La quantité saisie ne peut pas dépasser ce stock.
+  </div>
+
+  <form [formGroup]="form" autocomplete="off">
+    <div class="form-grid">
+
+      <!-- Numéro de lot -->
+      <div class="field">
+        <label for="numLot" class="field-label required">Numéro de lot</label>
+        <input
+          pInputText
+          id="numLot"
+          formControlName="numLot"
+          maxlength="20"
+          placeholder="Ex : L2024-001"
+          class="w-100"
+          [class.is-invalid]="form.get('numLot')?.invalid && form.get('numLot')?.touched"
+        />
+        @if (form.get('numLot')?.invalid && form.get('numLot')?.touched) {
+          <small class="field-error">Le numéro de lot est obligatoire (20 caractères max.)</small>
+        }
+      </div>
+
+      <!-- Quantité -->
+      <div class="field">
+        <label for="quantityReceived" class="field-label required">Quantité</label>
+        <p-inputNumber
+          inputId="quantityReceived"
+          formControlName="quantityReceived"
+          [min]="1"
+          [max]="totalStock()"
+          [showButtons]="true"
+          buttonLayout="horizontal"
+          incrementButtonIcon="pi pi-plus"
+          decrementButtonIcon="pi pi-minus"
+          [class.ng-invalid]="!isQuantiteValide && form.get('quantityReceived')?.touched"
+        />
+        @if (!isQuantiteValide && form.get('quantityReceived')?.touched) {
+          <small class="field-error">
+            La quantité doit être entre 1 et {{ totalStock() }} (stock disponible).
+          </small>
+        }
+      </div>
+
+      <!-- Date de péremption (obligatoire) -->
+      <div class="field">
+        <label class="field-label required">Date de péremption</label>
+        <pharma-date-picker
+          id="expiryDate"
+          label=""
+          formControlName="expiryDate"
+          [minDate]="todayStruct"
+          placeholder="jj/mm/aaaa"
+          [class.is-invalid]="form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched"
+        />
+        @if (form.get('expiryDate')?.invalid && form.get('expiryDate')?.touched) {
+          <small class="field-error">La date de péremption est obligatoire.</small>
+        }
+      </div>
+
+      <!-- Date de fabrication (optionnelle) -->
+      <div class="field">
+        <label class="field-label">Date de fabrication <span class="optional">(optionnel)</span></label>
+        <pharma-date-picker
+          id="manufacturingDate"
+          label=""
+          formControlName="manufacturingDate"
+          [maxDate]="todayMaxStruct"
+          placeholder="jj/mm/aaaa"
+        />
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    icon="pi pi-times"
+    severity="secondary"
+    [outlined]="true"
+    (onClick)="cancel()"
+    [disabled]="isSaving()"
+  />
+  <p-button
+    label="Enregistrer le lot"
+    icon="pi pi-check"
+    severity="primary"
+    (onClick)="save()"
+    [loading]="isSaving()"
+    [disabled]="form.invalid || !isQuantiteValide"
+  />
+</div>
+

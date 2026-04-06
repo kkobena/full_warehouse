@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.ModelFacture;
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
+import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
@@ -18,12 +19,6 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stat.CommonStatService;
 import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +27,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -141,23 +143,43 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     @Override
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         return this.thirdPartySaleLineRepository.fetchAchatsTiersPayant(
-                buildThirdPartySaleLineSpecification(fromDate, toDate, search),
-                pageable
-            );
+            buildThirdPartySaleLineSpecification(fromDate, toDate, search),
+            pageable
+        );
     }
 
     @Override
     public List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam) {
         return this.thirdPartySaleLineRepository.fetchAchatTiersPayant(
-                buildThirdPartySaleLineSpecification(venteRecordParam),
-                Pageable.ofSize(venteRecordParam.getLimit())
-            );
+            buildThirdPartySaleLineSpecification(venteRecordParam),
+            Pageable.ofSize(venteRecordParam.getLimit())
+        );
     }
 
     private Specification<ThirdPartySaleLine> buildThirdPartySaleLineSpecification(VenteRecordParamDTO venteRecordParam) {
         org.apache.commons.lang3.tuple.Pair<LocalDate, LocalDate> periode = buildPeriode(venteRecordParam);
         Specification<ThirdPartySaleLine> specification = this.thirdPartySaleLineRepository.canceledCriteria();
         return specification.and(buildThirdPartySaleLineSpecification(periode.getLeft(), periode.getRight(), null));
+    }
+
+    @Override
+    public void massUpdateFactureConfig(MassUpdateFactureConfigRequest request) {
+        List<TiersPayant> tiersPayants = tiersPayantRepository.findAllById(request.ids());
+        tiersPayants.forEach(tp -> {
+            if (request.inclureAutoDefinitif() != null) {
+                tp.setInclureFacturationAutoDefinitive(request.inclureAutoDefinitif());
+            }
+            if (request.inclureAutoProvisoire() != null) {
+                tp.setInclureFacturationAutoProvisoire(request.inclureAutoProvisoire());
+            }
+            if (request.periodiciteDefinitive() != null) {
+                tp.setPeriodiciteFactureDefinitive(request.periodiciteDefinitive());
+            }
+            if (request.periodiciteProvisoire() != null) {
+                tp.setPeriodiciteFactureProvisoire(request.periodiciteProvisoire());
+            }
+        });
+        tiersPayantRepository.saveAll(tiersPayants);
     }
 
     private Specification<ThirdPartySaleLine> buildThirdPartySaleLineSpecification(LocalDate fromDate, LocalDate toDate, String search) {

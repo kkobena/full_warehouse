@@ -1,0 +1,134 @@
+
+<!-- Hint premier usage -->
+@if (showHint()) {
+  <div class="pharma-hint">
+    <i class="pi pi-info-circle"></i>
+    <span>Cliquez sur une ligne pour afficher le détail .</span>
+    <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+}
+
+<div class="split-container" [class.panel-open]="selectedPlan()">
+  <!-- Master : liste des planifications -->
+  <div class="list-column">
+    <p-table
+      [value]="planifications()"
+      [loading]="state.loading()"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 310px)"
+      [rowHover]="true"
+      selectionMode="single"
+      [selection]="selectedPlan()"
+      (selectionChange)="onSelectPlan($event)"
+      class="p-datatable-sm planif-table"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Planification</th>
+          <th>Périodicité</th>
+          <th>Prochain déclenchement</th>
+          <th>Dernière exécution</th>
+          <th>Statut</th>
+          <th class="text-center">Actif</th>
+          <th style="width: 7rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-plan>
+        <tr [pSelectableRow]="plan" [class.row-selected]="selectedPlan()?.id === plan.id">
+          <td class="fw-semibold">{{ plan.libelle }}</td>
+          <td>
+            <span [class]="periodiciteBadgeClass()">{{ state.getPeriodiciteLabel(plan.periodicite) }}</span>
+          </td>
+          <td class="small">
+            @if (plan.actif && plan.prochaineExecution) {
+              {{ plan.prochaineExecution | date: 'dd/MM/yyyy HH:mm' }}
+            } @else if (!plan.actif) {
+              <span class="text-muted fst-italic">— désactivé</span>
+            }
+          </td>
+          <td class="small text-muted">
+            {{ plan.derniereExecution ? (plan.derniereExecution | date: 'dd/MM/yy HH:mm') : 'Jamais' }}
+          </td>
+          <td>
+            @if (plan.dernierStatut) {
+              <span [class]="state.getStatutBadgeClass(plan.dernierStatut)">
+                {{
+                  plan.dernierStatut === 'SUCCESS'
+                    ? 'Succès'
+                    : plan.dernierStatut === 'ECHEC'
+                      ? 'Échec'
+                      : 'En cours'
+                }}
+              </span>
+            }
+          </td>
+          <td class="text-center">
+            <p-toggleswitch [ngModel]="plan.actif" (onChange)="state.onToggleActif(plan)" />
+          </td>
+          <td>
+            <div>
+              <p-buttonGroup>
+                <p-button
+                  (onClick)="onSelectPlan(plan)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-eye"
+                  pTooltip="Voir détail"
+                  tooltipPosition="left"
+                  severity="secondary"
+                  size="small"
+                />
+                @if (plan.actif){
+                  <p-button
+                    (onClick)="state.onExecuterMaintenant(plan)"
+                    icon="pi pi-play"
+                    [text]="true"
+                    size="small"
+                    [rounded]="true"
+                    severity="success"
+                    pTooltip="Exécuter maintenant"
+                    tooltipPosition="left"
+                  />
+                }
+
+                <p-button
+                  (onClick)="state.onDelete(plan)"
+                  icon="pi pi-trash"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  severity="danger"
+                  pTooltip="Supprimer"
+                  tooltipPosition="left"
+                />
+              </p-buttonGroup>
+
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="text-center text-muted py-5">
+            <i class="pi pi-inbox d-block fs-1 mb-2"></i>
+            @if (mode() === 'def') {
+              Aucune planification définitive
+            }@else {
+              Aucune planification provisoire
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  @if (selectedPlan(); as plan) {
+    <app-planif-detail-panel [mode]="mode()" [plan]="plan" />
+  }
+</div>
+

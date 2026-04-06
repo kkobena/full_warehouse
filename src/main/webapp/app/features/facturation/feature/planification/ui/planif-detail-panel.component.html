@@ -1,0 +1,79 @@
+<div class="detail-column">
+  <!-- En-tête du panneau de détail -->
+  <div class="detail-panel-header">
+    <div class="d-flex align-items-center gap-2">
+      <i [class]="iconClass()"></i>
+      <span class="fw-semibold">{{ plan().libelle }}</span>
+      <span [class]="badgeClass()">{{ state.getPeriodiciteLabel(plan().periodicite) }}</span>
+    </div>
+    <p-button
+      (onClick)="onClose()"
+      icon="pi pi-times"
+      [text]="true"
+      size="small"
+      [rounded]="true"
+      severity="secondary"
+      pTooltip="Fermer le détail" tooltipPosition="left"
+    />
+  </div>
+
+  <!-- Sous-onglets -->
+  <div class="pharma-nav-tabs-container sub-tabs flex-1-overflow">
+    <div
+      #subNav="ngbNav"
+      [activeId]="activeSubTab()"
+      (activeIdChange)="onSubTabChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      <!-- Sub-tab : Exécutions -->
+      <ng-container ngbNavItem="exec">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-history"></i>
+          <span>Exécutions</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-subtab-executions [planId]="plan().id!" />
+        </ng-template>
+      </ng-container>
+
+      <!-- Sub-tab : Groupes TP -->
+      <ng-container ngbNavItem="groupes">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-sitemap"></i>
+          <span>Groupes Tiers payants</span>
+          @if (mode() === 'def' && state.groupesDef().length) {
+            <span class="badge bg-secondary ms-1">{{ state.groupesDef().length }}</span>
+          } @else if (mode() === 'prov' && state.groupesProv().length) {
+            <span class="badge bg-secondary ms-1">{{ state.groupesProv().length }}</span>
+          }
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-subtab-groupes [mode]="mode()" />
+        </ng-template>
+      </ng-container>
+
+      <!-- Sub-tab : Tiers payants -->
+      <ng-container ngbNavItem="tps">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-users"></i>
+          <span>Tiers payants</span>
+          @if (mode() === 'def' && state.tpsDef().length) {
+            <span class="badge bg-secondary ms-1">{{ state.tpsDef().length }}</span>
+          } @else if (mode() === 'prov' && state.tpsProv().length) {
+            <span class="badge bg-secondary ms-1">{{ state.tpsProv().length }}</span>
+          }
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-subtab-tps [mode]="mode()" />
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="subNav"></div>
+    </div>
+  </div>
+</div>
+

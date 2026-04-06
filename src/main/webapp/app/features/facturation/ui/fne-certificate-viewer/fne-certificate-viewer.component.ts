@@ -1,15 +1,15 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ButtonModule } from 'primeng/button';
+import { Component, inject, OnInit } from "@angular/core";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
+import { ButtonModule } from "primeng/button";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 
 
 @Component({
-  selector: 'app-fne-certificate-viewer',
+  selector: "app-fne-certificate-viewer",
   imports: [ButtonModule],
-  templateUrl: './fne-certificate-viewer.component.html',
-  styleUrls: ['./fne-certificate-viewer.component.scss'],
+  templateUrl: "./fne-certificate-viewer.component.html",
+  styleUrls: ["./fne-certificate-viewer.component.scss"]
 })
 export class FneCertificateViewerComponent implements OnInit {
   tokenUrl: string;
@@ -40,11 +40,12 @@ export class FneCertificateViewerComponent implements OnInit {
   async openInExternalBrowser(): Promise<void> {
     if (this.isRunningInTauri) {
       try {
-        const { open } = await import('@tauri-apps/plugin-shell');
+        const { open } = await import("@tauri-apps/plugin-shell");
         await open(this.tokenUrl);
-      } catch (error) {}
+      } catch (error) {
+      }
     } else {
-      window.open(this.tokenUrl, '_blank');
+      window.open(this.tokenUrl, "_blank");
     }
   }
 }

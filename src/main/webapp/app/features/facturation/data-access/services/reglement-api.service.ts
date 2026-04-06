@@ -5,13 +5,14 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { createRequestOptions } from '../../../../shared/util/request-util';
 import {
+  IFactureId,
   IInvoicePaymentItem,
   IInvoicePaymentParam,
   IPaymentId,
   IReglement,
   IReglementParams,
-  IResponseReglement,
-} from '../models';
+  IResponseReglement
+} from "../models";
 
 @Injectable({ providedIn: 'root' })
 export class ReglementApiService {
@@ -31,7 +32,12 @@ export class ReglementApiService {
       observe: 'response',
     });
   }
-
+  findByInvoice(invoiceId: IFactureId): Observable<HttpResponse<IReglement[]>> {
+    return this.http.get<IReglement[]>(
+      `${this.resourceUrl}/facture/${invoiceId.id}/${invoiceId.invoiceDate}`,
+      { observe: 'response' },
+    );
+  }
   doReglement(params: IReglementParams): Observable<HttpResponse<IResponseReglement>> {
     return this.http.post<IResponseReglement>(
       SERVER_API_URL + 'api/reglement-factures-tp',

@@ -1,0 +1,7 @@
+@use '../planif-shared';
+@use 'app/shared/scss/bulk-action-bar' as bulk;
+:host {
+  display: block;
+  overflow: hidden;
+  height: 100%;
+}

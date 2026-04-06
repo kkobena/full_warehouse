@@ -1,40 +1,40 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs/operators';
-import { FormsModule } from '@angular/forms';
-import { DatePicker } from 'primeng/datepicker';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { SelectModule } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
-import { ButtonModule } from 'primeng/button';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { catchError, finalize, tap } from "rxjs/operators";
+import { forkJoin, of } from "rxjs";
+import { FormsModule } from "@angular/forms";
+import { DatePicker } from "primeng/datepicker";
+import { FloatLabelModule } from "primeng/floatlabel";
+import { AutoCompleteModule } from "primeng/autocomplete";
+import { ToggleSwitch } from "primeng/toggleswitch";
+import { SelectModule } from "primeng/select";
+import { Toolbar } from "primeng/toolbar";
+import { ButtonModule } from "primeng/button";
 
-import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
-import { INVOICES_STATUT } from '../../../../shared/constants/data-constants';
-import { CodeValue } from '../../../../shared/code-value';
-import { NotificationService } from '../../../../shared/services/notification.service';
-import { ErrorService } from '../../../../shared/error.service';
-import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
-import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { ITiersPayant } from '../../../../shared/model/tierspayant.model';
-import { IGroupeTiersPayant } from '../../../../shared/model/groupe-tierspayant.model';
-import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from '../../../../entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
+import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
+import { CodeValue } from "../../../../shared/code-value";
+import { NotificationService } from "../../../../shared/services/notification.service";
+import { ErrorService } from "../../../../shared/error.service";
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { ITiersPayant } from "../../../../shared/model";
+import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
+import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
+import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
 
-import { FacturationStore } from '../../data-access/store/facturation.store';
-import { FactureApiService } from '../../data-access/services/facture-api.service';
-import { IFacture, IInvoiceSearchParams } from '../../data-access/models';
-import { FactureKpiBannerComponent } from '../../ui/facture-kpi-banner/facture-kpi-banner.component';
-import { FactureListComponent } from '../../ui/facture-list/facture-list.component';
-import { FactureDetailPanelComponent } from '../../ui/facture-detail-panel/facture-detail-panel.component';
+import { FacturationStore } from "../../data-access/store/facturation.store";
+import { FactureApiService } from "../../data-access/services/facture-api.service";
+import { IFacture, IInvoiceSearchParams } from "../../data-access/models";
+import { FactureKpiBannerComponent } from "../../ui/facture-kpi-banner/facture-kpi-banner.component";
+import { FactureListComponent } from "../../ui/facture-list/facture-list.component";
+import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
 import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
 import { Toast } from "primeng/toast";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
-  selector: 'app-facturation-home',
+  selector: "app-facturation-home",
   imports: [
     FormsModule,
     Toolbar,
@@ -49,8 +49,8 @@ import { Toast } from "primeng/toast";
     FactureDetailPanelComponent,
     Toast
   ],
-  templateUrl: './facturation-home.component.html',
-  styleUrl: './facturation-home.component.scss',
+  templateUrl: "./facturation-home.component.html",
+  styleUrl: "./facturation-home.component.scss"
 })
 export class FacturationHomeComponent implements OnInit {
   // Store & computed
@@ -62,9 +62,10 @@ export class FacturationHomeComponent implements OnInit {
   protected readonly minLength = 2;
   protected factureGroupees = false;
   protected factureProvisoire = false;
+  protected deleteAllSpinner = false;
   protected modelStartDate: Date;
   protected modelEndDate: Date = new Date();
-  protected search = '';
+  protected search = "";
   protected selectedStatut: string | null = null;
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] = [];
@@ -77,7 +78,7 @@ export class FacturationHomeComponent implements OnInit {
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
 
   // Hint premier usage
-  protected readonly showHint = signal<boolean>(localStorage.getItem('facturation-hint-dismissed') !== '1');
+  protected readonly showHint = signal<boolean>(localStorage.getItem("facturation-hint-dismissed") !== "1");
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly factureApiService = inject(FactureApiService);
@@ -86,17 +87,16 @@ export class FacturationHomeComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-
-      this.translate.use("fr");
-      this.translate.stream("primeng")
-        .pipe(takeUntilDestroyed())
-        .subscribe({
-          next: data => this.primeNGConfig.setTranslation(data)
-        });
+    this.translate.use("fr");
+    this.translate.stream("primeng")
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: data => this.primeNGConfig.setTranslation(data)
+      });
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
@@ -109,7 +109,6 @@ export class FacturationHomeComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.loadingBtn = true;
     this.currentSearchParams.set(this.buildSearchParams());
   }
 
@@ -126,17 +125,11 @@ export class FacturationHomeComponent implements OnInit {
       .pipe(finalize(() => (this.loadingExport = false)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: blob => {
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, 'factures', 'xlsx');
-          } else {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'factures.xlsx';
-            a.click();
-          }
+          this.downloadDocumentService.downloadExcel(blob, "factures");
+
         },
         error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export Excel'),
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Export Excel")
       });
   }
 
@@ -144,17 +137,14 @@ export class FacturationHomeComponent implements OnInit {
     const selected = this.store.selectedFactures();
     this.confirmDialog.onConfirm(
       () => this.deleteAll(selected),
-      'Suppression',
-      `Supprimer les ${selected.length} facture(s) sélectionnée(s) ?`,
+      "Suppression",
+      `Supprimer les ${selected.length} facture(s) sélectionnée(s) ?`
     );
   }
 
-  onSearchLoaded(): void {
-    this.loadingBtn = false;
-  }
 
   dismissHint(): void {
-    localStorage.setItem('facturation-hint-dismissed', '1');
+    localStorage.setItem("facturation-hint-dismissed", "1");
     this.showHint.set(false);
   }
 
@@ -173,20 +163,35 @@ export class FacturationHomeComponent implements OnInit {
   }
 
   private deleteAll(selected: IFacture[]): void {
-    // Suppression une par une (pas d'endpoint batch sur les factures)
-    selected.forEach(f => {
-      if (f.factureItemId) {
-        this.factureApiService
-          .delete(f.factureItemId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => this.store.removeFactureFromList(f.factureItemId!.id),
-            error: err =>
-              this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression'),
-          });
-      }
-    });
-    this.store.clearSelection();
+    const deletable = selected.filter(f => f.factureItemId && f.statut === 'NOT_PAID');
+    if (!deletable.length) {
+      this.store.clearSelection();
+      return;
+    }
+
+    this.deleteAllSpinner = true;
+
+    // Chaque requête gère sa propre erreur → forkJoin peut toujours se terminer
+    const deletes$ = deletable.map(f =>
+      this.factureApiService.delete(f.factureItemId!).pipe(
+        tap(() => this.store.removeFactureFromList(f.factureItemId!.id)),
+        catchError(err => {
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression');
+          return of(null); // ne pas bloquer forkJoin sur une erreur partielle
+        }),
+      ),
+    );
+
+    // PAS de takeUntilDestroyed : on laisse les requêtes HTTP se terminer
+    // naturellement pour éviter "message channel closed before a response was received"
+    forkJoin(deletes$)
+      .pipe(finalize(() => (this.deleteAllSpinner = false)))
+      .subscribe({
+        next: () => {
+          this.store.clearSelection();
+          this.notificationService.success(`${deletable.length} facture(s) supprimée(s)`);
+        },
+      });
   }
 
   private loadKpi(): void {
@@ -196,7 +201,7 @@ export class FacturationHomeComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.store.setKpi(res.body ?? null),
-        error: () => this.store.setKpi(null),
+        error: () => this.store.setKpi(null)
       });
   }
 
@@ -208,7 +213,7 @@ export class FacturationHomeComponent implements OnInit {
       factureGroupees: this.factureGroupees,
       factureProvisoire: this.factureProvisoire,
       groupIds: this.selectedGroupeTiersPayants.map(g => g.id),
-      tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
+      tiersPayantIds: this.selectedTiersPayants.map(t => t.id)
     };
     if (this.selectedStatut) {
       params.statuts = [this.selectedStatut];

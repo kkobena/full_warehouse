@@ -29,6 +29,7 @@ import {
 import { ReglementWorkspaceComponent } from "../reglement-workspace/reglement-workspace.component";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-facture-detail-panel",
@@ -58,7 +59,7 @@ export class FactureDetailPanelComponent {
   protected dossierFactureProjection = signal<IDossierFactureProjection | null>(null);
   protected reglementDossiers = signal<IReglementFactureDossier[]>([]);
   protected activeTab = signal<string>("detail");
-  protected certifieBlob = signal<Blob | null>(null);
+
 
   private currentFactureId: number | null = null;
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -68,9 +69,9 @@ export class FactureDetailPanelComponent {
   protected readonly store = inject(FacturationStore);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(NgbModal);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
 
   get isGroupe(): boolean {
     return this.facture()?.groupeFactureId != null;
@@ -120,6 +121,7 @@ export class FactureDetailPanelComponent {
       }
 
       this.loadItems(f);
+      this.loadReglements(f);
     });
   }
 
@@ -132,7 +134,8 @@ export class FactureDetailPanelComponent {
     if (tabId === "regler" && !this.dossierFactureProjection()) {
       this.loadReglementContext(f);
     }
-    if (tabId === "versements" && this.reglements().length === 0) {
+    if (tabId === "versements" ) {
+
       this.loadReglements(f);
     }
   }
@@ -227,14 +230,8 @@ export class FactureDetailPanelComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: blob => {
-          const name = f.numFacture ?? "facture";
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, name, "pdf");
-          } else {
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl);
-          }
+        next: (blob) => {
+          this.downloadDocumentService.downloadPdf(blob, `facture_${f.numFacture}`);
         },
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), "Export PDF")
@@ -284,11 +281,7 @@ export class FactureDetailPanelComponent {
     if (!f.factureItemId) return;
     this.loadingReglements = true;
     this.reglementApiService
-      .query({
-        grouped: this.isGroupe,
-        fromDate: f.factureItemId.invoiceDate,
-        organismeId: f.groupeFactureId ?? f.factureId
-      })
+      .findByInvoice(f.factureItemId)
       .pipe(
         finalize(() => (this.loadingReglements = false)),
         takeUntilDestroyed(this.destroyRef)

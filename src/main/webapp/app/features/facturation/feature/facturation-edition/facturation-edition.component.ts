@@ -20,8 +20,6 @@ import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
-import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { CATEGORIE_TIRERS_PAYANT, MODE_EDITIONS_FACTURE } from "../../../../shared/constants/data-constants";
 import { CodeValue } from "../../../../shared/code-value";
 
@@ -37,6 +35,7 @@ import {
   IFactureEditionResponse,
   ITiersPayantDossierFacture
 } from "../../data-access/models";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 
 @Component({
@@ -101,8 +100,8 @@ export class FacturationEditionComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly tauriPrinter = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
 
   ngOnInit(): void {
     this.loadGroupTiersPayant();
@@ -234,13 +233,7 @@ export class FacturationEditionComponent implements OnInit {
       .exportAllInvoices(response)
       .pipe(finalize(() => (this.exporting = false)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: blob => {
-          if (this.tauriPrinter.isRunningInTauri()) {
-            handleBlobForTauri(blob, `factures_${Date.now()}`);
-          } else {
-            window.open(URL.createObjectURL(blob));
-          }
-        },
+        next: (blob) => this.downloadDocumentService.downloadPdf(blob, "factures_edition"),
         error: err => this.onError(err)
       });
   }
@@ -289,7 +282,7 @@ export class FacturationEditionComponent implements OnInit {
 
   private ngbDateToIso(date: NgbDateStruct | null): string | null {
     if (!date) return null;
-    return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+    return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
   }
 
   private buildEditionParams(): IEditionSearchParams {

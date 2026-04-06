@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.service.dto.TiersPayantMapper;
@@ -29,4 +30,6 @@ public interface TiersPayantService extends TiersPayantMapper {
     Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
     List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam);
+
+    void massUpdateFactureConfig(MassUpdateFactureConfigRequest request);
 }

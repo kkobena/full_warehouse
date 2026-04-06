@@ -2,6 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.repository.TiersPayantRepository;
@@ -33,6 +34,18 @@ public class TiersPayantDataService implements TiersPayantMapper {
         Integer groupeTiersPayantId,
         Pageable pageable
     ) {
+        return fetchList(search, categorie, statut, groupeTiersPayantId, null, null, pageable);
+    }
+
+    public Page<TiersPayantDto> fetchList(
+        String search,
+        String categorie,
+        TiersPayantStatut statut,
+        Integer groupeTiersPayantId,
+        String periodiciteDefinitive,
+        String periodiciteProvisoire,
+        Pageable pageable
+    ) {
         Specification<TiersPayant> specification = this.tiersPayantRepository.specialisationStatut(statut);
         if (StringUtils.hasLength(search)) {
             var searchUpper = search.toUpperCase() + "%";
@@ -41,10 +54,19 @@ public class TiersPayantDataService implements TiersPayantMapper {
         if (groupeTiersPayantId != null) {
             specification = specification.and(this.tiersPayantRepository.specialisationByGroup(groupeTiersPayantId));
         }
-        TiersPayantCategorie tiersPayantCategorie;
         if (StringUtils.hasLength(categorie) && !categorie.equals(EntityConstant.TOUT)) {
-            tiersPayantCategorie = TiersPayantCategorie.valueOf(categorie);
+            TiersPayantCategorie tiersPayantCategorie = TiersPayantCategorie.valueOf(categorie);
             specification = specification.and(this.tiersPayantRepository.specialisationCategorie(tiersPayantCategorie));
+        }
+        if (StringUtils.hasLength(periodiciteDefinitive)) {
+            specification = specification.and(
+                this.tiersPayantRepository.specialisationPeriodiciteDefinitive(Periodicite.valueOf(periodiciteDefinitive))
+            );
+        }
+        if (StringUtils.hasLength(periodiciteProvisoire)) {
+            specification = specification.and(
+                this.tiersPayantRepository.specialisationPeriodiciteProvisoire(Periodicite.valueOf(periodiciteProvisoire))
+            );
         }
         Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "fullName"));
         return this.tiersPayantRepository.findAll(specification, page).map(this::fromEntity);

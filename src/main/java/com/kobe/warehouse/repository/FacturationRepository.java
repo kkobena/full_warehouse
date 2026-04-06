@@ -39,6 +39,23 @@ public interface FacturationRepository
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
+    /**
+     * Factures définitives (non provisoires) dont la réponse FNE n'est pas encore enregistrée
+     * et dont le tiers payant dispose d'un téléphone et d'un email valides.
+     * Exclut les factures de type DEPOT (non éligibles à la certification FNE).
+     */
+    @Query("""
+        SELECT f FROM FactureTiersPayant f
+        JOIN f.tiersPayant tp
+        WHERE f.fneResponse IS NULL
+          AND f.factureProvisoire = FALSE
+          AND tp.telephone IS NOT NULL AND tp.telephone <> ''
+          AND tp.email IS NOT NULL AND tp.email <> ''
+          AND tp.categorie <> 'DEPOT'
+        ORDER BY f.created ASC
+        """)
+    List<FactureTiersPayant> findPendingFneCertification();
+
     @Query("SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate  ")
     List<FactureTiersPayant> findAll(
         @Param("generationCode") Integer generationCode,

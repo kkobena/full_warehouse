@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.PlanificationCertificationFne;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.repository.FacturationRepository;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.fne.model.CertificationFneResult;
 import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.FneInvoice;
 import com.kobe.warehouse.service.fne.model.FneInvoiceItem;
@@ -21,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -44,15 +49,26 @@ public class FneServiceImpl implements FneService {
     private final HttpClient httpClient;
     private final StorageService storageService;
     private final ObjectMapper objectMapper;
+    private final MagasinRepository magasinRepository;
+    private final FneCertificationTransactionService certificationTransactionService;
+
     @Value("${fne-url}")
     private String fneUrl;
 
-    public FneServiceImpl(FacturationRepository facturationRepository, HttpClient httpClient,
-                          StorageService storageService, ObjectMapper objectMapper) {
+    public FneServiceImpl(
+        FacturationRepository facturationRepository,
+        HttpClient httpClient,
+        StorageService storageService,
+        ObjectMapper objectMapper,
+        MagasinRepository magasinRepository,
+        FneCertificationTransactionService certificationTransactionService
+    ) {
         this.facturationRepository = facturationRepository;
         this.httpClient = httpClient;
         this.storageService = storageService;
         this.objectMapper = objectMapper;
+        this.magasinRepository = magasinRepository;
+        this.certificationTransactionService = certificationTransactionService;
     }
 
     @Override
@@ -69,6 +85,34 @@ public class FneServiceImpl implements FneService {
         for (FactureTiersPayant factureTiersPayant : factureTiersPayants) {
             createInvoice(factureTiersPayant);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public CertificationFneResult certifierFacturesPendantes(PlanificationCertificationFne plan) {
+        List<FactureTiersPayant> pending = facturationRepository.findPendingFneCertification();
+        if (pending.isEmpty()) {
+            log.info("Certification FNE planifiée (id={}) : aucune facture en attente", plan.getId());
+            return new CertificationFneResult(0, 0);
+        }
+        log.info("Certification FNE planifiée (id={}) : {} facture(s) à certifier", plan.getId(), pending.size());
+        Magasin magasin = magasinRepository.findAll().getFirst();
+        int nbOk = 0;
+        int nbKo = 0;
+        for (FactureTiersPayant facture : pending) {
+            try {
+                FneInvoice fneInvoice = buildFromFacture(facture, magasin);
+                // Bean séparé → proxy Spring → REQUIRES_NEW effectif (pas de self-invocation)
+                certificationTransactionService.certifier(facture, fneInvoice, magasin);
+                nbOk++;
+            } catch (Exception e) {
+                log.error("Échec certification FNE facture {} ({}): {}",
+                    facture.getNumFacture(), facture.getId(), e.getMessage());
+                nbKo++;
+            }
+        }
+        log.info("Certification FNE terminée — {} OK / {} erreur(s)", nbOk, nbKo);
+        return new CertificationFneResult(nbOk, nbKo);
     }
 
     private FneInvoice buildFromFacture(FactureTiersPayant factureTiersPayant, Magasin magasin) {

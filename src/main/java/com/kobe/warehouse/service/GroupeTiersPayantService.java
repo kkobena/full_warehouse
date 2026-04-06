@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.repository.GroupeTiersPayantRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
+import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
@@ -125,5 +126,24 @@ public class GroupeTiersPayantService {
 
     public Optional<GroupeTiersPayant> getOneByName(String name) {
         return groupeTiersPayantRepository.findOneByName(name);
+    }
+
+    public void massUpdateFactureConfig(MassUpdateFactureConfigRequest request) {
+        List<GroupeTiersPayant> groupes = groupeTiersPayantRepository.findAllById(request.ids());
+        groupes.forEach(g -> {
+            if (request.inclureAutoDefinitif() != null) {
+                g.setInclureFacturationAutoDefinitive(request.inclureAutoDefinitif());
+            }
+            if (request.inclureAutoProvisoire() != null) {
+                g.setInclureFacturationAutoProvisoire(request.inclureAutoProvisoire());
+            }
+            if (request.periodiciteDefinitive() != null) {
+                g.setPeriodiciteFactureDefinitive(request.periodiciteDefinitive());
+            }
+            if (request.periodiciteProvisoire() != null) {
+                g.setPeriodiciteFactureProvisoire(request.periodiciteProvisoire());
+            }
+        });
+        groupeTiersPayantRepository.saveAll(groupes);
     }
 }

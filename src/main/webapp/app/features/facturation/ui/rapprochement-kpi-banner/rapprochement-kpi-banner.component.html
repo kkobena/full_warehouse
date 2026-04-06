@@ -1,0 +1,87 @@
+@if (loading()) {
+  <div class="row mt-1 kpi-row">
+    @for (_ of [1, 2, 3, 4, 5]; track _) {
+      <div class="col-6 col-md mb-2">
+        <div class="card kpi-card kpi-card-compact primary-accent">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-2">
+              <div class="kpi-icon-sm text-muted"><i class="pi pi-spin pi-spinner"></i></div>
+              <div>
+                <p class="kpi-label mb-0">Chargement...</p>
+                <span class="kpi-value-sm text-muted">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+} @else if (kpi()) {
+  <div class="row mt-1 kpi-row">
+
+    <div class="col-6 col-md mb-2">
+      <div class="card kpi-card kpi-card-compact primary-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2">
+            <div class="kpi-icon-sm text-primary"><i class="pi pi-building"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Total facturé</p>
+              <span class="kpi-value-sm text-primary">{{ kpi()!.totalFacture | number:'1.0-0' }}</span>
+              <p class="kpi-sublabel mb-0">{{ kpi()!.countOrganismes }} organisme(s)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md mb-2">
+      <div class="card kpi-card kpi-card-compact success-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2">
+            <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Total réglé</p>
+              <span class="kpi-value-sm text-success">{{ kpi()!.totalRegle | number:'1.0-0' }}</span>
+              <p class="kpi-sublabel mb-0">Taux {{ kpi()!.tauxRecouvrement | number:'1.1-1' }} %</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md mb-2">
+      <div class="card kpi-card kpi-card-compact danger-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2">
+            <div class="kpi-icon-sm text-danger"><i class="pi pi-arrows-h"></i></div>
+            <div>
+              <p class="kpi-label mb-0">Écart global</p>
+              <span class="kpi-value-sm"
+                    [class.text-success]="kpi()!.ecartTotal === 0"
+                    [class.text-danger]="kpi()!.ecartTotal > 0">
+                {{ kpi()!.ecartTotal | number:'1.0-0' }}
+              </span>
+              <p class="kpi-sublabel mb-0">Restant dû</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md mb-2">
+      <div class="card kpi-card kpi-card-compact warning-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2">
+            <div class="kpi-icon-sm text-warning"><i class="pi pi-clock"></i></div>
+            <div>
+              <p class="kpi-label mb-0">En retard</p>
+              <span class="kpi-value-sm text-warning">{{ kpi()!.countLignesEnRetard | number }}</span>
+              <p class="kpi-sublabel mb-0">Délai dépassé</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+}

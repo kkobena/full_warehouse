@@ -11,7 +11,6 @@ import { BadgeModule } from "primeng/badge";
 
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 
@@ -22,8 +21,7 @@ import { IFacture, IFneResponse, IInvoiceSearchParams } from "../../data-access/
 import { ButtonGroup } from "primeng/buttongroup";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
-import { FactureId } from "../../../../entities/facturation/facture.model";
-import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-facture-list",
@@ -57,9 +55,9 @@ export class FactureListComponent {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(NgbModal);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
 
   constructor() {
     // Déclenche le rechargement dès que le parent pousse de nouveaux paramètres
@@ -73,6 +71,7 @@ export class FactureListComponent {
   }
 
   onRowSelect(facture: IFacture): void {
+    if (!facture.factureItemId) return;
     this.store.selectFacture(facture);
     this.factureSelected.emit(facture);
   }
@@ -102,8 +101,8 @@ export class FactureListComponent {
         return "secondary";
     }
   }
-  exportPdf(f: IFacture): void {
 
+  exportPdf(f: IFacture): void {
     if (!f?.factureItemId) return;
     this.factureApiService
       .exportToPdf(f.factureItemId)
@@ -111,14 +110,8 @@ export class FactureListComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: blob => {
-          const name = f.numFacture ?? "facture";
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, name, "pdf");
-          } else {
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl);
-          }
+        next: (blob) => {
+          this.downloadDocumentService.downloadPdf(blob, `facture_${f.numFacture}`);
         },
         error: err =>
           this.notificationService.error(this.errorService.getErrorMessage(err), "Export PDF")

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
@@ -18,6 +19,7 @@ public interface ReglementDataService {
     void printReceipt(PaymentId idReglement);
 
     List<InvoicePaymentDTO> fetchInvoicesPayments(InvoicePaymentParam invoicePaymentParam);
+    List<InvoicePaymentDTO> findByInvoice(FactureItemId factureId);
 
     List<InvoicePaymentItemDTO> getInvoicePaymentsItems(PaymentId idReglement);
 

@@ -24,6 +24,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.jspecify.annotations.NonNull;
@@ -111,11 +112,23 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
-        typedQuery.setFirstResult((int) pageable.getOffset());
-        typedQuery.setMaxResults(pageable.getPageSize());
 
-        List<FactureDto> result = typedQuery.getResultList();
-        return new PageImpl<>(result, pageable, countInvoices(specification));
+
+        List<FactureDto> result;
+        if (Objects.nonNull(pageable) && pageable.isPaged()){
+            typedQuery.setFirstResult((int) pageable.getOffset());
+            typedQuery.setMaxResults(pageable.getPageSize());
+            result = typedQuery.getResultList();
+            return new PageImpl<>(result, pageable, countInvoices(specification));
+        }else{
+            result = typedQuery.getResultList();
+
+        }
+        return new PageImpl<>(result, Pageable.unpaged(), result.size());
+
+
+
+
     }
 
     @Override
@@ -166,10 +179,19 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
-        typedQuery.setFirstResult((int) pageable.getOffset());
-        typedQuery.setMaxResults(pageable.getPageSize());
-        List<FactureDto> result = typedQuery.getResultList();
-        return new PageImpl<>(result, pageable, countGroupedInvoices(specification));
+        List<FactureDto> result;
+        if (Objects.nonNull(pageable) && pageable.isPaged()){
+            typedQuery.setFirstResult((int) pageable.getOffset());
+            typedQuery.setMaxResults(pageable.getPageSize());
+           result = typedQuery.getResultList();
+            return new PageImpl<>(result, pageable, countGroupedInvoices(specification));
+        }else{
+            result = typedQuery.getResultList();
+
+        }
+        return new PageImpl<>(result, Pageable.unpaged(), result.size());
+
+
     }
 
     private long countInvoices(Specification<FactureTiersPayant> specification) {

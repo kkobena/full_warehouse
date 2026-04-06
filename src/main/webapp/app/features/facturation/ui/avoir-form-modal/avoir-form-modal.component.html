@@ -1,0 +1,137 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-file-minus me-2"></i>
+    Nouvel avoir / note de crédit
+  </h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="row g-3">
+
+    <div class="col-md-6">
+      <p-floatlabel variant="on">
+        <input
+          [(ngModel)]="factureId"
+          id="av-facture-id"
+          pInputText
+          type="number"
+          min="1"
+          style="width: 100%"
+        />
+        <label for="av-facture-id">ID Facture origine *</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-md-6">
+      <p-floatlabel variant="on">
+        <p-datePicker
+          [(ngModel)]="factureDate"
+          [iconDisplay]="'input'"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          appendTo="body"
+          dateFormat="dd/mm/yy"
+          id="av-facture-date"
+          inputId="av-facture-date"
+          style="width: 100%"
+        />
+        <label for="av-facture-date">Date facture *</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <p-autoComplete
+          (completeMethod)="searchTiersPayant($event)"
+          [(ngModel)]="selectedTiersPayant"
+          [forceSelection]="true"
+          [minQueryLength]="2"
+          [suggestions]="tiersPayantSuggestions"
+          appendTo="body"
+          id="av-tp"
+          inputId="av-tp"
+          optionLabel="fullName"
+          style="width: 100%"
+        />
+        <label for="av-tp">Tiers-payant *</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-md-4">
+      <p-floatlabel variant="on">
+        <input
+          [(ngModel)]="montantAvoir"
+          id="av-montant"
+          pInputText
+          type="number"
+          min="0"
+          step="0.01"
+          style="width: 100%"
+        />
+        <label for="av-montant">Montant avoir *</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-md-4">
+      <p-floatlabel variant="on">
+        <input
+          [(ngModel)]="montantTva"
+          id="av-tva"
+          pInputText
+          type="number"
+          min="0"
+          step="0.01"
+          style="width: 100%"
+        />
+        <label for="av-tva">TVA</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-md-4">
+      <p-floatlabel variant="on">
+        <input
+          [(ngModel)]="montantHt"
+          id="av-ht"
+          pInputText
+          type="number"
+          min="0"
+          step="0.01"
+          style="width: 100%"
+        />
+        <label for="av-ht">Montant HT</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="col-12">
+      <p-floatlabel variant="on">
+        <textarea
+          [(ngModel)]="motif"
+          id="av-motif"
+          pInputText
+          rows="3"
+          style="width: 100%; resize: vertical"
+        ></textarea>
+        <label for="av-motif">Motif de l'avoir *</label>
+      </p-floatlabel>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (onClick)="activeModal.dismiss()"
+    label="Annuler"
+    severity="secondary"
+    [outlined]="true"
+  />
+  <p-button
+    (onClick)="onSave()"
+    [disabled]="!isFormValid()"
+    [loading]="saving()"
+    icon="pi pi-check"
+    label="Créer l'avoir"
+    severity="primary"
+  />
+</div>

@@ -66,13 +66,12 @@ export class ReglementWorkspaceComponent {
     this.factureDossierSelectionnes().map(d => d.id)
   );
   /** IDs des dossiers éditables (mode partiel + sélectionnés) — lu directement dans le template pour le tracking signal */
-  protected readonly editableIds = computed(() =>{
-    console.log(this.factureDossierSelectionnes(),'ss');
-    return   this.partialPayment()
-      ? new Set(this.factureDossierSelectionnes().map(r => r.id))
-      : new Set<number>();
-  }
-
+  protected readonly editableIds = computed(() => {
+      console.log(this.factureDossierSelectionnes(), "ss");
+      return this.partialPayment()
+        ? new Set(this.factureDossierSelectionnes().map(r => r.id))
+        : new Set<number>();
+    }
   );
 
   protected checkbox = viewChild<TableHeaderCheckbox>("checkbox");

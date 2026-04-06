@@ -1,0 +1,125 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-money-bill me-2"></i>
+    Saisir un règlement
+    @if (ligne.numFacture) {
+      <span class="rrm-facture-ref">— {{ ligne.numFacture }}</span>
+    }
+  </h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+</div>
+<form (ngSubmit)="save()" [formGroup]="reglementForm">
+  <div class="modal-body">
+    <p-card>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="amount">Montant à payer<span class="required">*</span></label>
+          <p-inputNumber id="amount" autocomplete="off" formControlName="amount" name="amount" />
+          @if (reglementForm.get('amount')!.invalid && (reglementForm.get('amount')!.dirty || reglementForm.get('amount')!.touched)) {
+            <div>
+              @if (reglementForm.get('amount')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="modePaimentCode">Mode de paiement<span class="required">*</span></label>
+          <p-select
+            size="small"
+            [fluid]="true"
+            [options]="paymentModes"
+            dataKey="code"
+            id="modePaimentCode"
+            formControlName="modePaimentCode"
+            optionLabel="libelle"
+            optionValue="code"
+            placeholder="Mode de paiement"
+          />
+          @if (reglementForm.get('modePaimentCode')!.invalid && (reglementForm.get('modePaimentCode')!.dirty || reglementForm.get('modePaimentCode')!.touched)) {
+            <div>
+              @if (reglementForm.get('modePaimentCode')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="datePaiement">Date paiement</label>
+          <pharma-date-picker
+            id="datePaiement"
+            placeholder="Date paiement"
+            [maxDate]="maxDateStruct"
+            formControlName="paymentDate"
+          />
+
+        </div>
+
+
+
+
+        @if (showBanqueInfo) {
+          <div class="bank-fields" formGroupName="banqueInfo">
+            <div class="form-field form-field-full">
+              <label for="nom">Nom de la banque<span class="required">*</span></label>
+              <input pSize="small" id="nom" formControlName="nom" pInputText placeholder="Nom de la banque" />
+              @if (reglementForm.get('banqueInfo.nom')!.invalid && (reglementForm.get('banqueInfo.nom')!.dirty || reglementForm.get('banqueInfo.nom')!.touched)) {
+                <div>
+                  @if (reglementForm.get('banqueInfo.nom')?.errors?.required) {
+                    <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                  }
+                </div>
+              }
+            </div>
+            @if (reglementForm.get('modePaimentCode')!.value === CH) {
+              <div class="form-field form-field-full">
+                <label for="code">N° chèque<span class="required">*</span></label>
+                <input id="code" pSize="small" formControlName="code" pInputText pKeyFilter="alphanum"
+                       placeholder="N° chèque" />
+
+                @if (reglementForm.get('banqueInfo.code')!.invalid && (reglementForm.get('banqueInfo.code')!.dirty || reglementForm.get('banqueInfo.code')!.touched)) {
+                  <div>
+                    @if (reglementForm.get('banqueInfo.code')?.errors?.required) {
+                      <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                    }
+                  </div>
+                }
+
+              </div>
+
+            }
+            <div class="form-field form-field-full">
+              <label for="beneficiaire">Bénéficiaire</label>
+              <input id="beneficiaire" pSize="small" formControlName="beneficiaire" pInputText
+                     placeholder="Bénéficiaire" />
+
+            </div>
+
+          </div>
+        }
+
+      </div>
+    </p-card>
+
+
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (onClick)="activeModal.dismiss()"
+      label="Annuler"
+      severity="secondary"
+      [outlined]="true"
+    />
+    <p-button
+      [disabled]="!valid || !validMontantSaisi() || isSaving"
+      [loading]="isSaving"
+      icon="pi pi-check"
+      label="Valider"
+      severity="success"
+      (onClick)="save()"
+    />
+  </div>
+</form>

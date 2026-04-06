@@ -1,3 +1,5 @@
+export type Periodicite = 'MENSUEL' | 'QUINZAINE' | 'BIMENSUEL';
+
 export interface IGroupeTiersPayant {
   id?: number;
   name?: string;
@@ -7,6 +9,10 @@ export interface IGroupeTiersPayant {
   email?: string;
   ordreTrisFacture?: string;
   delaiReglement?: number;
+  periodiciteFactureDefinitive?: Periodicite | null;
+  periodiciteFactureProvisoire?: Periodicite | null;
+  inclureFacturationAutoDefinitive?: boolean;
+  inclureFacturationAutoProvisoire?: boolean;
 }
 
 export class GroupeTiersPayant implements IGroupeTiersPayant {
@@ -18,5 +24,9 @@ export class GroupeTiersPayant implements IGroupeTiersPayant {
     public telephoneFixe?: string,
     public email?: string,
     public delaiReglement?: number,
+    public periodiciteFactureDefinitive?: Periodicite | null,
+    public periodiciteFactureProvisoire?: Periodicite | null,
+    public inclureFacturationAutoDefinitive?: boolean,
+    public inclureFacturationAutoProvisoire?: boolean,
   ) {}
 }

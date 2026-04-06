@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
@@ -96,8 +97,15 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<InvoicePaymentDTO> fetchInvoicesPayments(InvoicePaymentParam invoicePaymentParam) {
         return fetchInvoicePayments(invoicePaymentParam).stream().map(InvoicePaymentDTO::new).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InvoicePaymentDTO> findByInvoice(FactureItemId factureId) {
+        return invoicePaymentRepository.findAll(invoicePaymentRepository.findByFactureId(factureId),Sort.by(Direction.DESC,"createdAt")).stream().map(InvoicePaymentDTO::new).toList();
     }
 
     private List<InvoicePayment> fetchInvoicePayments(InvoicePaymentParam invoicePaymentParam) {

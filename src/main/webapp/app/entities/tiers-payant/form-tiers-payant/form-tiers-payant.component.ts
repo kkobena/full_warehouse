@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {LowerCasePipe} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {ErrorService} from 'app/shared/error.service';
 import {TiersPayantService} from 'app/entities/tiers-payant/tierspayant.service';
@@ -41,6 +42,7 @@ import {Card} from 'primeng/card';
     ToggleSwitch,
     InputNumber,
     ToastAlertComponent,
+    LowerCasePipe,
     Card,
   ],
 })
@@ -54,6 +56,11 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   protected isValid = true;
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected modelFacture: ModelFacture[] = [];
+  protected readonly periodicitesOptions = [
+    { label: 'Mensuel', value: 'MENSUEL' },
+    { label: 'Quinzainière', value: 'QUINZAINE' },
+    { label: 'Bimensuel', value: 'BIMENSUEL' },
+  ];
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
@@ -74,6 +81,10 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     plafondJournalierClient: [],
     plafondAbsoluClient: [],
     delaiReglement: [30],
+    periodiciteFactureDefinitive: [null],
+    inclureFacturationAutoDefinitive: [true],
+    periodiciteFactureProvisoire: [null],
+    inclureFacturationAutoProvisoire: [true],
   });
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -161,6 +172,10 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
       ncc: tiersPayant.ncc,
       delaiReglement: tiersPayant.delaiReglement ?? 30,
+      periodiciteFactureDefinitive: tiersPayant.periodiciteFactureDefinitive ?? null,
+      inclureFacturationAutoDefinitive: tiersPayant.inclureFacturationAutoDefinitive ?? true,
+      periodiciteFactureProvisoire: tiersPayant.periodiciteFactureProvisoire ?? null,
+      inclureFacturationAutoProvisoire: tiersPayant.inclureFacturationAutoProvisoire ?? true,
     });
   }
 
@@ -187,6 +202,10 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
       ncc: this.editForm.get(['ncc']).value,
       delaiReglement: this.editForm.get(['delaiReglement']).value,
+      periodiciteFactureDefinitive: this.editForm.get(['periodiciteFactureDefinitive']).value,
+      inclureFacturationAutoDefinitive: this.editForm.get(['inclureFacturationAutoDefinitive']).value,
+      periodiciteFactureProvisoire: this.editForm.get(['periodiciteFactureProvisoire']).value,
+      inclureFacturationAutoProvisoire: this.editForm.get(['inclureFacturationAutoProvisoire']).value,
     };
   }
 }

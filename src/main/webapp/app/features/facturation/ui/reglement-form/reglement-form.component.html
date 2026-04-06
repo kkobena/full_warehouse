@@ -3,10 +3,12 @@
   <!-- Grille inline : tous les champs sur une ligne -->
   <div class="form-grid">
 
-    <div class="toggle-field">
-      <p-toggleswitch formControlName="partialPayment" inputId="partialPayment" />
-      <label for="partialPayment">Tout régler</label>
-    </div>
+    @if (showPartialToggle()) {
+      <div class="toggle-field">
+        <p-toggleswitch formControlName="partialPayment" inputId="partialPayment" />
+        <label for="partialPayment">Tout régler</label>
+      </div>
+    }
     <input pSize="small"
            [readonly]="isReadOnly"
            class="amount-input"

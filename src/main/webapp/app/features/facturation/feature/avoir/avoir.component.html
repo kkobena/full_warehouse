@@ -1,0 +1,212 @@
+<div class="pharma-smart-content p-1">
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-file-minus"></i>
+      <span class="pharma-toolbar-title">Avoirs / Notes de crédit</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+
+          <p-floatlabel variant="on">
+            <p-autoComplete
+              (completeMethod)="searchTiersPayant($event)"
+              [(ngModel)]="selectedTiersPayants"
+              [forceSelection]="true"
+              [minQueryLength]="2"
+              [multiple]="true"
+              [suggestions]="tiersPayantSuggestions"
+              appendTo="body"
+              id="av-tp"
+              inputId="av-tp"
+              optionLabel="fullName"
+            />
+            <label for="av-tp">Tiers-payant</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [showIcon]="true"
+              [showButtonBar]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="av-du"
+              inputId="av-du"
+            />
+            <label for="av-du">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [showIcon]="true"
+              [showButtonBar]="true"
+              appendTo="body"
+              dateFormat="dd/mm/yy"
+              id="av-au"
+              inputId="av-au"
+            />
+            <label for="av-au">Au</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedStatut"
+              [options]="statutOptions"
+              [showClear]="true"
+              appendTo="body"
+              id="av-statut"
+              optionLabel="label"
+              optionValue="value"
+              style="width: 150px"
+            />
+            <label for="av-statut"></label>
+          </p-floatlabel>
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (onClick)="onSearch()"
+              [loading]="loading()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              (onClick)="openNouvelAvoir()"
+              [raised]="true"
+              icon="pi pi-plus"
+              label="Nouvel avoir"
+              severity="primary"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="avoirs()"
+    [loading]="loading()"
+    [rowHover]="true"
+    [scrollable]="true"
+    scrollHeight="70vh"
+    class="p-datatable-sm"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>N° Avoir</th>
+        <th>Facture origine</th>
+        <th>Date facture</th>
+        <th>Tiers-payant</th>
+        <th>Date avoir</th>
+        <th class="text-end">Montant TTC</th>
+        <th class="text-end">TVA</th>
+        <th class="text-end">HT</th>
+        <th>Statut</th>
+        <th class="text-center">Motif</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-avoir>
+      <tr>
+        <td>{{ avoir.numAvoir || '—' }}</td>
+        <td>{{ avoir.factureOrigineId }}</td>
+        <td>{{ avoir.factureOrigineDate }}</td>
+        <td>{{ avoir.tiersPayantName }}</td>
+        <td>{{ avoir.avoirDate }}</td>
+        <td class="text-end fw-bold">{{ (avoir.montantAvoir ?? 0) | number:'1.0-0' }}</td>
+        <td class="text-end">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
+        <td class="text-end">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
+        <td>
+          <span [class]="getStatutBadgeClass(avoir.statut)">
+            {{ getStatutLabel(avoir.statut) }}
+          </span>
+        </td>
+        <td class="text-center" [title]="avoir.motif ?? ''">
+          <span class="avoir-motif-cell">{{ avoir.motif }}</span>
+        </td>
+        <td class="text-center">
+          <div class="d-flex gap-1 justify-content-center flex-wrap">
+            @if (avoir.statut === 'DRAFT') {
+              <p-button
+                (onClick)="onEmettre(avoir)"
+                icon="pi pi-send"
+                label="Émettre"
+                severity="primary"
+                size="small"
+                [outlined]="true"
+                title="Émettre cet avoir"
+              />
+            }
+            @if (avoir.statut === 'EMIS') {
+              <p-button
+                (onClick)="onImputer(avoir)"
+                icon="pi pi-link"
+                label="Imputer"
+                severity="success"
+                size="small"
+                [outlined]="true"
+                title="Imputer sur une facture"
+              />
+            }
+            @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
+              <p-button
+                (onClick)="onAnnuler(avoir)"
+                icon="pi pi-ban"
+                severity="danger"
+                size="small"
+                [text]="true"
+                title="Annuler l'avoir"
+              />
+            }
+            <p-button
+              (onClick)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
+              icon="pi pi-plus"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              title="Créer un avoir pour cette facture"
+            />
+            <p-button
+              (onClick)="onDownloadPdf(avoir)"
+              icon="pi pi-file-pdf"
+              severity="secondary"
+              size="small"
+              [text]="true"
+              title="Télécharger PDF"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="11" class="text-center text-muted py-5">
+          <i class="pi pi-inbox d-block fs-1 mb-2"></i>
+        <p>Aucun avoir trouvé. Cliquez sur "Nouvel avoir" pour en créer un.</p>
+          <p-button
+            (onClick)="openNouvelAvoir()"
+            [raised]="true"
+            icon="pi pi-plus"
+            label="Nouvel avoir"
+            severity="primary"
+          />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+<p-toast position="center" />

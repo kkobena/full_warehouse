@@ -14,9 +14,11 @@ import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { LowerCasePipe } from '@angular/common';
 import { Card } from 'primeng/card';
 import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
@@ -31,15 +33,22 @@ import { InputNumber } from 'primeng/inputnumber';
     RippleModule,
     KeyFilterModule,
     ToastAlertComponent,
+    LowerCasePipe,
     Card,
     Select,
     InputNumber,
+    ToggleSwitch,
   ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   header = '';
   entity?: IGroupeTiersPayant;
   protected ordreTrisFacture: OrdreTrisFacture[] = [];
+  protected readonly periodicitesOptions = [
+    { label: 'Mensuel', value: 'MENSUEL' },
+    { label: 'Quinzainière', value: 'QUINZAINE' },
+    { label: 'Bimensuel', value: 'BIMENSUEL' },
+  ];
   protected isSaving = false;
   protected isValid = true;
   protected fb = inject(UntypedFormBuilder);
@@ -53,6 +62,10 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
     telephoneFixe: [],
     ordreTrisFacture: [],
     delaiReglement: [30],
+    periodiciteFactureDefinitive: [null],
+    inclureFacturationAutoDefinitive: [true],
+    periodiciteFactureProvisoire: [null],
+    inclureFacturationAutoProvisoire: [true],
   });
   private readonly errorService = inject(ErrorService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
@@ -89,6 +102,10 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
       telephoneFixe: groupeTiersPayant.telephoneFixe,
       ordreTrisFacture: groupeTiersPayant.ordreTrisFacture,
       delaiReglement: groupeTiersPayant.delaiReglement ?? 30,
+      periodiciteFactureDefinitive: groupeTiersPayant.periodiciteFactureDefinitive ?? null,
+      inclureFacturationAutoDefinitive: groupeTiersPayant.inclureFacturationAutoDefinitive ?? true,
+      periodiciteFactureProvisoire: groupeTiersPayant.periodiciteFactureProvisoire ?? null,
+      inclureFacturationAutoProvisoire: groupeTiersPayant.inclureFacturationAutoProvisoire ?? true,
     });
   }
 
@@ -117,6 +134,10 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
       telephoneFixe: this.editForm.get(['telephoneFixe']).value,
       ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value,
       delaiReglement: this.editForm.get(['delaiReglement']).value,
+      periodiciteFactureDefinitive: this.editForm.get(['periodiciteFactureDefinitive']).value,
+      inclureFacturationAutoDefinitive: this.editForm.get(['inclureFacturationAutoDefinitive']).value,
+      periodiciteFactureProvisoire: this.editForm.get(['periodiciteFactureProvisoire']).value,
+      inclureFacturationAutoProvisoire: this.editForm.get(['inclureFacturationAutoProvisoire']).value,
     };
   }
 

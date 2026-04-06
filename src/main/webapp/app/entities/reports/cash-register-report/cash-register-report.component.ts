@@ -13,6 +13,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { IDailyCashRegisterReport } from 'app/shared/model/report/cash-register-report.model';
 import { CashRegisterReportService } from '../services/cash-register-report.service';
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 @Component({
   selector: 'jhi-cash-register-report',
@@ -34,7 +35,7 @@ export default class CashRegisterReportComponent implements OnInit {
   dailyReports = signal<IDailyCashRegisterReport[]>([]);
   selectedDate = signal<Date>(new Date());
   isLoading = signal<boolean>(false);
-
+  private readonly downloadService = inject(BlobDownloadService);
   private readonly cashRegisterService = inject(CashRegisterReportService);
 
   ngOnInit(): void {
@@ -63,19 +64,13 @@ export default class CashRegisterReportComponent implements OnInit {
   exportToPdf(): void {
     const dateStr = this.formatDate(this.selectedDate());
 
-    this.cashRegisterService.exportDailyReportToPdf(dateStr).subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `cash-register-report-${dateStr}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
+    this.cashRegisterService.exportDailyReportToPdf(dateStr).subscribe(
+      {
+        next: (res: HttpResponse<Blob>) => {
+          this.downloadService.downloadPdf(res.body,'cash-register-report');
         }
-      },
-    });
+      }
+    );
   }
 
   getTotalSales(): number {

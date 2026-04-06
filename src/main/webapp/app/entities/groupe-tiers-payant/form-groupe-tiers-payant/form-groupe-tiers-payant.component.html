@@ -114,6 +114,68 @@
             <p-input-number [fluid]="true" [min]="0" autocomplete="off" formControlName="delaiReglement" id="delaiReglement"> </p-input-number>
           </div>
 
+          <!-- Périodicité facture définitive -->
+          <div class="form-field form-field-full">
+            <label for="periodiciteDefinitiveGroupe">Périodicité facturation définitive</label>
+            <p-select
+              [fluid]="true"
+              [options]="periodicitesOptions"
+              [showClear]="true"
+              formControlName="periodiciteFactureDefinitive"
+              id="periodiciteDefinitiveGroupe"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Non définie"
+            />
+          </div>
+
+          @if (editForm.get('periodiciteFactureDefinitive')?.value) {
+            <div class="form-field form-field-full">
+              <label for="inclureAutoDefinitiveGroupe">Inclure dans la facturation automatique définitive</label>
+              <div class="d-flex align-items-center gap-2">
+                <p-toggleswitch formControlName="inclureFacturationAutoDefinitive" id="inclureAutoDefinitiveGroupe" />
+                <span class="text-muted small">
+                  @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
+                    Inclus — génération {{ editForm.get('periodiciteFactureDefinitive')?.value | lowercase }}
+                  } @else {
+                    Exclu de la génération automatique définitive
+                  }
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Périodicité facture provisoire -->
+          <div class="form-field form-field-full">
+            <label for="periodiciteProvisioreGroupe">Périodicité facturation provisoire</label>
+            <p-select
+              [fluid]="true"
+              [options]="periodicitesOptions"
+              [showClear]="true"
+              formControlName="periodiciteFactureProvisoire"
+              id="periodiciteProvisioreGroupe"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Non définie"
+            />
+          </div>
+
+          @if (editForm.get('periodiciteFactureProvisoire')?.value) {
+            <div class="form-field form-field-full">
+              <label for="inclureAutoProvisioreGroupe">Inclure dans la facturation automatique provisoire</label>
+              <div class="d-flex align-items-center gap-2">
+                <p-toggleswitch formControlName="inclureFacturationAutoProvisoire" id="inclureAutoProvisioreGroupe" />
+                <span class="text-muted small">
+                  @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
+                    Inclus — génération {{ editForm.get('periodiciteFactureProvisoire')?.value | lowercase }}
+                  } @else {
+                    Exclu de la génération automatique provisoire
+                  }
+                </span>
+              </div>
+            </div>
+          }
+
           <!-- Adresse -->
           <div class="form-field form-field-full">
             <label for="field_adresse">Adresse</label>

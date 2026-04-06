@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Mapper interface for converting between TiersPayant entity and TiersPayantDto.
@@ -43,6 +44,10 @@ public interface TiersPayantMapper {
             .setGroupeTiersPayant(tiersPayant.getGroupeTiersPayant())
             .setCreated(tiersPayant.getCreated())
             .setDelaiReglement(tiersPayant.getDelaiReglement())
+            .setPeriodiciteFactureProvisoire(tiersPayant.getPeriodiciteFactureProvisoire())
+            .setPeriodiciteFactureDefinitive(tiersPayant.getPeriodiciteFactureDefinitive())
+            .setInclureFacturationAutoDefinitive(tiersPayant.isInclureFacturationAutoDefinitive())
+            .setInclureFacturationAutoProvisoire(tiersPayant.isInclureFacturationAutoProvisoire())
             .setUpdated(tiersPayant.getUpdated());
     }
 
@@ -103,6 +108,9 @@ public interface TiersPayantMapper {
             .setBeExclude(dto.isToBeExclude())
             .setModelFacture(dto.getModelFacture())
             .setDelaiReglement(dto.getDelaiReglement())
+            .setPeriodiciteFactureProvisoire(Objects.isNull(dto.getPeriodiciteFactureProvisoire()) ? entity.getPeriodiciteFactureProvisoire() : dto.getPeriodiciteFactureProvisoire())
+            .setPeriodiciteFactureDefinitive(Objects.isNull(dto.getPeriodiciteFactureDefinitive()) ? entity.getPeriodiciteFactureDefinitive() : dto.getPeriodiciteFactureDefinitive())
+            .setPeriodiciteFactureDefinitive(dto.getPeriodiciteFactureDefinitive())
             .setGroupeTiersPayant(fromId(dto.getGroupeTiersPayantId()));
 
         entity.setUpdated(LocalDateTime.now());

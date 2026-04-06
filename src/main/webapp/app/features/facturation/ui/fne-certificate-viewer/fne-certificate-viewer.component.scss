@@ -1,6 +1,9 @@
-@import 'app/shared/scss/modal-theme';
+@use 'app/shared/scss/modal-theme' as *;
 
-@include modal-theme;
+:host {
+  @include modal-theme;
+}
+
 
 // Specific styles for FNE certificate viewer
 .fne-certificate-body {

@@ -53,10 +53,10 @@
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
               <input pSize="small"
-                (input)="factureDossierTable.filterGlobal($event.target['value'], 'contains')"
-                pInputText
-                placeholder="Filtrer..."
-                type="text"
+                     (input)="factureDossierTable.filterGlobal($event.target['value'], 'contains')"
+                     pInputText
+                     placeholder="Filtrer..."
+                     type="text"
               />
             </p-iconfield>
           </div>
@@ -103,7 +103,8 @@
               <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
               <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
               @if (editableIds().has(item.id)) {
-                <td class="text-end editable-cell" pEditableColumn style="width: 110px; max-width: 110px; overflow: hidden">
+                <td class="text-end editable-cell" pEditableColumn
+                    style="width: 110px; max-width: 110px; overflow: hidden">
                   <p-cellEditor>
                     <ng-template #input>
                       <input

@@ -1,0 +1,12 @@
+@use 'app/shared/scss/modal-theme' as *;
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+.rrm-facture-ref {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+  margin-left: 0.5rem;
+}

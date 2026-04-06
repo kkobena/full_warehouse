@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.facturation;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.domain.enumeration.OrigineGeneration;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
@@ -79,7 +80,8 @@ public class EditionFactureResource {
                 Set.of(),
                 all,
                 categorieTiersPayants,
-                factureProvisoire
+                factureProvisoire,
+                OrigineGeneration.MANUELLE
             ),
             pageable
         );
@@ -111,7 +113,8 @@ public class EditionFactureResource {
                 Set.of(),
                 all,
                 categorieTiersPayants,
-                factureProvisoire
+                factureProvisoire,
+                OrigineGeneration.MANUELLE
             ),
             pageable
         );
@@ -194,7 +197,7 @@ public class EditionFactureResource {
     }
 
     @GetMapping("/edition-factures/{id}/{invoiceDate}")
-    public ResponseEntity<FactureDtoWrapper> getone(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
+    public ResponseEntity<FactureDtoWrapper> getOne(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
         return ResponseUtil.wrapOrNotFound(editionService.getFacture(new FactureItemId(id, invoiceDate)));
     }
 

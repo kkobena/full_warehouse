@@ -1,31 +1,31 @@
-import { AfterViewInit, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputText } from 'primeng/inputtext';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { Toolbar } from 'primeng/toolbar';
-import { DatePicker } from 'primeng/datepicker';
+import { AfterViewInit, Component, DestroyRef, inject, input, output, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
+import { TableLazyLoadEvent, TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { AutoCompleteModule } from "primeng/autocomplete";
+import { FloatLabelModule } from "primeng/floatlabel";
+import { InputText } from "primeng/inputtext";
+import { ToggleSwitch } from "primeng/toggleswitch";
+import { Toolbar } from "primeng/toolbar";
+import { DatePicker } from "primeng/datepicker";
 
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { INVOICES_STATUT } from '../../../../shared/constants/data-constants';
-import { IGroupeTiersPayant } from '../../../../shared/model/groupe-tierspayant.model';
-import { ITiersPayant } from '../../../../shared/model/tierspayant.model';
-import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from '../../../../entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { WarehouseCommonModule } from "../../../../shared/warehouse-common/warehouse-common.module";
+import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
+import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
+import { ITiersPayant } from "../../../../shared/model/tierspayant.model";
+import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
+import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
+import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
+import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 
-import { FactureApiService } from '../../data-access/services/facture-api.service';
-import { FacturationStore } from '../../data-access/store/facturation.store';
-import { IFacture, IInvoiceSearchParams, ISelectedFacture } from '../../data-access/models';
+import { FactureApiService } from "../../data-access/services/facture-api.service";
+import { FacturationStore } from "../../data-access/store/facturation.store";
+import { IFacture, IInvoiceSearchParams, ISelectedFacture } from "../../data-access/models";
 
 @Component({
-  selector: 'app-facture-search-drawer',
+  selector: "app-facture-search-drawer",
   imports: [
     ButtonModule,
     TableModule,
@@ -36,9 +36,9 @@ import { IFacture, IInvoiceSearchParams, ISelectedFacture } from '../../data-acc
     InputText,
     ToggleSwitch,
     Toolbar,
-    DatePicker,
+    DatePicker
   ],
-  templateUrl: './facture-search-drawer.component.html',
+  templateUrl: "./facture-search-drawer.component.html"
 })
 export class FactureSearchDrawerComponent implements AfterViewInit {
   readonly factureGroup = input<boolean>(false);
@@ -57,7 +57,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
   protected modelEndDate: Date = new Date();
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
-  protected search = '';
+  protected search = "";
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] | undefined;
   protected readonly minLength = 2;
@@ -79,7 +79,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
     if (previousSearch) {
       this.modelStartDate = previousSearch.startDate ? new Date(previousSearch.startDate) : this.modelStartDate;
       this.modelEndDate = previousSearch.endDate ? new Date(previousSearch.endDate) : new Date();
-      this.search = previousSearch.search ?? '';
+      this.search = previousSearch.search ?? "";
       this.factureGroupWritable.set(previousSearch.factureGroupees ?? false);
     } else {
       this.factureGroupWritable.set(this.factureGroup());
@@ -110,7 +110,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
     this.loadGroupTiersPayant(event.query);
   }
 
-  loadGroupTiersPayant(search = ''): void {
+  loadGroupTiersPayant(search = ""): void {
     this.groupeTiersPayantService
       .query({ page: 0, search, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -119,7 +119,7 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
       });
   }
 
-  loadTiersPayants(search = ''): void {
+  loadTiersPayants(search = ""): void {
     this.tiersPayantService
       .query({ page: 0, search, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -137,14 +137,17 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<IFacture[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => { this.loading = false; this.loadingBtn = false; },
+        error: () => {
+          this.loading = false;
+          this.loadingBtn = false;
+        }
       });
   }
 
   private onSuccess(data: IFacture[] | null, headers: HttpHeaders, page: number): void {
     this.loading = false;
     this.loadingBtn = false;
-    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.totalItems = Number(headers.get("X-Total-Count"));
     this.page = page;
     this.datas = data ?? [];
   }
@@ -157,8 +160,8 @@ export class FactureSearchDrawerComponent implements AfterViewInit {
       tiersPayantIds: this.selectedTiersPayants?.map(item => item.id),
       factureProvisoire: false,
       search: this.search,
-      statuts: ['PARTIALLY_PAID', 'NOT_PAID'],
-      factureGroupees: this.factureGroupWritable(),
+      statuts: ["PARTIALLY_PAID", "NOT_PAID"],
+      factureGroupees: this.factureGroupWritable()
     };
     this.facturationStore.setSearchParams(params);
     return params;

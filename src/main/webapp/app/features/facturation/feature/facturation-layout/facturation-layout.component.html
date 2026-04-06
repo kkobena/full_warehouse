@@ -43,6 +43,50 @@
                 </ng-template>
               </ng-container>
 
+              <ng-container ngbNavItem="recapitulatif">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Récapitulatif</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-recapitulatif />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="rapprochement">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-arrows-h"></i>
+                  <span>Rapprochement</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-rapprochement />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="avoirs">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-minus"></i>
+                  <span>Avoirs</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-avoir />
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="automatisation">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-cog"></i>
+                  <span>Automatisation</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-planification />
+                </ng-template>
+              </ng-container>
+
             </div>
           </div>
         </div>

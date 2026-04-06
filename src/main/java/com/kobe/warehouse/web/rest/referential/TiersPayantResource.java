@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.ImportationTiersPayantService;
 import com.kobe.warehouse.service.TiersPayantDataService;
 import com.kobe.warehouse.service.TiersPayantService;
+import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
@@ -28,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -47,6 +49,7 @@ public class TiersPayantResource {
     private final ImportationTiersPayantService importationTiersPayantService;
     private final TiersPayantDataService tiersPayantDataService;
     private final TiersPayantService tiersPayantService;
+
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
@@ -87,12 +90,23 @@ public class TiersPayantResource {
     public ResponseEntity<List<TiersPayantDto>> getAll(
         @RequestParam(name = "groupeTiersPayantId", required = false) Integer groupeTiersPayantId,
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        @RequestParam(value = "type", required = false, defaultValue = "") String type,
+        @RequestParam(value = "type", required = false, defaultValue = "") String categorie,
+        @RequestParam(value = "periodiciteDefinitive", required = false) String periodiciteDefinitive,
+        @RequestParam(value = "periodiciteProvisoire", required = false) String periodiciteProvisoire,
         Pageable pageable
     ) {
-        Page<TiersPayantDto> page = tiersPayantDataService.fetchList(search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
+        Page<TiersPayantDto> page = tiersPayantDataService.fetchList(
+            search, categorie, TiersPayantStatut.ACTIF, groupeTiersPayantId,
+            periodiciteDefinitive, periodiciteProvisoire, pageable
+        );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @PatchMapping("/tiers-payants/mass-update-facture-config")
+    public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
+        tiersPayantService.massUpdateFactureConfig(request);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/tiers-payants")

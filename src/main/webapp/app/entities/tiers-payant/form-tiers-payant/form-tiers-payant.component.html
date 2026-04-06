@@ -192,6 +192,68 @@
               <label for="toBeExclude">Exclure du CA</label>
               <p-toggleswitch formControlName="toBeExclude" id="toBeExclude"> </p-toggleswitch>
             </div>
+
+            <!-- Périodicité facturation définitive -->
+            <div class="form-field form-field-full">
+              <label for="periodiciteDefinitiveTP">Périodicité facturation définitive</label>
+              <p-select
+                [fluid]="true"
+                [options]="periodicitesOptions"
+                [showClear]="true"
+                formControlName="periodiciteFactureDefinitive"
+                id="periodiciteDefinitiveTP"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Non définie"
+              />
+            </div>
+
+            @if (editForm.get('periodiciteFactureDefinitive')?.value) {
+              <div class="form-field form-field-full">
+                <label for="inclureAutoDefinitiveTP">Inclure dans la facturation automatique définitive</label>
+                <div class="d-flex align-items-center gap-2">
+                  <p-toggleswitch formControlName="inclureFacturationAutoDefinitive" id="inclureAutoDefinitiveTP" />
+                  <span class="text-muted small">
+                    @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
+                      Inclus — génération {{ editForm.get('periodiciteFactureDefinitive')?.value | lowercase }}
+                    } @else {
+                      Exclu de la génération automatique définitive
+                    }
+                  </span>
+                </div>
+              </div>
+            }
+
+            <!-- Périodicité facturation provisoire -->
+            <div class="form-field form-field-full">
+              <label for="periodiciteProvisioreTP">Périodicité facturation provisoire</label>
+              <p-select
+                [fluid]="true"
+                [options]="periodicitesOptions"
+                [showClear]="true"
+                formControlName="periodiciteFactureProvisoire"
+                id="periodiciteProvisioreTP"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Non définie"
+              />
+            </div>
+
+            @if (editForm.get('periodiciteFactureProvisoire')?.value) {
+              <div class="form-field form-field-full">
+                <label for="inclureAutoProvisioreTP">Inclure dans la facturation automatique provisoire</label>
+                <div class="d-flex align-items-center gap-2">
+                  <p-toggleswitch formControlName="inclureFacturationAutoProvisoire" id="inclureAutoProvisioreTP" />
+                  <span class="text-muted small">
+                    @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
+                      Inclus — génération {{ editForm.get('periodiciteFactureProvisoire')?.value | lowercase }}
+                    } @else {
+                      Exclu de la génération automatique provisoire
+                    }
+                  </span>
+                </div>
+              </div>
+            }
           }
         </div>
       </p-card>

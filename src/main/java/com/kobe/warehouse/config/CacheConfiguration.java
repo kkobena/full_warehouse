@@ -21,6 +21,7 @@ public class CacheConfiguration {
         manager.setCaches(
             Arrays.asList(
                 buildCache(EntityConstant.APP_POST_CONFIG, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_DELAI_REGLEMENT_FACTURE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_CUSTOMER_DISPLAY, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.CURRENT_USER_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_MONO_STOCK, defaultTtl, TimeUnit.HOURS, defaultMaxSize),

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>État de Rapprochement</title>
+  <div th:replace="~{reports/rapprochement/css}"></div>
+</head>
+<body>
+<div class="invoice">
+  <div th:replace="~{common/commonheader}"></div>
+
+  <main>
+
+    <!-- En-tête rapport -->
+    <div class="report-header">
+      <h2 th:text="${reportTitle}">État de Rapprochement</h2>
+      <div class="periode" th:text="${periode}"></div>
+    </div>
+
+    <!-- KPI globaux -->
+    <div class="kpi-band">
+      <div class="kpi-cell">
+        <span class="kpi-label">Total facturé</span>
+        <span class="kpi-value"
+              th:text="${#numbers.formatDecimal(totalFacture, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+      </div>
+      <div class="kpi-cell">
+        <span class="kpi-label">Total réglé</span>
+        <span class="kpi-value"
+              th:text="${#numbers.formatDecimal(totalRegle, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+      </div>
+      <div class="kpi-cell">
+        <span class="kpi-label">Écart global</span>
+        <span class="kpi-value"
+              th:text="${#numbers.formatDecimal(ecartTotal, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+      </div>
+      <div class="kpi-cell">
+        <span class="kpi-label">Organismes</span>
+        <span class="kpi-value" th:text="${etats.size()}"></span>
+      </div>
+    </div>
+
+    <!-- Détail par organisme -->
+    <div th:each="etat : ${etats}" class="section-organisme">
+
+      <div class="organisme-header">
+        <span class="org-name" th:text="${etat.tiersPayantName}"></span>
+        <span class="org-stats">
+          Facturé : <strong th:text="${#numbers.formatDecimal(etat.totalFacture, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+          &nbsp;|&nbsp;
+          Réglé : <strong th:text="${#numbers.formatDecimal(etat.totalRegle, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+          &nbsp;|&nbsp;
+          Écart : <strong th:text="${#numbers.formatDecimal(etat.ecartTotal, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+        </span>
+      </div>
+
+      <table class="main-table">
+        <thead>
+          <tr>
+            <th>N° Facture</th>
+            <th>Date facture</th>
+            <th>Échéance</th>
+            <th class="text-right">Facturé (FCFA)</th>
+            <th class="text-right">Réglé (FCFA)</th>
+            <th class="text-right">Écart (FCFA)</th>
+            <th class="text-center">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="ligne : ${etat.lignes}">
+            <td th:text="${ligne.numFacture}"></td>
+            <td th:text="${ligne.invoiceDate != null ? #temporals.format(ligne.invoiceDate, 'dd/MM/yyyy') : '—'}"></td>
+            <td th:text="${ligne.echeance != null ? #temporals.format(ligne.echeance, 'dd/MM/yyyy') : '—'}"></td>
+            <td class="text-right"
+                th:text="${#numbers.formatDecimal(ligne.montantFacture, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td class="text-right text-success"
+                th:text="${#numbers.formatDecimal(ligne.montantRegle, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td class="text-right"
+                th:classappend="${ligne.ecart != null and ligne.ecart.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? 'text-danger' : ''}"
+                th:text="${#numbers.formatDecimal(ligne.ecart, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td class="text-center">
+              <span th:switch="${ligne.statut?.name()}">
+                <span th:case="'PAID'" class="badge badge-paid">Payé</span>
+                <span th:case="'PARTIALLY_PAID'" class="badge badge-partial">Partiel</span>
+                <span th:case="'NOT_PAID'" class="badge badge-unpaid">Impayé</span>
+                <span th:case="*" class="badge badge-default" th:text="${ligne.statut?.name() ?: '—'}"></span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-right">Totaux</td>
+            <td class="text-right"
+                th:text="${#numbers.formatDecimal(etat.totalFacture, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td class="text-right"
+                th:text="${#numbers.formatDecimal(etat.totalRegle, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td class="text-right"
+                th:text="${#numbers.formatDecimal(etat.ecartTotal, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

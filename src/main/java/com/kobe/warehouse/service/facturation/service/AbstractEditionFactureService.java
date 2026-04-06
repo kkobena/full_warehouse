@@ -254,6 +254,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
             .setDebutPeriode(params.startDate())
             .setFinPeriode(params.endDate())
             .setFactureProvisoire(params.factureProvisoire())
+            .setOrigineGeneration(params.origineGeneration())
             .setUser(this.userService.getUser())
             .setNumFacture(getFactureNumber(year, numero));
 

@@ -136,6 +136,7 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
             .setDebutPeriode(editionSearchParams.startDate())
             .setFinPeriode(editionSearchParams.endDate())
             .setFactureProvisoire(editionSearchParams.factureProvisoire())
+            .setOrigineGeneration(editionSearchParams.origineGeneration())
             .setGroupeTiersPayant(groupeTiersPayant)
             .setNumFacture(getFactureNumber(year, lastFactureNumero));
     }

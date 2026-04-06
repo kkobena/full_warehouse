@@ -36,6 +36,10 @@ export interface ITiersPayant {
   plafondAbsoluClient?: boolean;
   ncc?: string;
   delaiReglement?: number;
+  periodiciteFactureDefinitive?: 'MENSUEL' | 'QUINZAINE' | 'BIMENSUEL' | null;
+  periodiciteFactureProvisoire?: 'MENSUEL' | 'QUINZAINE' | 'BIMENSUEL' | null;
+  inclureFacturationAutoDefinitive?: boolean;
+  inclureFacturationAutoProvisoire?: boolean;
 }
 
 export class TiersPayant implements ITiersPayant {

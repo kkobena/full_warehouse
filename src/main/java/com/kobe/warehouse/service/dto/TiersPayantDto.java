@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
+import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import jakarta.validation.constraints.Pattern;
@@ -50,7 +51,10 @@ public class TiersPayantDto implements Serializable {
     private Integer plafondConsoClient;
     private Integer delaiReglement;
     private String ncc;
-
+    private  Periodicite periodiciteFactureDefinitive;
+    private  Periodicite periodiciteFactureProvisoire;
+    private boolean inclureFacturationAutoDefinitive ;
+    private boolean inclureFacturationAutoProvisoire ;
     public TiersPayantDto() {}
 
     public OrdreTrisFacture getOrdreTrisFacture() {
@@ -157,6 +161,42 @@ public class TiersPayantDto implements Serializable {
 
     public TiersPayantDto setAdresse(String adresse) {
         this.adresse = adresse;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureDefinitive() {
+        return periodiciteFactureDefinitive;
+    }
+
+    public TiersPayantDto setPeriodiciteFactureDefinitive(Periodicite periodiciteFactureDefinitive) {
+        this.periodiciteFactureDefinitive = periodiciteFactureDefinitive;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureProvisoire() {
+        return periodiciteFactureProvisoire;
+    }
+
+    public TiersPayantDto setPeriodiciteFactureProvisoire(Periodicite periodiciteFactureProvisoire) {
+        this.periodiciteFactureProvisoire = periodiciteFactureProvisoire;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoDefinitive() {
+        return inclureFacturationAutoDefinitive;
+    }
+
+    public TiersPayantDto setInclureFacturationAutoDefinitive(boolean inclureFacturationAutoDefinitive) {
+        this.inclureFacturationAutoDefinitive = inclureFacturationAutoDefinitive;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoProvisoire() {
+        return inclureFacturationAutoProvisoire;
+    }
+
+    public TiersPayantDto setInclureFacturationAutoProvisoire(boolean inclureFacturationAutoProvisoire) {
+        this.inclureFacturationAutoProvisoire = inclureFacturationAutoProvisoire;
         return this;
     }
 

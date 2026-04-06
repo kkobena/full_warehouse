@@ -30,7 +30,7 @@
           tooltipPosition="left"
           (onClick)="onExportPdf()"
         />
-        @if (!certifieBlob()) {
+        @if (!this.facture().fneResponse) {
           <p-button
             (onClick)="onConfirmCertification()"
             [loading]="certificationLoading"
@@ -46,7 +46,7 @@
           <p-button
             (onClick)="onViewFne()"
             [text]="true"
-            icon="pi pi-eye"
+            icon="pi pi-verified"
             pTooltip="Voir certificat FNE"
             severity="secondary"
             size="small"
@@ -57,7 +57,8 @@
           icon="pi pi-times"
           [text]="true"
           size="small"
-          severity="secondary"
+          severity="primary"
+          [rounded]="true"
           pTooltip="Fermer"
           (onClick)="onClose()"
         />
@@ -107,7 +108,9 @@
                   </tr>
                 </ng-template>
                 <ng-template #emptymessage>
-                  <tr><td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td></tr>
+                  <tr>
+                    <td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td>
+                  </tr>
                 </ng-template>
               </p-table>
             }
@@ -116,18 +119,18 @@
 
         <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées) -->
         @if (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID') {
-        <ng-container ngbNavItem="regler">
-          <a class="pharma-nav-tab-link" ngbNavLink>
-            <i class="pi pi-money-bill"></i>
-            <span>Régler</span>
-          </a>
-          <ng-template ngbNavContent>
-            <app-reglement-workspace
-              [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
-              [dossierFactureProjection]="dossierFactureProjection()"
-              [reglementFactureDossiers]="reglementDossiers()" />
-          </ng-template>
-        </ng-container>
+          <ng-container ngbNavItem="regler">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-money-bill"></i>
+              <span>Régler</span>
+            </a>
+            <ng-template ngbNavContent>
+              <app-reglement-workspace
+                [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
+                [dossierFactureProjection]="dossierFactureProjection()"
+                [reglementFactureDossiers]="reglementDossiers()" />
+            </ng-template>
+          </ng-container>
         }
 
         <!-- Onglet Versements -->
@@ -163,7 +166,9 @@
                   </tr>
                 </ng-template>
                 <ng-template #emptymessage>
-                  <tr><td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td></tr>
+                  <tr>
+                    <td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td>
+                  </tr>
                 </ng-template>
               </p-table>
             }

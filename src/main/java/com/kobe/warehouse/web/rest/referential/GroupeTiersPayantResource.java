@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.service.GroupeTiersPayantService;
+import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -102,5 +104,11 @@ public class GroupeTiersPayantResource {
     public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
         ResponseDTO responseDTO = groupeTiersPayantService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PatchMapping("/groupe-tierspayants/mass-update-facture-config")
+    public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
+        groupeTiersPayantService.massUpdateFactureConfig(request);
+        return ResponseEntity.noContent().build();
     }
 }

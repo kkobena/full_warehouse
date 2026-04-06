@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.kobe.warehouse.service.fne.model.FneResponse;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import org.springframework.util.StringUtils;
 
 public class FactureDto extends FactureDtoWrapper {
@@ -40,6 +41,7 @@ public class FactureDto extends FactureDtoWrapper {
     private List<FactureItemDto> items;
     private FneResponse fneResponse;
     private Integer delaiReglement = 30;
+    private List<InvoicePaymentDTO> reglements ;
 
     public FactureDto() {}
 
@@ -126,6 +128,15 @@ public class FactureDto extends FactureDtoWrapper {
             items = new ArrayList<>();
         }
         return items;
+    }
+
+    public List<InvoicePaymentDTO> getReglements() {
+        return reglements;
+    }
+
+    public FactureDto setReglements(List<InvoicePaymentDTO> reglements) {
+        this.reglements = reglements;
+        return this;
     }
 
     public FactureDto setItems(List<FactureItemDto> items) {

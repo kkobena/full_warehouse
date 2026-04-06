@@ -1,0 +1,329 @@
+<div class="pharma-smart-content p-1">
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-bar"></i>
+      <span class="pharma-toolbar-title">Récapitulatif mensuel</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedTypeFacture"
+              [options]="typeFactureOptions"
+              appendTo="body"
+              id="recap-type"
+              optionLabel="label"
+              optionValue="value"
+              style="width: 150px"
+              (onChange)="onSearch()"
+            />
+            <label for="recap-type"></label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <input
+              [(ngModel)]="annee"
+              id="recap-annee"
+              pInputText
+              type="number"
+              min="2025"
+              style="width: 90px"
+            />
+            <label for="recap-annee">Année</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <p-select
+              [(ngModel)]="selectedMois"
+              [options]="moisOptions"
+              appendTo="body"
+              id="recap-mois"
+              optionLabel="label"
+              optionValue="value"
+              style="width: 140px"
+            />
+            <label for="recap-mois">Mois</label>
+          </p-floatlabel>
+
+
+
+          <p-floatlabel variant="on">
+            <p-autoComplete
+              (completeMethod)="searchTiersPayant($event)"
+              [(ngModel)]="selectedTiersPayants"
+              [forceSelection]="true"
+              [minQueryLength]="2"
+              [multiple]="true"
+              [suggestions]="tiersPayantSuggestions"
+              appendTo="body"
+              id="recap-tp"
+              inputId="recap-tp"
+              optionLabel="fullName"
+            />
+            <label for="recap-tp">Tiers-payant</label>
+          </p-floatlabel>
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (onClick)="onSearch()"
+              [loading]="loading()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              (onClick)="onExportExcel()"
+              [loading]="loadingExport()"
+              [raised]="true"
+              icon="pi pi-file-excel"
+              label="Excel"
+              severity="warn"
+            />
+            <p-button
+              (onClick)="onExportPdf()"
+              [loading]="loadingPdf()"
+              [raised]="true"
+              icon="pi pi-file-pdf"
+              label="PDF"
+              severity="danger"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- KPI globaux -->
+  <app-recapitulatif-kpi-banner [kpi]="kpi()" [loading]="loading()" />
+  <!-- Hint premier usage -->
+  @if (showHint() && !panelOpen()) {
+    <div class="pharma-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Cliquez sur une ligne pour afficher le détail .</span>
+      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+  <!-- Split master/detail -->
+  <div class="split-container" [class.panel-open]="panelOpen()">
+
+    <!-- Colonne maître : liste des organismes -->
+    <div class="list-column">
+      <p-table
+        [value]="rows()"
+        [loading]="loading()"
+        [rowHover]="true"
+        [scrollable]="true"
+        scrollHeight="flex"
+        class="p-datatable-sm"
+        selectionMode="single"
+        dataKey="tiersPayantCode"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Organisme</th>
+            @if (!panelOpen()) {
+              <th>Code</th>
+              <th>Période</th>
+              <th class="text-end">Solde N-1</th>
+            }
+            <th class="text-end">Facturé</th>
+            <th class="text-end">Réglé</th>
+            <th class="text-end">Restant</th>
+            @if (!panelOpen()) {
+              <th class="text-end">Solde cumulé</th>
+              <th class="text-end">Nb fact.</th>
+            }
+            <th class="text-end">Taux %</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr
+            (click)="onRowSelect(row)"
+            [class.recap-row-selected]="selectedRow()?.tiersPayantCode === row.tiersPayantCode"
+            style="cursor:pointer"
+          >
+            <td>
+              <span class="fw-semibold">{{ row.tiersPayantName }}</span>
+            </td>
+            @if (!panelOpen()) {
+              <td class="text-muted small">{{ row.tiersPayantCode }}</td>
+              <td class="text-muted small">{{ row.periode }}</td>
+              <td class="text-end">{{ (row.soldePrecedent ?? 0) | number:'1.0-0' }}</td>
+            }
+            <td class="text-end fw-bold">{{ (row.totalFacture ?? 0) | number:'1.0-0' }}</td>
+            <td class="text-end text-success">{{ (row.totalRegle ?? 0) | number:'1.0-0' }}</td>
+            <td class="text-end text-danger">{{ (row.soldeActuel ?? 0) | number:'1.0-0' }}</td>
+            @if (!panelOpen()) {
+              <td class="text-end">{{ (row.soldeCumule ?? 0) | number:'1.0-0' }}</td>
+              <td class="text-end">{{ row.nombreFactures ?? 0 }}</td>
+            }
+            <td class="text-end">
+              @if ((row.totalFacture ?? 0) > 0) {
+                <span [class.text-success]="detailTauxRecouvrement(row) >= 80"
+                      [class.text-warning]="detailTauxRecouvrement(row) >= 50 && detailTauxRecouvrement(row) < 80"
+                      [class.text-danger]="detailTauxRecouvrement(row) < 50">
+                  {{ detailTauxRecouvrement(row) }} %
+                </span>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td class="text-center" (click)="$event.stopPropagation()">
+              <p-buttonGroup>
+                <p-button
+                  (onClick)="onRowSelect(row)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-eye"
+                  pTooltip="Voir détail"
+                  tooltipPosition="left"
+                  severity="secondary"
+                  size="small"
+                />
+
+
+              </p-buttonGroup>
+
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          @if (rows().length > 0) {
+            <tr class="pharma-table-footer">
+              <td class="pharma-footer-label" [attr.colspan]="panelOpen() ? 1 : 4">
+                <i class="pi pi-calculator"></i>
+                <span>Total</span>
+                </td>
+              <td class="text-end">
+                <span class="pharma-footer-value">{{ totalFacture | number:'1.0-0' }}</span>
+                </td>
+              <td class="text-end text-success">
+                <span class="pharma-footer-total">{{ totalRegle | number:'1.0-0' }}</span>
+                </td>
+              <td class="text-end text-danger"><span class="pharma-footer-value text-danger">{{ totalRestant | number:'1.0-0' }}</span>
+                </td>
+              @if (!panelOpen()) {
+                <td class="text-end">—</td>
+                <td class="text-end">—</td>
+              }
+              <td class="text-end">
+                <span class="pharma-footer-total">{{ tauxGlobal }} %</span>
+
+                </td>
+            </tr>
+          }
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td [attr.colspan]="panelOpen() ? 5 : 11" class="text-center text-muted py-4">
+              <i class="pi pi-inbox me-2"></i>Aucune donnée pour cette période
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Panneau détail : factures de l'organisme sélectionné -->
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <div class="panel-header">
+          <div class="panel-title-block">
+            <div class="panel-libelle">
+              <i class="pi pi-building me-1"></i>{{ selectedRow()?.tiersPayantName }}
+            </div>
+            <div class="panel-meta">
+              <span class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode }}</span>
+              <span class="pharma-badge pharma-badge-primary">Facturé : {{ (selectedRow()?.totalFacture ?? 0) | number:'1.0-0' }}</span>
+              <span class="pharma-badge pharma-badge-success">Réglé : {{ (selectedRow()?.totalRegle ?? 0) | number:'1.0-0' }}</span>
+              @if ((selectedRow()?.soldeActuel ?? 0) > 0) {
+                <span class="pharma-badge pharma-badge-danger">Restant : {{ (selectedRow()?.soldeActuel ?? 0) | number:'1.0-0' }}</span>
+              }
+              <span class="pharma-badge"
+                    [class.pharma-badge-success]="detailTauxRecouvrement(selectedRow()!) >= 80"
+                    [class.pharma-badge-warning]="detailTauxRecouvrement(selectedRow()!) >= 50 && detailTauxRecouvrement(selectedRow()!) < 80"
+                    [class.pharma-badge-danger]="detailTauxRecouvrement(selectedRow()!) < 50">
+                Taux : {{ detailTauxRecouvrement(selectedRow()!) }} %
+              </span>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <p-button
+              (onClick)="closePanel()"
+              icon="pi pi-times"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              title="Fermer"
+            />
+          </div>
+        </div>
+
+        <div class="recap-detail-solde-prev">
+          <span class="text-muted small">Report solde précédent :</span>
+          <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }} FCFA</span>
+          @if ((selectedRow()?.soldePrecedent ?? 0) > 0) {
+            <span class="badge bg-warning text-dark ms-2 small">Solde reporté</span>
+          }
+        </div>
+
+        <div class="recap-detail-body">
+          <p-table
+            [value]="detailLignes(selectedRow()!)"
+            [rowHover]="true"
+            class="p-datatable-sm"
+            [scrollable]="true"
+            scrollHeight="flex"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>N° Facture</th>
+                <th>Date</th>
+                <th>Échéance</th>
+                <th class="text-end">Montant net</th>
+                <th class="text-end">Réglé</th>
+                <th class="text-end">Restant</th>
+                <th>Statut</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-ligne>
+              <tr>
+                <td class="fw-semibold small">{{ ligne.numFacture }}</td>
+                <td class="small">{{ ligne.invoiceDate }}</td>
+                <td class="small">{{ ligne.echeance }}</td>
+                <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end text-success">{{ (ligne.montantRegle ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>
+                <td>
+                  <span class="badge {{ statutClass(ligne.statut) }}">
+                    {{ statutLabel(ligne.statut) }}
+                  </span>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="7" class="text-center text-muted py-3">
+                  <i class="pi pi-info-circle me-1"></i>Aucune facture sur cette période
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    }
+
+  </div>
+
+</div>
+<p-toast position="center" />

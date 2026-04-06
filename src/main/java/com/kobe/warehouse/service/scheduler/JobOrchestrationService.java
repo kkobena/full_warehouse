@@ -57,6 +57,8 @@ public class JobOrchestrationService {
     private final SemoisCalculationService semoisCalculationService;
     private final TournantSchedulerService tournantSchedulerService;
     private final MaterializedViewRefreshService materializedViewRefreshService;
+    private final FacturationSchedulerJob facturationSchedulerJob;
+    private final CertificationFneSchedulerJob certificationFneSchedulerJob;
 
     public JobOrchestrationService(
         StockSnapshotSchedulerService stockSnapshotSchedulerService,
@@ -65,7 +67,9 @@ public class JobOrchestrationService {
         ClassificationCriticiteService classificationService,
         SemoisCalculationService semoisCalculationService,
         TournantSchedulerService tournantSchedulerService,
-        MaterializedViewRefreshService materializedViewRefreshService
+        MaterializedViewRefreshService materializedViewRefreshService,
+        FacturationSchedulerJob facturationSchedulerJob,
+        CertificationFneSchedulerJob certificationFneSchedulerJob
     ) {
         this.stockSnapshotSchedulerService = stockSnapshotSchedulerService;
         this.semoisBatchJobService = semoisBatchJobService;
@@ -74,6 +78,8 @@ public class JobOrchestrationService {
         this.semoisCalculationService = semoisCalculationService;
         this.tournantSchedulerService = tournantSchedulerService;
         this.materializedViewRefreshService = materializedViewRefreshService;
+        this.facturationSchedulerJob = facturationSchedulerJob;
+        this.certificationFneSchedulerJob = certificationFneSchedulerJob;
     }
 
     // ── Types ────────────────────────────────────────────────────────────────────
@@ -85,7 +91,9 @@ public class JobOrchestrationService {
         CLASSIFY_PRODUCTS("Classification criticité produits"),
         RECALCULATE_SEMOIS("Recalcul SEMOIS + suggestions"),
         INVENTAIRE_TOURNANT("Inventaire tournant échu"),
-        REFRESH_VIEWS("Rafraîchissement vues matérialisées");
+        REFRESH_VIEWS("Rafraîchissement vues matérialisées"),
+        FACTURATION_PLANIFICATIONS("Planifications de facturation périodique"),
+        CERTIFICATION_FNE("Certification FNE des factures générées");
 
         private final String label;
 
@@ -105,6 +113,7 @@ public class JobOrchestrationService {
     public void runNightlyPipeline() {
         executePipeline("NIGHTLY");
     }
+
 
     /**
      * Catch-up au démarrage de l'application.
@@ -126,6 +135,8 @@ public class JobOrchestrationService {
         JobStep.CLASSIFY_PRODUCTS,
         JobStep.RECALCULATE_SEMOIS,
         JobStep.INVENTAIRE_TOURNANT,
+        JobStep.FACTURATION_PLANIFICATIONS,
+        JobStep.CERTIFICATION_FNE,
         JobStep.REFRESH_VIEWS
     );
 
@@ -178,6 +189,8 @@ public class JobOrchestrationService {
                 case CLASSIFY_PRODUCTS -> classificationService.reclassifierTousProduits();
                 case RECALCULATE_SEMOIS -> semoisCalculationService.recalculateAllConfigurations();
                 case INVENTAIRE_TOURNANT -> tournantSchedulerService.executerTournantsEchus();
+                case FACTURATION_PLANIFICATIONS -> facturationSchedulerJob.executerPlanificationsEnAttente();
+                case CERTIFICATION_FNE -> certificationFneSchedulerJob.executerCertificationsPendantes();
                 case REFRESH_VIEWS -> materializedViewRefreshService.refreshAllViews();
             }
             Duration duration = Duration.between(start, Instant.now());

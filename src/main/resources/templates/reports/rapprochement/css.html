@@ -1,0 +1,157 @@
+<style th:inline="css">
+
+  @page {
+    size: A4 landscape;
+
+    @bottom-center {
+      content: [(${footer})];
+      border-top: 0.5px solid #3989c6;
+      text-align: center;
+      font-size: 8px;
+      font-style: italic;
+      padding-top: 2px;
+      margin-bottom: 10mm;
+      vertical-align: top;
+    }
+
+    @top-left {
+      content: element(header);
+    }
+
+    margin-top: 25mm;
+    margin-right: 15px;
+    margin-left: 15px;
+  }
+
+  header {
+    position: running(header);
+    border-bottom: 0.5px solid #3989c6;
+    font-size: 9px;
+  }
+
+  .invoice {
+    padding: 0;
+    font-size: 9px;
+    line-height: 1.2;
+    font-family: sans-serif;
+  }
+
+  .report-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .report-header h2 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #1a4a8a;
+  }
+
+  .report-header .periode {
+    font-size: 10px;
+    color: #555;
+  }
+
+  .kpi-band {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    background-color: #1a4a8a;
+    color: white;
+    border-radius: 4px;
+  }
+
+  .kpi-cell {
+    display: table-cell;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 10px;
+    border-right: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .kpi-cell:last-child { border-right: none; }
+
+  .kpi-cell .kpi-label { font-size: 8px; opacity: 0.85; display: block; }
+  .kpi-cell .kpi-value { font-size: 12px; font-weight: bold; display: block; }
+
+  .section-organisme {
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+
+  .organisme-header {
+    background-color: #3989c6;
+    color: white;
+    padding: 5px 8px;
+    font-weight: bold;
+    font-size: 10px;
+    margin-bottom: 4px;
+    display: table;
+    width: 100%;
+  }
+
+  .organisme-header .org-name { display: table-cell; }
+  .organisme-header .org-stats {
+    display: table-cell;
+    text-align: right;
+    font-size: 9px;
+    font-weight: normal;
+  }
+
+  table.main-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    -fs-table-paginate: paginate;
+    margin-bottom: 4px;
+  }
+
+  table.main-table thead tr th {
+    border-top: 0.5px solid #4d4d4d;
+    border-bottom: 0.5px solid #4d4d4d;
+    padding: 3px 6px;
+    font-size: 8px;
+    font-weight: 600;
+    background-color: #f0f4f8;
+    white-space: nowrap;
+  }
+
+  table.main-table tbody tr td {
+    padding: 2px 6px;
+    font-size: 8px;
+    border-bottom: 0.3px solid #e0e0e0;
+  }
+
+  table.main-table tfoot tr td {
+    padding: 3px 6px;
+    font-size: 8px;
+    font-weight: bold;
+    border-top: 0.5px solid #4d4d4d;
+    background-color: #f5f5f5;
+  }
+
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 5px;
+    font-size: 7px;
+    font-weight: 600;
+    border-radius: 3px;
+  }
+
+  .badge-paid { background-color: #28a745; color: white; }
+  .badge-partial { background-color: #fd7e14; color: white; }
+  .badge-unpaid { background-color: #dc3545; color: white; }
+  .badge-default { background-color: #6c757d; color: white; }
+
+  .text-danger { color: #dc3545; }
+  .text-success { color: #28a745; }
+
+  .page-break { page-break-before: always; }
+
+  tr, tfoot { page-break-inside: avoid; }
+
+</style>

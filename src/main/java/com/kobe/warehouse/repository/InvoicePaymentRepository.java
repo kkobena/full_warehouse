@@ -1,5 +1,7 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.FactureItemId;
+import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
 import com.kobe.warehouse.domain.GroupeTiersPayant_;
 import com.kobe.warehouse.domain.InvoicePayment;
@@ -8,6 +10,8 @@ import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.TiersPayant_;
 import java.time.LocalDate;
 import java.util.List;
+
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -59,6 +63,15 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
             } else {
                 return cb.isNotNull(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.tiersPayant));
             }
+        };
+    }
+    default Specification<InvoicePayment> findByFactureId(FactureItemId factureItemId) {
+        return (root, _, cb) -> {
+            Join<InvoicePayment, FactureTiersPayant> factureTiersPayantJoin = root.join(InvoicePayment_.factureTiersPayant);
+            return cb.and(
+                cb.equal(factureTiersPayantJoin.get(FactureTiersPayant_.id), factureItemId.getId()),
+                cb.equal(factureTiersPayantJoin.get(FactureTiersPayant_.invoiceDate), factureItemId.getInvoiceDate())
+            );
         };
     }
 

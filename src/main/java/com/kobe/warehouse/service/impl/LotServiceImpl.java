@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
+import com.kobe.warehouse.domain.LotStockLocation;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
@@ -84,8 +85,11 @@ public class LotServiceImpl implements LotService {
         return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
     }
 
+    //TODO: à revoir pour prendre en compte la localisation du stock et LotStockLocation LotStockLocationService.credit(Lot lot, Storage storage, int qtyDelta)
+    // Passer le storageId depuit UI(optional), sinon connectedUser default storage, et vérifier que la quantité du lot ne dépasse pas le stock dispo sur ce storage
     @Override
     public LotDTO addLotSurProduit(LotDTO lot) {
+
         if (lot.getProduitId() == null) {
             throw new GenericError("Le produitId est obligatoire pour la saisie de lot hors commande", "produitIdManquant");
         }

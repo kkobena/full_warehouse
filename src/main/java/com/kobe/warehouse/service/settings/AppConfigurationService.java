@@ -391,4 +391,22 @@ public class AppConfigurationService {
             appConfigurationRepository.save(newConfig);
         }
     }
+
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
+    public int getDelaiReglement() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 30;
+                }
+            })
+            .orElse(30);
+    }
+
 }

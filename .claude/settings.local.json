@@ -85,7 +85,8 @@
       "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress)",
       "Bash(JAVA_HOME=\"D:/jdk25\" ./mvnw.cmd compile -q --no-transfer-progress -Dskip.npm)",
       "Bash(do grep:*)",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); tabs=[k for k in exports if 'tab' in k.lower\\(\\)]; print\\(tabs[:15]\\)\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=d.get\\('exports',{}\\); tabs=[k for k in exports if 'tab' in k.lower\\(\\)]; print\\(tabs[:15]\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); exports=[k for k in d.get\\('exports',{}\\).keys\\(\\) if 'tab' in k.lower\\(\\)]; print\\(exports[:20]\\)\")"
     ],
     "deny": [],
     "ask": []

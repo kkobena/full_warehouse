@@ -1,0 +1,134 @@
+<div class="pharma-smart-content p-1">
+
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-cog"></i>
+      <span class="pharma-toolbar-title">Facturation automatisée</span>
+    </div>
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-muted small">Planifications automatiques de génération de factures</span>
+      </ng-template>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (onClick)="state.guideVisible.set(!state.guideVisible())"
+              [icon]="state.guideVisible() ? 'pi pi-eye-slash' : 'pi pi-lightbulb'"
+              [label]="state.guideVisible() ? 'Masquer le guide' : 'Guide'"
+              severity="secondary"
+              [text]="true"
+            />
+            <p-button
+              (onClick)="state.load()"
+              [loading]="state.loading()"
+              [raised]="true"
+              icon="pi pi-refresh"
+              label="Actualiser"
+              severity="secondary"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Guide -->
+  @if (state.guideVisible()) {
+    <div class="planification-guide">
+      <div class="guide-header">
+        <i class="pi pi-lightbulb guide-icon"></i>
+        <div>
+          <strong>Comment fonctionne la génération automatique de factures ?</strong>
+          <p class="guide-subtitle mb-0">
+            Renseignez la périodicité sur les organismes, activez la planification, le système prend le relais.
+          </p>
+        </div>
+      </div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <span class="step-badge">1</span>
+          <div class="step-content">
+            <strong>Renseignez la périodicité sur chaque organisme</strong>
+            <p>
+              Sur la fiche de chaque <em>tiers payant</em> ou <em>groupe</em>, sélectionnez la périodicité de
+              facturation définitive et/ou provisoire.
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="step-badge">2</span>
+          <div class="step-content">
+            <strong>Activez la planification correspondante</strong>
+            <p>
+              Chaque ligne du tableau correspond à une périodicité et couvre automatiquement tous les organismes
+              ayant cette périodicité.
+            </p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="step-badge">3</span>
+          <div class="step-content">
+            <strong>Gérez finement les organismes via les sous-onglets</strong>
+            <p>
+              Sélectionnez des groupes ou tiers payants et utilisez les actions en masse pour inclure/exclure ou
+              modifier la périodicité en lot.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════ ONGLETS PRINCIPAUX ═══════════════════════ -->
+  <div class="pharma-nav-tabs-container planif-main-tabs">
+    <div
+      #mainNav="ngbNav"
+      [activeId]="activeMainTab"
+      (activeIdChange)="onMainTabChange($event)"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      <!-- ━━━━━━━━━━━━━━━━━━ ONGLET 1 : FACTURES DÉFINITIVES ━━━━━━━━━━━ -->
+      <ng-container ngbNavItem="def">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-file"></i>
+          <span>Factures définitives</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-tab-factures mode="def" />
+        </ng-template>
+      </ng-container>
+
+      <!-- ━━━━━━━━━━━━━━━━━━ ONGLET 2 : FACTURES PROVISOIRES ━━━━━━━━━━ -->
+      <ng-container ngbNavItem="prov">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-file-edit"></i>
+          <span>Factures provisoires</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-tab-factures mode="prov" />
+        </ng-template>
+      </ng-container>
+
+      <!-- ━━━━━━━━━━━━━━━━━━ ONGLET 3 : CERTIFICATION FNE ━━━━━━━━━━━━━ -->
+      <ng-container ngbNavItem="fne">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-shield"></i>
+          <span>Certification FNE</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-planif-tab-fne />
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="pharma-nav-tabs-outlet planif-outlet">
+      <div [ngbNavOutlet]="mainNav"></div>
+    </div>
+  </div>
+</div>
+
+<p-toast position="center" />

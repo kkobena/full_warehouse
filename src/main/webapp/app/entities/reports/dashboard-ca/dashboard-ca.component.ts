@@ -512,14 +512,6 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       .slice(0, 10); // Top 10
   }
 
-  private downloadFile(blob: Blob, filename: string, mimeType: string): void {
-    const url = window.URL.createObjectURL(new Blob([blob], {type: mimeType}));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
 
   private formatDateForAPI(date: Date): string {
     const year = date.getFullYear();

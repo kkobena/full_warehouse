@@ -1,0 +1,6 @@
+@use '../planif-shared';
+
+// L'hôte est transparent : .detail-column participe directement au flex de .split-container
+:host {
+  display: contents;
+}

@@ -72,4 +72,20 @@ export class TiersPayantService {
       observe: 'response',
     });
   }
+
+  massUpdateFactureConfig(
+    ids: number[],
+    config: {
+      inclureAutoDefinitif?: boolean;
+      inclureAutoProvisoire?: boolean;
+      periodiciteDefinitive?: string;
+      periodiciteProvisoire?: string;
+    },
+  ): Observable<HttpResponse<{}>> {
+    return this.http.patch(
+      `${this.resourceUrl}/mass-update-facture-config`,
+      { ids, ...config },
+      { observe: 'response' },
+    );
+  }
 }

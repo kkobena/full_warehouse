@@ -51,6 +51,8 @@ export class ReglementFormComponent implements AfterViewInit {
   readonly dossierIds = input<number[]>([]);
   readonly montantAPayer = input<number | null>(null);
   readonly typeFacture = input<ModeEditionReglement>();
+  /** Set to false to hide the "Tout régler / paiement partiel" toggle (e.g. in rapprochement context) */
+  readonly showPartialToggle = input(true);
 
   readonly partialPayment = output<boolean>();
   readonly reglementParams = output<IReglementParams>();
@@ -76,7 +78,7 @@ export class ReglementFormComponent implements AfterViewInit {
     amount: new FormControl<number | null>(null, { validators: [Validators.required], nonNullable: true }),
     modePaimentCode: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
     partialPayment: new FormControl<boolean | null>(true, { validators: [Validators.required], nonNullable: true }),
-    paymentDate: new FormControl<Date | null>(null),
+    paymentDate: new FormControl<Date | null>(new Date()),
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
       code: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),

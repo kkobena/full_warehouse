@@ -1,0 +1,62 @@
+@use '../planif-shared';
+
+// L'hôte occupe tout l'espace disponible dans le ngbNavOutlet
+:host {
+  display: block;
+  overflow: auto;
+}
+
+// ── FNE config panel ─────────────────────────────────────────
+.fne-config-panel {
+  padding: 1rem;
+}
+
+.fne-card {
+  border: 1px solid var(--surface-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--surface-card, #fff);
+  overflow: hidden;
+}
+
+.fne-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--surface-border, #e2e8f0);
+  background: var(--surface-50, #fafafa);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.fne-card-body {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.fne-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  .fne-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .fne-stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+.plan-message-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,137 @@
+@if (state.loadingFne()) {
+  <div class="d-flex justify-content-center p-5">
+    <i class="pi pi-spin pi-spinner fs-1 text-muted"></i>
+  </div>
+} @else if (!state.planificationFne()) {
+  <div class="text-center py-5 text-muted">
+    <i class="pi pi-shield d-block fs-1 mb-3"></i>
+    <p>Aucune planification FNE configurée.</p>
+    <p-button (onClick)="state.loadFne()" icon="pi pi-refresh" label="Charger" severity="secondary" />
+  </div>
+} @else {
+  <div class="fne-config-panel">
+    <!-- Carte de configuration FNE -->
+    <div class="fne-card">
+      <div class="fne-card-header">
+        <div class="d-flex align-items-center gap-3">
+          <i class="pi pi-shield fs-3 text-primary"></i>
+          <div>
+            <div class="fw-semibold fs-6">{{ state.planificationFne()!.libelle }}</div>
+            <div class="small text-muted">
+              Heure de déclenchement : {{ state.planificationFne()!.heureDeclenchement ?? '02:00' }}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <label class="mb-0 small text-muted">
+              @if (state.planificationFne()!.actif) {
+                Désactiver la planification
+              }@else {
+                Activer la planification
+              }
+            </label>
+            <p-toggleswitch [ngModel]="state.planificationFne()!.actif" (onChange)="state.onToggleActifFne()" />
+          </div>
+          @if (state.planificationFne()!.actif) { <p-button
+            (onClick)="state.onExecuterFne()"
+            icon="pi pi-play"
+            label="Exécuter maintenant"
+            severity="success"
+            [outlined]="true"
+            size="small"
+          />}
+
+          <p-button
+            (onClick)="state.loadFne()"
+            icon="pi pi-refresh"
+            [text]="true"
+            size="small"
+            pTooltip="Actualiser"
+            tooltipPosition="left"
+          />
+        </div>
+      </div>
+
+      <div class="fne-card-body">
+        <div class="fne-stat">
+          <span class="fne-stat-label">Prochain déclenchement</span>
+          <span class="fne-stat-value">
+            @if (state.planificationFne()!.actif && state.planificationFne()!.prochaineExecution) {
+              {{ state.planificationFne()!.prochaineExecution | date: 'dd/MM/yyyy HH:mm' }}
+            } @else {
+              <span class="text-muted fst-italic">— désactivé</span>
+            }
+          </span>
+        </div>
+        <div class="fne-stat">
+          <span class="fne-stat-label">Dernière exécution</span>
+          <span class="fne-stat-value">
+            {{
+              state.planificationFne()!.derniereExecution
+                ? (state.planificationFne()!.derniereExecution | date: 'dd/MM/yyyy HH:mm')
+                : 'Jamais'
+            }}
+          </span>
+        </div>
+        <div class="fne-stat">
+          <span class="fne-stat-label">Dernier statut</span>
+          <span class="fne-stat-value">
+            @if (state.planificationFne()!.dernierStatut) {
+              <span [class]="state.getStatutBadgeClass(state.planificationFne()!.dernierStatut)">{{
+                state.planificationFne()!.dernierStatut
+              }}</span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historique FNE -->
+    <div class="mt-3">
+      <h6 class="text-muted mb-2"><i class="pi pi-history me-2"></i>Historique des certifications</h6>
+      @if (state.loadingHistoriqueFne()) {
+        <div class="d-flex justify-content-center p-3">
+          <i class="pi pi-spin pi-spinner fs-2 text-muted"></i>
+        </div>
+      } @else {
+        <p-table
+          [value]="state.historiquesFne()"
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 450px)"
+          class="p-datatable-sm"
+          [stripedRows]="true"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Statut</th>
+              <th class="text-end">Certifiées</th>
+              <th class="text-end">Échecs</th>
+              <th>Message</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-h>
+            <tr>
+              <td class="small">{{ h.executionDebut | date: 'dd/MM/yy HH:mm' }}</td>
+              <td class="small">{{ h.executionFin ? (h.executionFin | date: 'dd/MM/yy HH:mm') : '—' }}</td>
+              <td><span [class]="state.getStatutBadgeClass(h.statut)">{{ h.statut }}</span></td>
+              <td class="text-end text-success fw-semibold">{{ h.nbCertifiees ?? 0 }}</td>
+              <td class="text-end text-danger">{{ h.nbEchecs ?? 0 }}</td>
+              <td class="plan-message-cell small text-muted">{{ h.message || '—' }}</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">Aucune certification enregistrée</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    </div>
+  </div>
+}
+

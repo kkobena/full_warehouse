@@ -53,4 +53,20 @@ export class GroupeTiersPayantService {
     const options = createRequestOptions(req);
     return await firstValueFrom(this.http.get<IGroupeTiersPayant[]>(this.resourceUrl, { params: options }));
   }
+
+  massUpdateFactureConfig(
+    ids: number[],
+    config: {
+      inclureAutoDefinitif?: boolean;
+      inclureAutoProvisoire?: boolean;
+      periodiciteDefinitive?: string;
+      periodiciteProvisoire?: string;
+    },
+  ): Observable<HttpResponse<{}>> {
+    return this.http.patch(
+      `${this.resourceUrl}/mass-update-facture-config`,
+      { ids, ...config },
+      { observe: 'response' },
+    );
+  }
 }

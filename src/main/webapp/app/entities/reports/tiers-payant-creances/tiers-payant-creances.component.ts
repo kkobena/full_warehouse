@@ -13,6 +13,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { AgeCategory, ITiersPayantCreancesSummary, ITiersPayantInvoice } from 'app/shared/model/report/tiers-payant-report.model';
 import { TiersPayantReportService } from '../services/tiers-payant-report.service';
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 @Component({
   selector: 'jhi-tiers-payant-creances',
@@ -33,7 +34,7 @@ export default class TiersPayantCreancesComponent implements OnInit {
     { label: '60-90 jours', value: AgeCategory.BETWEEN_60_90 },
     { label: 'Plus de 90 jours', value: AgeCategory.MORE_THAN_90 },
   ];
-
+  private readonly downloadService = inject(BlobDownloadService);
   private readonly tiersPayantService = inject(TiersPayantReportService);
 
   ngOnInit(): void {
@@ -70,17 +71,9 @@ export default class TiersPayantCreancesComponent implements OnInit {
 
   exportToPdf(): void {
     this.tiersPayantService.exportCreancesToPdf().subscribe({
-      next(res: HttpResponse<Blob>) {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `creances-tiers-payant-${new Date().toISOString().split('T')[0]}.pdf`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-        }
-      },
+      next: (res: HttpResponse<Blob>) => {
+        this.downloadService.downloadPdf(res.body,'creances-tiers-payant');
+      }
     });
   }
 

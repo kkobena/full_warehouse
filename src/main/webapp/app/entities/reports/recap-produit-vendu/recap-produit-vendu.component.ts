@@ -36,11 +36,10 @@ import { UserService } from '../../../core/user/user.service';
 import { IUser, User } from '../../../core/user/user.model';
 import { Authority } from '../../../shared/constants/authority.constants';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
-import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { BlobDownloadService } from '../../../shared/services/blob-download.service';
+import { finalize } from "rxjs/operators";
 
 @Component({
   selector: 'jhi-recap-produit-vendu',
@@ -140,6 +139,7 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected itemsPerPage = signal<number>(10);
   protected totalItems = signal<number>(0);
   // Format methods
+  private readonly downloadService = inject(BlobDownloadService);
   protected formatCurrency = formatCurrency;
   private readonly recapService = inject(RecapProduitVenduService);
   private readonly rayonService = inject(RayonService);
@@ -172,9 +172,9 @@ export default class RecapProduitVenduComponent implements OnInit {
       command: () => this.createSuggestion(),
     },
   ]);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
-  ngOnInit(): void {
-    this.loadRayons();
+
+
+  ngOnInit(): void {    this.loadRayons();
     this.loadUsers();
     this.loadFournisseur();
 
@@ -330,99 +330,57 @@ export default class RecapProduitVenduComponent implements OnInit {
    * Export to PDF based on active tab
    */
   protected exportToPdf(): void {
-    const requestParam = this.buildRequestParam();
     const isInvendu = this.activeTab() === 'invendus';
-    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
+    const source$ = isInvendu
+      ? this.recapService.exportInvenduToPdf(this.buildRequestParam())
+      : this.recapService.exportToPdf(this.buildRequestParam());
 
-    this.spinner().show();
-
-    const exportObservable = isInvendu ? this.recapService.exportInvenduToPdf(requestParam) : this.recapService.exportToPdf(requestParam);
-
-    exportObservable.pipe(finalize(() => this.spinner().hide())).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/pdf' });
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, fileName);
-          } else {
-            window.open(URL.createObjectURL(blob));
-          }
-        }
-      },
-      error: () => {
-        this.alert().showError("Erreur lors de l'export PDF");
-      },
-    });
+    this.downloadService.downloadFromObservable(
+      source$,
+      isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu',
+      'pdf',
+      () => this.spinner().show(),
+      () => this.spinner().hide(),
+      () => this.alert().showError("Erreur lors de l'export PDF"),
+    );
   }
 
   /**
    * Export to Excel based on active tab
    */
   protected exportToExcel(): void {
-    const requestParam = this.buildRequestParam();
     const isInvendu = this.activeTab() === 'invendus';
-    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
+    const source$ = isInvendu
+      ? this.recapService.exportInvenduToExcel(this.buildRequestParam())
+      : this.recapService.exportToExcel(this.buildRequestParam());
 
-    this.spinner().show();
-
-    const exportObservable = isInvendu
-      ? this.recapService.exportInvenduToExcel(requestParam)
-      : this.recapService.exportToExcel(requestParam);
-
-    exportObservable.pipe(finalize(() => this.spinner().hide())).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, fileName, 'excel');
-          } else {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${fileName}-${new Date().getTime()}.xlsx`;
-            link.click();
-            window.URL.revokeObjectURL(url);
-          }
-        }
-      },
-      error: () => {
-        this.alert().showError("Erreur lors de l'export Excel");
-      },
-    });
+    this.downloadService.downloadFromObservable(
+      source$,
+      isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu',
+      'excel',
+      () => this.spinner().show(),
+      () => this.spinner().hide(),
+      () => this.alert().showError("Erreur lors de l'export Excel"),
+    );
   }
 
   /**
    * Export to CSV based on active tab
    */
   protected exportToCsv(): void {
-    const requestParam = this.buildRequestParam();
     const isInvendu = this.activeTab() === 'invendus';
-    const fileName = isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu';
+    const source$ = isInvendu
+      ? this.recapService.exportInvenduToCsv(this.buildRequestParam())
+      : this.recapService.exportToCsv(this.buildRequestParam());
 
-    this.spinner().show();
-
-    const exportObservable = isInvendu ? this.recapService.exportInvenduToCsv(requestParam) : this.recapService.exportToCsv(requestParam);
-
-    exportObservable.pipe(finalize(() => this.spinner().hide())).subscribe({
-      next: (res: HttpResponse<Blob>) => {
-        if (res.body) {
-          const blob = new Blob([res.body], { type: 'text/csv' });
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, fileName, 'csv');
-          } else {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${fileName}-${new Date().getTime()}.csv`;
-            link.click();
-            window.URL.revokeObjectURL(url);
-          }
-        }
-      },
-      error: () => {
-        this.alert().showError("Erreur lors de l'export CSV");
-      },
-    });
+    this.downloadService.downloadFromObservable(
+      source$,
+      isInvendu ? 'recap-produit-invendu' : 'recap-produit-vendu',
+      'csv',
+      () => this.spinner().show(),
+      () => this.spinner().hide(),
+      () => this.alert().showError("Erreur lors de l'export CSV"),
+    );
   }
 
   /**

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.domain.enumeration.OrigineGeneration;
 import com.kobe.warehouse.service.fne.model.FneResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,6 +69,10 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @Column(name = "facture_provisoire")
     private boolean factureProvisoire;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "origine_generation", length = 20, nullable = false)
+    private OrigineGeneration origineGeneration = OrigineGeneration.MANUELLE;
+
     @Column(name = "debut_periode")
     private LocalDate debutPeriode;
 
@@ -114,6 +119,8 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     @OneToMany(mappedBy = "groupeFactureTiersPayant")
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
+    @OneToMany(mappedBy = "factureTiersPayant")
+    private List<InvoicePayment> invoicePayments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumns(
@@ -207,6 +214,24 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     public FactureTiersPayant setFactureProvisoire(boolean factureProvisoire) {
         this.factureProvisoire = factureProvisoire;
+        return this;
+    }
+
+    public List<InvoicePayment> getInvoicePayments() {
+        return invoicePayments;
+    }
+
+    public FactureTiersPayant setInvoicePayments(List<InvoicePayment> invoicePayments) {
+        this.invoicePayments = invoicePayments;
+        return this;
+    }
+
+    public OrigineGeneration getOrigineGeneration() {
+        return origineGeneration;
+    }
+
+    public FactureTiersPayant setOrigineGeneration(OrigineGeneration origineGeneration) {
+        this.origineGeneration = origineGeneration;
         return this;
     }
 

@@ -50,7 +50,6 @@ public class ABCParetoPdfReportService extends AbstractStatistiqueReportService 
 
 
     public byte[] export() {
-
         List<ABCParetoDTO> products = abcParetoReportService.getAllABCParetoAnalysis();
         ABCParetoSummaryDTO summary = abcParetoReportService.getABCParetoSummary();
         this.getParameters().put("products", products);

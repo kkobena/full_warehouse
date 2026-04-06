@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
@@ -17,20 +18,20 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
@@ -41,7 +42,7 @@ import org.hibernate.type.SqlTypes;
         @Index(columnList = "statut", name = "tiers_payant_statut_index"),
         @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
     },
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "full_name" }) }
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}), @UniqueConstraint(columnNames = {"full_name"})}
 )
 public class TiersPayant implements Serializable, ConsommationService.HasConsommation {
 
@@ -154,8 +155,30 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
     @Column(name = "delai_reglement")
     private Integer delaiReglement = 30;
 
+    /**
+     * Périodicité pour la facturation définitive automatique.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "periodicite_facture_definitive", length = 20)
+    private Periodicite periodiciteFactureDefinitive ;
 
-    public TiersPayant() {}
+    /**
+     * Périodicité pour la facturation provisoire automatique (null = non inclus dans la facturation provisoire auto).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "periodicite_facture_provisoire", length = 20)
+    private Periodicite periodiciteFactureProvisoire ;
+
+    @ColumnDefault("true")
+    @Column(name = "inclure_facturation_auto_definitive", nullable = false)
+    private boolean inclureFacturationAutoDefinitive = true;
+
+    @ColumnDefault("true")
+    @Column(name = "inclure_facturation_auto_provisoire", nullable = false)
+    private boolean inclureFacturationAutoProvisoire = true;
+
+    public TiersPayant() {
+    }
 
     public String getModelFacture() {
         return modelFacture;
@@ -425,6 +448,42 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
 
     public TiersPayant setDelaiReglement(Integer delaiReglement) {
         this.delaiReglement = delaiReglement;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureDefinitive() {
+        return periodiciteFactureDefinitive;
+    }
+
+    public TiersPayant setPeriodiciteFactureDefinitive(Periodicite periodiciteFactureDefinitive) {
+        this.periodiciteFactureDefinitive = periodiciteFactureDefinitive;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureProvisoire() {
+        return periodiciteFactureProvisoire;
+    }
+
+    public TiersPayant setPeriodiciteFactureProvisoire(Periodicite periodiciteFactureProvisoire) {
+        this.periodiciteFactureProvisoire = periodiciteFactureProvisoire;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoDefinitive() {
+        return inclureFacturationAutoDefinitive;
+    }
+
+    public TiersPayant setInclureFacturationAutoDefinitive(boolean inclureFacturationAutoDefinitive) {
+        this.inclureFacturationAutoDefinitive = inclureFacturationAutoDefinitive;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoProvisoire() {
+        return inclureFacturationAutoProvisoire;
+    }
+
+    public TiersPayant setInclureFacturationAutoProvisoire(boolean inclureFacturationAutoProvisoire) {
+        this.inclureFacturationAutoProvisoire = inclureFacturationAutoProvisoire;
         return this;
     }
 

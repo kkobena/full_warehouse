@@ -1,10 +1,12 @@
 package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
+import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -29,12 +31,14 @@ import com.kobe.warehouse.service.facturation.dto.FacturationKpiRow;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
+import com.kobe.warehouse.service.facturation.dto.ReglementDto;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.facturation.specification.EditionDataSpecification;
 import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
-import com.kobe.warehouse.service.fne.service.FneService;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +55,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +75,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     private final FacturationPdfExportService facturationPdfExportService;
     private final GroupeFacturePdfExportService groupeFacturePdfExportService;
     private final ReportExcelExportService reportExcelExportService;
+    private final AppConfigurationService appConfigurationService;
 
 
     public EditionDataServiceImpl(
@@ -77,13 +83,14 @@ public class EditionDataServiceImpl implements EditionDataService {
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationPdfExportService facturationPdfExportService,
         GroupeFacturePdfExportService groupeFacturePdfExportService,
-        ReportExcelExportService reportExcelExportService
+        ReportExcelExportService reportExcelExportService, AppConfigurationService appConfigurationService
     ) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationPdfExportService = facturationPdfExportService;
         this.groupeFacturePdfExportService = groupeFacturePdfExportService;
         this.reportExcelExportService = reportExcelExportService;
+        this.appConfigurationService = appConfigurationService;
     }
 
     @Override
@@ -157,8 +164,9 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<FactureDtoWrapper> getFacture(FactureItemId id) {
-        return Optional.ofNullable(buildFactureDtoWrapper(getFactureTiersPayant(id)));
+        return Optional.ofNullable(buildFactureDtoWrapper(facturationRepository.findById(id).orElseThrow(()-> new GenericError("Facture non trouvée"))));
     }
 
     @Override
@@ -250,13 +258,13 @@ public class EditionDataServiceImpl implements EditionDataService {
         return facturationRepository.getInfoTiersPayantByFactureId(factureItemId.getId(), factureItemId.getInvoiceDate());
     }
 
-    private static final int DELAI_REGLEMENT_DEFAUT = 30;
+
 
     @Override
     @Transactional(readOnly = true)
     public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId, Integer groupeId, TypeFacture typeFacture) {
         FacturationKpiRow row = facturationRepository
-            .getKpiData(fromDate, toDate, organismeId, groupeId,typeFacture, DELAI_REGLEMENT_DEFAUT)
+            .getKpiData(fromDate, toDate, organismeId, groupeId,typeFacture, appConfigurationService.getDelaiReglement())
             .orElse(FacturationKpiRow.empty());
         long totalRestant = row.totalFacture() - row.totalRegle();
         double taux = row.totalFacture() > 0 ? (double) row.totalRegle() / row.totalFacture() * 100 : 0.0;
@@ -299,7 +307,7 @@ public class EditionDataServiceImpl implements EditionDataService {
                 row.createCell(col++).setCellValue(restant);
                 row.createCell(col++).setCellValue(f.getStatut() != null ? f.getStatut().name() : "");
                 row.createCell(col++).setCellValue(f.getCreated() != null ? f.getCreated().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "");
-                row.createCell(col++).setCellValue(f.getDelaiReglement() != null ? f.getDelaiReglement() : 30);
+                row.createCell(col++).setCellValue(f.getDelaiReglement() != null ? f.getDelaiReglement() : appConfigurationService.getDelaiReglement());
                 row.createCell(col++).setCellValue(f.getDateEcheance() != null ? f.getDateEcheance().format(DATE_FMT) : "");
                 row.createCell(col).setCellValue(Boolean.TRUE.equals(f.getEnRetard()) ? "Oui" : "Non");
             });
@@ -488,6 +496,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureDto.setMontantRestant(factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getMontantRegle(), 0));
         factureDto.setMontantVente(montantVente);
         factureDto.setMontantAttendu(factureDto.getMontantNet());
+        factureDto.setReglements(buildReglements(factureTiersPayant.getInvoicePayments()));
         return factureDto;
     }
 
@@ -534,5 +543,26 @@ public class EditionDataServiceImpl implements EditionDataService {
         assuredCustomerDTO.setNum(customer.getNumAyantDroit());
         assuredCustomerDTO.setDatNaiss(customer.getDatNaiss());
         return assuredCustomerDTO;
+    }
+
+    private List<InvoicePaymentDTO>  buildReglements(List<InvoicePayment> invoicePayments) {
+      if (CollectionUtils.isEmpty(invoicePayments)) {
+          return List.of();
+      }
+      return invoicePayments.stream().map(InvoicePaymentDTO::new).toList();
+    }
+    private ReglementDto toReglementDto(InvoicePayment p) {
+        String paymentMode = p.getPaymentMode() != null ? p.getPaymentMode().getLibelle() : null;
+        Banque banque = p.getBanque();
+        String banqueNom = banque != null ? banque.getNom() : null;
+        return new ReglementDto(
+            p.getId().getId(),
+            p.getTransactionDate(),
+            p.getPaidAmount(),
+            p.getTransactionNumber(),
+            paymentMode,
+            banqueNom,
+            p.getCommentaire()
+        );
     }
 }

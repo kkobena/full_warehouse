@@ -1,6 +1,7 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
+import com.kobe.warehouse.domain.enumeration.Periodicite;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,14 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serial;
-import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Entity
-@Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
+@Table(name = "groupe_tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GroupeTiersPayant implements Serializable {
 
@@ -53,7 +55,24 @@ public class GroupeTiersPayant implements Serializable {
     @Column(name = "delai_reglement")
     private Integer delaiReglement = 30;
 
-    public GroupeTiersPayant() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "periodicite_facture_definitive", length = 20)
+    private Periodicite periodiciteFactureDefinitive;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "periodicite_facture_provisoire", length = 20)
+    private Periodicite periodiciteFactureProvisoire;
+
+    @ColumnDefault("true")
+    @Column(name = "inclure_facturation_auto_definitive", nullable = false)
+    private boolean inclureFacturationAutoDefinitive = true;
+
+    @ColumnDefault("true")
+    @Column(name = "inclure_facturation_auto_provisoire", nullable = false)
+    private boolean inclureFacturationAutoProvisoire = true;
+
+    public GroupeTiersPayant() {
+    }
 
     public Integer getId() {
         return id;
@@ -124,6 +143,42 @@ public class GroupeTiersPayant implements Serializable {
 
     public GroupeTiersPayant setDelaiReglement(Integer delaiReglement) {
         this.delaiReglement = delaiReglement;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureDefinitive() {
+        return periodiciteFactureDefinitive;
+    }
+
+    public GroupeTiersPayant setPeriodiciteFactureDefinitive(Periodicite periodiciteFactureDefinitive) {
+        this.periodiciteFactureDefinitive = periodiciteFactureDefinitive;
+        return this;
+    }
+
+    public Periodicite getPeriodiciteFactureProvisoire() {
+        return periodiciteFactureProvisoire;
+    }
+
+    public GroupeTiersPayant setPeriodiciteFactureProvisoire(Periodicite periodiciteFactureProvisoire) {
+        this.periodiciteFactureProvisoire = periodiciteFactureProvisoire;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoDefinitive() {
+        return inclureFacturationAutoDefinitive;
+    }
+
+    public GroupeTiersPayant setInclureFacturationAutoDefinitive(boolean inclureFacturationAutoDefinitive) {
+        this.inclureFacturationAutoDefinitive = inclureFacturationAutoDefinitive;
+        return this;
+    }
+
+    public boolean isInclureFacturationAutoProvisoire() {
+        return inclureFacturationAutoProvisoire;
+    }
+
+    public GroupeTiersPayant setInclureFacturationAutoProvisoire(boolean inclureFacturationAutoProvisoire) {
+        this.inclureFacturationAutoProvisoire = inclureFacturationAutoProvisoire;
         return this;
     }
 }

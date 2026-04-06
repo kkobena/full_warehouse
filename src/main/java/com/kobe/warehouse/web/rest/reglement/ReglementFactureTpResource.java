@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.reglement;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.service.reglement.ReglementRegistry;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
@@ -74,6 +75,14 @@ public class ReglementFactureTpResource {
         @PathVariable(name = "transactionDate") LocalDate transactionDate
     ) {
         return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsGroupItems(new PaymentId(idReglement, transactionDate)));
+    }
+
+   @GetMapping("/reglements/facture/{id}/{invoiceDate}")
+    public ResponseEntity<List<InvoicePaymentDTO>> findByInvoice(
+        @PathVariable(name = "id") long id,
+        @PathVariable(name = "invoiceDate") LocalDate invoiceDate
+    ) {
+        return ResponseEntity.ok(this.reglementDataService.findByInvoice(new FactureItemId(id, invoiceDate)));
     }
 
     @GetMapping("/reglements/print-receipt/{idReglement}/{transactionDate}")

@@ -10,16 +10,19 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.LotStockLocationRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.OrderLineService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotLocationDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
@@ -56,6 +59,8 @@ public class LotServiceImpl implements LotService {
     private final ProduitRepository produitRepository;
     private final LotServiceReportService lotServiceReportService;
     private final OrderLineService orderLineService;
+    private final LotStockLocationService lotStockLocationService;
+    private final StorageService storageService;
 
     public LotServiceImpl(
         LotRepository lotRepository,
@@ -63,7 +68,9 @@ public class LotServiceImpl implements LotService {
         AppConfigurationService appConfigurationService,
         ProduitRepository produitRepository,
         LotServiceReportService lotServiceReportService,
-        OrderLineService orderLineService
+        OrderLineService orderLineService,
+        LotStockLocationService lotStockLocationService,
+        StorageService storageService
     ) {
         this.lotRepository = lotRepository;
         this.lotStockLocationRepository = lotStockLocationRepository;
@@ -71,6 +78,8 @@ public class LotServiceImpl implements LotService {
         this.produitRepository = produitRepository;
         this.lotServiceReportService = lotServiceReportService;
         this.orderLineService = orderLineService;
+        this.lotStockLocationService = lotStockLocationService;
+        this.storageService = storageService;
     }
 
     @Override
@@ -85,11 +94,8 @@ public class LotServiceImpl implements LotService {
         return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
     }
 
-    //TODO: à revoir pour prendre en compte la localisation du stock et LotStockLocation LotStockLocationService.credit(Lot lot, Storage storage, int qtyDelta)
-    // Passer le storageId depuit UI(optional), sinon connectedUser default storage, et vérifier que la quantité du lot ne dépasse pas le stock dispo sur ce storage
     @Override
     public LotDTO addLotSurProduit(LotDTO lot) {
-
         if (lot.getProduitId() == null) {
             throw new GenericError("Le produitId est obligatoire pour la saisie de lot hors commande", "produitIdManquant");
         }
@@ -99,19 +105,29 @@ public class LotServiceImpl implements LotService {
         if (lot.getExpiryDate() == null) {
             throw new GenericError("La date de péremption est obligatoire", "expiryDateManquante");
         }
+
         Produit produit = this.produitRepository.findById(lot.getProduitId())
             .orElseThrow(() -> new GenericError("Produit introuvable", "produitIntrouvable"));
 
-        int totalStock = produit.getStockProduits().stream()
-            .mapToInt(StockProduit::getQtyStock).sum();
+        // Résoudre le storage cible : celui fourni par l'UI, sinon le storage principal de l'utilisateur connecté
+        Storage storage = lot.getStorageId() != null
+            ? storageService.getOne(lot.getStorageId())
+            : storageService.getDefaultConnectedUserMainStorage();
+
         int lotQty = Optional.ofNullable(lot.getQuantityReceived()).orElse(0)
             + Optional.ofNullable(lot.getFreeQty()).orElse(0);
         if (lotQty <= 0) {
             throw new GenericError("La quantité doit être supérieure à 0", "quantiteInvalide");
         }
-        if (lotQty > totalStock) {
+
+        // Vérifier que la quantité ne dépasse pas le stock dispo sur ce storage
+        int stockStorage = produit.getStockProduits().stream()
+            .filter(sp -> sp.getStorage().getId().equals(storage.getId()))
+            .mapToInt(StockProduit::getQtyStock)
+            .sum();
+        if (lotQty > stockStorage) {
             throw new GenericError(
-                "La quantité du lot (" + lotQty + ") ne peut pas dépasser le stock du produit (" + totalStock + ")",
+                "La quantité du lot (" + lotQty + ") ne peut pas dépasser le stock disponible sur cet emplacement (" + stockStorage + ")",
                 "quantiteDepasseStock"
             );
         }
@@ -127,7 +143,12 @@ public class LotServiceImpl implements LotService {
         lotEntity.setPrixUnit(prixUnit);
         lotEntity.setProduit(produit);
         // Pas d'OrderLine → saisie hors commande
-        return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
+        lotEntity = this.lotRepository.saveAndFlush(lotEntity);
+
+        // Enregistrer la localisation du lot dans le storage cible
+        lotStockLocationService.credit(lotEntity, storage, lotQty);
+
+        return new LotDTO(lotEntity);
     }
 
     @Override

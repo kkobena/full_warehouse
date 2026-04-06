@@ -37,6 +37,8 @@ public class LotDTO {
     private String serialNumber;
     /** Id du produit — utilisé pour la saisie de lot hors commande (sans OrderLine). */
     private Integer produitId;
+    /** Storage cible (optionnel) — si absent, le storage principal de l'utilisateur connecté est utilisé. */
+    private Integer storageId;
 
     public LotDTO(Lot lot) {
         id = lot.getId();
@@ -176,6 +178,15 @@ public class LotDTO {
 
     public LotDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
+        return this;
+    }
+
+    public Integer getStorageId() {
+        return storageId;
+    }
+
+    public LotDTO setStorageId(Integer storageId) {
+        this.storageId = storageId;
         return this;
     }
 

@@ -16,6 +16,8 @@ export interface ILot {
   freeQty?: number;
   /** Utilisé pour la saisie de lot hors commande (sans OrderLine). */
   produitId?: number;
+  /** Storage cible (optionnel) — si absent, storage principal de l'utilisateur connecté. */
+  storageId?: number;
 }
 
 export class Lot implements ILot {

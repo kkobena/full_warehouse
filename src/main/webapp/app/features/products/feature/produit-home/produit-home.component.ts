@@ -386,7 +386,7 @@ export class ProduitHomeComponent implements OnInit {
 
   private openSaisirLot(produit: IProduit): void {
     const ref = this.modalService.open(LotSaisieProduitModalComponent, {
-      size: "md",
+      size: "lg",
       centered: true,
       backdrop: "static"
     });

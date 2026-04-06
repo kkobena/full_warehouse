@@ -170,7 +170,7 @@ export class ProduitStockTabComponent {
     const stock = this.produit().totalQuantity ?? 0;
     if (stock <= 0) return;
     const modalRef = this.modalService.open(LotSaisieProduitModalComponent, {
-      size: 'md',
+      size: 'lg',
       centered: true,
       backdrop: 'static',
     });

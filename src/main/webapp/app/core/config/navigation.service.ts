@@ -150,11 +150,7 @@ export class NavigationService {
           routerLink: '/commande',
           faIcon: faShippingFast,
         },
-        {
-          label: this.translateLabel('entities.inventoryTransaction'),
-          routerLink: '/produits/transaction',
-          faIcon: faEye,
-        },
+
           {
           label: 'Ajustements de stock',
           routerLink: '/features-ajustement',

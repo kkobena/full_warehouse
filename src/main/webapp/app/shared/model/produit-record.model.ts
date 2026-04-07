@@ -38,6 +38,10 @@ export class ProduitAuditingState {
   storeInventoryQuantity?: number;
   inventoryGap?: number;
   afterStock?: number;
+  /** Déplacements de stock entrants (transfert depuis rayon) */
+  mouvementStockIn?: number;
+  /** Déplacements de stock sortants (transfert vers réserve) */
+  mouvementStockOut?: number;
 }
 
 export class ProduitAuditingParam {
@@ -47,6 +51,8 @@ export class ProduitAuditingParam {
   storageId?: number;
   page?: number;
   size?: number;
+  /** Types de mouvement à filtrer côté serveur (vide = tous) */
+  mouvementTypes?: string[];
 }
 
 export class HistoriqueProduitDonneesMensuelles {

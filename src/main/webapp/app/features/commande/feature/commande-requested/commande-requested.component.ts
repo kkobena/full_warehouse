@@ -34,7 +34,6 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
 import { ProduitSearch } from "../../../../shared/model";
 import { MenuItem } from "primeng/api";
 import { SplitButton } from "primeng/splitbutton";
-import { PharmamlApiService } from "../../data-access/pharmaml-api.service";
 import { EnvoiPharmamlComponent, ReponsePharmamlComponent } from "../pharmaml";
 import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
 import { IPharmamlCommandeResponse } from "../../../../shared/model/pharmaml.model";

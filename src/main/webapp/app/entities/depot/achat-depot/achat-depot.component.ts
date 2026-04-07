@@ -21,7 +21,7 @@ import { TauriPrinterService } from '../../../shared/services/tauri-printer.serv
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from "../../../shared/model";
 import { FormsModule } from '@angular/forms';
 import { MagasinService } from '../../magasin/magasin.service';
 import { RouterLink } from '@angular/router';

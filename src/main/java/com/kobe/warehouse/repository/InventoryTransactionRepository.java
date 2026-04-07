@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Spring Data repository for the InventoryTransaction entity.
@@ -81,6 +83,11 @@ public interface InventoryTransactionRepository
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.storage).get("id"), storageId);
     }
 
+    /** Filtre sur la liste de types de mouvement (IN clause) */
+    default Specification<InventoryTransaction> specialisationMouvementTypes(EnumSet<MouvementProduit> types) {
+        return (root, query, cb) -> root.get(InventoryTransaction_.mouvementType).in(types);
+    }
+
     default Specification<InventoryTransaction> combineSpecifications(
         Integer magasinId,
         Integer produitId,
@@ -97,6 +104,17 @@ public interface InventoryTransactionRepository
         LocalDate endDate,
         Integer storageId
     ) {
+        return combineSpecifications(magasinId, produitId, startDate, endDate, storageId, null);
+    }
+
+    default Specification<InventoryTransaction> combineSpecifications(
+        Integer magasinId,
+        Integer produitId,
+        LocalDate startDate,
+        LocalDate endDate,
+        Integer storageId,
+        List<MouvementProduit> mouvementTypes
+    ) {
         Specification<InventoryTransaction> specification = specialisationProduitId(produitId);
         if (startDate != null && endDate != null) {
             specification = specification.and(specialisationMvtTransaction(startDate, endDate));
@@ -110,6 +128,9 @@ public interface InventoryTransactionRepository
         }
         if (storageId != null) {
             specification = specification.and(specialisationStorageId(storageId));
+        }
+        if (!CollectionUtils.isEmpty(mouvementTypes)) {
+            specification = specification.and(specialisationMouvementTypes(EnumSet.copyOf(mouvementTypes)));
         }
         return specification;
     }

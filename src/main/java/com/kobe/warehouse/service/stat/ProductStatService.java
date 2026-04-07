@@ -25,6 +25,8 @@ public interface ProductStatService extends CommonStatService {
 
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(ProduitAuditingParam produitAuditingParam);
 
+    byte[] exportToExcel(ProduitAuditingParam produitAuditingParam);
+
     Page<ProductStatRecord> fetchProductStat(ProduitRecordParamDTO produitRecordParam, Pageable pageable);
 
     List<ProductStatParetoRecord> fetch20x80(ProduitRecordParamDTO produitRecordParam);

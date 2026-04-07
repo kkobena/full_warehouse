@@ -60,6 +60,14 @@ export class ProduitStatService {
     return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, { responseType: 'blob' });
   }
 
+  exportToExcel(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get(`${this.resourceUrl}/transactions/excel`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
   getProduitHistoriqueVente(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVente[]>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVente[]>(`${this.resourceUrl}/historique-vente`, {

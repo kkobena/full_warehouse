@@ -1,0 +1,45 @@
+@import 'app/shared/scss/table-common';
+
+.mvt-tab-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mvt-period-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  flex-wrap: wrap;
+  background: var(--p-surface-ground, #f8fafc);
+
+  .shortcuts-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--p-text-color-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 0.25rem;
+    white-space: nowrap;
+  }
+}
+
+.mvt-chart-container {
+  position: relative;
+  height: 220px;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  background: var(--p-surface-card, #fff);
+
+  .chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--p-text-color-secondary, #64748b);
+    font-size: 0.85rem;
+  }
+}
+

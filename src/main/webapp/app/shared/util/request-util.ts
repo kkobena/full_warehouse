@@ -33,8 +33,16 @@ export const createRequestOptions = (req?: any): HttpParams => {
   if (req) {
     Object.keys(req).forEach(key => {
       if (key !== 'sort') {
-        if (req[key] !== null && req[key] !== undefined) {
-          options = options.set(key, req[key]);
+        const value = req[key];
+        if (value !== null && value !== undefined) {
+          if (Array.isArray(value)) {
+            // Chaque valeur du tableau → param répété (?key=v1&key=v2)
+            (value as any[]).forEach(v => {
+              options = options.append(key, v);
+            });
+          } else {
+            options = options.set(key, value);
+          }
         }
       }
     });

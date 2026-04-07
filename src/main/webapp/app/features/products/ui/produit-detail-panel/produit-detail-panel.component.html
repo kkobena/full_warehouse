@@ -88,32 +88,6 @@
         </ng-template>
       </ng-container>
 
-      <ng-container ngbNavItem="fournisseurs">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-truck"></i>
-          <span>Fournisseurs</span>
-        </a>
-        <ng-template ngbNavContent>
-          <app-produit-fournisseurs-tab
-            [produit]="richProduit()"
-            (refreshRequested)="onRefreshRequested()"
-          />
-        </ng-template>
-      </ng-container>
-
-      <ng-container ngbNavItem="historique">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-history"></i>
-          <span>Historique</span>
-        </a>
-        <ng-template ngbNavContent>
-          <app-produit-historique-tab
-            [ventes]="ventes()"
-            [loading]="loadingVentes()"
-          />
-        </ng-template>
-      </ng-container>
-
       <ng-container ngbNavItem="mouvements">
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-arrows-v"></i>
@@ -121,8 +95,48 @@
         </a>
         <ng-template ngbNavContent>
           @if (produit().id) {
-            <app-produit-mouvements-tab [produitId]="produit().id!" />
+            <app-produit-mouvements-tab
+              [produitId]="produit().id!"
+              [produit]="richProduit()"
+            />
           }
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="ventes">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-shopping-cart"></i>
+          <span>Ventes</span>
+        </a>
+        <ng-template ngbNavContent>
+          @if (produit().id) {
+            <app-produit-ventes-tab [produitId]="produit().id!" />
+          }
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="achats">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-truck"></i>
+          <span>Achats</span>
+        </a>
+        <ng-template ngbNavContent>
+          @if (produit().id) {
+            <app-produit-achats-tab [produitId]="produit().id!" />
+          }
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem="mouvements">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-building"></i>
+          <span>Fournisseurs</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-fournisseurs-tab
+            [produit]="richProduit()"
+            (refreshRequested)="onRefreshRequested()"
+          />
         </ng-template>
       </ng-container>
 

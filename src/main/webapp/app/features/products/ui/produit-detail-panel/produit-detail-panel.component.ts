@@ -8,13 +8,13 @@ import { IProduit } from 'app/shared/model/produit.model';
 import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
 import { ProductsApiService, ILotPeremption } from '../../data-access/services/products-api.service';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
-import { IVenteMois } from '../../models/vente-mois.model';
 import { ProduitSyntheseTabComponent } from '../produit-synthese-tab/produit-synthese-tab.component';
 import { ProduitStockTabComponent } from '../produit-stock-tab/produit-stock-tab.component';
 import { ProduitFournisseursTabComponent } from '../produit-fournisseurs-tab/produit-fournisseurs-tab.component';
-import { ProduitHistoriqueTabComponent } from '../produit-historique-tab/produit-historique-tab.component';
 import { ProduitMouvementsTabComponent } from '../produit-mouvements-tab/produit-mouvements-tab.component';
 import { ProduitDeconditionsTabComponent } from '../produit-deconditions-tab/produit-deconditions-tab.component';
+import { ProduitVentesTabComponent } from '../produit-ventes-tab/produit-ventes-tab.component';
+import { ProduitAchatsTabComponent } from '../produit-achats-tab/produit-achats-tab.component';
 
 @Component({
   selector: 'app-produit-detail-panel',
@@ -30,9 +30,10 @@ import { ProduitDeconditionsTabComponent } from '../produit-deconditions-tab/pro
     ProduitSyntheseTabComponent,
     ProduitStockTabComponent,
     ProduitFournisseursTabComponent,
-    ProduitHistoriqueTabComponent,
     ProduitMouvementsTabComponent,
     ProduitDeconditionsTabComponent,
+    ProduitVentesTabComponent,
+    ProduitAchatsTabComponent,
   ],
 })
 export class ProduitDetailPanelComponent {
@@ -47,9 +48,7 @@ export class ProduitDetailPanelComponent {
 
   protected indicateurs = signal<IProduitIndicateurs | null>(null);
   protected lots = signal<ILotPeremption[]>([]);
-  protected ventes = signal<IVenteMois[]>([]);
   protected loadingIndicateurs = signal(false);
-  protected loadingVentes = signal(false);
   protected activeTab = signal<string>('synthese');
 
   /** Produit enrichi : données complètes si chargées, sinon données liste */
@@ -72,7 +71,6 @@ export class ProduitDetailPanelComponent {
       this.fullProduit.set(null);
       this.indicateurs.set(null);
       this.lots.set([]);
-      this.ventes.set([]);
 
       // Only reset tab when switching to a different produit
       if (isNewProduit) {
@@ -88,11 +86,6 @@ export class ProduitDetailPanelComponent {
   protected onTabChange(tab: string | number): void {
     const tabId = String(tab);
     this.activeTab.set(tabId);
-    const id = this.produit().id;
-    if (!id) return;
-    if (tabId === 'historique' && this.ventes().length === 0) {
-      this.loadVentes(id);
-    }
   }
 
   protected onEdit(): void {
@@ -135,17 +128,6 @@ export class ProduitDetailPanelComponent {
   private loadLots(id: number): void {
     this.api.getLots(id).subscribe({
       next: lots => this.lots.set(lots),
-    });
-  }
-
-  private loadVentes(id: number): void {
-    this.loadingVentes.set(true);
-    this.api.getVentesMensuelles(id, 12).subscribe({
-      next: data => {
-        this.ventes.set(data);
-        this.loadingVentes.set(false);
-      },
-      error: () => this.loadingVentes.set(false),
     });
   }
 }

@@ -1,0 +1,143 @@
+<div class="mvt-tab-container">
+
+  <!-- ── Raccourcis de période ─────────────────────────────── -->
+  <div class="mvt-period-shortcuts">
+    <span class="shortcuts-label">Période :</span>
+    @for (shortcut of PERIOD_SHORTCUTS; track shortcut.key) {
+      <p-button
+        [label]="shortcut.label"
+        size="small"
+        [outlined]="activePeriod() === shortcut.key"
+        [text]="activePeriod() !== shortcut.key"
+        [severity]="activePeriod() === shortcut.key ? 'primary' : 'secondary'"
+        (onClick)="applyShortcut(shortcut)"
+      />
+    }
+  </div>
+
+  <!-- ── Filtres ────────────────────────────────────────────── -->
+  <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
+    <jhi-date-picker
+      #dateDebut
+      [(ngModel)]="fromDate"
+      [id]="'achats-du'"
+      [label]="'warehouseApp.labels.du'"
+      [max]="toDate"
+      [defaultDate]="fromDate"
+      [style]="{ 'max-width': '145px' }"
+      (onSelect)="onFromDateChange(dateDebut.submitValue)"
+    />
+    <jhi-date-picker
+      #dateFin
+      [(ngModel)]="toDate"
+      [id]="'achats-au'"
+      [label]="'warehouseApp.labels.au'"
+      [min]="fromDate"
+      [defaultDate]="toDate"
+      [style]="{ 'max-width': '145px' }"
+      (onSelect)="onToDateChange(dateFin.submitValue)"
+    />
+    <p-button
+      icon="pi pi-search"
+      label="Actualiser"
+      severity="info"
+      size="small"
+      (onClick)="load()"
+    />
+    @if (data().length > 0) {
+      <p-button
+        icon="pi pi-file-pdf"
+        label="PDF"
+        severity="warn"
+        size="small"
+        pTooltip="Exporter en PDF"
+        tooltipPosition="top"
+        (onClick)="exportPdf()"
+      />
+      <p-button
+        icon="pi pi-chart-bar"
+        label="Graphique"
+        size="small"
+        [outlined]="!showChart()"
+        [severity]="showChart() ? 'primary' : 'secondary'"
+        pTooltip="Afficher/masquer le graphique"
+        tooltipPosition="top"
+        (onClick)="toggleChart()"
+      />
+    }
+  </div>
+
+  <!-- ── Graphique achats ───────────────────────────────────── -->
+  @if (showChart()) {
+    <div class="mvt-chart-container">
+      @if (loadingChart()) {
+        <div class="chart-loading"><i class="pi pi-spin pi-spinner me-2"></i>Chargement...</div>
+      } @else {
+        <canvas #achatsChart></canvas>
+      }
+    </div>
+  }
+
+  <!-- ── Tableau achats ─────────────────────────────────────── -->
+  <p-table
+    [value]="data()"
+    [loading]="loading()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="itemsPerPage"
+    [rowsPerPageOptions]="[10, 20, 30, 50]"
+    [totalRecords]="totalItems()"
+    [scrollable]="true"
+    [showGridlines]="true"
+    class="pharma-table p-datatable-sm"
+    scrollHeight="calc(100vh - 420px)"
+    (onLazyLoad)="onLazyLoad($event)"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Date</th>
+        <th>Référence</th>
+        <th class="text-end">Quantité</th>
+        <th class="text-end">Prix achat</th>
+        <th class="text-end">Montant achat</th>
+        <th>Opérateur</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-a>
+      <tr>
+        <td>{{ a.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ a.reference }}</td>
+        <td class="text-end pharma-qty-value">{{ a.quantite | number }}</td>
+        <td class="text-end pharma-price">{{ a.prixAchat | number }}</td>
+        <td class="text-end pharma-price">{{ a.montantAchat | number }}</td>
+        <td>{{ a.user }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template #footer>
+      @if (summary()) {
+        <tr class="pharma-table-footer">
+          <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
+          <td></td>
+          <td class="text-end"><span class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
+          <td></td>
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="pharma-empty-message">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucun achat sur la période</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+

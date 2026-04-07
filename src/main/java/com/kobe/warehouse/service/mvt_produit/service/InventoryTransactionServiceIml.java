@@ -117,7 +117,37 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : startDate;
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
-        return fetchMouvementProduit(produitAuditingParam.produitId(), magasinId, startDate, endDate, produitAuditingParam.storageId());
+        List<ProduitAuditingState> results = fetchMouvementProduit(
+            produitAuditingParam.produitId(), magasinId, startDate, endDate, produitAuditingParam.storageId()
+        );
+        // Filtre côté Java sur les types demandés (la procédure native retourne toujours tout)
+        if (!CollectionUtils.isEmpty(produitAuditingParam.mouvementTypes())) {
+            return results.stream()
+                .filter(state -> produitAuditingParam.mouvementTypes().stream()
+                    .anyMatch(type -> hasMovementForType(state, type)))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        return results;
+    }
+
+    /** Vérifie qu'un état contient au moins un mouvement non nul pour le type donné */
+    private boolean hasMovementForType(ProduitAuditingState state, com.kobe.warehouse.domain.enumeration.MouvementProduit type) {
+        return switch (type) {
+            case SALE            -> state.getSaleQuantity() != 0;
+            case ENTREE_STOCK    -> state.getDeleveryQuantity() != 0;
+            case RETOUR_FOURNISSEUR -> state.getRetourFournisseurQuantity() != 0;
+            case RETRAIT_PERIME  -> state.getPerimeQuantity() != 0;
+            case AJUSTEMENT_IN   -> state.getAjustementPositifQuantity() != 0;
+            case AJUSTEMENT_OUT  -> state.getAjustementNegatifQuantity() != 0;
+            case DECONDTION_IN   -> state.getDeconPositifQuantity() != 0;
+            case DECONDTION_OUT  -> state.getDeconNegatifQuantity() != 0;
+            case CANCEL_SALE     -> state.getCanceledQuantity() != 0;
+            case RETOUR_DEPOT    -> state.getRetourDepot() != 0;
+            case MOUVEMENT_STOCK_IN  -> state.getMouvementStockIn() != 0;
+            case MOUVEMENT_STOCK_OUT -> state.getMouvementStockOut() != 0;
+            case INVENTAIRE      -> state.getStoreInventoryQuantity() != 0;
+            default              -> false;
+        };
     }
 
     private List<ProduitAuditingState> fetchMouvementProduit(Integer produitId, Integer magasinId, LocalDate startDate, LocalDate endDate, Integer storageId) {
@@ -175,8 +205,15 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(
-                inventoryTransactionRepository.combineSpecifications(magasinId, produitAuditingParam.produitId(), startDate, endDate, produitAuditingParam.storageId())
-            );
+            inventoryTransactionRepository.combineSpecifications(
+                magasinId,
+                produitAuditingParam.produitId(),
+                startDate,
+                endDate,
+                produitAuditingParam.storageId(),
+                produitAuditingParam.mouvementTypes()
+            )
+        );
     }
 
     @Override

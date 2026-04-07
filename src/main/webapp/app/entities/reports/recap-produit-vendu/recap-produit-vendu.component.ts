@@ -40,6 +40,8 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import { finalize } from "rxjs/operators";
+import { TranslateService } from "@ngx-translate/core";
+import { PrimeNG } from "primeng/config";
 
 @Component({
   selector: 'jhi-recap-produit-vendu',
@@ -138,7 +140,8 @@ export default class RecapProduitVenduComponent implements OnInit {
   protected page = signal<number>(1);
   protected itemsPerPage = signal<number>(10);
   protected totalItems = signal<number>(0);
-  // Format methods
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
   private readonly downloadService = inject(BlobDownloadService);
   protected formatCurrency = formatCurrency;
   private readonly recapService = inject(RecapProduitVenduService);
@@ -172,7 +175,12 @@ export default class RecapProduitVenduComponent implements OnInit {
       command: () => this.createSuggestion(),
     },
   ]);
-
+constructor() {
+  this.translate.use('fr');
+  this.translate.stream('primeng').subscribe(data => {
+    this.primeNGConfig.setTranslation(data);
+  });
+}
 
   ngOnInit(): void {    this.loadRayons();
     this.loadUsers();

@@ -31,9 +31,12 @@ import com.kobe.warehouse.service.dto.records.HistoriqueVenteResult;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.report.produit.ProduitAuditingExcelService;
 import com.kobe.warehouse.service.report.produit.ProduitAuditingReportSevice;
 import com.kobe.warehouse.service.stat.ProductStatService;
 import com.kobe.warehouse.service.stat.dto.ProductSaleSummary;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -61,6 +64,7 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductStatServiceImpl.class);
     private final ProduitAuditingReportSevice produitAuditingReportSevice;
+    private final ProduitAuditingExcelService produitAuditingExcelService;
     private final SalesLineRepository salesLineRepository;
     private final HistoriqueVenteReportReportService historiqueVenteReportReportService;
     private final OrderLineRepository orderLineRepository;
@@ -70,6 +74,7 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     public ProductStatServiceImpl(
         ProduitAuditingReportSevice produitAuditingReportSevice,
+        ProduitAuditingExcelService produitAuditingExcelService,
         SalesLineRepository salesLineRepository,
         HistoriqueVenteReportReportService historiqueVenteReportReportService,
         OrderLineRepository orderLineRepository,
@@ -78,6 +83,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         ObjectMapper objectMapper
     ) {
         this.produitAuditingReportSevice = produitAuditingReportSevice;
+        this.produitAuditingExcelService = produitAuditingExcelService;
         this.salesLineRepository = salesLineRepository;
         this.historiqueVenteReportReportService = historiqueVenteReportReportService;
         this.orderLineRepository = orderLineRepository;
@@ -109,6 +115,23 @@ public class ProductStatServiceImpl implements ProductStatService {
                 produitRepository.getReferenceById(produitAuditingParam.produitId()),
                 new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate())
             );
+    }
+
+    @Override
+    public byte[] exportToExcel(ProduitAuditingParam produitAuditingParam) {
+        String libelle = produitRepository.getReferenceById(produitAuditingParam.produitId()).getLibelle();
+        String title = "Mouvements — " + libelle
+            + " | " + produitAuditingParam.fromDate()
+            + " → " + produitAuditingParam.toDate();
+
+        try {
+            return this.produitAuditingExcelService.exportToExcel(
+                this.fetchProduitDailyTransaction(produitAuditingParam),
+                title
+            );
+        } catch (IOException e) {
+            throw new IllegalStateException("Erreur lecture du contenu Excel", e);
+        }
     }
 
     @Override
@@ -252,8 +275,10 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     @Override
     public Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
+        HistoriqueVenteResult result = fetchHistoriqueVente(produitHistorique, Pageable.unpaged());
+        List<HistoriqueProduitVente> content = (result != null) ? result.content() : List.of();
         return this.historiqueVenteReportReportService.exportHistoriqueVenteToPdf(
-                fetchHistoriqueVente(produitHistorique, Pageable.unpaged()).content(),
+                content,
                 buildHistoriqueProduitVenteSummary(fetchHistoriqueVenteSummary(produitHistorique)),
                 this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())

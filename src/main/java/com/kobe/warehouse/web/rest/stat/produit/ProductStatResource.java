@@ -27,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,6 +76,16 @@ public class ProductStatResource {
     ) throws MalformedURLException {
         Resource resource = this.productStatService.printToPdf(produitAuditingParam);
         return Utils.printPDF(resource, request);
+    }
+
+    @GetMapping("/transactions/excel")
+    public ResponseEntity<byte[]> exportTransactionsToExcel(@Valid ProduitAuditingParam produitAuditingParam) {
+        byte[] data = this.productStatService.exportToExcel(produitAuditingParam);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "mouvements-produit.xlsx");
+        return ResponseEntity.ok().headers(headers).body(data);
     }
 
     @GetMapping("/historique-vente")

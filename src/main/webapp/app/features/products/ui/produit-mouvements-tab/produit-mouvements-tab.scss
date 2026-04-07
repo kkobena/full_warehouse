@@ -1,2 +1,74 @@
-
 @import 'app/shared/scss/table-common';
+
+.mvt-tab-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ── Raccourcis de période ──────────────────────────────────────
+.mvt-period-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  flex-wrap: wrap;
+  background: var(--p-surface-ground, #f8fafc);
+
+  .shortcuts-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--p-text-color-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 0.25rem;
+    white-space: nowrap;
+  }
+
+  // Surcharge taille des boutons raccourcis
+  ::ng-deep .p-button.p-button-sm {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.78rem;
+    min-width: 3rem;
+  }
+}
+
+// ── P1.1 Color-coding des lignes ──────────────────────────────
+::ng-deep {
+  tr.mvt-row-positive td {
+    background-color: rgba(34, 197, 94, 0.05) !important;
+  }
+  tr.mvt-row-negative td {
+    background-color: rgba(239, 68, 68, 0.05) !important;
+  }
+  tr.mvt-row-inventory td {
+    background-color: rgba(59, 130, 246, 0.06) !important;
+  }
+}
+
+// ── P1.2 Indicateur tendance stock ────────────────────────────
+.mvt-trend-up {
+  color: #16a34a;
+  font-size: 0.6rem;
+  vertical-align: middle;
+}
+
+.mvt-trend-down {
+  color: #dc2626;
+  font-size: 0.6rem;
+  vertical-align: middle;
+}
+
+.mvt-stock-final-cell {
+  white-space: nowrap;
+}
+
+// ── P2.1 Graphique d'évolution du stock ──────────────────────
+.mvt-chart-container {
+  position: relative;
+  height: 220px;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  background: var(--p-surface-card, #fff);
+}

@@ -3,7 +3,7 @@ import {AccountService} from 'app/core/auth/account.service';
 import {TranslateService} from '@ngx-translate/core';
 import {NavItem} from 'app/layouts/navbar/navbar-item.model';
 import {Authority} from 'app/shared/constants/authority.constants';
-import { PeremptionAlertService } from '../../shared/services/peremption-alert.service';
+import {PeremptionAlertService} from '../../shared/services/peremption-alert.service';
 import {
   faBook,
   faBoxes,
@@ -19,7 +19,6 @@ import {
   faDesktop,
   faDollarSign,
   faExclamationTriangle,
-  faEye,
   faFileInvoice,
   faLink,
   faMapMarker,
@@ -62,10 +61,10 @@ export class NavigationService {
 
     // ── Accès directs par rôle ────────────────────────────────────────────
     if (account) {
-      const isAdmin      = this.hasAnyAuthority([Authority.ADMIN], account.authorities);
-      const isCaissier   = this.hasAnyAuthority([Authority.ROLE_CAISSIER], account.authorities);
-      const isVendeur    = this.hasAnyAuthority([Authority.ROLE_VENDEUR], account.authorities);
-      const isRespCmd    = this.hasAnyAuthority([Authority.ROLE_RESPONSABLE_COMMANDE], account.authorities);
+      const isAdmin = this.hasAnyAuthority([Authority.ADMIN], account.authorities);
+      const isCaissier = this.hasAnyAuthority([Authority.ROLE_CAISSIER], account.authorities);
+      const isVendeur = this.hasAnyAuthority([Authority.ROLE_VENDEUR], account.authorities);
+      const isRespCmd = this.hasAnyAuthority([Authority.ROLE_RESPONSABLE_COMMANDE], account.authorities);
       const isPharmacien = this.hasAnyAuthority([Authority.ROLE_PHARMACIEN, Authority.HOME_DASHBOARD], account.authorities);
 
       // Nouvelle Vente — Caissier/Admin → comptant ; Vendeur → prévente uniquement
@@ -151,7 +150,7 @@ export class NavigationService {
           faIcon: faShippingFast,
         },
 
-          {
+        {
           label: 'Ajustements de stock',
           routerLink: '/features-ajustement',
           faIcon: faSlidersH,
@@ -212,30 +211,54 @@ export class NavigationService {
       authorities: [Authority.REFERENTIEL, Authority.ADMIN, Authority.ROLE_PHARMACIEN],
       children: [
         // ── Groupe Produits ──────────────────────────────────────────
-        { label: 'Produits', groupLabel: 'Produits' } as any,
-        { label: this.translateLabel('entities.rayon'),         routerLink: '/rayon',          faIcon: faStream },
-        { label: this.translateLabel('entities.formeProduit'),  routerLink: '/forme-produit',  faIcon: faPills },
-        { label: this.translateLabel('entities.familleProduit'),routerLink: '/famille-produit', faIcon: faBoxes },
-        { label: this.translateLabel('gammeProduit'),           routerLink: '/gamme-produit',  faIcon: faMapMarker },
-        { label: this.translateLabel('laboratoire'),            routerLink: '/laboratoire',    faIcon: faBuilding },
+        {label: 'Produits', groupLabel: 'Produits'} as any,
+        {label: this.translateLabel('entities.rayon'), routerLink: '/rayon', faIcon: faStream},
+        {
+          label: this.translateLabel('entities.formeProduit'),
+          routerLink: '/forme-produit',
+          faIcon: faPills
+        },
+        {
+          label: this.translateLabel('entities.familleProduit'),
+          routerLink: '/famille-produit',
+          faIcon: faBoxes
+        },
+        {
+          label: this.translateLabel('gammeProduit'),
+          routerLink: '/gamme-produit',
+          faIcon: faMapMarker
+        },
+        {label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding},
         // ── Groupe Commercial ─────────────────────────────────────────
-        { label: '__divider__', divider: true } as any,
-        { label: 'Commercial', groupLabel: 'Commercial' } as any,
+        {label: '__divider__', divider: true} as any,
+        {label: 'Commercial', groupLabel: 'Commercial'} as any,
         {
           label: this.translateLabel('entities.remise'),
           routerLink: '/remises',
           authorities: [Authority.ADMIN, Authority.REMISE],
           faIcon: faPercent,
         },
-        { label: this.translateLabel('entities.tableau'), routerLink: '/tableaux',      faIcon: faTable },
-        { label: this.translateLabel('entities.tva'),     routerLink: '/tva',           faIcon: faDollarSign },
-        { label: 'Modes de paiement',                     routerLink: '/mode-payments', faIcon: faSdCard },
+        {label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable},
+        {label: this.translateLabel('entities.tva'), routerLink: '/tva', faIcon: faDollarSign},
+        {label: 'Modes de paiement', routerLink: '/mode-payments', faIcon: faSdCard},
         // ── Groupe Organisation ───────────────────────────────────────
-        { label: '__divider__', divider: true } as any,
-        { label: 'Organisation', groupLabel: 'Organisation' } as any,
-        { label: this.translateLabel('entities.fournisseur'), routerLink: '/fournisseur',         faIcon: faTruck },
-        { label: this.translateLabel('motifAjustement'),      routerLink: '/motif-ajustement',    faIcon: faExclamationTriangle },
-        { label: 'Motif Retour Produit',                      routerLink: '/motif-retour-produit', faIcon: faSchoolCircleExclamation },
+        {label: '__divider__', divider: true} as any,
+        {label: 'Organisation', groupLabel: 'Organisation'} as any,
+        {
+          label: this.translateLabel('entities.fournisseur'),
+          routerLink: '/fournisseur',
+          faIcon: faTruck
+        },
+        {
+          label: this.translateLabel('motifAjustement'),
+          routerLink: '/motif-ajustement',
+          faIcon: faExclamationTriangle
+        },
+        {
+          label: 'Motif Retour Produit',
+          routerLink: '/motif-retour-produit',
+          faIcon: faSchoolCircleExclamation
+        },
         {
           label: this.translateLabel('parametre'),
           routerLink: '/parametre',
@@ -250,7 +273,7 @@ export class NavigationService {
     // CA                 → Admin + Resp. Commande (impact commandes / achats)
     // Stock & Inventaire → Admin + Resp. Commande (cœur de métier)
     // Clients/Fourn.     → Admin + Resp. Commande (performance fournisseurs)
-    // Trésorerie/Finance → Admin + Caissier  (encaissements, non pertinent Resp.)
+    
     allItems.push({
       label: 'Rapports & Statistiques',
       faIcon: faChartBar,
@@ -273,13 +296,7 @@ export class NavigationService {
           routerLink: '/reports/partners',
           faIcon: faUsers,
           authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-        },
-        {
-          label: 'Trésorerie & Finance',
-          routerLink: '/reports/finance',
-          faIcon: faWallet,
-          authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-        },
+        }
       ],
     });
 

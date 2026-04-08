@@ -7,7 +7,7 @@ use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_shell::ShellExt;
 use tokio::net::TcpStream;
-use tokio::sync::Mutex; // C3 : tokio::sync::Mutex
+use tokio::sync::Mutex;
 
 #[derive(Clone, Serialize)]
 pub struct BackendStatus {
@@ -72,23 +72,30 @@ fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
     if java_exe.exists() {
         Some(java_exe)
     } else {
-        tracing::warn!("Répertoire JRE présent mais java introuvable : {:?}", java_exe);
+        tracing::warn!(
+            "Répertoire JRE présent mais java introuvable : {:?}",
+            java_exe
+        );
         None
     }
 }
 
-/// Vérifie que Java système est disponible. I7 : tokio::process::Command async.
+/// Vérifie que Java système est disponible.
 async fn check_java_version() -> Result<(), BackendError> {
     use tokio::process::Command;
     let output = Command::new("java")
         .arg("-version")
         .output()
         .await
-        .map_err(|_| BackendError::JavaNotFound("Java introuvable — installez un JRE.".to_string()))?;
+        .map_err(|_| {
+            BackendError::JavaNotFound("Java introuvable — installez un JRE.".to_string())
+        })?;
 
     let ver = String::from_utf8_lossy(&output.stderr);
     if ver.is_empty() {
-        return Err(BackendError::JavaNotFound("Java ne retourne aucune sortie.".to_string()));
+        return Err(BackendError::JavaNotFound(
+            "Java ne retourne aucune sortie.".to_string(),
+        ));
     }
     if let Some(first) = ver.lines().next() {
         tracing::info!("Java détecté : {}", first);
@@ -97,25 +104,32 @@ async fn check_java_version() -> Result<(), BackendError> {
 }
 
 fn find_jar_file(app: &AppHandle) -> Result<PathBuf, BackendError> {
-    let resource_dir = app.path().resource_dir()
+    let resource_dir = app
+        .path()
+        .resource_dir()
         .map_err(|e| BackendError::ConfigError(format!("Répertoire ressources : {}", e)))?;
     let sidecar_dir = resource_dir.join("sidecar");
     if !sidecar_dir.exists() {
-        return Err(BackendError::ConfigError(format!("Répertoire sidecar absent : {:?}", sidecar_dir)));
+        return Err(BackendError::ConfigError(format!(
+            "Répertoire sidecar absent : {:?}",
+            sidecar_dir
+        )));
     }
     let mut jars: Vec<PathBuf> = std::fs::read_dir(&sidecar_dir)
         .map_err(|e| BackendError::ConfigError(format!("Lecture sidecar : {}", e)))?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| {
-            p.file_name().and_then(|n| n.to_str())
+            p.file_name()
+                .and_then(|n| n.to_str())
                 .map(|n| n.starts_with("pharmaSmart-") && n.ends_with(".jar"))
                 .unwrap_or(false)
         })
         .collect();
 
     jars.sort();
-    jars.into_iter().next_back()
+    jars.into_iter()
+        .next_back()
         .inspect(|p| tracing::info!("JAR sélectionné : {:?}", p))
         .ok_or_else(|| BackendError::JarNotFound(sidecar_dir))
 }
@@ -140,8 +154,14 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
         "-XX:+UseStringDeduplication".to_string(),
         "-XX:+UseCompressedOops".to_string(),
         "-XX:+HeapDumpOnOutOfMemoryError".to_string(),
-        format!("-XX:HeapDumpPath={}", heap_dump.to_str().unwrap_or("heapdump.hprof")),
-        format!("-Xlog:gc*:file={}:time,level,tags", gc_log.to_str().unwrap_or("gc.log")),
+        format!(
+            "-XX:HeapDumpPath={}",
+            heap_dump.to_str().unwrap_or("heapdump.hprof")
+        ),
+        format!(
+            "-Xlog:gc*:file={}:time,level,tags",
+            gc_log.to_str().unwrap_or("gc.log")
+        ),
         "-Dfile.encoding=UTF-8".to_string(),
         "-Duser.timezone=UTC".to_string(),
         "-Djava.net.preferIPv4Stack=true".to_string(),
@@ -149,14 +169,20 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
 
     args.extend(config.jvm.additional_options.iter().cloned());
     if !config.jvm.additional_options.is_empty() {
-        tracing::debug!("Options JVM additionnelles : {:?}", config.jvm.additional_options);
+        tracing::debug!(
+            "Options JVM additionnelles : {:?}",
+            config.jvm.additional_options
+        );
     }
 
     args.push("-jar".to_string());
     args.push(jar_path.to_string_lossy().to_string());
     args.push("--spring.profiles.active=standalone,tauri,prod".to_string());
     args.push(format!("--server.port={}", config.server.port));
-    args.push(format!("--logging.file.name={}", config.get_log_path().to_str().unwrap_or("pharmasmart.log")));
+    args.push(format!(
+        "--logging.file.name={}",
+        config.get_log_path().to_str().unwrap_or("pharmasmart.log")
+    ));
     args.push(format!("--file.report={}", config.file.report));
     args.push(format!("--file.images={}", config.file.images));
     args.push(format!("--file.import.json={}", config.file.import.json));
@@ -169,12 +195,30 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
     args.push(format!("--spring.mail.username={}", config.mail.username));
     args.push(format!("--mail.email={}", config.mail.email));
     args.push(format!("--port-com={}", config.port_com));
-    args.push(format!("--pharma-smart.jobs.nightly-pipeline-cron={}", config.jobs.nightly_pipeline_cron));
-    args.push(format!("--pharma-smart.semois.freeze-delay-days={}", config.semois.freeze_delay_days));
-    args.push(format!("--pharma-smart.semois.batch-size={}", config.semois.batch_size));
-    args.push(format!("--pharma-smart.views.dashboards-cron={}", config.views.dashboards_cron));
-    args.push(format!("--pharma-smart.views.analytique-cron={}", config.views.analytique_cron));
-    args.push(format!("--pharma-smart.views.reporting-cron={}", config.views.reporting_cron));
+    args.push(format!(
+        "--pharma-smart.jobs.nightly-pipeline-cron={}",
+        config.jobs.nightly_pipeline_cron
+    ));
+    args.push(format!(
+        "--pharma-smart.semois.freeze-delay-days={}",
+        config.semois.freeze_delay_days
+    ));
+    args.push(format!(
+        "--pharma-smart.semois.batch-size={}",
+        config.semois.batch_size
+    ));
+    args.push(format!(
+        "--pharma-smart.views.dashboards-cron={}",
+        config.views.dashboards_cron
+    ));
+    args.push(format!(
+        "--pharma-smart.views.analytique-cron={}",
+        config.views.analytique_cron
+    ));
+    args.push(format!(
+        "--pharma-smart.views.reporting-cron={}",
+        config.views.reporting_cron
+    ));
     args
 }
 
@@ -190,7 +234,11 @@ async fn check_postgres_ready(app: &AppHandle, config: &AppConfig) -> Result<(),
     let timeout_secs = config.database.check_timeout_secs;
     let state = app.state::<BackendState>();
 
-    tracing::info!("Vérification disponibilité PostgreSQL sur {} (timeout: {}s)…", addr, timeout_secs);
+    tracing::info!(
+        "Vérification disponibilité PostgreSQL sur {} (timeout: {}s)…",
+        addr,
+        timeout_secs
+    );
 
     let start = std::time::Instant::now();
     let total_timeout = Duration::from_secs(timeout_secs);
@@ -206,41 +254,48 @@ async fn check_postgres_ready(app: &AppHandle, config: &AppConfig) -> Result<(),
                 "Timeout ({}s atteint) — vérifiez que PostgreSQL est démarré sur {}",
                 timeout_secs, addr
             );
-            tracing::error!("PostgreSQL non disponible après {} tentatives : {}", attempt, msg);
+            tracing::error!(
+                "PostgreSQL non disponible après {} tentatives : {}",
+                attempt,
+                msg
+            );
             return Err(BackendError::DatabaseNotReady(addr, msg));
         }
 
         let elapsed = start.elapsed().as_secs();
-        let progress = 15u8.saturating_add(
-            ((elapsed as f32 / timeout_secs as f32) * 10.0) as u8
-        ).min(24);
+        let progress = 15u8
+            .saturating_add(((elapsed as f32 / timeout_secs as f32) * 10.0) as u8)
+            .min(24);
 
-        state.set_status(
-            app,
-            "checking_database",
-            progress,
-            &format!(
-                "En attente de PostgreSQL sur {} ({}/{}s, tentative {})…",
-                addr, elapsed, timeout_secs, attempt
-            ),
-        ).await;
+        state
+            .set_status(
+                app,
+                "checking_database",
+                progress,
+                &format!(
+                    "En attente de PostgreSQL sur {} ({}/{}s, tentative {})…",
+                    addr, elapsed, timeout_secs, attempt
+                ),
+            )
+            .await;
 
         // Connexion TCP avec délai de 3s maximum par tentative
-        match tokio::time::timeout(
-            Duration::from_secs(3),
-            TcpStream::connect(&addr),
-        ).await {
+        match tokio::time::timeout(Duration::from_secs(3), TcpStream::connect(&addr)).await {
             Ok(Ok(_)) => {
                 tracing::info!(
                     "PostgreSQL disponible sur {} (tentative {}, délai: {}ms)",
-                    addr, attempt, start.elapsed().as_millis()
+                    addr,
+                    attempt,
+                    start.elapsed().as_millis()
                 );
-                state.set_status(
-                    app,
-                    "database_ready",
-                    25,
-                    &format!("PostgreSQL prêt sur {}", addr),
-                ).await;
+                state
+                    .set_status(
+                        app,
+                        "database_ready",
+                        25,
+                        &format!("PostgreSQL prêt sur {}", addr),
+                    )
+                    .await;
                 return Ok(());
             }
             Ok(Err(e)) => {
@@ -280,25 +335,37 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
     let config = AppConfig::load(app);
     let state = app.state::<BackendState>();
 
-    state.set_status(app, "checking_java", 10, "Vérification de Java…").await;
+    state
+        .set_status(app, "checking_java", 10, "Vérification de Java…")
+        .await;
 
     let java_executable = if let Some(bundled) = find_bundled_jre(app) {
-        state.set_status(app, "checking_java", 15, "Utilisation du JRE embarqué…").await;
+        state
+            .set_status(app, "checking_java", 15, "Utilisation du JRE embarqué…")
+            .await;
         bundled.to_string_lossy().to_string()
     } else {
-        state.set_status(app, "checking_java", 12, "Vérification du Java système…").await;
+        state
+            .set_status(app, "checking_java", 12, "Vérification du Java système…")
+            .await;
         check_java_version().await?;
         "java".to_string()
     };
 
     // ── Vérifier que PostgreSQL est accessible avant de lancer la JVM ──────
-    state.set_status(app, "checking_database", 15, "Vérification de PostgreSQL…").await;
+    state
+        .set_status(app, "checking_database", 15, "Vérification de PostgreSQL…")
+        .await;
     check_postgres_ready(app, &config).await?;
 
-    state.set_status(app, "finding_jar", 30, "Recherche du fichier JAR…").await;
+    state
+        .set_status(app, "finding_jar", 30, "Recherche du fichier JAR…")
+        .await;
     let jar_path = find_jar_file(app)?;
 
-    state.set_status(app, "starting", 30, "Démarrage du backend Spring Boot…").await;
+    state
+        .set_status(app, "starting", 30, "Démarrage du backend Spring Boot…")
+        .await;
 
     if let Err(e) = config.ensure_log_dir() {
         tracing::warn!(error = %e, "Impossible de créer le répertoire de logs");
@@ -316,7 +383,14 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
 
     let pid = child.pid();
     *state.process_id.lock().await = Some(pid);
-    state.set_status(app, "launched", 40, &format!("Backend lancé (PID : {})…", pid)).await;
+    state
+        .set_status(
+            app,
+            "launched",
+            40,
+            &format!("Backend lancé (PID : {})…", pid),
+        )
+        .await;
     tracing::info!(pid, "Processus backend démarré");
 
     // Surveillance de la sortie du processus
@@ -329,7 +403,10 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
                 }
                 tauri_plugin_shell::process::CommandEvent::Stderr(line) => {
                     let text = String::from_utf8_lossy(&line);
-                    if text.contains("ERROR") || text.contains("FATAL") || text.contains("Exception") {
+                    if text.contains("ERROR")
+                        || text.contains("FATAL")
+                        || text.contains("Exception")
+                    {
                         tracing::error!("[Backend] {}", text);
                         let _ = app_handle.emit("backend-log", text.to_string());
                     } else {
@@ -338,7 +415,8 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
                 }
                 tauri_plugin_shell::process::CommandEvent::Terminated(status) => {
                     tracing::warn!("[Backend] Processus terminé : {:?}", status);
-                    let _ = app_handle.emit("backend-log", format!("Backend terminé : {:?}", status));
+                    let _ =
+                        app_handle.emit("backend-log", format!("Backend terminé : {:?}", status));
                     break;
                 }
                 _ => {}
@@ -346,7 +424,14 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
         }
     });
 
-    state.set_status(app, "waiting", 50, "En attente de la disponibilité du backend…").await;
+    state
+        .set_status(
+            app,
+            "waiting",
+            50,
+            "En attente de la disponibilité du backend…",
+        )
+        .await;
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(10))
@@ -354,11 +439,15 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
         .unwrap_or_default();
 
     if let Err(e) = wait_for_backend_ready(app, config.server.port, 60, &client).await {
-        state.set_status(app, "error", 0, &format!("Échec démarrage backend : {}", e)).await;
+        state
+            .set_status(app, "error", 0, &format!("Échec démarrage backend : {}", e))
+            .await;
         return Err(BackendError::SpawnFailed(e));
     }
 
-    state.set_status(app, "ready", 100, "Le backend est prêt !").await;
+    state
+        .set_status(app, "ready", 100, "Le backend est prêt !")
+        .await;
     tracing::info!(pid, "Backend opérationnel");
     Ok(pid)
 }
@@ -386,16 +475,18 @@ async fn wait_for_backend_ready(
         }
 
         let elapsed = start.elapsed().as_secs();
-        let progress = 50u8.saturating_add(
-            ((elapsed as f32 / timeout_secs as f32) * 45.0) as u8
-        ).min(95);
+        let progress = 50u8
+            .saturating_add(((elapsed as f32 / timeout_secs as f32) * 45.0) as u8)
+            .min(95);
 
-        state.set_status(
-            app,
-            "waiting",
-            progress,
-            &format!("Vérification état backend… ({}/{}s)", elapsed, timeout_secs),
-        ).await;
+        state
+            .set_status(
+                app,
+                "waiting",
+                progress,
+                &format!("Vérification état backend… ({}/{}s)", elapsed, timeout_secs),
+            )
+            .await;
 
         match client.get(&url).send().await {
             Ok(resp) if resp.status().is_success() => return Ok(()),
@@ -419,7 +510,9 @@ pub async fn stop_backend(app: &AppHandle) -> Result<(), String> {
     };
 
     tracing::info!(pid, "Arrêt du backend");
-    state.set_status(app, "stopping", 0, "Arrêt du backend en cours…").await;
+    state
+        .set_status(app, "stopping", 0, "Arrêt du backend en cours…")
+        .await;
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(8))
@@ -430,25 +523,39 @@ pub async fn stop_backend(app: &AppHandle) -> Result<(), String> {
     #[cfg(windows)]
     {
         use tokio::process::Command; // I7 : async
-        match Command::new("taskkill").args(["/F", "/PID", &pid.to_string()]).output().await {
+        match Command::new("taskkill")
+            .args(["/F", "/PID", &pid.to_string()])
+            .output()
+            .await
+        {
             Ok(r) if r.status.success() => {
                 tracing::info!(pid, "Processus arrêté (taskkill)");
-                state.set_status(app, "stopped", 100, "Backend arrêté").await;
+                state
+                    .set_status(app, "stopped", 100, "Backend arrêté")
+                    .await;
                 Ok(())
             }
-            Ok(r) => Err(format!("Échec taskkill : {}", String::from_utf8_lossy(&r.stderr))),
+            Ok(r) => Err(format!(
+                "Échec taskkill : {}",
+                String::from_utf8_lossy(&r.stderr)
+            )),
             Err(e) => Err(format!("Impossible d'exécuter taskkill : {}", e)),
         }
     }
 
-    // C1 fix : remplace nix (absent de Cargo.toml) par tokio::process::Command
     #[cfg(not(windows))]
     {
         use tokio::process::Command;
-        match Command::new("kill").args(["-15", &pid.to_string()]).output().await {
+        match Command::new("kill")
+            .args(["-15", &pid.to_string()])
+            .output()
+            .await
+        {
             Ok(_) => {
                 tracing::info!(pid, "SIGTERM envoyé au processus backend");
-                state.set_status(app, "stopped", 100, "Backend arrêté").await;
+                state
+                    .set_status(app, "stopped", 100, "Backend arrêté")
+                    .await;
                 Ok(())
             }
             Err(e) => Err(format!("Impossible d'envoyer SIGTERM : {}", e)),
@@ -461,13 +568,17 @@ pub async fn stop_backend(app: &AppHandle) -> Result<(), String> {
 pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
     tracing::info!("Redémarrage du backend…");
     let state = app.state::<BackendState>();
-    state.set_status(&app, "restarting", 10, "Redémarrage…").await;
+    state
+        .set_status(&app, "restarting", 10, "Redémarrage…")
+        .await;
 
     if let Err(e) = stop_backend(&app).await {
         tracing::warn!(error = %e, "Arrêt non propre, tentative de redémarrage quand même");
     }
     tokio::time::sleep(Duration::from_secs(2)).await;
-    state.set_status(&app, "starting", 30, "Démarrage du backend…").await;
+    state
+        .set_status(&app, "starting", 30, "Démarrage du backend…")
+        .await;
     start_backend(&app).await
 }
 
@@ -475,21 +586,32 @@ pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::config::AppConfig;
+  use crate::config::AppConfig;
 
-    #[test]
+  #[test]
     fn test_build_jvm_args_required_flags() {
         let config = AppConfig::default();
         let jar = Path::new("/opt/sidecar/pharmaSmart-1.0.jar");
         let args = build_jvm_args(&config, jar);
 
-        assert!(args.iter().any(|a| a.starts_with("-Xms")), "heap_min manquant");
-        assert!(args.iter().any(|a| a.starts_with("-Xmx")), "heap_max manquant");
+        assert!(
+            args.iter().any(|a| a.starts_with("-Xms")),
+            "heap_min manquant"
+        );
+        assert!(
+            args.iter().any(|a| a.starts_with("-Xmx")),
+            "heap_max manquant"
+        );
         assert!(args.iter().any(|a| a == "-XX:+UseG1GC"), "G1GC manquant");
         assert!(args.iter().any(|a| a == "-jar"), "-jar manquant");
-        assert!(args.iter().any(|a| a.contains("pharmaSmart-1.0.jar")), "JAR path manquant");
-        assert!(args.iter().any(|a| a.contains("standalone,tauri,prod")), "profiles manquants");
+        assert!(
+            args.iter().any(|a| a.contains("pharmaSmart-1.0.jar")),
+            "JAR path manquant"
+        );
+        assert!(
+            args.iter().any(|a| a.contains("standalone,tauri,prod")),
+            "profiles manquants"
+        );
     }
 
     #[test]

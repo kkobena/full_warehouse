@@ -22,15 +22,7 @@ const reportsRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
-  {
-    path: 'finance',
-    loadComponent: () => import('./finance-reports/finance-reports.component'),
-    data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-      pageTitle: 'Rapports Trésorerie & Finance',
-    },
-    canActivate: [UserRouteAccessService],
-  },
+
   {
     path: 'partners',
     loadComponent: () => import('./partners-reports/partners-reports.component'),

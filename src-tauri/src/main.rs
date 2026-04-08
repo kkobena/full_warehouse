@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod printer;
-mod types; // I2 : expose les types partagés (nécessaire pour backend_manager::BackendError)
+mod types;
 
 #[cfg(feature = "bundled-backend")]
 mod backend_manager;
@@ -11,15 +11,15 @@ mod backend_manager;
 mod config;
 
 #[cfg(feature = "bundled-backend")]
-use backend_manager::{BackendState, start_backend};
+use backend_manager::{start_backend, BackendState};
 
 #[cfg(feature = "bundled-backend")]
 use tauri::Manager;
 
 // Emitter est uniquement nécessaire en mode standard (app_handle.emit dans le monitor)
+use crate::types::BackendHealthStatus;
 #[cfg(not(feature = "bundled-backend"))]
 use tauri::Emitter;
-use crate::types::BackendHealthStatus; // I2 : réutilise la struct de types.rs
 
 // ─── I1 : Client HTTP partagé ────────────────────────────────────────────────
 

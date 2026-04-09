@@ -43,8 +43,8 @@
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <flyway.version>11.14.1</flyway.version>
     <springdoc-openapi.version>2.7.0</springdoc-openapi.version>
-    <openpdf.version>3.0.0</openpdf.version>
-    <xhtmlrenderer.version>10.0.6</xhtmlrenderer.version>
+    <openpdf.version>3.0.3</openpdf.version>
+    <xhtmlrenderer.version>10.2.0</xhtmlrenderer.version>
     <batik.version>1.19</batik.version>
     <poi.version>5.5.1</poi.version>
     <zxing.version>3.5.3</zxing.version>
@@ -270,7 +270,7 @@
     <dependency>
       <groupId>com.fazecast</groupId>
       <artifactId>jSerialComm</artifactId>
-      <version>2.11.2</version>
+      <version>2.11.4</version>
     </dependency>
 
     <!-- ==================== -->

@@ -72,7 +72,7 @@
             <div>
               <p class="kpi-label mb-0">Solde cumulé</p>
               <span class="kpi-value-sm text-warning">{{ kpi()!.soldeCumule | number:'1.0-0' }}</span>
-              <p class="kpi-sublabel mb-0">Dont report N-1</p>
+              <p class="kpi-sublabel mb-0" [pTooltip]="'Report de solde de l\'année précédente (N-1)'" tooltipPosition="bottom">Dont report N-1</p>
             </div>
           </div>
         </div>

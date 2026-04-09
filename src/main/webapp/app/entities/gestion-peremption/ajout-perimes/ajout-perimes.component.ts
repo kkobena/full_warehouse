@@ -21,7 +21,6 @@ import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-s
 import { CtaComponent } from '../../../shared/cta/cta.component';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { DecimalPipe } from '@angular/common';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -32,10 +31,12 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-ajout-perimes',
   imports: [
+    CommonModule,
     FloatLabel,
     TranslatePipe,
     FormsModule,
@@ -48,7 +49,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     CtaComponent,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    DecimalPipe,
     TableModule,
     Tag,
     RemoveButtonTextComponent,

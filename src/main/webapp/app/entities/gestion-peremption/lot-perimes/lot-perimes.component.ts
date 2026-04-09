@@ -27,7 +27,6 @@ import { KeyFilter } from "primeng/keyfilter";
 import { Button } from "primeng/button";
 import { SplitButton } from "primeng/splitbutton";
 import { RouterLink, Router } from "@angular/router";
-import { DatePipe, DecimalPipe } from "@angular/common";
 import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from "primeng/table";
 import { Tag } from "primeng/tag";
 import { PeremptionStatut } from "../model/peremption-statut";
@@ -45,10 +44,12 @@ import { ButtonGroup } from "primeng/buttongroup";
 import { Tooltip } from "primeng/tooltip";
 import { RetourFournisseurPerimeDialogComponent } from "../retour-fournisseur-perime-dialog/retour-fournisseur-perime-dialog.component";
 import { RetourGroupePerimeDialogComponent } from "../retour-groupe-perime-dialog/retour-groupe-perime-dialog.component";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "jhi-lot-perimes",
   imports: [
+    CommonModule,
     ToolbarModule,
     IconField,
     InputIcon,
@@ -61,8 +62,6 @@ import { RetourGroupePerimeDialogComponent } from "../retour-groupe-perime-dialo
     Button,
     SplitButton,
     RouterLink,
-    DatePipe,
-    DecimalPipe,
     TableModule,
     Tag,
     Divider,

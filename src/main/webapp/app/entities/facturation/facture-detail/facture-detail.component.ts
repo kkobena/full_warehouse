@@ -1,9 +1,9 @@
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { Facture, FactureItem } from '../facture.model';
 import { SalesLineService } from '../../sales-line/sales-line.service';
-import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { ISalesLine } from "../../../shared/model";
 import { HttpResponse } from '@angular/common/http';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
 import { FactureService } from '../facture.service';
@@ -15,7 +15,7 @@ import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-facture-detail',
-  imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule, InputIcon, IconField, Tag],
+  imports: [ TableModule, PanelModule ,CommonModule, InputTextModule, FormsModule, InputIcon, IconField, Tag],
   templateUrl: './facture-detail.component.html',
   styleUrls: ['./facture-detail.component.scss'],
 })

@@ -5,6 +5,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 public record RecapitulatifMensuelDto(
+    int tiersPayantId,
     String tiersPayantName,
     String tiersPayantCode,
     YearMonth periode,

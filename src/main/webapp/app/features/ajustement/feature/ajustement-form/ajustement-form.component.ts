@@ -1,5 +1,5 @@
 import { Component, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -36,7 +36,6 @@ import { CommandeProductSearchComponent } from '../../../commande/ui/commande-pr
   imports: [
     CommonModule,
     FormsModule,
-    DecimalPipe,
     ButtonModule,
     Select,
     InputNumber,

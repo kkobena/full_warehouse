@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   faChartArea,
   faChartBar,
@@ -43,7 +43,6 @@ interface TopSelection {
   imports: [
     CommonModule,
     FormsModule,
-    DecimalPipe,
     TableModule,
     FaIconComponent,
     ChartModule,

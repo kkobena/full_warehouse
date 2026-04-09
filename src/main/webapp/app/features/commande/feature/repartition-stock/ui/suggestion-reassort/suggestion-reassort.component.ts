@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -22,15 +22,15 @@ import { firstValueFrom } from 'rxjs';
 import { ILigneReassort, ISuggestionReassort } from '../../../../../../entities/repartition-stock/repartition-stock.model';
 import { RepartitionStockService } from '../../../../../../entities/repartition-stock/repartition-stock.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-
+import { formatNumber } from 'app/shared/util/warehouse-util';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
   selector: 'app-suggestion-reassort',
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
-  imports: [CommonModule, DatePipe, TableModule, ButtonModule, TagModule, ToastModule, Tooltip, AgGridAngular],
-  providers: [MessageService, DecimalPipe],
+  imports: [CommonModule, TableModule, ButtonModule, TagModule, ToastModule, Tooltip, AgGridAngular],
+  providers: [MessageService],
 })
 export class AppSuggestionReassortComponent {
   readonly typeReassort = input<string>('RAYON');
@@ -38,7 +38,6 @@ export class AppSuggestionReassortComponent {
   private readonly repartitionService = inject(RepartitionStockService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly messageService = inject(MessageService);
-  private readonly decimalPipe = inject(DecimalPipe);
 
   private readonly suggestionsResource = resource({
     loader: async () => {
@@ -346,6 +345,6 @@ export class AppSuggestionReassortComponent {
     if (value === null || value === undefined) {
       return '';
     }
-    return this.decimalPipe.transform(value, '1.0-0') ?? '';
+    return formatNumber(value);
   }
 }

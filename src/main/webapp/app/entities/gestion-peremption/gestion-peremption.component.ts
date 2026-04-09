@@ -1,19 +1,25 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase } from '@ng-bootstrap/ng-bootstrap';
-import { TranslatePipe } from '@ngx-translate/core';
-import { LotPerimesComponent } from './lot-perimes/lot-perimes.component';
-import { LotADetruireComponent } from './lot-a-detruire/lot-a-detruire.component';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { LotService } from '../commande/lot/lot.service';
-import { ProductToDestroyService } from './product-to-destroy.service';
-import { DecimalPipe } from '@angular/common';
-import { LotFilterParam } from './model/lot-perimes';
-import { ProductToDestroyFilter } from './model/product-to-destroy';
-import { PeremptionAlertService } from '../../shared/services/peremption-alert.service';
-import { RouterLink } from '@angular/router';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import {
+  NgbNav,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavLinkBase,
+  NgbNavOutlet
+} from "@ng-bootstrap/ng-bootstrap";
+import { TranslatePipe } from "@ngx-translate/core";
+import { LotPerimesComponent } from "./lot-perimes/lot-perimes.component";
+import { LotADetruireComponent } from "./lot-a-detruire/lot-a-detruire.component";
+import { LotService } from "../commande/lot/lot.service";
+import { ProductToDestroyService } from "./product-to-destroy.service";
+import { LotFilterParam } from "./model/lot-perimes";
+import { ProductToDestroyFilter } from "./model/product-to-destroy";
+import { PeremptionAlertService } from "../../shared/services/peremption-alert.service";
+import { RouterLink } from "@angular/router";
+import { CommonModule } from "@angular/common";
 
 @Component({
-  selector: 'jhi-gestion-peremption',
+  selector: "jhi-gestion-peremption",
   imports: [
     NgbNav,
     NgbNavContent,
@@ -23,15 +29,15 @@ import { RouterLink } from '@angular/router';
     TranslatePipe,
     LotPerimesComponent,
     LotADetruireComponent,
-    WarehouseCommonModule,
-    DecimalPipe,
+    CommonModule,
     RouterLink,
+    NgbNavOutlet
   ],
-  templateUrl: './gestion-peremption.component.html',
-  styleUrls: ['./gestion-peremption.scss'],
+  templateUrl: "./gestion-peremption.component.html",
+  styleUrls: ["./gestion-peremption.scss"]
 })
 export class GestionPeremptionComponent implements OnInit {
-  protected active = 'lot-perimes';
+  protected active = "lot-perimes";
   protected lotPerimesCount = 0;
   protected lotADetruireCount = 0;
   protected alertDismissed = signal(true);
@@ -50,12 +56,20 @@ export class GestionPeremptionComponent implements OnInit {
 
   protected loadCounts(): void {
     this.lotService.getSum({} as LotFilterParam).subscribe({
-      next: res => { this.lotPerimesCount = res.body?.count ?? 0; },
-      error: () => { this.lotPerimesCount = 0; },
+      next: res => {
+        this.lotPerimesCount = res.body?.count ?? 0;
+      },
+      error: () => {
+        this.lotPerimesCount = 0;
+      }
     });
     this.productToDestroyService.getSum({ destroyed: false, editing: false } as ProductToDestroyFilter).subscribe({
-      next: res => { this.lotADetruireCount = res.body?.productCount ?? 0; },
-      error: () => { this.lotADetruireCount = 0; },
+      next: res => {
+        this.lotADetruireCount = res.body?.productCount ?? 0;
+      },
+      error: () => {
+        this.lotADetruireCount = 0;
+      }
     });
   }
 }

@@ -1,9 +1,8 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FactureDetailComponent } from '../facture-detail/facture-detail.component';
 import { Facture } from '../facture.model';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { PanelModule } from 'primeng/panel';
-import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { HttpResponse } from '@angular/common/http';
 import { FactureService } from '../facture.service';
@@ -17,7 +16,6 @@ import { InputIcon } from 'primeng/inputicon';
   selector: 'jhi-groupe-facture-detail',
   imports: [
     FactureDetailComponent,
-    DecimalPipe,
     PanelModule,
     TableModule,
     InputTextModule,

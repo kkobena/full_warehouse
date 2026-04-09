@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
+import { CommonModule} from "@angular/common";
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
@@ -28,8 +28,8 @@ import { NotificationService } from "../../../shared/services/notification.servi
     SelectModule,
     InputNumberModule,
     TableModule,
-    TagModule,
-    DecimalPipe
+    TagModule
+
   ],
   templateUrl: "./retour-groupe-perime-dialog.component.html",
   styleUrls: ["./retour-lot-pereme-groupe.scss"]

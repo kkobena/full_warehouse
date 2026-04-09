@@ -64,17 +64,19 @@
                   <app-rapprochement />
                 </ng-template>
               </ng-container>
+              @if (showAvoir){
+                <ng-container ngbNavItem="avoirs">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-file-minus"></i>
+                    <span>Avoirs</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-avoir />
+                  </ng-template>
+                </ng-container>
+              }
 
-              <ng-container ngbNavItem="avoirs">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-file-minus"></i>
-                  <span>Avoirs</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <app-avoir />
-                </ng-template>
-              </ng-container>
 
               <ng-container ngbNavItem="automatisation">
                 <a class="pharma-nav-vertical-link" ngbNavLink>

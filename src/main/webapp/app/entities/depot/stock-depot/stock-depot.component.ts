@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
@@ -11,7 +11,7 @@ import { TableModule } from 'primeng/table';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Toolbar } from 'primeng/toolbar';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from "../../../shared/model";
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { TypeProduit } from '../../../shared/model/enumerations/type-produit.model';
 import { IResponseDto } from '../../../shared/util/response-dto';
@@ -27,7 +27,7 @@ import { combineLatest } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { StockDepotService } from './stock-depot.service';
 import { MagasinService } from '../../magasin/magasin.service';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from "../../../shared/model";
 
 @Component({
   selector: 'jhi-stock-depot',
@@ -35,7 +35,6 @@ import { IMagasin } from '../../../shared/model/magasin.model';
     CommonModule,
     Button,
     ConfirmDialogComponent,
-    DecimalPipe,
     IconField,
     InputIcon,
     InputText,

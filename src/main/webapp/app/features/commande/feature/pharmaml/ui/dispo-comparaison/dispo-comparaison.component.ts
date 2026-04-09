@@ -1,5 +1,5 @@
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
-import {DecimalPipe} from '@angular/common';
+import { CommonModule } from "@angular/common";
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {TagModule} from 'primeng/tag';
@@ -24,7 +24,7 @@ export interface ComparaisonRow {
   selector: 'app-dispo-comparaison',
   templateUrl: './dispo-comparaison.component.html',
   styleUrls: ['./dispo-comparaison.component.scss'],
-  imports: [DecimalPipe, FormsModule, TagModule, MultiSelectModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, FormsModule, TagModule, MultiSelectModule, ButtonModule, TooltipModule],
 })
 export class DispoComparaisonComponent implements OnInit {
   commandeId!: CommandeId;

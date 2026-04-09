@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.FactureTiersPayantRepository;
@@ -66,8 +67,10 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
             List<FactureTiersPayant> tpFactures = entry.getValue();
             FactureTiersPayant first = tpFactures.getFirst();
             TiersPayant tp = first.getTiersPayant();
-            String tpName = tp != null ? tp.getFullName() : (first.getGroupeTiersPayant() != null ? first.getGroupeTiersPayant().getName() : "");
+            GroupeTiersPayant groupeTiersPayant=tp==null?first.getGroupeTiersPayant():null;
+            String tpName = tp != null ? tp.getFullName() : (groupeTiersPayant != null ? groupeTiersPayant.getName() : "");
             String tpCode = tp != null ? (tp.getCodeOrganisme() != null ? tp.getCodeOrganisme() : "") : "";
+            int idTp =tp != null ?tp.getId() :groupeTiersPayant.getId();
             int delai = tp != null && tp.getDelaiReglement() != null ? tp.getDelaiReglement() : appConfigurationService.getDelaiReglement();
 
             BigDecimal totalFacture = BigDecimal.ZERO;
@@ -104,7 +107,7 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
             BigDecimal soldeActuel = totalFacture.subtract(totalRegle);
             BigDecimal soldeCumule = soldePrecedent.add(soldeActuel);
 
-            result.add(new RecapitulatifMensuelDto(
+            result.add(new RecapitulatifMensuelDto(idTp,
                 tpName,
                 tpCode,
                 yearMonth,

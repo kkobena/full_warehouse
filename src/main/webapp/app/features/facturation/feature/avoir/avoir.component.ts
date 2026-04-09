@@ -17,7 +17,7 @@ import { Toast } from "primeng/toast";
 import { DATE_FORMAT_ISO_DATE } from "../../../../shared/util/warehouse-util";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
-import { ITiersPayant } from "../../../../shared/model/tierspayant.model";
+import { ITiersPayant } from "../../../../shared/model";
 import { IAvoir } from "../../data-access/models";
 import { AvoirApiService } from "../../data-access/services/avoir-api.service";
 import { AvoirFormModalComponent } from "../../ui/avoir-form-modal/avoir-form-modal.component";

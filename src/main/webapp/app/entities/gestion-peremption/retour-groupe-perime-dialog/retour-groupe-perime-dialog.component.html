@@ -70,11 +70,11 @@
             </td>
             <td class="text-center">
               <small [class.text-danger]="lot.peremptionStatut?.days < 0">
-                {{ lot.datePeremption | date:'dd/MM/yy' }}
+                {{ lot.datePeremption | date:'dd/MM/yyyy' }}
               </small>
             </td>
             <td class="text-center">
-              <p-inputnumber
+              <p-inputNumber
                 [formControl]="$any(itemGroup.get('quantity'))"
                 [min]="1"
                 [max]="lot.quantity"

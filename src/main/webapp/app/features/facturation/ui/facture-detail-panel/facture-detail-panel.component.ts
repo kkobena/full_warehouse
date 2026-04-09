@@ -7,12 +7,8 @@ import { TableModule } from "primeng/table";
 import { BadgeModule } from "primeng/badge";
 import { TooltipModule } from "primeng/tooltip";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
-
-import { WarehouseCommonModule } from "../../../../shared/warehouse-common/warehouse-common.module";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
-import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 
 import { FactureApiService } from "../../data-access/services/facture-api.service";
 import { ReglementApiService } from "../../data-access/services/reglement-api.service";
@@ -30,11 +26,12 @@ import { ReglementWorkspaceComponent } from "../reglement-workspace/reglement-wo
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-facture-detail-panel",
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     NgbNavModule,
     ButtonModule,
     TableModule,
@@ -134,7 +131,7 @@ export class FactureDetailPanelComponent {
     if (tabId === "regler" && !this.dossierFactureProjection()) {
       this.loadReglementContext(f);
     }
-    if (tabId === "versements" ) {
+    if (tabId === "versements") {
 
       this.loadReglements(f);
     }

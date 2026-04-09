@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { DatePipe, DecimalPipe, NgClass } from "@angular/common";
+import { CommonModule, DatePipe, NgClass } from "@angular/common";
 import { Router } from "@angular/router";
 import { HttpResponse } from "@angular/common/http";
 
@@ -24,7 +24,7 @@ import { AlertBadgeService } from "app/shared/services/alert-badge.service";
   templateUrl: "./appro-unified-dashboard.component.html",
   styleUrls: ["./appro-unified-dashboard.component.scss"],
   imports: [
-    DatePipe, DecimalPipe, NgClass,
+    DatePipe, CommonModule,
     TableModule, ButtonModule, ToolbarModule, Tag,
     ProgressBarModule, SkeletonModule, TooltipModule, BadgeModule,
   ],

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CaPeriodeFilter } from '../../../shared/model/enumerations/ca-periode-filter.model';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { HomeBaseComponent } from '../../home-base/home-base.component';
 import { ChartModule } from 'primeng/chart';
@@ -17,7 +17,6 @@ import { ButtonModule } from 'primeng/button';
   imports: [
     CommonModule,
     FormsModule,
-    DecimalPipe,
     SelectModule,
     TableModule,
     FaIconComponent,

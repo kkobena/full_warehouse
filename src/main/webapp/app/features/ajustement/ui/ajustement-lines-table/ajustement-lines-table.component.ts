@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -18,7 +18,6 @@ import { IAjustement } from '../../../../shared/model/ajustement.model';
   imports: [
     CommonModule,
     FormsModule,
-    DecimalPipe,
     ButtonModule,
     TableModule,
     TagModule,

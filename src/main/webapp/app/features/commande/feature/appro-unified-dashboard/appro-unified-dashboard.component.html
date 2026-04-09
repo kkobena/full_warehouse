@@ -354,7 +354,7 @@
                   }
                 </td>
                 <td class="text-end pharma-price small">{{ formatAmount(row.grossAmount) }} F</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
+                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
                   <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Ouvrir" (onClick)="openCommande(row)" />
                 </td>
@@ -398,7 +398,7 @@
               <tr class="cursor-pointer" (click)="openCommande(row)">
                 <td class="small">{{ row.fournisseurLibelle }}</td>
                 <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
-                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yy' }}</td>
+                <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">
                   <p-button icon="pi pi-arrow-right" size="small" [text]="true" severity="secondary" pTooltip="Saisir la réception" (onClick)="openCommande(row)" />
                 </td>

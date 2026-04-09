@@ -142,6 +142,7 @@ export interface IRecapitulatifMensuelDto {
   periode?: string;
   soldePrecedent?: number;
   totalFacture?: number;
+  tiersPayantId?: number;
   totalRegle?: number;
   soldeActuel?: number;
   soldeCumule?: number;

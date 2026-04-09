@@ -25,4 +25,5 @@ import { PlanificationComponent } from '../planification/planification.component
 })
 export class FacturationLayoutComponent {
   protected active = 'factures';
+  protected  showAvoir = false;// la fonctionnalité ne fonctionne pas correctement pour le moment, on la masque en attendant de la corriger
 }

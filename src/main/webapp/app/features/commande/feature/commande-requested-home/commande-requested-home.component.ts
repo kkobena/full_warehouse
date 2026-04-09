@@ -1,6 +1,6 @@
 import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {CommonModule, DatePipe, DecimalPipe} from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {filter, finalize} from 'rxjs/operators';
 import {HttpResponse} from '@angular/common/http';
@@ -52,7 +52,6 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     TagModule,
     TooltipModule,
     InputTextModule,
-    DecimalPipe,
     DatePipe,
     Toast,
     AgGridAngular,

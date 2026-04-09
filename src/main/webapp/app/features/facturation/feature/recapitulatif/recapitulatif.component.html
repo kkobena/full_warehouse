@@ -23,13 +23,15 @@
             <label for="recap-type"></label>
           </p-floatlabel>
           <p-floatlabel variant="on">
-            <input
+            <p-select
               [(ngModel)]="annee"
+              [options]="anneeOptions"
+              appendTo="body"
               id="recap-annee"
-              pInputText
-              type="number"
-              min="2025"
-              style="width: 90px"
+              optionLabel="label"
+              optionValue="value"
+              style="width: 120px"
+              (onChange)="onSearch()"
             />
             <label for="recap-annee">Année</label>
           </p-floatlabel>
@@ -46,8 +48,6 @@
             />
             <label for="recap-mois">Mois</label>
           </p-floatlabel>
-
-
 
           <p-floatlabel variant="on">
             <p-autoComplete
@@ -82,15 +82,15 @@
             <p-button
               (onClick)="onExportExcel()"
               [loading]="loadingExport()"
-              [raised]="true"
+              [outlined]="true"
               icon="pi pi-file-excel"
               label="Excel"
-              severity="warn"
+              severity="help"
             />
             <p-button
               (onClick)="onExportPdf()"
+              [outlined]="true"
               [loading]="loadingPdf()"
-              [raised]="true"
               icon="pi pi-file-pdf"
               label="PDF"
               severity="danger"
@@ -126,7 +126,7 @@
         scrollHeight="flex"
         class="p-datatable-sm"
         selectionMode="single"
-        dataKey="tiersPayantCode"
+        dataKey="tiersPayantId"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -150,15 +150,15 @@
         <ng-template #body let-row>
           <tr
             (click)="onRowSelect(row)"
-            [class.recap-row-selected]="selectedRow()?.tiersPayantCode === row.tiersPayantCode"
+            [class.recap-row-selected]="selectedRow()?.tiersPayantId === row.tiersPayantId"
             style="cursor:pointer"
           >
             <td>
               <span class="fw-semibold">{{ row.tiersPayantName }}</span>
             </td>
             @if (!panelOpen()) {
-              <td class="text-muted small">{{ row.tiersPayantCode }}</td>
-              <td class="text-muted small">{{ row.periode }}</td>
+              <td class="text-muted small">{{ row.tiersPayantName }}</td>
+              <td class="text-muted small">{{ row.periode  | date: 'MM/yyyy'}}</td>
               <td class="text-end">{{ (row.soldePrecedent ?? 0) | number:'1.0-0' }}</td>
             }
             <td class="text-end fw-bold">{{ (row.totalFacture ?? 0) | number:'1.0-0' }}</td>
@@ -243,7 +243,7 @@
               <i class="pi pi-building me-1"></i>{{ selectedRow()?.tiersPayantName }}
             </div>
             <div class="panel-meta">
-              <span class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode }}</span>
+              <span class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode | date: 'MM/yyyy' }}</span>
               <span class="pharma-badge pharma-badge-primary">Facturé : {{ (selectedRow()?.totalFacture ?? 0) | number:'1.0-0' }}</span>
               <span class="pharma-badge pharma-badge-success">Réglé : {{ (selectedRow()?.totalRegle ?? 0) | number:'1.0-0' }}</span>
               @if ((selectedRow()?.soldeActuel ?? 0) > 0) {
@@ -299,8 +299,8 @@
             <ng-template #body let-ligne>
               <tr>
                 <td class="fw-semibold small">{{ ligne.numFacture }}</td>
-                <td class="small">{{ ligne.invoiceDate }}</td>
-                <td class="small">{{ ligne.echeance }}</td>
+                <td class="small">{{ ligne.invoiceDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="small">{{ ligne.echeance | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
                 <td class="text-end text-success">{{ (ligne.montantRegle ?? 0) | number:'1.0-0' }}</td>
                 <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>

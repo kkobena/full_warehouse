@@ -8,7 +8,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { DecimalPipe } from '@angular/common';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CardModule } from 'primeng/card';
 import { SplitButtonModule } from 'primeng/splitbutton';
@@ -25,16 +24,17 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 import { finalize } from 'rxjs/operators';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-balance-mvt-caisse',
   imports: [
+    CommonModule,
     Button,
     MultiSelectModule,
     PaginatorModule,
     ToolbarModule,
     TooltipModule,
-    DecimalPipe,
     SelectButtonModule,
     CardModule,
     SplitButtonModule,

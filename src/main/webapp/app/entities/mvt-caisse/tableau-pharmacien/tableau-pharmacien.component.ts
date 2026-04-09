@@ -15,7 +15,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
-import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { SplitButtonModule } from 'primeng/splitbutton';
@@ -34,10 +33,12 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 import { finalize } from 'rxjs/operators';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-tableau-pharmacien',
   imports: [
+    CommonModule,
     Button,
     InputTextModule,
     MultiSelectModule,
@@ -45,8 +46,6 @@ import { TauriPrinterService } from '../../../shared/services/tauri-printer.serv
     ToolbarModule,
     TooltipModule,
     RadioButtonModule,
-    DecimalPipe,
-    DatePipe,
     SelectButtonModule,
     ChartModule,
     CardModule,

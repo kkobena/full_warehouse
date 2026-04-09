@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -31,8 +31,6 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
     SelectModule,
     InputNumberModule,
     TooltipModule,
-    DecimalPipe,
-    DatePipe,
     RouterLink,
     DatePickerComponent,
   ],

@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { DecimalPipe } from "@angular/common";
+import { DatePipe, DecimalPipe } from "@angular/common";
 import { finalize } from "rxjs/operators";
 
 import { AutoCompleteModule } from "primeng/autocomplete";
@@ -38,6 +38,11 @@ interface ITypeFactureOption {
   value: string;
 }
 
+interface IAnneeOption {
+  label: string;
+  value: number;
+}
+
 @Component({
   selector: "app-recapitulatif",
   imports: [
@@ -53,7 +58,8 @@ interface ITypeFactureOption {
     Toast,
     RecapitulatifKpiBannerComponent,
     ButtonGroup,
-    Tooltip
+    Tooltip,
+    DatePipe
   ],
   templateUrl: "./recapitulatif.component.html",
   styleUrl: "./recapitulatif.component.scss"
@@ -74,7 +80,9 @@ export class RecapitulatifComponent implements OnInit {
     { label: "Groupée", value: "GROUPED" }
   ];
 
-  protected annee: number = new Date().getFullYear();
+  protected readonly anneeOptions: IAnneeOption[] = this.generateAnneeOptions();
+
+  protected annee: number = Math.max(new Date().getFullYear(), 2026);
   protected selectedMois: number = new Date().getMonth() + 1;
   protected selectedTypeFacture = "";
   protected tiersPayantSuggestions: ITiersPayant[] = [];
@@ -131,9 +139,7 @@ export class RecapitulatifComponent implements OnInit {
   }
 
   onRowSelect(row: IRecapitulatifMensuelDto): void {
-    if (this.selectedRow()?.tiersPayantCode === row.tiersPayantCode) {
-      this.selectedRow.set(null); // toggle off
-    } else {
+    if (this.selectedRow()?.tiersPayantId !== row.tiersPayantId) {
       this.selectedRow.set(row);
     }
   }
@@ -230,6 +236,18 @@ export class RecapitulatifComponent implements OnInit {
 
   detailLignes(row: IRecapitulatifMensuelDto): IRecapitulatifMensuelRow[] {
     return row.lignes ?? [];
+  }
+
+  private generateAnneeOptions(): IAnneeOption[] {
+    const years: IAnneeOption[] = [];
+    const minYear = 2026;
+    const actualYear = new Date().getFullYear();
+    const topYear = Math.max(actualYear, minYear);
+
+    for (let i = topYear; i >= minYear; i--) {
+      years.push({ label: i.toString(), value: i });
+    }
+    return years;
   }
 
   private buildParams(): IRecapitulatifParams {

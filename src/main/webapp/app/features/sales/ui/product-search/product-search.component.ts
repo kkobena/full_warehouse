@@ -10,20 +10,24 @@ import {
   OnInit,
   output,
   signal,
-  viewChild,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { AutoComplete } from 'primeng/autocomplete';
-import { FloatLabel } from 'primeng/floatlabel';
-import { TranslatePipe } from '@ngx-translate/core';
-import { DecimalPipe } from '@angular/common';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../../shared/constants/pagination.constants';
-import { ProduitSearch } from '../../../../shared/model';
-import { ProduitService } from '../../../../entities/produit/produit.service';
-import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
-import { ScanDetectorService, ScanEvent } from '../../../../shared/scan-detector.service';
-import { GlobalScannerService } from '../../../../shared/global-scanner.service';
+  viewChild
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
+import { AutoComplete } from "primeng/autocomplete";
+import { FloatLabel } from "primeng/floatlabel";
+import { TranslatePipe } from "@ngx-translate/core";
+import {
+  APPEND_TO,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_NOT_FOUND
+} from "../../../../shared/constants/pagination.constants";
+import { ProduitSearch } from "../../../../shared/model";
+import { ProduitService } from "../../../../entities/produit/produit.service";
+import { catchError, debounceTime, filter, of, Subject, Subscription } from "rxjs";
+import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
+import { GlobalScannerService } from "../../../../shared/global-scanner.service";
+import { CommonModule } from "@angular/common";
 
 /**
  * Composant de recherche produit avec scanner intégré
@@ -36,22 +40,22 @@ import { GlobalScannerService } from '../../../../shared/global-scanner.service'
  * - Affichage stock et prix
  */
 @Component({
-  selector: 'app-product-search',
-  templateUrl: './product-search.component.html',
-  styleUrls: ['./product-search.component.scss'],
-  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, DecimalPipe],
+  selector: "app-product-search",
+  templateUrl: "./product-search.component.html",
+  styleUrls: ["./product-search.component.scss"],
+  imports: [AutoComplete, FormsModule, FloatLabel, TranslatePipe, CommonModule]
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
   // ViewChild
-  produitbox = viewChild.required<AutoComplete>('produitbox');
+  produitbox = viewChild.required<AutoComplete>("produitbox");
 
   // Inputs
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
   pageSize = input<number>(10);
   storageId = input<number | null>(null);
-  style = input<{}>({ width: '100%' });
-  inputStyle = input<{}>({ width: '100%' });
+  style = input<{}>({ width: "100%" });
+  inputStyle = input<{}>({ width: "100%" });
   enableScanner = input<boolean>(true);
   disabled = input<boolean>(false);
 
@@ -97,12 +101,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   set produitSelected(value: any) {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       return;
     }
     if (this.isScanning) {
       if (isDevMode()) {
-        console.debug('[Scanner] Setter bloqué pendant le scan');
+        console.debug("[Scanner] Setter bloqué pendant le scan");
       }
       return;
     }
@@ -128,7 +132,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.stopInputClearLoop();
         }
       },
-      { injector: this.injector },
+      { injector: this.injector }
     );
   }
 
@@ -177,7 +181,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       // Si un scan global est en cours, laisser l'événement propager au scanner
       if (!this.enableScanner() && this.globalScanner.isScanActive()) {
         return;
@@ -241,7 +245,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
     const inputEl = autocomplete?.inputEL?.nativeElement;
     if (inputEl) {
-      inputEl.value = '';
+      inputEl.value = "";
     }
   }
 
@@ -253,12 +257,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete'),
+        filter((event: ScanEvent) => event.type === "start" || event.type === "complete")
       )
       .subscribe((event: ScanEvent) => {
-        if (event.type === 'start') {
+        if (event.type === "start") {
           this.onScanStart();
-        } else if (event.type === 'complete' && event.code) {
+        } else if (event.type === "complete" && event.code) {
           this.onScanComplete(event.code);
         }
       });
@@ -267,7 +271,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       this.scanDetectorService.keyPressed(event.key);
     };
 
-    document.addEventListener('keydown', this.keydownListener, true);
+    document.addEventListener("keydown", this.keydownListener, true);
   }
 
   private onScanStart(): void {
@@ -302,7 +306,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   private clearInputValue(): void {
     const inputEl = this.produitbox()?.inputEL?.nativeElement;
     if (inputEl) {
-      inputEl.value = '';
+      inputEl.value = "";
     }
   }
 
@@ -329,7 +333,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = undefined;
 
     if (this.keydownListener) {
-      document.removeEventListener('keydown', this.keydownListener, true);
+      document.removeEventListener("keydown", this.keydownListener, true);
       this.keydownListener = undefined;
     }
 
@@ -345,9 +349,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           page: 0,
           size: 1,
           search: barcode,
-          storageId: this.storageId(),
+          storageId: this.storageId()
         },
-        this.storageId() !== null,
+        this.storageId() !== null
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -355,7 +359,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.isScanning = false;
           this.produits.set([]);
           return of({ body: [] });
-        }),
+        })
       )
       .subscribe(res => {
         const result = res.body || [];
@@ -389,15 +393,15 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           page: 0,
           size: this.pageSize(),
           search,
-          storageId: this.storageId(),
+          storageId: this.storageId()
         },
-        this.storageId() !== null,
+        this.storageId() !== null
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
           return of({ body: [] });
-        }),
+        })
       )
       .subscribe(res => {
         const result = res.body || [];

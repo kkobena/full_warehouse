@@ -2,7 +2,6 @@ import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { DatePicker } from 'primeng/datepicker';
-import { DecimalPipe } from '@angular/common';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Select } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -38,7 +37,6 @@ import { Menu } from 'primeng/menu';
     WarehouseCommonModule,
     ConfirmDialogComponent,
     DatePicker,
-    DecimalPipe,
     FloatLabel,
     Select,
     TableModule,

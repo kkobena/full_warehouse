@@ -6,6 +6,11 @@ const routes: Routes = [
     loadChildren: () => import('./user-management/user-management.route'),
     title: 'userManagement.home.title',
   },
+  {
+    path: 'access-management',
+    loadChildren: () => import('../features/admin/access-managment-home/access-managment-home.route'),
+    title: 'Rôles & Autorisations',
+  },
 ];
 
 export default routes;

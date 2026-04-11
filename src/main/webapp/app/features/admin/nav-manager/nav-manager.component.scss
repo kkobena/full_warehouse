@@ -1,0 +1,408 @@
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use  'app/shared/scss/pharma-toolbar' as tb;
+// ── Variables locales ─────────────────────────────────────────────────────────
+$group-color:   #1e40af;
+$group-bg:      #dbeafe;
+$group-border:  #3b82f6;
+$route-border:  #93c5fd;
+$action-color:  #92400e;
+$action-bg:     #fffbf0;
+$action-border: #f59e0b;
+
+// ── En-tête de carte ──────────────────────────────────────────────────────────
+.card-header {
+  background: linear-gradient(to bottom, #f8f9fa, #f0f2f5);
+  border-bottom: 2px solid $pharma-border;
+
+  h5 {
+    color: $pharma-text;
+    font-weight: 600;
+    i { color: $pharma-primary; }
+  }
+}
+
+// ── Barre de sélection rôle ───────────────────────────────────────────────────
+.role-selector-bar {
+  background: $pharma-bg;
+  border-bottom: 1px solid $pharma-border;
+  label {
+    color: $pharma-text;
+    font-size: 0.875rem;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  TABLEAU DES PERMISSIONS
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Cellule nom de l'item
+.item-name-cell {
+  padding: 0 !important;
+}
+
+.item-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+// Libellé du menu
+.item-libelle {
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Cellule de permission
+.perm-cell {
+  padding: 4px 6px !important;
+}
+
+// Tiret pour cellules non applicables
+.na-dash {
+  color: #c9cdd4;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+// ── Édition inline du libellé ─────────────────────────────────────────────────
+.libelle-input {
+  font-size: 0.875rem;
+  border: 1px solid $group-border;
+  border-radius: 4px;
+  padding: 2px 6px;
+  outline: none;
+  width: 180px;
+  color: #1e293b;
+  box-shadow: 0 0 0 2px rgba($group-border, 0.2);
+
+  &:focus {
+    border-color: $group-color;
+    box-shadow: 0 0 0 3px rgba($group-border, 0.25);
+  }
+}
+
+.edit-label-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.65rem;
+    color: #64748b;
+  }
+
+  &:hover {
+    background: rgba($group-border, 0.15);
+    i { color: $group-color; }
+  }
+}
+
+// Afficher le crayon au survol de la ligne
+:host ::ng-deep tr:hover .edit-label-btn {
+  opacity: 1;
+}
+
+// ── Indicateur de sauvegarde par ligne ───────────────────────────────────────
+.saving-indicator-cell {
+  width: 32px;
+  padding: 0 4px !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.saving-spinner {
+  font-size: 0.75rem;
+  color: $group-border;
+}
+
+// Branche visuelle arbre (sous-menus)
+.tree-branch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-left: 2px solid $route-border;
+  border-bottom: 2px solid $route-border;
+  border-bottom-left-radius: 3px;
+  margin-bottom: 4px;
+  margin-right: 2px;
+}
+
+// ── Bouton collapse/expand du groupe ─────────────────────────────────────────
+.group-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba($group-border, 0.4);
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+
+  i {
+    font-size: 0.65rem;
+    color: $group-color;
+    transition: transform 0.2s;
+  }
+
+  &:hover {
+    background: rgba($group-border, 0.15);
+    border-color: $group-border;
+  }
+}
+
+// ── Icône GROUP (dossier) ─────────────────────────────────────────────────────
+.group-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: $group-color;
+  border-radius: 6px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.8rem;
+    color: #fff;
+  }
+}
+
+// Badge "GROUPE"
+.group-badge {
+  margin-left: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: $group-color;
+  background: rgba($group-border, 0.15);
+  border: 1px solid rgba($group-border, 0.35);
+  border-radius: 4px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Icône route (sous-menu)
+.route-icon {
+  font-size: 0.8rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+// Icône action métier
+.action-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: $action-border;
+  border-radius: 4px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.7rem;
+    color: #fff;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  STYLES DES LIGNES (via ::ng-deep car dans p-table)
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ── Ligne GROUP ───────────────────────────────────────────────────────────────
+:host ::ng-deep .row-group {
+  background: linear-gradient(to right, darken($group-bg, 2%), lighten($group-bg, 4%)) !important;
+
+  td {
+    border-top: 2px solid $group-border !important;
+    border-bottom: 1px solid rgba($group-border, 0.3) !important;
+  }
+
+  td:first-child {
+    border-left: 5px solid $group-border !important;
+  }
+
+  .item-libelle {
+    font-weight: 700;
+    color: $group-color;
+    font-size: 0.9rem;
+  }
+}
+
+// ── Ligne ROUTE (sous-menu niveau 1) ─────────────────────────────────────────
+:host ::ng-deep .row-route {
+  background: #ffffff !important;
+
+  td:first-child {
+    border-left: 4px solid $route-border !important;
+  }
+
+  &:hover td {
+    background: #f0f7ff !important;
+  }
+
+  .item-libelle {
+    color: #374151;
+    font-weight: 500;
+  }
+}
+
+// ── Ligne ROUTE sous-route (niveau 2+) ───────────────────────────────────────
+:host ::ng-deep .row-subroute {
+  background: #fafafa !important;
+
+  td:first-child {
+    border-left: 3px solid #c7d7f7 !important;
+  }
+
+  .item-libelle {
+    color: #6b7280;
+    font-size: 0.8rem;
+  }
+}
+
+// ── Ligne ACTION ──────────────────────────────────────────────────────────────
+:host ::ng-deep .row-action {
+  background: $action-bg !important;
+
+  td:first-child {
+    border-left: 4px solid $action-border !important;
+  }
+
+  .item-libelle {
+    color: $action-color;
+    font-style: italic;
+    font-size: 0.82rem;
+  }
+}
+
+// ── Cellules non applicables ──────────────────────────────────────────────────
+:host ::ng-deep .cell-na {
+  background: #f3f4f6 !important;
+  opacity: 0.55;
+}
+
+// ── Colonne Exécuter ──────────────────────────────────────────────────────────
+:host ::ng-deep th.execute-col {
+  background: linear-gradient(to bottom, #fef3c7, #fde68a) !important;
+  color: $action-color !important;
+  border-left: 2px solid $action-border;
+}
+
+:host ::ng-deep td.execute-col:not(.cell-na) {
+  border-left: 1px solid #fde68a;
+  background: #fffdf0 !important;
+}
+
+// ── En-tête tableau ───────────────────────────────────────────────────────────
+:host ::ng-deep .pharma-table-head th {
+  background: linear-gradient(to bottom, #f1f5f9, #e8edf3) !important;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid #cbd5e1 !important;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  ONGLET PRÉVISUALISATION
+// ═════════════════════════════════════════════════════════════════════════════
+
+.preview-info-bar {
+  background: #e8f4f8;
+  border: 1px solid #b8d9e8;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  color: #2c6e8a;
+}
+
+.preview-navbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: linear-gradient(to bottom, #2c3e50, #34495e);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-height: 52px;
+}
+
+.preview-nav-item {
+  position: relative;
+  &:hover .preview-dropdown { display: block; }
+}
+
+.preview-nav-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  color: #ecf0f1;
+  border-radius: 5px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  &:hover { background: rgba(255,255,255,0.12); }
+  i:first-child { color: #aed6f1; font-size: 0.85rem; }
+}
+
+.preview-route {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: #aed6f1;
+  border: none;
+}
+
+.preview-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #dfe3e8;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 100;
+  padding: 4px 0;
+}
+
+.preview-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  color: #333;
+  gap: 6px;
+  cursor: default;
+  &:hover { background: #f5f7fa; }
+  .preview-route { background: #f0f2f5; color: #888; margin-left: auto; }
+}
+
+.preview-summary {
+  font-size: 0.8rem;
+}

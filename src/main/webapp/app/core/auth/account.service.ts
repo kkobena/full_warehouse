@@ -8,6 +8,8 @@ import { catchError, shareReplay, tap } from 'rxjs/operators';
 import { StateStorageService } from 'app/core/auth/state-storage.service';
 import { Account } from 'app/core/auth/account.model';
 import { ApplicationConfigService } from '../config/application-config.service';
+import { NavStore } from 'app/core/store/nav.store';
+import { AbilityService } from 'app/core/auth/ability.service';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -20,6 +22,8 @@ export class AccountService {
   private readonly stateStorageService = inject(StateStorageService);
   private readonly router = inject(Router);
   private readonly applicationConfigService = inject(ApplicationConfigService);
+  private readonly navStore = inject(NavStore);
+  private readonly abilityService = inject(AbilityService);
 
   save(account: Account): Observable<{}> {
     return this.http.post(this.applicationConfigService.getEndpointFor('api/account'), account);
@@ -30,6 +34,9 @@ export class AccountService {
     this.authenticationState.next(this.userIdentity());
     if (!identity) {
       this.accountCache$ = null;
+      // Nettoyage lors de la déconnexion
+      this.navStore.invalidate();
+      this.abilityService.reset();
     }
   }
 
@@ -60,6 +67,11 @@ export class AccountService {
           if (!this.stateStorageService.getLocale()) {
             this.translateService.use(account.langKey);
           }
+
+          // Initialiser le store de navigation et les abilities
+          this.navStore.load();
+          // Les abilities seront initialisées une fois le navTree chargé
+          // via un effet dans un composant racine ou via NavStore.load() callback
 
           this.navigateToStoredUrl();
         }),

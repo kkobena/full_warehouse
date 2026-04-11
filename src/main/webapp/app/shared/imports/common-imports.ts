@@ -17,6 +17,10 @@ import { DividerModule } from 'primeng/divider';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TooltipModule } from 'primeng/tooltip';
 
+// Contrôle d'accès fin (ABAC)
+import { HasAbilityDirective } from 'app/shared/auth/has-ability.directive';
+import { HasAbilityPipe } from 'app/shared/auth/has-ability.pipe';
+
 /**
  * Common Angular and third-party modules
  * Import this array in standalone components that need these common modules
@@ -36,6 +40,9 @@ export const COMMON_IMPORTS = [
   DividerModule,
   AutoCompleteModule,
   TooltipModule,
+  // ABAC
+  HasAbilityDirective,
+  HasAbilityPipe,
 ] as const;
 
 /**
@@ -49,3 +56,8 @@ export const COMMON_COMPONENTS = [] as const;
  */
 export type CommonImports = typeof COMMON_IMPORTS;
 export type CommonComponents = typeof COMMON_COMPONENTS;
+
+// Re-exports pour faciliter l'import individuel
+export { HasAbilityDirective } from 'app/shared/auth/has-ability.directive';
+export { HasAbilityPipe } from 'app/shared/auth/has-ability.pipe';
+

@@ -4,6 +4,9 @@ import {TranslateService} from '@ngx-translate/core';
 import {NavItem} from 'app/layouts/navbar/navbar-item.model';
 import {Authority} from 'app/shared/constants/authority.constants';
 import {PeremptionAlertService} from '../../shared/services/peremption-alert.service';
+import {NavStore} from 'app/core/store/nav.store';
+import {INavNode} from 'app/shared/model/nav-item.model';
+import {IconProp} from '@fortawesome/fontawesome-svg-core';
 import {
   faBook,
   faBoxes,
@@ -54,6 +57,22 @@ export class NavigationService {
   private readonly accountService = inject(AccountService);
   private readonly translate = inject(TranslateService);
   private readonly peremptionAlertService = inject(PeremptionAlertService);
+  private readonly navStore = inject(NavStore);
+
+  /**
+   * Construit le menu depuis le NavStore dynamique (Phase 2+).
+   * Remplace progressivement buildNavItems() qui reste disponible pour compatibilité.
+   */
+  buildNavItemsFromStore(options: NavigationOptions = {}): NavItem[] {
+    const tree = this.navStore.navTree();
+    if (!tree.length) {
+      // Fallback sur la méthode statique si le store n'est pas encore chargé
+      return this.buildNavItems(options);
+    }
+    const items = this.mapNodesToNavItems(tree);
+    items.push(this.buildAccountMenu(options));
+    return items;
+  }
 
   buildNavItems(options: NavigationOptions = {}): NavItem[] {
     const account = this.accountService.trackCurrentAccount()();
@@ -273,7 +292,7 @@ export class NavigationService {
     // CA                 → Admin + Resp. Commande (impact commandes / achats)
     // Stock & Inventaire → Admin + Resp. Commande (cœur de métier)
     // Clients/Fourn.     → Admin + Resp. Commande (performance fournisseurs)
-    
+
     allItems.push({
       label: 'Rapports & Statistiques',
       faIcon: faChartBar,
@@ -322,6 +341,11 @@ export class NavigationService {
         label: this.translateLabel('entities.menu'),
         routerLink: '/menu',
         faIcon: faCogs,
+      },
+      {
+        label: 'Menus; Accès',
+        routerLink: '/admin/nav-manager',
+        faIcon: faSlidersH,
       },
     ];
 
@@ -424,5 +448,62 @@ export class NavigationService {
    */
   private translateFullLabel(key: string): string {
     return this.translate.instant(`warehouseApp.${key}`);
+  }
+
+  /** Mappe récursivement les INavNode → NavItem (pour buildNavItemsFromStore). */
+  private mapNodesToNavItems(nodes: INavNode[]): NavItem[] {
+    return nodes
+      .filter(n => n.permissions?.canDisplay !== false)
+      .sort((a, b) => a.ordre - b.ordre)
+      .map(n => ({
+        label: n.libelle,
+        routerLink: n.targetType === 'ROUTE' ? n.routerLink : undefined,
+        faIcon: this.primeIconToFa(n.icon) as IconProp,
+        children: n.children?.length ? this.mapNodesToNavItems(n.children) : undefined,
+      } as NavItem));
+  }
+
+  /** Construit le menu Compte (toujours présent, non issu du NavStore). */
+  private buildAccountMenu(options: NavigationOptions): NavItem {
+    const accountChildren: NavItem[] = [
+      { label: this.translateLabel('account.settings'), routerLink: '/account/settings', faIcon: 'wrench' },
+      {
+        authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.MY_CASH_REGISTER],
+        label: this.translateLabel('account.cashRegister'),
+        routerLink: '/my-cash-register',
+        faIcon: faCashRegister,
+      },
+      { label: this.translateLabel('account.password'), routerLink: '/account/password', faIcon: 'lock' },
+    ];
+    if (options.additionalAccountMenuItems) {
+      accountChildren.push(...options.additionalAccountMenuItems);
+    }
+    return { label: this.translateLabel('account.main'), faIcon: 'user', children: accountChildren };
+  }
+
+  /** Table de correspondance PrimeIcons → FontAwesome (extensible). */
+  private primeIconToFa(primeIcon?: string): IconProp {
+    const map: Record<string, IconProp> = {
+      'pi pi-shopping-bag': faShoppingBag,
+      'pi pi-list': faThList,
+      'pi pi-truck': faTruck,
+      'pi pi-wallet': faWallet,
+      'pi pi-book': faBook,
+      'pi pi-chart-bar': faChartBar,
+      'pi pi-cog': faCog,
+      'pi pi-cogs': faCogs,
+      'pi pi-box': faBoxOpen,
+      'pi pi-send': faShippingFast,
+      'pi pi-calendar-times': faCalendarTimes,
+      'pi pi-sliders-h': faSlidersH,
+      'pi pi-clipboard': faClipboardList,
+      'pi pi-file-pdf': faFileInvoice,
+      'pi pi-users': faUsers,
+      'pi pi-user': faUsers,
+      'pi pi-building': faBuilding,
+      'pi pi-chart-line': faChartBar,
+      'pi pi-coins': faCoins,
+    };
+    return (primeIcon && map[primeIcon]) || (faCog as IconProp);
   }
 }

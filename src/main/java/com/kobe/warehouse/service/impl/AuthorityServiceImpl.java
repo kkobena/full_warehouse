@@ -135,7 +135,7 @@ public class AuthorityServiceImpl implements AuthorityService {
                 .toList();
         }
 
-        return this.authorityRepository.findAll().stream() .filter(authority -> !authority.getName().equals("ROLE_SUPER_USER")).map(this::buildAutorityDTO).toList();
+        return this.authorityRepository.findAll().stream().filter(authority -> !authority.getName().equals("ROLE_SUPER_USER")).map(this::buildAutorityDTO).toList();
     }
 
     @Override
@@ -235,6 +235,16 @@ public class AuthorityServiceImpl implements AuthorityService {
     @Override
     public boolean hasAuthority(String authorityName, String privillegeName) {
         return authorityPrivilegeRepository.existsByPrivilegeNameAndAuthorityName(privillegeName, authorityName);
+    }
+
+    @Override
+    public List<AuthorityDTO> fetchAll() {
+        return authorityRepository.findNameAndLibelle()
+            .stream()
+            .filter(authority -> !authority.code().equals("ROLE_SUPER_USER"))
+            .map(authority -> new AuthorityDTO(authority.code(), authority.libelle(), Set.of()))
+            .collect(Collectors.toList());
+
     }
 
     private AuthorityDTO buildAutorityDTO(Authority authority) {

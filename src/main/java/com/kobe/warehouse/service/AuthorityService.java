@@ -21,4 +21,6 @@ public interface AuthorityService {
     List<PrivillegesDTO> fetchPrivilleges(String search);
 
     boolean hasAuthority(String authorityName, String privillegeName);
+
+    List<AuthorityDTO> fetchAll();
 }

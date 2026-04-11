@@ -1200,3 +1200,11 @@ export class HasAuthorityService {
 *Document créé le 2026-04-06 — mis à jour le 2026-04-06*
 *Statut : 📋 Plan v3 — nav_* indépendant + Drag & Drop + Actions métier (PR_* → IAbility)*
 
+<!-- Colonne Actions : visible seulement si edit OU delete -->
+@if (('commande' | hasAbility: 'edit') || ('commande' | hasAbility: 'delete')) {
+  <th>Actions</th>
+}
+
+<!-- Chaque bouton protégé individuellement -->
+<p-button *appHasAbility="{ action: 'edit',   subject: 'commande' }" icon="pi pi-pencil" />
+<p-button *appHasAbility="{ action: 'delete', subject: 'commande' }" icon="pi pi-trash" severity="danger" />

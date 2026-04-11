@@ -13,6 +13,7 @@ import { NavigationService } from "../../core/config/navigation.service";
 import { TauriPrinterService } from "../../shared/services/tauri-printer.service";
 import { AlertBadgeService } from "../../shared/services/alert-badge.service";
 import { WarehouseCommonModule } from "../../shared/warehouse-common/warehouse-common.module";
+import { NavStore } from "app/core/store/nav.store";
 
 @Component({
   selector: "jhi-navbar",
@@ -33,6 +34,7 @@ export default class NavbarComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly navStore = inject(NavStore);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   themes: Theme[];
   selectedTheme: string;
@@ -49,11 +51,13 @@ export default class NavbarComponent implements OnInit {
       this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;
     }
     effect(() => {
-      // Reactive: rebuilds nav items whenever account, ruptureCount or urgentCount change
+      // Reactive: rebuilds nav items whenever account, navTree (store), ruptureCount or urgentCount change
       const items = this.buildNavItem();
       const ruptureCount = this.alertBadgeService.ruptureCount();
       const urgentCount = this.alertBadgeService.urgentCount();
       const peremptionCount = this.alertBadgeService.peremptionCount();
+      // Lire navTree pour déclencher la réactivité quand le store se charge
+      this.navStore.navTree();
       this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
       this.navItems = items;
     });
@@ -101,22 +105,17 @@ export default class NavbarComponent implements OnInit {
   private buildNavItem(): NavItem[] {
     const account = this.account();
 
-    // Authenticated user menu items
     if (account) {
-      return this.navigationService.buildNavItems({
+      const options = {
         additionalAccountMenuItems: [
-          {
-            label: "Menu vertical",
-            faIcon: faBars,
-            click: () => this.layoutService.toggleLayout()
-          },
-          {
-            label: "Se déconnecter",
-            faIcon: "sign-out-alt",
-            click: () => this.logout()
-          }
-        ]
-      });
+          { label: "Menu vertical", faIcon: faBars, click: () => this.layoutService.toggleLayout() },
+          { label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout() }
+        ] as NavItem[]
+      };
+      // Utiliser le menu dynamique si le store est chargé, sinon fallback sur le menu statique
+      return this.navStore.loaded()
+        ? this.navigationService.buildNavItemsFromStore(options)
+        : this.navigationService.buildNavItems(options);
     }
 
     // Unauthenticated user menu items

@@ -1,0 +1,8 @@
+@use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/form-styles' as form;
+
+:host {
+  @include modal-theme;
+}
+
+

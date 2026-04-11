@@ -73,4 +73,10 @@ public class AuthorityResource {
         authorityService.setPrivilleges(authorityDTO);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping(value = "/authorities/all/v2")
+    public ResponseEntity<List<AuthorityDTO>> fetchAllAuthorities( ) {
+        return ResponseEntity.ok(authorityService.fetchAll());
+    }
+
 }

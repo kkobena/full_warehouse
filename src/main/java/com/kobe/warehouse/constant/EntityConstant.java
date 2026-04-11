@@ -82,4 +82,8 @@ public final class EntityConstant {
     public static final String APP_ACCEPTATION_SUBSTITUTION_CACHE = "APP_ACCEPTATION_SUBSTITUTION_CACHE";
     public static final String APP_DELAI_REGLEMENT_FACTURE = "APP_DELAI_REGLEMENT_FACTURE";
 
+    // ─── Navigation dynamique ─────────────────────────────────────────────────
+    /** Cache de l'arbre de navigation par utilisateur. Clé : login. */
+    public static final String NAV_TREE_CACHE = "navTree";
+
 }

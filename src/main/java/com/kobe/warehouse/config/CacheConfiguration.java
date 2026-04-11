@@ -70,7 +70,9 @@ public class CacheConfiguration {
                 buildCache("supplierPerformance", 60, TimeUnit.MINUTES, 100),
                 buildCache("stockValuationSummary", 60, TimeUnit.MINUTES, 10),
                 buildCache("stockRotation", 60, TimeUnit.MINUTES, 100),
-                buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200)
+                buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200),
+                // Navigation dynamique — TTL 24h, 500 entrées (une par utilisateur actif)
+                buildCache(EntityConstant.NAV_TREE_CACHE, defaultTtl, TimeUnit.HOURS, 500)
             )
         );
         return manager;

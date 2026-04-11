@@ -1,0 +1,101 @@
+<!-- Barre d'actions -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0 small">
+    <i class="pi pi-info-circle me-1"></i>
+    Glissez-déposez les groupes et sous-menus pour réorganiser la navigation.
+    L'ordre est enregistré globalement pour tous les utilisateurs.
+  </p>
+  <div class="d-flex gap-2 align-items-center">
+    @if (hasUnsavedChanges()) {
+      <span class="badge bg-warning text-dark badge-unsaved">
+        <i class="pi pi-exclamation-triangle me-1"></i>Non enregistré
+      </span>
+    }
+    <p-button
+      label="Enregistrer l'ordre"
+      icon="pi pi-save"
+      severity="success"
+      size="small"
+      [loading]="saving()"
+      [disabled]="!hasUnsavedChanges()"
+      (onClick)="saveOrder()"
+    />
+    <p-button
+      label="Annuler"
+      icon="pi pi-times"
+      severity="secondary"
+      size="small"
+      [outlined]="true"
+      [disabled]="!hasUnsavedChanges()"
+      (onClick)="resetOrder()"
+    />
+  </div>
+</div>
+
+<!-- Zone de glisser-déposer — Groupes racines -->
+<div
+  cdkDropList
+  [cdkDropListData]="groups()"
+  (cdkDropListDropped)="onGroupDropped($event)"
+  class="nav-drop-zone">
+
+  @for (group of groups(); track group.id) {
+    <div class="nav-group-card" cdkDrag [cdkDragData]="group">
+
+      <!-- En-tête du groupe (drag handle) -->
+      <div class="nav-group-header" cdkDragHandle>
+        <i class="pi pi-grip-vertical drag-handle-icon"></i>
+        @if (group.icon) {
+          <i [class]="group.icon + ' group-icon'"></i>
+        }
+        <span class="fw-semibold">{{ group.libelle }}</span>
+        <p-tag
+          [value]="group.targetType"
+          [severity]="group.targetType === 'GROUP' ? 'secondary' : 'info'"
+          size="small"
+          class="ms-auto"
+        />
+      </div>
+
+      <!-- Enfants du groupe -->
+      @if (group.children?.length) {
+        <div class="nav-children-zone">
+          <div
+            [id]="'drop-' + group.id"
+            cdkDropList
+            [cdkDropListData]="group.children"
+            [cdkDropListConnectedTo]="getConnectedLists(group.id)"
+            (cdkDropListDropped)="onChildDropped($event, group)"
+            class="nav-children-list">
+
+            @for (child of group.children; track child.id) {
+              <div class="nav-child-item" cdkDrag [cdkDragData]="child">
+                <i class="pi pi-grip-vertical drag-handle-icon me-2"></i>
+                @if (child.icon) {
+                  <i [class]="child.icon + ' child-icon me-2'"></i>
+                }
+                <span>{{ child.libelle }}</span>
+                @if (child.routerLink) {
+                  <code class="ms-auto">{{ child.routerLink }}</code>
+                }
+                <div *cdkDragPlaceholder class="nav-drag-placeholder"></div>
+              </div>
+            } @empty {
+              <div class="text-muted small fst-italic p-2 text-center">
+                Déposez des éléments ici
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div *cdkDragPlaceholder class="nav-drag-placeholder nav-drag-placeholder-group"></div>
+    </div>
+  } @empty {
+    <div class="text-center text-muted py-5">
+      <i class="pi pi-sitemap fs-3 d-block mb-2"></i>
+      Aucun item de navigation. Rechargez la page.
+    </div>
+  }
+</div>
+

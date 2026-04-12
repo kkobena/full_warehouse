@@ -89,7 +89,7 @@ export const appConfig: ApplicationConfig = {
 
     // --- Interceptors ---
     httpInterceptorProviders,
-    // --- ✅ Animations pour ngx-spinner ---
+    // ---  Animations pour ngx-spinner ---
     provideAnimationsAsync(),
   ],
 };

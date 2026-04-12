@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { Authority } from 'app/config/authority.constants';
-
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { AuthGuard } from 'app/core/auth/auth.guard';
 import { errorRoute } from './layouts/error/error.route';
 
 const routes: Routes = [
@@ -23,10 +21,10 @@ const routes: Routes = [
   },
   {
     path: 'admin',
-    data: {
-      authorities: [Authority.ADMIN],
-    },
-    canActivate: [UserRouteAccessService],
+    // abilitySubject 'admin' : ROLE_ADMIN est bypassed (step 2 du guard).
+    // Tout autre rôle : can('access','admin')=false (pas de nav_item 'admin' dans son tree) → refusé.
+    data: { abilitySubject: 'admin' },
+    canActivate: [AuthGuard],
     loadChildren: () => import('./admin/admin.routes'),
   },
   {

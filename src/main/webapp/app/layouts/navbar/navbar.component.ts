@@ -52,12 +52,11 @@ export default class NavbarComponent implements OnInit {
     }
     effect(() => {
       // Reactive: rebuilds nav items whenever account, navTree (store), ruptureCount or urgentCount change
+      this.navStore.navTree(); // déclenche la réactivité quand le store se charge
       const items = this.buildNavItem();
       const ruptureCount = this.alertBadgeService.ruptureCount();
       const urgentCount = this.alertBadgeService.urgentCount();
       const peremptionCount = this.alertBadgeService.peremptionCount();
-      // Lire navTree pour déclencher la réactivité quand le store se charge
-      this.navStore.navTree();
       this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
       this.navItems = items;
     });
@@ -112,10 +111,7 @@ export default class NavbarComponent implements OnInit {
           { label: "Se déconnecter", faIcon: "sign-out-alt" as any, click: () => this.logout() }
         ] as NavItem[]
       };
-      // Utiliser le menu dynamique si le store est chargé, sinon fallback sur le menu statique
-      return this.navStore.loaded()
-        ? this.navigationService.buildNavItemsFromStore(options)
-        : this.navigationService.buildNavItems(options);
+      return this.navigationService.buildNavItemsFromStore(options);
     }
 
     // Unauthenticated user menu items

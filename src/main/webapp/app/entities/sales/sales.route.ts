@@ -1,12 +1,10 @@
-import {inject} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Router, Routes} from '@angular/router';
-import {EMPTY, mergeMap, Observable, of} from 'rxjs';
+import { inject } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {ISales, Sales} from 'app/shared/model/sales.model';
-import {SalesService} from './sales.service';
+import { ISales, Sales } from 'app/shared/model/sales.model';
+import { SalesService } from './sales.service';
 
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
@@ -27,42 +25,31 @@ export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | I
   }
   return of(new Sales());
 };
+
 const salesRoute: Routes = [
   {
     path: '',
     loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.sales.home.title',
     },
-    canActivate: [UserRouteAccessService],
   },
-
   {
     path: 'comptant/:isPresale/new',
     loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
-    resolve: {
-      sales: SalesResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Vente Comptant',
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { sales: SalesResolve },
+    data: { pageTitle: 'Vente Comptant' },
   },
   {
     path: 'comptant/:id/:saleDate/:isPresale/edit',
     loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
-    resolve: {
-      sales: SalesResolve,
-    },
+    resolve: { sales: SalesResolve },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Vente Comptant',
       mode: 'edit',
     },
-    canActivate: [UserRouteAccessService],
   },
 ];
+
 export default salesRoute;

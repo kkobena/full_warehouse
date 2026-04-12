@@ -111,14 +111,16 @@
               label="Rechercher"
               severity="info"
             />
-            <p-button
-              (click)="onExport()"
-              [loading]="loadingExport"
-              [raised]="true"
-              icon="pi pi-file-excel"
-              label="Excel"
-              severity="warn"
-            />
+            @if (canExport()) {
+              <p-button
+                (click)="onExport()"
+                [loading]="loadingExport"
+                [raised]="true"
+                icon="pi pi-file-excel"
+                label="Excel"
+                severity="warn"
+              />
+            }
           </div>
         </div>
       </ng-template>
@@ -139,7 +141,7 @@
   }
 
   <!-- Bulk action bar -->
-  @if (store.hasSelection()) {
+  @if (store.hasSelection() && canDelete()) {
     <div class="bulk-action-bar">
       <span class="bulk-count">{{ store.selectedFactures().length }} facture(s) sélectionnée(s)</span>
       <p-button
@@ -157,12 +159,12 @@
   <!-- Split container: liste + panneau détail -->
   <div class="split-container" [class.panel-open]="panelOpen()">
     <div class="list-column">
-      <app-facture-list [searchParams]="currentSearchParams()" />
+      <app-facture-list [searchParams]="currentSearchParams()" [canDelete]="canDelete()" [canExport]="canExport()" />
     </div>
 
     @if (panelOpen()) {
       <div class="detail-column">
-        <app-facture-detail-panel [facture]="store.selectedFacture()" />
+        <app-facture-detail-panel [facture]="store.selectedFacture()" [canExecute]="canExecute()" [canExport]="canExport()" />
       </div>
     }
   </div>

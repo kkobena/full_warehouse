@@ -119,14 +119,16 @@
 
                   severity="success"
                 />
-                <p-button
-                  (click)="confirmDelete(sale)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
-                  severity="danger"
-                />
+                @if (canDeleteEnCours()) {
+                  <p-button
+                    (click)="confirmDelete(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    pTooltip="Supprimer"
+                    severity="danger"
+                  />
+                }
 
               </p-buttonGroup>
             </td>

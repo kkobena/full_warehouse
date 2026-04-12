@@ -3,8 +3,6 @@ import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Facture } from './facture.model';
 import { FactureService } from './facture.service';
 
@@ -29,46 +27,12 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
 };
 
 const factureRoute: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('./facturation.component').then(m => m.FacturationComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
-      defaultSort: 'id,asc',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'new',
-    loadComponent: () => import('./edition/edition.component').then(m => m.EditionComponent),
-
-    data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: ':id/:invoiceDate/view',
-    loadComponent: () => import('./facture-detail/facture-detail.component').then(m => m.FactureDetailComponent),
-    resolve: {
-      facture: FactureResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
-    },
-    canActivate: [UserRouteAccessService],
-  },
 
   {
     path: ':id/:invoiceDate/group-view',
     loadComponent: () => import('./groupe-facture-detail/groupe-facture-detail.component').then(m => m.GroupeFactureDetailComponent),
-    resolve: {
-      facture: FactureResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { facture: FactureResolve },
   },
 ];
+
 export default factureRoute;

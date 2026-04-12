@@ -205,7 +205,7 @@
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
                 <p-buttonGroup>
-                  @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET') && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
+                  @if (canEditVente() && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET') && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button
                       (click)="confirmEdit(sale)"
                       [text]="true"
@@ -216,25 +216,30 @@
                       [rounded]="true"
                       tooltipPosition="left"
                     />
-                    <p-button
-                      (click)="onEditCustomer(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-user-edit"
-                      pTooltip="Modifier les informations du client"
-                      severity="help"
-                      tooltipPosition="left"
-                    />
+                    @if (canEditVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
+                      <p-button
+                        (click)="onEditCustomer(sale)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-user-edit"
+                        pTooltip="Modifier les informations du client"
+                        severity="help"
+                        tooltipPosition="left"
+                      />
+                    }
 
-                    <p-button
-                      (click)="editSaleUpdatedDate(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-calendar-plus"
-                      pTooltip="Modifier la date"
-                      severity="contrast"
-                      tooltipPosition="left"
-                    />
+                    @if (canEditVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
+                      <p-button
+                        (click)="editSaleUpdatedDate(sale)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-calendar-plus"
+                        pTooltip="Modifier la date"
+                        severity="contrast"
+                        tooltipPosition="left"
+                      />
+                    }
+
 
                   }
 
@@ -269,7 +274,7 @@
                     severity="help"
                     tooltipPosition="left"
                   />
-                  @if (canCancel && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
+                  @if (canCancelVente() && !sale.canceled && sale.statut !== SalesStatut.CANCELED) {
                     <p-button
                       (click)="confirmCancel(sale)"
                       [rounded]="true"

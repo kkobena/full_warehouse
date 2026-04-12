@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -84,10 +83,10 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
         Query q = entityManager.createNativeQuery(query);
         Object[] result = (Object[]) q.getSingleResult();
 
-        Integer ventesEnCours = ((BigInteger) result[0]).intValue();
-        Integer clientsServis = ((BigInteger) result[1]).intValue();
-        Integer produitsVendus = ((BigDecimal) result[2]).intValue();
-        Integer tempsMoyen = ((BigDecimal) result[3]).intValue();
+        Integer ventesEnCours = toInt(result[0]);
+        Integer clientsServis = toInt(result[1]);
+        Integer produitsVendus = toInt(result[2]);
+        Integer tempsMoyen = toInt(result[3]);
 
         return new StatistiquesRapidesDTO(ventesEnCours, clientsServis, produitsVendus, tempsMoyen);
     }
@@ -106,7 +105,7 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
                 s.statut
             FROM sales s
             LEFT JOIN payment p ON p.sales_id = s.id
-            LEFT JOIN jhi_user u ON u.id = s.seller_id
+            LEFT JOIN app_user u ON u.id = s.seller_id
             LEFT JOIN sales_line sl ON sl.sales_id = s.id
             WHERE DATE(s.created_at) = CURRENT_DATE
             GROUP BY s.id, s.number_transaction, s.sales_amount, s.created_at, p.mode_paiement, u.first_name, u.last_name, s.statut
@@ -123,13 +122,13 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
         for (Object obj : results) {
             Object[] row = (Object[]) obj;
             ventes.add(new VenteRecenteDTO(
-                ((BigInteger) row[0]).longValue(),
+                toLong(row[0]),
                 (String) row[1],
-                ((BigDecimal) row[2]).longValue(),
+                toLong(row[2]),
                 (LocalDateTime) row[3],
                 row[4] != null ? (String) row[4] : "N/A",
                 row[5] != null ? (String) row[5] : "N/A",
-                ((BigInteger) row[6]).intValue(),
+                toInt(row[6]),
                 (String) row[7]
             ));
         }
@@ -177,12 +176,12 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
         for (Object obj : results) {
             Object[] row = (Object[]) obj;
             vendeurs.add(new PerformanceVendeurDTO(
-                ((BigInteger) row[0]).longValue(),
+                toLong(row[0]),
                 (String) row[1],
-                ((BigInteger) row[2]).intValue(),
-                ((BigDecimal) row[3]).longValue(),
-                ((BigDecimal) row[4]).longValue(),
-                ((BigDecimal) row[5]).doubleValue()
+                toInt(row[2]),
+                toLong(row[3]),
+                toLong(row[4]),
+                toDouble(row[5])
             ));
         }
 
@@ -247,6 +246,23 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
         }
 
         return alertes;
+    }
+
+
+
+    private static int toInt(Object value) {
+        if (value == null) return 0;
+        return ((Number) value).intValue();
+    }
+
+    private static long toLong(Object value) {
+        if (value == null) return 0L;
+        return ((Number) value).longValue();
+    }
+
+    private static double toDouble(Object value) {
+        if (value == null) return 0.0;
+        return ((Number) value).doubleValue();
     }
 
     @Override

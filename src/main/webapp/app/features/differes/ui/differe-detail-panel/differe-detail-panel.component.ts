@@ -40,6 +40,7 @@ import { ReglementDiffereFormComponent } from '../reglement-differe-form/regleme
 })
 export class DiffereDetailPanelComponent {
   readonly differe = input<IDiffere | null>(null);
+  readonly canExecute = input<boolean>(true);
 
   protected activeTab = signal<string>('detail');
   protected loadingReglements = false;

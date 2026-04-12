@@ -38,6 +38,7 @@ import { ProduitAchatsTabComponent } from '../produit-achats-tab/produit-achats-
 })
 export class ProduitDetailPanelComponent {
   readonly produit = input.required<IProduit>();
+  readonly canEdit = input<boolean>(true);
 
   readonly closePanel = output<void>();
   readonly editRequested = output<IProduit>();

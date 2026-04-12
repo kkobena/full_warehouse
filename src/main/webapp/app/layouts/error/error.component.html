@@ -1,15 +1,32 @@
-<div>
-  <div class="row">
-    <div class="col-md-4">
-      <span class="hipster img-fluid rounded"></span>
+
+<div class="err-wrapper">
+  <div class="err-card">
+
+    <div class="err-code">{{ errorCode() }}</div>
+
+    <div class="err-icon-ring">
+      <i [class]="errorIcon()"></i>
     </div>
 
-    <div class="col-md-8">
-      <h1 jhiTranslate="error.title">Page d&apos;erreur !</h1>
+    <h2 class="err-title">{{ errorTitle() }}</h2>
 
-      @if (errorMessage(); as errMessage) {
-        <div class="alert alert-danger">{{ errMessage }}</div>
-      }
+    @if (errorMessage(); as msg) {
+      <p class="err-msg">{{ msg }}</p>
+    }
+
+    <div class="err-sep"></div>
+
+    <div class="err-actions">
+      <button class="err-btn err-btn-secondary" type="button" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+        <span>Retour</span>
+      </button>
+      <button class="err-btn err-btn-primary" type="button" (click)="goHome()">
+        <i class="pi pi-home"></i>
+        <span>Accueil</span>
+      </button>
     </div>
+
   </div>
 </div>
+

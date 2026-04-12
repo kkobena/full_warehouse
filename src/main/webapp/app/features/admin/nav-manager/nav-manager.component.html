@@ -51,6 +51,26 @@
               }
             </div>
 
+            <!-- Barre de recherche -->
+            <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom search-bar">
+              <span class="p-input-icon-left search-input-wrap">
+                <i class="pi pi-search search-icon"></i>
+                <input
+                  type="text"
+                  class="form-control form-control-sm search-input"
+                  placeholder="Rechercher un menu…"
+                  [value]="searchTerm()"
+                  (input)="searchTerm.set($any($event.target).value); onSearchChange()"
+                />
+              </span>
+              @if (searchTerm()) {
+                <button class="btn btn-sm btn-outline-secondary" type="button" (click)="clearSearch()">
+                  <i class="pi pi-times"></i>
+                </button>
+                <span class="text-muted small ms-1">{{ visibleItems().length }} résultat(s)</span>
+              }
+            </div>
+
             <!-- Tableau des permissions -->
             <p-table
               [value]="visibleItems()"
@@ -61,7 +81,8 @@
               size="small" class="p-datatable-sm">
               <ng-template #header>
                 <tr class="pharma-table-head">
-                  <th style="width:28%">Entrée de menu</th>
+                  <th style="width:27%">Entrée de menu</th>
+                  <th style="width:5%"></th>
                   <th class="text-center" style="width:9%">Afficher</th>
                   <th class="text-center" style="width:9%">Accéder</th>
                   <th class="text-center" style="width:9%">Créer</th>
@@ -72,7 +93,6 @@
                       title="Uniquement pour les actions métier (type ACTION)">
                     Exécuter <i class="pi pi-bolt ms-1 text-warning small"></i>
                   </th>
-
                 </tr>
               </ng-template>
               <ng-template #body let-item>
@@ -80,6 +100,7 @@
                   [class.row-group]="item.targetType === 'GROUP'"
                   [class.row-route]="item.targetType === 'ROUTE' && item.depth === 1"
                   [class.row-subroute]="item.targetType === 'ROUTE' && item.depth > 1"
+                  [class.row-section]="item.targetType === 'SECTION'"
                   [class.row-action]="item.targetType === 'ACTION'"
                 >
                   <td class="item-name-cell">
@@ -91,6 +112,22 @@
                         </button>
                         <span class="group-icon-wrap">
                           <i class="pi pi-folder-open"></i>
+                        </span>
+                      } @else if (item.targetType === 'ROUTE' && item.children?.length) {
+                        <button class="group-toggle route-toggle" type="button" (click)="toggleGroup(item.id)">
+                          <i class="pi" [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
+                                        [class.pi-chevron-right]="collapsedGroups().has(item.id)"></i>
+                        </button>
+                        <span class="tree-branch"></span>
+                        @if (item.icon) {
+                          <i [class]="item.icon + ' route-icon'"></i>
+                        } @else {
+                          <i class="pi pi-minus route-icon"></i>
+                        }
+                      } @else if (item.targetType === 'SECTION') {
+                        <span class="tree-branch"></span>
+                        <span class="section-icon-wrap">
+                          <i class="pi pi-table"></i>
                         </span>
                       } @else if (item.targetType === 'ACTION') {
                         <span class="tree-branch"></span>
@@ -128,10 +165,43 @@
                           <i class="pi pi-sitemap me-1" style="font-size:0.6rem"></i>Menu
                         </span>
                       }
+                      @if (item.targetType === 'SECTION') {
+                        <span class="section-badge">
+                          <i class="pi pi-window-maximize me-1" style="font-size:0.55rem"></i>Onglet
+                        </span>
+                      }
+                      @if (item.targetType === 'ACTION') {
+                        <span class="action-badge">
+                          <i class="pi pi-bolt me-1" style="font-size:0.55rem"></i>Action
+                        </span>
+                      }
                     </span>
                   </td>
 
-                  <!-- Indicateur de sauvegarde par ligne -->
+                  <!-- Indicateur de sauvegarde + actions groupées pour GROUP/ROUTE -->
+                  <td class="saving-indicator-cell">
+                    @if (savingRows().has(item.id)) {
+                      <i class="pi pi-spinner pi-spin saving-spinner"></i>
+                    } @else if ((item.targetType === 'GROUP' || item.targetType === 'ROUTE') && item.children?.length) {
+                      <span class="bulk-actions">
+                        <button
+                          class="bulk-btn bulk-grant"
+                          type="button"
+                          title="Tout accorder (menu + enfants)"
+                          (click)="$event.stopPropagation(); grantSubtree(item, true)">
+                          <i class="pi pi-check-circle"></i>
+                        </button>
+                        <button
+                          class="bulk-btn bulk-revoke"
+                          type="button"
+                          title="Tout révoquer (menu + enfants)"
+                          (click)="$event.stopPropagation(); grantSubtree(item, false)">
+                          <i class="pi pi-ban"></i>
+                        </button>
+                      </span>
+                    }
+                  </td>
+
                   <!-- Colonnes nav (désactivées pour ACTION) -->
                   <td class="text-center perm-cell" [class.cell-na]="item.targetType === 'ACTION'">
                     @if (item.targetType !== 'ACTION') {
@@ -199,7 +269,7 @@
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td colspan="8" class="text-center text-muted py-4">
+                  <td colspan="9" class="text-center text-muted py-4">
                     @if (!selectedRole) {
                       Sélectionnez un rôle pour afficher les items de navigation.
                     } @else {

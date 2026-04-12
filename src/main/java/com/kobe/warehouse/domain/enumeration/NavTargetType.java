@@ -4,5 +4,6 @@ public enum NavTargetType {
     ROUTE,
     ACTION,
     GROUP,
+    SECTION,
     DIVIDER
 }

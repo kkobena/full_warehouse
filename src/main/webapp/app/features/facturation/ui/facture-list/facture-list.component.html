@@ -102,7 +102,7 @@
               tooltipPosition="left"
             />
           }
-          @if (facture.statut === 'NOT_PAID' && !facture.factureProvisoire) {
+          @if (canDelete() && facture.statut === 'NOT_PAID' && !facture.factureProvisoire) {
             <p-button
               (onClick)="onDeleteSingle(facture)"
               [rounded]="true"
@@ -114,15 +114,17 @@
               size="small"
             />
           }
-          <p-button
-            (click)="exportPdf(facture)"
-            [rounded]="true"
-            [text]="true"
-            size="small"
-            icon="pi pi-file-pdf"
-            pTooltip="Exporter en Pdf"
-            severity="warn"
-          />
+          @if (canExport()) {
+            <p-button
+              (click)="exportPdf(facture)"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              icon="pi pi-file-pdf"
+              pTooltip="Exporter en Pdf"
+              severity="warn"
+            />
+          }
 
         </p-buttonGroup>
 

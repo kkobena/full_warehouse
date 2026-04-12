@@ -47,6 +47,8 @@ export class NavManagerComponent implements OnInit {
   /** ID de l'item dont on édite le libellé */
   protected readonly editingItemId = signal<number | null>(null);
   protected editingLibelle = "";
+  /** Terme de recherche — filtre par libellé, bypasse le collapse */
+  protected readonly searchTerm = signal("");
   /** Arbre brut conservé pour la prévisualisation */
   private readonly rawTree = signal<INavNode[]>([]);
   protected readonly availableRoles = signal<INavRole[]>([]);
@@ -103,7 +105,57 @@ export class NavManagerComponent implements OnInit {
     const next = new Set(this.collapsedGroups());
     next.has(id) ? next.delete(id) : next.add(id);
     this.collapsedGroups.set(next);
-    this.visibleItems.set(this.applyCollapse(this.flatItems(), next));
+    this.refreshVisible();
+  }
+
+  onSearchChange(): void {
+    this.refreshVisible();
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set("");
+    this.refreshVisible();
+  }
+
+  private refreshVisible(): void {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (term) {
+      // Recherche active : on bypasse le collapse et on montre tous les matches
+      this.visibleItems.set(
+        this.flatItems().filter(item => item.libelle.toLowerCase().includes(term))
+      );
+    } else {
+      this.visibleItems.set(this.applyCollapse(this.flatItems(), this.collapsedGroups()));
+    }
+  }
+
+  /** Retourne l'item lui-même + tous ses descendants dans la liste plate. */
+  private getSubtree(item: FlatNavNode): FlatNavNode[] {
+    const items = this.flatItems();
+    const idx = items.findIndex(i => i.id === item.id);
+    if (idx === -1) return [];
+    const result: FlatNavNode[] = [items[idx]];
+    for (let i = idx + 1; i < items.length; i++) {
+      if (items[i].depth <= item.depth) break;
+      result.push(items[i]);
+    }
+    return result;
+  }
+
+  /** Accorde ou révoque toutes les permissions sur un menu et ses enfants, puis sauvegarde. */
+  grantSubtree(item: FlatNavNode, grant: boolean): void {
+    if (!this.selectedRole) return;
+    const subtree = this.getSubtree(item);
+    subtree.forEach(n => {
+      n.assignment = grant
+        ? { ...n.assignment, canDisplay: true,  canAccess: true,  canCreate: true,  canEdit: true,  canDelete: true,  canExport: true,  canExecute: true  }
+        : { ...n.assignment, canDisplay: false, canAccess: false, canCreate: false, canEdit: false, canDelete: false, canExport: false, canExecute: false };
+    });
+    // Force la détection du changement sur les signaux
+    this.flatItems.update(f => [...f]);
+    this.refreshVisible();
+    // Sauvegarde en séquence (chaque item est indépendant)
+    subtree.forEach(n => this.onPermissionChange(n));
   }
 
   // ── Sauvegarde auto d'une permission ────────────────────────────────────
@@ -175,7 +227,8 @@ export class NavManagerComponent implements OnInit {
         skipBelowDepth = null;
       }
       result.push(item);
-      if (item.targetType === "GROUP" && collapsed.has(item.id)) {
+      // GROUP et ROUTE peuvent être repliés (ROUTE pour cacher ses enfants SECTION/ACTION)
+      if ((item.targetType === "GROUP" || item.targetType === "ROUTE") && collapsed.has(item.id)) {
         skipBelowDepth = item.depth;
       }
     }
@@ -191,7 +244,8 @@ export class NavManagerComponent implements OnInit {
         this.rawTree.set(items);
         const flat = this.flattenWithDepth(items, 0);
         this.flatItems.set(flat);
-        this.visibleItems.set(flat); // tous visibles au départ
+        this.searchTerm.set(""); // réinitialise la recherche au changement de rôle
+        this.refreshVisible();
         this.loading.set(false);
       },
       error: () => {
@@ -221,14 +275,15 @@ export class NavManagerComponent implements OnInit {
     ]);
   }
 
-  /** Filtre récursivement l'arbre selon les assignments courants (pour la prévisualisation). */
+  /** Filtre récursivement l'arbre selon les assignments courants (pour la prévisualisation).
+   *  ACTION et SECTION sont exclus : ils n'apparaissent pas dans la top navbar. */
   private filterTreeForPreview(
     nodes: INavNode[],
     assignments: Map<number, NavItemAssignment>
   ): INavNode[] {
     const result: INavNode[] = [];
     for (const node of nodes) {
-      if (node.targetType === "ACTION") continue;
+      if (node.targetType === "ACTION" || node.targetType === "SECTION") continue;
       const a = assignments.get(node.id);
       if (a && !a.canDisplay) continue;
       const children = this.filterTreeForPreview(node.children ?? [], assignments);

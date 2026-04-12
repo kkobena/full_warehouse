@@ -233,7 +233,12 @@ public class NavItemServiceImpl implements NavItemService {
             })
             .forEach(child -> {
                 NavPermissionsDTO perms = permissionsMap.get(child.getId());
-                if (perms == null || !perms.canDisplay()) return;
+                // Les items SECTION et ACTION sont des éléments intra-page (onglets/boutons).
+                // On les inclut même avec canDisplay=false pour que le frontend puisse distinguer
+                // "non configuré en base" (fallback permissif) de "configuré mais interdit" (caché).
+                boolean isInPageItem = child.getTargetType() == NavTargetType.SECTION
+                                    || child.getTargetType() == NavTargetType.ACTION;
+                if (perms == null || (!perms.canDisplay() && !isInPageItem)) return;
                 List<NavNodeDTO> grandChildren = buildChildren(child, allItems, permissionsMap, userOrderMap);
                 result.add(toNodeDTO(child, perms, grandChildren));
             });

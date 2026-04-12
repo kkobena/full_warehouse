@@ -39,6 +39,9 @@ export class ProduitListComponent {
   readonly loading = input<boolean>(false);
   readonly selectedProduit = input<IProduit | null>(null);
   readonly clearSelectionTrigger = input<number>(0);
+  readonly canCreate = input<boolean>(true);
+  readonly canEdit = input<boolean>(true);
+  readonly canDelete = input<boolean>(true);
 
   readonly produitSelected = output<IProduit>();
   readonly lazyLoad = output<TableLazyLoadEvent>();
@@ -144,16 +147,11 @@ export class ProduitListComponent {
   }
 
   private buildMenuItems(produit: IProduit): MenuItem[] {
-    return [
+    const items: MenuItem[] = [
       {
         label: "Voir le détail",
         icon: "pi pi-eye",
         command: () => this.emit("view")
-      },
-      {
-        label: "Éditer",
-        icon: "pi pi-pencil",
-        command: () => this.emit("edit")
       },
       {
         label: "Imprimer étiquette",
@@ -176,48 +174,57 @@ export class ProduitListComponent {
         icon: "pi pi-euro",
         command: () => this.emit("prix-reference")
       },
-      { separator: true },
-      {
+    ];
+
+    if (this.canEdit()) {
+      items.splice(1, 0, {
+        label: "Éditer",
+        icon: "pi pi-pencil",
+        command: () => this.emit("edit")
+      });
+
+      items.push({ separator: true });
+      items.push({
         label: "Saisir un lot",
         icon: "pi pi-tag",
         disabled: (produit.totalQuantity ?? 0) <= 0,
-        pTooltip: (produit.totalQuantity ?? 0) <= 0 ? "Stock vide — impossible de saisir un lot" : undefined,
         command: () => this.emit("saisir-lots")
-      },
-      ...(produit.deconditionnable ? [
-        { separator: true },
-        {
+      });
+
+      if (produit.deconditionnable) {
+        items.push({ separator: true });
+        items.push({
           label: "Configurer le détail",
           icon: "pi pi-sliders-h",
           command: () => this.emit("add-detail")
-        },
-        {
+        });
+        items.push({
           label: "Déconditionner",
           icon: "pi pi-box",
-          disabled: (produit.totalQuantity ?? 0) <=0 ||  produit.produits.length === 0,
+          disabled: (produit.totalQuantity ?? 0) <= 0 || produit.produits.length === 0,
           command: () => this.emit("decondition")
-        }
-      ] : []),
-      { separator: true },
-      produit.status === 1
-        ? {
-          label: "Réactiver",
-          icon: "pi pi-play",
-          command: () => this.emit("activate")
-        }
-        : {
-          label: "Mettre en veille",
-          icon: "pi pi-pause",
-          command: () => this.emit("suspend")
-        },
-      { separator: true },
-      {
+        });
+      }
+
+      items.push({ separator: true });
+      items.push(
+        produit.status === 1
+          ? { label: "Réactiver", icon: "pi pi-play", command: () => this.emit("activate") }
+          : { label: "Mettre en veille", icon: "pi pi-pause", command: () => this.emit("suspend") }
+      );
+    }
+
+    if (this.canDelete()) {
+      items.push({ separator: true });
+      items.push({
         label: "Supprimer",
         icon: "pi pi-trash",
         styleClass: "text-danger",
         disabled: (produit.totalQuantity ?? 0) > 0,
         command: () => this.emit("delete")
-      }
-    ];
+      });
+    }
+
+    return items;
   }
 }

@@ -16,49 +16,57 @@
             ngbNav
             orientation="vertical"
           >
-            <ng-container ngbNavItem="journal">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-book"></i>
-                <span>Journal des ventes</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-sales-journal />
-              </ng-template>
-            </ng-container>
+            @if (showJournal()) {
+              <ng-container ngbNavItem="journal">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-book"></i>
+                  <span>Journal des ventes</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-sales-journal />
+                </ng-template>
+              </ng-container>
+            }
 
-            <ng-container ngbNavItem="en-cours">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-clock"></i>
-                <span>Ventes en cours</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-sales-en-cours />
-              </ng-template>
-            </ng-container>
+            @if (showEnCours()) {
+              <ng-container ngbNavItem="en-cours">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-clock"></i>
+                  <span>Ventes en cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-sales-en-cours />
+                </ng-template>
+              </ng-container>
+            }
 
-            <ng-container ngbNavItem="presales">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-bookmark"></i>
-                <span>Pré-ventes</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-presale-list />
-              </ng-template>
-            </ng-container>
+            @if (showPresales()) {
+              <ng-container ngbNavItem="presales">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-bookmark"></i>
+                  <span>Pré-ventes</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-presale-list />
+                </ng-template>
+              </ng-container>
+            }
 
-            <ng-container ngbNavItem="devis">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-file-edit"></i>
-                <span>Proformas</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-devis-list />
-              </ng-template>
-            </ng-container>
+            @if (showDevis()) {
+              <ng-container ngbNavItem="devis">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-edit"></i>
+                  <span>Proformas</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-devis-list />
+                </ng-template>
+              </ng-container>
+            }
           </div>
         </div>
       </div>

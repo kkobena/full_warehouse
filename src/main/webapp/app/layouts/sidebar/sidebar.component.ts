@@ -18,6 +18,7 @@ import { environment } from 'environments/environment';
 import { NavigationService } from '../../core/config/navigation.service';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { AlertBadgeService } from '../../shared/services/alert-badge.service';
+import { NavStore } from 'app/core/store/nav.store';
 
 @Component({
   selector: 'jhi-sidebar',
@@ -39,6 +40,7 @@ export default class SidebarComponent implements OnInit {
   private readonly navigationService = inject(NavigationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   protected readonly alertBadgeService = inject(AlertBadgeService);
+  private readonly navStore = inject(NavStore);
 
   themes: Theme[];
   selectedTheme: string;
@@ -60,7 +62,8 @@ export default class SidebarComponent implements OnInit {
       .subscribe(() => this.isMobileSignal.set(window.innerWidth <= 768));
 
     effect(() => {
-      // Reactive : rebuilt when account or alert counts change
+      // Reactive : rebuilt when account, navTree (store) or alert counts change
+      this.navStore.navTree(); // déclenche la réactivité quand le store se charge
       const items = this.buildNavItem();
       const ruptureCount    = this.alertBadgeService.ruptureCount();
       const urgentCount     = this.alertBadgeService.urgentCount();
@@ -162,7 +165,7 @@ export default class SidebarComponent implements OnInit {
     const account = this.account();
 
     if (account) {
-      return this.navigationService.buildNavItems({
+      return this.navigationService.buildNavItemsFromStore({
         additionalAccountMenuItems: [
           { label: 'Menu horizontal', faIcon: faBars, click: () => this.layoutService.toggleLayout() },
           { label: 'Se déconnecter', faIcon: 'sign-out-alt', click: () => this.logout() },

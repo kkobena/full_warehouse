@@ -3,8 +3,6 @@ import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
 
@@ -26,47 +24,27 @@ export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null
   }
   return of(new Categorie());
 };
+
 const categorieRoute: Routes = [
   {
     path: '',
     loadComponent: () => import('./categorie.component').then(m => m.CategorieComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
-    },
-    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     loadComponent: () => import('./categorie-detail.component').then(m => m.CategorieDetailComponent),
-    resolve: {
-      categorie: CategorieResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { categorie: CategorieResolve },
   },
   {
     path: 'new',
     loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
-    resolve: {
-      categorie: CategorieResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { categorie: CategorieResolve },
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
-    resolve: {
-      categorie: CategorieResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { categorie: CategorieResolve },
   },
 ];
+
 export default categorieRoute;

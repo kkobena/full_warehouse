@@ -42,6 +42,7 @@ import {
 import {
   InventoryExportModalComponent
 } from '../../ui/inventory-export-modal/inventory-export-modal.component';
+import { AbilityService } from 'app/core/auth/ability.service';
 
 @Component({
   selector: 'app-inventory-home',
@@ -72,6 +73,12 @@ export class InventoryHomeComponent implements OnInit {
   readonly listFacade = inject(InventoryListFacade);
   readonly store = inject(InventoryStore);
   activeTab = signal<string>('en-cours');
+
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showEnCours  = this.ability.canSignal('display', 'inventaire.en-cours');
+  protected readonly showTournant = this.ability.canSignal('display', 'inventaire.tournant');
+  protected readonly showClotures = this.ability.canSignal('display', 'inventaire.clotures');
   page = signal(0);
   size = signal(20);
   private readonly router = inject(Router);

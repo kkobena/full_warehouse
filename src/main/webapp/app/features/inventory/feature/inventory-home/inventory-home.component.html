@@ -28,36 +28,42 @@
             ngbNav
             orientation="vertical"
           >
-            <ng-container ngbNavItem="en-cours">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-refresh"></i>
-                <span>En cours</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="enCoursTable" />
-              </ng-template>
-            </ng-container>
-            <ng-container ngbNavItem="tournant">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-sync"></i>
-                <span>Tournant</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <app-planning-tournant-list />
-              </ng-template>
-            </ng-container>
-            <ng-container ngbNavItem="clotures">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-lock"></i>
-                <span>Clôturés</span>
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="cloturesTable" />
-              </ng-template>
-            </ng-container>
+            @if (showEnCours()) {
+              <ng-container ngbNavItem="en-cours">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-refresh"></i>
+                  <span>En cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <ng-container *ngTemplateOutlet="enCoursTable" />
+                </ng-template>
+              </ng-container>
+            }
+            @if (showTournant()) {
+              <ng-container ngbNavItem="tournant">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sync"></i>
+                  <span>Tournant</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <app-planning-tournant-list />
+                </ng-template>
+              </ng-container>
+            }
+            @if (showClotures()) {
+              <ng-container ngbNavItem="clotures">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-lock"></i>
+                  <span>Clôturés</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <ng-container *ngTemplateOutlet="cloturesTable" />
+                </ng-template>
+              </ng-container>
+            }
           </div>
         </div>
       </div>

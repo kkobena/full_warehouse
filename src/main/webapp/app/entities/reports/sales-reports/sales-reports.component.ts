@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { AbilityService } from 'app/core/auth/ability.service';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -28,4 +29,14 @@ import MarketBasketComponent from '../market-basket/market-basket.component';
 })
 export default class SalesReportsComponent {
   active = signal<string>('dashboard-ca');
+
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showDashboardCa   = this.ability.canSignal('display', 'rapport-ventes.dashboard-ca');
+  protected readonly showSalesSummary  = this.ability.canSignal('display', 'rapport-ventes.sales-summary');
+  protected readonly showTopProducts   = this.ability.canSignal('display', 'rapport-ventes.top-products');
+  protected readonly showProfitability = this.ability.canSignal('display', 'rapport-ventes.profitability');
+  protected readonly showComparative   = this.ability.canSignal('display', 'rapport-ventes.comparative');
+  protected readonly showSalesForecast = this.ability.canSignal('display', 'rapport-ventes.sales-forecast');
+  protected readonly showMarketBasket  = this.ability.canSignal('display', 'rapport-ventes.market-basket');
 }

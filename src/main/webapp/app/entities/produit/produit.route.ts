@@ -3,8 +3,6 @@ import { HttpResponse } from "@angular/common/http";
 import { ActivatedRouteSnapshot, Router, Routes } from "@angular/router";
 import { EMPTY, mergeMap, Observable, of } from "rxjs";
 
-import { Authority } from "app/shared/constants/authority.constants";
-import { UserRouteAccessService } from "app/core/auth/user-route-access.service";
 import { IProduit, Produit } from "app/shared/model/produit.model";
 import { ProduitService } from "./produit.service";
 
@@ -26,42 +24,23 @@ export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null |
   }
   return of(new Produit());
 };
+
 const produitRoute: Routes = [
-
-
   {
     path: "transaction",
     loadComponent: () => import("./transaction/transaction.component").then(m => m.TransactionComponent),
-    resolve: {
-      produit: ProduitResolve
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
-    },
-    canActivate: [UserRouteAccessService]
+    resolve: { produit: ProduitResolve },
   },
   {
     path: "new",
     loadComponent: () => import("./produit-update.component").then(m => m.ProduitUpdateComponent),
-    resolve: {
-      produit: ProduitResolve
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
-    },
-    canActivate: [UserRouteAccessService]
+    resolve: { produit: ProduitResolve },
   },
   {
     path: ":id/edit",
     loadComponent: () => import("./produit-update.component").then(m => m.ProduitUpdateComponent),
-    resolve: {
-      produit: ProduitResolve
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
-    },
-    canActivate: [UserRouteAccessService]
-  }
-
+    resolve: { produit: ProduitResolve },
+  },
 ];
+
 export default produitRoute;

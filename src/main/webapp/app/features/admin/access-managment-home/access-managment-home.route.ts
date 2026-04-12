@@ -1,13 +1,9 @@
 import { Routes } from '@angular/router';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { Authority } from 'app/shared/constants/authority.constants';
 
 const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./access-managment-home.component').then(m => m.AccessManagmentHomeComponent),
-    data: { authorities: [Authority.ADMIN] },
-    canActivate: [UserRouteAccessService],
   },
 ];
 

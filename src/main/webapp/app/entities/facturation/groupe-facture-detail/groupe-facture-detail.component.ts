@@ -1,5 +1,5 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { FactureDetailComponent } from '../facture-detail/facture-detail.component';
+
 import { Facture } from '../facture.model';
 import { CommonModule } from '@angular/common';
 import { PanelModule } from 'primeng/panel';
@@ -15,7 +15,6 @@ import { InputIcon } from 'primeng/inputicon';
 @Component({
   selector: 'jhi-groupe-facture-detail',
   imports: [
-    FactureDetailComponent,
     PanelModule,
     TableModule,
     InputTextModule,

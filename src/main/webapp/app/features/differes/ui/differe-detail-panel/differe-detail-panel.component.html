@@ -66,22 +66,24 @@
           </ng-template>
         </ng-container>
 
-        <!-- Onglet Régler -->
-        <ng-container ngbNavItem="regler">
-          <a class="pharma-nav-tab-link" ngbNavLink>
-            <i class="pi pi-money-bill"></i>
-            <span>Régler</span>
-          </a>
-          <ng-template ngbNavContent>
-            <div class="regler-panel">
-              <app-reglement-differe-form
-                [differe]="differe()"
-                [isSaving]="isSaving"
-                (reglementParams)="onSaveReglement($event)"
-                (rendu)="onMonnaieChange($event)" />
-            </div>
-          </ng-template>
-        </ng-container>
+        <!-- Onglet Régler — masqué si pas de permission execute -->
+        @if (canExecute()) {
+          <ng-container ngbNavItem="regler">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-money-bill"></i>
+              <span>Régler</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="regler-panel">
+                <app-reglement-differe-form
+                  [differe]="differe()"
+                  [isSaving]="isSaving"
+                  (reglementParams)="onSaveReglement($event)"
+                  (rendu)="onMonnaieChange($event)" />
+              </div>
+            </ng-template>
+          </ng-container>
+        }
 
         <!-- Onglet Historique -->
         <ng-container ngbNavItem="historique">

@@ -1,46 +1,29 @@
 import { Routes } from '@angular/router';
-import { UserRouteAccessService } from '../../core/auth/user-route-access.service';
-import { Authority } from '../../shared/constants/authority.constants';
+import { AuthGuard } from '../../core/auth/auth.guard';
 
 const depotRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('../depot/depot-home/depot-home.component').then(m => m.DepotHomeComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Gestion des Dépôts',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'Gestion des Dépôts' },
   },
   {
     path: 'new',
     loadComponent: () => import('./depot-form.component').then(m => m.DepotFormComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Dépôt',
-    },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Nouveau Dépôt', abilitySubject: 'depot.liste-depots' },
   },
-
-
-
   {
     path: ':id/edit',
     loadComponent: () => import('./depot-form.component').then(m => m.DepotFormComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Modifier Dépôt',
-    },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Modifier Dépôt', abilitySubject: 'depot.liste-depots' },
   },
   {
     path: 'new-return',
     loadComponent: () => import('./depot-returns/depot-returns.component').then(m => m.DepotReturnsComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MENU_DEPOT, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Retour Dépôt',
-    },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Nouveau Retour Dépôt', abilitySubject: 'depot.retour-depot' },
   },
 ];
 

@@ -18,6 +18,7 @@ import { SalesApiService } from '../../data-access/services/sales-api.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
+import {AbilityService} from '../../../../core/auth/ability.service';
 import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
 import {ButtonGroup} from "primeng/buttongroup";
 import {FloatLabel} from "primeng/floatlabel";
@@ -57,7 +58,11 @@ export class DevisListComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly datePipe = inject(DatePipe);
+  private readonly ability = inject(AbilityService);
   protected readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
+  protected readonly canDeleteDevis = this.ability.canSignal('execute', 'ventes.devis.delete');
+  protected readonly canExportDevis = this.ability.canSignal('execute', 'ventes.devis.export');
 
   protected loading = signal(false);
   protected sales: ISales[] = [];

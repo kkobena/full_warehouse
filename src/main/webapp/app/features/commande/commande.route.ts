@@ -1,12 +1,10 @@
-import {inject} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Router, Routes} from '@angular/router';
-import {EMPTY, mergeMap, Observable, of} from 'rxjs';
+import { inject } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {Commande, ICommande} from 'app/shared/model/commande.model';
-import {CommandeService} from '../../entities/commande/commande.service';
+import { Commande, ICommande } from 'app/shared/model/commande.model';
+import { CommandeService } from '../../entities/commande/commande.service';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
@@ -48,13 +46,10 @@ const commandeRoute: Routes = [
     loadComponent: () =>
       import('./feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.commande.home.title',
     },
-    canActivate: [UserRouteAccessService],
   },
-
   {
     path: 'new',
     loadComponent: () =>
@@ -62,11 +57,7 @@ const commandeRoute: Routes = [
     resolve: {
       commande: CommandeResolve,
     },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'warehouseApp.commande.home.title' },
   },
   {
     path: ':id/:orderDate/edit',
@@ -75,25 +66,15 @@ const commandeRoute: Routes = [
     resolve: {
       commande: CommandeResolve,
     },
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'warehouseApp.commande.home.title' },
   },
-
-
   {
     path: 'retour-fournisseur/new',
     loadComponent: () =>
       import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
         m => m.SupplierReturnsComponent,
       ),
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Retour Fournisseur',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'Nouveau Retour Fournisseur' },
   },
   {
     path: 'retour-fournisseur/:id/edit',
@@ -101,21 +82,13 @@ const commandeRoute: Routes = [
       import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
         m => m.SupplierReturnsComponent,
       ),
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Modifier le Retour Fournisseur',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'Modifier le Retour Fournisseur' },
   },
   {
     path: 'suggestions',
     loadComponent: () =>
       import('./feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Suggestions de commande',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'Suggestions de commande' },
   },
   {
     path: 'semois-classe-config',
@@ -123,11 +96,7 @@ const commandeRoute: Routes = [
       import('./feature/semois-classe-config/semois-classe-config.component').then(
         m => m.SemoisClasseConfigComponent,
       ),
-    data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Configuration SEMOIS — Classes de criticité',
-    },
-    canActivate: [UserRouteAccessService],
+    data: { pageTitle: 'Configuration SEMOIS — Classes de criticité' },
   },
 ];
 

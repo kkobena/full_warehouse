@@ -1,8 +1,6 @@
 <div class="row">
 
-
   <div class="col-2 col-md-2 col-sm-2">
-    <!-- Modern Navigation Sidebar -->
     <div class="pharma-nav-sidebar">
       <div class="pharma-nav-sidebar-card">
         <div class="pharma-nav-sidebar-header">
@@ -12,33 +10,39 @@
 
         <div class="pharma-nav-sidebar-content">
           <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
-            <ng-container ngbNavItem="lot-perimes">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-calendar-times"></i>
-                <span>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}</span>
-                @if (lotPerimesCount > 0) {
-                  <span class="badge bg-danger ms-auto">{{ lotPerimesCount > 99 ? '99+' : (lotPerimesCount | number) }}</span>
-                }
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <jhi-lot-perimes></jhi-lot-perimes>
-              </ng-template>
-            </ng-container>
 
-            <ng-container ngbNavItem="lot-a-detruire">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-trash"></i>
-                <span>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</span>
-                @if (lotADetruireCount > 0) {
-                  <span class="badge bg-warning text-dark ms-auto">{{ lotADetruireCount > 99 ? '99+' : (lotADetruireCount | number) }}</span>
-                }
-                <span class="link-arrow">›</span>
-              </a>
-              <ng-template ngbNavContent>
-                <jhi-lot-a-detruire></jhi-lot-a-detruire>
-              </ng-template>
-            </ng-container>
+            @if (showLotPerimes()) {
+              <ng-container ngbNavItem="lot-perimes">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-calendar-times"></i>
+                  <span>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}</span>
+                  @if (lotPerimesCount > 0) {
+                    <span class="badge bg-danger ms-auto">{{ lotPerimesCount > 99 ? '99+' : (lotPerimesCount | number) }}</span>
+                  }
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-lot-perimes></jhi-lot-perimes>
+                </ng-template>
+              </ng-container>
+            }
+
+            @if (showLotADetruire()) {
+              <ng-container ngbNavItem="lot-a-detruire">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-trash"></i>
+                  <span>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</span>
+                  @if (lotADetruireCount > 0) {
+                    <span class="badge bg-warning text-dark ms-auto">{{ lotADetruireCount > 99 ? '99+' : (lotADetruireCount | number) }}</span>
+                  }
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-lot-a-detruire></jhi-lot-a-detruire>
+                </ng-template>
+              </ng-container>
+            }
+
           </div>
         </div>
       </div>
@@ -46,8 +50,6 @@
   </div>
 
   <div class="col-10 col-md-10 col-sm-10 pharma-smart-content p-1">
-    <!-- Bandeau d'alerte proactif péremptions -->
-
     @if (peremptionAlertService.peremptionCount() > 0 && !alertDismissed()) {
       <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-2 py-2" role="alert">
         <i class="pi pi-exclamation-circle flex-shrink-0"></i>

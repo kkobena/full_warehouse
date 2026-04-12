@@ -11,10 +11,15 @@
         </ng-template>
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            <p-button [raised]="true" (onClick)="onNewVente()" icon="pi pi-shopping-cart" label="Nouvelle vente dépôt" severity="primary">
-            </p-button>
-            <p-button [raised]="true" (onClick)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt" severity="info"> </p-button>
-            <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
+            @if (canNewVente()) {
+              <p-button [raised]="true" (onClick)="onNewVente()" icon="pi pi-shopping-cart" label="Nouvelle vente dépôt" severity="primary" />
+            }
+            @if (canCreate()) {
+              <p-button [raised]="true" (onClick)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt" severity="info" />
+            }
+            @if (canReturn()) {
+              <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
+            }
           </div>
         </ng-template>
       </p-toolbar>
@@ -83,18 +88,12 @@
 
           <td style="text-align: center">
             <div class="action-buttons">
-              <p-button (onClick)="onEdit(depot)" [rounded]="true" [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="info">
-              </p-button>
-
-              <p-button
-                (onClick)="onDelete(depot)"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-trash"
-                pTooltip="Supprimer"
-                severity="danger"
-              >
-              </p-button>
+              @if (canEdit()) {
+                <p-button (onClick)="onEdit(depot)" [rounded]="true" [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="info" />
+              }
+              @if (canDelete()) {
+                <p-button (onClick)="onDelete(depot)" [rounded]="true" [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger" />
+              }
             </div>
           </td>
         </tr>

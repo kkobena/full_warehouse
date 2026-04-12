@@ -6,7 +6,7 @@ import { InvoiceSearchParams } from '../../facturation/edition-search-params.mod
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { INVOICES_STATUT } from '../../../shared/constants/data-constants';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
+import { ITiersPayant } from "../../../shared/model";
 import { RegelementStateService } from '../regelement-state.service';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';

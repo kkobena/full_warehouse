@@ -45,6 +45,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {TIMES} from "../../../../shared/util/times";
 import {NgbConfirmDialogService} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {AnnulationVenteMessageComponent} from "../../ui/annulation-vente-message/annulation-vente-message.component";
+import {AbilityService} from '../../../../core/auth/ability.service';
 
 
 @Component({
@@ -88,6 +89,11 @@ export class SalesJournalComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
+  private readonly ability = inject(AbilityService);
+
+  // ── Abilities ─────────────────────────────────────────
+  protected readonly canCancelVente = this.ability.canSignal('execute', 'ventes.journal.cancel');
+  protected readonly canEditVente = this.ability.canSignal('execute', 'pr-modifier-vente');
 
   // ── État ──────────────────────────────────────────────
   protected loading = signal(false);
@@ -109,8 +115,6 @@ export class SalesJournalComponent implements OnInit {
   protected toHour = '23:59';
   protected hours = TIMES;
   // ── Permissions ───────────────────────────────────────
-  protected canEdit = false;
-  protected canCancel = false;
   protected readonly SalesStatut = SalesStatut;
   private readonly searchSubject = new Subject<void>();
 
@@ -119,8 +123,7 @@ export class SalesJournalComponent implements OnInit {
     this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
-    this.canEdit = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
-    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
+
     this.loadAllUsers();
     this.restoreParams();
     this.loadPage();
@@ -301,7 +304,6 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected confirmEdit(sale: ISales): void {
-    if (!this.canEdit || !sale.saleId) return;
     this.confirmDialog.onConfirm(
       () => this.editSale(sale),
       'Modification de vente',

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AbilityService } from 'app/core/auth/ability.service';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
 import { DepotComponent } from '../depot.component';
 import { AchatDepotComponent } from '../achat-depot/achat-depot.component';
@@ -26,4 +27,11 @@ import { CommonModule } from '@angular/common';
 })
 export class DepotHomeComponent {
   protected active = 'liste-depots';
+
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showListeDepots = this.ability.canSignal('display', 'depot.liste-depots');
+  protected readonly showStockDepot  = this.ability.canSignal('display', 'depot.stock-depot');
+  protected readonly showAchatDepot  = this.ability.canSignal('display', 'depot.achat-depot');
+  protected readonly showRetourDepot = this.ability.canSignal('display', 'depot.retour-depot');
 }

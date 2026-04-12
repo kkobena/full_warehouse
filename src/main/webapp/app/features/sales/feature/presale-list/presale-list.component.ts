@@ -18,6 +18,7 @@ import {SalesApiService} from '../../data-access/services/sales-api.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {ButtonGroup} from "primeng/buttongroup";
+import {AbilityService} from '../../../../core/auth/ability.service';
 import {NgxSpinnerComponent} from "ngx-spinner";
 
 @Component({
@@ -46,7 +47,11 @@ export class PresaleListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ability = inject(AbilityService);
   protected readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
+  protected readonly canDeletePresale = this.ability.canSignal('execute', 'ventes.presales.delete');
+
   protected useSimpleSale = false;
   protected loading = signal(false);
   protected transforming = signal(false);

@@ -14,6 +14,7 @@ import { Toolbar } from 'primeng/toolbar';
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { AbilityService } from '../../core/auth/ability.service';
 
 @Component({
   selector: 'jhi-depot',
@@ -41,7 +42,14 @@ export class DepotComponent implements OnInit {
   protected readonly TypeMagasin = TypeMagasin;
   private magasinService = inject(MagasinService);
   private router = inject(Router);
+  private readonly ability = inject(AbilityService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
+  protected readonly canNewVente = this.ability.canSignal('execute', 'depot.liste-depots');
+  protected readonly canCreate   = this.ability.canSignal('create', 'depot.liste-depots');
+  protected readonly canEdit     = this.ability.canSignal('edit',   'depot.liste-depots');
+  protected readonly canDelete   = this.ability.canSignal('delete', 'depot.liste-depots');
+  protected readonly canReturn   = this.ability.canSignal('access', 'depot.retour-depot');
   ngOnInit(): void {
     this.loadAll();
   }

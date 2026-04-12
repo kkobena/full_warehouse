@@ -6,7 +6,7 @@ export interface INavNode {
   icon?: string;          // "pi pi-send" (PrimeIcons)
   routerLink?: string;    // "/commande"
   badgeType?: 'RUPTURE' | 'PEREMPTION' | 'URGENT' | 'NONE';
-  targetType: 'ROUTE' | 'ACTION' | 'GROUP' | 'DIVIDER';
+  targetType: 'ROUTE' | 'ACTION' | 'GROUP' | 'SECTION' | 'DIVIDER';
   ordre: number;
   children?: INavNode[];
   permissions?: INavPermissions;

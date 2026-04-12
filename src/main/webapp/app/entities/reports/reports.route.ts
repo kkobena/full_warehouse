@@ -1,36 +1,33 @@
-import {Routes} from '@angular/router';
-
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
+import { Routes } from '@angular/router';
+import { AuthGuard } from 'app/core/auth/auth.guard';
 
 const reportsRoute: Routes = [
   {
     path: 'sales',
     loadComponent: () => import('./sales-reports/sales-reports.component'),
     data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: "Rapports Chiffre d'Affaires",
+      abilitySubject: 'rapport-ventes',
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
   },
   {
     path: 'stock',
     loadComponent: () => import('./stock-reports/stock-reports.component'),
     data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Rapports Stock & Inventaire',
+      abilitySubject: 'rapport-stock',
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
   },
-
   {
     path: 'partners',
     loadComponent: () => import('./partners-reports/partners-reports.component'),
     data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Rapports Clients & Fournisseurs',
+      abilitySubject: 'rapport-partners',
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [AuthGuard],
   },
   {
     path: '',

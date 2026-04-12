@@ -15,6 +15,7 @@ import { TableLazyLoadEvent } from "primeng/table";
 import { MenuItem, SelectItem } from "primeng/api";
 import { TooltipModule } from "primeng/tooltip";
 import { Authority } from "app/shared/constants/authority.constants";
+import { AbilityService } from "app/core/auth/ability.service";
 import { IProduit } from "app/shared/model/produit.model";
 import { IFamilleProduit } from "app/shared/model/famille-produit.model";
 import { IRayon } from "app/shared/model/rayon.model";
@@ -108,6 +109,11 @@ export class ProduitHomeComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly ability = inject(AbilityService);
+
+  protected readonly canCreate = this.ability.canSignal('create', 'catalogue');
+  protected readonly canEdit   = this.ability.canSignal('edit',   'catalogue');
+  protected readonly canDelete = this.ability.canSignal('delete', 'catalogue');
 
 
   ngOnInit(): void {

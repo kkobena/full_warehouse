@@ -55,22 +55,24 @@
       </ng-template>
 
       <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <p-splitbutton
-            label="Importer"
-            icon="pi pi-upload"
-            [model]="importMenuItems"
-            severity="secondary"
-            [outlined]="true"
-            size="small"
-          />
-          <p-button
-            icon="pi pi-plus"
-            label="Nouveau"
-            size="small"
-            (onClick)="onNewProduit()"
-          />
-        </div>
+        @if (canCreate()) {
+          <div class="pharma-toolbar-actions">
+            <p-splitbutton
+              label="Importer"
+              icon="pi pi-upload"
+              [model]="importMenuItems"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+            />
+            <p-button
+              icon="pi pi-plus"
+              label="Nouveau"
+              size="small"
+              (onClick)="onNewProduit()"
+            />
+          </div>
+        }
       </ng-template>
     </p-toolbar>
   </div>
@@ -115,22 +117,24 @@
   @if (hasSelection()) {
     <div class="bulk-action-bar">
       <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
-      <p-button
-        label="Mettre en veille"
-        icon="pi pi-pause"
-        size="small"
-        severity="warn"
-        [outlined]="true"
-        (onClick)="onBulkDisable()"
-      />
-      <p-button
-        label="Réactiver"
-        icon="pi pi-play"
-        size="small"
-        severity="success"
-        [outlined]="true"
-        (onClick)="onBulkEnable()"
-      />
+      @if (canEdit()) {
+        <p-button
+          label="Mettre en veille"
+          icon="pi pi-pause"
+          size="small"
+          severity="warn"
+          [outlined]="true"
+          (onClick)="onBulkDisable()"
+        />
+        <p-button
+          label="Réactiver"
+          icon="pi pi-play"
+          size="small"
+          severity="success"
+          [outlined]="true"
+          (onClick)="onBulkEnable()"
+        />
+      }
       <p-button
         icon="pi pi-times"
         size="small"
@@ -153,6 +157,9 @@
         [rows]="rows"
         [loading]="loading()"
         [selectedProduit]="selectedProduit()"
+        [canCreate]="canCreate()"
+        [canEdit]="canEdit()"
+        [canDelete]="canDelete()"
         (produitSelected)="onProduitSelected($event)"
         (lazyLoad)="onLazyLoad($event)"
         (editRequested)="onEditRequested($event)"
@@ -168,6 +175,7 @@
       <div class="detail-column">
         <app-produit-detail-panel
           [produit]="selectedProduit()!"
+          [canEdit]="canEdit()"
           (closePanel)="onClosePanel()"
           (editRequested)="onEditRequested($event)"
         />

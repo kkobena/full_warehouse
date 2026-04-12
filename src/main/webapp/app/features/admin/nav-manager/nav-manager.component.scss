@@ -2,13 +2,16 @@
 @use 'app/shared/scss/table-common' as tc;
 @use  'app/shared/scss/pharma-toolbar' as tb;
 // ── Variables locales ─────────────────────────────────────────────────────────
-$group-color:   #1e40af;
-$group-bg:      #dbeafe;
-$group-border:  #3b82f6;
-$route-border:  #93c5fd;
-$action-color:  #92400e;
-$action-bg:     #fffbf0;
-$action-border: #f59e0b;
+$group-color:    #1e40af;
+$group-bg:       #dbeafe;
+$group-border:   #3b82f6;
+$route-border:   #93c5fd;
+$action-color:   #92400e;
+$action-bg:      #fffbf0;
+$action-border:  #f59e0b;
+$section-color:  #5b21b6;
+$section-bg:     #f5f3ff;
+$section-border: #a78bfa;
 
 // ── En-tête de carte ──────────────────────────────────────────────────────────
 .card-header {
@@ -169,6 +172,13 @@ $action-border: #f59e0b;
   }
 }
 
+// Variante toggle pour ROUTE (plus discret que GROUP)
+.route-toggle {
+  border-color: rgba($route-border, 0.5) !important;
+  i { color: #6b7280 !important; }
+  &:hover { background: rgba($route-border, 0.15) !important; border-color: $route-border !important; }
+}
+
 // ── Icône GROUP (dossier) ─────────────────────────────────────────────────────
 .group-icon-wrap {
   display: inline-flex;
@@ -206,6 +216,53 @@ $action-border: #f59e0b;
   font-size: 0.8rem;
   color: #6b7280;
   flex-shrink: 0;
+}
+
+// Icône SECTION (onglet)
+.section-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: $section-border;
+  border-radius: 4px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.65rem;
+    color: #fff;
+  }
+}
+
+// Badge "Onglet"
+.section-badge {
+  margin-left: 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: $section-color;
+  background: rgba($section-border, 0.18);
+  border: 1px solid rgba($section-border, 0.45);
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Badge "Action"
+.action-badge {
+  margin-left: 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: $action-color;
+  background: rgba($action-border, 0.18);
+  border: 1px solid rgba($action-border, 0.45);
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 // Icône action métier
@@ -278,6 +335,25 @@ $action-border: #f59e0b;
   .item-libelle {
     color: #6b7280;
     font-size: 0.8rem;
+  }
+}
+
+// ── Ligne SECTION (onglet intra-page) ────────────────────────────────────────
+:host ::ng-deep .row-section {
+  background: $section-bg !important;
+
+  td:first-child {
+    border-left: 4px solid $section-border !important;
+  }
+
+  &:hover td {
+    background: #ede9fe !important;
+  }
+
+  .item-libelle {
+    color: $section-color;
+    font-size: 0.82rem;
+    font-weight: 500;
   }
 }
 
@@ -405,4 +481,82 @@ $action-border: #f59e0b;
 
 .preview-summary {
   font-size: 0.8rem;
+}
+
+// ── Barre de recherche ────────────────────────────────────────────────────────
+.search-bar {
+  background: #fafbfc;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 8px;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-input {
+  padding-left: 28px;
+  min-width: 240px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+
+  &:focus {
+    border-color: $group-border;
+    box-shadow: 0 0 0 2px rgba($group-border, 0.2);
+  }
+}
+
+// ── Boutons actions groupées (grant / revoke) ─────────────────────────────────
+.saving-indicator-cell {
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 4px !important;
+}
+
+.bulk-actions {
+  display: inline-flex;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  tr:hover & {
+    opacity: 1;
+  }
+}
+
+.bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bulk-grant {
+  background: #dcfce7;
+  color: #16a34a;
+
+  &:hover { background: #16a34a; color: #fff; }
+}
+
+.bulk-revoke {
+  background: #fee2e2;
+  color: #dc2626;
+
+  &:hover { background: #dc2626; color: #fff; }
 }

@@ -18,6 +18,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
 import { AlertBadgeService } from "../../../../shared/services/alert-badge.service";
 import { BreadcrumbService } from "../../../../shared/components/breadcrumb/breadcrumb.service";
+import { AbilityService } from "app/core/auth/ability.service";
 
 /** Labels fil d'Ariane pour chaque onglet */
 const TAB_LABELS: Record<string, string> = {
@@ -54,6 +55,12 @@ export class CommandeHomeComponent implements OnInit {
   private readonly primeNGConfig = inject(PrimeNG);
   protected readonly alertBadgeService = inject(AlertBadgeService);
   private readonly breadcrumbService = inject(BreadcrumbService);
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showDashboard        = this.ability.canSignal('display', 'commande.dashboard');
+  protected readonly showSuggestions      = this.ability.canSignal('display', 'commande.suggestions');
+  protected readonly showRepartitionStock = this.ability.canSignal('display', 'commande.repartition-stock');
+  protected readonly showRetourFournisseur = this.ability.canSignal('display', 'commande.retour-fournisseur');
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());

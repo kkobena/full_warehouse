@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { AbilityService } from 'app/core/auth/ability.service';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -13,4 +14,9 @@ import SupplierPerformanceComponent from '../supplier-performance/supplier-perfo
 })
 export default class PartnersReportsComponent {
   active = signal<string>('customer-segmentation');
+
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showCustomerSegmentation = this.ability.canSignal('display', 'rapport-partners.customer-segmentation');
+  protected readonly showSupplierPerformance  = this.ability.canSignal('display', 'rapport-partners.supplier-performance');
 }

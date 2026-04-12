@@ -21,9 +21,9 @@ import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Tooltip } from 'primeng/tooltip';
 import { finalize } from 'rxjs/operators';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from "../../../shared/model";
 import { MagasinService } from '../../magasin/magasin.service';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit } from "../../../shared/model";
 import { StockDepotService } from '../stock-depot/stock-depot.service';
 
 @Component({

@@ -16,6 +16,7 @@ import {ISales, SalesStatut} from '../../../../shared/model';
 import {SalesApiService} from '../../data-access/services/sales-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {ButtonGroup} from "primeng/buttongroup";
+import {AbilityService} from '../../../../core/auth/ability.service';
 
 
 @Component({
@@ -42,7 +43,10 @@ export class SalesEnCoursComponent implements OnInit {
   private readonly api = inject(SalesApiService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ability = inject(AbilityService);
   protected readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
+  protected readonly canDeleteEnCours = this.ability.canSignal('execute', 'ventes.en-cours.delete');
 
   protected loading = signal(false);
   protected sales: ISales[] = [];

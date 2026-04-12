@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
-import { UserRouteAccessService } from '../../core/auth/user-route-access.service';
-import { Authority } from '../../shared/constants/authority.constants';
+import { AuthGuard } from '../../core/auth/auth.guard';
 
 /**
  * Sales feature routes
@@ -13,57 +12,42 @@ import { Authority } from '../../shared/constants/authority.constants';
  *     ?presale=true          → Mode prevente
  * - /sales-home/prevente     → Mode prevente (pas d'encaissement)
  * - /sales-home/prevente/edit/:id → Editer une prevente existante
+ *
+ * Accès contrôlé par NavItemRole (ABAC) pour les routes business.
+ * Les routes sans abilitySubject sont auth-only (tout utilisateur connecté).
  */
 export const SALES_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./feature/sales-home/sales-home.component').then(m => m.SalesHomeComponent),
-    canActivate: [UserRouteAccessService],
-   // title: 'Point de vente',
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Point de vente',
-    },
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Point de vente' },
   },
-
-
   {
     path: 'prevente',
     loadComponent: () => import('./feature/presale-home/presale-home.component').then(m => m.PresaleHomeComponent),
-    canActivate: [UserRouteAccessService],
-   // title: 'Prevente',
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Prevente',
-    },
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Prevente', abilitySubject: 'nouvelle-prevente' },
   },
   {
     path: 'devis',
     loadComponent: () => import('./feature/devis-home/devis-home.component').then(m => m.DevisHomeComponent),
-    canActivate: [UserRouteAccessService],
-//    title: 'Devis',
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Devis',
-    },
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Devis' },
   },
   {
     path: 'gestion',
     loadComponent: () => import('./feature/sales-management-home/sales-management-home.component').then(m => m.SalesManagementHomeComponent),
-    canActivate: [UserRouteAccessService],
-   // title: 'Gestion des ventes',
+    canActivate: [AuthGuard],
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       pageTitle: 'Gestion des ventes',
+      abilitySubject: 'ventes',
     },
   },
   {
     path: 'vente-depot',
     loadComponent: () => import('./feature/vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
-    canActivate: [UserRouteAccessService],
-    data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'Vente dépôt',
-    },
+    canActivate: [AuthGuard],
+    data: { pageTitle: 'Vente dépôt', abilitySubject: 'depot.liste-depots' },
   },
 ];

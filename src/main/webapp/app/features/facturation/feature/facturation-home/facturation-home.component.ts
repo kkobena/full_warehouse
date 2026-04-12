@@ -22,6 +22,7 @@ import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.
 import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
 import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
 
+import { AbilityService } from "app/core/auth/ability.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { FactureApiService } from "../../data-access/services/facture-api.service";
 import { IFacture, IInvoiceSearchParams } from "../../data-access/models";
@@ -56,6 +57,11 @@ export class FacturationHomeComponent implements OnInit {
   // Store & computed
   protected readonly store = inject(FacturationStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
+
+  private readonly ability = inject(AbilityService);
+  protected readonly canExecute = this.ability.canSignal('execute', 'factures');
+  protected readonly canDelete  = this.ability.canSignal('delete',  'factures');
+  protected readonly canExport  = this.ability.canSignal('export',  'factures');
 
   // Toolbar state
   protected readonly statutOptions: CodeValue[] = INVOICES_STATUT;

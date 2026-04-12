@@ -182,26 +182,30 @@
                   />
 
                   <!-- Imprimer PDF -->
-                  <p-button
-                    (click)="printDevis(sale)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-file-pdf"
-                    pTooltip="Imprimer en PDF"
-                    severity="secondary"
-                    tooltipPosition="top"
-                  />
+                  @if (canExportDevis()) {
+                    <p-button
+                      (click)="printDevis(sale)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-file-pdf"
+                      pTooltip="Imprimer en PDF"
+                      severity="secondary"
+                      tooltipPosition="top"
+                    />
+                  }
 
                   <!-- Supprimer -->
-                  <p-button
-                    (click)="confirmDelete(sale)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    pTooltip="Supprimer"
-                    severity="danger"
-                    tooltipPosition="top"
-                  />
+                  @if (canDeleteDevis()) {
+                    <p-button
+                      (click)="confirmDelete(sale)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-trash"
+                      pTooltip="Supprimer"
+                      severity="danger"
+                      tooltipPosition="top"
+                    />
+                  }
                 </p-buttonGroup>
               </td>
             </tr>

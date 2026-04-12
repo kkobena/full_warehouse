@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
+import { AbilityService } from "app/core/auth/ability.service";
 import {
   NgbNav,
   NgbNavContent,
@@ -43,6 +44,10 @@ export class GestionPeremptionComponent implements OnInit {
   protected alertDismissed = signal(true);
 
   protected readonly peremptionAlertService = inject(PeremptionAlertService);
+  private readonly ability = inject(AbilityService);
+
+  protected readonly showLotPerimes    = this.ability.canSignal('display', 'peremptions.lot-perimes');
+  protected readonly showLotADetruire  = this.ability.canSignal('display', 'peremptions.lot-a-detruire');
   private readonly lotService = inject(LotService);
   private readonly productToDestroyService = inject(ProductToDestroyService);
 

@@ -3,8 +3,6 @@ import { HttpResponse } from '@angular/common/http';
 import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
 import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import { Authority } from 'app/shared/constants/authority.constants';
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
 
@@ -26,47 +24,27 @@ export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null |
   }
   return of(new Magasin());
 };
+
 const magasinRoute: Routes = [
   {
     path: '',
     loadComponent: () => import('./magasin.component').then(m => m.MagasinComponent),
-    data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
-    },
-    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     loadComponent: () => import('./magasin-detail.component').then(m => m.MagasinDetailComponent),
-    resolve: {
-      magasin: MagasinResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { magasin: MagasinResolve },
   },
   {
     path: 'new',
     loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
-    resolve: {
-      magasin: MagasinResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { magasin: MagasinResolve },
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
-    resolve: {
-      magasin: MagasinResolve,
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
-    },
-    canActivate: [UserRouteAccessService],
+    resolve: { magasin: MagasinResolve },
   },
 ];
+
 export default magasinRoute;

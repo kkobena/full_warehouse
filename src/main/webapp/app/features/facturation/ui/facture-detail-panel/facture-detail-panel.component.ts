@@ -45,6 +45,8 @@ import { CommonModule } from "@angular/common";
 })
 export class FactureDetailPanelComponent {
   readonly facture = input<IFacture | null>(null);
+  readonly canExecute = input<boolean>(true);
+  readonly canExport  = input<boolean>(true);
 
   protected loadingItems = false;
   protected certifying = false;

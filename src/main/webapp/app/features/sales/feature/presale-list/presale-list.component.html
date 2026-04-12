@@ -130,16 +130,17 @@
                   tooltipPosition="top"
                 />
 
-                <p-button
-                  (click)="confirmDelete(sale)"
-                  [rounded]="true"
-                  [text]="true"
-                  class="ml-2"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
-                  severity="danger"
-
-                ></p-button>
+                @if (canDeletePresale()) {
+                  <p-button
+                    (click)="confirmDelete(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    class="ml-2"
+                    icon="pi pi-trash"
+                    pTooltip="Supprimer"
+                    severity="danger"
+                  ></p-button>
+                }
               </p-buttonGroup>
             </td>
           </tr>

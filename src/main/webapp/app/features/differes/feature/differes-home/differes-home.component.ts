@@ -14,6 +14,7 @@ import { ErrorService } from '../../../../shared/error.service';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
 
+import { AbilityService } from 'app/core/auth/ability.service';
 import { DiffereStore } from '../../data-access/store/differe.store';
 import { DiffereApiService } from '../../data-access/services/differe-api.service';
 import { IDiffereSearchParams } from '../../data-access/models';
@@ -42,6 +43,10 @@ type StatutDiffere = 'PAYE' | 'IMPAYE';
 export class DifferesHomeComponent implements OnInit {
   protected readonly store = inject(DiffereStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
+
+  private readonly ability = inject(AbilityService);
+  protected readonly canExecute = this.ability.canSignal('execute', 'differes');
+  protected readonly canExport  = this.ability.canSignal('export',  'differes');
 
   // Toolbar state
   protected modelStartDate: Date;

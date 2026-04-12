@@ -22,14 +22,16 @@
       </div>
     </div>
     <div class="panel-actions">
-      <p-button
-        icon="pi pi-pencil"
-        label="Modifier"
-        size="small"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="onEdit()"
-      />
+      @if (canEdit()) {
+        <p-button
+          icon="pi pi-pencil"
+          label="Modifier"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onEdit()"
+        />
+      }
       <p-button
         icon="pi pi-times"
         [text]="true"

@@ -5,8 +5,10 @@ import { IAbility, INavNode, NavAbilityAction } from 'app/shared/model/nav-item.
  * Service de contrôle d'accès fin (CASL-like).
  * Alimenté par l'arbre de navigation dynamique (NavStore).
  *
+ * Sémantique stricte : un sujet absent de l'arbre = permission refusée.
+ *
  * Usage :
- *   ability.can('create', 'commande')       → boolean
+ *   ability.can('create', 'commande')          → boolean
  *   ability.canSignal('export', 'facturation') → Signal<boolean>
  */
 @Injectable({ providedIn: 'root' })
@@ -15,10 +17,9 @@ export class AbilityService {
 
   /** Initialise les abilities depuis l'arbre de navigation. */
   setFromNavTree(tree: INavNode[]): void {
-    const flat = this.flatten(tree);
     const abilities: IAbility[] = [];
 
-    for (const node of flat) {
+    for (const node of this.flatten(tree)) {
       const p = node.permissions;
       if (!p) continue;
       const subject = node.code;

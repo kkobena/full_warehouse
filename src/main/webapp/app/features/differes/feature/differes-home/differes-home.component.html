@@ -82,14 +82,16 @@
               label="Rechercher"
               severity="info"
             />
-            <p-button
-              (click)="exportPdf()"
-              [loading]="loadingPdf"
-              [raised]="true"
-              icon="pi pi-file-pdf"
-              label="PDF"
-              severity="warn"
-            />
+            @if (canExport()) {
+              <p-button
+                (click)="exportPdf()"
+                [loading]="loadingPdf"
+                [raised]="true"
+                icon="pi pi-file-pdf"
+                label="PDF"
+                severity="warn"
+              />
+            }
           </div>
         </div>
       </ng-template>
@@ -116,7 +118,7 @@
 
     @if (panelOpen()) {
       <div class="detail-column">
-        <app-differe-detail-panel [differe]="store.selectedDiffere()" />
+        <app-differe-detail-panel [differe]="store.selectedDiffere()" [canExecute]="canExecute()" />
       </div>
     }
   </div>

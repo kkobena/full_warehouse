@@ -33,6 +33,7 @@ import {APPEND_TO} from '../../../../shared/constants/pagination.constants';
 import {DatePickerComponent} from '../../../../shared/date-picker/date-picker.component';
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
+import { ButtonGroup } from "primeng/buttongroup";
 
 @Component({
   selector: 'app-ajustement-home',
@@ -56,7 +57,8 @@ import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
     SelectButton,
     Toast,
     DatePickerComponent,
-  ],
+    ButtonGroup
+  ]
 })
 export class AjustementHomeComponent implements OnInit {
   readonly facade = inject(AjustementFacade);

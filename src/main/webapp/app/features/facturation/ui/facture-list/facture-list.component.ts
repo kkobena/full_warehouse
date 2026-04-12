@@ -40,6 +40,8 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
 export class FactureListComponent {
 
   readonly searchParams = input<IInvoiceSearchParams | null>(null);
+  readonly canDelete = input<boolean>(true);
+  readonly canExport = input<boolean>(true);
 
   readonly factureSelected = output<IFacture>();
 

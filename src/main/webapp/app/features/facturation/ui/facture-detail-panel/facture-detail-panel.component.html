@@ -20,16 +20,18 @@
         </div>
       </div>
       <div class="panel-actions">
-        <p-button
-          icon="pi pi-file-pdf"
-          [text]="true"
-          size="small"
-          severity="warn"
-          [loading]="loadingPdf"
-          pTooltip="Exporter PDF"
-          tooltipPosition="left"
-          (onClick)="onExportPdf()"
-        />
+        @if (canExport()) {
+          <p-button
+            icon="pi pi-file-pdf"
+            [text]="true"
+            size="small"
+            severity="warn"
+            [loading]="loadingPdf"
+            pTooltip="Exporter PDF"
+            tooltipPosition="left"
+            (onClick)="onExportPdf()"
+          />
+        }
         @if (!this.facture().fneResponse) {
           <p-button
             (onClick)="onConfirmCertification()"
@@ -117,8 +119,8 @@
           </ng-template>
         </ng-container>
 
-        <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées) -->
-        @if (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID') {
+        <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées + permission) -->
+        @if (canExecute() && (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID')) {
           <ng-container ngbNavItem="regler">
             <a class="pharma-nav-tab-link" ngbNavLink>
               <i class="pi pi-money-bill"></i>

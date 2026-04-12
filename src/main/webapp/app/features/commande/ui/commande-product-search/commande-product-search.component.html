@@ -9,6 +9,8 @@
     (keydown)="onKeyDown($event)"
     [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
     optionLabel="libelle"
+    [autoHighlight]="true"
+    [autoOptionFocus]="true"
     [appendTo]="APPEND_TO"
     [autofocus]="autofocus()"
     [showClear]="true"

@@ -1,253 +1,275 @@
 package com.kobe.warehouse.service.dashboard.impl;
 
+import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.domain.enumeration.PaymentGroup;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+import com.kobe.warehouse.repository.CashRegisterItemRepository;
+import com.kobe.warehouse.repository.CashRegisterRepository;
+import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dashboard.CaissierDashboardService;
-import com.kobe.warehouse.service.dashboard.mapper.DashboardDTOMapper;
-import com.kobe.warehouse.service.dto.dashboard.*;
-import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
-import com.kobe.warehouse.service.dto.report.TopProductDTO;
-import com.kobe.warehouse.service.report.CashRegisterReportService;
-import com.kobe.warehouse.service.report.TopProductsReportService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
+import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.dto.dashboard.DiffereARelancerDTO;
+import com.kobe.warehouse.service.dto.dashboard.EncaissementParModeDTO;
+import com.kobe.warehouse.service.dto.dashboard.LivraisonAttendueDTO;
+import com.kobe.warehouse.service.dto.dashboard.ResumeDifferesDTO;
+import com.kobe.warehouse.service.dto.dashboard.SessionEncaissementsDTO;
+import com.kobe.warehouse.service.dto.dashboard.VenteRecenteDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
 public class CaissierDashboardServiceImpl implements CaissierDashboardService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private static final DateTimeFormatter HEURE_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
-    private final CashRegisterReportService cashRegisterReportService;
-    private final TopProductsReportService topProductsReportService;
-    private final DashboardDTOMapper mapper;
+
+    private static final Set<String> VENTE_CASH_TRANSACTIONS = Set.of(
+        TypeFinancialTransaction.CASH_SALE.name(),
+        TypeFinancialTransaction.CREDIT_SALE.name(),
+        TypeFinancialTransaction.REGLEMENT_DIFFERE.name(),
+        TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT.name(),
+        TypeFinancialTransaction.ENTREE_CAISSE.name()
+    );
+
+
+    private static final Set<String> EXCLUDED_PAYMENT_DTYPES = Set.of(
+        "PaymentFournisseur"
+
+    );
+
+    private final CashRegisterRepository cashRegisterRepository;
+    private final CashRegisterItemRepository cashRegisterItemRepository;
+    private final SalesRepository salesRepository;
+    private final CommandeRepository commandeRepository;
 
     public CaissierDashboardServiceImpl(
-        CashRegisterReportService cashRegisterReportService,
-        TopProductsReportService topProductsReportService,
-        DashboardDTOMapper mapper
+        CashRegisterRepository cashRegisterRepository,
+        CashRegisterItemRepository cashRegisterItemRepository,
+        SalesRepository salesRepository,
+        CommandeRepository commandeRepository
     ) {
-        this.cashRegisterReportService = cashRegisterReportService;
-        this.topProductsReportService = topProductsReportService;
-        this.mapper = mapper;
+        this.cashRegisterRepository = cashRegisterRepository;
+        this.cashRegisterItemRepository = cashRegisterItemRepository;
+        this.salesRepository = salesRepository;
+        this.commandeRepository = commandeRepository;
     }
+
+
 
     @Override
     public CaissierDashboardDTO getDashboardData() {
         return new CaissierDashboardDTO(
-            getVentesJour(),
             getCaisseStatus(),
-            getStatistiquesRapides(),
-            getVentesRecentes(10),
-            getTopProduits(10),
-            getPerformanceVendeurs(),
-            getAlertes()
+            getSessionEncaissements(),
+            getDifferesRelance(),
+            getLivraisonsJour(),
+            getVentesRecentes(8)
         );
     }
 
-    @Override
-    public VentesJourDTO getVentesJour() {
-        List<DailyCashRegisterReportDTO> cashRegisterReports =
-            cashRegisterReportService.getDailyReport(LocalDate.now());
-        return mapper.toVentesJourDTO(cashRegisterReports);
-    }
+
 
     @Override
     public CaisseStatusDTO getCaisseStatus() {
-        List<DailyCashRegisterReportDTO> cashRegisterReports =
-            cashRegisterReportService.getDailyReport(LocalDate.now());
-        return mapper.toCaisseStatusDTO(cashRegisterReports);
+        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (login == null) return emptyStatus();
+
+        List<Object[]> rows = cashRegisterRepository.findCurrentByUserLogin(login);
+
+        if (rows.isEmpty()) {
+            return buildStatusFermee(login);
+        }
+
+        Object[] row = rows.getFirst();
+        Integer cashRegisterId = toInt(row[0]);
+        Long fondOuverture     = toLong(row[1]);
+        LocalDateTime beginTime = toLocalDateTime(row[2]);
+        String statut           = (String) row[3];
+        LocalDateTime endTime   = toLocalDateTime(row[4]);
+
+        boolean isOpen = CashRegisterStatut.OPEN.name().equals(statut) || CashRegisterStatut.PENDING.name().equals(statut);
+        String heureOuverture = beginTime != null ? beginTime.format(HEURE_FMT) : null;
+        String etat = isOpen ? "OUVERTE" : "FERMEE";
+
+        Long encaissementsEspeces = cashRegisterItemRepository
+            .sumEncaissementsEspeces(cashRegisterId, VENTE_CASH_TRANSACTIONS, EXCLUDED_PAYMENT_DTYPES);
+        if (encaissementsEspeces == null) encaissementsEspeces = 0L;
+        Long especesTheoriques = fondOuverture + encaissementsEspeces;
+
+        return new CaisseStatusDTO(
+            fondOuverture, encaissementsEspeces, especesTheoriques,
+            heureOuverture, etat,
+            isOpen ? null : endTime
+        );
     }
+
+    private CaisseStatusDTO buildStatusFermee(String login) {
+        List<Object> rows = cashRegisterRepository.findLastClosedTimeByUserLogin(login);
+        LocalDateTime lastClose = rows.isEmpty() ? null : toLocalDateTime(rows.getFirst());
+        return new CaisseStatusDTO(0L, 0L, 0L, null, "FERMEE", lastClose);
+    }
+
+    private CaisseStatusDTO emptyStatus() {
+        return new CaisseStatusDTO(0L, 0L, 0L, null, "FERMEE", null);
+    }
+
+
+
+    private static final Set<String> GROUPES_ENCAISSE = Set.of(PaymentGroup.CASH.name(), PaymentGroup.MOBILE.name(),PaymentGroup.CB.name(),
+        PaymentGroup.CHEQUE.name(), PaymentGroup.VIREMENT.name());
 
     @Override
-    public StatistiquesRapidesDTO getStatistiquesRapides() {
-        String query = """
-            SELECT
-                COUNT(DISTINCT CASE WHEN s.statut = 'PROCESSING' THEN s.id END) as ventes_en_cours,
-                COUNT(DISTINCT s.customer_id) as clients_servis,
-                COALESCE(SUM(sl.quantity_sold), 0) as produits_vendus,
-                COALESCE(AVG(EXTRACT(EPOCH FROM (s.updated_at - s.created_at)) / 60), 0) as temps_moyen
-            FROM sales s
-            LEFT JOIN sales_line sl ON sl.sales_id = s.id
-            WHERE DATE(s.created_at) = CURRENT_DATE
-        """;
+    public SessionEncaissementsDTO getSessionEncaissements() {
+        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (login == null) return emptySessionEncaissements();
 
-        Query q = entityManager.createNativeQuery(query);
-        Object[] result = (Object[]) q.getSingleResult();
+        Integer cashRegisterId = findCurrentCashRegisterId(login);
+        if (cashRegisterId == null) return emptySessionEncaissements();
 
-        Integer ventesEnCours = toInt(result[0]);
-        Integer clientsServis = toInt(result[1]);
-        Integer produitsVendus = toInt(result[2]);
-        Integer tempsMoyen = toInt(result[3]);
+        // Lignes dynamiques : une par mode de paiement utilisé dans la session
+        List<Object[]> itemRows = cashRegisterItemRepository
+            .findEncaissementsParMode(cashRegisterId, EXCLUDED_PAYMENT_DTYPES);
 
-        return new StatistiquesRapidesDTO(ventesEnCours, clientsServis, produitsVendus, tempsMoyen);
+        List<EncaissementParModeDTO> lignes = new ArrayList<>();
+        long totalEncaisse = 0L;
+        long totalARecouvrerModes = 0L;
+
+        for (Object[] r : itemRows) {
+            String code         = (String) r[0];
+            String libelle      = (String) r[1];
+            String paymentGroup = (String) r[2];
+            long montant        = toLong(r[3]);
+
+            lignes.add(new EncaissementParModeDTO(code, libelle, paymentGroup, montant));
+
+            if (GROUPES_ENCAISSE.contains(paymentGroup)) {
+                totalEncaisse += montant;
+            } else {
+                totalARecouvrerModes += montant;
+            }
+        }
+
+        // Compléments depuis les ventes (carnet + différé)
+        List<Object[]> saleRows = salesRepository.findSalesEncaissementsForCaisse(cashRegisterId);
+        long carnet = 0L, differe = 0L;
+        int nombreTransactions = 0;
+        if (!saleRows.isEmpty()) {
+            Object[] r = saleRows.getFirst();
+            carnet             = toLong(r[0]);
+            differe            = toLong(r[1]);
+            nombreTransactions = toInt(r[2]);
+        }
+
+        long totalARecouvrer = totalARecouvrerModes + carnet + differe;
+
+        return new SessionEncaissementsDTO(
+            lignes, carnet, differe,
+            totalEncaisse, totalARecouvrer, nombreTransactions
+        );
     }
+
+    private Integer findCurrentCashRegisterId(String login) {
+        List<Object> rows = cashRegisterRepository.findCurrentIdByUserLogin(login);
+        return rows.isEmpty() ? null : toInt(rows.getFirst());
+    }
+
+    private SessionEncaissementsDTO emptySessionEncaissements() {
+        return new SessionEncaissementsDTO(List.of(), 0L, 0L, 0L, 0L, 0);
+    }
+
+
+    @Override
+    public ResumeDifferesDTO getDifferesRelance() {
+        List<Object[]> rows = salesRepository.findDifferesARelancer();
+
+        List<DiffereARelancerDTO> differes = new ArrayList<>();
+        long montantTotal = 0L;
+        int nbAujourdhui = 0;
+
+        for (Object[] row : rows) {
+            Long saleId         = toLong(row[0]);
+            String clientNom    = (String) row[1];
+            String telephone    = (String) row[2];
+            long montantDu      = toLong(row[3]);
+            LocalDate date      = toLocalDate(row[4]);
+            int joursRetard = toInt(row[5]);
+
+            String urgence;
+            if (joursRetard == 0) {
+                urgence = "AUJOURD_HUI";
+                nbAujourdhui++;
+            } else if (joursRetard > 7) {
+                urgence = "CRITIQUE";
+            } else {
+                urgence = "RETARD";
+            }
+
+            montantTotal += montantDu;
+            differes.add(new DiffereARelancerDTO(
+                saleId, clientNom, telephone, montantDu, date, joursRetard, urgence
+            ));
+        }
+
+        return new ResumeDifferesDTO(nbAujourdhui, montantTotal, differes);
+    }
+
+
+    @Override
+    public List<LivraisonAttendueDTO> getLivraisonsJour() {
+        List<Object[]> rows = commandeRepository.findLivraisonsAttenduesAujourdhui();
+        List<LivraisonAttendueDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            Integer commandeId   = toInt(row[0]);
+            String fournisseurNom = (String) row[1];
+            Integer nombreRefs    = toInt(row[2]);
+            result.add(new LivraisonAttendueDTO(commandeId, fournisseurNom,  nombreRefs));
+        }
+
+        return result;
+    }
+
 
     @Override
     public List<VenteRecenteDTO> getVentesRecentes(Integer limit) {
-        String query = """
-            SELECT
-                s.id,
-                s.number_transaction,
-                s.sales_amount,
-                s.created_at,
-                p.mode_paiement,
-                u.first_name || ' ' || u.last_name as vendeur,
-                COUNT(sl.id) as nombre_lignes,
-                s.statut
-            FROM sales s
-            LEFT JOIN payment p ON p.sales_id = s.id
-            LEFT JOIN app_user u ON u.id = s.seller_id
-            LEFT JOIN sales_line sl ON sl.sales_id = s.id
-            WHERE DATE(s.created_at) = CURRENT_DATE
-            GROUP BY s.id, s.number_transaction, s.sales_amount, s.created_at, p.mode_paiement, u.first_name, u.last_name, s.statut
-            ORDER BY s.created_at DESC
-            LIMIT :limit
-        """;
+        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (login == null) return Collections.emptyList();
 
-        Query q = entityManager.createNativeQuery(query);
-        q.setParameter("limit", limit);
+        int maxResults = limit != null && limit > 0 ? limit : 8;
+        List<Object[]> rows = salesRepository.findVentesRecentesByCaissier(login);
 
-        List<?> results = q.getResultList();
         List<VenteRecenteDTO> ventes = new ArrayList<>();
+        for (Object[] row : rows.stream().limit(maxResults).toList()) {
+            Long saleId          = toLong(row[0]);
+            String numeroRecu    = (String) row[1];
+            Long montant         = toLong(row[2]);
+            LocalDateTime date   = toLocalDateTime(row[3]);
+            String typeVente     = (String) row[4];
+            String clientNom     = (String) row[5];
 
-        for (Object obj : results) {
-            Object[] row = (Object[]) obj;
             ventes.add(new VenteRecenteDTO(
-                toLong(row[0]),
-                (String) row[1],
-                toLong(row[2]),
-                (LocalDateTime) row[3],
-                row[4] != null ? (String) row[4] : "N/A",
-                row[5] != null ? (String) row[5] : "N/A",
-                toInt(row[6]),
-                (String) row[7]
+                saleId, numeroRecu, montant, date,
+                typeVente, // modePaiement dérivé du type
+                typeVente,
+                clientNom
             ));
         }
 
         return ventes;
     }
-
-    @Override
-    public List<TopProduitDTO> getTopProduits(Integer limit) {
-        LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
-        List<TopProductDTO> topProducts = topProductsReportService
-            .getTopProductsByRevenue(currentMonth, limit != null ? limit : 10);
-        return mapper.toTopProduitDTOList(topProducts);
-    }
-
-    @Override
-    public List<PerformanceVendeurDTO> getPerformanceVendeurs() {
-        String query = """
-            SELECT
-                u.id,
-                u.first_name || ' ' || u.last_name as vendeur_nom,
-                COUNT(DISTINCT s.id) as nombre_ventes,
-                COALESCE(SUM(s.sales_amount), 0) as montant_total,
-                CASE WHEN COUNT(DISTINCT s.id) > 0
-                     THEN COALESCE(SUM(s.sales_amount), 0) / COUNT(DISTINCT s.id)
-                     ELSE 0
-                END as ticket_moyen,
-                CASE WHEN SUM(s.sales_amount) > 0
-                     THEN (SUM(s.discount_amount) * 100.0 / SUM(s.sales_amount))
-                     ELSE 0
-                END as taux_remise
-            FROM sales s
-            JOIN app_user u ON u.id = s.seller_id
-            WHERE DATE(s.created_at) = CURRENT_DATE
-            AND s.statut = 'CLOSED'
-            GROUP BY u.id, u.first_name, u.last_name
-            ORDER BY montant_total DESC
-            LIMIT 5
-        """;
-
-        Query q = entityManager.createNativeQuery(query);
-        List<?> results = q.getResultList();
-        List<PerformanceVendeurDTO> vendeurs = new ArrayList<>();
-
-        for (Object obj : results) {
-            Object[] row = (Object[]) obj;
-            vendeurs.add(new PerformanceVendeurDTO(
-                toLong(row[0]),
-                (String) row[1],
-                toInt(row[2]),
-                toLong(row[3]),
-                toLong(row[4]),
-                toDouble(row[5])
-            ));
-        }
-
-        return vendeurs;
-    }
-
-    @Override
-    public List<AlerteCaisseDTO> getAlertes() {
-        List<AlerteCaisseDTO> alertes = new ArrayList<>();
-
-        // Check if cash register is open
-        CaisseStatusDTO caisse = getCaisseStatus();
-        if ("FERMEE".equals(caisse.etat())) {
-            alertes.add(new AlerteCaisseDTO(
-                "ATTENTION",
-                "Caisse Fermée",
-                "La caisse n'est pas encore ouverte. Veuillez l'ouvrir pour commencer les ventes.",
-                LocalDateTime.now()
-            ));
-        }
-
-        // Check for cash register discrepancy
-        if (Math.abs(caisse.ecart()) > 5000) { // More than 5000 XOF difference
-            alertes.add(new AlerteCaisseDTO(
-                "URGENT",
-                "Écart de Caisse Détecté",
-                String.format("Un écart de %d XOF a été détecté. Veuillez vérifier.", caisse.ecart()),
-                LocalDateTime.now()
-            ));
-        }
-
-        // Check sales target
-        VentesJourDTO ventes = getVentesJour();
-        if (ventes.tauxAtteinte() != null && ventes.tauxAtteinte() < 50 && LocalDateTime.now().getHour() > 12) {
-            alertes.add(new AlerteCaisseDTO(
-                "ATTENTION",
-                "Objectif Non Atteint",
-                String.format("Objectif réalisé à %.1f%%. Intensifiez les ventes pour atteindre l'objectif.", ventes.tauxAtteinte()),
-                LocalDateTime.now()
-            ));
-        }
-
-        // Check for pending sales
-        StatistiquesRapidesDTO stats = getStatistiquesRapides();
-        if (stats.ventesEnCours() > 5) {
-            alertes.add(new AlerteCaisseDTO(
-                "INFO",
-                "Ventes en Attente",
-                String.format("%d vente(s) en cours de traitement.", stats.ventesEnCours()),
-                LocalDateTime.now()
-            ));
-        }
-
-        // If no alerts, add success message
-        if (alertes.isEmpty()) {
-            alertes.add(new AlerteCaisseDTO(
-                "OK",
-                "Tout est en Ordre",
-                "Aucune alerte à signaler. Continuez le bon travail !",
-                LocalDateTime.now()
-            ));
-        }
-
-        return alertes;
-    }
-
 
 
     private static int toInt(Object value) {
@@ -257,27 +279,19 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
 
     private static long toLong(Object value) {
         if (value == null) return 0L;
+        if (value instanceof BigDecimal bd) return bd.longValue();
         return ((Number) value).longValue();
     }
 
-    private static double toDouble(Object value) {
-        if (value == null) return 0.0;
-        return ((Number) value).doubleValue();
+    private static LocalDateTime toLocalDateTime(Object value) {
+        if (value == null) return null;
+        if (value instanceof LocalDateTime ldt) return ldt;
+        return null;
     }
 
-    @Override
-    @Transactional
-    public void ouvrirCaisse(Long montantOuverture) {
-        // TODO: Implement cash register opening logic
-        // This would interact with CashRegister entity
-        throw new UnsupportedOperationException("To be implemented");
-    }
-
-    @Override
-    @Transactional
-    public void fermerCaisse() {
-        // TODO: Implement cash register closing logic
-        // This would interact with CashRegister entity
-        throw new UnsupportedOperationException("To be implemented");
+    private static LocalDate toLocalDate(Object value) {
+        if (value == null) return null;
+        if (value instanceof LocalDate ld) return ld;
+        return null;
     }
 }

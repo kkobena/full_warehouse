@@ -98,7 +98,6 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
-  // Output pour notifier le container du succès de l'ajout (règle métier: reset après succès)
   productAddedSuccess = output<void>();
   cashRegisterOpened = output<void>();
   // Modal and responsive state

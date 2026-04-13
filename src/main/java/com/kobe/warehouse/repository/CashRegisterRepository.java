@@ -52,6 +52,60 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
         @Param("transactionTypes") Set<String> transactionTypes
     );
 
+    // ── Requêtes dashboard préparateur ───────────────────────────────────────
+
+    /**
+     * Retourne [id, init_amount, begin_time, statut, end_time] de la caisse
+     * ouverte aujourd'hui pour l'utilisateur connecté (login).
+     */
+    @Query(
+        value = """
+            SELECT cr.id, cr.init_amount, cr.begin_time, cr.statut, cr.end_time
+            FROM cash_register cr
+            INNER JOIN app_user u ON cr.user_id = u.id
+            WHERE u.login = :login
+              AND DATE(cr.begin_time) = CURRENT_DATE
+            ORDER BY cr.begin_time DESC
+            LIMIT 1
+            """,
+        nativeQuery = true
+    )
+    List<Object[]> findCurrentByUserLogin(@Param("login") String login);
+
+    /**
+     * Retourne le end_time de la dernière session fermée de l'utilisateur.
+     */
+    @Query(
+        value = """
+            SELECT cr.end_time
+            FROM cash_register cr
+            INNER JOIN app_user u ON cr.user_id = u.id
+            WHERE u.login = :login
+              AND cr.statut IN ('CLOSED', 'VALIDATED')
+            ORDER BY cr.end_time DESC
+            LIMIT 1
+            """,
+        nativeQuery = true
+    )
+    List<Object> findLastClosedTimeByUserLogin(@Param("login") String login);
+
+    /**
+     * Retourne l'id de la caisse ouverte aujourd'hui pour l'utilisateur connecté.
+     */
+    @Query(
+        value = """
+            SELECT cr.id
+            FROM cash_register cr
+            INNER JOIN app_user u ON cr.user_id = u.id
+            WHERE u.login = :login
+              AND DATE(cr.begin_time) = CURRENT_DATE
+            ORDER BY cr.begin_time DESC
+            LIMIT 1
+            """,
+        nativeQuery = true
+    )
+    List<Object> findCurrentIdByUserLogin(@Param("login") String login);
+
     default Specification<CashRegister> specialisation(Integer userId) {
         return (root, _, cb) -> cb.equal(root.get(CashRegister_.user).get(AppUser_.id), userId);
     }

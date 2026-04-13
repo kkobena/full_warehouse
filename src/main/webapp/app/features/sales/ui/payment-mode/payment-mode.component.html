@@ -35,7 +35,7 @@
                       #paymentModeInput
                       autocomplete="off"
                       (input)="onAmountInput(entry, $event)"
-                      (keydown.enter)="submit()"
+                      (keydown.enter)="submit(); $event.preventDefault()"
                       size="large"
                       [(ngModel)]="entry.amount"
                       [id]="entry.mode.code"
@@ -89,13 +89,13 @@
               <div class="info-field">
                 <label>Commentaire</label>
                 <input
-                  #commentInput
-                  [(ngModel)]="comment"
-                  pInputText
-                  type="text"
-                  (keydown.enter)="submit()"
-                  placeholder="Saisir un commentaire"
-                />
+                   #commentInput
+                   [(ngModel)]="comment"
+                   pInputText
+                   type="text"
+                   (keydown.enter)="submit(); $event.preventDefault()"
+                   placeholder="Saisir un commentaire"
+                 />
               </div>
             }
 

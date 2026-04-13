@@ -1,68 +1,53 @@
 package com.kobe.warehouse.service.dashboard;
 
-import com.kobe.warehouse.service.dto.dashboard.*;
+import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
+import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.dto.dashboard.LivraisonAttendueDTO;
+import com.kobe.warehouse.service.dto.dashboard.ResumeDifferesDTO;
+import com.kobe.warehouse.service.dto.dashboard.SessionEncaissementsDTO;
+import com.kobe.warehouse.service.dto.dashboard.VenteRecenteDTO;
+
 import java.util.List;
 
+/**
+ * Service du dashboard préparateur en pharmacie.
+ * Toutes les méthodes filtrent sur l'utilisateur connecté via SecurityUtils.
+ */
 public interface CaissierDashboardService {
 
     /**
-     * Get complete dashboard data for cashier
-     * @return CaissierDashboardDTO
+     * Retourne toutes les données du dashboard en un seul appel.
+     * Filtré sur l'utilisateur connecté (login courant).
      */
     CaissierDashboardDTO getDashboardData();
 
     /**
-     * Get today's sales summary
-     * @return VentesJourDTO
-     */
-    VentesJourDTO getVentesJour();
-
-    /**
-     * Get cash register status
-     * @return CaisseStatusDTO
+     * État de la caisse de l'utilisateur connecté pour aujourd'hui.
+     * Expose : fondOuverture, encaissementsEspeces, especesTheoriques.
+     * N'expose PAS l'écart (réservé au manager).
      */
     CaisseStatusDTO getCaisseStatus();
 
     /**
-     * Get quick statistics
-     * @return StatistiquesRapidesDTO
+     * Encaissements de la session courante filtrés sur le cash_register_id
+     * de l'utilisateur connecté.
      */
-    StatistiquesRapidesDTO getStatistiquesRapides();
+    SessionEncaissementsDTO getSessionEncaissements();
 
     /**
-     * Get recent sales
-     * @param limit Number of sales to return
-     * @return List of VenteRecenteDTO
+     * Différés dont sale_date <= aujourd'hui et rest_to_pay > 0.
+     */
+    ResumeDifferesDTO getDifferesRelance();
+
+    /**
+     * Commandes fournisseurs avec order_status=REQUESTED et order_date=aujourd'hui.
+     */
+    List<LivraisonAttendueDTO> getLivraisonsJour();
+
+    /**
+     * Dernières ventes de la session courante (filtrées sur caissier_id du connecté).
+     *
+     * @param limit nombre max de résultats (défaut : 8)
      */
     List<VenteRecenteDTO> getVentesRecentes(Integer limit);
-
-    /**
-     * Get top selling products for today
-     * @param limit Number of products to return
-     * @return List of TopProduitDTO
-     */
-    List<TopProduitDTO> getTopProduits(Integer limit);
-
-    /**
-     * Get sellers performance
-     * @return List of PerformanceVendeurDTO
-     */
-    List<PerformanceVendeurDTO> getPerformanceVendeurs();
-
-    /**
-     * Get alerts for cashier
-     * @return List of AlerteCaisseDTO
-     */
-    List<AlerteCaisseDTO> getAlertes();
-
-    /**
-     * Open cash register
-     * @param montantOuverture Opening amount
-     */
-    void ouvrirCaisse(Long montantOuverture);
-
-    /**
-     * Close cash register
-     */
-    void fermerCaisse();
 }

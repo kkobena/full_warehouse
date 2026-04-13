@@ -234,5 +234,82 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         return (root, query, cb) -> root.get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
 
+    // ── Requêtes dashboard préparateur ───────────────────────────────────────
+
+    /**
+     * Différés à relancer : ventes avec differe=true, rest_to_pay>0, sale_date <= aujourd'hui.
+     * Retourne : [id, client_nom, client_telephone, rest_to_pay, sale_date, jours_retard]
+     */
+    @Query(
+        value = """
+            SELECT
+                s.id,
+                COALESCE(c.first_name || ' ' || c.last_name, 'Anonyme') AS client_nom,
+                c.phone                                                  AS client_telephone,
+                s.rest_to_pay                                            AS montant_du,
+                s.sale_date                                              AS date_echeance,
+                CAST(CURRENT_DATE - s.sale_date AS INTEGER)              AS jours_retard
+            FROM sales s
+            LEFT JOIN customer c ON s.customer_id = c.id
+            WHERE s.differe    = true
+              AND s.statut     = 'CLOSED'
+              AND s.rest_to_pay > 0
+              AND s.sale_date  <= CURRENT_DATE
+              AND s.to_ignore  = false
+              AND s.canceled   = false
+            ORDER BY s.sale_date ASC
+            LIMIT 30
+            """,
+        nativeQuery = true
+    )
+    List<Object[]> findDifferesARelancer();
+
+    /**
+     * Dernières ventes du caissier connecté pour aujourd'hui (max 20).
+     * Le service limite ensuite au nombre souhaité.
+     * Retourne : [id, number_transaction, sales_amount, created_at, type_vente, client_nom]
+     */
+    @Query(
+        value = """
+            SELECT
+                s.id,
+                s.number_transaction,
+                s.sales_amount,
+                s.created_at,
+                CASE WHEN s.differe = true THEN 'DIFFERE' ELSE s.nature_vente END AS type_vente,
+                COALESCE(c.first_name || ' ' || c.last_name, NULL)                AS client_nom
+            FROM sales s
+            LEFT JOIN customer c ON s.customer_id = c.id
+            WHERE s.caissier_id = (SELECT id FROM app_user WHERE login = :login LIMIT 1)
+              AND s.sale_date  = CURRENT_DATE
+              AND s.statut     = 'CLOSED'
+              AND s.to_ignore  = false
+              AND s.canceled   = false
+            ORDER BY s.created_at DESC
+            LIMIT 20
+            """,
+        nativeQuery = true
+    )
+    List<Object[]> findVentesRecentesByCaissier(@Param("login") String login);
+
+    /**
+     * Agrégats des ventes pour la session (carnet, différé, nombre de transactions).
+     * Retourne une ligne : [carnet_total, differe_total, nombre_transactions]
+     */
+    @Query(
+        value = """
+                        SELECT
+                            COALESCE(SUM(CASE WHEN nature_vente = 'CARNET' THEN sales_amount ELSE 0 END), 0) AS carnet,
+                            COALESCE(SUM(CASE WHEN differe = true  THEN rest_to_pay  ELSE 0 END), 0)         AS differe,
+                            COUNT(*)                                                                           AS nombre_transactions
+                        FROM sales
+                        WHERE cash_register_id = :crId
+                          AND sale_date   = CURRENT_DATE
+                          AND statut      = 'CLOSED'
+                      AND canceled    = false
+            """,
+        nativeQuery = true
+    )
+    List<Object[]> findSalesEncaissementsForCaisse(@Param("crId") Integer cashRegisterId);
 
 }

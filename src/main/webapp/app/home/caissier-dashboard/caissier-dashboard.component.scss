@@ -1,2 +1,196 @@
 @import 'app/shared/scss/dashboard-common';
 @import 'app/shared/scss/table-common';
+
+// ─── Bannière Caisse ──────────────────────────────────────────────────────────
+.caisse-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border-left: 6px solid transparent;
+
+  &.caisse-ouverte {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+    border-left-color: #22c55e;
+  }
+
+  &.caisse-fermee {
+    background: linear-gradient(135deg, #fefce8 0%, #fff7ed 100%);
+    border-left-color: #f59e0b;
+  }
+
+  .caisse-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .caisse-etat-icon {
+      font-size: 1.5rem;
+      i { font-size: 1.5rem; }
+    }
+
+    .caisse-etat-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+
+      strong { font-size: 1rem; color: #1e293b; }
+
+      .caisse-depuis {
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  .caisse-banner-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+
+    .caisse-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      .caisse-stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .caisse-stat-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+    }
+
+    .caisse-stat-separator {
+      width: 1px;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// ─── Encaissements Session ────────────────────────────────────────────────────
+.encaissements-table {
+  .encaissement-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+
+    &:hover { background: #f8fafc; }
+
+    .encaissement-mode {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    &.encaissement-divider {
+      border-top: 2px dashed #e2e8f0;
+      margin-top: 0.25rem;
+    }
+
+    &.encaissement-total {
+      background: #f0fdf4;
+      border-top: 2px solid #22c55e;
+      border-bottom: none;
+      padding: 0.75rem 1rem;
+    }
+
+    &.encaissement-recouvrer {
+      background: #fffbeb;
+      border-bottom: none;
+    }
+  }
+
+  .encaissement-footer {
+    padding: 0.5rem 1rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+// ─── Différés à Relancer ──────────────────────────────────────────────────────
+.differes-summary {
+  padding: 0.5rem 1rem;
+  background: #fafafa;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.differes-list {
+  max-height: 280px;
+  overflow-y: auto;
+
+  .differe-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+
+    &:hover { background: #fafafa; }
+    &:last-child { border-bottom: none; }
+
+    .differe-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+
+      .differe-client { font-size: 0.9rem; color: #1e293b; }
+      .differe-tel { font-size: 0.8rem; }
+    }
+
+    .differe-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+
+      .differe-montant { font-size: 0.9rem; }
+    }
+  }
+}
+
+// ─── Livraisons du Jour ───────────────────────────────────────────────────────
+.livraisons-list {
+  .livraison-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+
+    &:hover { background: #f8fafc; }
+    &:last-child { border-bottom: none; }
+
+    .livraison-fournisseur {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+
+    .livraison-details {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+  }
+}

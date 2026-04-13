@@ -11,7 +11,6 @@ import { FinancialTransaction, TypeFinancialTransaction } from '../../cash-regis
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { getTypeName } from '../mvt-caisse-util';
-import { TranslateDirective } from '../../../shared/language';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';

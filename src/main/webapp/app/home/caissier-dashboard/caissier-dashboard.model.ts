@@ -1,88 +1,85 @@
-// Models for Caissier Dashboard
+import { HttpResponse } from '@angular/common/http';
 
-export interface IVentesJour {
-  montantTotal: number;
-  nombreVentes: number;
-  montantEspeces: number;
-  montantCB: number;
-  montantCheque: number;
-  montantMobileMoney: number;
-  montantVirement: number;
-  montantAssurance: number;
-  ticketMoyen: number;
-  objectifJour?: number;
-  tauxAtteinte?: number;
-}
-
+// ─── Zone 1 : État Caisse ─────────────────────────────────────────────────────
 export interface ICaisseStatus {
-  soldeOuverture: number;
-  soldeActuel: number;
-  soldeAttendu: number;
-  ecart: number;
-  derniereFermeture?: Date;
+  fondOuverture: number;           // initAmount  — fond de départ
+  encaissementsEspeces: number;    // cashAmount  — espèces encaissées du jour
+  especesTheoriques: number;       // estimateAmount — espèces théoriques en caisse
+  heureOuverture?: string;         // beginTime   — ex: "08h30"
   etat: 'OUVERTE' | 'FERMEE';
+  derniereFermeture?: Date;
+  // NE PAS EXPOSER : gap (écart) — réservé au manager
 }
 
+// ─── Zone 2 : Encaissements de MA Session ────────────────────────────────────
+export type PaymentGroup = 'CASH' | 'MOBILE' | 'CB' | 'CHEQUE' | 'VIREMENT' | 'CREDIT' | 'CAUTION';
+
+export interface IEncaissementParMode {
+  code: string;
+  libelle: string;
+  paymentGroup: PaymentGroup;
+  montant: number;
+}
+
+export interface ISessionEncaissements {
+  lignes: IEncaissementParMode[];   // une ligne par mode utilisé dans la session
+  carnet: number;
+  differe: number;
+  totalEncaisse: number;            // somme des groupes CASH/MOBILE/CB/CHEQUE/VIREMENT
+  totalARecouvrer: number;          // CREDIT/CAUTION + carnet + differe
+  nombreTransactions: number;
+}
+
+// ─── Zone 3 : Différés à relancer ────────────────────────────────────────────
+export interface IDiffereARelancer {
+  saleId: number;
+  clientNom: string;
+  clientTelephone?: string;
+  montantDu: number;
+  dateEcheance: Date;
+  joursRetard: number;             // 0 = aujourd'hui, >0 = retard
+  urgence: 'CRITIQUE' | 'AUJOURD_HUI' | 'RETARD';
+}
+
+export interface IResumeDifferes {
+  nombreEcheancesAujourdhui: number;
+  montantTotalDu: number;
+  differes: IDiffereARelancer[];
+}
+
+// ─── Zone 4 : Livraisons attendues du jour ───────────────────────────────────
+export interface ILivraisonAttendue {
+  commandeId: number;
+  fournisseurNom: string;
+  heureAttendue?: string;
+  nombreReferences: number;
+}
+
+// ─── Zone 5 : Dernières transactions de la session ───────────────────────────
 export interface IVenteRecente {
   saleId: number;
   numeroRecu: string;
   montant: number;
   dateVente: Date;
   modePaiement: string;
-  vendeur?: string;
-  nombreLignes: number;
-  statut: string;
+  typeVente: string;               // COMPTANT | ASSURANCE | CARNET | DIFFERE
+  clientNom?: string;              // Nom du client ou null si vente anonyme
 }
 
-export interface ITopProduit {
-  produitId: number;
-  produitLibelle: string;
-  codeCip?: string;
-  quantiteVendue: number;
-  montantTotal: number;
-  nombreVentes: number;
-}
-
-export interface IPerformanceVendeur {
-  vendeurId: number;
-  vendeurNom: string;
-  nombreVentes: number;
-  montantTotal: number;
-  ticketMoyen: number;
-  tauxRemise: number;
-}
-
-export interface IAlerteCaisse {
-  type: 'INFO' | 'ATTENTION' | 'URGENT' | 'OK';
-  titre: string;
-  message: string;
-  horodatage: Date;
-}
-
-export interface IStatistiquesRapides {
-  ventesEnCours: number;
-  clientsServis: number;
-  produitsVendus: number;
-  tempsMoyenVente: number;
-}
-
+// ─── Wrapper Dashboard ───────────────────────────────────────────────────────
 export interface ICaissierDashboard {
-  ventesJour: IVentesJour;
   caisseStatus: ICaisseStatus;
-  statistiquesRapides: IStatistiquesRapides;
+  sessionEncaissements: ISessionEncaissements;
+  resumeDifferes?: IResumeDifferes;
+  livraisonsAttendues?: ILivraisonAttendue[];
   ventesRecentes?: IVenteRecente[];
-  topProduits?: ITopProduit[];
-  performanceVendeurs?: IPerformanceVendeur[];
-  alertes?: IAlerteCaisse[];
 }
 
-export type VentesResponseType = HttpResponse<IVentesJour>;
-export type CaisseResponseType = HttpResponse<ICaisseStatus>;
-export type StatistiquesResponseType = HttpResponse<IStatistiquesRapides>;
-export type VentesRecentesResponseType = HttpResponse<IVenteRecente[]>;
-export type TopProduitsResponseType = HttpResponse<ITopProduit[]>;
-export type PerformanceResponseType = HttpResponse<IPerformanceVendeur[]>;
-export type AlertesResponseType = HttpResponse<IAlerteCaisse[]>;
+// Response types
 export type DashboardResponseType = HttpResponse<ICaissierDashboard>;
+export type CaisseResponseType = HttpResponse<ICaisseStatus>;
+export type SessionEncaissementsResponseType = HttpResponse<ISessionEncaissements>;
+export type DifferesResponseType = HttpResponse<IResumeDifferes>;
+export type LivraisonsResponseType = HttpResponse<ILivraisonAttendue[]>;
+export type VentesRecentesResponseType = HttpResponse<IVenteRecente[]>;
 
-import { HttpResponse } from '@angular/common/http';

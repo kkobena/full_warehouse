@@ -173,7 +173,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         List<CashRegisterTransactionSpecialisation> mvtData = this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(PaymentType.SalePayment.name(), PaymentType.PaymentFournisseur.name()));
         mvtData.stream().collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction)).forEach((typeTransaction, data) -> {
             TypeFinancialTransaction typeFinancialTransaction = switch (typeTransaction) {
-                case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, VENTES_DEPOTS_AGREE, CAUTION -> null;
+                case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, CAUTION -> null;
                 case REGLEMENT_DIFFERE -> TypeFinancialTransaction.REGLEMENT_DIFFERE;
                 case REGLEMENT_TIERS_PAYANT -> TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT;
                 case SORTIE_CAISSE -> TypeFinancialTransaction.SORTIE_CAISSE;

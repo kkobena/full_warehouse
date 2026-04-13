@@ -22,7 +22,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { MagasinService } from '../../magasin/magasin.service';
-import { IMagasin } from '../../../shared/model/magasin.model';
+import { IMagasin } from "../../../shared/model";
 import { Toast } from 'primeng/toast';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
@@ -151,7 +151,6 @@ export class RecapitualtifCaisseComponent implements OnInit, OnDestroy {
           }
         }),
         catchError(error => {
-          console.error('Error exporting to PDF:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',

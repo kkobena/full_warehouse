@@ -198,7 +198,9 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
 
     // Vérifier si la caisse est ouverte avant de finaliser
     if (!isCashRegisterOpen()) {
-      context.openCashRegister();
+      // Délai asynchrone pour éviter que l'événement clavier en cours (Enter)
+      // ne se propage au formulaire du modal et le soumette automatiquement.
+      setTimeout(() => context.openCashRegister(), 0);
     } else {
       completeSale();
     }
@@ -310,7 +312,10 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
     } else {
       // Montant suffisant ou déjà différé → Finaliser
       if (!isCashRegisterOpen()) {
-        context.openCashRegister();
+        // Délai asynchrone pour éviter que l'événement clavier en cours (Enter depuis
+        // l'input de paiement) ne se propage au formulaire du modal et le soumette
+        // automatiquement. Le setTimeout(0) rompt la chaîne de propagation de l'événement.
+        setTimeout(() => context.openCashRegister(), 0);
       } else {
         completeSale();
       }

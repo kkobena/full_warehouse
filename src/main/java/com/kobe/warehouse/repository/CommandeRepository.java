@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -182,5 +183,32 @@ public interface CommandeRepository
             );
         };
     }
+
+    // ── Requête dashboard préparateur ─────────────────────────────────────────
+
+    /**
+     * Livraisons fournisseurs attendues aujourd'hui :
+     * commandes avec order_status=REQUESTED et order_date=CURRENT_DATE.
+     * Retourne : [commande_id, fournisseur_nom, nombre_references]
+     */
+    @Query(
+        value = """
+            SELECT
+                c.id          AS commande_id,
+                f.libelle     AS fournisseur_nom,
+                COUNT(DISTINCT ol.id) AS nombre_references
+            FROM commande c
+            INNER JOIN fournisseur f ON c.fournisseur_id = f.id
+            LEFT JOIN order_line ol
+                   ON ol.commande_id          = c.id
+                  AND ol.commande_order_date  = c.order_date
+            WHERE c.order_date    = CURRENT_DATE
+              AND c.order_status  = 'REQUESTED'
+            GROUP BY c.id, c.order_date, f.libelle
+            ORDER BY c.id
+            """,
+        nativeQuery = true
+    )
+    List<Object[]> findLivraisonsAttenduesAujourdhui();
 
 }

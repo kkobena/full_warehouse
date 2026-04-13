@@ -1,13 +1,15 @@
 package com.kobe.warehouse.service.dashboard.mapper;
 
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
-import com.kobe.warehouse.service.dto.dashboard.*;
-import com.kobe.warehouse.service.dto.report.*;
+import com.kobe.warehouse.service.dto.dashboard.AnalyseABCDTO;
+import com.kobe.warehouse.service.dto.dashboard.PerformanceFournisseurDTO;
+import com.kobe.warehouse.service.dto.dashboard.StockAlertsDTO;
+import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
+import com.kobe.warehouse.service.dto.report.StockAlertDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Mapper pour convertir les DTOs des services report vers les DTOs des dashboards
@@ -114,120 +116,6 @@ public class DashboardDTOMapper {
             .toList();
     }
 
-    /**
-     * Convertit DailyCashRegisterReportDTO vers VentesJourDTO
-     *
-     * @param cashRegisterReports Rapports de caisse du jour
-     * @return VentesJourDTO pour le dashboard caissier
-     */
-    public VentesJourDTO toVentesJourDTO(List<DailyCashRegisterReportDTO> cashRegisterReports) {
-        if (cashRegisterReports == null || cashRegisterReports.isEmpty()) {
-            return new VentesJourDTO(0L, 0, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0.0);
-        }
-
-        long montantTotal = 0L;
-        int nombreVentes = 0;
-        long montantEspeces = 0L;
-        long montantCB = 0L;
-        long montantCheque = 0L;
-        long montantMobileMoney = 0L;
-        long montantVirement = 0L;
-        long montantAssurance = 0L;
-
-        for (DailyCashRegisterReportDTO report : cashRegisterReports) {
-            montantTotal += report.totalSales() != null ? report.totalSales() : 0;
-            nombreVentes += report.numberOfTransactions() != null ? report.numberOfTransactions() : 0;
-
-            if (report.paymentModeBreakdowns() != null) {
-                for (DailyCashRegisterReportDTO.PaymentModeBreakdown breakdown : report.paymentModeBreakdowns()) {
-                    long amount = breakdown.amount() != null ? breakdown.amount() : 0L;
-
-                    switch (breakdown.modePaiement().toUpperCase()) {
-                        case "CASH" -> montantEspeces += amount;
-                        case "CB", "CARD" -> montantCB += amount;
-                        case "CHECK", "CHEQUE" -> montantCheque += amount;
-                        case "MOBILE_PAYMENT", "MOBILE" -> montantMobileMoney += amount;
-                        case "VIREMENT", "TRANSFER" -> montantVirement += amount;
-                        case "INSURANCE", "ASSURANCE" -> montantAssurance += amount;
-                    }
-                }
-            }
-        }
-
-        long ticketMoyen = nombreVentes > 0 ? montantTotal / nombreVentes : 0L;
-
-        // Objectif jour (à configurer ou récupérer d'une autre source)
-        Long objectifJour = 1000000L; // 1 million XOF par défaut
-        Double tauxAtteinte = objectifJour > 0 ? (montantTotal * 100.0 / objectifJour) : 0.0;
-
-        return new VentesJourDTO(
-            montantTotal,
-            nombreVentes,
-            montantEspeces,
-            montantCB,
-            montantCheque,
-            montantMobileMoney,
-            montantVirement,
-            montantAssurance,
-            ticketMoyen,
-            objectifJour,
-            tauxAtteinte
-        );
-    }
-
-    /**
-     * Convertit DailyCashRegisterReportDTO vers CaisseStatusDTO
-     *
-     * @param cashRegisterReports Rapports de caisse du jour
-     * @return CaisseStatusDTO pour le dashboard caissier
-     */
-    public CaisseStatusDTO toCaisseStatusDTO(List<DailyCashRegisterReportDTO> cashRegisterReports) {
-        if (cashRegisterReports == null || cashRegisterReports.isEmpty()) {
-            return new CaisseStatusDTO(0L, 0L, 0L, 0L, null, "FERMEE");
-        }
-
-        // Prendre le premier rapport (ou le plus récent)
-        DailyCashRegisterReportDTO report = cashRegisterReports.get(0);
-
-        return new CaisseStatusDTO(
-            report.openingBalance() != null ? report.openingBalance().longValue() : 0L,
-            report.closingBalance() != null ? report.closingBalance().longValue() : 0L,
-            report.expectedBalance() != null ? report.expectedBalance().longValue() : 0L,
-            report.discrepancy() != null ? report.discrepancy().longValue() : 0L,
-            report.closingDate(),
-            report.isClosed() ? "FERMEE" : "OUVERTE"
-        );
-    }
-
-    /**
-     * Convertit TopProductDTO vers TopProduitDTO (dashboard caissier)
-     *
-     * @param topProduct TopProductDTO du service report
-     * @return TopProduitDTO pour le dashboard
-     */
-    public TopProduitDTO toTopProduitDTO(TopProductDTO topProduct) {
-        if (topProduct == null) {
-            return null;
-        }
-
-        return new TopProduitDTO(
-            topProduct.produitId().longValue(),
-            topProduct.libelle(),
-            topProduct.codeCip(),
-            topProduct.qteVendue(),
-            topProduct.caGenere().longValue(),
-            topProduct.nbVentes().intValue()
-        );
-    }
-
-    /**
-     * Convertit une liste de TopProductDTO vers une liste de TopProduitDTO
-     */
-    public List<TopProduitDTO> toTopProduitDTOList(List<TopProductDTO> topProducts) {
-        return topProducts.stream()
-            .map(this::toTopProduitDTO)
-            .toList();
-    }
 
     /**
      * Calcule une note sur 5 basée sur un score de performance

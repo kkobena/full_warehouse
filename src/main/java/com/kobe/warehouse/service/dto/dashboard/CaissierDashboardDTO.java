@@ -2,12 +2,14 @@ package com.kobe.warehouse.service.dto.dashboard;
 
 import java.util.List;
 
+/**
+ * DTO principal du dashboard préparateur en pharmacie.
+ * Synthèse croisée Caisse + Ventes + Différés + Commandes.
+ */
 public record CaissierDashboardDTO(
-    VentesJourDTO ventesJour,
     CaisseStatusDTO caisseStatus,
-    StatistiquesRapidesDTO statistiquesRapides,
-    List<VenteRecenteDTO> ventesRecentes,
-    List<TopProduitDTO> topProduits,
-    List<PerformanceVendeurDTO> performanceVendeurs,
-    List<AlerteCaisseDTO> alertes
+    SessionEncaissementsDTO sessionEncaissements,
+    ResumeDifferesDTO resumeDifferes,
+    List<LivraisonAttendueDTO> livraisonsAttendues,
+    List<VenteRecenteDTO> ventesRecentes
 ) {}

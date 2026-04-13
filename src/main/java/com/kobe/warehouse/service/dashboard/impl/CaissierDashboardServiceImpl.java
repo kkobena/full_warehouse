@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dashboard.impl;
 
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterItemRepository;
@@ -227,9 +228,14 @@ public class CaissierDashboardServiceImpl implements CaissierDashboardService {
     }
 
 
+    private static final Set<String> LIVRAISON_ORDER_STATUS = Set.of(
+        OrderStatut.REQUESTED.name(),
+        OrderStatut.RECEIVED.name()
+    );
+
     @Override
     public List<LivraisonAttendueDTO> getLivraisonsJour() {
-        List<Object[]> rows = commandeRepository.findLivraisonsAttenduesAujourdhui();
+        List<Object[]> rows = commandeRepository.findLivraisonsAttenduesAujourdhui(LIVRAISON_ORDER_STATUS);
         List<LivraisonAttendueDTO> result = new ArrayList<>();
 
         for (Object[] row : rows) {

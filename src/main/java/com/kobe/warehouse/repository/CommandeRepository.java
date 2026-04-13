@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Spring Data repository for the Commande entity.0
@@ -188,7 +189,12 @@ public interface CommandeRepository
 
     /**
      * Livraisons fournisseurs attendues aujourd'hui :
-     * commandes avec order_status=REQUESTED et order_date=CURRENT_DATE.
+     * commandes mises à jour aujourd'hui (updated_at) avec order_status IN (:orderStatus).
+     *
+     * Le filtre sur order_date (30 derniers jours) est indispensable pour le partition pruning
+     * PostgreSQL — sans lui, toutes les partitions seraient scannées.
+     * Une commande passée il y a &lt;= 90 jours et mise à jour aujourd'hui couvre tous les cas réels.
+     *
      * Retourne : [commande_id, fournisseur_nom, nombre_references]
      */
     @Query(
@@ -200,15 +206,16 @@ public interface CommandeRepository
             FROM commande c
             INNER JOIN fournisseur f ON c.fournisseur_id = f.id
             LEFT JOIN order_line ol
-                   ON ol.commande_id          = c.id
-                  AND ol.commande_order_date  = c.order_date
-            WHERE c.order_date    = CURRENT_DATE
-              AND c.order_status  = 'REQUESTED'
+                   ON ol.commande_id         = c.id
+                  AND ol.commande_order_date = c.order_date
+            WHERE c.order_date   >= CURRENT_DATE - INTERVAL '90 days'
+              AND c.updated_at::date = CURRENT_DATE
+              AND c.order_status    IN (:orderStatus)
             GROUP BY c.id, c.order_date, f.libelle
             ORDER BY c.id
             """,
         nativeQuery = true
     )
-    List<Object[]> findLivraisonsAttenduesAujourdhui();
+    List<Object[]> findLivraisonsAttenduesAujourdhui(@Param("orderStatus") Set<String> orderStatus);
 
 }

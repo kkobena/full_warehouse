@@ -13,6 +13,7 @@ export class VenteRecordParam {
   venteStatGroupBy?: StatGroupBy;
   start?: number;
   limit?: number;
+  size?: number;
   search?: string;
   produitId?: number;
   order?: OrderBy;

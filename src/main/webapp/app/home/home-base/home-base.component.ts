@@ -1,77 +1,148 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { TableModule } from "primeng/table";
 import {
-  faChartArea,
-  faChartBar,
-  faChartLine,
-  faChartPie,
-  faCommentsDollar,
-  faCreditCard,
-  faShippingFast,
-  faShoppingBasket,
-} from '@fortawesome/free-solid-svg-icons';
-import { TableModule } from 'primeng/table';
-import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
-import { ProductStatParetoRecord, ProductStatRecord } from '../../shared/model/produit-record.model';
-import { AchatRecord } from '../../shared/model/achat-record.model';
-import { CaPeriodeFilter } from '../../shared/model/enumerations/ca-periode-filter.model';
-import { TOPS } from '../../shared/constants/pagination.constants';
-import { DashboardService } from '../dashboard.service';
-import { ProduitStatService } from '../../entities/produit/stat/produit-stat.service';
-import { TypeCa } from '../../shared/model/enumerations/type-ca.model';
-import { OrderBy } from '../../shared/model/enumerations/type-vente.model';
-import { forkJoin, interval, Subject, takeUntil } from 'rxjs';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { FormsModule } from '@angular/forms';
-import { TiersPayantService } from '../../entities/tiers-payant/tierspayant.service';
-import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant-achat.model';
-import { ChartModule } from 'primeng/chart';
-import { ToggleButtonChangeEvent, ToggleButtonModule } from 'primeng/togglebutton';
-import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
-import { ToggleStateService } from './toggle-state.service';
-import { SelectModule } from 'primeng/select';
-import { Router } from '@angular/router';
-import { AlertBadgeService } from '../../shared/services/alert-badge.service';
+  VenteByTypeRecord,
+  VenteModePaimentRecord,
+  VenteRecord,
+  VenteRecordWrapper
+} from "../../shared/model/vente-record.model";
+import { ProductStatParetoRecord, ProductStatRecord } from "../../shared/model/produit-record.model";
+import { AchatRecord } from "../../shared/model/achat-record.model";
+import { CaPeriodeFilter } from "../../shared/model/enumerations/ca-periode-filter.model";
+import { TOPS } from "../../shared/constants/pagination.constants";
+import { DashboardService } from "../dashboard.service";
+import { ProduitStatService } from "../../entities/produit/stat/produit-stat.service";
+import { TypeCa } from "../../shared/model/enumerations/type-ca.model";
+import { OrderBy } from "../../shared/model/enumerations/type-vente.model";
+import { forkJoin, interval, Subject, takeUntil } from "rxjs";
+import { FormsModule } from "@angular/forms";
+import { TiersPayantService } from "../../entities/tiers-payant/tierspayant.service";
+import { TiersPayantAchat } from "../../entities/tiers-payant/model/tiers-payant-achat.model";
+import { ChartModule } from "primeng/chart";
+import { ToggleButtonChangeEvent, ToggleButtonModule } from "primeng/togglebutton";
+import { SelectChangeEvent } from 'primeng/select';
+import {
+  backgroundColor,
+  hoverBackgroundColor,
+  surfaceBorder,
+  textColor,
+  textColorSecondary
+} from "../../shared/chart-color-helper";
+import { ToggleStateService } from "./toggle-state.service";
+import { SelectModule } from "primeng/select";
+import { Router, RouterModule } from "@angular/router";
+import { AlertBadgeService } from "../../shared/services/alert-badge.service";
+import { SkeletonModule } from "primeng/skeleton";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+// Report services
+import { MargeReportService } from "../../entities/reports/services/marge-report.service";
+import { DashboardCAService } from "../../entities/reports/services/dashboard-ca.service";
+import { StockValuationReportService } from "../../entities/reports/services/stock-valuation-report.service";
+import { TiersPayantReportService } from "../../entities/reports/services/tiers-payant-report.service";
+import { SupplierPerformanceReportService } from "../../entities/reports/services/supplier-performance-report.service";
+// Report models
+import {
+  IDashboardCASummary,
+  IMargeSummary,
+  IStockValuationSummary,
+  ISupplierPerformance,
+  ISupplierPerformanceSummary,
+  ITiersPayantCreancesSummary
+} from "../../shared/model/report";
 
 interface TopSelection {
   label: string;
   value: number;
 }
 
+interface PeriodOption {
+  label: string;
+  value: CaPeriodeFilter;
+  icon: string;
+}
+
 @Component({
-  selector: 'jhi-home-base',
+  selector: "jhi-home-base",
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     TableModule,
-    FaIconComponent,
     ChartModule,
     ToggleButtonModule,
     SelectModule,
+    SkeletonModule,
+    ButtonModule,
+    TooltipModule
   ],
-  templateUrl: './home-base.component.html',
-  styleUrl: './home-base.component.scss',
+  templateUrl: "./home-base.component.html",
+  styleUrl: "./home-base.component.scss"
 })
 export class HomeBaseComponent implements OnInit, OnDestroy {
-  protected readonly faShoppingBasket = faShoppingBasket;
-  protected readonly faShippingFast = faShippingFast;
-  protected readonly faCommentsDollar = faCommentsDollar;
-  protected readonly faChartArea = faChartArea;
-  protected readonly faChartBar = faChartBar;
-  protected readonly faChartLine = faChartLine;
-  protected readonly faChartPie = faChartPie;
-  protected readonly faCreditCard = faCreditCard;
+
   protected readonly tops: TopSelection[] = TOPS;
 
   // Alert counters — via AlertBadgeService (signaux)
   protected readonly alertBadgeService = inject(AlertBadgeService);
 
-  get peremptionCount(): number { return this.alertBadgeService.peremptionCount(); }
-  get ruptureCount(): number    { return this.alertBadgeService.ruptureCount(); }
-  get ajustementCount(): number { return this.alertBadgeService.ajustementCount(); }
-  get prixModifCount(): number  { return this.alertBadgeService.prixModifCount(); }
-  get urgentCount(): number     { return this.alertBadgeService.urgentCount(); }
+  get peremptionCount(): number {
+    return this.alertBadgeService.peremptionCount();
+  }
 
+  get ruptureCount(): number {
+    return this.alertBadgeService.ruptureCount();
+  }
+
+  get ajustementCount(): number {
+    return this.alertBadgeService.ajustementCount();
+  }
+
+  get prixModifCount(): number {
+    return this.alertBadgeService.prixModifCount();
+  }
+
+  get urgentCount(): number {
+    return this.alertBadgeService.urgentCount();
+  }
+
+  // ─── Évolution CA selon la période active ───────────────────────
+  get caEvolutionPct(): number | null | undefined {
+    switch (this.activePeriode()) {
+      case CaPeriodeFilter.daily:     return this.caSummary?.caTodayEvolutionPct;
+      case CaPeriodeFilter.weekly:    return this.caSummary?.caWeekEvolutionPct;
+      case CaPeriodeFilter.monthly:   return this.caSummary?.caMonthEvolutionPct;
+      case CaPeriodeFilter.yearly:    return this.caSummary?.caYearEvolutionPct;
+      default:                        return null; // halfyearly : pas de champ dédié
+    }
+  }
+
+  get caEvolutionLabel(): string {
+    switch (this.activePeriode()) {
+      case CaPeriodeFilter.daily:     return 'vs J-1';
+      case CaPeriodeFilter.weekly:    return 'vs S-1';
+      case CaPeriodeFilter.monthly:   return 'vs M-1';
+      case CaPeriodeFilter.yearly:    return 'vs A-1';
+      default:                        return '';
+    }
+  }
+
+  // ─── Période (P2) ───────────────────────────────────────────────
+  protected readonly periodeOptions: PeriodOption[] = [
+    { label: "Auj.", value: CaPeriodeFilter.daily, icon: "pi pi-sun" },
+    { label: "Semaine", value: CaPeriodeFilter.weekly, icon: "pi pi-calendar" },
+    { label: "Mois", value: CaPeriodeFilter.monthly, icon: "pi pi-calendar-plus" },
+    { label: "Semestre", value: CaPeriodeFilter.halfyearly, icon: "pi pi-chart-bar" },
+    { label: "Année", value: CaPeriodeFilter.yearly, icon: "pi pi-chart-line" }
+  ];
+
+  protected activePeriode = signal<CaPeriodeFilter>(CaPeriodeFilter.daily);
+  protected isLoading = signal(false);
+  protected lastUpdate = signal<Date | null>(null);
+  protected activePareto: "qty" | "amt" = "qty";
+
+  // ─── State ──────────────────────────────────────────────────────
   protected venteRecord: VenteRecord | null = null;
   protected canceled: VenteRecord | null = null;
   protected rowQuantity: ProductStatRecord[] = [];
@@ -82,7 +153,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected assurance: VenteRecord | null = null;
   protected vno: VenteRecord | null = null;
   protected venteModePaiments: VenteModePaimentRecord[] = [];
-  protected dashboardPeriode: CaPeriodeFilter | null = null;
+  protected dashboardPeriode: CaPeriodeFilter | null = CaPeriodeFilter.daily;
   protected TOP_MAX_QUANTITY: TopSelection;
   protected TOP_MAX_AMOUNT: TopSelection;
   protected TOP_MAX_TP: TopSelection;
@@ -95,6 +166,24 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected totalAmountAvg = 0;
   protected totalQuantity20x80 = 0;
   protected tiersPayantAchat: TiersPayantAchat[] = [];
+
+  // ─── KPI P1 ─────────────────────────────────────────────────────
+  protected margeSummary: IMargeSummary | null = null;
+  protected caSummary: IDashboardCASummary | null = null;
+  protected stockValuationSummary: IStockValuationSummary | null = null;
+  protected creancesSummary: ITiersPayantCreancesSummary[] = [];
+  protected totalCreances = 0;
+  protected creancesPlusDe90j = 0;
+
+  // ─── Fournisseurs P3 ────────────────────────────────────────────
+  protected topFournisseurs: ISupplierPerformance[] = [];
+  protected supplierSummary: ISupplierPerformanceSummary | null = null;
+  protected fournisseurPeriod: "30d" | "12m" = "30d";
+  protected TOP_MAX_FOURNISSEUR: TopSelection;
+  protected fournisseurChartData: any;
+  protected fournisseurChartOptions: any;
+
+  // ─── Charts ──────────────────────────────────────────────────────
   protected readonly toggleStateService = inject(ToggleStateService);
   protected showGraphs = false;
   protected quantityChartData: any;
@@ -102,16 +191,23 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   protected amountChartData: any;
   protected amountChartOptions: any;
   protected twentyEightyChartData: any;
+  protected twentyEightyMontantChartData: any;
   protected twentyEightyChartOptions: any;
   protected modePaimentChartData: any;
   protected modePaimentChartOptions: any;
   protected tiersPayantChartData: any;
   protected tiersPayantChartOptions: any;
+
   private destroy$ = new Subject<void>();
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly router = inject(Router);
+  private readonly margeReportService = inject(MargeReportService);
+  private readonly dashboardCAService = inject(DashboardCAService);
+  private readonly stockValuationReportService = inject(StockValuationReportService);
+  private readonly tiersPayantReportService = inject(TiersPayantReportService);
+  private readonly supplierService = inject(SupplierPerformanceReportService);
 
   private documentStyle: CSSStyleDeclaration;
   private textColor: string;
@@ -122,6 +218,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.TOP_MAX_QUANTITY = this.tops[1];
     this.TOP_MAX_AMOUNT = this.tops[1];
     this.TOP_MAX_TP = this.tops[1];
+    this.TOP_MAX_FOURNISSEUR = this.tops[0];
   }
 
   ngOnInit(): void {
@@ -141,17 +238,53 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  protected onPeriodeChange(p: CaPeriodeFilter): void {
+    this.activePeriode.set(p);
+    this.dashboardPeriode = p;
+    this.showGraphs = this.toggleStateService.toggleState();
+    this.loadDashboardData();
+  }
+
   protected loadDashboardData(): void {
+    this.isLoading.set(true);
     const sources = {
-      ca: this.dashboardService.fetchCa({ categorieChiffreAffaire: TypeCa.CA, dashboardPeriode: this.dashboardPeriode }),
+      ca: this.dashboardService.fetchCa({
+        categorieChiffreAffaire: TypeCa.CA,
+        dashboardPeriode: this.dashboardPeriode
+      }),
       caAchat: this.dashboardService.fetchCaAchat({ dashboardPeriode: this.dashboardPeriode }),
       caTypeVente: this.dashboardService.fetchCaByTypeVente({ dashboardPeriode: this.dashboardPeriode }),
       byModePaiment: this.dashboardService.getCaByModePaiment({ dashboardPeriode: this.dashboardPeriode }),
-      produitCa: this.produitStatService.fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD, limit: this.TOP_MAX_QUANTITY?.value }),
-      produitAmount: this.produitStatService.fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT, limit: this.TOP_MAX_AMOUNT?.value }),
-      twentyEighty: this.produitStatService.fetch20x80({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD }),
-      twentyEightyMontant: this.produitStatService.fetch20x80({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT }),
-      tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({ dashboardPeriode: this.dashboardPeriode, limit: this.TOP_MAX_TP?.value }),
+      produitCa: this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD,
+        size: this.TOP_MAX_QUANTITY?.value
+      }),
+      produitAmount: this.produitStatService.fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT,
+        size: this.TOP_MAX_AMOUNT?.value
+      }),
+      twentyEighty: this.produitStatService.fetch20x80({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD
+      }),
+      twentyEightyMontant: this.produitStatService.fetch20x80({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT
+      }),
+      tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
+        dashboardPeriode: this.dashboardPeriode,
+        limit: this.TOP_MAX_TP?.value
+      }),
+      // P1 — KPI services
+      margeSummary: this.margeReportService.getMargeSummary(),
+      caSummary: this.dashboardCAService.getOverallSummary(),
+      stockValuation: this.stockValuationReportService.getStockValuationSummary(),
+      creancesSummary: this.tiersPayantReportService.getCreancesSummary(),
+      // P3 — Fournisseurs
+      topFournisseurs: this.supplierService.getTopSuppliersByVolume(this.TOP_MAX_FOURNISSEUR.value),
+      supplierSummary: this.supplierService.getSupplierPerformanceSummary()
     };
 
     forkJoin(sources).subscribe({
@@ -165,32 +298,99 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         this.onFetch20x80Success(data.twentyEighty.body);
         this.onFetch20x80AmountSuccess(data.twentyEightyMontant.body);
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
+        // P1
+        this.margeSummary = data.margeSummary.body;
+        this.caSummary = data.caSummary.body;
+        this.stockValuationSummary = data.stockValuation.body;
+        this.creancesSummary = data.creancesSummary.body ?? [];
+        this.totalCreances = this.creancesSummary.reduce((s, c) => s + (c.montantTotal ?? 0), 0);
+        this.creancesPlusDe90j = this.creancesSummary.reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0);
+        // P3
+        this.topFournisseurs = data.topFournisseurs.body ?? [];
+        this.supplierSummary = data.supplierSummary.body;
         this.buildAllCharts();
+        this.isLoading.set(false);
+        this.lastUpdate.set(new Date());
       },
-      error() {},
+      error: () => {
+        this.isLoading.set(false);
+      }
     });
   }
 
-  protected onTopQuantityChange(): void {
+  protected onTopQuantityChange(event: SelectChangeEvent): void {
+    const top: TopSelection = event.value;
+    this.TOP_MAX_QUANTITY = top;
     this.produitStatService
-      .fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.QUANTITY_SOLD, limit: this.TOP_MAX_QUANTITY?.value })
-      .subscribe(res => { this.onFetchPoduitCaSuccess(res.body); this.buildQuantityChart(); });
+      .fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD,
+        size: top.value
+      })
+      .subscribe(res => {
+        this.onFetchPoduitCaSuccess(res.body);
+        this.buildQuantityChart();
+      });
   }
 
-  protected onTopAmountChange(): void {
+  protected onTopAmountChange(event: SelectChangeEvent): void {
+    const top: TopSelection = event.value;
+    this.TOP_MAX_AMOUNT = top;
     this.produitStatService
-      .fetchPoduitCa({ dashboardPeriode: this.dashboardPeriode, order: OrderBy.AMOUNT, limit: this.TOP_MAX_AMOUNT?.value })
-      .subscribe(res => { this.onFetchPoduitAmountSuccess(res.body); this.buildAmountChart(); });
+      .fetchPoduitCa({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT,
+        size: top.value
+      })
+      .subscribe(res => {
+        this.onFetchPoduitAmountSuccess(res.body);
+        this.buildAmountChart();
+      });
   }
 
   protected onToggleChange(evt: ToggleButtonChangeEvent): void {
     this.toggleStateService.update(evt.checked);
   }
 
-  protected onTopTiersPayantChange(): void {
+  protected onTopTiersPayantChange(event: SelectChangeEvent): void {
+    const top: TopSelection = event.value;
+    this.TOP_MAX_TP = top;
     this.tiersPayantService
-      .fetchAchatTiersPayant({ dashboardPeriode: this.dashboardPeriode, limit: this.TOP_MAX_TP?.value })
-      .subscribe(res => { this.onFetchTiersPayantSuccess(res.body); this.buildTiersPayantChart(); });
+      .fetchAchatTiersPayant({ dashboardPeriode: this.dashboardPeriode, limit: top.value })
+      .subscribe(res => {
+        this.onFetchTiersPayantSuccess(res.body);
+        this.buildTiersPayantChart();
+      });
+  }
+
+  protected onTopFournisseurChange(event: SelectChangeEvent): void {
+    const top: TopSelection = event.value;
+    this.TOP_MAX_FOURNISSEUR = top;
+    this.supplierService.getTopSuppliersByVolume(top.value)
+      .subscribe(res => {
+        this.topFournisseurs = res.body ?? [];
+        this.buildFournisseurChart();
+      });
+  }
+
+  protected buildFournisseurChart(): void {
+    const items = this.topFournisseurs.slice(0, this.TOP_MAX_FOURNISSEUR.value);
+    const amounts = this.fournisseurPeriod === "30d"
+      ? items.map(f => f.purchaseAmountLast30Days ?? 0)
+      : items.map(f => f.purchaseAmountLast12Months ?? 0);
+    this.fournisseurChartData = {
+      labels: items.map(f => f.fournisseurName?.slice(0, 18) ?? ""),
+      datasets: [{
+        data: amounts,
+        backgroundColor: ["#008cba", "#5bc0de", "#43ac6a", "#e99002", "#f04124"],
+        borderWidth: 2
+      }]
+    };
+    this.fournisseurChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "right", labels: { boxWidth: 12, font: { size: 10 } } } }
+    };
   }
 
   private onCaSuccess(ca: VenteRecordWrapper | null): void {
@@ -199,16 +399,23 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.canceled = ca.canceled;
   }
 
-  private onCaAchatSuccess(achatRecordIn: AchatRecord | null): void { this.achatRecord = achatRecordIn; }
+  private onCaAchatSuccess(achatRecordIn: AchatRecord | null): void {
+    this.achatRecord = achatRecordIn;
+  }
 
   private onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
     if (!venteByTypeRecords) return;
-    this.vno = venteByTypeRecords.find(e => e.typeVente === 'CashSale')?.venteRecord;
-    this.assurance = venteByTypeRecords.find(e => e.typeVente === 'ThirdPartySales')?.venteRecord;
+    this.vno = venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord;
+    this.assurance = venteByTypeRecords.find(e => e.typeVente === "ThirdPartySales")?.venteRecord;
   }
 
-  private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void { this.venteModePaiments = venteModePaimentRecords; }
-  private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void { this.tiersPayantAchat = tps; }
+  private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
+    this.venteModePaiments = venteModePaimentRecords;
+  }
+
+  private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void {
+    this.tiersPayantAchat = tps;
+  }
 
   private onFetchPoduitCaSuccess(productStatRecords: ProductStatRecord[] | []): void {
     this.rowQuantity = productStatRecords;
@@ -232,12 +439,12 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
 
   private computeAmountTopQuantity(): void {
     this.totalQuantityToQuantity = this.rowQuantity.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopQuantity  = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalAmountTopQuantity = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
   }
 
   private computeAmountTopAmount(): void {
     this.totalQuantityTopAmount = this.rowAmount.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopAmount   = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
+    this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
   }
 
   private computeAmountrow20x80Amount(): void {
@@ -251,10 +458,10 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   }
 
   private initializeChartStyles(): void {
-    this.documentStyle      = getComputedStyle(document.documentElement);
-    this.textColor          = textColor(this.documentStyle);
+    this.documentStyle = getComputedStyle(document.documentElement);
+    this.textColor = textColor(this.documentStyle);
     this.textColorSecondary = textColorSecondary(this.documentStyle);
-    this.surfaceBorder      = surfaceBorder(this.documentStyle);
+    this.surfaceBorder = surfaceBorder(this.documentStyle);
   }
 
   private buildAllCharts(): void {
@@ -263,12 +470,18 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
     this.build2080Chart();
     this.buildModePaimentChart();
     this.buildTiersPayantChart();
+    this.buildFournisseurChart();
   }
 
   private buildQuantityChart(): void {
     this.quantityChartData = {
       labels: this.rowQuantity.map(p => p.libelle.slice(0, 20)),
-      datasets: [{ type: 'bar', label: 'Quantité vendue', backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'), data: this.rowQuantity.map(p => p.quantitySold) }],
+      datasets: [{
+        type: "bar",
+        label: "Quantité vendue",
+        backgroundColor: this.documentStyle.getPropertyValue("--p-primary-200"),
+        data: this.rowQuantity.map(p => p.quantitySold)
+      }]
     };
     this.quantityChartOptions = this.getCommonChartOptions();
   }
@@ -276,18 +489,55 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private buildAmountChart(): void {
     this.amountChartData = {
       labels: this.rowAmount.map(p => p.libelle.slice(0, 20)),
-      datasets: [{ type: 'bar', label: 'Montant HT', backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'), data: this.rowAmount.map(p => p.montantHt) }],
+      datasets: [{
+        type: "bar",
+        label: "Montant HT",
+        backgroundColor: this.documentStyle.getPropertyValue("--p-blue-200"),
+        data: this.rowAmount.map(p => p.montantHt)
+      }]
     };
     this.amountChartOptions = this.getCommonChartOptions();
   }
 
   private build2080Chart(): void {
+    // Pareto quantité
     this.twentyEightyChartData = {
       labels: this.row20x80.map(p => p.libelle.slice(0, 20)),
       datasets: [
-        { type: 'line', label: '% Montant', borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'), tension: 0.4, data: this.row20x80.map(p => p.pourcentage) },
-        { type: 'bar',  label: 'Montant HT', backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'), data: this.row20x80.map(p => p.total) },
-      ],
+        {
+          type: "line",
+          label: "% Quantité cumulé",
+          borderColor: this.documentStyle.getPropertyValue("--p-cyan-300"),
+          tension: 0.4,
+          data: this.row20x80.map(p => p.pourcentage)
+        },
+        {
+          type: "bar",
+          label: "Quantité",
+          backgroundColor: this.documentStyle.getPropertyValue("--p-orange-300"),
+          data: this.row20x80.map(p => p.total)
+        }
+      ]
+    };
+    // Pareto montant — Bug P0 Fix : données séparées
+    this.twentyEightyMontantChartData = {
+      labels: this.row20x80Montant.map(p => p.libelle.slice(0, 20)),
+      datasets: [
+        {
+          type: "line",
+          label: "% Montant cumulé",
+          borderColor: "rgba(234,88,12,1)",
+          backgroundColor: "rgba(234,88,12,0.08)",
+          tension: 0.4,
+          data: this.row20x80Montant.map(p => p.pourcentage)
+        },
+        {
+          type: "bar",
+          label: "Montant",
+          backgroundColor: "rgba(234,88,12,0.7)",
+          data: this.row20x80Montant.map(p => p.total)
+        }
+      ]
     };
     this.twentyEightyChartOptions = this.getCommonChartOptions();
   }
@@ -295,17 +545,25 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
   private buildModePaimentChart(): void {
     this.modePaimentChartData = {
       labels: this.venteModePaiments.map(p => p.libelle),
-      datasets: [{ data: this.venteModePaiments.map(p => p.paidAmount), backgroundColor: backgroundColor(this.documentStyle), hoverBackgroundColor: hoverBackgroundColor(this.documentStyle) }],
+      datasets: [{
+        data: this.venteModePaiments.map(p => p.paidAmount),
+        backgroundColor: backgroundColor(this.documentStyle),
+        hoverBackgroundColor: hoverBackgroundColor(this.documentStyle)
+      }]
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
   }
 
   private buildTiersPayantChart(): void {
-    const bgs    = backgroundColor(this.documentStyle);
+    const bgs = backgroundColor(this.documentStyle);
     const hovers = hoverBackgroundColor(this.documentStyle);
     this.tiersPayantChartData = {
       labels: this.tiersPayantAchat.map(p => p.tiersPayantName),
-      datasets: [{ data: this.tiersPayantAchat.map(p => p.montantTtc), backgroundColor: bgs.reverse(), hoverBackgroundColor: hovers.reverse() }],
+      datasets: [{
+        data: this.tiersPayantAchat.map(p => p.montantTtc),
+        backgroundColor: bgs.reverse(),
+        hoverBackgroundColor: hovers.reverse()
+      }]
     };
     this.tiersPayantChartOptions = this.getCommonPieChartOptions();
   }
@@ -317,20 +575,34 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
       plugins: { legend: { labels: { color: this.textColor } } },
       scales: {
         y: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
-        x: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
-      },
+        x: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } }
+      }
     };
   }
 
   private getCommonPieChartOptions(): any {
-    return { plugins: { legend: { position: 'bottom', labels: { color: this.textColor, usePointStyle: true } } } };
+    return { plugins: { legend: { position: "bottom", labels: { color: this.textColor, usePointStyle: true } } } };
   }
 
   // ─── Actions de navigation ────────────────────────────────────────────────
 
-  protected voirPeremptions(): void { this.router.navigate(['/gestion-peremption']); }
-  protected voirRuptures(): void    { this.router.navigate(['/produits'], { queryParams: { rupture: true } }); }
-  protected voirUrgents(): void     { this.router.navigate(['/commande'],  { queryParams: { tab: 'SUGGESTIONS' } }); }
-  protected voirAjustements(): void { this.router.navigate(['/ajustement']); }
-  protected voirModifPrix(): void   { this.router.navigate(['/produit'],   { queryParams: { prixModif: true } }); }
+  protected voirPeremptions(): void {
+    this.router.navigate(["/gestion-peremption"]);
+  }
+
+  protected voirRuptures(): void {
+    this.router.navigate(["/produits"], { queryParams: { rupture: true } });
+  }
+
+  protected voirUrgents(): void {
+    this.router.navigate(["/commande"], { queryParams: { tab: "SUGGESTIONS" } });
+  }
+
+  protected voirAjustements(): void {
+    this.router.navigate(["/ajustement"]);
+  }
+
+  protected voirModifPrix(): void {
+    this.router.navigate(["/produit"], { queryParams: { prixModif: true } });
+  }
 }

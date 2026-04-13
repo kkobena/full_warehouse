@@ -31,12 +31,12 @@ $gray-border: #e2e8f0;
   position: relative;
   display: flex;
   background: rgba($gray-border, 0.4);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-// Sliding indicator background - Sober/Minimal Style
+// Sliding indicator background — aligné sur .periode-pill.active
 .segment-slider {
   position: absolute;
   top: 3px;
@@ -44,8 +44,8 @@ $gray-border: #e2e8f0;
   bottom: 3px;
   width: calc(50% - 3px);
   background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba($primary-blue, 0.2);
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba($primary-blue, 0.25);
   transition: all 0.3s ease;
   z-index: 0;
 
@@ -54,7 +54,7 @@ $gray-border: #e2e8f0;
   }
 }
 
-// Segment buttons - Sober/Minimal Style
+// Segment buttons — même taille que .periode-pill
 .segment-option {
   position: relative;
   z-index: 1;
@@ -62,20 +62,20 @@ $gray-border: #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
   border: none;
   background: transparent;
   color: $text-secondary;
-  font-size: 0.875rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.25s ease;
   white-space: nowrap;
-  min-width: 140px;
+  min-width: unset;
 
   i {
-    font-size: 1rem;
+    font-size: 0.75rem;
     transition: all 0.25s ease;
   }
 
@@ -205,28 +205,26 @@ $gray-border: #e2e8f0;
 // Responsive adjustments
 @media (max-width: 768px) {
   .segment-option {
-    min-width: 120px;
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
 
     i {
-      font-size: 0.95rem;
+      font-size: 0.7rem;
     }
   }
 }
 
 @media (max-width: 576px) {
   .segment-option {
-    min-width: 100px;
-    padding: 0.5rem 0.75rem;
-    gap: 0.4rem;
+    padding: 0.22rem 0.5rem;
+    gap: 0.25rem;
 
     span {
-      display: none; // Hide text on very small screens
+      display: none;
     }
 
     i {
-      font-size: 1.1rem;
+      font-size: 0.75rem;
     }
   }
 }
@@ -286,6 +284,11 @@ $gray-border: #e2e8f0;
   &.warning-accent {
     --accent-color-start: #{$warning-orange};
     --accent-color-end: #ffa940;
+  }
+
+  &.info-accent {
+    --accent-color-start: #17a2b8;
+    --accent-color-end: #63d9ec;
   }
 
   .card-body {
@@ -608,6 +611,128 @@ $gray-border: #e2e8f0;
         width: 100%;
       }
     }
+  }
+}
+
+// ─── Period Pill Selector (P2) ────────────────────────────────────
+.dashboard-periode-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 3px;
+  background: rgba($gray-border, 0.4);
+  border-radius: 12px;
+  flex-wrap: wrap;
+
+  .periode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.28rem 0.7rem;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: $text-secondary;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    i { font-size: 0.75rem; }
+    .pill-label { font-size: 0.78rem; }
+
+    &:hover:not(.active) {
+      background: rgba($primary-blue, 0.08);
+      color: $primary-blue;
+    }
+
+    &.active {
+      background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba($primary-blue, 0.25);
+    }
+  }
+}
+
+// ─── Last update label (P2) ──────────────────────────────────────
+.last-update-label {
+  font-size: 0.75rem;
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  i { font-size: 0.7rem; }
+}
+
+@media (max-width: 576px) {
+  .dashboard-periode-selector .periode-pill .pill-label { display: none; }
+}
+
+// ─── KPI Variation N-1 (P1) ──────────────────────────────────────
+.kpi-variation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+
+  &.kpi-up   { color: $success-green; background: rgba($success-green, 0.1); }
+  &.kpi-down { color: $danger-red;    background: rgba($danger-red, 0.1);    }
+
+  i { font-size: 0.65rem; }
+}
+
+// ─── Rangs top 3 (P3 + P4) ───────────────────────────────────────
+.rank-gold   { color: #f59e0b; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
+.rank-silver { color: #6b7280; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
+.rank-bronze { color: #b45309; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
+
+// ─── Empty message (P4) ──────────────────────────────────────────
+.pharma-empty-message {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.pharma-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: $text-secondary;
+
+  i { font-size: 2rem; opacity: 0.5; }
+  p { font-size: 0.875rem; }
+}
+
+// ─── Score bar (P3 / P5) ─────────────────────────────────────────
+.score-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 80px;
+
+  .score-bar {
+    height: 6px;
+    border-radius: 3px;
+    flex: 1;
+    transition: width 0.4s ease;
+    &.score-good { background: $success-green; }
+    &.score-avg  { background: $warning-orange; }
+    &.score-bad  { background: $danger-red; }
+  }
+
+  .score-label { font-size: 0.7rem; font-weight: 600; min-width: 22px; }
+}
+
+// ─── Animation delays for col-xl-2 KPI cards ─────────────────────
+@for $i from 1 through 6 {
+  .col-xl-2:nth-child(#{$i}) .kpi-card {
+    animation-delay: #{$i * 0.1}s;
   }
 }
 

@@ -29,7 +29,7 @@ import { ButtonModule } from 'primeng/button';
 export class HalfyearlyDataComponent extends HomeBaseComponent {
   constructor() {
     super();
-    this.dashboardPeriode = CaPeriodeFilter.yearly;
+    this.dashboardPeriode = CaPeriodeFilter.halfyearly;
     /*  this.showGraphs = this.toggleStateService.toggleState(); */
   }
 }

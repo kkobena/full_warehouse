@@ -26,7 +26,6 @@ import { ButtonModule } from 'primeng/button';
   ],
 })
 export class WeeklyDataComponent extends HomeBaseComponent {
-  protected dashboardPeriode: CaPeriodeFilter | null = null;
 
   constructor() {
     super();

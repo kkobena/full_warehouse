@@ -129,7 +129,7 @@ public class SaleStatServiceImpl implements SaleStatService {
         }
         if (venteRecordParam.isCanceled()) {
             specification = specification.and(this.salePaymentRepository.hasStatut(EnumSet.of(SalesStatut.CANCELED)));
-        } else if (venteRecordParam.isCanceled()) {
+        } else {
             specification = specification.and(this.salePaymentRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         }
         if (nonNull(venteRecordParam.getCategorieChiffreAffaire())) {
@@ -143,7 +143,10 @@ public class SaleStatServiceImpl implements SaleStatService {
         return specification;
     }
 
-    private Specification<Sales> buildSpecification(VenteRecordParamDTO venteRecordParam, Pair<LocalDate, LocalDate> periode) {
+    private Specification<Sales> buildSpecification(
+        VenteRecordParamDTO venteRecordParam,
+        Pair<LocalDate, LocalDate> periode
+    ) {
         Specification<Sales> specification = this.salesRepository.between(periode.getLeft(), periode.getRight());
         specification = specification.and(this.salesRepository.notImported());
         if (venteRecordParam.isDiffereOnly()) {
@@ -151,7 +154,7 @@ public class SaleStatServiceImpl implements SaleStatService {
         }
         if (venteRecordParam.isCanceled()) {
             specification = specification.and(this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CANCELED)));
-        } else if (venteRecordParam.isCanceled()) {
+        } else {
             specification = specification.and(this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         }
         if (nonNull(venteRecordParam.getCategorieChiffreAffaire())) {

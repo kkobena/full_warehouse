@@ -25,7 +25,7 @@ export class GrapheDailyComponent implements OnInit {
   protected readonly TOPS = TOPS;
   protected readonly faChartArea = faChartArea;
   protected sales: VentePeriodeRecord[] = [];
-  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.yearly;
+  protected dashboardPeriode: CaPeriodeFilter = CaPeriodeFilter.daily;
   protected venteStatGroupBy: StatGroupBy = StatGroupBy.HOUR;
   protected data: any;
   protected options: any;

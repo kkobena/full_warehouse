@@ -17,7 +17,7 @@ public interface CommonStatService {
         }
 
         return switch (venteRecordParam.getDashboardPeriode()) {
-            case daily -> Pair.of(venteRecordParam.getFromDate(), end);
+            case daily -> Pair.of(now, end);
             case weekly -> Pair.of(now.minusWeeks(1), now);
             case monthly -> Pair.of(now.minusMonths(1), now);
             case halfyearly -> Pair.of(now.minusMonths(6), now);

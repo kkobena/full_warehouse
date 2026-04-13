@@ -13,7 +13,6 @@ import { WeeklyDataComponent } from "./weekly/weekly-data/weekly-data.component"
 import { DailyDataComponent } from "./daily/daily-data/daily-data.component";
 import { Authority } from "../shared/constants/authority.constants";
 import { CaissierDashboardComponent } from "./caissier-dashboard/caissier-dashboard.component";
-import { VendeurDashboardComponent } from "./vendeur-dashboard/vendeur-dashboard.component";
 import { CommandeHomeComponent } from "../features/commande/feature/commande-home/commande-home.component";
 
 @Component({
@@ -30,7 +29,6 @@ import { CommandeHomeComponent } from "../features/commande/feature/commande-hom
     WeeklyDataComponent,
     DailyDataComponent,
     CaissierDashboardComponent,
-    VendeurDashboardComponent,
     CommandeHomeComponent
   ]
 })
@@ -45,14 +43,17 @@ export default class HomeComponent implements OnInit, OnDestroy {
     this.accountService
       .getAuthenticationState()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(account => this.account.set(account));
-    // Pas de redirection - chaque profil voit son dashboard
+      .subscribe(account => {
+        this.account.set(account);
+        if (account && this.isVendeur() && !this.isAdmin() && !this.isResponsableCommande() && !this.isCaissier()) {
+          this.router.navigate(['/sales-home/prevente']);
+        }
+      });
   }
 
-  login(): void {
+  protected login(): void {
     this.router.navigate(["/login"]);
   }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

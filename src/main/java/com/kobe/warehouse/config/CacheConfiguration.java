@@ -47,7 +47,7 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_NTH_MOIS_CONSOMMATION_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_CANCEL_SALE_MAX_DAYS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
-                // Report caches - shorter TTL for fresher data
+
                 buildCache("dailySalesReport", 15, TimeUnit.MINUTES, 100),
                 buildCache("produits", 15, TimeUnit.MINUTES, 100),
                 buildCache("dashboardAlertCounts", 5, TimeUnit.MINUTES, 100),
@@ -59,19 +59,14 @@ public class CacheConfiguration {
                 buildCache("stockAlerts", 30, TimeUnit.MINUTES, 100),
                 buildCache("topProducts", 30, TimeUnit.MINUTES, 100),
                 buildCache("abcPareto", 30, TimeUnit.MINUTES, 100),
-                // salesForecast : TTL 24h — les prévisions sont recalculées une fois par jour.
-                // maxSize 50 couvre toutes les combinaisons clés :
-                //   forecast_{monthsAhead}_{method} (ex: 3×3 méthodes = 9 entrées) + summary
                 buildCache("salesForecast", 24, TimeUnit.HOURS, 50),
                 buildCache("cashRegisterReport", 15, TimeUnit.MINUTES, 50),
                 buildCache("tiersPayantCreances", 60, TimeUnit.MINUTES, 100),
-                // Phase 2 report caches
                 buildCache("stockValuation", 60, TimeUnit.MINUTES, 100),
                 buildCache("supplierPerformance", 60, TimeUnit.MINUTES, 100),
                 buildCache("stockValuationSummary", 60, TimeUnit.MINUTES, 10),
                 buildCache("stockRotation", 60, TimeUnit.MINUTES, 100),
                 buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200),
-                // Navigation dynamique — TTL 24h, 500 entrées (une par utilisateur actif)
                 buildCache(EntityConstant.NAV_TREE_CACHE, defaultTtl, TimeUnit.HOURS, 500)
             )
         );

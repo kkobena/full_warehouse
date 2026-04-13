@@ -519,7 +519,7 @@ export class HomeBaseComponent implements OnInit, OnDestroy {
         }
       ]
     };
-    // Pareto montant — Bug P0 Fix : données séparées
+
     this.twentyEightyMontantChartData = {
       labels: this.row20x80Montant.map(p => p.libelle.slice(0, 20)),
       datasets: [

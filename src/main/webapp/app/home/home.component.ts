@@ -1,29 +1,37 @@
-import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
-import { Router, RouterModule } from "@angular/router";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { AccountService } from "app/core/auth/account.service";
-import { Account } from "app/core/auth/account.model";
-import { Authority } from "../shared/constants/authority.constants";
-import { CaissierDashboardComponent } from "./caissier-dashboard/caissier-dashboard.component";
-import { CommandeHomeComponent } from "../features/commande/feature/commande-home/commande-home.component";
-import { HomeBaseComponent } from "./home-base/home-base.component";
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AccountService } from 'app/core/auth/account.service';
+import { DashboardResolverService } from 'app/core/auth/dashboard-resolver.service';
+import { Account } from 'app/core/auth/account.model';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashboard.component';
+import { CommandeHomeComponent } from '../features/commande/feature/commande-home/commande-home.component';
+import { HomeBaseComponent } from './home-base/home-base.component';
+import { DefaultDashboardComponent } from './default-dashboard/default-dashboard.component';
 
 @Component({
-  selector: "jhi-home",
-  templateUrl: "./home.component.html",
-  styleUrl: "./home.component.scss",
+  selector: 'jhi-home',
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
   imports: [
     RouterModule,
+    SkeletonModule,
     HomeBaseComponent,
     CaissierDashboardComponent,
-    CommandeHomeComponent
-  ]
+    CommandeHomeComponent,
+    DefaultDashboardComponent,
+  ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);
+  /** true pendant le chargement du layout résolu */
+  loading = signal(true);
+
   private readonly destroy$ = new Subject<void>();
   private readonly accountService = inject(AccountService);
+  private readonly dashboardResolver = inject(DashboardResolverService);
   private readonly router = inject(Router);
 
   ngOnInit(): void {
@@ -32,58 +40,42 @@ export default class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(account => {
         this.account.set(account);
-        if (account && this.isVendeur() && !this.isAdmin() && !this.isResponsableCommande() && !this.isCaissier()) {
-          this.router.navigate(['/sales-home/prevente']);
+        if (!account) {
+          this.loading.set(false);
+          return;
         }
+        // Remet loading à true pour afficher le skeleton pendant la résolution
+        this.loading.set(true);
+        // Charge (ou retourne depuis le cache signal) le layout résolu
+        this.dashboardResolver.init()
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            complete: () => {
+              this.loading.set(false);
+              // Redirection si isRoute=true
+              if (this.dashboardResolver.isRoute()) {
+                const path = this.dashboardResolver.routePath();
+                console.error('path', path);
+                if (path) {
+                  this.router.navigate([path]);
+                }
+              }
+            },
+          });
       });
   }
 
-  protected login(): void {
-    this.router.navigate(["/login"]);
-  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  protected isAdmin(): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    return userIdentity.authorities.includes(Authority.ADMIN) || userIdentity.authorities.includes(Authority.HOME_DASHBOARD);
+  /** Exposé au template via le service resolver */
+  protected get resolvedLayout() {
+    return this.dashboardResolver.resolvedLayout;
   }
 
-  protected hasAnyAuthority(authoritie: string): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-
-    return userIdentity.authorities.includes(authoritie) && !this.isAdmin();
-  }
-
-  protected isCaissier(): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    return userIdentity.authorities.includes(Authority.ROLE_CAISSIER);
-  }
-
-  protected isResponsableCommande(): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    return userIdentity.authorities.includes(Authority.ROLE_RESPONSABLE_COMMANDE);
-  }
-
-  protected isVendeur(): boolean {
-    const userIdentity = this.account();
-    if (!userIdentity) {
-      return false;
-    }
-    return userIdentity.authorities.includes(Authority.ROLE_VENDEUR);
+  protected get isRoute() {
+    return this.dashboardResolver.isRoute;
   }
 }

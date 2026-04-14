@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { NavApiService, INavRole } from 'app/core/data-access/nav-api.service';
+import { NavApiService, INavRole, IAuthority } from "app/core/data-access/nav-api.service";
 import { NotificationService } from 'app/shared/services/notification.service';
 import { showCommonModal } from 'app/entities/sales/selling-home/sale-helper';
 import { RoleFormComponent } from './ui/role-form.component';
@@ -31,7 +31,7 @@ export class RoleComponent implements OnInit {
   /** Émis quand l'utilisateur veut gérer les autorisations d'un rôle. */
   readonly managePermissions = output<string>();
 
-  protected readonly roles   = signal<INavRole[]>([]);
+  protected readonly roles   = signal<IAuthority[]>([]);
   protected readonly loading = signal(false);
 
   // ── Édition inline du libellé ────────────────────────────────────────────

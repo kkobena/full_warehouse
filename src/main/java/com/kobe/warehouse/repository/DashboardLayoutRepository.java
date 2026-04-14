@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout, Integer> {
+
     /**
      * Find all layouts for a specific user (private + public)
      */
@@ -27,7 +28,7 @@ public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout
     List<DashboardLayout> findByUserAndScope(AppUser user, DashboardScope scope);
 
     /**
-     * Find user's default layout
+     * Find user's default layout (niveau 1 — layout personnel)
      */
     Optional<DashboardLayout> findByUserAndIsDefaultTrue(AppUser user);
 
@@ -40,4 +41,5 @@ public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout
      * Find by user and name
      */
     Optional<DashboardLayout> findByUserAndName(AppUser user, String name);
+
 }

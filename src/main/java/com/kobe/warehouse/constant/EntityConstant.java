@@ -86,4 +86,12 @@ public final class EntityConstant {
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */
     public static final String NAV_TREE_CACHE = "navTree";
 
+    // ─── Dashboard layout ─────────────────────────────────────────────────────
+    /**
+     * Cache du layout résolu pour l'utilisateur courant.
+     * Clé : login. TTL : 24h (changement rare — uniquement lors d'une reconfiguration admin).
+     * Eviction : save, update, delete, setAsDefault, setAsDefaultForAuthority.
+     */
+    public static final String DASHBOARD_LAYOUT_RESOLVED_CACHE = "dashboardLayoutResolved";
+
 }

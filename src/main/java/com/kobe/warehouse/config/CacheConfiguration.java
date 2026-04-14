@@ -67,7 +67,9 @@ public class CacheConfiguration {
                 buildCache("stockValuationSummary", 60, TimeUnit.MINUTES, 10),
                 buildCache("stockRotation", 60, TimeUnit.MINUTES, 100),
                 buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200),
-                buildCache(EntityConstant.NAV_TREE_CACHE, defaultTtl, TimeUnit.HOURS, 500)
+                buildCache(EntityConstant.NAV_TREE_CACHE, defaultTtl, TimeUnit.HOURS, 500),
+                // Layout dashboard résolu par utilisateur — 1 entrée/utilisateur, changement rare
+                buildCache(EntityConstant.DASHBOARD_LAYOUT_RESOLVED_CACHE, defaultTtl, TimeUnit.HOURS, 500)
             )
         );
         return manager;

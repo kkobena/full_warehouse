@@ -105,7 +105,7 @@ public class AppUser extends AbstractAuditingEntity<Integer> implements Serializ
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @BatchSize(size = 100)
+    @BatchSize(size = 10)
     private Set<Authority> authorities = new HashSet<>();
 
     @JsonIgnore

@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/admin/materialized-views")
-@Secured(AuthoritiesConstants.ADMIN)
 public class MaterializedViewResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MaterializedViewResource.class);

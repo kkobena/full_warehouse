@@ -8,6 +8,10 @@ export interface INavRole {
   name: string;
   libelle?: string;
 }
+export interface IAuthority {
+  name: string;
+  libelle?: string;
+}
 
 @Injectable({ providedIn: "root" })
 export class NavApiService {
@@ -50,8 +54,8 @@ export class NavApiService {
   }
 
 
-  getAllRoles(): Observable<INavRole[]> {
-    return this.http.get<INavRole[]>(this.config.getEndpointFor("api/authorities/all/v2"));
+  getAllRoles(): Observable<IAuthority[]> {
+    return this.http.get<IAuthority[]>(this.config.getEndpointFor("api/authorities/all/v2"));
   }
 
   createRole(name: string, libelle: string): Observable<void> {

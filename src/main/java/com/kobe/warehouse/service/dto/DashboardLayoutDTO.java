@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.DashboardScope;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DTO for Dashboard Layout
@@ -13,8 +14,20 @@ public class DashboardLayoutDTO {
     private String description;
     private Integer userId;
     private String userLogin;
+    /** Rôles auxquels ce layout est assigné (many-to-many via dashboard_layout_authority). */
+    private List<String> authorityNames;
     private DashboardScope scope;
     private Boolean isDefault;
+    /**
+     * Si true : name est une route Angular → HomeComponent redirige.
+     * Si false : componentKey + layoutConfig déterminent le composant et sa config.
+     */
+    private Boolean isRoute;
+    /**
+     * Clé de dispatch Angular (ignorée si isRoute=true).
+     * Valeurs : PHARMACIEN | CAISSIER | COMMANDE | DEFAULT
+     */
+    private String componentKey;
     private String layoutConfig; // JSON string
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -29,8 +42,11 @@ public class DashboardLayoutDTO {
         String description,
         Integer userId,
         String userLogin,
+        List<String> authorityNames,
         DashboardScope scope,
         Boolean isDefault,
+        Boolean isRoute,
+        String componentKey,
         String layoutConfig,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -40,8 +56,11 @@ public class DashboardLayoutDTO {
         this.description = description;
         this.userId = userId;
         this.userLogin = userLogin;
+        this.authorityNames = authorityNames;
         this.scope = scope;
         this.isDefault = isDefault;
+        this.isRoute = isRoute;
+        this.componentKey = componentKey;
         this.layoutConfig = layoutConfig;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -87,6 +106,30 @@ public class DashboardLayoutDTO {
 
     public void setUserLogin(String userLogin) {
         this.userLogin = userLogin;
+    }
+
+    public List<String> getAuthorityNames() {
+        return authorityNames;
+    }
+
+    public void setAuthorityNames(List<String> authorityNames) {
+        this.authorityNames = authorityNames;
+    }
+
+    public Boolean getIsRoute() {
+        return isRoute;
+    }
+
+    public void setIsRoute(Boolean isRoute) {
+        this.isRoute = isRoute;
+    }
+
+    public String getComponentKey() {
+        return componentKey;
+    }
+
+    public void setComponentKey(String componentKey) {
+        this.componentKey = componentKey;
     }
 
     public DashboardScope getScope() {

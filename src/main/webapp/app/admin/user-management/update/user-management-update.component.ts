@@ -3,11 +3,14 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ActivatedRoute } from '@angular/router';
 import { IUser } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
+import { CommonModule } from "@angular/common";
+import { AlertErrorComponent } from "../../../shared/alert/alert-error.component";
+import { IAuthority, NavApiService } from "../../../core/data-access/nav-api.service";
+import { Select } from "primeng/select";
 
 const userTemplate = {} as IUser;
 
@@ -20,10 +23,11 @@ const newUser: IUser = {
   selector: 'jhi-user-mgmt-update',
   templateUrl: './user-management-update.component.html',
   styleUrl: './user-management-update.component.scss',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, CardModule, ButtonModule, InputTextModule, ToolbarModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardModule, ButtonModule, InputTextModule, ToolbarModule, AlertErrorComponent, Select]
 })
 export default class UserManagementUpdateComponent implements OnInit {
-  authorities = signal<string[]>([]);
+
+  authorities = signal<IAuthority[]>([]);
   isSaving = signal(false);
 
   editForm = new FormGroup({
@@ -44,22 +48,31 @@ export default class UserManagementUpdateComponent implements OnInit {
     }),
     activated: new FormControl(userTemplate.activated, { nonNullable: true }),
     langKey: new FormControl(userTemplate.langKey, { nonNullable: true }),
-    authorities: new FormControl(userTemplate.authorities, { nonNullable: true, validators: [Validators.required] }),
+    authorities: new FormControl<string | null>(null, { validators: [Validators.required] }),
   });
   protected isAdmin = false;
   private userService = inject(UserManagementService);
   private route = inject(ActivatedRoute);
+  private readonly api = inject(NavApiService);
 
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {
       if (user) {
         this.isAdmin = user.id === 3;
-        this.editForm.reset(user);
+        // p-select attend une string (optionValue="name"), pas un tableau.
+        // On extrait le premier rôle pour l'affichage, on le rewrappe en tableau à la sauvegarde.
+        this.editForm.reset({
+          ...user,
+          authorities: user.authorities?.[0] ?? null,
+        });
+        // Le login n'est pas modifiable en édition
+        this.editForm.get('login')?.disable();
       } else {
-        this.editForm.reset(newUser);
+        this.editForm.reset({ ...newUser, authorities: null });
+        this.editForm.get('login')?.enable();
       }
     });
-    this.userService.authorities().subscribe(authorities => this.authorities.set(authorities));
+    this.api.getAllRoles().subscribe(authorities => this.authorities.set(authorities));
   }
 
   previousState(): void {
@@ -68,7 +81,12 @@ export default class UserManagementUpdateComponent implements OnInit {
 
   save(): void {
     this.isSaving.set(true);
-    const user = this.editForm.getRawValue();
+    const raw = this.editForm.getRawValue();
+    // Rewrap authorities en tableau pour le backend (IUser.authorities: string[])
+    const user = {
+      ...raw,
+      authorities: raw.authorities ? [raw.authorities] : [],
+    };
     if (user.id !== null) {
       this.userService.update(user).subscribe({
         next: () => this.onSaveSuccess(),

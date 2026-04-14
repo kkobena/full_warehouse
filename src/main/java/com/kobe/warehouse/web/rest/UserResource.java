@@ -3,7 +3,6 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.repository.UserRepository;
-import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -14,10 +13,6 @@ import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +32,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing users.
@@ -111,7 +110,7 @@ public class UserResource {
      *                                  in use.
      */
     @PostMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    //
     public ResponseEntity<AppUser> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
@@ -141,7 +140,7 @@ public class UserResource {
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
      */
     @PutMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    //
     public ResponseEntity<AdminUserDTO> updateUser(@Valid @RequestBody AdminUserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
         Optional<AppUser> existingUser;
@@ -170,7 +169,7 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
      */
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<AdminUserDTO>> getAllUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get all User for an admin");
         if (!onlyContainsAllowedProperties(pageable)) {
@@ -194,7 +193,7 @@ public class UserResource {
      * user, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/users/{login}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+
     public ResponseEntity<AdminUserDTO> getUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to get User : {}", login);
         return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
@@ -207,7 +206,6 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/users/{login}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);

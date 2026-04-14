@@ -59,6 +59,7 @@ public class AdminUserDTO implements Serializable {
     private Set<String> authorities;
     private String fullName;
     private String abbrName;
+    private AuthorityDTO authority;
 
     @JsonIgnore
     @Size(min = 6, max = 6)
@@ -66,6 +67,15 @@ public class AdminUserDTO implements Serializable {
     private String actionAuthorityKey;
 
     private String roleName;
+
+    public AuthorityDTO getAuthority() {
+        return authority;
+    }
+
+    public AdminUserDTO setAuthority(AuthorityDTO authority) {
+        this.authority = authority;
+        return this;
+    }
 
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
@@ -86,7 +96,10 @@ public class AdminUserDTO implements Serializable {
         this.lastModifiedDate = user.getLastModifiedDate();
         this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
         this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
-        this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        Set<Authority> auths=user.getAuthorities();
+        this.authorities = auths.stream().map(Authority::getName).collect(Collectors.toSet());
+        auths.stream().findFirst().ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
+
     }
 
     public AdminUserDTO(AppUser user, Set<Authority> authorities0) {
@@ -104,6 +117,9 @@ public class AdminUserDTO implements Serializable {
         this.lastModifiedDate = user.getLastModifiedDate();
         this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
         this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
+
+        authorities0.stream().findFirst().ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
+
         this.authorities = SecurityUtils.mergeAuthorities(authorities0);
 
         for (String authority : this.authorities) {
@@ -120,6 +136,7 @@ public class AdminUserDTO implements Serializable {
                 break;
             }
         }
+
         // this.roleName = Constants.PR_MOBILE_USER;
     }
 

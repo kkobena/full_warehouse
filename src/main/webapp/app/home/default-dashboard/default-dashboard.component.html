@@ -1,0 +1,16 @@
+<div class="pharma-smart-content p-4">
+  <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 40vh">
+    <i class="pi pi-home mb-3" style="font-size: 3rem; color: var(--p-primary-color)"></i>
+    <h4 class="mb-2">
+      Bienvenue@if (account()?.firstName) {, {{ account()!.firstName }}}
+    </h4>
+    <p class="text-muted mb-4">
+      Utilisez le menu de navigation pour accéder à vos fonctionnalités.
+    </p>
+    <small class="text-muted">
+      <i class="pi pi-info-circle me-1"></i>
+      Aucun tableau de bord n'est configuré pour votre profil.
+      Contactez votre administrateur si nécessaire.
+    </small>
+  </div>
+</div>

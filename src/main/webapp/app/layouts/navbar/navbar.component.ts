@@ -26,7 +26,6 @@ export default class NavbarComponent implements OnInit {
   protected version = "";
   protected account = inject(AccountService).trackCurrentAccount();
   protected navItems: NavItem[] = [];
-  protected menuStock: string[] = [];
   protected layoutService = inject(LayoutService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
@@ -45,7 +44,7 @@ export default class NavbarComponent implements OnInit {
   }
 
   constructor() {
-    this.menuStock = ["gestion-entree", "commande", "gestion-stock", "produit"];
+
     const { VERSION } = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith("v") ? VERSION : `v${VERSION}`;

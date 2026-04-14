@@ -1,167 +1,150 @@
 <div class="container-fluid">
-  <div class="justify-content-center">
-    <div class="pharma-smart-content p-2">
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-users"></i>
-          <span class="pharma-toolbar-title">Liste des utilisateurs</span>
-        </div>
+  <div class="pharma-smart-content p-2">
 
-        <p-toolbar>
-          <ng-template #start>
-            <div class="pharma-toolbar-filters">
-              <!--  <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
-              </p-iconfield> -->
-            </div>
-          </ng-template>
-
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
-              <div class="pharma-button-group">
-                <p-button
-                  [routerLink]="['./new']"
-                  icon="pi pi-users"
-                  label="Créer un nouvel utilisateur"
-                  [raised]="true"
-                  severity="primary"
-                >
-                </p-button>
-              </div>
-            </div>
-          </ng-template>
-        </p-toolbar>
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-users"></i>
+        <span class="pharma-toolbar-title">Utilisateurs</span>
       </div>
-
-      @if (users()) {
-        <div class="mt-2">
-          <table class="table table-striped">
-            <thead class="pharma-table-head">
-              <tr>
-                <th scope="col">
-                  <span jhiTranslate="userManagement.login">Login</span>
-                </th>
-                <th scope="col">
-                  <span>Nom</span>
-                </th>
-                <th scope="col">
-                  <span>Prénom</span>
-                </th>
-                <th scope="col"></th>
-                <th scope="col"><span jhiTranslate="userManagement.profiles">Droits</span></th>
-                <th scope="col">
-                  <span jhiTranslate="userManagement.createdDate">Créé le</span>
-                </th>
-                <th scope="col">
-                  <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
-                </th>
-                <th scope="col">
-                  <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
-                </th>
-                <th scope="col">
-                  <span jhiTranslate="userManagement.email">Email</span>
-                </th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (user of users(); track trackIdentity) {
-                <tr>
-                  <td>
-                    <a [routerLink]="['./', user.login, 'view']">{{ user.login }}</a>
-                  </td>
-
-                  <td>{{ user.firstName }}</td>
-                  <td>{{ user.lastName }}</td>
-                  <td>
-                    @if (!user.activated) {
-                      <button class="btn btn-danger btn-sm" (click)="setActive(user, true)" jhiTranslate="userManagement.deactivated">
-                        Désactivé
-                      </button>
-                    } @else {
-                      <button
-                        class="btn btn-success btn-sm"
-                        (click)="setActive(user, false)"
-                        [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                        jhiTranslate="userManagement.activated"
-                      >
-                        Activé
-                      </button>
-                    }
-                  </td>
-                  <td>
-                    @for (authority of user.authorities; track $index) {
-                      <div>
-                        <span class="badge bg-info">{{ authority }}</span>
-                      </div>
-                    }
-                  </td>
-                  <td>{{ user.createdDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                  <td>{{ user.lastModifiedBy }}</td>
-                  <td>{{ user.lastModifiedDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                  <td>{{ user.email }}</td>
-                  <td class="text-end">
-                    <div class="btn-group">
-                      <p-button
-                        [rounded]="true"
-                        [text]="true"
-                        [routerLink]="['./', user.login, 'view']"
-                        pTooltip="Voir détails"
-                        icon="pi pi-eye"
-                        severity="info"
-                      >
-                      </p-button>
-
-                      <p-button
-                        [rounded]="true"
-                        [text]="true"
-                        [routerLink]="['./', user.login, 'edit']"
-                        queryParamsHandling="merge"
-                        severity="primary"
-                        icon="pi pi-pencil"
-                        pTooltip="Editer"
-                        type="button"
-                      >
-                      </p-button>
-
-                      <p-button
-                        [rounded]="true"
-                        [text]="true"
-                        type="button"
-                        (click)="deleteUser(user)"
-                        icon="pi pi-trash"
-                        pTooltip="Supprimer"
-                        severity="danger"
-                        [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                      >
-                      </p-button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <div class="d-flex justify-content-center">
-            <jhi-item-count [params]="{ page: page, totalItems: totalItems(), itemsPerPage: itemsPerPage }"></jhi-item-count>
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
           </div>
-
-          <div class="d-flex justify-content-center">
-            <ngb-pagination
-              [collectionSize]="totalItems()"
-              [(page)]="page"
-              [pageSize]="itemsPerPage"
-              [maxSize]="5"
-              [rotate]="true"
-              [boundaryLinks]="true"
-              (pageChange)="transition()"
-            ></ngb-pagination>
-          </div>
-        </div>
-      }
+        </ng-template>
+        <ng-template #end>
+          <p-button
+            [routerLink]="['./new']"
+            icon="pi pi-plus"
+            label="Nouvel utilisateur"
+            [raised]="true"
+            severity="primary"
+          />
+        </ng-template>
+      </p-toolbar>
     </div>
+
+    @if (users() !== null) {
+      <p-table
+        [value]="filteredUsers()"
+        [rowHover]="true"
+        [paginator]="true"
+        [rows]="itemsPerPage"
+        class="mt-2 p-datatable-sm"
+      >
+        <ng-template #caption>
+          <div class="d-flex justify-content-end">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                placeholder="Rechercher…"
+                (input)="onFilter($event)"
+              />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Login</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-user>
+          <tr>
+            <td>
+              <a [routerLink]="['./', user.login, 'view']" class="fw-semibold">{{ user.login }}</a>
+            </td>
+            <td>{{ user.lastName }}</td>
+            <td>{{ user.firstName }}</td>
+            <td>
+
+                <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
+
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <!-- Badge statut (indicateur, non-cliquable) -->
+                @if (user.activated) {
+                  <span class="pharma-badge pharma-badge-success">Actif</span>
+                } @else {
+                  <span class="pharma-badge pharma-badge-secondary">Inactif</span>
+                }
+                <!-- Bouton action (label = ce qui va se passer) -->
+                @if (!user.activated) {
+                  <p-button
+                    label="Activer"
+                    icon="pi pi-power-off"
+                    severity="success"
+                    size="small"
+                    [outlined]="true"
+                    (onClick)="setActive(user, true)"
+                  />
+                } @else {
+                  @if (user.id !== 3) {
+                    <p-button
+                      label="Désactiver"
+                      icon="pi pi-ban"
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      [disabled]="currentAccount()?.login === user.login"
+                      (onClick)="setActive(user, false)"
+                    />
+
+                  }
+
+                }
+              </div>
+            </td>
+            <td class="text-end">
+              <p-button
+                [rounded]="true"
+                [text]="true"
+                [routerLink]="['./', user.login, 'view']"
+                icon="pi pi-eye"
+                severity="info"
+                pTooltip="Voir"
+              />
+              <p-button
+                [rounded]="true"
+                [text]="true"
+                [routerLink]="['./', user.login, 'edit']"
+                icon="pi pi-pencil"
+                severity="primary"
+                pTooltip="Modifier"
+              />
+              @if (user.id !== 3) {
+                <p-button
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  pTooltip="Supprimer"
+                  [disabled]="currentAccount()?.login === user.login"
+                  (onClick)="deleteUser(user)"
+                />
+              }
+
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">Aucun utilisateur trouvé.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    }
+
   </div>
 </div>
+<p-toast position="center" />

@@ -51,10 +51,46 @@ export class DashboardLayoutService {
   }
 
   /**
-   * Get current user's default layout
+   * Get current user's personal default layout
    */
   getDefault(): Observable<EntityResponseType> {
     return this.http.get<IDashboardLayout>(`${this.resourceUrl}/default`, { observe: 'response' });
+  }
+
+  /**
+   * Résout le layout effectif pour l'utilisateur connecté.
+   *
+   * Ordre de priorité (côté backend) :
+   *  1. Layout personnel (user isDefault=true)
+   *  2. Layout par rôle  (authority isDefault=true)
+   *  3. 204 No Content   → body null → HomeComponent → DefaultDashboard
+   *
+   * Si isRoute=true  : name contient la route Angular → router.navigate([name])
+   * Si isRoute=false : layoutConfig contient la config GridStack
+   */
+  getResolved(): Observable<EntityResponseType> {
+    return this.http.get<IDashboardLayout>(`${this.resourceUrl}/resolved`, { observe: 'response' });
+  }
+
+  /**
+   * Set layout as default for a specific role (admin only)
+   */
+  setAsDefaultForRole(id: number, authorityName: string): Observable<EntityResponseType> {
+    return this.http.put<IDashboardLayout>(
+      `${this.resourceUrl}/${id}/set-default-for-role?authorityName=${encodeURIComponent(authorityName)}`,
+      null,
+      { observe: 'response' }
+    );
+  }
+
+  /**
+   * Get all layouts for a specific role (admin only)
+   */
+  queryByRole(authorityName: string): Observable<EntityArrayResponseType> {
+    return this.http.get<IDashboardLayout[]>(
+      `${this.resourceUrl}/by-role?authorityName=${encodeURIComponent(authorityName)}`,
+      { observe: 'response' }
+    );
   }
 
   /**

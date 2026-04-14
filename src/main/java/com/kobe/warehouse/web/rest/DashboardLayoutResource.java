@@ -70,20 +70,59 @@ public class DashboardLayoutResource {
     }
 
     /**
-     * GET /api/dashboard-layouts/default : Get current user's default layout
+     * GET /api/dashboard-layouts/default : Get current user's personal default layout
      */
     @GetMapping("/default")
     public ResponseEntity<DashboardLayoutDTO> getDefaultLayout() {
-        return dashboardLayoutService.findDefaultForCurrentUser().map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
+        return dashboardLayoutService.findDefaultForCurrentUser()
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
     }
 
     /**
-     * PUT /api/dashboard-layouts/{id}/set-default : Set layout as default
+     * GET /api/dashboard-layouts/resolved : Résout le layout effectif pour l'utilisateur connecté.
+     *
+     * Priorité :
+     *  1. Layout personnel (user isDefault)
+     *  2. Layout par rôle  (authority isDefault)
+     *  3. 204 No Content   → HomeComponent affiche DefaultDashboard
+     *
+     * Champs clés de la réponse :
+     *  - isRoute=true  → name contient la route Angular (redirection)
+     *  - isRoute=false → layoutConfig contient la config GridStack
+     */
+    @GetMapping("/resolved")
+    public ResponseEntity<DashboardLayoutDTO> getResolvedLayout() {
+        return dashboardLayoutService.resolveForCurrentUser()
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
+    }
+
+    /**
+     * PUT /api/dashboard-layouts/{id}/set-default : Set layout as default for current user
      */
     @PutMapping("/{id}/set-default")
     public ResponseEntity<DashboardLayoutDTO> setAsDefault(@PathVariable Integer id) {
+        return ResponseEntity.ok(dashboardLayoutService.setAsDefault(id));
+    }
 
-        return ResponseEntity.ok( dashboardLayoutService.setAsDefault(id));
+    /**
+     * PUT /api/dashboard-layouts/{id}/set-default-for-role : Set layout as default for a role (admin only)
+     */
+    @PutMapping("/{id}/set-default-for-role")
+    public ResponseEntity<DashboardLayoutDTO> setAsDefaultForAuthority(
+        @PathVariable Integer id,
+        @RequestParam String authorityName
+    ) {
+        return ResponseEntity.ok(dashboardLayoutService.setAsDefaultForAuthority(id, authorityName));
+    }
+
+    /**
+     * GET /api/dashboard-layouts/by-role : Get all layouts for a specific role (admin only)
+     */
+    @GetMapping("/by-role")
+    public ResponseEntity<List<DashboardLayoutDTO>> getLayoutsByRole(@RequestParam String authorityName) {
+        return ResponseEntity.ok(dashboardLayoutService.findAllForAuthority(authorityName));
     }
 
     /**
@@ -91,7 +130,6 @@ public class DashboardLayoutResource {
      */
     @PostMapping("/{id}/clone")
     public ResponseEntity<DashboardLayoutDTO> cloneLayout(@PathVariable Integer id, @RequestParam String newName) {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(dashboardLayoutService.clone(id, newName));
     }
 

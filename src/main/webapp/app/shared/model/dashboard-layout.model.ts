@@ -63,13 +63,31 @@ export interface ILayoutConfig {
  */
 export interface IDashboardLayout {
   id?: number;
+  /**
+   * Nom du layout.
+   * Si isRoute=true : contient la route Angular (ex: /sales-home/prevente).
+   * Si isRoute=false : nom d'affichage du layout GridStack.
+   */
   name?: string;
   description?: string;
   userId?: number;
   userLogin?: string;
+  /** Rôles auxquels ce layout est assigné (many-to-many via dashboard_layout_authority). */
+  authorityNames?: string[];
   scope?: DashboardScope;
   isDefault?: boolean;
-  layoutConfig?: string; // JSON string
+  /**
+   * Si true : name est une route Angular → HomeComponent redirige.
+   * Si false : componentKey + layoutConfig déterminent le composant.
+   */
+  isRoute?: boolean;
+  /**
+   * Clé de dispatch Angular — composant à rendre (ignorée si isRoute=true).
+   * Valeurs : 'PHARMACIEN' | 'CAISSIER' | 'COMMANDE' | 'DEFAULT'
+   * Indépendant du rôle : un nouveau rôle peut réutiliser un composant existant.
+   */
+  componentKey?: string;
+  layoutConfig?: string; // JSON string (null si isRoute=true)
   createdAt?: Date;
   updatedAt?: Date;
 }

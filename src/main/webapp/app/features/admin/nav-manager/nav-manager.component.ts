@@ -6,7 +6,7 @@ import { CheckboxModule } from "primeng/checkbox";
 import { SelectModule } from "primeng/select";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { INavRole, NavApiService } from "app/core/data-access/nav-api.service";
+import { IAuthority, INavRole, NavApiService } from "app/core/data-access/nav-api.service";
 import { NotificationService } from "app/shared/services/notification.service";
 import { INavNode, NavItemAssignment } from "app/shared/model/nav-item.model";
 import { NavReorderComponent } from "./nav-reorder.component";
@@ -51,8 +51,8 @@ export class NavManagerComponent implements OnInit {
   protected readonly searchTerm = signal("");
   /** Arbre brut conservé pour la prévisualisation */
   private readonly rawTree = signal<INavNode[]>([]);
-  protected readonly availableRoles = signal<INavRole[]>([]);
-  protected selectedRole: INavRole | null = null;
+  protected readonly availableRoles = signal<IAuthority[]>([]);
+  protected selectedRole: IAuthority | null = null;
 
   /**
    * Arbre de prévisualisation : reflète en temps réel les cases cochées

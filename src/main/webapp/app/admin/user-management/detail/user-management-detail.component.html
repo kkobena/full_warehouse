@@ -57,14 +57,14 @@
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-user"></i>
-                  <span jhiTranslate="userManagement.login">Login</span>
+                  <span>Login</span>
                 </label>
                 <div class="detail-value">{{ user()!.login }}</div>
               </div>
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-at"></i>
-                  <span jhiTranslate="userManagement.email">Email</span>
+                  <span>Email</span>
                 </label>
                 <div class="detail-value">{{ user()!.email }}</div>
               </div>
@@ -73,14 +73,14 @@
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-user"></i>
-                  <span jhiTranslate="userManagement.firstName">Prénom</span>
+                  <span>Prénom</span>
                 </label>
                 <div class="detail-value">{{ user()!.firstName }}</div>
               </div>
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-user"></i>
-                  <span jhiTranslate="userManagement.lastName">Nom</span>
+                  <span>Nom</span>
                 </label>
                 <div class="detail-value">{{ user()!.lastName }}</div>
               </div>
@@ -99,32 +99,32 @@
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-user-plus"></i>
-                  <span jhiTranslate="userManagement.createdBy">Créé par</span>
+                  <span>Créé par</span>
                 </label>
-                <div class="detail-value">{{ user()!.createdBy }}</div>
+                <div class="detail-value">{{ user()!.createdBy}}</div>
               </div>
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-calendar"></i>
-                  <span jhiTranslate="userManagement.createdDate">Créé le</span>
+                  <span>Créé le</span>
                 </label>
-                <div class="detail-value">{{ user()!.createdDate }}</div>
+                <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}</div>
               </div>
             </div>
             <div class="detail-row">
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-user-edit"></i>
-                  <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
+                  <span>Modifié par</span>
                 </label>
                 <div class="detail-value">{{ user()!.lastModifiedBy }}</div>
               </div>
               <div class="detail-item">
                 <label class="detail-label">
                   <i class="pi pi-calendar"></i>
-                  <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
+                  <span>Modifié le</span>
                 </label>
-                <div class="detail-value">{{ user()!.lastModifiedDate }}</div>
+                <div class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}</div>
               </div>
             </div>
           </div>
@@ -134,14 +134,13 @@
         <div class="detail-card">
           <div class="detail-card-header">
             <i class="pi pi-shield"></i>
-            <span class="detail-card-title" jhiTranslate="userManagement.profiles">Droits</span>
+            <span class="detail-card-title" >Droits</span>
           </div>
           <div class="detail-card-body">
             <div class="authorities-list">
-              @if (user()!.authorities && user()!.authorities.length > 0) {
-                @for (authority of user()!.authorities; track $index) {
-                  <p-chip [label]="authority" icon="pi pi-key"></p-chip>
-                }
+              @if (user() ) {
+                  <p-chip [label]="user().authority?.libelle" icon="pi pi-key"></p-chip>
+
               } @else {
                 <span class="text-muted">Aucun rôle assigné</span>
               }

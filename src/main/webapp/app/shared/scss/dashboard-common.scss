@@ -169,6 +169,7 @@ $gray-border: #e2e8f0;
     background: linear-gradient(135deg, $danger-red 0%, #ff6b6b 100%);
     color: #fff;
     box-shadow: 0 2px 8px rgba($danger-red, 0.3);
+    animation: pulse-danger 2s ease-in-out infinite;
   }
 
   &.quick-alert-warn {
@@ -191,6 +192,16 @@ $gray-border: #e2e8f0;
 }
 
 // Animations
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba($danger-red, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba($danger-red, 0.15), 0 2px 8px rgba($danger-red, 0.4);
+    transform: scale(1.03);
+  }
+}
+
 @keyframes slideInDown {
   from {
     opacity: 0;

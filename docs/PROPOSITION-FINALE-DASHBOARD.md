@@ -809,7 +809,7 @@ protected activePareto: 'qty' | 'amt' = 'qty';
 ### 5.1 — Migration Flyway `V1.5.0__mv_groupe_fournisseur_stats.sql`
 
 ```sql
-CREATE MATERIALIZED VIEW IF NOT EXISTS warehouse.mv_groupe_fournisseur_stats AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_groupe_fournisseur_stats AS
 SELECT
     gf.id           AS groupe_id,
     gf.libelle      AS groupe_name,
@@ -825,17 +825,17 @@ SELECT
     AVG(sp.avg_delivery_days)                AS avg_delivery_days,
     AVG(sp.conformity_rate_pct)              AS avg_conformity_rate,
     AVG(sp.performance_score)                AS avg_performance_score
-FROM warehouse.groupe_fournisseur gf
-LEFT JOIN warehouse.fournisseur f ON f.groupe_fournisseur_id = gf.id
-LEFT JOIN warehouse.reception r
+FROM groupe_fournisseur gf
+LEFT JOIN fournisseur f ON f.groupe_fournisseur_id = gf.id
+LEFT JOIN reception r
     ON r.fournisseur_id = f.id
    AND r.receipt_statut IN ('RECEIVED', 'CLOSED')
-LEFT JOIN warehouse.mv_supplier_performance sp ON sp.fournisseur_id = f.id
+LEFT JOIN mv_supplier_performance sp ON sp.fournisseur_id = f.id
 GROUP BY gf.id, gf.libelle
 ORDER BY purchase_amount_last_12_months DESC;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_groupe_fournisseur_stats_id
-    ON warehouse.mv_groupe_fournisseur_stats (groupe_id);
+    ON mv_groupe_fournisseur_stats (groupe_id);
 ```
 
 ### 5.2 — DTOs Java

@@ -110,6 +110,22 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
   vertical-align: middle;
 }
 
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.75;
+  }
+}
+
+.pulse-badge {
+  animation: pulse-badge 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+
 .dropdown-item {
   .badge {
     font-size: 0.6rem;

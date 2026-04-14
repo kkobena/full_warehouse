@@ -34,7 +34,8 @@
                   }
                   <span>{{ isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label }}</span>
                   @if (item.badge > 0) {
-                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge"
+                          [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'">
                       {{ item.badge > 99 ? '99+' : item.badge }}
                     </span>
                   }
@@ -62,7 +63,8 @@
                           <span>{{ child.label }}</span>
                         </span>
                         @if (child.badge > 0) {
-                          <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} ms-2">
+                          <span class="badge rounded-pill bg-{{ child.badgeSeverity ?? 'danger' }} ms-2"
+                                [class.pulse-badge]="(child.badgeSeverity ?? 'danger') === 'danger'">
                             {{ child.badge > 99 ? '99+' : child.badge }}
                           </span>
                         }
@@ -81,7 +83,8 @@
                   }
                   <span>{{ item.label }}</span>
                   @if (item.badge > 0) {
-                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+                    <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge"
+                          [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'">
                       {{ item.badge > 99 ? '99+' : item.badge }}
                     </span>
                   }

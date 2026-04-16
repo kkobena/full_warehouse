@@ -3,9 +3,8 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.UtilisationCleSecurite;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.repository.AuthorityPrivilegeRepository;
-import com.kobe.warehouse.repository.PrivilegeRepository;
 import com.kobe.warehouse.repository.UtilisationCleSecuriteRepository;
+import com.kobe.warehouse.repository.nav.NavItemRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
@@ -18,23 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecuriteService {
 
-    private final AuthorityPrivilegeRepository authorityPrivilegeRepository;
+    private final NavItemRepository navItemRepository;
     private final UtilisationCleSecuriteRepository utilisationCleSecuriteRepository;
-    private final PrivilegeRepository privilegeRepository;
+
     private final UserService userService;
     private final LogsService logService;
 
     // private Function<String, String> passwordEncoder = (password) -> password;
     public UtilisationCleSecuriteServiceImpl(
-        AuthorityPrivilegeRepository authorityPrivilegeRepository,
         UtilisationCleSecuriteRepository utilisationCleSecuriteRepository,
-        PrivilegeRepository privilegeRepository,
+         NavItemRepository navItemRepository,
         UserService userService,
         LogsService logService
     ) {
-        this.authorityPrivilegeRepository = authorityPrivilegeRepository;
+        this.navItemRepository = navItemRepository;
         this.utilisationCleSecuriteRepository = utilisationCleSecuriteRepository;
-        this.privilegeRepository = privilegeRepository;
         this.userService = userService;
         this.logService = logService;
     }
@@ -42,7 +39,7 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
     @Override
     @Transactional(readOnly = true)
     public boolean hasPrivilege(String privilegeName, String AuthorityName) {
-        return this.authorityPrivilegeRepository.existsByPrivilegeNameAndAuthorityName(privilegeName, AuthorityName);
+        return this.navItemRepository.existByCodeAndRoleName(privilegeName, AuthorityName);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
             .setCleSecuriteOwner(owner)
             .setConnectedUser(connectedUser)
             .setCaisse(utilisationCleSecuriteDTO.getCaisse())
-            .setPrivilege(this.privilegeRepository.getReferenceById(utilisationCleSecuriteDTO.getPrivilege()))
+            .setNavItem(this.navItemRepository.findByCode(utilisationCleSecuriteDTO.getPrivilege()))
             .setEntityId(utilisationCleSecuriteDTO.getEntityId())
             .setCommentaire(utilisationCleSecuriteDTO.getCommentaire())
             .setEntityName(utilisationCleSecuriteDTO.getEntityName());

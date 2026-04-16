@@ -166,7 +166,7 @@ public class VentesAgregeesService {
      */
     @Transactional
     public void importHistoricalMonths(int nbMois) {
-        LOG.info("🔄 Import historique {} derniers mois...", nbMois);
+        LOG.info("Import historique {} derniers mois...", nbMois);
 
         YearMonth now = YearMonth.now();
 

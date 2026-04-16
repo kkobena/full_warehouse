@@ -37,19 +37,20 @@ import { AbilityService } from '../../core/auth/ability.service';
   styleUrl: './depot.component.scss',
 })
 export class DepotComponent implements OnInit {
-  protected depots: IMagasin[] = [];
-  protected loading = false;
-  protected readonly TypeMagasin = TypeMagasin;
-  private magasinService = inject(MagasinService);
-  private router = inject(Router);
-  private readonly ability = inject(AbilityService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  protected readonly ability = inject(AbilityService);
   protected readonly canNewVente = this.ability.canSignal('execute', 'depot.liste-depots');
   protected readonly canCreate   = this.ability.canSignal('create', 'depot.liste-depots');
   protected readonly canEdit     = this.ability.canSignal('edit',   'depot.liste-depots');
   protected readonly canDelete   = this.ability.canSignal('delete', 'depot.liste-depots');
   protected readonly canReturn   = this.ability.canSignal('access', 'depot.retour-depot');
+  protected depots: IMagasin[] = [];
+  protected loading = false;
+  protected readonly TypeMagasin = TypeMagasin;
+  private magasinService = inject(MagasinService);
+  private router = inject(Router);
+
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   ngOnInit(): void {
     this.loadAll();
   }

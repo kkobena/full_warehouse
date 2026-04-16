@@ -4,7 +4,7 @@
     <!-- HEADER TOOLBAR -->
     <div class="pharma-sales-header">
       <div class="header-left">
-        <p-button
+        <p-button  size="small"
           (click)="navigateToList()"
           [rounded]="true"
           [text]="true"
@@ -22,7 +22,7 @@
 
       <div class="header-actions">
         <!-- Save Button -->
-        <p-button
+        <p-button  size="small"
           (onClick)="save()"
           [disabled]="!canSave() || isSaving()"
           [loading]="isSaving()"
@@ -36,7 +36,7 @@
         </p-button>
 
         <!-- Cancel Button -->
-        <p-button
+        <p-button  size="small"
           (onClick)="reset()"
           [outlined]="true"
           class="cancel-btn"

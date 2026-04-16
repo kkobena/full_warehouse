@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <p-toast />
-  <p-confirmDialog />
+  <p-confirmDialog></p-confirmDialog>
 
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
@@ -85,8 +85,8 @@
 
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            <p-button (click)="loadAll()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-            <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
+            <p-button  size="small" (click)="loadAll()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+            <p-button  size="small" [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
           </div>
         </ng-template>
       </p-toolbar>

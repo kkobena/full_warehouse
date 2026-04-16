@@ -78,15 +78,15 @@
         </ng-template>
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-            <p-button
+            <p-button  size="small" (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+            <p-button  size="small"
               [raised]="true"
               [routerLink]="['/sales-home', 'vente-depot']"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente"
               severity="primary"
             />
-            <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
+            <p-button  size="small" [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
           </div>
         </ng-template>
       </p-toolbar>

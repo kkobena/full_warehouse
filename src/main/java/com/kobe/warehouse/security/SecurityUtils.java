@@ -2,27 +2,28 @@ package com.kobe.warehouse.security;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.domain.Menu;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.kobe.warehouse.service.dto.projection.NavItemCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Utility class for Spring Security.
  */
 public final class SecurityUtils {
 
-    private SecurityUtils() {}
+    private SecurityUtils() {
+    }
 
     /**
      * Get the login of the current user.
@@ -41,7 +42,7 @@ public final class SecurityUtils {
             return springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String s) {
             return s;
-        } else if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getSubject();
         }
 
@@ -71,15 +72,6 @@ public final class SecurityUtils {
         );
     }
 
-    /**
-     * Checks if the current user has none of the authorities.
-     *
-     * @param authorities the authorities to check.
-     * @return true if the current user has none of the authorities, false otherwise.
-     */
-    public static boolean hasCurrentUserNoneOfAuthorities(String... authorities) {
-        return !hasCurrentUserAnyOfAuthorities(authorities);
-    }
 
     /**
      * Checks if the current user has a specific authority.
@@ -95,28 +87,23 @@ public final class SecurityUtils {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
     }
 
-    private static Set<String> buildAuthorities(Authority authority) {
-        Set<String> authorities = new HashSet<>();
-        authorities.add(authority.getName());
-        authorities.addAll(authority.getMenus().stream().map(Menu::getName).collect(Collectors.toSet()));
-        authorities.addAll(authority.getPrivileges().stream().map(action -> action.getPrivilege().getName()).collect(Collectors.toSet()));
-        return authorities;
-    }
 
-    public static Set<String> mergeAuthorities(Set<Authority> authorities) {
-        if (CollectionUtils.isEmpty(authorities)) {
-            return Collections.emptySet();
-        }
+    public static Set<String> mergeAuthorities(Authority authority, Set<NavItemCode> actions) {
         Set<String> authorities0 = new HashSet<>();
-        authorities.forEach(authority -> authorities0.addAll(buildAuthorities(authority)));
+        authorities0.add(authority.getName());
+        if (!CollectionUtils.isEmpty(actions)) {
+            actions.forEach(navItemCode -> authorities0.add(navItemCode.getCode()));
+        }
+
+
         return authorities0;
     }
 
     public static boolean hasMobileAccess(String authority) {
         return (
             Constants.PR_MOBILE_ADMIN.equals(authority) ||
-            Constants.PR_MOBILE_USER.equals(authority) ||
-            Constants.ROLE_ADMIN.equals(authority)
+                Constants.PR_MOBILE_USER.equals(authority) ||
+                Constants.ROLE_ADMIN.equals(authority)
         );
     }
 

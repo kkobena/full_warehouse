@@ -32,12 +32,7 @@ public class AuthorityResource {
         this.authorityService = authorityService;
     }
 
-    @GetMapping(value = "/privilleges")
-    public ResponseEntity<List<PrivillegesDTO>> getAllPrivilleges(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search
-    ) {
-        return ResponseEntity.ok(authorityService.fetchPrivilleges(search));
-    }
+
 
     @GetMapping(value = "/authorities/all")
     public ResponseEntity<List<AuthorityDTO>> getAuthorities(
@@ -46,10 +41,7 @@ public class AuthorityResource {
         return ResponseEntity.ok(authorityService.fetch(search));
     }
 
-    @GetMapping(value = "/privilleges/{role}")
-    public ResponseEntity<PrivillegesWrapperDTO> getAllPrivillegesByRole(@PathVariable("role") String roleName) {
-        return ResponseEntity.ok(authorityService.fetchPrivillegesByRole(roleName));
-    }
+
 
     @PostMapping("/authorities/save")
     public ResponseEntity<Void> save(@Valid @RequestBody AuthorityDTO authorityDTO) {
@@ -68,11 +60,7 @@ public class AuthorityResource {
         return ResponseEntity.ok(authorityService.fetchOne(roleName));
     }
 
-    @PutMapping("/authorities/associe")
-    public ResponseEntity<Void> setPrivilleges(@Valid @RequestBody AuthorityDTO authorityDTO) {
-        authorityService.setPrivilleges(authorityDTO);
-        return ResponseEntity.ok().build();
-    }
+
 
     @GetMapping(value = "/authorities/all/v2")
     public ResponseEntity<List<AuthorityDTO>> fetchAllAuthorities( ) {

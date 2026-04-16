@@ -38,7 +38,7 @@ public class AppConfiguration implements Serializable {
     private String name;
 
     @NotNull
-    @Column(name = "value", nullable = false, length = 20)
+    @Column(name = "value", nullable = false, length = 100)
     private String value;
 
     @NotNull
@@ -148,8 +148,6 @@ public class AppConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        String sb =
-            "AppConfiguration{" + "name='" + name + '\'' + ", value='" + value + '\'' + ", description='" + description + '\'' + '}';
-        return sb;
+        return "AppConfiguration{" + "name='" + name + '\'' + ", value='" + value + '\'' + ", description='" + description + '\'' + '}';
     }
 }

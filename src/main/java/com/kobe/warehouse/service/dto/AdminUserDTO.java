@@ -120,7 +120,7 @@ public class AdminUserDTO implements Serializable {
 
         authorities0.stream().findFirst().ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
 
-        this.authorities = SecurityUtils.mergeAuthorities(authorities0);
+        this.authorities =authorities0.stream().map(Authority::getName).collect(Collectors.toSet());
 
         for (String authority : this.authorities) {
             if (SecurityUtils.isAdmin(authority)) {

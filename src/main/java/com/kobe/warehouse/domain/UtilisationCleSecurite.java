@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.nav.NavItem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,7 +42,7 @@ public class UtilisationCleSecurite implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private Privilege privilege;
+    private NavItem navItem;
 
     private String commentaire;
 
@@ -96,12 +97,12 @@ public class UtilisationCleSecurite implements Serializable {
         return this;
     }
 
-    public @NotNull Privilege getPrivilege() {
-        return privilege;
+    public NavItem getNavItem() {
+        return navItem;
     }
 
-    public UtilisationCleSecurite setPrivilege(@NotNull Privilege privilege) {
-        this.privilege = privilege;
+    public UtilisationCleSecurite setNavItem(NavItem navItem) {
+        this.navItem = navItem;
         return this;
     }
 

@@ -12,13 +12,13 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             @if (canNewVente()) {
-              <p-button [raised]="true" (onClick)="onNewVente()" icon="pi pi-shopping-cart" label="Nouvelle vente dépôt" severity="primary" />
+              <p-button  size="small" [raised]="true" (onClick)="onNewVente()" icon="pi pi-shopping-cart" label="Nouvelle vente dépôt" severity="primary" />
             }
             @if (canCreate()) {
-              <p-button [raised]="true" (onClick)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt" severity="info" />
+              <p-button  size="small" [raised]="true" (onClick)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt" severity="info" />
             }
             @if (canReturn()) {
-              <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
+              <p-button  size="small" [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
             }
           </div>
         </ng-template>

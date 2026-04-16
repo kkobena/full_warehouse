@@ -8,16 +8,17 @@ import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -189,10 +190,15 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_CUSTOMER_DISPLAY)
     public boolean isCustomerDisplayActif() {
-        return appConfigurationRepository
-            .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
-            .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
-            .orElse(false);
+        try {
+            return appConfigurationRepository
+                .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
+                .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
+                .orElse(false);
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
     @Transactional(readOnly = true)
@@ -286,8 +292,11 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_ACCEPTATION_SUBSTITUTION)
             .map(AppConfiguration::getValue)
             .map(v -> {
-                try { return AcceptationSubstitutionMode.valueOf(v.trim()); }
-                catch (IllegalArgumentException e) { return AcceptationSubstitutionMode.MANUEL; }
+                try {
+                    return AcceptationSubstitutionMode.valueOf(v.trim());
+                } catch (IllegalArgumentException e) {
+                    return AcceptationSubstitutionMode.MANUEL;
+                }
             })
             .orElse(AcceptationSubstitutionMode.MANUEL);
     }
@@ -303,8 +312,11 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_PUTAWAY_MODE)
             .map(AppConfiguration::getValue)
             .map(v -> {
-                try { return PutawayMode.valueOf(v.trim()); }
-                catch (IllegalArgumentException e) { return PutawayMode.MANUAL; }
+                try {
+                    return PutawayMode.valueOf(v.trim());
+                } catch (IllegalArgumentException e) {
+                    return PutawayMode.MANUAL;
+                }
             })
             .orElse(PutawayMode.MANUAL);
     }
@@ -318,8 +330,11 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_MODEL_REAPPRO)
             .map(AppConfiguration::getValue)
             .map(v -> {
-                try { return ModelReapprovisionnement.valueOf(v); }
-                catch (IllegalArgumentException e) { return ModelReapprovisionnement.CLASSIQUE; }
+                try {
+                    return ModelReapprovisionnement.valueOf(v);
+                } catch (IllegalArgumentException e) {
+                    return ModelReapprovisionnement.CLASSIQUE;
+                }
             })
             .orElse(ModelReapprovisionnement.CLASSIQUE);
     }

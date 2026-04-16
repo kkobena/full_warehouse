@@ -1,6 +1,8 @@
 package com.kobe.warehouse.security.jwt;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -35,10 +37,8 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
      */
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        // Extract authorities from JWT claims
-        Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
 
-        // Create authentication token with username and authorities
+        Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
         return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
     }
 
@@ -56,12 +56,12 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
         Collection<String> authorities = jwt.getClaimAsStringList("authorities");
 
         if (authorities == null || authorities.isEmpty()) {
-            // Fallback to "scope" claim for backward compatibility
+
             String scope = jwt.getClaimAsString("scope");
             if (scope != null && !scope.isEmpty()) {
-                authorities = java.util.Arrays.asList(scope.split(" "));
+                authorities = Arrays.asList(scope.split(" "));
             } else {
-                return java.util.Collections.emptyList();
+                return Collections.emptyList();
             }
         }
 

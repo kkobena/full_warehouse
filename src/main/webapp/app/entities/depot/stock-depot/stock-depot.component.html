@@ -51,11 +51,12 @@
               [routerLink]="['/sales-home', 'vente-depot']"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente"
+              size="small"
               severity="primary"
             />
-            <p-button (click)="onOpenImportDialog()" icon="pi pi-upload" label="Importation" severity="help"></p-button>
+            <p-button  size="small" (click)="onOpenImportDialog()" icon="pi pi-upload" label="Importation" severity="help"></p-button>
 
-            <p-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn"></p-button>
+            <p-button  size="small" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn"></p-button>
           </div>
         </ng-template>
       </p-toolbar>

@@ -1,6 +1,6 @@
 import { Component, input } from "@angular/core";
 
-import { IUser, User } from "../user-management.model";
+import { IUser } from "../user-management.model";
 import { ButtonModule } from "primeng/button";
 import { RouterLink } from "@angular/router";
 import { Toolbar } from "primeng/toolbar";

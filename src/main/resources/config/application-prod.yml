@@ -45,6 +45,7 @@ spring:
       connection-timeout: 30000 # 30 sec
       validation-timeout: 5000 # 5 sec
       leak-detection-threshold: 20000
+      connection-init-sql: "SET search_path TO ${flyway.schemas}, public"
 
   thymeleaf:
     cache: true

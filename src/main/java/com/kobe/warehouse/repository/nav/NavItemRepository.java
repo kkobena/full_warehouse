@@ -1,12 +1,12 @@
 package com.kobe.warehouse.repository.nav;
 
 import com.kobe.warehouse.domain.nav.NavItem;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Set;
 
 public interface NavItemRepository extends JpaRepository<NavItem, Integer> {
 
@@ -17,13 +17,27 @@ public interface NavItemRepository extends JpaRepository<NavItem, Integer> {
      */
     @Query(
         """
-        SELECT DISTINCT ni FROM NavItem ni
-        JOIN NavItemRole nir ON nir.navItem = ni
-        WHERE ni.actif = true
-          AND nir.roleName IN :roles
-        ORDER BY ni.ordre ASC
-        """
+            SELECT DISTINCT ni FROM NavItem ni
+            JOIN NavItemRole nir ON nir.navItem = ni
+            WHERE ni.actif = true
+              AND nir.roleName IN :roles
+            ORDER BY ni.ordre ASC
+            """
     )
     List<NavItem> findAllActiveByRoles(@Param("roles") Set<String> roles);
+
+    @Query(
+        """
+                     SELECT count(ni.code) >0  FROM NavItem ni
+                     JOIN NavItemRole nir ON nir.navItem = ni
+                     WHERE ni.actif = true
+                     AND ni.code = :code
+                     AND nir.roleName = :roleName
+                     AND nir.canExecute = true
+            """
+    )
+    boolean existByCodeAndRoleName(String code, String roleName);
+
+    NavItem findByCode(String code);
 }
 

@@ -31,10 +31,9 @@ export class AlertBadgeService {
   /** Modifications de prix récentes (24h) */
   readonly prixModifCount = signal(0);
 
-  /** Total d'alertes critiques = péremptions + ruptures + produits urgents à réapprovisionner */
-  readonly totalCritique = computed(() =>
-    this.peremptionCount() + this.ruptureCount() + this.urgentCount()
-  );
+  /** Factures tiers-payant dont l'échéance de règlement est dépassée */
+  readonly facturationOverdueCount = signal(0);
+
 
   // ─── Privé ───────────────────────────────────────────────────────────────
 
@@ -68,6 +67,7 @@ export class AlertBadgeService {
         this.ajustementCount.set(d.ajustementCount ?? 0);
         this.entreeCount.set(d.entreeCount ?? 0);
         this.prixModifCount.set(d.prixModifCount ?? 0);
+        this.facturationOverdueCount.set(d.facturationOverdueCount ?? 0);
       },
       error: () => {
         // Silencieux — les compteurs restent à leur dernière valeur connue

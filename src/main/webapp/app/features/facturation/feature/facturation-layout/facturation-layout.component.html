@@ -30,6 +30,11 @@
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-list"></i>
                     <span>Factures</span>
+                    @if (alertBadgeService.facturationOverdueCount() > 0) {
+                      <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                        {{ alertBadgeService.facturationOverdueCount() > 99 ? '99+' : alertBadgeService.facturationOverdueCount() }}
+                      </span>
+                    }
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>

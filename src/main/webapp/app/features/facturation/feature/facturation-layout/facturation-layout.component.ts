@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AbilityService } from 'app/core/auth/ability.service';
+import { AlertBadgeService } from 'app/shared/services/alert-badge.service';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { FacturationHomeComponent } from '../facturation-home/facturation-home.component';
 import { HistoriqueReglementsComponent } from '../historique-reglements/historique-reglements.component';
@@ -30,6 +31,7 @@ export class FacturationLayoutComponent {
   protected readonly showAvoir = false;
 
   private readonly ability = inject(AbilityService);
+  protected readonly alertBadgeService = inject(AlertBadgeService);
 
   protected readonly showFactures       = this.ability.canSignal('display', 'facturation.factures');
   protected readonly showHistorique     = this.ability.canSignal('display', 'facturation.historique');

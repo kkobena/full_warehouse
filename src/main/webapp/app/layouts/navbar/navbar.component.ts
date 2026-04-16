@@ -56,7 +56,8 @@ export default class NavbarComponent implements OnInit {
       const ruptureCount = this.alertBadgeService.ruptureCount();
       const urgentCount = this.alertBadgeService.urgentCount();
       const peremptionCount = this.alertBadgeService.peremptionCount();
-      this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount);
+      const facturationOverdueCount = this.alertBadgeService.facturationOverdueCount();
+      this.applyNavBadges(items, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
       this.navItems = items;
     });
   }
@@ -143,17 +144,19 @@ export default class NavbarComponent implements OnInit {
    * Applique les badges d'alerte sur les nav items concernés :
    * - "Gestion Stock" > "Commandes" (/commande) → max(ruptureCount, urgentCount) badge danger
    * - "Gestion Stock" > "Péremptions" (/gestion-peremption) → peremptionCount badge danger
+   * - "Facturation" (/facturation) → facturationOverdueCount badge warning
    * - Menus parents → somme propagée depuis les enfants
    */
   private applyNavBadges(
     items: NavItem[],
     ruptureCount: number,
     urgentCount: number,
-    peremptionCount: number
+    peremptionCount: number,
+    facturationOverdueCount: number
   ): void {
     for (const item of items) {
       if (item.children?.length) {
-        this.applyNavBadges(item.children, ruptureCount, urgentCount, peremptionCount);
+        this.applyNavBadges(item.children, ruptureCount, urgentCount, peremptionCount, facturationOverdueCount);
         const totalChildren = item.children.reduce((sum, c) => sum + (c.badge ?? 0), 0);
         item.badge = totalChildren > 0 ? totalChildren : undefined;
         item.badgeSeverity = totalChildren > 0 ? "danger" : undefined;
@@ -165,6 +168,9 @@ export default class NavbarComponent implements OnInit {
         } else if (item.routerLink === "/gestion-peremption") {
           item.badge = peremptionCount > 0 ? peremptionCount : undefined;
           item.badgeSeverity = "danger";
+        } else if (item.routerLink === "/facturation") {
+          item.badge = facturationOverdueCount > 0 ? facturationOverdueCount : undefined;
+          item.badgeSeverity = "warning";
         } else {
           item.badge = undefined;
           item.badgeSeverity = undefined;

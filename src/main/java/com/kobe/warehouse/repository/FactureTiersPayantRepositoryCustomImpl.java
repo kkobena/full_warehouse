@@ -257,19 +257,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         return Optional.of(FacturationKpiRow.from(rows.getFirst()));
     }
 
-    /**
-     * Construit dynamiquement la requête SQL native pour les KPI.
-     *
-     * <p>La jointure ET la colonne {@code delai_reglement} varient selon {@link TypeFacture} :</p>
-     * <ul>
-     *   <li>{@code INDIVIDUAL} — {@code JOIN tiers_payant} ; {@code delai_reglement} issu de {@code tp}.</li>
-     *   <li>{@code GROUPED}    — {@code JOIN groupe_tiers_payant} ; {@code delai_reglement} issu de {@code gtp}.</li>
-     *   <li>{@code ALL}        — {@code LEFT JOIN} des deux tables ;
-     *       {@code COALESCE(tp.delai_reglement, gtp.delai_reglement, :delaiDefaut)}.</li>
-     * </ul>
-     */
     private static @NonNull StringBuilder buildSqlQuery(Integer organismeId, Integer groupeId, TypeFacture typeFacture) {
-        // ── En-tête SELECT commun ──────────────────────────────────────────
+
         String selectHead =
             """
             SELECT
@@ -281,7 +270,6 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         StringBuilder sql = new StringBuilder(selectHead);
 
-        // ── Colonne retard + JOIN selon le type ───────────────────────────
         switch (typeFacture) {
             case INDIVIDUAL -> {
                 sql.append(

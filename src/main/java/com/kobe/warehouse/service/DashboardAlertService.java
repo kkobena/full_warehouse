@@ -60,7 +60,10 @@ public class DashboardAlertService {
         // Get SEMOIS urgent products count (rupture + sous seuil — produits à commander)
         Long urgentCount = getUrgentProductsCount();
 
-        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount);
+        // Factures tiers-payant dont l'échéance de règlement est dépassée
+        Long facturationOverdueCount = getFacturationOverdueCount();
+
+        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount, facturationOverdueCount);
     }
 
     /**
@@ -112,6 +115,24 @@ public class DashboardAlertService {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("yesterday", yesterday);
 
+        Number result = (Number) query.getSingleResult();
+        return result != null ? result.longValue() : 0L;
+    }
+
+    /**
+     * Count factures tiers-payant whose settlement deadline has passed.
+     * Deadline = invoice_date + delai_reglement days (default 30 if not set).
+     * Only NOT_PAID and PARTIALLY_PAID invoices are counted.
+     */
+    private Long getFacturationOverdueCount() {
+        String sql =
+            "SELECT COUNT(*) " +
+            "FROM facture_tiers_payant f " +
+            "LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id " +
+            "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') " +
+            "  AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, 30)) < CURRENT_DATE";
+
+        Query query = entityManager.createNativeQuery(sql);
         Number result = (Number) query.getSingleResult();
         return result != null ? result.longValue() : 0L;
     }

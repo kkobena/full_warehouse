@@ -28,6 +28,7 @@
     "tauri:build:fast": "tauri build",
     "tauri:dev": "tauri dev",
     "tauri:prepare-sidecar": "node scripts/prepare-sidecar.js",
+    "tauri:prepare-backup": "node scripts/prepare-backup.js",
     "pretest": "npm run lint",
     "test": "ng test --coverage --log-heap-usage -w=2",
     "test:watch": "npm run test -- --watch",

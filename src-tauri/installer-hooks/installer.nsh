@@ -1,5 +1,6 @@
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
+!include "FileFunc.nsh"
 
 ; Default port — must match config.rs default (9080)
 !define DEFAULT_PORT "9080"
@@ -8,6 +9,10 @@
 ; AllUsers  → $PROGRAMDATA\PharmaSmart  (requires icacls for runtime writes)
 ; CurrentUser → $APPDATA\PharmaSmart     (always writable without elevation)
 Var PS_DataDir
+
+; Backup root directory — defaults to $PS_DataDir\backups (see docs/BACKUP-STRATEGY.md).
+; Peut être modifié manuellement dans config.json après installation.
+Var BackupDir
 
 ; Initialize with default port
 !macro customInit
@@ -193,7 +198,28 @@ Function CreateConfigFile
   FileWrite $3 '  },$\r$\n'
 
   ; port-com — empty by default
-  FileWrite $3 '  "port-com": ""$\r$\n'
+  FileWrite $3 '  "port-com": "",$\r$\n'
+
+  ; ── backup (voir docs/BACKUP-STRATEGY.md) ────────────────────────────────
+  ; Répertoire parent des sauvegardes — par défaut $PS_DataDir\backups.
+  ; Modifiable après installation dans config.json.
+  StrCpy $BackupDir "$PS_DataDir\backups"
+
+  Push "$BackupDir"
+  Call EscapeBackslashes
+  Pop $R6
+
+  FileWrite $3 '  "backup": {$\r$\n'
+  FileWrite $3 '    "directory": "$R6",$\r$\n'
+  FileWrite $3 '    "db": "pharmasmart",$\r$\n'
+  FileWrite $3 '    "host": "localhost",$\r$\n'
+  FileWrite $3 '    "port": 5432,$\r$\n'
+  FileWrite $3 '    "user": "pharmasmart",$\r$\n'
+  FileWrite $3 '    "retention_daily_days": 30,$\r$\n'
+  FileWrite $3 '    "retention_base_weeks": 4,$\r$\n'
+  FileWrite $3 '    "wal_archiving": false,$\r$\n'
+  FileWrite $3 '    "wal_directory": ""$\r$\n'
+  FileWrite $3 '  }$\r$\n'
 
   FileWrite $3 "}$\r$\n"
   FileClose $3
@@ -208,15 +234,45 @@ FunctionEnd
 
 ; Custom install section — called after files are installed
 !macro customInstall
-  ; ResolveDataDir is called inside CreateConfigFile
+  ; ResolveDataDir is called inside CreateConfigFile (sets $PS_DataDir and $BackupDir)
   Call CreateConfigFile
+
+  ; ── Préparation des répertoires de sauvegarde ───────────────────────────
+  DetailPrint "Préparation des répertoires de sauvegarde : $BackupDir"
+  CreateDirectory "$BackupDir"
+  CreateDirectory "$BackupDir\daily"
+  CreateDirectory "$BackupDir\basebackup"
+  CreateDirectory "$BackupDir\wal"
+  CreateDirectory "$BackupDir\logs"
+
+  ; Sur installation multi-utilisateurs, autoriser le groupe Users en Modify.
+  ${If} $PS_DataDir == "$PROGRAMDATA\PharmaSmart"
+    ExecWait 'icacls "$BackupDir" /grant "*S-1-5-32-545:(OI)(CI)M" /T /Q'
+  ${EndIf}
+
+  ; ── Enregistrement des tâches planifiées (Windows Task Scheduler) ───────
+  ; Le script PowerShell auto-détecte le binaire via $PSScriptRoot si possible ;
+  ; sinon, on lui passe explicitement le chemin via -ExePath.
+  ${If} ${FileExists} "$INSTDIR\resources\backup\setup-backup-tasks.ps1"
+    DetailPrint "Enregistrement des tâches planifiées de sauvegarde…"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\resources\backup\setup-backup-tasks.ps1" -ExePath "$INSTDIR\resources\backup\pharmasmart-backup.exe"' $0
+    ${If} $0 != 0
+      DetailPrint "Avertissement : enregistrement des tâches planifiées échoué (code $0)."
+    ${Else}
+      DetailPrint "Tâches planifiées PharmaSmart_Backup_* enregistrées."
+    ${EndIf}
+  ${Else}
+    DetailPrint "setup-backup-tasks.ps1 introuvable — tâches planifiées non enregistrées."
+  ${EndIf}
 
   MessageBox MB_OK|MB_ICONINFORMATION \
     "Installation terminee avec succes!$\r$\n$\r$\nDossier de donnees:$\r$\n\
-$PS_DataDir$\r$\n$\r$\nConfiguration par defaut:$\r$\n\
+$PS_DataDir$\r$\n$\r$\nSauvegardes:$\r$\n\
+$BackupDir$\r$\n$\r$\nConfiguration par defaut:$\r$\n\
 - Port du serveur: ${DEFAULT_PORT}$\r$\n\
-- Logs: $PS_DataDir\logs\pharmasmart.log$\r$\n$\r$\n\
-Pour personnaliser (port, FNE, mail, port serie):$\r$\n\
+- Logs: $PS_DataDir\logs\pharmasmart.log$\r$\n\
+- Dumps automatiques toutes les 2 heures$\r$\n$\r$\n\
+Pour personnaliser (port, FNE, mail, port serie, repertoire de backup):$\r$\n\
 Editez $PS_DataDir\config.json,$\r$\n\
 puis redemarrez l'application."
 !macroend
@@ -225,6 +281,18 @@ puis redemarrez l'application."
 !macro customUninstall
   ; Re-detect data directory (same write-test logic as install time)
   Call ResolveDataDir
+
+  ; Supprimer les tâches planifiées de sauvegarde (silencieux).
+  ${If} ${FileExists} "$INSTDIR\resources\backup\remove-backup-tasks.ps1"
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\resources\backup\remove-backup-tasks.ps1"' $0
+    DetailPrint "Nettoyage des tâches planifiées (code $0)."
+  ${Else}
+    ; Fallback : suppression directe via schtasks.
+    ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Dump"  /F'
+    ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Base"  /F'
+    ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Purge" /F'
+    ExecWait 'schtasks /Delete /TN "PharmaSmart_Backup_Check" /F'
+  ${EndIf}
 
   MessageBox MB_YESNO|MB_ICONQUESTION \
     "Supprimer les donnees de l'application (config, logs, rapports) ?$\r$\n\

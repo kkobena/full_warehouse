@@ -165,6 +165,14 @@ coverage/
 /script_bat/
 
 ######################
+# Backup tool (Rust)
+######################
+/src-backup/target/
+/src-backup/Cargo.lock
+/src-tauri/backup/pharmasmart-backup.exe
+/src-tauri/backup/pharmasmart-backup
+
+######################
 # Android
 ######################
 # Built application files

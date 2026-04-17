@@ -1,16 +1,15 @@
-import {Component} from '@angular/core';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
-import {FournisseurSuggestionSummary} from '../../data-access/suggestion-enrichie.model';
-import { ButtonGroup } from "primeng/buttongroup";
+import { Component, input, output } from '@angular/core';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { FournisseurSuggestionSummary } from '../../data-access/suggestion-enrichie.model';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-suggestion-fournisseur-actions',
   imports: [Button, Tooltip, ButtonGroup],
   template: `
     <p-buttonGroup>
-      @if (showValider) {
+      @if (fournisseur()?.statut !== 'VALIDEE') {
         <p-button
           [text]="true"
           [rounded]="true"
@@ -19,7 +18,7 @@ import { ButtonGroup } from "primeng/buttongroup";
           pTooltip="Valider"
           tooltipPosition="top"
           size="small"
-          (onClick)="onValider($event)"
+          (onClick)="valider.emit()"
         />
       }
       <p-button
@@ -30,7 +29,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Commander"
         tooltipPosition="top"
         size="small"
-        (onClick)="onCommander($event)"
+        (onClick)="commander.emit()"
       />
       <p-button
         [text]="true"
@@ -40,7 +39,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="PDF"
         tooltipPosition="top"
         size="small"
-        (onClick)="onPdf($event)"
+        (onClick)="exportPdf.emit()"
       />
       <p-button
         [text]="true"
@@ -50,7 +49,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="CSV"
         tooltipPosition="top"
         size="small"
-        (onClick)="onCsv($event)"
+        (onClick)="exportCsv.emit()"
       />
       <p-button
         [text]="true"
@@ -60,55 +59,17 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Supprimer"
         tooltipPosition="top"
         size="small"
-        (onClick)="onDelete($event)"
+        (onClick)="supprimer.emit()"
       />
     </p-buttonGroup>
   `,
 })
-export class SuggestionFournisseurActionsComponent implements ICellRendererAngularComp {
-  private params!: any;
-  protected showValider = false;
+export class SuggestionFournisseurActionsComponent {
+  fournisseur = input<FournisseurSuggestionSummary | null>(null);
 
-  agInit(params: any): void {
-    this.params = params;
-    const data: FournisseurSuggestionSummary = params.data;
-    this.showValider = data?.statut !== 'VALIDEE';
-  }
-
-  refresh(): boolean {
-    return false;
-  }
-
-  private get data(): FournisseurSuggestionSummary {
-    return this.params.data;
-  }
-
-  private get parent(): any {
-    return this.params.context.componentParent;
-  }
-
-  onValider(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onValider(this.data);
-  }
-
-  onCommander(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onCommander(this.data);
-  }
-
-  onPdf(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onExportPdf(this.data);
-  }
-
-  onCsv(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onExportCsv(this.data);
-  }
-
-  onDelete(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onSupprimer(this.data);
-  }
+  valider = output<void>();
+  commander = output<void>();
+  exportPdf = output<void>();
+  exportCsv = output<void>();
+  supprimer = output<void>();
 }

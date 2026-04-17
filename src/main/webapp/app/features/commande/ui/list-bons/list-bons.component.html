@@ -18,6 +18,21 @@
   <!-- ═════════════════════════════════════════════════════════════════════ -->
   <!-- MODE CONSULTATION : bon CLOSED en split-panel                        -->
   <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <div class="cr-wrapper">
+  <div class="view-panel__header view-panel__header--detail">
+    <p-button (click)="onRetourConsultation()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+    <div class="cr-header-actions">
+      <p-button
+        (onClick)="exportPdf(selectedClosed()!)"
+        icon="pi pi-file-pdf"
+        label="Imprimer BL"
+        severity="secondary"
+        size="small"
+      />
+    </div>
+  </div>
+
+
   <div class="view-panel view-panel--split">
     <div class="lb-split">
 
@@ -26,47 +41,29 @@
 
         <!-- Carte métadonnées -->
         <div class="lb-meta-card">
-          <div class="lb-meta-card__header">
+          <div class="lb-meta-card__row">
             <span class="lb-meta-card__supplier">
               {{ selectedClosed()!.fournisseurLibelle ?? selectedClosed()!.fournisseur?.libelle }}
             </span>
             <span class="bc__badge" data-severity="success">Clôturé</span>
           </div>
-
-          <div class="lb-meta-card__infos">
-            <span class="lb-meta-card__info">
-              <i class="pi pi-file"></i>
+          <div class="lb-meta-card__chips">
+            <span class="lb-meta-chip">
+              <i class="pi pi-hashtag"></i>
               {{ selectedClosed()!.receiptReference ?? selectedClosed()!.orderReference }}
             </span>
-            <span class="lb-meta-card__info">
+            <span class="lb-meta-chip">
               <i class="pi pi-calendar"></i>
-              {{ selectedClosed()!.receiptDate | date : 'dd/MM/yyyy' }}
+              {{ selectedClosed()!.receiptDate | date:'dd/MM/yyyy' }}
             </span>
-            <span class="lb-meta-card__info">
-              <i class="pi pi-tag"></i>
-              {{ selectedClosed()!.itemSize }} article{{ (selectedClosed()!.itemSize ?? 0) > 1 ? 's' : '' }}
+            <span class="lb-meta-chip">
+              <i class="pi pi-box"></i>
+              {{ selectedClosed()!.itemSize }} art.
             </span>
-            <span class="lb-meta-card__amount">
-              {{ (selectedClosed()!.receiptAmount ?? selectedClosed()!.grossAmount) | number : '1.0-0' }}
-              <small> F TTC</small>
+            <span class="lb-meta-chip lb-meta-chip--amount">
+              <i class="pi pi-wallet"></i>
+              {{ (selectedClosed()!.receiptAmount ?? selectedClosed()!.grossAmount) | number:'1.0-0' }} F
             </span>
-          </div>
-
-          <div class="lb-meta-card__actions">
-            <p-button
-              (onClick)="exportPdf(selectedClosed()!, $event)"
-              icon="pi pi-file-pdf"
-              label="Imprimer BL"
-              severity="secondary"
-              size="small"
-            />
-            <p-button
-              (onClick)="onRetourConsultation()"
-              icon="pi pi-arrow-left"
-              label="Retour à la liste"
-              severity="secondary"
-              size="small"
-            />
           </div>
         </div>
 
@@ -77,19 +74,51 @@
 
       <!-- Panneau droit : lignes de commande (lecture seule) -->
       <div class="lb-split__right">
-        <ag-grid-angular
-          [columnDefs]="closedColDefs"
-          [defaultColDef]="defaultColDef"
-          [getRowId]="getRowId"
-          [rowClassRules]="rowClassRules"
-          [rowData]="closedOrderLines()"
-          [theme]="theme"
-          style="width: 100%; height: 100%"
-        />
+        <p-table
+          class="p-datatable-sm"
+          [value]="closedOrderLines()"
+          [scrollable]="true"
+          scrollHeight="flex"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width:110px">Code</th>
+              <th>Libellé</th>
+              <th class="text-end" style="width:90px">Stk.Init</th>
+              <th class="text-end" style="width:90px">Stk.Final</th>
+              <th class="text-end" style="width:100px">Qté reçue</th>
+              <th class="text-end" style="width:110px">P.Achat</th>
+              <th class="text-end" style="width:110px">P.Vente</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-line>
+            <tr [ngClass]="getClosedRowClass(line)">
+              <td><span class="pharma-code">{{ line.produitCip }}</span></td>
+              <td>{{ line.produitLibelle }}</td>
+              <td class="text-end"> <span class="pharma-qty-value">{{ line.initStock }}</span> </td>
+              <td class="text-end"><span class="pharma-qty-value">{{ line.afterStock }}</span></td>
+              <td class="text-end"><span class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
+              <td class="text-end"><span class="pharma-price">{{ line.orderCostAmount != null ? (line.orderCostAmount | number:'1.0-0') : '—' }}</span></td>
+              <td class="text-end"><span class="pharma-price">{{ line.orderUnitPrice != null ? (line.orderUnitPrice | number:'1.0-0') : '—' }}</span></td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="7" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucune ligne</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
 
     </div>
   </div>
+</div>
+
 
 } @else {
   <!-- ═════════════════════════════════════════════════════════════════════ -->
@@ -162,18 +191,73 @@
 
     <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
     <div class="lb-grid-wrap">
-      <ag-grid-angular
-        [columnDefs]="blColDefs"
-        [defaultColDef]="defaultColDef"
-        [getRowId]="blGetRowId"
+      <p-table
+        class="p-datatable-sm"
+        [value]="deliveries"
         [loading]="loading"
-        [rowClassRules]="blRowClassRules"
-        [context]="gridContext"
-        [rowData]="deliveries"
-        [theme]="theme"
-        (cellClicked)="onBLCellClicked($event)"
-        style="width: 100%; height: 100%"
-      />
+        dataKey="id"
+        [scrollable]="true"
+        scrollHeight="flex"
+        [rowHover]="true"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th pSortableColumn="receiptDate" style="width:105px">
+              Date BL <p-sortIcon field="receiptDate" />
+            </th>
+            <th>Fournisseur</th>
+            <th style="width:145px">Référence</th>
+            <th pSortableColumn="itemSize" class="text-end" style="width:90px">
+              Art. <p-sortIcon field="itemSize" />
+            </th>
+            <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
+              Montant HT <p-sortIcon field="grossAmount" />
+            </th>
+            <th pSortableColumn="receiptAmount" class="text-end" style="width:140px">
+              Montant TTC <p-sortIcon field="receiptAmount" />
+            </th>
+            <th style="width:175px">Statut</th>
+            <th style="width:110px"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-d>
+          <tr [ngClass]="getBlRowClass(d)" (click)="onRowClick(d)">
+            <td>{{ d.receiptDate ? (d.receiptDate | date:'dd/MM/yyyy') : '—' }}</td>
+            <td>{{ d.fournisseurLibelle ?? '—' }}</td>
+            <td><span class="pharma-code">{{ d.receiptReference ?? d.orderReference ?? '—' }}</span></td>
+            <td class="text-end">{{ d.itemSize }}</td>
+            <td class="text-end">
+              <span class="pharma-total">{{ d.grossAmount != null ? (d.grossAmount | number:'1.0-0') : '—' }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-total">{{ d.receiptAmount != null ? (d.receiptAmount | number:'1.0-0') : '—' }}</span>
+            </td>
+            <td>
+              <app-list-bons-statut [delivery]="d" />
+            </td>
+            <td (click)="$event.stopPropagation()">
+              <app-list-bons-actions
+                [delivery]="d"
+                (receive)="onEditerReceivedDelivery(d)"
+                (exportPdf)="exportPdf(d)"
+                (printEtiquette)="printEtiquette(d)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="8" class="pharma-empty-message">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                <p>Aucun bon de livraison</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
     <!-- ── FOOTER TOTAUX ──────────────────────────────────────────────────── -->

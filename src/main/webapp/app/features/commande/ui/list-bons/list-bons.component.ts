@@ -14,18 +14,8 @@ import { InputTextModule } from "primeng/inputtext";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Toast } from "primeng/toast";
+import { TableModule } from "primeng/table";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import {
-  AllCommunityModule,
-  CellClickedEvent,
-  ClientSideRowModelModule,
-  ColDef,
-  GetRowIdFunc,
-  ModuleRegistry,
-  RowClassRules,
-  themeAlpine
-} from "ag-grid-community";
-import { AgGridAngular } from "ag-grid-angular";
 import { ListBonsStatutComponent } from "./list-bons-statut.component";
 import { ListBonsActionsComponent } from "./list-bons-actions.component";
 import { SpinnerComponent } from "app/shared/spinner/spinner.component";
@@ -44,8 +34,8 @@ import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
 import { CommandeReceivedComponent } from "../../feature/commande-received/commande-received.component";
 import { ReceptionConcordanceComponent } from "../reception-concordance/reception-concordance.component";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
-
-ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
+import { SplitButton } from "primeng/splitbutton";
+import { Tag } from "primeng/tag";
 
 @Component({
   selector: "app-list-bons",
@@ -64,19 +54,21 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     IconField,
     InputIcon,
     Toast,
+    TableModule,
     SpinnerComponent,
     CommandeReceivedComponent,
     ReceptionConcordanceComponent,
-    AgGridAngular,
-    DatePipe
+    ListBonsActionsComponent,
+    ListBonsStatutComponent,
+    DatePipe,
+    SplitButton,
+    Tag
   ]
 })
 export class AppListBonsComponent implements OnInit {
   // ── État liste ─────────────────────────────────────────────────────────────
   protected search = "";
   protected selectFournisseurId: number | null = null;
-  // Pas de date par défaut : les RECEIVED apparaissent toujours, les CLOSED
-  // sont filtrés par date uniquement si l'utilisateur en saisit une.
   protected dtStart: Date | null = null;
   protected dtEnd: Date | null = null;
   protected selectedStatut: string | null = null;
@@ -91,151 +83,45 @@ export class AppListBonsComponent implements OnInit {
   readonly editingReceived = signal<ICommande | null>(null);
   readonly selectedClosed = signal<IDelivery | null>(null);
   private readonly datePipe = inject(DatePipe);
+
   protected readonly statutOptions = [
     { label: "Tous les bons", value: null },
     { label: "En attente de saisie", value: "RECEIVED" },
-    { label: "Clôturé", value: "CLOSED" }
+    { label: "Clôturé", value: "CLOSED" },
   ];
-
-  // ── AG Grid partagé ────────────────────────────────────────────────────────
-  protected readonly theme = themeAlpine;
-
-  protected readonly defaultColDef: ColDef = {
-    resizable: true,
-    sortable: false,
-    suppressHeaderMenuButton: true
-  };
-
-  // ── AG Grid — liste BL principale ─────────────────────────────────────────
-  protected readonly blGetRowId: GetRowIdFunc<IDelivery> = p => String(p.data.id);
-
-  protected readonly blRowClassRules: RowClassRules<IDelivery> = {
-    "row-received": p => p.data?.orderStatus === "RECEIVED" || (p.data as any)?.statut === "RECEIVED"
-  };
-
-  protected readonly blColDefs: ColDef<IDelivery>[] = [
-    {
-      field: "receiptDate",
-      headerName: "Date BL",
-      width: 105,
-      sortable: true,
-      valueFormatter: p => p.value ? new Date(p.value as string).toLocaleDateString("fr-FR") : "—"
-    },
-    {
-      field: "fournisseurLibelle",
-      headerName: "Fournisseur",
-      flex: 1,
-      minWidth: 140
-    },
-    {
-      colId: "reference",
-      headerName: "Référence",
-      width: 145,
-      valueGetter: p => (p.data as any)?.receiptReference ?? p.data?.orderReference ?? "—",
-      cellStyle: { fontFamily: "monospace", fontSize: "12px" }
-    },
-    {
-      field: "itemSize",
-      headerName: "Art.",
-      width: 60,
-      type: "numericColumn"
-    },
-    {
-      field: "grossAmount",
-      headerName: "Montant HT",
-      width: 125,
-      type: "numericColumn",
-      valueFormatter: p => p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—"
-    },
-    {
-      field: "receiptAmount",
-      headerName: "Montant TTC",
-      width: 130,
-      type: "numericColumn",
-      valueFormatter: p => p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—"
-    },
-    {
-      colId: "statut",
-      headerName: "Statut",
-      width: 175,
-      cellRenderer: ListBonsStatutComponent
-    },
-    {
-      colId: "actions",
-      headerName: "",
-      width: 110,
-      sortable: false,
-      cellRenderer: ListBonsActionsComponent
-    }
-  ];
-
-  protected readonly gridContext: { componentParent: AppListBonsComponent } = { componentParent: this };
 
   // ── Totaux comptables de la période (backend) ──────────────────────────────
   readonly periodTotals = signal<IDeliveryTotals | null>(null);
   readonly countReceived = signal<number>(0);
 
-  // ── AG Grid (panneau consultation bon clôturé) ─────────────────────────────
-  protected readonly rowClassRules: RowClassRules<IOrderLine> = {
-    "pharma-row-danger": p => !!p.data && p.data.costAmount !== p.data.orderCostAmount,
-    "pharma-row-warning": p =>
-      !!p.data &&
-      p.data.costAmount === p.data.orderCostAmount &&
-      p.data.regularUnitPrice !== p.data.orderUnitPrice
-  };
-
-  protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
-
-  protected readonly closedColDefs: ColDef<IOrderLine>[] = [
-    {
-      field: "produitCip",
-      headerName: "Code",
-      width: 110,
-      cellStyle: { fontFamily: "monospace", fontSize: "12px" }
-    },
-    {
-      field: "produitLibelle",
-      headerName: "Libellé",
-      flex: 2,
-      minWidth: 140
-    },
-    {
-      field: "initStock",
-      headerName: "Stk.Init",
-      width: 90,
-      type: "numericColumn"
-    },
-    {
-      field: "afterStock",
-      headerName: "Stk.Final",
-      width: 90,
-      type: "numericColumn"
-    },
-    {
-      field: "quantityReceived",
-      headerName: "Qté reçue",
-      width: 100,
-      type: "numericColumn"
-    },
-    {
-      field: "orderCostAmount",
-      headerName: "P.Achat",
-      width: 110,
-      type: "numericColumn",
-      valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
-    },
-    {
-      field: "orderUnitPrice",
-      headerName: "P.Vente",
-      width: 110,
-      type: "numericColumn",
-      valueFormatter: p => (p.value != null ? Number(p.value).toLocaleString("fr-FR") : "—")
-    }
-  ];
-
+  // ── Lignes bon clôturé (panneau consultation) ─────────────────────────────
   readonly closedOrderLines = computed<IOrderLine[]>(
-    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? []
+    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? [],
   );
+
+  // ── Row styling ────────────────────────────────────────────────────────────
+  getBlRowClass(d: IDelivery): Record<string, boolean> {
+    return {
+      "row-received": d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED",
+    };
+  }
+
+  getClosedRowClass(line: IOrderLine): Record<string, boolean> {
+    const costDiff = line.costAmount !== line.orderCostAmount;
+    const priceDiff = !costDiff && line.regularUnitPrice !== line.orderUnitPrice;
+    return {
+      "pharma-row-danger": costDiff,
+      "pharma-row-warning": priceDiff,
+    };
+  }
+
+  onRowClick(d: IDelivery): void {
+    if (this.isReceived(d)) {
+      this.onEditerReceivedDelivery(d);
+    } else {
+      this.onOuvrirClosed(d);
+    }
+  }
 
   private readonly entityService = inject(DeliveryService);
   private readonly fournisseurService = inject(FournisseurService);
@@ -253,11 +139,10 @@ export class AppListBonsComponent implements OnInit {
       .subscribe((res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body ?? []));
     this.onSearch();
 
-    // Auto-ouverture depuis le tableau de bord : quand on clique sur un bon RECEIVED
     toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
       .pipe(
         filter(id => id != null),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(pending => {
         this.commandCommonService.pendingOpenDeliveryId.set(null);
@@ -273,7 +158,7 @@ export class AppListBonsComponent implements OnInit {
           error: () => {
             this.spinner().hide();
             this.notificationService.error("Erreur lors du chargement du bon de livraison", "Erreur");
-          }
+          },
         });
       });
   }
@@ -294,7 +179,6 @@ export class AppListBonsComponent implements OnInit {
   }
 
   protected isReceived(delivery: IDelivery): boolean {
-
     return delivery.orderStatus === "RECEIVED" || (delivery as any).statut === "RECEIVED";
   }
 
@@ -309,15 +193,6 @@ export class AppListBonsComponent implements OnInit {
 
   // ── Navigation master/detail ──────────────────────────────────────────────
 
-  onBLCellClicked(event: CellClickedEvent<IDelivery>): void {
-    if (!event.data || event.column.getColId() === "actions") return;
-    if (this.isReceived(event.data)) {
-      this.onEditerReceivedDelivery(event.data);
-    } else {
-      this.onOuvrirClosed(event.data);
-    }
-  }
-
   protected onEditerReceivedDelivery(delivery: IDelivery): void {
     this.spinner().show();
     this.entityService
@@ -331,7 +206,7 @@ export class AppListBonsComponent implements OnInit {
         error: () => {
           this.spinner().hide();
           this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        }
+        },
       });
   }
 
@@ -361,7 +236,7 @@ export class AppListBonsComponent implements OnInit {
         error: () => {
           this.spinner().hide();
           this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        }
+        },
       });
   }
 
@@ -371,23 +246,20 @@ export class AppListBonsComponent implements OnInit {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  printEtiquette(delivery: IDelivery, event: Event): void {
-    event.stopPropagation();
+  printEtiquette(delivery: IDelivery): void {
     showCommonModal(
       this.modalService,
       EtiquetteComponent,
       {
         entity: delivery,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `,
       },
-      () => {
-      },
-      "lg"
+      () => {},
+      "lg",
     );
   }
 
-  exportPdf(delivery: IDelivery, event: Event): void {
-    event.stopPropagation();
+  exportPdf(delivery: IDelivery): void {
     this.spinner().show();
     this.entityService.exportToPdf(delivery.commandeId).subscribe({
       next: blob => {
@@ -398,7 +270,7 @@ export class AppListBonsComponent implements OnInit {
           window.open(URL.createObjectURL(blob));
         }
       },
-      error: () => this.spinner().hide()
+      error: () => this.spinner().hide(),
     });
   }
 
@@ -413,8 +285,6 @@ export class AppListBonsComponent implements OnInit {
       query.statuts = ["RECEIVED", "CLOSED"];
     }
     if (this.selectFournisseurId) query.fournisseurId = this.selectFournisseurId;
-    // Le filtre de date s'applique uniquement aux bons CLOSED (historique).
-    // Les bons RECEIVED (en attente) sont toujours visibles sans contrainte de date.
     const applyDates = this.selectedStatut === "CLOSED";
     if (applyDates) {
       if (this.dtStart) query.fromDate = this.datePipe.transform(this.dtStart, "yyyy-MM-dd");
@@ -422,7 +292,7 @@ export class AppListBonsComponent implements OnInit {
     }
     forkJoin({
       list: this.entityService.query(query),
-      totals: this.entityService.fetchTotals(query)
+      totals: this.entityService.fetchTotals(query),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -430,10 +300,10 @@ export class AppListBonsComponent implements OnInit {
           this.onSuccess(list.body, list.headers, page);
           this.periodTotals.set(totals.body);
           this.countReceived.set(
-            (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length
+            (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length,
           );
         },
-        error: () => (this.loading = false)
+        error: () => (this.loading = false),
       });
   }
 

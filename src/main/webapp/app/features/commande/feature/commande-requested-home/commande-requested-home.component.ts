@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal, viewChild} from '@angular/core';
+import {Component, computed, DestroyRef, inject, Injector, OnInit, output, signal} from '@angular/core';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -6,22 +6,11 @@ import {filter, finalize} from 'rxjs/operators';
 import {HttpResponse} from '@angular/common/http';
 import {saveAs} from 'file-saver';
 import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {InputTextModule} from 'primeng/inputtext';
 import {Toast} from 'primeng/toast';
+import {TableModule} from 'primeng/table';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {AgGridAngular} from 'ag-grid-angular';
-import {
-  AllCommunityModule,
-  CellClickedEvent,
-  ClientSideRowModelModule,
-  ColDef,
-  GetRowIdFunc,
-  ModuleRegistry,
-  RowClassRules,
-  themeAlpine,
-} from 'ag-grid-community';
 import {ICommande} from 'app/shared/model/commande.model';
 import {CommandeId} from 'app/shared/model/abstract-commande.model';
 import {CommandeService} from '../../../../entities/commande/commande.service';
@@ -38,8 +27,6 @@ import {CommandCommonService} from '../../../../entities/commande/command-common
 import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
 import {CommandeRequestedActionsComponent} from './commande-requested-actions.component';
 
-ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
-
 @Component({
   selector: 'app-commande-requested-home',
   templateUrl: './commande-requested-home.component.html',
@@ -49,13 +36,12 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     FormsModule,
     CommandeRequestedComponent,
     ButtonModule,
-    TagModule,
     TooltipModule,
     InputTextModule,
     DatePipe,
     Toast,
-    AgGridAngular,
-
+    TableModule,
+    CommandeRequestedActionsComponent,
   ],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
@@ -75,7 +61,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
   // ── Recherche ─────────────────────────────────────────────────────────────
   protected searchText = '';
 
-  // ── Sélection multiple (bulk actions) ─────────────────────────────────────
+  // ── Sélection multiple (native PrimeNG) ───────────────────────────────────
   readonly selectionMultiple = signal<ICommande[]>([]);
   readonly selectionCount = computed(() => this.selectionMultiple().length);
   readonly canFusionner = computed(() => {
@@ -87,91 +73,15 @@ export class CommandeRequestedHomeComponent implements OnInit {
 
   // ── Totaux page courante ───────────────────────────────────────────────────
   readonly totalAmount = computed(() =>
-    this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0)
+    this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0),
   );
 
-  // ── AG Grid ───────────────────────────────────────────────────────────────
-  protected readonly theme = themeAlpine;
-  protected readonly gridContext: {componentParent: CommandeRequestedHomeComponent} = {componentParent: this};
-  protected readonly defaultColDef: ColDef = { resizable: true, sortable: false, suppressHeaderMenuButton: true };
-  protected readonly getRowId: GetRowIdFunc<ICommande> = p => `${p.data.id}_${p.data.orderDate}`;
-  protected readonly rowClassRules: RowClassRules<ICommande> = {
-    'row-reliquat': p => !!p.data?.reliquatDeCommandeId,
-    'row-selected': p => !!p.data && this.isSelected(p.data),
-  };
-  private readonly gridRef = viewChild(AgGridAngular);
-
-  protected readonly colDefs: ColDef<ICommande>[] = [
-    {
-      colId: 'select',
-      headerName: '',
-      width: 36,
-      sortable: false,
-      cellRenderer: (p: any) => {
-        if (!p.data) return '';
-        const checked = this.isSelected(p.data);
-        return `<span data-action="select"
-          style="display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer;padding:0 4px">
-          <i class="pi ${checked ? 'pi-check-square' : 'pi-stop'}"
-             style="font-size:0.875rem;color:${checked ? '#5b89a6' : '#9ca3af'}"></i>
-        </span>`;
-      },
-    },
-    {
-      field: 'updatedAt',
-      headerName: 'Date',
-      width: 145,
-      sortable: true,
-      valueFormatter: p => p.value
-        ? new Date(p.value as string).toLocaleString('fr-FR', {dateStyle: 'short', timeStyle: 'short'})
-        : '—',
-    },
-    {
-      colId: 'fournisseur',
-      headerName: 'Fournisseur',
-      flex: 1,
-      minWidth: 140,
-      valueGetter: p => p.data?.fournisseur?.libelle ?? '—',
-    },
-    {
-      field: 'orderReference',
-      headerName: 'Référence',
-      width: 130,
-      cellStyle: {fontFamily: 'monospace', fontSize: '12px'},
-    },
-    {
-      field: 'itemSize',
-      headerName: 'Lignes',
-      width: 80,
-      type: 'numericColumn',
-    },
-    {
-      field: 'grossAmount',
-      headerName: 'Montant HT',
-      width: 120,
-      type: 'numericColumn',
-      valueFormatter: p => p.value != null ? Number(p.value).toLocaleString('fr-FR') : '—',
-    },
-    {
-      colId: 'reliquat',
-      headerName: '',
-      width: 85,
-      cellRenderer: (p: any) => {
-        if (!p.data?.reliquatDeCommandeId) return '';
-        return `<span style="padding:2px 6px;border-radius:10px;font-size:0.68rem;font-weight:700;background:#fef3c7;color:#92400e">RELIQUAT</span>`;
-      },
-    },
-    {
-      colId: 'actions',
-      headerName: '',
-      width: 155,
-    //  pinned: 'right' as const,
-      sortable: false,
-      resizable: false,
-    //  suppressMovable: true,
-      cellRenderer: CommandeRequestedActionsComponent,
-    },
-  ];
+  // ── Row styling ────────────────────────────────────────────────────────────
+  getRowClass(c: ICommande): Record<string, boolean> {
+    return {
+      'row-reliquat': !!c.reliquatDeCommandeId,
+    };
+  }
 
   private readonly commandeService = inject(CommandeService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
@@ -233,7 +143,6 @@ export class CommandeRequestedHomeComponent implements OnInit {
   }
 
   onNouvelleCommande(): void {
-    // Commande vide — commande-requested gère la création si commandeId absent
     this.editingCommande.set({} as ICommande);
   }
 
@@ -250,8 +159,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
 
   // ── Actions unitaires ─────────────────────────────────────────────────────
 
-  onSupprimerCommande(c: ICommande, event: MouseEvent): void {
-    event.stopPropagation();
+  onSupprimerCommande(c: ICommande): void {
     this.confirmDialog.onConfirm(
       () => this.deleteCommande(c.commandeId),
       'Supprimer la commande',
@@ -259,8 +167,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     );
   }
 
-  exportCsv(c: ICommande, event: MouseEvent): void {
-    event.stopPropagation();
+  exportCsv(c: ICommande): void {
     this.commandeService.exportToCsv(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: blob => {
         if (this.tauriPrinter.isRunningInTauri()) {
@@ -273,8 +180,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     });
   }
 
-  exportPdf(c: ICommande, event: MouseEvent): void {
-    event.stopPropagation();
+  exportPdf(c: ICommande): void {
     this.commandeService.exportToPdf(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: blob => {
         if (this.tauriPrinter.isRunningInTauri()) {
@@ -287,8 +193,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     });
   }
 
-  onReceptionner(c: ICommande, event: MouseEvent): void {
-    event.stopPropagation();
+  onReceptionner(c: ICommande): void {
     this.commandeService.find(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
       if (!res.body) return;
       showCommonModal(
@@ -318,34 +223,17 @@ export class CommandeRequestedHomeComponent implements OnInit {
     );
   }
 
+  // ── Sélection native PrimeNG ──────────────────────────────────────────────
+
+  onSelectionChange(items: ICommande[]): void {
+    this.selectionMultiple.set(items);
+  }
+
   // ── Bulk actions ──────────────────────────────────────────────────────────
-
-  isSelected(c: ICommande): boolean {
-    return this.selectionMultiple().some(s => s.id === c.id);
-  }
-
-  toggleSelect(c: ICommande, event: MouseEvent): void {
-    event.stopPropagation();
-    this.selectionMultiple.update(sel => {
-      const exists = sel.some(s => s.id === c.id);
-      return exists ? sel.filter(s => s.id !== c.id) : [...sel, c];
-    });
-    this.gridRef()?.api.refreshCells({columns: ['select'], force: true});
-  }
-
-  onCellClicked(event: CellClickedEvent<ICommande>): void {
-    if (!event.data) return;
-    const action = (event.event?.target as HTMLElement)?.closest('[data-action]')?.getAttribute('data-action');
-    if (action === 'select') {
-      this.toggleSelect(event.data, event.event as MouseEvent);
-    } else if (event.column.getColId() !== 'actions' && !action) {
-      this.onEditer(event.data);
-    }
-  }
 
   onFusionner(): void {
     if (!this.canFusionner()) return;
-    const ids = this.selectionMultiple().map(c => (c.commandeId));
+    const ids = this.selectionMultiple().map(c => c.commandeId);
 
     this.commandeService
       .fusionner(ids)

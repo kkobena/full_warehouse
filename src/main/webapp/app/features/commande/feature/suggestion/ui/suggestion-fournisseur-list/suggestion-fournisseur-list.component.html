@@ -1,17 +1,94 @@
 <!-- GRILLE FOURNISSEURS -->
 <div class="sfl-grid-wrap">
-  <ag-grid-angular
-    [columnDefs]="colDefs"
-    [defaultColDef]="defaultColDef"
-    [getRowId]="getRowId"
+  <p-table
+    class="p-datatable-sm"
+    [value]="fournisseurs()"
     [loading]="loading()"
-    [rowClassRules]="rowClassRules"
-    [rowData]="fournisseurs()"
-    [theme]="theme"
-    [context]="gridContext"
-    (cellClicked)="onCellClicked($event)"
-    style="width: 100%; height: 100%"
-  />
+    dataKey="suggestionId"
+    [scrollable]="true"
+    scrollHeight="flex"
+    [rowHover]="true"
+    selectionMode="multiple"
+    [selection]="selectionMultiple()"
+    (selectionChange)="onSelectionChange($event)"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width:40px">
+          <p-tableHeaderCheckbox />
+        </th>
+        <th pSortableColumn="updatedAt" >
+          Date <p-sortIcon field="updatedAt" />
+        </th>
+        <th>Fournisseur</th>
+        <th pSortableColumn="nbProduits" class="text-end" >
+          Produits <p-sortIcon field="nbProduits" />
+        </th>
+        <th pSortableColumn="nbUrgents"class="text-end" >
+          Urgents <p-sortIcon field="nbUrgents" />
+        </th>
+        <th pSortableColumn="montantEstime" class="text-end">
+          Montant estimé <p-sortIcon field="montantEstime" />
+        </th>
+        <th style="width:120px">Statut</th>
+        <th style="width:175px"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-f>
+      <tr [ngClass]="getRowClass(f)" (click)="onRowClick(f)">
+        <td (click)="$event.stopPropagation()">
+          <p-tableCheckbox [value]="f" />
+        </td>
+        <td>{{ f.updatedAt ? (f.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
+        <td >
+          @if (f.nbUrgents > 0) {
+            <i class="pi pi-bolt sfl-urgent-icon" [title]="f.nbUrgents + ' urgent(s)'"></i>
+          }
+          <span [title]="f.libelle">{{ f.libelle }}</span>
+        </td>
+        <td class="text-end">{{ f.nbProduits }}</td>
+        <td class="text-end">
+          @if (f.nbUrgents > 0) {
+            <span class="pharma-badge pharma-badge-danger">{{ f.nbUrgents }}</span>
+          } @else {
+            <span class="sfl-text-muted">—</span>
+          }
+        </td>
+        <td class="text-end">
+         <span class="pharma-total"> {{ f.montantEstime != null ? (f.montantEstime | number:'1.0-0') + ' F' : '—' }}</span>
+        </td>
+        <td>
+          @if (f.statut) {
+            <span class="pharma-badge pharma-badge-secondary" [ngStyle]="getStatutStyle(f.statut)">
+              {{ getStatutLabel(f.statut) }}
+            </span>
+          }
+        </td>
+        <td (click)="$event.stopPropagation()">
+          <app-suggestion-fournisseur-actions
+            [fournisseur]="f"
+            (valider)="onValider(f)"
+            (commander)="onCommander(f)"
+            (exportPdf)="onExportPdf(f)"
+            (exportCsv)="onExportCsv(f)"
+            (supprimer)="onSupprimer(f)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8" class="pharma-empty-message">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucun fournisseur</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
 
 <!-- FOOTER TOTAUX -->
@@ -34,4 +111,3 @@
     Total estimé : <strong>{{ totalMontant() | number:'1.0-0' }} F</strong>
   </span>
 </div>
-

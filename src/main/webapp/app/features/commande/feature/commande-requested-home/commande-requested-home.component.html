@@ -47,18 +47,79 @@
 
     <!-- GRILLE COMMANDES -->
     <div class="rq-grid-wrap">
-      <ag-grid-angular
-        [columnDefs]="colDefs"
-        [defaultColDef]="defaultColDef"
-        [getRowId]="getRowId"
+      <p-table
+        class="p-datatable-sm"
+        [value]="commandes()"
         [loading]="loading()"
-        [rowClassRules]="rowClassRules"
-        [rowData]="commandes()"
-        [theme]="theme"
-        [context]="gridContext"
-        (cellClicked)="onCellClicked($event)"
-        style="width: 100%; height: 100%"
-      />
+        dataKey="id"
+        [scrollable]="true"
+        scrollHeight="flex"
+        [rowHover]="true"
+        selectionMode="multiple"
+        [selection]="selectionMultiple()"
+        (selectionChange)="onSelectionChange($event)"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width:40px">
+              <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="updatedAt" style="width:145px">
+              Date <p-sortIcon field="updatedAt" />
+            </th>
+            <th>Fournisseur</th>
+            <th style="width:130px">Référence</th>
+            <th pSortableColumn="itemSize" class="text-end" style="width:100px">
+              Lignes <p-sortIcon field="itemSize" />
+            </th>
+            <th pSortableColumn="grossAmount" class="text-end" style="width:140px">
+              Montant HT <p-sortIcon field="grossAmount" />
+            </th>
+            <th style="width:90px"></th>
+            <th style="width:155px"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-c>
+          <tr [ngClass]="getRowClass(c)" (click)="onEditer(c)">
+            <td (click)="$event.stopPropagation()">
+              <p-tableCheckbox [value]="c" />
+            </td>
+            <td>{{ c.updatedAt ? (c.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
+            <td>{{ c.fournisseur?.libelle ?? '—' }}</td>
+            <td><span class="pharma-code">{{ c.orderReference ?? '—' }}</span></td>
+            <td class="text-end">{{ c.itemSize }}</td>
+            <td class="text-end">
+              <span class="pharma-total">{{ c.grossAmount != null ? (c.grossAmount | number:'1.0-0') + ' F' : '—' }}</span>
+            </td>
+            <td>
+              @if (c.reliquatDeCommandeId != null) {
+                <span class="pharma-badge pharma-badge-warning">RELIQUAT</span>
+              }
+            </td>
+            <td (click)="$event.stopPropagation()">
+              <app-commande-requested-actions
+                [commande]="c"
+                (receptionner)="onReceptionner(c)"
+                (exportCsv)="exportCsv(c)"
+                (exportPdf)="exportPdf(c)"
+                (supprimer)="onSupprimerCommande(c)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="8" class="pharma-empty-message">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                <p>Aucune commande</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
     <!-- FOOTER TOTAUX -->
@@ -103,7 +164,6 @@
       </div>
     }
 
-
   </div>
 }
 @else {
@@ -113,7 +173,7 @@
     <div class="view-panel__header view-panel__header--detail">
       <p-button
         icon="pi pi-arrow-left"
-        label="Retour"
+        label="Retour à la liste"
         [text]="true"
         size="small"
         (onClick)="onRetour()"

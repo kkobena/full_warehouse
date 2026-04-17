@@ -1,9 +1,8 @@
-import {Component} from '@angular/core';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
-import {ICommande} from 'app/shared/model/commande.model';
-import { ButtonGroup } from "primeng/buttongroup";
+import { Component, input, output } from '@angular/core';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { ICommande } from 'app/shared/model/commande.model';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-commande-requested-actions',
@@ -18,7 +17,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Réceptionner"
         tooltipPosition="top"
         size="small"
-        (onClick)="onReceive($event)"
+        (onClick)="receptionner.emit()"
       />
       <p-button
         [text]="true"
@@ -28,7 +27,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Export CSV"
         tooltipPosition="top"
         size="small"
-        (onClick)="onCsv($event)"
+        (onClick)="exportCsv.emit()"
       />
       <p-button
         [text]="true"
@@ -38,7 +37,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Imprimer PDF"
         tooltipPosition="top"
         size="small"
-        (onClick)="onPdf($event)"
+        (onClick)="exportPdf.emit()"
       />
       <p-button
         [text]="true"
@@ -48,47 +47,16 @@ import { ButtonGroup } from "primeng/buttongroup";
         pTooltip="Supprimer"
         tooltipPosition="top"
         size="small"
-        (onClick)="onDelete($event)"
+        (onClick)="supprimer.emit()"
       />
     </p-buttonGroup>
   `,
 })
-export class CommandeRequestedActionsComponent implements ICellRendererAngularComp {
-  private params!: any;
+export class CommandeRequestedActionsComponent {
+  commande = input<ICommande | null>(null);
 
-  agInit(params: any): void {
-    this.params = params;
-  }
-
-  refresh(): boolean {
-    return false;
-  }
-
-  private get commande(): ICommande {
-    return this.params.data;
-  }
-
-  private get parent(): any {
-    return this.params.context.componentParent;
-  }
-
-  onReceive(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onReceptionner(this.commande, event);
-  }
-
-  onCsv(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.exportCsv(this.commande, event);
-  }
-
-  onPdf(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.exportPdf(this.commande, event);
-  }
-
-  onDelete(event: MouseEvent): void {
-    event.stopPropagation();
-    this.parent.onSupprimerCommande(this.commande, event);
-  }
+  receptionner = output<void>();
+  exportCsv = output<void>();
+  exportPdf = output<void>();
+  supprimer = output<void>();
 }

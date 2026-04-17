@@ -345,7 +345,8 @@ export class CommandeRequestedHomeComponent implements OnInit {
 
   onFusionner(): void {
     if (!this.canFusionner()) return;
-    const ids = this.selectionMultiple().map(c => ({id: c.id, orderDate: c.orderDate}));
+    const ids = this.selectionMultiple().map(c => (c.commandeId));
+
     this.commandeService
       .fusionner(ids)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -353,6 +354,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
         next: () => {
           this.selectionMultiple.set([]);
           this.loadPage(this.currentPage());
+          this.notificationService.success('Commandes fusionnées avec succès', 'Succès');
         },
         error: () => this.notificationService.error('Erreur lors de la fusion', 'Erreur'),
       });

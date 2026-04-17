@@ -78,7 +78,7 @@
             severity="secondary"
             size="small"
           />
-          @if (!facture.fneResponse && !facture.factureProvisoire) {
+          @if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === 'UNPAID'){
             <p-button
               (onClick)="onConfirmCertification(facture)"
               [rounded]="true"

@@ -32,7 +32,7 @@
             (onClick)="onExportPdf()"
           />
         }
-        @if (!this.facture().fneResponse) {
+        @if (!this.facture().fneResponse && !this.facture().factureProvisoire && this.facture().statut === 'NOT_PAID') {
           <p-button
             (onClick)="onConfirmCertification()"
             [loading]="certificationLoading"

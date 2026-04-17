@@ -136,6 +136,9 @@ export class SuggestionFacadeService {
     }
     this.currentSuggestionId = fournisseur.suggestionId;
     this.currentFournisseurId = fournisseur.fournisseurId;
+    // Vider immédiatement pour un changement de fournisseur (nouveau contexte)
+    this.lignesEnrichies.set([]);
+    this.totalLignes.set(0);
     this.loadLignes();
   }
 
@@ -581,7 +584,9 @@ export class SuggestionFacadeService {
 
   private loadLignesForFournisseur(suggestionId: number, fournisseurId: number): void {
     this.loadingLignes.set(true);
-    this.lignesEnrichies.set([]);
+    // Ne pas vider lignesEnrichies ici : cela déclencherait une animation "vider puis remplir"
+    // dans AG Grid à chaque changement de filtre. La grille affiche les anciennes données
+    // pendant le chargement (masquées par l'overlay loadingLignes), puis met à jour en place.
 
     const search = this.searchText() || undefined;
     const urgence = this.urgenceFilter() !== 'TOUS' ? this.urgenceFilter() : undefined;

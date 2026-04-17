@@ -26,6 +26,7 @@ import { Storage } from '../../../../entities/storage/storage.model';
 import { AppRepartitionListComponent } from './ui/repartition-list/repartition-list.component';
 import { AppSuggestionReassortComponent } from './ui/suggestion-reassort/suggestion-reassort.component';
 import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-repartition.component';
+import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'app-repartition-stock',
@@ -49,7 +50,8 @@ import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-re
     AppRepartitionListComponent,
     AppSuggestionReassortComponent,
     AppManualRepartitionComponent,
-  ],
+    Tooltip
+  ]
 })
 export class AppRepartitionStockComponent {
   @ViewChild('nav', { static: true }) nav!: NgbNav;

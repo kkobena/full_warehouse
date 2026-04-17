@@ -17,6 +17,7 @@ import {
   GridReadyEvent,
   ModuleRegistry,
   RowSelectionOptions,
+  SizeColumnsToFitGridStrategy,
   themeAlpine,
 } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -85,9 +86,26 @@ export class SuggestionProduitPanelComponent {
 
   // ─── AG Grid ─────────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
+  protected readonly autoSizeStrategy: SizeColumnsToFitGridStrategy = { type: 'fitGridWidth' };
   private gridApi: GridApi | null = null;
-  /** Clés mois courantes — évite de reconstruire les colonnes si elles n'ont pas changé. */
-  private currentMoisKeys: string[] = [];
+  /** Libellés des 12 mois en français, indexés sur `Date.getMonth()` (0 = JANVIER). */
+  private static readonly MOIS_LABELS = [
+    'JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
+    'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE',
+  ];
+
+  /** Clés des 3 derniers mois (hors mois courant) en ordre chronologique — construites à l'init. */
+  private readonly currentMoisKeys: readonly string[] = SuggestionProduitPanelComponent.buildLast3MoisKeys();
+
+  private static buildLast3MoisKeys(): string[] {
+    const now = new Date();
+    const keys: string[] = [];
+    for (let i = 3; i >= 1; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      keys.push(SuggestionProduitPanelComponent.MOIS_LABELS[d.getMonth()]);
+    }
+    return keys;
+  }
 
   readonly rowSelection: RowSelectionOptions = {
     mode: 'multiRow',
@@ -107,9 +125,9 @@ export class SuggestionProduitPanelComponent {
     },
     {
       field: 'libelle',
+      flex:2,
+      minWidth:160,
       headerName: 'Produit',
-      flex: 2,
-      minWidth: 160,
       sortable: true,
     },
     {
@@ -128,7 +146,7 @@ export class SuggestionProduitPanelComponent {
     {
       field: 'quantite',
       headerName: 'Qté',
-      width: 110,
+      width: 90,
       editable: true,
       type: 'numericColumn',
       cellEditor: 'agNumberCellEditor',
@@ -189,8 +207,8 @@ export class SuggestionProduitPanelComponent {
     {
       field: 'joursRestants',
       headerName: 'Couv. act.',
-      width: 90,
       sortable: true,
+      width: 110,
       type: 'numericColumn',
       valueFormatter: (params: any) => {
         const ligne: SuggestionLigneEnrichie = params.data;
@@ -211,8 +229,8 @@ export class SuggestionProduitPanelComponent {
       // Simulation "après commande" — calculé depuis stock + quantite commandée + VMM
       headerName: 'Couv. après',
       colId: 'couv_apres',
-      width: 95,
       sortable: false,
+      width: 110,
       type: 'numericColumn',
       tooltipValueGetter: () => 'Couverture estimée si la commande est reçue',
       valueGetter: (params: any) => {
@@ -238,7 +256,7 @@ export class SuggestionProduitPanelComponent {
     {
       field: 'prixAchat',
       headerName: 'P.A',
-      width: 110,
+      width: 100,
       sortable: true,
       type: 'numericColumn',
       valueFormatter: (params: any) =>
@@ -246,23 +264,71 @@ export class SuggestionProduitPanelComponent {
     },
   ];
 
-  // ── Colonne actions (toujours épinglée à droite) ──────────────────────────
+
   private readonly actionsColumnDef: ColDef<SuggestionLigneEnrichie> = {
     headerName: '',
     colId: 'actions',
-    width: 110,
-    pinned: 'right' as const,
+    width: 100,
+ //   pinned: 'right' as const,
     sortable: false,
     resizable: false,
     suppressMovable: true,
+    suppressSizeToFit: true,
     cellRenderer: SuggestionProduitActionsComponent,
   };
 
+  // ── Colonnes de consommation mensuelle (3 derniers mois) ─────────────────
+  private readonly moisColumnDefs: ColDef<SuggestionLigneEnrichie>[] = this.currentMoisKeys.map(mois => ({
+    headerName: mois,
+    colId: `conso_${mois}`,
+    sortable: false,
+    resizable: true,
+    width: 110,
+    type: 'numericColumn',
+    valueGetter: (params: any) => params.data?.consommationMensuelle?.[mois] ?? 0,
+    valueFormatter: (params: any) => (params.value > 0 ? String(params.value) : '—'),
+    cellStyle: { fontSize: '11px', color: '#6b7280' },
+  }));
+
+  // ── Colonne VMM + tendance (insérée juste avant les colonnes mois) ───────
+  private readonly vmmColDef: ColDef<SuggestionLigneEnrichie> | null = this.currentMoisKeys.length >= 2 ? {
+    headerName: 'VMM ↑↓',
+    colId: 'vmm_tendance',
+    width: 90,
+    sortable: true,
+    type: 'numericColumn',
+    valueGetter: (params: any) => {
+      const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
+      if (!conso) return null;
+      const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
+      return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
+    },
+    cellRenderer: (params: any) => {
+      if (params.value == null) return '—';
+      const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
+      if (!conso) return String(params.value);
+      const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
+      if (vals.length < 2) return String(params.value);
+      const moitie = Math.floor(vals.length / 2);
+      const debut = vals.slice(0, moitie).reduce((s, v) => s + v, 0) / moitie;
+      const fin = vals.slice(moitie).reduce((s, v) => s + v, 0) / (vals.length - moitie);
+      const diff = fin - debut;
+      const arrow = diff > 1 ? '↑' : diff < -1 ? '↓' : '↔';
+      const color = diff > 1 ? '#16a34a' : diff < -1 ? '#dc2626' : '#6b7280';
+      return `<span style="color:${color};font-weight:600">${params.value} ${arrow}</span>`;
+    },
+    tooltipValueGetter: (params: any) => {
+      if (params.value == null) return 'Données insuffisantes';
+      return `VMM moyen: ${params.value} unités/mois`;
+    },
+  } : null;
+
   protected readonly gridContext: {componentParent: SuggestionProduitPanelComponent} = {componentParent: this};
 
-  /** Colonnes initiales (sans mois) — mises à jour dès que rowData arrive. */
+  /** Colonnes complètes (base + VMM + mois + actions) construites à l'initialisation. */
   columnDefs: ColDef<SuggestionLigneEnrichie>[] = [
     ...this.baseColumnDefs,
+    ...(this.vmmColDef ? [this.vmmColDef, ...this.moisColumnDefs] : this.moisColumnDefs),
     this.actionsColumnDef,
   ];
 
@@ -301,81 +367,15 @@ export class SuggestionProduitPanelComponent {
     effect(() => {
       const data = this.lignes();
       if (this.gridApi) {
-        this.syncMoisColumns(data);
         this.gridApi.setGridOption('rowData', data);
-        // Réappliquer quickFilterText et filtre urgence au rechargement des lignes
         this.gridApi.setGridOption('quickFilterText', this.searchText());
-        this.gridApi.onFilterChanged();
       }
     });
   }
 
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
-    this.syncMoisColumns(this.lignes());
     this.gridApi.setGridOption('rowData', this.lignes());
-  }
-
-  // ── Génération dynamique des colonnes consommationMensuelle ───────────────
-  private syncMoisColumns(data: SuggestionLigneEnrichie[]): void {
-    const first = data.find(l => l.consommationMensuelle && Object.keys(l.consommationMensuelle).length > 0);
-    const newKeys = first ? Object.keys(first.consommationMensuelle!) : [];
-    if (JSON.stringify(newKeys) === JSON.stringify(this.currentMoisKeys)) return;
-    this.currentMoisKeys = newKeys;
-
-    const moisCols: ColDef<SuggestionLigneEnrichie>[] = newKeys.map(mois => ({
-      headerName: mois,
-      colId: `conso_${mois}`,
-      width: 65,
-      sortable: false,
-      resizable: true,
-      type: 'numericColumn',
-      valueGetter: (params: any) => params.data?.consommationMensuelle?.[mois] ?? 0,
-      valueFormatter: (params: any) => params.value > 0 ? String(params.value) : '—',
-      cellStyle: { fontSize: '11px', color: '#6b7280' },
-    }));
-
-    // ── Colonne VMM + tendance (insérée juste avant les colonnes mois) ────────
-    const vmmColDef: ColDef<SuggestionLigneEnrichie> | null = newKeys.length >= 2 ? {
-      headerName: 'VMM ↑↓',
-      colId: 'vmm_tendance',
-      width: 90,
-      sortable: true,
-      type: 'numericColumn',
-      valueGetter: (params: any) => {
-        const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
-        if (!conso) return null;
-        const vals = Object.values(conso);
-        if (vals.length === 0) return null;
-        return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
-      },
-      cellRenderer: (params: any) => {
-        if (params.value == null) return '—';
-        const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
-        if (!conso) return String(params.value);
-        const vals = Object.values(conso);
-        if (vals.length < 2) return String(params.value);
-        const moitie = Math.floor(vals.length / 2);
-        const debut = vals.slice(0, moitie).reduce((s, v) => s + v, 0) / moitie;
-        const fin = vals.slice(moitie).reduce((s, v) => s + v, 0) / (vals.length - moitie);
-        const diff = fin - debut;
-        const arrow = diff > 1 ? '↑' : diff < -1 ? '↓' : '↔';
-        const color = diff > 1 ? '#16a34a' : diff < -1 ? '#dc2626' : '#6b7280';
-        return `<span style="color:${color};font-weight:600">${params.value} ${arrow}</span>`;
-      },
-      tooltipValueGetter: (params: any) => {
-        if (params.value == null) return 'Données insuffisantes';
-        return `VMM moyen: ${params.value} unités/mois`;
-      },
-    } : null;
-
-    const extraCols = vmmColDef ? [vmmColDef, ...moisCols] : moisCols;
-
-    this.gridApi!.setGridOption('columnDefs', [
-      ...this.baseColumnDefs,
-      ...extraCols,
-      this.actionsColumnDef,
-    ]);
   }
 
   onSelectionChanged(): void {
@@ -429,31 +429,21 @@ export class SuggestionProduitPanelComponent {
     this.filterChange.emit({ search: this.searchText(), urgence: val });
   }
 
-  /** Retourne les lignes actuellement visibles dans la grille (après filtres urgence + quickFilter). */
-  getFilteredLignes(): SuggestionLigneEnrichie[] {
-    const result: SuggestionLigneEnrichie[] = [];
-    this.gridApi?.forEachNodeAfterFilter(node => {
-      if (node.data) result.push(node.data as SuggestionLigneEnrichie);
-    });
-    return result;
-  }
-
-  /** Nombre de lignes filtrées — utilisé par le bouton "Commander les filtrés". */
+  /** Nombre de lignes filtrées — les lignes chargées sont déjà filtrées par le backend. */
   get nbFilteredLignes(): number {
-    if (this.urgenceFilter() === 'TOUS') return this.lignes().length;
-    return this.getFilteredLignes().length;
+    return this.lignes().length;
   }
 
   onCommanderFiltre(): void {
-    const filtered = this.getFilteredLignes();
-    if (filtered.length === 0) return;
-    this.commanderFiltre.emit(filtered);
+    const lignes = this.lignes();
+    if (lignes.length === 0) return;
+    this.commanderFiltre.emit(lignes);
   }
 
   onSupprimerFiltrees(): void {
-    const filtered = this.getFilteredLignes();
-    if (filtered.length === 0) return;
-    this.lignesSupprimer.emit(filtered);
+    const lignes = this.lignes();
+    if (lignes.length === 0) return;
+    this.lignesSupprimer.emit(lignes);
   }
 
   onSearchInput(value: string): void {
@@ -462,16 +452,6 @@ export class SuggestionProduitPanelComponent {
     // Quick filter AG Grid — côté client, pas de rechargement backend
     this.gridApi?.setGridOption('quickFilterText', value);
   }
-
-  // ─── Filtre externe AG Grid (urgence) ────────────────────────────────────
-  readonly isExternalFilterPresent = (): boolean => this.urgenceFilter() !== 'TOUS';
-
-  readonly doesExternalFilterPass = (node: any): boolean => {
-    const ligne: SuggestionLigneEnrichie = node.data;
-    if (!ligne) return true;
-    const filter = this.urgenceFilter();
-    return filter === 'TOUS' || ligne.niveauUrgence === filter;
-  };
 
   goToPage(p: number): void {
   //  if (p < 0 || p >= this.totalPages()) return;

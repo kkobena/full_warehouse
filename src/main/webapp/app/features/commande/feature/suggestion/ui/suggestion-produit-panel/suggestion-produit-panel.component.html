@@ -46,10 +46,12 @@
         tooltipPosition="top"
         (onClick)="dispoRequest.emit()"
       />
+      <!-- Le bouton de nettoyage est caché car la fonctionnalité n'est pas encore implémentée côté back-end -->
       <p-button
         label="Nettoyer"
         icon="pi pi-wrench"
         severity="secondary"
+        [hidden]="true"
         size="small"
         pTooltip="Supprimer les lignes invalides"
         tooltipPosition="top"
@@ -226,11 +228,10 @@
         [rowSelection]="rowSelection"
         [rowClassRules]="rowClassRules"
         [getRowId]="getRowId"
-        [isExternalFilterPresent]="isExternalFilterPresent"
-        [doesExternalFilterPass]="doesExternalFilterPass"
+        [autoSizeStrategy]="autoSizeStrategy"
         [enableCellEditingOnBackspace]="true"
         [enterNavigatesVerticallyAfterEdit]="true"
-        [animateRows]="true"
+        [animateRows]="false"
         [singleClickEdit]="true"
         [stopEditingWhenCellsLoseFocus]="true"
         [suppressScrollOnNewData]="true"

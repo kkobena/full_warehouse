@@ -34,8 +34,6 @@ import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
 import { CommandeReceivedComponent } from "../../feature/commande-received/commande-received.component";
 import { ReceptionConcordanceComponent } from "../reception-concordance/reception-concordance.component";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
-import { SplitButton } from "primeng/splitbutton";
-import { Tag } from "primeng/tag";
 
 @Component({
   selector: "app-list-bons",
@@ -60,9 +58,7 @@ import { Tag } from "primeng/tag";
     ReceptionConcordanceComponent,
     ListBonsActionsComponent,
     ListBonsStatutComponent,
-    DatePipe,
-    SplitButton,
-    Tag
+    DatePipe
   ]
 })
 export class AppListBonsComponent implements OnInit {

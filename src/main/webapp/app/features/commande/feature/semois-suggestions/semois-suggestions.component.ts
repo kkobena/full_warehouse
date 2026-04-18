@@ -188,7 +188,7 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   /** Ouvre le formulaire d'exclusion pour un produit. */
   ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {
-    const ref = this.modalService.open(SemoisExclureProduitComponent, { size: 'md', centered: true });
+    const ref = this.modalService.open(SemoisExclureProduitComponent, { size: 'lg', centered: true });
     ref.componentInstance.produitId = suggestion.produitId;
     ref.componentInstance.produitLibelle = suggestion.libelle;
 

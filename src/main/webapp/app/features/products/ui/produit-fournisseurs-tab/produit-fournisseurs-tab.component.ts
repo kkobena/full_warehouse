@@ -28,7 +28,7 @@ export class ProduitFournisseursTabComponent {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   protected onAddFournisseur(): void {
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { size: 'md', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.header = 'Ajouter un fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.result.then(
@@ -38,7 +38,7 @@ export class ProduitFournisseursTabComponent {
   }
 
   protected onEditFournisseur(fp: IFournisseurProduit): void {
-    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { size: 'md', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormProduitFournisseurComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.header = 'Modifier le fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.entity = fp;

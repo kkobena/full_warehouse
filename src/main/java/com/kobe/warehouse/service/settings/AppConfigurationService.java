@@ -409,6 +409,22 @@ public class AppConfigurationService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR_CACHE)
+    public int getDelaiRetourFournisseur() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 365;
+                }
+            })
+            .orElse(365);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
     public int getDelaiReglement() {
         return appConfigurationRepository

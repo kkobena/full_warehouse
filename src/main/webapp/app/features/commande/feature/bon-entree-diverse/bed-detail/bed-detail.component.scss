@@ -1,0 +1,170 @@
+@import 'app/shared/scss/pharma-toolbar';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+// ── PANEL HEADER ─────────────────────────────────────────────────────────────
+
+.panel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.3rem 1rem;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-200;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.detail-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $pharma-primary;
+}
+
+.bed-meta-motif {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $pharma-primary-dark;
+}
+
+.bed-meta-info {
+  font-size: 0.78rem;
+  color: $gray-600;
+}
+
+// ── BARRE RECHERCHE / AJOUT PRODUIT ──────────────────────────────────────────
+// Même structure que commande-requested.component.scss
+
+.add-product-bar {
+  border-bottom: 1px solid $gray-200;
+  background: $gray-50;
+  flex-shrink: 0;
+
+  .search-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.4rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .product-search-input {
+    flex: 2;
+    min-width: 200px;
+  }
+
+  .quantity-input-wrapper {
+    flex: 0 0 160px;
+  }
+
+  .produit-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem 0.4rem;
+    border-top: 1px solid $gray-200;
+    background: $pharma-primary-light;
+    animation: slideIn 0.2s ease;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: $pharma-primary-dark;
+    font-weight: 500;
+
+    i { font-size: 0.75rem; color: $pharma-primary; }
+  }
+
+  .low-stock {
+    color: $pharma-danger;
+    font-weight: 700;
+    i { color: $pharma-danger; }
+  }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── GRILLE ───────────────────────────────────────────────────────────────────
+
+.grid-wrapper {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: $gray-100;
+  border-bottom: 1px solid $gray-200;
+  flex-shrink: 0;
+
+  &__count {
+    font-size: 0.78rem;
+    color: $gray-500;
+    white-space: nowrap;
+  }
+
+  &__totals {
+    font-size: 0.78rem;
+    color: $gray-600;
+    white-space: nowrap;
+
+    strong { color: $pharma-primary; }
+  }
+}
+
+.grid-body {
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: $gray-400;
+  font-size: 0.85rem;
+
+  i { font-size: 2rem; }
+}
+
+// ── AG Grid overrides ────────────────────────────────────────────────────────
+
+:host ::ng-deep {
+  .ag-row { font-size: 0.82rem; }
+  .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+
+@media (max-width: 768px) {
+  .add-product-bar .search-controls {
+    flex-direction: column;
+
+    .product-search-input,
+    .quantity-input-wrapper,
+    .price-input-wrapper { flex: 1 1 100%; width: 100%; }
+  }
+}

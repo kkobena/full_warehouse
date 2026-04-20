@@ -1,0 +1,174 @@
+<!-- ─── KPI Row ────────────────────────────────────────────────────────────── -->
+<div class="row kpi-row mt-2 mb-1">
+
+  <div class="col-12 col-md-4 mb-2">
+    <div class="card kpi-card kpi-card-compact warning-accent">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="kpi-icon-sm text-warning"><i class="pi pi-wallet"></i></div>
+          <div>
+            <p class="kpi-label mb-0">Total encours</p>
+            <span class="kpi-value-sm text-warning">{{ getTotalEncours() | number:'1.0-0' }} CFA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4 mb-2">
+    <div class="card kpi-card kpi-card-compact primary-accent">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+          <div class="kpi-icon-sm text-primary"><i class="pi pi-building"></i></div>
+          <div>
+            <p class="kpi-label mb-0">Fournisseurs en attente</p>
+            <span class="kpi-value-sm text-primary">{{ encours().length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (selectedFournisseurId()) {
+    <div class="col-12 col-md-4 mb-2">
+      <div class="card kpi-card kpi-card-compact info-accent">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3">
+            <div class="kpi-icon-sm text-info"><i class="pi pi-file-invoice"></i></div>
+            <div>
+              <p class="kpi-label mb-0">{{ selectedFournisseurLibelle() }}</p>
+              <span class="kpi-value-sm text-info">{{ getTotalAvoirsDetail() | number:'1.0-0' }} CFA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+<div class="ae-layout">
+
+  <!-- ─── Panneau gauche : encours par fournisseur ─────────────────────── -->
+  <div class="ae-left">
+    <div class="ae-panel-header">
+      <i class="pi pi-wallet"></i>
+      <span>EN ATTENTE</span>
+    </div>
+
+    <p-table [value]="encours()" [loading]="loadingEncours()" [rows]="15"
+             [paginator]="encours().length > 15" class="ps-datatable-sm">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Fournisseur</th>
+          <th class="text-right">Montant</th>
+          <th style="width:3rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr [class.ae-row-selected]="selectedFournisseurId() === row.fournisseurId">
+          <td class="pharma-product-name">{{ row.fournisseurLibelle }}</td>
+          <td class="text-right pharma-price">{{ row.montantEncours | number:'1.0-0' }}</td>
+          <td>
+            <p-button icon="pi pi-list" size="small" severity="info" [text]="true"
+                      pTooltip="Voir les avoirs" tooltipPosition="left"
+                      (onClick)="selectFournisseur(row)" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="3">
+            <div class="pharma-empty-content">
+              <i class="pi pi-check-circle"></i>
+              <p>Aucun encours en attente</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- ─── Panneau droit : détail avoirs du fournisseur sélectionné ──────── -->
+  <div class="ae-right">
+    @if (selectedFournisseurId()) {
+      <div class="ae-panel-header">
+        <i class="pi pi-file-invoice"></i>
+        <span>{{ selectedFournisseurLibelle() }}</span>
+        <div class="ae-detail-filters">
+          <p-select
+            [(ngModel)]="detailStatut"
+            (onChange)="onDetailStatutChange()"
+            [options]="statutOptions"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            placeholder="Statut"
+          />
+        </div>
+      </div>
+
+      <p-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20"
+               [paginator]="avoirs().length > 20" class="ps-datatable-sm">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Référence avoir</th>
+            <th>Bon de retour</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th class="text-right">Montant (CFA)</th>
+            <th style="width:10rem">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-avoir>
+          <tr [ngClass]="getRowClass(avoir)">
+            <td><span class="pharma-code">{{ avoir.reference ?? '—' }}</span></td>
+            <td>{{ avoir.retourBonReference ?? '#' + avoir.retourBonId }}</td>
+            <td>{{ avoir.dateMtv | date:'dd/MM/yyyy' }}</td>
+            <td><span [ngClass]="getStatutBadgeClass(avoir.statut)">{{ getStatutLabel(avoir.statut) }}</span></td>
+            <td class="text-right pharma-price">{{ avoir.montant | number:'1.0-0' }}</td>
+            <td>
+              @if (avoir.statut === 'EN_ATTENTE') {
+                <div class="pharma-action-buttons">
+                  <p-button icon="pi pi-check" size="small" severity="success" [text]="true"
+                            pTooltip="Marquer remboursé" tooltipPosition="top"
+                            (onClick)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
+                  <p-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
+                            pTooltip="Marquer imputé" tooltipPosition="top"
+                            (onClick)="confirmUpdateStatut(avoir, 'IMPUTE')" />
+                </div>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="6">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                <p>Aucun avoir pour ce fournisseur</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          @if (avoirs().length > 0) {
+            <tr class="pharma-table-footer">
+              <td colspan="4" class="text-right">
+                <span class="pharma-footer-label"><span>Total</span></span>
+              </td>
+              <td class="text-right"><span class="pharma-footer-total">{{ getTotalAvoirsDetail() | number:'1.0-0' }}</span></td>
+              <td></td>
+            </tr>
+          }
+        </ng-template>
+      </p-table>
+    } @else {
+      <div class="ae-empty-state">
+        <i class="pi pi-arrow-left"></i>
+        <p>Sélectionnez un fournisseur pour voir ses avoirs</p>
+      </div>
+    }
+  </div>
+
+</div>

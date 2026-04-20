@@ -159,3 +159,24 @@ tr {
   transition: background-color 0.2s ease;
   &:has(.pi-tag) { background-color: rgba(91, 137, 166, 0.02); }
 }
+
+// ─── Bandeau avertissement délai retour ───────────────────────────────────────
+.sr-delay-warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 1rem 0.5rem;
+  padding: 10px 14px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-left: 4px solid #e6a817;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 13px;
+
+  i {
+    font-size: 16px;
+    flex-shrink: 0;
+    color: #e6a817;
+  }
+}

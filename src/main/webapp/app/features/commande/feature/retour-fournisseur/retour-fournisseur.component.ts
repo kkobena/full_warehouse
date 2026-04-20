@@ -23,6 +23,7 @@ import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
 import { IRetourBon } from "app/shared/model/retour-bon.model";
+import { IRetourBonGroupe } from "app/shared/model/retour-bon-groupe.model";
 import { IReponseRetourBon } from "app/shared/model/reponse-retour-bon.model";
 import { RetourBonStatut } from "app/shared/model/enumerations/retour-bon-statut.model";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
@@ -34,8 +35,10 @@ import {
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
+import { AvoirEncoursComponent } from "./avoir-encours/avoir-encours.component";
+import { AvoirFournisseurService } from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
 
-export type RetourTab = "EN_ATTENTE" | "HISTORIQUE";
+export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
 
 @Component({
   selector: "app-retour-fournisseur",
@@ -56,7 +59,8 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE";
     TagModule,
     ToastModule,
     SplitButtonModule,
-    WarehouseCommonModule
+    WarehouseCommonModule,
+    AvoirEncoursComponent
   ]
 })
 export class AppRetourFournisseurComponent implements OnInit {
@@ -69,14 +73,18 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected activeTab = signal<RetourTab>("EN_ATTENTE");
   /** Badge : nb de retours VALIDATED en attente d'action */
   protected countEnAttente = signal<number>(0);
+  protected countAvoirs = signal<number>(0);
 
   /** Options de filtre selon l'onglet actif */
   protected readonly enAttenteStatutOptions = [
     { label: "En attente de réponse", value: RetourBonStatut.VALIDATED },
-    { label: "En cours de traitement", value: RetourBonStatut.PROCESSING }
+    { label: "En cours de traitement", value: RetourBonStatut.PROCESSING },
+    { label: "Partiellement accepté", value: RetourBonStatut.PARTIALLY_ACCEPTED }
   ];
 
   protected retourBons = signal<IRetourBon[]>([]);
+  protected retourBonsGroupes = signal<IRetourBonGroupe[]>([]);
+  protected loadingGroupes = signal<boolean>(false);
   protected loading = signal<boolean>(false);
   protected totalRecords = signal<number>(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
@@ -85,6 +93,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly retourBonService = inject(RetourBonService);
+  private readonly avoirFournisseurService = inject(AvoirFournisseurService);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly modalService = inject(NgbModal);
@@ -104,7 +113,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.loadCountEnAttente();
+    this.loadBadges();
     this.loadAll();
   }
 
@@ -124,9 +133,46 @@ export class AppRetourFournisseurComponent implements OnInit {
     this.search = "";
     this.dtStart = null;
     this.dtEnd = null;
-    this.selectedStatut = tab === "EN_ATTENTE" ? RetourBonStatut.VALIDATED : RetourBonStatut.CLOSED;
+    this.loadBadges();
+    if (tab === "AVOIRS") return;
+    if (tab === "GROUPE") {
+      this.loadGroupes();
+      return;
+    }
+    this.selectedStatut = tab === "EN_ATTENTE" ? null : RetourBonStatut.CLOSED;
     this.page.set(0);
     this.loadAll();
+  }
+
+  protected loadGroupes(): void {
+    this.loadingGroupes.set(true);
+    this.retourBonService.getGroupedByFournisseur().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => {
+        this.retourBonsGroupes.set(res.body || []);
+        this.loadingGroupes.set(false);
+      },
+      error: () => {
+        this.notificationService.error("Erreur lors du chargement des retours groupés");
+        this.loadingGroupes.set(false);
+      }
+    });
+  }
+
+  protected exportGroupePdf(groupe: IRetourBonGroupe): void {
+    const ids = (groupe.retourBons || []).map(r => r.id!).filter(id => !!id);
+    this.retourBonService.exportGroupe(ids).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (blob: Blob) => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, `bordereau-groupe-${groupe.fournisseurLibelle}`);
+        } else {
+          const url = URL.createObjectURL(blob);
+          window.open(url);
+        }
+      },
+      error: () => {
+        this.notificationService.error("Impossible de générer le bordereau groupé");
+      }
+    });
   }
 
   protected loadAll(): void {
@@ -145,13 +191,16 @@ export class AppRetourFournisseurComponent implements OnInit {
       query.search = this.search;
     }
 
-    // Forcer CLOSED pour l'onglet Historique, sinon utiliser le filtre statut courant
-    const statutToUse: RetourBonStatut =
-      this.activeTab() === "HISTORIQUE"
-        ? RetourBonStatut.CLOSED
-        : (this.selectedStatut ?? RetourBonStatut.VALIDATED);
+    if (this.activeTab() === "HISTORIQUE") {
+      query.statut = RetourBonStatut.CLOSED;
+    } else if (this.selectedStatut) {
+      query.statut = this.selectedStatut;
+    } else {
+      // EN_ATTENTE sans filtre : exclure CLOSED
+      query.excludeStatut = RetourBonStatut.CLOSED;
+    }
 
-    const observable = this.retourBonService.queryByStatut(statutToUse, query);
+    const observable = this.retourBonService.query(query);
 
     observable.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: HttpResponse<IRetourBon[]>) => {
@@ -195,6 +244,8 @@ export class AppRetourFournisseurComponent implements OnInit {
         return "secondary";
       case RetourBonStatut.CLOSED:
         return "success";
+      case RetourBonStatut.PARTIALLY_ACCEPTED:
+        return "warn";
       default:
         return "info";
     }
@@ -208,6 +259,8 @@ export class AppRetourFournisseurComponent implements OnInit {
         return "En cours";
       case RetourBonStatut.CLOSED:
         return "Clôturé";
+      case RetourBonStatut.PARTIALLY_ACCEPTED:
+        return "Partiellement accepté";
       default:
         return statut;
     }
@@ -235,15 +288,20 @@ export class AppRetourFournisseurComponent implements OnInit {
   }
 
   /** Charge le compteur badge EN_ATTENTE (retours VALIDATED non encore traités) */
-  private loadCountEnAttente(): void {
-    this.retourBonService.queryByStatut(RetourBonStatut.VALIDATED, { page: 0, size: 1 })
+  protected loadBadges(): void {
+    this.retourBonService.query({ page: 0, size: 1, excludeStatut: RetourBonStatut.CLOSED })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<IRetourBon[]>) => {
           this.countEnAttente.set(Number(res.headers.get("X-Total-Count")) || 0);
         },
-        error: () => { /* compteur silencieux */
-        }
+        error: () => {}
+      });
+    this.avoirFournisseurService.query({ statut: 'EN_ATTENTE', page: 0, size: 1 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => this.countAvoirs.set(Number(res.headers.get("X-Total-Count")) || 0),
+        error: () => {}
       });
   }
 
@@ -310,6 +368,24 @@ export class AppRetourFournisseurComponent implements OnInit {
     });
   }
 
+  protected closeManually(retourBon: IRetourBon): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.retourBonService.closeManually(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.notificationService.success("Retour clôturé manuellement");
+            this.loadAll();
+          },
+          error: () => {
+            this.notificationService.error("Impossible de clôturer ce retour");
+          }
+        });
+      },
+      "Clôturer manuellement",
+      `Clôturer manuellement le retour ${retourBon.reference ?? '#' + retourBon.id} (acceptation partielle) ?`
+    );
+  }
+
   private saveSupplierResponse(reponseRetourBon: IReponseRetourBon): void {
     this.loading.set(true);
     this.retourBonService.createSupplierResponse(reponseRetourBon).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -328,9 +404,10 @@ export class AppRetourFournisseurComponent implements OnInit {
     const statutToUse =
       this.activeTab() === "HISTORIQUE"
         ? RetourBonStatut.CLOSED
-        : (this.selectedStatut ?? RetourBonStatut.VALIDATED);
+        : this.selectedStatut;
 
-    const params: Record<string, string> = { statut: statutToUse };
+    const params: Record<string, string> = {};
+    if (statutToUse) params['statut'] = statutToUse;
     if (this.dtStart) params["dtStart"] = DATE_FORMAT_ISO_DATE(this.dtStart)!;
     if (this.dtEnd) params["dtEnd"] = DATE_FORMAT_ISO_DATE(this.dtEnd)!;
     if (this.search) params["search"] = this.search;

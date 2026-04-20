@@ -1,0 +1,160 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Bordereau groupé retours fournisseur</title>
+    <style th:replace="~{common/portrait_table}"></style>
+    <style>
+      .groupe-retour-header {
+        background: linear-gradient(to right, #5b89a6, #3a6a8a);
+        color: #fff;
+        padding: 5px 10px;
+        margin: 8px 0 2px 0;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-radius: 2px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        page-break-inside: avoid;
+      }
+      .groupe-retour-subheader {
+        font-size: 8px;
+        color: #555;
+        padding: 2px 10px 4px 10px;
+        border-bottom: 1px dashed #ccc;
+        margin-bottom: 4px;
+      }
+      .groupe-separator {
+        border: none;
+        border-top: 1.5px solid #5b89a6;
+        margin: 12px 0 6px 0;
+      }
+      .groupe-total-row td {
+        background: #f0f4f8;
+        font-weight: 700;
+        border-top: 1.5px solid #5b89a6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader}"></div>
+
+      <!-- Titre global -->
+      <div style="padding: 4px 10px 6px 10px; margin-bottom: 4px">
+        <table style="width: 100%; border-collapse: collapse; font-size: 9px">
+          <tbody>
+            <tr>
+              <td style="width: 55%; vertical-align: top">
+                <strong>Fournisseur :</strong>
+                <span th:text="${fournisseurLibelle}" style="font-weight: 600"></span>
+              </td>
+              <td style="width: 45%; text-align: right; vertical-align: top">
+                <strong>Nombre de bons :</strong>
+                <span th:text="${#lists.size(retourBons)}" style="font-weight: 600"></span>
+                &nbsp;|&nbsp;
+                <strong>Date d'édition :</strong>
+                <span th:text="${#temporals.format(dateEdition, 'dd/MM/yyyy')}" style="font-size: 8px"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <hr style="border: none; border-top: 0.5px solid #ccc; margin: 4px 0 0 0" />
+      </div>
+
+      <main>
+        <!-- Itère sur chaque retour bon -->
+        <th:block th:each="bon,bonStat : ${retourBons}">
+          <!-- Séparateur entre bons -->
+          <hr th:if="${!bonStat.first}" class="groupe-separator" />
+
+          <!-- En-tête du bon -->
+          <div class="groupe-retour-header">
+            <span>
+              BON <span th:text="${bon.reference != null ? bon.reference : '#' + bon.id}"></span>
+            </span>
+            <span th:if="${bon.receiptReference != null}">
+              Réf. commande : <span th:text="${bon.receiptReference}"></span>
+            </span>
+          </div>
+          <div class="groupe-retour-subheader">
+            <span th:if="${bon.receiptDate != null}">
+              Réception du <span th:text="${#temporals.format(bon.receiptDate, 'dd/MM/yyyy')}"></span>
+              &nbsp;|&nbsp;
+            </span>
+            <span th:text="${#numbers.formatInteger(bon.retourBonItems.size(), 1, 'WHITESPACE')}"></span> ligne(s)
+            &nbsp;|&nbsp;
+            Montant : <strong th:text="${#numbers.formatInteger(bon.montantTotal, 1, 'WHITESPACE')}"></strong> CFA
+            <span th:if="${bon.commentaire != null and !#strings.isEmpty(bon.commentaire)}">
+              &nbsp;|&nbsp; <em th:text="${bon.commentaire}"></em>
+            </span>
+          </div>
+
+          <!-- Table des lignes -->
+          <table class="main-table">
+            <thead>
+              <tr>
+                <th class="text-center" style="width:4%">#</th>
+                <th class="text-left" style="width:12%">CIP</th>
+                <th class="text-left" style="width:36%">PRODUIT</th>
+                <th class="text-left" style="width:12%">N° LOT</th>
+                <th class="text-right" style="width:10%">QTÉ</th>
+                <th class="text-left" style="width:16%">MOTIF</th>
+                <th class="text-right" style="width:10%">MONTANT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="itm,itmStat : ${bon.retourBonItems}">
+                <td class="text-center" th:text="${itmStat.index + 1}"></td>
+                <td class="text-left" th:text="${itm.produitCip}"></td>
+                <td class="text-left" th:text="${itm.produitLibelle}"></td>
+                <td class="text-left" th:text="${itm.lotNumero}"></td>
+                <td class="qty" th:text="${#numbers.formatInteger(itm.qtyMvt, 1, 'WHITESPACE')}"></td>
+                <td class="text-left" th:text="${itm.motifRetourLibelle}"></td>
+                <td class="qty" th:text="${#numbers.formatInteger((itm.prixAchat ?: 0) * (itm.qtyMvt ?: 0), 1, 'WHITESPACE')}"></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="groupe-total-row">
+                <td colspan="4" class="text-right" style="font-size:8px; padding-right:6px">Sous-total bon :</td>
+                <td class="qty" th:text="${#aggregates.sum(bon.retourBonItems.![qtyMvt])}"></td>
+                <td></td>
+                <td class="qty" th:text="${#numbers.formatInteger(bon.montantTotal, 1, 'WHITESPACE')}"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </th:block>
+
+        <!-- Total général -->
+        <div style="margin-top: 12px; border-top: 2px solid #5b89a6; padding-top: 6px; font-size: 9px">
+          <table style="width: 100%">
+            <tr>
+              <td style="font-weight:700; text-align:right; padding-right:10px">TOTAL GÉNÉRAL :</td>
+              <td style="font-weight:700; color:#5b89a6; text-align:right; width:15%">
+                <span th:text="${#numbers.formatInteger(montantTotalGroupe, 1, 'WHITESPACE')}"></span> CFA
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Signature -->
+        <div style="margin-top: 20px; page-break-inside: avoid">
+          <table style="width: 100%; border-collapse: collapse; font-size: 8px">
+            <tr>
+              <td style="width:55%"></td>
+              <td style="text-align:center; vertical-align:bottom">
+                <div style="border-top: 0.5px solid #333; margin-top: 35px; padding-top: 4px">
+                  Signature et cachet du pharmacien
+                </div>
+              </td>
+            </tr>
+          </table>
+          <div style="margin-top: 10px; text-align:center; font-size:7px; color:#777">
+            TOUS LES MONTANTS SONT EXPRIMES EN <span th:text="${devise}"></span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

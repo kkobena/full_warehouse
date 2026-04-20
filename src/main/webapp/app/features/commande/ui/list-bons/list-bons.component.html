@@ -184,7 +184,7 @@
 
       </div>
       <div class="su-action-bar__actions">
-        <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="secondary"
+        <p-button (onClick)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
                   size="small" />
       </div>
     </div>
@@ -242,6 +242,7 @@
                 (receive)="onEditerReceivedDelivery(d)"
                 (exportPdf)="exportPdf(d)"
                 (printEtiquette)="printEtiquette(d)"
+                (retourComplet)="onRetourComplet(d)"
               />
             </td>
           </tr>

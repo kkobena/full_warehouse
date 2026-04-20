@@ -1,18 +1,17 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonModule } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { FloatLabel } from 'primeng/floatlabel';
-import { IMotifRetourProduit, MotifRetourProduit } from 'app/shared/model/motif-retour-produit.model';
-import { ModifRetourProduitService } from './motif-retour-produit.service';
-import { Card } from 'primeng/card';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { ButtonModule } from "primeng/button";
+import { InputText } from "primeng/inputtext";
+import { IMotifRetourProduit, MotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
+import { ModifRetourProduitService } from "./motif-retour-produit.service";
+import { Card } from "primeng/card";
 
 @Component({
-  selector: 'jhi-motif-retour-produit-form-modal',
+  selector: "jhi-motif-retour-produit-form-modal",
   imports: [CommonModule, FormsModule, ButtonModule, InputText, Card, ReactiveFormsModule],
-  styleUrl: './form-motif-retour-fourn.scss',
+  styleUrl: "./form-motif-retour-fourn.scss",
   template: `
     <div class="modal-header">
       <h4 class="modal-title">
@@ -51,10 +50,12 @@ import { Card } from 'primeng/card';
     </div>
 
     <div class="modal-footer">
-      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler" severity="secondary">
+      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler"
+                severity="secondary">
       </p-button>
       <p-button
         (onClick)="save()"
+        type="submit"
         [loading]="isSaving()"
         [disabled]="!motif().libelle || motif().libelle.trim() === ''"
         icon="pi pi-check"
@@ -63,7 +64,7 @@ import { Card } from 'primeng/card';
       >
       </p-button>
     </div>
-  `,
+  `
 })
 export class MotifRetourProduitFormModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
@@ -73,7 +74,7 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
   protected motif = signal<IMotifRetourProduit>(new MotifRetourProduit());
   protected isEditing = signal<boolean>(false);
   protected isSaving = signal<boolean>(false);
-  protected errorMessage = signal<string>('');
+  protected errorMessage = signal<string>("");
 
   ngOnInit(): void {
     if (this.motifToEdit) {
@@ -85,13 +86,13 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
   protected save(): void {
     const motifData = this.motif();
 
-    if (!motifData.libelle || motifData.libelle.trim() === '') {
-      this.errorMessage.set('Le libellé est obligatoire');
+    if (!motifData.libelle || motifData.libelle.trim() === "") {
+      this.errorMessage.set("Le libellé est obligatoire");
       return;
     }
 
     this.isSaving.set(true);
-    this.errorMessage.set('');
+    this.errorMessage.set("");
 
     const request = this.isEditing() ? this.motifRetourService.update(motifData) : this.motifRetourService.create(motifData);
 
@@ -102,7 +103,7 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
       error: () => {
         this.errorMessage.set("Erreur lors de l'enregistrement du motif de retour");
         this.isSaving.set(false);
-      },
+      }
     });
   }
 

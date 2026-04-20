@@ -23,6 +23,13 @@
                 <span th:if="${retourBon.fournisseurLibelle == null}" style="color: #888">—</span>
               </td>
               <td style="width: 45%; text-align: right; vertical-align: top">
+                <!-- Référence du bon de retour -->
+                <span th:if="${retourBon.reference ne null}">
+                  <strong>Réf. retour :</strong>
+                  <span th:text="${retourBon.reference}" style="font-weight: 600; color: #1a5276"></span>
+                  <br/>
+                </span>
+
                 <!-- Retour avec commande -->
                 <span th:if="${!retourBon.horsCommande and retourBon.receiptReference ne null}">
                   <strong>Réf. commande :</strong>

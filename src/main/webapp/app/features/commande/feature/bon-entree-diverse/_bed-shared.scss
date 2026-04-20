@@ -1,0 +1,108 @@
+// Prérequis : @import 'app/shared/scss/pharma-nav' ou pharma-toolbar avant ce fichier
+
+// ── SECTION ───────────────────────────────────────────────────────────────────
+
+.bed-section {
+  background: $pharma-white;
+  border: 1px solid $gray-200;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+
+  &__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $pharma-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: $gray-500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+// ── FORMULAIRE EN-TÊTE ────────────────────────────────────────────────────────
+
+.bed-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+}
+
+.bed-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.78rem;
+    color: $gray-600;
+    font-weight: 500;
+  }
+
+  &--full { grid-column: 1 / -1; }
+}
+
+.bed-section-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// ── BARRE AJOUT PRODUIT ───────────────────────────────────────────────────────
+
+.add-product-bar {
+  border: 1px dashed $gray-300;
+  border-radius: 4px;
+  background: $gray-50;
+  margin-bottom: 0.75rem;
+
+  .search-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.4rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .product-search-input {
+    flex: 2;
+    min-width: 200px;
+  }
+
+  .quantity-input-wrapper,
+  .price-input-wrapper {
+    flex: 0 0 130px;
+  }
+}
+
+.addon-label {
+  font-size: 0.78rem;
+  color: $gray-600;
+}
+
+// ── LIGNES TABLE ──────────────────────────────────────────────────────────────
+
+.bed-total-row {
+  background: $gray-50;
+  font-size: 0.85rem;
+}
+
+// ── ACTIONS BAS DE PAGE ───────────────────────────────────────────────────────
+
+.bed-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid $gray-200;
+}

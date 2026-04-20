@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
+import { IRetourBonGroupe } from 'app/shared/model/retour-bon-groupe.model';
 import { IReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
 import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
 import {
@@ -88,6 +89,22 @@ export class RetourBonService {
       params: { lotId: lotId.toString() },
       observe: 'response',
     });
+  }
+
+  closeManually(id: number): Observable<EntityResponseType> {
+    return this.http.patch<IRetourBon>(`${this.resourceUrl}/${id}/close-manually`, null, { observe: 'response' });
+  }
+
+  retourCompletCommande(request: { commandeId: number; commandeOrderDate: string; motifRetourId: number; commentaire?: string }): Observable<EntityResponseType> {
+    return this.http.post<IRetourBon>(`${this.resourceUrl}/retour-complet`, request, { observe: 'response' });
+  }
+
+  getGroupedByFournisseur(): Observable<HttpResponse<IRetourBonGroupe[]>> {
+    return this.http.get<IRetourBonGroupe[]>(`${this.resourceUrl}/grouped-by-fournisseur`, { observe: 'response' });
+  }
+
+  exportGroupe(ids: number[]): Observable<Blob> {
+    return this.http.post(`${this.resourceUrl}/export-groupe`, ids, { responseType: 'blob' });
   }
 
   /**

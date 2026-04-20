@@ -1,0 +1,116 @@
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/dashboard-common' as com;
+@use 'app/shared/scss/bulk-action-bar' as bar;
+// ─── Layout deux colonnes ──────────────────────────────────────────────────────
+.ae-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+  padding: 0 0.2rem 1rem;
+  min-height: 0;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Panneau (gauche / droite) ─────────────────────────────────────────────────
+.ae-left,
+.ae-right {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ─── Header de panneau (style card-header dashboard) ──────────────────────────
+.ae-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 2px solid #e2e8f0;
+  color: #333;
+  font-weight: 700;
+  font-size: 13px;
+
+  i {
+    font-size: 15px;
+    color: #008cba;
+  }
+
+  span:not(.ae-total-badge) { flex: 1; }
+}
+
+.ae-detail-filters {
+  ::ng-deep .p-select {
+    height: 28px;
+    font-size: 12px;
+  }
+}
+
+// ─── Ligne sélectionnée dans le panneau gauche ─────────────────────────────────
+.ae-row-selected {
+  background: #e3f2fd !important;
+  box-shadow: inset 3px 0 0 #5b89a6;
+}
+
+// ─── Ligne REMBOURSE ───────────────────────────────────────────────────────────
+.pharma-row-info {
+  background: #e8f4f8 !important;
+  box-shadow: inset 3px 0 0 #5bc0de;
+
+  &:hover { background: #d6edf5 !important; }
+}
+
+// ─── État vide (panneau droit sans sélection) ─────────────────────────────────
+.ae-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 200px;
+  color: #adb5bd;
+
+  i { font-size: 36px; }
+  p { font-size: 14px; margin: 0; }
+}
+
+// ─── KPI compact overrides ─────────────────────────────────────────────────────
+.kpi-card-compact {
+  &.kpi-card {
+    border-radius: 10px;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  .card-body {
+    padding: 0.65rem 0.875rem !important;
+  }
+}
+
+.kpi-icon-sm {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+
+  i { font-size: 1.1rem; }
+}
+
+.kpi-value-sm {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  display: block;
+}

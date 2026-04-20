@@ -28,6 +28,10 @@ public class RetourBonDTO {
     private List<RetourBonItemDTO> retourBonItems = new ArrayList<>();
     private Integer pharmamlEnvoiId;
     private boolean ediCompatible;
+    private String reference;
+    private long montantTotal;
+    private long montantAccepte;
+    private boolean delayWarning;
 
     public RetourBonDTO() {}
 
@@ -59,6 +63,13 @@ public class RetourBonDTO {
         }
         this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
         this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null ? retourBon.getPharmamlEnvoi().getId() : null;
+        this.reference = retourBon.getReference();
+        this.montantTotal = this.retourBonItems.stream()
+            .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0) * (i.getQtyMvt() != null ? i.getQtyMvt() : 0))
+            .sum();
+        this.montantAccepte = this.retourBonItems.stream()
+            .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0) * (i.getAcceptedQty() != null ? i.getAcceptedQty() : 0))
+            .sum();
     }
 
     public Integer getId() {
@@ -192,6 +203,51 @@ public class RetourBonDTO {
 
     public RetourBonDTO setHorsCommande(boolean horsCommande) {
         this.horsCommande = horsCommande;
+        return this;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public RetourBonDTO setReference(String reference) {
+        this.reference = reference;
+        return this;
+    }
+
+    public long getMontantTotal() {
+        return montantTotal;
+    }
+
+    public RetourBonDTO setMontantTotal(long montantTotal) {
+        this.montantTotal = montantTotal;
+        return this;
+    }
+
+    public long getMontantAccepte() {
+        return montantAccepte;
+    }
+
+    public RetourBonDTO setMontantAccepte(long montantAccepte) {
+        this.montantAccepte = montantAccepte;
+        return this;
+    }
+
+    public boolean isDelayWarning() {
+        return delayWarning;
+    }
+
+    public RetourBonDTO setDelayWarning(boolean delayWarning) {
+        this.delayWarning = delayWarning;
+        return this;
+    }
+
+    /** Calcule et positionne {@code delayWarning} selon le seuil configurable. */
+    public RetourBonDTO withDelayCheck(int thresholdDays) {
+        if (commandeOrderDate != null && dateMtv != null) {
+            long days = java.time.temporal.ChronoUnit.DAYS.between(commandeOrderDate, dateMtv.toLocalDate());
+            this.delayWarning = days > thresholdDays;
+        }
         return this;
     }
 }

@@ -27,8 +27,34 @@
         <span class="su-tab-badge su-tab-badge--warn">{{ countEnAttente() }}</span>
       }
     </button>
-
-    <!-- Onglet 2 : Historique (CLOSED) -->
+    <!-- Onglet 2 : Avoirs fournisseurs -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeTab() === 'AVOIRS'"
+      (click)="setTab('AVOIRS')"
+      type="button"
+      pTooltip="Encours des avoirs fournisseurs en attente de remboursement"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-wallet"></i>
+      Avoirs
+      @if (countAvoirs() > 0) {
+        <span class="su-tab-badge su-tab-badge--warn">{{ countAvoirs() }}</span>
+      }
+    </button>
+    <!-- Onglet 3 : Regroupement par fournisseur -->
+    <button
+      class="su-tab"
+      [class.su-tab--active]="activeTab() === 'GROUPE'"
+      (click)="setTab('GROUPE')"
+      type="button"
+      pTooltip="Bordereau groupé des retours par fournisseur"
+      tooltipPosition="bottom"
+    >
+      <i class="pi pi-objects-column"></i>
+      Groupé
+    </button>
+    <!-- Onglet 4 : Historique (CLOSED) -->
     <button
       class="su-tab"
       [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
@@ -41,10 +67,14 @@
       Historique
     </button>
 
+
+
+
   </div>
 </div>
 
 <!-- ─── Barre de filtres (su-action-bar, cohérent avec list-bons) ────── -->
+@if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
 <div class="su-action-bar">
   <div class="su-action-bar__filters">
 
@@ -111,7 +141,9 @@
     />
   </div>
 </div>
+}
 
+@if (activeTab() !== 'AVOIRS' && activeTab() !== 'GROUPE') {
 <div>
   <p-table
     [value]="retourBons()"
@@ -132,11 +164,12 @@
       <tr class="pharma-table-head">
         <th style="width: 3rem"></th>
         <th>Date</th>
+        <th>Référence</th>
         <th>Commande</th>
         <th>Fournisseur</th>
         <th class="text-center">Nb. Lignes</th>
         <th class="text-center">Qté Totale</th>
-        <th class="text-center">Qté Acceptée</th>
+        <th class="text-right">Montant</th>
         <th>Statut</th>
         <th>Commentaire</th>
         <th class="text-center">Actions</th>
@@ -158,6 +191,13 @@
           <small>{{ retourBon.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</small>
         </td>
         <td>
+          @if (retourBon.reference) {
+            <span class="pharma-code">{{ retourBon.reference }}</span>
+          } @else {
+            <span class="text-muted">—</span>
+          }
+        </td>
+        <td>
           @if (retourBon.horsCommande) {
             <span class="badge bg-warning text-dark me-1" pTooltip="Retour créé sans référence de commande (lot hors entrée en stock)" tooltipPosition="top">
               <i class="pi pi-exclamation-triangle me-1"></i>Hors commande
@@ -175,8 +215,11 @@
         <td class="text-center">
           <span class="pharma-qty-value">{{ getTotalQuantity(retourBon) | number }}</span>
         </td>
-        <td class="text-center">
-          <span class="pharma-qty-value">{{ getTotalAccepted(retourBon) | number }}</span>
+        <td class="text-right">
+          <span class="pharma-price">{{ (retourBon.montantTotal ?? 0) | number:'1.0-0' }} F</span>
+          @if (retourBon.delayWarning) {
+            <i class="pi pi-exclamation-triangle text-warning ms-1" pTooltip="Retour effectué plus de 365 jours après la commande" tooltipPosition="top"></i>
+          }
         </td>
         <td>
           <p-tag [value]="getStatusLabel(retourBon.statut!)" [severity]="getStatusSeverity(retourBon.statut!)" />
@@ -264,6 +307,17 @@
                   pTooltip="Saisir la réponse fournisseur"
                   tooltipPosition="top"
                 />
+              } @else if (retourBon.statut === RetourBonStatut.PARTIALLY_ACCEPTED) {
+                <p-button
+                  icon="pi pi-lock"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="warn"
+                  size="small"
+                  (onClick)="closeManually(retourBon)"
+                  pTooltip="Clôturer manuellement (acceptation partielle)"
+                  tooltipPosition="top"
+                />
               }
             } @else {
               <!-- Historique : lecture seule, juste un indicateur clôturé -->
@@ -276,7 +330,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="10" class="pharma-empty-message">
+        <td colspan="11" class="pharma-empty-message">
           <div class="pharma-empty-content">
             <i class="pi pi-inbox"></i>
             @if (activeTab() === 'EN_ATTENTE') {
@@ -300,7 +354,7 @@
 
     <ng-template #expandedrow let-retourBon>
       <tr class="pharma-expanded-row">
-        <td colspan="10">
+        <td colspan="11">
           <div class="pharma-sub-table-container">
             <div class="pharma-sub-table-header">
               <i class="pi pi-list"></i>
@@ -376,3 +430,91 @@
     </ng-template>
   </p-table>
 </div>
+}
+
+@if (activeTab() === 'AVOIRS') {
+  <div class="su-content-panel">
+    <app-avoir-encours />
+  </div>
+}
+
+@if (activeTab() === 'GROUPE') {
+  <div class="su-content-panel">
+   <!-- <div class="su-groupe-toolbar">
+      <p-button icon="pi pi-refresh" label="Actualiser" severity="secondary" size="small" (onClick)="loadGroupes()" />
+    </div>-->
+    <p-table [value]="retourBonsGroupes()" [loading]="loadingGroupes()" dataKey="fournisseurId" class="ps-datatable-sm mt-2" >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width:3rem"></th>
+          <th>Fournisseur</th>
+          <th class="text-center">Nb. retours</th>
+          <th class="text-right">Montant total</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-groupe let-expanded="expanded">
+        <tr>
+          <td>
+            <p-button [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [pRowToggler]="groupe" [rounded]="true" [text]="true" type="button" />
+          </td>
+          <td class="pharma-product-name">{{ groupe.fournisseurLibelle }}</td>
+          <td class="text-center"><span class="pharma-price">{{ groupe.nbRetours }}</span></td>
+          <td class="text-right"><span class="pharma-price">{{ groupe.montantTotal | number:'1.0-0' }} F</span></td>
+          <td class="text-center">
+            <p-button icon="pi pi-file-pdf" [text]="true" [rounded]="true" severity="danger" size="small"
+                      pTooltip="Bordereau groupé PDF" tooltipPosition="top"
+                      (onClick)="exportGroupePdf(groupe)" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #expandedrow let-groupe>
+        <tr class="pharma-expanded-row">
+          <td colspan="5">
+            <div class="pharma-sub-table-container">
+              <table class="table table-sm mb-0">
+                <thead class="pharma-table-head">
+                  <tr>
+                    <th>Référence</th>
+                    <th>Commande</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th class="text-right">Montant</th>
+                    <th class="text-center">PDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (bon of groupe.retourBons; track bon.id) {
+                    <tr>
+                      <td><span class="pharma-code">{{ bon.reference ?? '#' + bon.id }}</span></td>
+                      <td><small>{{ bon.receiptReference ?? '—' }}</small></td>
+                      <td><small>{{ bon.dateMtv | date:'dd/MM/yyyy' }}</small></td>
+                      <td><p-tag [value]="getStatusLabel(bon.statut!)" [severity]="getStatusSeverity(bon.statut!)" /></td>
+                      <td class="text-right"><span class="pharma-price">{{ (bon.montantTotal ?? 0) | number:'1.0-0' }} F</span></td>
+                      <td class="text-center">
+                        <p-button icon="pi pi-print" [text]="true" [rounded]="true" severity="secondary" size="small"
+                                  pTooltip="PDF individuel" tooltipPosition="top"
+                                  (onClick)="downloadPdf(bon)" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">
+            <div class="pharma-empty-content">
+              <i class="pi pi-check-circle"></i>
+              <p>Aucun retour ouvert par fournisseur</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+}

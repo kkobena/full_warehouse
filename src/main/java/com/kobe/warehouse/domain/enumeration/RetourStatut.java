@@ -4,4 +4,5 @@ public enum RetourStatut {
     PROCESSING,
     CLOSED,
     VALIDATED,
+    PARTIALLY_ACCEPTED,
 }

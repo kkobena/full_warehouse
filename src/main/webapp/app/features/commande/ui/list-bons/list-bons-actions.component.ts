@@ -42,6 +42,16 @@ import { IDelivery } from '../../../../shared/model/delevery.model';
           size="small"
           (onClick)="printEtiquette.emit()"
         />
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          severity="danger"
+          icon="pi pi-replay"
+          pTooltip="Retour complet de ce bon"
+          tooltipPosition="top"
+          size="small"
+          (onClick)="retourComplet.emit()"
+        />
       }
     </p-buttonGroup>
   `,
@@ -57,4 +67,5 @@ export class ListBonsActionsComponent {
   receive = output<void>();
   exportPdf = output<void>();
   printEtiquette = output<void>();
+  retourComplet = output<void>();
 }

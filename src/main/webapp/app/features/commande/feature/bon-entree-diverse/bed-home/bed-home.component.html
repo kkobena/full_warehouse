@@ -1,0 +1,268 @@
+@if (!editingBed()) {
+
+  <!-- ─── Toolbar : titre + onglets ──────────────────────────────────────── -->
+  <div class="pharma-toolbar su-parent-toolbar">
+
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-file-plus"></i>
+      <span class="su-title">Bons d'Entrée Diverses</span>
+    </div>
+
+    <div class="su-source-tabs-bar">
+
+      <button
+        class="su-tab"
+        [class.su-tab--active]="activeTab() === 'BROUILLON'"
+        (click)="setTab('BROUILLON')"
+        type="button"
+        pTooltip="BED en cours de saisie"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-file-edit"></i>
+        En attente
+        @if (countBrouillon() > 0) {
+          <span class="su-tab-badge su-tab-badge--warn">{{ countBrouillon() }}</span>
+        }
+      </button>
+
+      <button
+        class="su-tab"
+        [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
+        (click)="setTab('HISTORIQUE')"
+        type="button"
+        pTooltip="BED validés — stock crédité"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-history"></i>
+        Historique
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ─── Barre de filtres ─────────────────────────────────────────────── -->
+  <div class="su-action-bar">
+    <div class="su-action-bar__filters">
+
+      <p-iconfield class="lb-search">
+        <p-inputicon class="pi pi-search" />
+        <input
+          [(ngModel)]="search"
+          (keyup.enter)="onSearch()"
+          pInputText
+          placeholder="Référence, libellé…"
+          type="text"
+        />
+      </p-iconfield>
+
+      <p-select
+        [(ngModel)]="filterMotif"
+        (onChange)="onSearch()"
+        [options]="motifOptions"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        appendTo="body"
+        placeholder="Tous les motifs"
+      />
+
+      <p-floatlabel class="lb-date" variant="on">
+        <p-datePicker
+          [(ngModel)]="dtStart"
+          (onSelect)="onSearch()"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          inputId="bedDtStart"
+          appendTo="body"
+        />
+        <label for="bedDtStart">Début</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="lb-date" variant="on">
+        <p-datePicker
+          [(ngModel)]="dtEnd"
+          (onSelect)="onSearch()"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          inputId="bedDtEnd"
+          appendTo="body"
+        />
+        <label for="bedDtEnd">Fin</label>
+      </p-floatlabel>
+
+    </div>
+
+    <div class="su-action-bar__actions">
+      <p-button
+        (onClick)="onNouveauBed()"
+        icon="pi pi-plus"
+        label="Nouveau"
+        severity="primary"
+        size="small"
+      />
+      <p-splitbutton
+        label="Importer stock"
+        icon="pi pi-upload"
+        [model]="importMenuItems"
+        severity="warn"
+        [outlined]="true"
+        size="small"
+      />
+      <p-button
+        (onClick)="onSearch()"
+        icon="pi pi-search"
+        label="Rechercher"
+        severity="info"
+        size="small"
+      />
+    </div>
+  </div>
+
+  <!-- ─── Hint premier usage ─────────────────────────────────────────── -->
+  @if (showHint() && activeTab() === 'BROUILLON') {
+    <div class="pharma-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir détail</strong> pour consulter un BED validé.</span>
+      <button type="button" class="pharma-hint-close" (click)="dismissHint()" aria-label="Fermer">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
+  <div>
+    <p-table
+      [value]="beds()"
+      [rows]="itemsPerPage"
+      [totalRecords]="totalRecords()"
+      [loading]="loading()"
+      class="p-datatable-sm"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 30, 50]"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)"
+      dataKey="id"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+      [showCurrentPageReport]="true"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 160px">Référence</th>
+          <th style="width: 110px">Date</th>
+          <th>Motif</th>
+          <th>Fournisseur</th>
+          <th class="text-center" style="width: 80px">Lignes</th>
+          <th class="text-end" style="width: 130px">Montant</th>
+          <th style="width: 110px">Statut</th>
+          <th class="text-center" style="width: 100px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-b>
+        <tr (click)="onEditer(b)" style="cursor:pointer">
+          <td><span class="pharma-code">{{ b.receiptReference ?? '—' }}</span></td>
+          <td><small>{{ b.orderDate | date:'dd/MM/yyyy' }}</small></td>
+          <td>{{ b.motifLabel ?? '—' }}</td>
+          <td>{{ b.fournisseurLibelle ?? '—' }}</td>
+          <td class="text-center">
+            <span class="pharma-price">{{ b.lignesCount }}</span>
+          </td>
+          <td class="text-end">
+            <span class="pharma-price">{{ b.grossAmount | number:'1.0-0' }} F</span>
+          </td>
+          <td>
+            <p-tag
+              [value]="getStatutLabel(b.orderStatus)"
+              [severity]="getStatutSeverity(b.orderStatus)"
+            />
+          </td>
+          <td class="text-center" (click)="$event.stopPropagation()">
+            <div class="d-flex justify-content-center gap-1">
+              @if (b.orderStatus === 'REQUESTED') {
+                <p-button
+                  icon="pi pi-pen-to-square"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="info"
+                  size="small"
+                  pTooltip="Éditer"
+                  tooltipPosition="top"
+                  (onClick)="onEditer(b)"
+                />
+                <p-button
+                  icon="pi pi-check"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="success"
+                  size="small"
+                  pTooltip="Valider le BED"
+                  tooltipPosition="top"
+                  (onClick)="onValiderDepuisListe(b)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="danger"
+                  size="small"
+                  pTooltip="Supprimer"
+                  tooltipPosition="top"
+                  (onClick)="onSupprimerBed(b)"
+                />
+              } @else {
+                <p-button
+                  icon="pi pi-eye"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="secondary"
+                  size="small"
+                  pTooltip="Voir détail"
+                  tooltipPosition="top"
+                  (onClick)="onEditer(b)"
+                />
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8" class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              @if (activeTab() === 'BROUILLON') {
+                <p>Aucun BED en brouillon</p>
+                <small>Cliquez sur "Nouveau BED" pour créer un bon d'entrée diverse</small>
+              } @else {
+                <p>Aucun BED validé</p>
+                <small>Les bons d'entrée diverses validés apparaîtront ici</small>
+              }
+              <p-button
+                (onClick)="onNouveauBed()"
+                icon="pi pi-plus"
+                label="Nouveau"
+                severity="primary"
+                size="small"
+              />
+
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+}
+
+@if (editingBed()) {
+  <div class="bed-detail-body">
+    <app-bed-detail
+      [bed]="editingBed()!"
+      (retour)="onRetour()"
+      (bedChange)="editingBed.set($event)"
+    />
+  </div>
+}

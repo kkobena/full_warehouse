@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
@@ -117,9 +118,15 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @NotNull
     private AppUser user;
 
-    @ManyToOne(optional = false)
-    @NotNull
+    @ManyToOne(optional = true)
     private Fournisseur fournisseur;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "motif_bed", length = 25)
+    private MotifBed motifBed;
+
+    @Column(name = "commentaire_bed")
+    private String commentaireBed;
 
     @ColumnDefault(value = "false")
     @Column(name = "has_been_submitted_to_pharmaml")
@@ -299,12 +306,30 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
         this.user = user;
     }
 
-    public @NotNull Fournisseur getFournisseur() {
+    public Fournisseur getFournisseur() {
         return fournisseur;
     }
 
     public Commande setFournisseur(Fournisseur fournisseur) {
         this.fournisseur = fournisseur;
+        return this;
+    }
+
+    public MotifBed getMotifBed() {
+        return motifBed;
+    }
+
+    public Commande setMotifBed(MotifBed motifBed) {
+        this.motifBed = motifBed;
+        return this;
+    }
+
+    public String getCommentaireBed() {
+        return commentaireBed;
+    }
+
+    public Commande setCommentaireBed(String commentaireBed) {
+        this.commentaireBed = commentaireBed;
         return this;
     }
 

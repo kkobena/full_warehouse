@@ -7,6 +7,8 @@ import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
 import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
+import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
+import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +37,7 @@ public interface RetourBonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RetourBonDTO> findAll(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable);
+    Page<RetourBonDTO> findAll(RetourStatut statut, RetourStatut excludeStatut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable);
 
     /**
      * Get retour bons by commande ID.
@@ -117,4 +119,33 @@ public interface RetourBonService {
      * @return le DTO de résolution.
      */
     RetourBonLotResolutionDTO resolveLot(Integer lotId);
+
+    /**
+     * Clôture manuellement un retour partiellement accepté.
+     *
+     * @param id the id of the retour bon.
+     * @return the updated entity.
+     */
+    RetourBonDTO closeManually(Integer id);
+
+    /**
+     * Crée un RetourBon couvrant toutes les lignes d'une commande reçue.
+     *
+     * @param request la requête contenant commandeId, commandeOrderDate, motifRetourId.
+     * @return le RetourBonDTO créé.
+     */
+    RetourBonDTO createRetourCompletFromCommande(RetourCompletCommandeRequest request);
+
+    /**
+     * Retourne les retours non clôturés regroupés par fournisseur.
+     */
+    List<RetourBonGroupeDTO> findAllGroupedByFournisseur();
+
+    /**
+     * Génère un PDF bordereau regroupant plusieurs retours bons pour un fournisseur.
+     *
+     * @param ids liste des identifiants des RetourBon à inclure.
+     * @return PDF en bytes.
+     */
+    byte[] exportGroupe(List<Integer> ids);
 }

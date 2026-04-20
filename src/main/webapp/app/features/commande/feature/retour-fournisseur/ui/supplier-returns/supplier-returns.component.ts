@@ -32,6 +32,7 @@ import { InlineLotSelection, InlineLotSelectionComponent } from '../inline-lot-s
 import { RetourBonService } from "../../../../../../entities/commande/retour_fournisseur/retour-bon.service";
 import { DeliveryService } from "../../../../../../entities/commande/delevery/delivery.service";
 import { ICommande } from "../../../../../../shared/model/commande.model";
+import { ConfigurationService } from "../../../../../../shared/configuration.service";
 
 @Component({
   selector: 'app-supplier-returns',
@@ -58,6 +59,9 @@ import { ICommande } from "../../../../../../shared/model/commande.model";
 export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly retourBonService = inject(RetourBonService);
   private readonly commandeService = inject(DeliveryService);
+  private readonly configurationService = inject(ConfigurationService);
+
+  protected delaiRetourSeuil = 365;
   private readonly motifRetourProduitService = inject(ModifRetourProduitService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
@@ -83,6 +87,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected retourBonItems = signal<IRetourBonItem[]>([]);
   protected commentaire = signal<string>('');
   protected isSaving = signal<boolean>(false);
+  protected delayWarning = signal<boolean>(false);
   protected totalRecords = signal<number>(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
 
@@ -102,6 +107,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadMotifRetours();
+    this.loadDelaiSeuil();
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.filterOrderLines(search));
     this.commandeSearchSubscription = this.commandeSearchTrigger$.pipe(debounceTime(300)).subscribe(search => this.filterCommandes(search));
 
@@ -111,6 +117,23 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.editRetourBonId.set(Number(id));
       this.loadRetourForEdit(Number(id));
     }
+  }
+
+  private loadDelaiSeuil(): void {
+    this.configurationService.find('APP_DELAI_RETOUR_FOURNISSEUR').subscribe({
+      next: res => {
+        const val = parseInt(res.body?.value ?? '', 10);
+        if (!isNaN(val)) this.delaiRetourSeuil = val;
+      },
+    });
+  }
+
+  private computeDelayWarning(orderDate: string | null | undefined): void {
+    if (!orderDate) { this.delayWarning.set(false); return; }
+    const order = new Date(orderDate);
+    const today = new Date();
+    const diffDays = Math.floor((today.getTime() - order.getTime()) / 86_400_000);
+    this.delayWarning.set(diffDays > this.delaiRetourSeuil);
   }
 
   ngOnDestroy(): void {
@@ -132,6 +155,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
           fournisseurLibelle: retour.fournisseurLibelle,
         };
         this.selectedCommande.set(commande);
+        this.computeDelayWarning(commande.orderDate);
 
         this.commentaire.set(retour.commentaire ?? '');
 
@@ -201,6 +225,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     const commande = this.selectedCommande();
     if (commande && commande.id && commande.orderDate) {
       this.loadOrderLines(commande.id, commande.orderDate);
+      this.computeDelayWarning(commande.orderDate);
       this.retourBonItems.set([]);
       this.selectedOrderLine.set(null);
       this.selectedMotifRetourId.set(null);
@@ -431,16 +456,13 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   }
 
   protected canSave(): boolean {
-    const commande = this.selectedCommande();
     const items = this.retourBonItems();
+    if (items.length === 0) return false;
 
-    if (!commande || items.length === 0) {
-      return false;
-    }
+    // In edit mode, commande may be absent (horsCommande retour) — skip that check
+    if (!this.isEditMode() && !this.selectedCommande()) return false;
 
-    return items.every(item => {
-      return item.qtyMvt && item.qtyMvt >= 1 && item.motifRetourId;
-    });
+    return items.every(item => item.qtyMvt && item.qtyMvt >= 1 && item.motifRetourId);
   }
 
   protected save(): void {
@@ -451,8 +473,10 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
     const commande = this.selectedCommande();
     const retourBon = new RetourBon();
-    retourBon.commandeId = commande.id;
-    retourBon.commandeOrderDate = commande.orderDate;
+    if (commande) {
+      retourBon.commandeId = commande.id;
+      retourBon.commandeOrderDate = commande.orderDate;
+    }
     retourBon.commentaire = this.commentaire();
     retourBon.retourBonItems = this.retourBonItems();
 

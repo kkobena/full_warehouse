@@ -6,16 +6,17 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.OrderLine;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.CustomizedCommandeService;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
-import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeResumeeDTO;
@@ -30,6 +31,17 @@ import com.kobe.warehouse.service.report.CommandeReportReportService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
@@ -41,16 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -71,8 +73,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
         StringUtils.isEmpty(s) ||
-        (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase()) ||
-            orderLine.getFournisseurProduit().getCodeCip().contains(s));
+            (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase()) ||
+                orderLine.getFournisseurProduit().getCodeCip().contains(s));
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip = (orderLine, _) -> orderLine.getProvisionalCode();
     private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) ->
         orderLine.getOrderCostAmount().compareTo(orderLine.getFournisseurProduit().getPrixAchat()) != 0;
@@ -243,7 +245,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             if (StringUtils.isEmpty(jsonResult)) {
                 return new ArrayList<>();
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.error(null, e);
             return new ArrayList<>();
@@ -253,10 +256,12 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     @Override
     public CommandeDashboardDTO getDashboard() {
         List<Commande> allRequested = commandeRepository.findAll(
-            (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED)
+            (root, query, cb) -> cb.and(cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED), cb.isNull(root.get(Commande_.motifBed)),
+                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER)
+            )
         );
         List<Commande> allReceived = commandeRepository.findAll(
-            (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED)
+            (root, query, cb) -> cb.and(cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED), cb.isNull(root.get(Commande_.motifBed)), cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER))
         );
         List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING);
 

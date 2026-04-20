@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <p-toast />
-  <p-confirmDialog />
+
 
   <div class="pharma-smart-content">
     <!-- HEADER TOOLBAR -->
@@ -8,12 +8,26 @@
       <div class="pharma-toolbar-header">
         <i class="pi pi-tags"></i>
         <span class="pharma-toolbar-title">Motifs de Retour Produit</span>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <p-button (onClick)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif" severity="primary"> </p-button>
-          </div>
-        </div>
       </div>
+
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-search-input">
+
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button size="small" (onClick)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif" severity="primary"/>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
     </div>
 
     <!-- DATA TABLE -->
@@ -24,7 +38,7 @@
         [rows]="itemsPerPage"
         [loading]="loading()"
         [globalFilterFields]="['libelle']"
-        class="pharma-table"
+        class="ps-datable-sm"
         [rowHover]="true"
         dataKey="id"
       >

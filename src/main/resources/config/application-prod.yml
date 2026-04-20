@@ -38,14 +38,14 @@ spring:
     hikari:
       poolName: Hikari
       auto-commit: false
-      maximum-pool-size: 50 # plus de connexions pour prod
+      maximum-pool-size: 100 # plus de connexions pour prod
       minimum-idle: 10
       idle-timeout: 600000 # 10 min
       max-lifetime: 1800000 # 30 min
       connection-timeout: 30000 # 30 sec
       validation-timeout: 5000 # 5 sec
       leak-detection-threshold: 20000
-      connection-init-sql: "SET search_path TO ${flyway.schemas}, public"
+   #   connection-init-sql: "SET search_path TO ${flyway.schemas}, public"
 
   thymeleaf:
     cache: true

@@ -1,0 +1,66 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-replay me-2"></i>
+    Retour complet du bon
+  </h5>
+  <button type="button" class="btn-close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="rc-info-banner">
+    <i class="pi pi-info-circle"></i>
+    <span>
+      Toutes les lignes reçues du bon
+      <strong>{{ delivery?.receiptReference ?? delivery?.orderReference ?? '—' }}</strong>
+      @if (delivery?.fournisseurLibelle) {
+        &mdash; {{ delivery!.fournisseurLibelle }}
+      }
+      seront retournées.
+    </span>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">
+      Motif de retour <span class="text-danger">*</span>
+    </label>
+    <p-select
+      [(ngModel)]="selectedMotifId"
+      [options]="motifs()"
+      optionLabel="libelle"
+      optionValue="id"
+      placeholder="Sélectionner un motif"
+      [overlayOptions]="{baseZIndex: 90050}"
+      (onShow)="onDropdownShow($event)"
+      (onHide)="onDropdownHide($event)"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Commentaire</label>
+    <input
+      pInputText
+      [(ngModel)]="commentaire"
+      placeholder="Commentaire optionnel"
+      class="w-100"
+    />
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    severity="secondary"
+    size="small"
+    icon="pi pi-times"
+    (onClick)="dismiss()"
+  />
+  <p-button
+    label="Créer le retour complet"
+    icon="pi pi-replay"
+    severity="danger"
+    size="small"
+    [disabled]="!selectedMotifId"
+    (onClick)="confirm()"
+  />
+</div>

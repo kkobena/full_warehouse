@@ -47,6 +47,9 @@ public class RetourBon implements Serializable {
     @Column(name = "commentaire", length = 150)
     private String commentaire;
 
+    @Column(name = "reference", length = 30)
+    private String reference;
+
     @OneToMany(mappedBy = "retourBon")
     private List<RetourBonItem> retourBonItems = new ArrayList<>();
 
@@ -125,6 +128,15 @@ public class RetourBon implements Serializable {
 
     public RetourBon setCommentaire(String commentaire) {
         this.commentaire = commentaire;
+        return this;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public RetourBon setReference(String reference) {
+        this.reference = reference;
         return this;
     }
 

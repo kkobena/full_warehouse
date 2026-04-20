@@ -84,6 +84,20 @@
                 </ng-container>
               }
 
+              <!-- 5 ─ Bons d'Entrée Diverses -->
+              @if (showBed()) {
+                <ng-container ngbNavItem="BED">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-file-plus"></i>
+                    <span>Bons d'Entrée Diverses</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-bed-home />
+                  </ng-template>
+                </ng-container>
+              }
+
             </div>
           </div>
         </div>

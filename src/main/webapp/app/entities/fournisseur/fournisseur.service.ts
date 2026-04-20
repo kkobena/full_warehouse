@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { SERVER_API_URL } from '../../app.constants';
-import { createRequestOption } from '../../shared/util/request-util';
+import { createRequestOption, createRequestOptions } from "../../shared/util/request-util";
 import { IResponseDto } from '../../shared/util/response-dto';
 
 type EntityResponseType = HttpResponse<IFournisseur>;
@@ -29,7 +29,7 @@ export class FournisseurService {
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
+    const options = createRequestOptions(req);
     return this.http.get<IFournisseur[]>(this.resourceUrl, {
       params: options,
       observe: 'response',

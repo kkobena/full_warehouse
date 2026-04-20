@@ -63,6 +63,17 @@
       </div>
     </div>
 
+    <!-- BANDEAU AVERTISSEMENT DÉLAI RETOUR -->
+    @if (delayWarning()) {
+      <div class="sr-delay-warning">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          Attention : la commande sélectionnée date de plus de <strong>{{ delaiRetourSeuil }} jours</strong>.
+          Vérifiez les conditions générales de vente du fournisseur avant de valider ce retour.
+        </span>
+      </div>
+    }
+
     <!-- ORDER LINE SELECTION SECTION -->
     <div class="order-search-section">
       <div class="search-section-header">

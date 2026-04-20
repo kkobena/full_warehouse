@@ -1,0 +1,85 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="pi pi-check-circle me-2"></i>
+    Valider {{ bed?.receiptReference ?? 'le BED' }}
+  </h4>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()"></button>
+</div>
+
+<form (ngSubmit)="onConfirm()" name="bedValidateForm" novalidate role="form">
+  <div class="modal-body">
+    <div class="rc-info-banner">
+      <i class="pi pi-info-circle"></i>
+      <span>
+       Cette action créditera le stock et est <strong>irréversible</strong>.
+    </span>
+    </div>
+
+    <p-card>
+      <div class="form-grid-compact">
+
+        <!-- Motif -->
+        <div class="form-field form-field-full">
+          <label>Motif <span class="required">*</span></label>
+          <p-select
+            [ngModel]="formMotif()"
+            (ngModelChange)="formMotif.set($event)"
+            name="motif"
+            [options]="motifOptions"
+            optionLabel="label"
+            optionValue="value"
+            [overlayOptions]="{baseZIndex: 90050}"
+            (onShow)="onDropdownShow($event)"
+            (onHide)="onDropdownHide($event)"
+            placeholder="— Choisir un motif —"
+          />
+        </div>
+
+        <!-- Fournisseur -->
+        <div class="form-field form-field-full">
+          <label>Fournisseur <small class="text-muted fw-normal">(optionnel)</small></label>
+          <p-select
+            [ngModel]="formFournisseur()"
+            (ngModelChange)="formFournisseur.set($event)"
+            name="fournisseur"
+            [options]="fournisseurSuggestions()"
+            optionLabel="libelle"
+            [overlayOptions]="{baseZIndex: 90050}"
+            (onShow)="onDropdownShow($event)"
+            (onHide)="onDropdownHide($event)"
+            placeholder="Rechercher un fournisseur…"
+          />
+        </div>
+
+        <!-- Commentaire -->
+        <div class="form-field form-field-full">
+          <label>Commentaire <small class="text-muted fw-normal">(optionnel)</small></label>
+          <textarea pTextarea
+            rows="2"
+            name="commentaire"
+            [(ngModel)]="commentaire"
+            placeholder="Observations, précisions…"
+          ></textarea>
+        </div>
+
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      (click)="activeModal.dismiss()"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    />
+    <p-button
+      [disabled]="!formMotif()"
+      icon="pi pi-check"
+      label="Valider"
+      severity="success"
+      type="submit"
+    />
+  </div>
+</form>

@@ -1,0 +1,150 @@
+<div class="bed-section">
+  <h6 class="bed-section__title">
+    Lignes produits
+    @if (ligneCount() > 0) {
+      <span class="bed-section__count">{{ ligneCount() }} ligne(s)</span>
+    }
+  </h6>
+
+  @if (isBrouillon()) {
+    <div class="add-product-bar">
+      <div class="search-controls">
+        <div class="product-search-input">
+          <p-autoComplete
+            [suggestions]="produitSuggestions()"
+            (completeMethod)="onSearchProduit($event)"
+            [ngModel]="selectedProduit()"
+            (onSelect)="onProduitSelect($event.value)"
+            (ngModelChange)="selectedProduit.set($event)"
+            optionLabel="libelle"
+            placeholder="Rechercher un produit (CIP, libellé)…"
+            class="w-100"
+          />
+        </div>
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="ligneQuantite"
+              min="1"
+              placeholder="Qté"
+            />
+            <p-inputgroup-addon>
+              <span class="addon-label">u.</span>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+        <div class="price-input-wrapper">
+          <p-inputgroup>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="lignePrixAchat"
+              min="0"
+              placeholder="Prix achat"
+            />
+            <p-inputgroup-addon>
+              <span class="addon-label">F</span>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+        <p-button
+          icon="pi pi-plus"
+          label="Ajouter"
+          severity="primary"
+          size="small"
+          [loading]="addingLigne()"
+          [disabled]="!selectedProduit() || ligneQuantite <= 0"
+          (onClick)="onAjouterLigne()"
+        />
+      </div>
+    </div>
+  }
+
+  <p-table
+    class="p-datatable-sm mt-2"
+    [value]="bed().lignes ?? []"
+    dataKey="id"
+    [scrollable]="true"
+    scrollHeight="flex"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Produit</th>
+        <th style="width:120px">CIP</th>
+        <th class="text-end" style="width:80px">Qté</th>
+        <th class="text-end" style="width:130px">Prix achat</th>
+        <th class="text-end" style="width:130px">Total</th>
+        @if (isBrouillon()) {
+          <th style="width:50px"></th>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-l>
+      <tr>
+        <td>{{ l.produitLibelle ?? '—' }}</td>
+        <td><span class="pharma-code">{{ l.codeCip ?? '—' }}</span></td>
+        <td class="text-end">{{ l.quantite }}</td>
+        <td class="text-end">{{ l.prixAchat | number:'1.0-0' }} F</td>
+        <td class="text-end pharma-total">{{ (l.quantite ?? 0) * (l.prixAchat ?? 0) | number:'1.0-0' }} F</td>
+        @if (isBrouillon()) {
+          <td>
+            <p-button
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              icon="pi pi-trash"
+              size="small"
+              pTooltip="Supprimer"
+              tooltipPosition="top"
+              (onClick)="onSupprimerLigne(l)"
+            />
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="pharma-empty-message">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucune ligne — ajoutez un produit ci-dessus</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #footer>
+      <tr class="bed-total-row">
+        <td colspan="4" class="text-end fw-bold">Total</td>
+        <td class="text-end fw-bold pharma-total">{{ totalLignes() | number:'1.0-0' }} F</td>
+        @if (isBrouillon()) {
+          <td></td>
+        }
+      </tr>
+    </ng-template>
+  </p-table>
+
+  @if (isBrouillon()) {
+    <div class="bed-detail-actions">
+      <p-button
+        icon="pi pi-times"
+        label="Annuler"
+        severity="secondary"
+        size="small"
+        (onClick)="retour.emit()"
+      />
+      <p-button
+        icon="pi pi-check-circle"
+        label="Valider le BED"
+        severity="success"
+        size="small"
+        [disabled]="ligneCount() === 0"
+        (onClick)="onValider()"
+      />
+    </div>
+  }
+</div>

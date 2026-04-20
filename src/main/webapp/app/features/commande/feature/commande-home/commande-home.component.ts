@@ -14,6 +14,7 @@ import { AppRetourFournisseurComponent } from "../retour-fournisseur/retour-four
 import { AppRepartitionStockComponent } from "../repartition-stock/repartition-stock.component";
 import { ApproUnifiedDashboardComponent } from "../appro-unified-dashboard/appro-unified-dashboard.component";
 import { SuggestionsUnifiedComponent } from "../suggestions-unified/suggestions-unified.component";
+import { BedHomeComponent } from "../bon-entree-diverse/bed-home/bed-home.component";
 import { TranslateService } from "@ngx-translate/core";
 import { PrimeNG } from "primeng/config";
 import { AlertBadgeService } from "../../../../shared/services/alert-badge.service";
@@ -26,6 +27,7 @@ const TAB_LABELS: Record<string, string> = {
   SUGGESTIONS:       'Commandes & Réceptions',
   REPARTITION_STOCK: 'Répartition & Transferts',
   RETOUR_FOURNISSEUR:'Retours fournisseurs',
+  BED:               "Bons d'Entrée Diverses",
 };
 
 @Component({
@@ -43,7 +45,8 @@ const TAB_LABELS: Record<string, string> = {
     AppRetourFournisseurComponent,
     AppRepartitionStockComponent,
     ApproUnifiedDashboardComponent,
-    SuggestionsUnifiedComponent
+    SuggestionsUnifiedComponent,
+    BedHomeComponent,
   ]
 })
 export class CommandeHomeComponent implements OnInit {
@@ -61,6 +64,7 @@ export class CommandeHomeComponent implements OnInit {
   protected readonly showSuggestions      = this.ability.canSignal('display', 'commande.suggestions');
   protected readonly showRepartitionStock = this.ability.canSignal('display', 'commande.repartition-stock');
   protected readonly showRetourFournisseur = this.ability.canSignal('display', 'commande.retour-fournisseur');
+  protected readonly showBed              = this.ability.canSignal('display', 'commande.bed');
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());

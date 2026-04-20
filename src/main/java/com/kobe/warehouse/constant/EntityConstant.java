@@ -81,6 +81,8 @@ public final class EntityConstant {
     public static final String APP_ACCEPTATION_SUBSTITUTION = "APP_ACCEPTATION_SUBSTITUTION"; // Mode d'acceptation des substitutions PharmaML EP (AUTO | MANUEL)
     public static final String APP_ACCEPTATION_SUBSTITUTION_CACHE = "APP_ACCEPTATION_SUBSTITUTION_CACHE";
     public static final String APP_DELAI_REGLEMENT_FACTURE = "APP_DELAI_REGLEMENT_FACTURE";
+    public static final String APP_DELAI_RETOUR_FOURNISSEUR = "APP_DELAI_RETOUR_FOURNISSEUR"; // Délai max (jours) entre réception et retour fournisseur avant avertissement
+    public static final String APP_DELAI_RETOUR_FOURNISSEUR_CACHE = "APP_DELAI_RETOUR_FOURNISSEUR_CACHE";
 
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */

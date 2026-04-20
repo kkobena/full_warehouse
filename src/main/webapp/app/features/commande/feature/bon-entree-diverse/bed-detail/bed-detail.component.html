@@ -1,0 +1,149 @@
+<div class="d-flex flex-column h-100">
+
+  <!-- ── PANEL HEADER ─────────────────────────────────────────────────── -->
+  <div class="panel-header">
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      <p-button
+        icon="pi pi-arrow-left"
+        label="Retour à la liste"
+        severity="success"
+        size="small"
+        [text]="true"
+        (onClick)="retour.emit()"
+      />
+      @if (isNew()) {
+        <span class="detail-title">Nouveau Bon d'Entrée Diverse</span>
+      } @else {
+        <span class="detail-title">{{ bed().receiptReference }}</span>
+        <p-tag
+          [value]="getStatutLabel(bed().orderStatus)"
+          [severity]="getStatutSeverity(bed().orderStatus)"
+        />
+        @if (bed().motifBed) {
+          <span class="bed-meta-motif">
+            <i class="pi pi-tag me-1"></i>{{ getMotifLabel(bed().motifBed) }}
+          </span>
+        }
+        @if (bed().commentaireBed) {
+          <span class="bed-meta-info">
+            <i class="pi pi-comment me-1"></i>{{ bed().commentaireBed }}
+          </span>
+        }
+      }
+    </div>
+    <div class="ms-auto d-flex gap-2 align-items-center">
+      @if (!isNew() && isBrouillon()) {
+        <p-button
+          icon="pi pi-check-circle"
+          label="Valider le BED"
+          severity="success"
+          size="small"
+          [disabled]="lignes().length === 0"
+          pTooltip="Valider définitivement et créditer le stock"
+          tooltipPosition="bottom"
+          (onClick)="onValider()"
+        />
+      }
+    </div>
+  </div>
+
+  <!-- ── BARRE RECHERCHE / AJOUT PRODUIT ──────────────────────────────── -->
+  @if (isBrouillon()) {
+    <div class="add-product-bar">
+      <div class="search-controls">
+
+        <div class="product-search-input">
+          <app-commande-product-search
+            #productSearch
+            (productScanned)="onProductScanned($event)"
+            (productSelected)="onProductSelected($event)"
+          />
+        </div>
+
+
+        <div class="quantity-input-wrapper">
+          <p-inputgroup>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="ligneQuantite"
+              placeholder="Qté"
+              min="1"
+            />
+            <p-inputgroup-addon>
+              <p-button
+                icon="pi pi-plus"
+                severity="primary"
+                type="button"
+                [loading]="addingLigne()"
+                [disabled]="!selectedProduit() || ligneQuantite <= 0"
+                (click)="onAjouterLigne()"
+              />
+            </p-inputgroup-addon>
+          </p-inputgroup>
+        </div>
+
+      </div>
+
+      @if (selectedProduit()) {
+        <div class="produit-meta">
+          <span class="meta-item">
+            <i class="pi pi-barcode"></i>
+            {{ selectedProduit()?.fournisseurProduit?.codeCip }}
+          </span>
+          <span class="meta-item">
+            <i class="pi pi-tag"></i>
+            {{ selectedProduit()?.regularUnitPrice | number }} F
+          </span>
+          @if (selectedProduit()?.totalQuantity !== undefined) {
+            <span class="meta-item" [class.low-stock]="selectedProduit()!.totalQuantity! < 10">
+              <i class="pi pi-database"></i>
+              Stock : {{ selectedProduit()?.totalQuantity | number }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── GRILLE LIGNES ─────────────────────────────────────────────────── -->
+  <div class="grid-wrapper flex-grow-1">
+
+    @if (lignes().length > 0) {
+      <div class="grid-caption">
+        <span class="grid-caption__count">{{ lignes().length }} ligne(s)</span>
+        <span class="grid-caption__totals ms-auto">
+          Total achat&nbsp;: <strong>{{ totalGross() | number }}&nbsp;F</strong>
+        </span>
+      </div>
+    }
+
+    <div class="grid-body d-flex overflow-hidden">
+      <div class="flex-grow-1 overflow-hidden h-100">
+        @if (lignes().length > 0) {
+          <ag-grid-angular
+            [theme]="theme"
+            [columnDefs]="columnDefs"
+            [defaultColDef]="defaultColDef"
+            [rowData]="lignes()"
+            [getRowId]="getRowId"
+            [singleClickEdit]="true"
+            [stopEditingWhenCellsLoseFocus]="true"
+            [animateRows]="true"
+            [context]="gridContext"
+            (gridReady)="onGridReady($event)"
+            (cellValueChanged)="onCellValueChanged($event)"
+            style="width: 100%; height: 100%;"
+          />
+        } @else {
+          <div class="grid-empty-state">
+            <i class="pi pi-inbox"></i>
+            <span>Aucune ligne — recherchez et ajoutez un produit</span>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+</div>

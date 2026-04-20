@@ -1,0 +1,10 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/subtab-bar';
+@import 'app/shared/scss/bulk-action-bar' ;
+.bed-detail-body {
+  height: calc(100vh - 195px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

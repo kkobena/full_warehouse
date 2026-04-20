@@ -33,20 +33,25 @@ import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
 import com.kobe.warehouse.service.dto.ReponseRetourBonItemDTO;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
+import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
 import com.kobe.warehouse.service.dto.RetourBonItemDTO;
 import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
+import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
 import com.kobe.warehouse.service.errors.FournisseurIntrouvableException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.MultipleFournisseursException;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.stock.AvoirFournisseurService;
 import com.kobe.warehouse.service.stock.RetourBonService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -81,6 +86,8 @@ public class RetourBonServiceImpl implements RetourBonService {
     private final RetourBonPdfReportService retourBonPdfReportService;
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final FournisseurRepository fournisseurRepository;
+    private final AppConfigurationService appConfigurationService;
+    private final AvoirFournisseurService avoirFournisseurService;
 
     public RetourBonServiceImpl(
         RetourBonRepository retourBonRepository,
@@ -95,7 +102,9 @@ public class RetourBonServiceImpl implements RetourBonService {
         LotRepository lotRepository,
         RetourBonPdfReportService retourBonPdfReportService,
         FournisseurProduitRepository fournisseurProduitRepository,
-        FournisseurRepository fournisseurRepository
+        FournisseurRepository fournisseurRepository,
+        AppConfigurationService appConfigurationService,
+        AvoirFournisseurService avoirFournisseurService
     ) {
         this.retourBonRepository = retourBonRepository;
         this.retourBonItemRepository = retourBonItemRepository;
@@ -110,6 +119,8 @@ public class RetourBonServiceImpl implements RetourBonService {
         this.retourBonPdfReportService = retourBonPdfReportService;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.fournisseurRepository = fournisseurRepository;
+        this.appConfigurationService = appConfigurationService;
+        this.avoirFournisseurService = avoirFournisseurService;
     }
 
     @Override
@@ -128,28 +139,31 @@ public class RetourBonServiceImpl implements RetourBonService {
         Commande commande = commandeRepository.findById(commandeId).orElseThrow(() -> new RuntimeException("Commande not found"));
         retourBon.setCommande(commande);
         retourBon = retourBonRepository.save(retourBon);
+        retourBon.setReference(generateReference(retourBon.getId()));
+        retourBon = retourBonRepository.save(retourBon);
 
         if (retourBonDTO.getRetourBonItems() != null && !retourBonDTO.getRetourBonItems().isEmpty()) {
             RetourBon finalRetourBon = retourBon;
             retourBonDTO.getRetourBonItems().forEach(itemDTO -> createRetourBonItem(itemDTO, finalRetourBon, magasinId));
         }
 
-        return new RetourBonDTO(retourBon);
+        return toDto(retourBon);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RetourBonDTO> findAll(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable) {
-        log.debug("Request to get all RetourBons with filters: statut={}, dtStart={}, dtEnd={}, search={}", statut, dtStart, dtEnd, search);
-        Specification<RetourBon> spec = buildSpecification(statut, dtStart, dtEnd, search);
-        return retourBonRepository.findAll(spec, pageable).map(RetourBonDTO::new);
+    public Page<RetourBonDTO> findAll(RetourStatut statut, RetourStatut excludeStatut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable) {
+        Specification<RetourBon> spec = buildSpecification(statut, excludeStatut, dtStart, dtEnd, search);
+        return retourBonRepository.findAll(spec, pageable).map(this::toDto);
     }
 
-    private Specification<RetourBon> buildSpecification(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search) {
+    private Specification<RetourBon> buildSpecification(RetourStatut statut, RetourStatut excludeStatut, LocalDate dtStart, LocalDate dtEnd, String search) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (statut != null) {
                 predicates.add(cb.equal(root.get("statut"), statut));
+            } else if (excludeStatut != null) {
+                predicates.add(cb.notEqual(root.get("statut"), excludeStatut));
             }
             if (dtStart != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("dateMtv"), dtStart.atStartOfDay()));
@@ -169,7 +183,9 @@ public class RetourBonServiceImpl implements RetourBonService {
                 // Recherche dans commande.receiptReference
                 Predicate byReference = cb.like(
                     cb.lower(root.join("commande", JoinType.LEFT).get("receiptReference")), pattern);
-                predicates.add(cb.or(byCommandeFournisseur, byDirectFournisseur, byReference));
+                // Recherche dans retourBon.reference (ex: RET-2026-0042)
+                Predicate byRetourReference = cb.like(cb.lower(root.get("reference")), pattern);
+                predicates.add(cb.or(byCommandeFournisseur, byDirectFournisseur, byReference, byRetourReference));
             }
             query.orderBy(cb.desc(root.get("dateMtv")));
             return cb.and(predicates.toArray(new Predicate[0]));
@@ -179,15 +195,13 @@ public class RetourBonServiceImpl implements RetourBonService {
     @Override
     @Transactional(readOnly = true)
     public List<RetourBonDTO> findAllByCommande(Integer commandeId, LocalDate orderDate) {
-        log.debug("Request to get all RetourBons by commande : {}, {}", commandeId, orderDate);
-        return retourBonRepository.findAllByCommandeId(commandeId).stream().map(RetourBonDTO::new).toList();
+        return retourBonRepository.findAllByCommandeId(commandeId).stream().map(this::toDto).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<RetourBonDTO> findOne(Integer id) {
-        log.debug("Request to get RetourBon : {}", id);
-        return retourBonRepository.findById(id).map(RetourBonDTO::new);
+        return retourBonRepository.findById(id).map(this::toDto);
     }
 
     @Override
@@ -197,8 +211,8 @@ public class RetourBonServiceImpl implements RetourBonService {
             .findById(reponseRetourBonDTO.getRetourBonId())
             .orElseThrow(() -> new GenericError("RetourBon not found"));
 
-        if (retourBon.getStatut() != RetourStatut.VALIDATED) {
-            throw new GenericError("Ce retour est déjà traité ");
+        if (retourBon.getStatut() != RetourStatut.VALIDATED && retourBon.getStatut() != RetourStatut.PROCESSING) {
+            throw new GenericError("Ce retour est déjà traité");
         }
 
         ReponseRetourBon reponseRetourBon = new ReponseRetourBon();
@@ -220,15 +234,18 @@ public class RetourBonServiceImpl implements RetourBonService {
         }
         if (allItemsAccepted) {
             retourBon.setStatut(RetourStatut.CLOSED);
+        } else {
+            retourBon.setStatut(RetourStatut.PARTIALLY_ACCEPTED);
         }
         retourBonRepository.save(retourBon);
+
+        avoirFournisseurService.createFromReponseRetourBon(reponseRetourBon);
 
         return new ReponseRetourBonDTO(reponseRetourBon);
     }
 
     @Override
     public RetourBonDTO update(RetourBonDTO retourBonDTO) {
-        log.debug("Request to update RetourBon : {}", retourBonDTO.getId());
         RetourBon retourBon = retourBonRepository
             .findById(retourBonDTO.getId())
             .orElseThrow(() -> new GenericError("RetourBon not found"));
@@ -250,7 +267,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             retourBonDTO.getRetourBonItems().forEach(itemDTO -> createRetourBonItem(itemDTO, retourBon, magasinId));
         }
 
-        return new RetourBonDTO(retourBonRepository.findById(retourBon.getId()).orElseThrow());
+        return toDto(retourBonRepository.findById(retourBon.getId()).orElseThrow());
     }
 
     @Override
@@ -274,7 +291,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             throw new GenericError("Seuls les retours en attente peuvent être marqués en cours");
         }
         retourBon.setStatut(RetourStatut.PROCESSING);
-        return new RetourBonDTO(retourBonRepository.save(retourBon));
+        return toDto(retourBonRepository.save(retourBon));
     }
 
     @Override
@@ -402,6 +419,8 @@ public class RetourBonServiceImpl implements RetourBonService {
         retourBon.setHorsCommande(true);
         retourBon.setFournisseur(fournisseur);
         retourBon = retourBonRepository.save(retourBon);
+        retourBon.setReference(generateReference(retourBon.getId()));
+        retourBon = retourBonRepository.save(retourBon);
 
         RetourBonItemDTO itemDTO = new RetourBonItemDTO();
         itemDTO.setProduitId(lot.getProduit().getId());
@@ -411,7 +430,7 @@ public class RetourBonServiceImpl implements RetourBonService {
         itemDTO.setPrixAchat(lot.getPrixAchat());
 
         createRetourBonItem(itemDTO, retourBon, magasinId);
-        return new RetourBonDTO(retourBonRepository.findById(retourBon.getId()).orElseThrow());
+        return toDto(retourBonRepository.findById(retourBon.getId()).orElseThrow());
     }
 
     /** Construit le DTO commande pour le chemin nominal ou override. */
@@ -517,6 +536,109 @@ public class RetourBonServiceImpl implements RetourBonService {
         }
     }
 
+    @Override
+    public RetourBonDTO closeManually(Integer id) {
+        log.debug("Request to close manually RetourBon : {}", id);
+        RetourBon retourBon = retourBonRepository.findById(id)
+            .orElseThrow(() -> new GenericError("RetourBon not found"));
+        if (retourBon.getStatut() != RetourStatut.PARTIALLY_ACCEPTED) {
+            throw new GenericError("Seuls les retours partiellement acceptés peuvent être clôturés manuellement");
+        }
+        retourBon.setStatut(RetourStatut.CLOSED);
+        return toDto(retourBonRepository.save(retourBon));
+    }
+
+    @Override
+    public RetourBonDTO createRetourCompletFromCommande(RetourCompletCommandeRequest request) {
+        log.debug("Request to create retour complet from commande: {}/{}", request.getCommandeId(), request.getCommandeOrderDate());
+
+        CommandeId commandeKey = new CommandeId(request.getCommandeId(), request.getCommandeOrderDate());
+        Commande commande = commandeRepository.findById(commandeKey)
+            .orElseThrow(() -> new GenericError("Commande introuvable: " + request.getCommandeId()));
+
+        List<OrderLine> orderLines = orderLineRepository
+            .findAllByCommandeIdAndCommandeOrderDate(request.getCommandeId(), request.getCommandeOrderDate())
+            .stream()
+            .filter(ol -> ol.getQuantityReceived() != null && ol.getQuantityReceived() > 0)
+            .toList();
+
+        if (orderLines.isEmpty()) {
+            throw new GenericError("Aucune ligne reçue trouvée pour cette commande");
+        }
+
+        AppUser currentUser = userService.getUser();
+        int magasinId = currentUser.getMagasin().getId();
+
+        RetourBon retourBon = new RetourBon();
+        retourBon.setDateMtv(LocalDateTime.now());
+        retourBon.setStatut(RetourStatut.VALIDATED);
+        retourBon.setCommentaire(request.getCommentaire());
+        retourBon.setUser(currentUser);
+        retourBon.setCommande(commande);
+        retourBon = retourBonRepository.save(retourBon);
+        retourBon.setReference(generateReference(retourBon.getId()));
+        retourBon = retourBonRepository.save(retourBon);
+
+        RetourBon finalRetourBon = retourBon;
+        for (OrderLine ol : orderLines) {
+            OrderLineId orderLineId = ol.getId();
+            int alreadyReturned = retourBonItemRepository.sumQtyMvtByOrderLineId(orderLineId.getId(), orderLineId.getOrderDate(), null, RetourStatut.CLOSED);
+            int retournable = ol.getQuantityReceived() - alreadyReturned;
+            if (retournable <= 0) continue;
+
+            RetourBonItemDTO itemDTO = new RetourBonItemDTO();
+            itemDTO.setOrderLineId(ol.getId().getId());
+            itemDTO.setOrderLineOrderDate(ol.getId().getOrderDate());
+            itemDTO.setQtyMvt(retournable);
+            itemDTO.setMotifRetourId(request.getMotifRetourId());
+            if (ol.getFournisseurProduit() != null && ol.getFournisseurProduit().getProduit() != null) {
+                itemDTO.setProduitId(ol.getFournisseurProduit().getProduit().getId());
+                itemDTO.setProduitCip(ol.getFournisseurProduit().getCodeCip());
+            }
+            createRetourBonItem(itemDTO, finalRetourBon, magasinId);
+        }
+
+        return toDto(retourBonRepository.findById(retourBon.getId()).orElseThrow());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RetourBonGroupeDTO> findAllGroupedByFournisseur() {
+        List<RetourBon> open = retourBonRepository.findAll(
+            buildSpecification(null, RetourStatut.CLOSED, null, null, null)
+        );
+        return open.stream()
+            .map(this::toDto)
+            .filter(dto -> dto.getFournisseurId() != null)
+            .collect(java.util.stream.Collectors.groupingBy(RetourBonDTO::getFournisseurId))
+            .entrySet().stream()
+            .map(e -> {
+                List<RetourBonDTO> list = e.getValue();
+                String libelle = list.getFirst().getFournisseurLibelle();
+                return new com.kobe.warehouse.service.dto.RetourBonGroupeDTO(e.getKey(), libelle, list);
+            })
+            .sorted(java.util.Comparator.comparing(com.kobe.warehouse.service.dto.RetourBonGroupeDTO::getFournisseurLibelle,
+                java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportGroupe(List<Integer> ids) {
+        List<RetourBonDTO> retourBons = retourBonRepository.findAllById(ids).stream()
+            .map(this::toDto)
+            .toList();
+        return retourBonPdfReportService.exportGroupe(retourBons);
+    }
+
+    private RetourBonDTO toDto(RetourBon retourBon) {
+        return new RetourBonDTO(retourBon).withDelayCheck(appConfigurationService.getDelaiRetourFournisseur());
+    }
+
+    private String generateReference(Integer id) {
+        return "RET-" + Year.now().getValue() + "-" + String.format("%04d", id);
+    }
+
     private void createRetourBonItem(RetourBonItemDTO itemDTO, RetourBon retourBon, int magasinId) {
         List<StockProduit> stockProduits = stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
             magasinId,
@@ -560,6 +682,14 @@ public class RetourBonServiceImpl implements RetourBonService {
 
             if (itemDTO.getQtyMvt() > lot.getQuantity()) {
                 throw new GenericError("Quantité insuffisante dans le lot: " + lot.getNumLot());
+            }
+            int alreadyReturned = retourBonItemRepository.sumQtyMvtByLotId(lot.getId(), retourBon.getId(), RetourStatut.CLOSED);
+            int retournable = lot.getQuantity() - alreadyReturned;
+            if (itemDTO.getQtyMvt() > retournable) {
+                throw new GenericError(
+                    "Lot " + lot.getNumLot() + " : quantité retournable = " + retournable
+                    + " (déjà retourné : " + alreadyReturned + ")"
+                );
             }
             lot.setQuantity(lot.getQuantity() - itemDTO.getQtyMvt());
             lotRepository.save(lot);

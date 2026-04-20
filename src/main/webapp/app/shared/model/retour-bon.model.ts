@@ -19,6 +19,10 @@ export interface IRetourBon {
   retourBonItems?: IRetourBonItem[];
   pharmamlEnvoiId?: number;
   ediCompatible?: boolean;
+  reference?: string;
+  montantTotal?: number;
+  montantAccepte?: number;
+  delayWarning?: boolean;
 }
 
 export class RetourBon implements IRetourBon {

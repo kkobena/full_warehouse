@@ -34,6 +34,8 @@ import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
 import { CommandeReceivedComponent } from "../../feature/commande-received/commande-received.component";
 import { ReceptionConcordanceComponent } from "../reception-concordance/reception-concordance.component";
 import { CommandCommonService } from "app/entities/commande/command-common.service";
+import { RetourBonService } from "app/entities/commande/retour_fournisseur/retour-bon.service";
+import { RetourCompletModalComponent } from "./retour-complet-modal.component";
 
 @Component({
   selector: "app-list-bons",
@@ -83,7 +85,7 @@ export class AppListBonsComponent implements OnInit {
   protected readonly statutOptions = [
     { label: "Tous les bons", value: null },
     { label: "En attente de saisie", value: "RECEIVED" },
-    { label: "Clôturé", value: "CLOSED" },
+    { label: "Clôturé", value: "CLOSED" }
   ];
 
   // ── Totaux comptables de la période (backend) ──────────────────────────────
@@ -92,13 +94,13 @@ export class AppListBonsComponent implements OnInit {
 
   // ── Lignes bon clôturé (panneau consultation) ─────────────────────────────
   readonly closedOrderLines = computed<IOrderLine[]>(
-    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? [],
+    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? []
   );
 
   // ── Row styling ────────────────────────────────────────────────────────────
   getBlRowClass(d: IDelivery): Record<string, boolean> {
     return {
-      "row-received": d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED",
+      "row-received": d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED"
     };
   }
 
@@ -107,7 +109,7 @@ export class AppListBonsComponent implements OnInit {
     const priceDiff = !costDiff && line.regularUnitPrice !== line.orderUnitPrice;
     return {
       "pharma-row-danger": costDiff,
-      "pharma-row-warning": priceDiff,
+      "pharma-row-warning": priceDiff
     };
   }
 
@@ -127,6 +129,7 @@ export class AppListBonsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly commandCommonService = inject(CommandCommonService);
+  private readonly retourBonService = inject(RetourBonService);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
 
   ngOnInit(): void {
@@ -138,7 +141,7 @@ export class AppListBonsComponent implements OnInit {
     toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
       .pipe(
         filter(id => id != null),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(pending => {
         this.commandCommonService.pendingOpenDeliveryId.set(null);
@@ -154,7 +157,7 @@ export class AppListBonsComponent implements OnInit {
           error: () => {
             this.spinner().hide();
             this.notificationService.error("Erreur lors du chargement du bon de livraison", "Erreur");
-          },
+          }
         });
       });
   }
@@ -202,7 +205,7 @@ export class AppListBonsComponent implements OnInit {
         error: () => {
           this.spinner().hide();
           this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        },
+        }
       });
   }
 
@@ -232,7 +235,7 @@ export class AppListBonsComponent implements OnInit {
         error: () => {
           this.spinner().hide();
           this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        },
+        }
       });
   }
 
@@ -248,10 +251,42 @@ export class AppListBonsComponent implements OnInit {
       EtiquetteComponent,
       {
         entity: delivery,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `,
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `
       },
-      () => {},
-      "lg",
+      () => {
+      },
+      "lg"
+    );
+  }
+
+  onRetourComplet(delivery: IDelivery): void {
+    const ref = this.modalService.open(RetourCompletModalComponent, {
+      size: "lg",
+      centered: true,
+      backdrop: "static"
+    });
+    ref.componentInstance.delivery = delivery;
+    ref.result.then(
+      (result: { motifRetourId: number; commentaire: string }) => {
+        const cmdId = delivery.commandeId?.id ?? delivery.id!;
+        const cmdDate = delivery.commandeId?.orderDate ?? delivery.orderDate!;
+        this.retourBonService.retourCompletCommande({
+          commandeId: cmdId,
+          commandeOrderDate: cmdDate,
+          motifRetourId: result.motifRetourId,
+          commentaire: result.commentaire
+        }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.notificationService.success("Retour complet créé avec succès");
+            this.loadPage(this.page);
+          },
+          error: () => {
+            this.notificationService.error("Erreur lors de la création du retour complet");
+          }
+        });
+      },
+      () => {
+      }
     );
   }
 
@@ -266,7 +301,7 @@ export class AppListBonsComponent implements OnInit {
           window.open(URL.createObjectURL(blob));
         }
       },
-      error: () => this.spinner().hide(),
+      error: () => this.spinner().hide()
     });
   }
 
@@ -288,7 +323,7 @@ export class AppListBonsComponent implements OnInit {
     }
     forkJoin({
       list: this.entityService.query(query),
-      totals: this.entityService.fetchTotals(query),
+      totals: this.entityService.fetchTotals(query)
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -296,10 +331,10 @@ export class AppListBonsComponent implements OnInit {
           this.onSuccess(list.body, list.headers, page);
           this.periodTotals.set(totals.body);
           this.countReceived.set(
-            (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length,
+            (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length
           );
         },
-        error: () => (this.loading = false),
+        error: () => (this.loading = false)
       });
   }
 

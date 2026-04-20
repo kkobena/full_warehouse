@@ -11,6 +11,7 @@ public class ResponseDTO {
     private List<?> data;
     private String rejectFileUrl;
     private int errorSize;
+    private String bedReference;
 
     public ResponseDTO() {
         super();
@@ -31,6 +32,15 @@ public class ResponseDTO {
 
     public ResponseDTO setRejectFileUrl(String rejectFileUrl) {
         this.rejectFileUrl = rejectFileUrl;
+        return this;
+    }
+
+    public String getBedReference() {
+        return bedReference;
+    }
+
+    public ResponseDTO setBedReference(String bedReference) {
+        this.bedReference = bedReference;
         return this;
     }
 

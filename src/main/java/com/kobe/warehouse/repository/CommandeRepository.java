@@ -13,7 +13,9 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
@@ -44,6 +46,27 @@ import java.util.Set;
 public interface CommandeRepository
     extends JpaRepository<Commande, CommandeId>, JpaSpecificationExecutor<Commande>, CustomCommandeRepository {
     int countByOrderStatus(OrderStatut orderStatut);
+
+    long countByTypeAndOrderDate(TypeDeliveryReceipt type, LocalDate orderDate);
+
+    default Specification<Commande> byReceiptType(TypeDeliveryReceipt type) {
+        return (root, query, cb) -> cb.equal(root.get("type"), type);
+    }
+
+    default Specification<Commande> byMotifBed(MotifBed motif) {
+        return (root, query, cb) -> cb.equal(root.get("motifBed"), motif);
+    }
+
+    default Specification<Commande> byBedSearchRef(String searchRef) {
+        if (!StringUtils.hasLength(searchRef)) {
+            return null;
+        }
+        String like = searchRef.toUpperCase() + "%";
+        return (root, query, cb) -> cb.or(
+            cb.like(cb.upper(root.get(Commande_.receiptReference)), like),
+            cb.like(cb.upper(root.get(Commande_.orderReference)), like)
+        );
+    }
     @Query(
         value = "select a.fournisseur.groupeFournisseur.libelle AS libelle,SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:orderStatut GROUP BY a.fournisseur.groupeFournisseur.id,a.fournisseur.groupeFournisseur.libelle ",
         countQuery = "select count(a.fournisseur.groupeFournisseur.id) from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:receiptStatut "

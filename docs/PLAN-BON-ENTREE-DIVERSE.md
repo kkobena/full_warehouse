@@ -38,6 +38,7 @@
 8. [Fichiers à créer / modifier](#8-fichiers-à-créer--modifier)
 9. [Matrice de priorité](#9-matrice-de-priorité)
 10. [Estimation des efforts](#10-estimation-des-efforts)
+11. [Phase 5 — Importation CSV avec création de BED (BASCULEMENT / BASCULEMENT_PRESTIGE)](#11-phase-5--importation-csv-avec-création-de-bed)
 
 ---
 
@@ -248,14 +249,18 @@ public enum MotifBed {
     TRANSFERT_ENTRANT("Transfert entrant inter-pharmacie"),
     REGULARISATION("Régularisation positive"),
     CORRECTION_ERREUR("Correction d'erreur"),
+    BASCULEMENT("Basculement depuis autre logiciel"),
+    BASCULEMENT_PRESTIGE("Basculement depuis Prestige"),
     AUTRE("Autre");
 }
 ```
 
+> **Note :** `BASCULEMENT` et `BASCULEMENT_PRESTIGE` correspondent aux types déjà définis dans `TypeImportationProduit`. Lorsque l'un de ces motifs est sélectionné, l'import CSV existant (`ImportationProduitService`) est exécuté **en parallèle** de la création d'un BED — voir §11 (Phase 5).
+
 Ajouté dans la table `commande` via migration Flyway :
 ```sql
 -- V1.0.X__bed_motif.sql
-ALTER TABLE warehouse.commande
+ALTER TABLE commande
     ADD COLUMN motif_bed VARCHAR(25),
     ADD COLUMN commentaire_bed VARCHAR(255);
 ```
@@ -315,12 +320,12 @@ BROUILLON BED (orderStatus = REQUESTED)
 
 ```sql
 -- Champs BED sur la table commande
-ALTER TABLE warehouse.commande
+ALTER TABLE commande
     ADD COLUMN IF NOT EXISTS motif_bed    VARCHAR(25),
     ADD COLUMN IF NOT EXISTS commentaire_bed VARCHAR(255);
 
 -- Rendre fournisseur_id nullable pour les BED (type = DIRECT)
-ALTER TABLE warehouse.commande
+ALTER TABLEcommande
     ALTER COLUMN fournisseur_id DROP NOT NULL;
 ```
 
@@ -503,18 +508,18 @@ private String generateBedReference(LocalDate date) {
 ### 7.1 Structure des composants
 
 ```
-features/commande/feature/bon-entree-diverse/
+features/commande/feature/bon-entree-diverIse/
 ├── bed-home/
 │   ├── bed-home.component.ts         ← layout liste + panneau détail (pattern produit-home)
 │   └── bed-home.component.html
 ├── bed-list/
-│   ├── bed-list.component.ts         ← tableau lazy (AG Grid ou p-table)
+│   ├── bed-list.component.ts         ← tableau lazy  p-table
 │   └── bed-list.component.html
 ├── bed-form/
 │   ├── bed-form.component.ts         ← formulaire création/édition BED (modal NgbModal)
 │   └── bed-form.component.html
 ├── bed-ligne-form/
-│   ├── bed-ligne-form.component.ts   ← ligne produit inline
+│   ├── bed-ligne-form.component.ts   ← ligne produit inline AG-grid
 │   └── bed-ligne-form.component.html
 └── data-access/
     ├── bed.service.ts                ← HTTP client
@@ -692,10 +697,236 @@ il faut ajout bed-home comme une tab dans C:\Users\k.kobena\Documents\dev\full_w
 | **Phase 2** | Frontend : liste + formulaire + route | — | 3j | 🔴 **P1** |
 | **Phase 3** | Lots par ligne + génération PDF | 1j | 1j | 🟡 **P2** |
 | **Phase 4** | Annulation + dashboard badge + export | 0.5j | 1j | 🟢 **P3** |
-| **TOTAL** | | **4j** | **5j** | — |
+| **Phase 5** | Import CSV BASCULEMENT/PRESTIGE avec création BED | 1j | 0.5j | 🔴 **P1** |
+| **TOTAL** | | **5j** | **5.5j** | — |
 
 > **Point de départ recommandé :** Phase 0 (migration) → Phase 1 backend → Phase 2 frontend.
 > Les Phases 3 et 4 peuvent être livrées en itération suivante sans bloquer l'usage quotidien.
+> La Phase 5 peut être développée en parallèle de la Phase 1 car elle réutilise `BedService`.
+
+---
+
+## 11. Phase 5 — Importation CSV avec création de BED
+
+### 11.1 Contexte
+
+Les types `TypeImportationProduit.BASCULEMENT` et `BASCULEMENT_PRESTIGE` sont déjà gérés dans `ImportationProduitService` pour importer les produits. La Phase 5 ajoute la **création automatique d'un BED validé** lors de cet import : chaque produit importé devient une ligne du BED, ce qui garantit la traçabilité de toutes les entrées de stock initiales.
+
+Ces deux types sont ajoutés comme motifs dans `MotifBed` :
+- `BASCULEMENT` → "Basculement depuis autre logiciel"
+- `BASCULEMENT_PRESTIGE` → "Basculement depuis Prestige"
+
+### 11.2 Flux fonctionnel
+
+```
+Utilisateur (UI Installation)
+         │
+         ├── Sélectionne motif = BASCULEMENT ou BASCULEMENT_PRESTIGE
+         ├── Sélectionne fournisseur (obligatoire pour ces deux types)
+         ├── Upload fichier CSV
+         │
+         ▼
+ImportationProduitService.installNewOfficine()
+         │
+         ├── [Existant] Parse CSV → crée/met à jour produits + stocks
+         │
+         └── [NOUVEAU] Pour chaque produit importé avec succès :
+                 │  → accumule BedImportLigneDTO {produitId, qty, prixAchat}
+                 │
+                 ▼
+         BedService.createAndValidateBedFromImport(motif, fournisseurId, lignes)
+                 │
+                 ├── createBon() → Commande(type=DIRECT, motifBed=BASCULEMENT|BASCULEMENT_PRESTIGE)
+                 ├── addOrderLines() → une OrderLine par produit
+                 ├── finalizeSaisieEntreeStock() → orderStatus = CLOSED
+                 └── Retourne BED référence (BED-YYYYMMDD-NNN)
+         │
+         ▼
+ResponseDTO enrichi avec { size, errorSize, rejectFileUrl, bedReference }
+```
+
+### 11.3 Modifications backend
+
+#### 11.3.1 `MotifBed.java` — Ajout des deux nouveaux motifs
+
+```java
+public enum MotifBed {
+    RETOUR_CLIENT("Retour client"),
+    ECHANTILLON("Echantillon / Don laboratoire"),
+    TRANSFERT_ENTRANT("Transfert entrant inter-pharmacie"),
+    REGULARISATION("Régularisation positive"),
+    CORRECTION_ERREUR("Correction d'erreur"),
+    BASCULEMENT("Basculement depuis autre logiciel"),           // NOUVEAU
+    BASCULEMENT_PRESTIGE("Basculement depuis Prestige"),        // NOUVEAU
+    AUTRE("Autre");
+    // ...
+}
+```
+
+#### 11.3.2 `BedService` — Méthode dédiée à l'import en masse
+
+```java
+// Ajout dans BedService.java
+/**
+ * Crée et valide immédiatement un BED à partir d'un import CSV de basculement.
+ * Le BED est directement CLOSED (pas de brouillon), avec une OrderLine par produit.
+ *
+ * @param motifBed      BASCULEMENT ou BASCULEMENT_PRESTIGE
+ * @param fournisseurId fournisseur principal de l'import (obligatoire)
+ * @param lignes        liste des produits importés avec qty et prixAchat
+ * @return référence du BED créé (ex: "BED-20260405-001")
+ */
+String createAndValidateBedFromImport(MotifBed motifBed, Integer fournisseurId,
+                                       List<BedImportLigneDTO> lignes);
+```
+
+**DTO dédié à l'import :**
+
+```java
+// service/dto/BedImportLigneDTO.java
+public record BedImportLigneDTO(
+    Integer produitId,          // ID du produit importé
+    Integer fournisseurProduitId, // ID FournisseurProduit (pour le lien OrderLine)
+    int quantite,               // qty importée (= record.qty())
+    int prixAchat               // prix achat (= record.prixAchat())
+) {}
+```
+
+#### 11.3.3 `ImportationProduitService` — Adaptation des méthodes BASCULEMENT
+
+Modification de `faireBasculement()` et `faireBasculementPrestige()` pour :
+1. Accumuler les `BedImportLigneDTO` après chaque `saveRecord()` réussi
+2. Appeler `bedService.createAndValidateBedFromImport()` à la fin du traitement
+
+```java
+// Injection à ajouter dans ImportationProduitService
+private final BedService bedService;
+
+// Dans faireBasculement() — après la boucle forEach :
+if (!bedLignes.isEmpty()) {
+    String bedRef = bedService.createAndValidateBedFromImport(
+        MotifBed.BASCULEMENT, fournisseur.getId(), bedLignes);
+    response.setBedReference(bedRef);
+}
+
+// Dans faireBasculementPrestige() — idem avec MotifBed.BASCULEMENT_PRESTIGE
+```
+
+> **Important :** `bedService.createAndValidateBedFromImport()` opère en dehors du `transactionTemplate` de chaque record — une transaction dédiée encapsule la création du BED entier. Si la création du BED échoue, les produits sont quand même importés (import non bloqué par le BED).
+
+#### 11.3.4 `ResponseDTO` — Champ `bedReference`
+
+```java
+// Ajout dans ResponseDTO.java
+private String bedReference;   // "BED-20260405-001" — null si pas de BED créé
+
+public String getBedReference() { return bedReference; }
+public ResponseDTO setBedReference(String bedReference) {
+    this.bedReference = bedReference;
+    return this;
+}
+```
+
+#### 11.3.5 `BedServiceImpl` — Implémentation de `createAndValidateBedFromImport`
+
+```java
+@Override
+@Transactional
+public String createAndValidateBedFromImport(MotifBed motifBed, Integer fournisseurId,
+                                              List<BedImportLigneDTO> lignes) {
+    LocalDate today = LocalDate.now();
+
+    // 1. Créer la Commande (BED en brouillon)
+    Commande commande = new Commande();
+    commande.setId(generateCommandeId());           // séquence existante
+    commande.setOrderDate(today);
+    commande.setReceiptReference(generateBedReference(today));
+    commande.setReceiptType(TypeDeliveryReceipt.DIRECT);
+    commande.setOrderStatus(OrderStatut.REQUESTED);
+    commande.setMotifBed(motifBed);
+    if (fournisseurId != null) {
+        commande.setFournisseur(fournisseurRepository.getReferenceById(fournisseurId));
+    }
+    commande = commandeRepository.save(commande);
+
+    // 2. Créer les OrderLines
+    int totalAmount = 0;
+    for (BedImportLigneDTO ligne : lignes) {
+        OrderLine ol = new OrderLine();
+        ol.setCommande(commande);
+        ol.setFournisseurProduit(
+            fournisseurProduitRepository.getReferenceById(ligne.fournisseurProduitId()));
+        ol.setQuantityRequested(ligne.quantite());
+        ol.setQuantityReceived(ligne.quantite());
+        ol.setOrderUnitPrice(ligne.prixAchat());
+        orderLineRepository.save(ol);
+        totalAmount += ligne.quantite() * ligne.prixAchat();
+    }
+
+    // 3. Finaliser (crédite stock + ferme le BED)
+    commande.setOrderAmount(totalAmount);
+    commande.setOrderStatus(OrderStatut.CLOSED);
+    commande.setReceiptDate(today);
+    commandeRepository.save(commande);
+
+    return commande.getReceiptReference();
+}
+```
+
+> **Note :** La Phase 5 ne crédite **pas** le stock via `finalizeSaisieEntreeStock()` car l'import CSV crédite déjà le `StockProduit` lors du `saveRecord()`. Le BED sert uniquement à la **traçabilité documentaire**. Le champ `quantityReceived` est renseigné mais le mouvement de stock est déjà enregistré par l'import.
+
+### 11.4 Modifications frontend
+
+#### 11.4.1 Composant d'importation existant
+
+Dans le composant d'installation/importation (à identifier — probablement dans `features/admin/` ou `entities/installation/`), ajouter :
+
+1. Lorsque `typeImportation === 'BASCULEMENT' || typeImportation === 'BASCULEMENT_PRESTIGE'` :
+   - Afficher le sélecteur de fournisseur (déjà présent pour ces types)
+   - Afficher un badge informatif : _"L'import va également créer un Bon d'Entrée Diverse pour la traçabilité"_
+
+2. Après la réponse du backend, si `response.bedReference` est présent :
+   ```typescript
+   this.notificationService.success(
+     `Import terminé. BED créé : ${response.bedReference}`
+   );
+   ```
+
+#### 11.4.2 Interface `ResponseDTO` côté Angular
+
+```typescript
+// shared/model/response-dto.model.ts (ou équivalent)
+export interface ResponseDTO {
+  size?: number;
+  errorSize?: number;
+  rejectFileUrl?: string;
+  bedReference?: string;   // NOUVEAU — null si pas de BED
+}
+```
+
+### 11.5 Règles métier spécifiques BASCULEMENT
+
+| Règle | Comportement |
+|---|---|
+| Fournisseur | **Obligatoire** pour BASCULEMENT et BASCULEMENT_PRESTIGE |
+| Création stock | Déléguée à l'import CSV existant (pas de double crédit) |
+| Mouvement stock | NON créé par le BED (déjà fait par `saveRecord()`) |
+| Statut BED | Directement `CLOSED` (pas de brouillon) |
+| Rollback BED | Indépendant de l'import : un échec du BED ne bloque pas l'import |
+| Annulation BED | Non autorisée pour ces motifs (stock initial, irréversible) |
+
+### 11.6 Fichiers à créer / modifier (Phase 5)
+
+| Fichier | Action |
+|---|---|
+| `domain/enumeration/MotifBed.java` | ✏️ Ajouter `BASCULEMENT`, `BASCULEMENT_PRESTIGE` |
+| `service/dto/BedImportLigneDTO.java` | ➕ Record DTO pour les lignes d'import |
+| `service/dto/ResponseDTO.java` | ✏️ Ajouter champ `bedReference` |
+| `service/stock/BedService.java` | ✏️ Ajouter méthode `createAndValidateBedFromImport()` |
+| `service/stock/impl/BedServiceImpl.java` | ✏️ Implémenter `createAndValidateBedFromImport()` |
+| `service/ImportationProduitService.java` | ✏️ Injecter `BedService`, accumuler lignes, appeler BED après import |
+| `shared/model/response-dto.model.ts` | ✏️ Ajouter `bedReference` |
+| Composant importation (frontend) | ✏️ Afficher `bedReference` dans notification de succès |
 
 ---
 

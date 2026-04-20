@@ -99,7 +99,7 @@ public class RetourBonExcelCsvReportService {
 
     private List<RetourBonItemLine> buildLines(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search) {
         List<RetourBonDTO> bons = retourBonService
-            .findAll(statut, dtStart, dtEnd, search, Pageable.unpaged())
+            .findAll(statut, null, dtStart, dtEnd, search, Pageable.unpaged())
             .getContent();
 
         List<RetourBonItemLine> lines = new ArrayList<>();

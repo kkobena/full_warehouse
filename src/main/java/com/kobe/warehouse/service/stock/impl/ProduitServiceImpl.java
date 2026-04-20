@@ -343,7 +343,7 @@ public class ProduitServiceImpl implements ProduitService {
             }
 
         }
-        assert stockProduit != null;
+
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyStock(stockProduit.getQtyStock() + (stockIn + stockUg));
         stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);

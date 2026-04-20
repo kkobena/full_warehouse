@@ -7,6 +7,8 @@ import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
 import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
+import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
+import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
 import com.kobe.warehouse.service.pharmaml.service.PharmaMlService;
 import com.kobe.warehouse.service.report.excel.RetourBonExcelCsvReportService;
 import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
@@ -111,13 +113,14 @@ public class RetourBonResource {
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
         @RequestParam(required = false, name = "statut") RetourStatut statut,
+        @RequestParam(required = false, name = "excludeStatut") RetourStatut excludeStatut,
         @RequestParam(required = false, name = "dtStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
         @RequestParam(required = false, name = "dtEnd") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
         @RequestParam(required = false, name = "search") String search,
         Pageable pageable
     ) {
-        log.debug("REST request to get a page of RetourBons: statut={}, dtStart={}, dtEnd={}, search={}", statut, dtStart, dtEnd, search);
-        Page<RetourBonDTO> page = retourBonService.findAll(statut, dtStart, dtEnd, search, pageable);
+        log.debug("REST request to get a page of RetourBons: statut={}, excludeStatut={}, dtStart={}, dtEnd={}, search={}", statut, excludeStatut, dtStart, dtEnd, search);
+        Page<RetourBonDTO> page = retourBonService.findAll(statut, excludeStatut, dtStart, dtEnd, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -314,6 +317,53 @@ public class RetourBonResource {
             log.error("Error exporting RetourBons", e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    /**
+     * {@code PATCH  /retour-bons/:id/close-manually} : clôture manuellement un retour partiellement accepté.
+     */
+    @PatchMapping("/retour-bons/{id}/close-manually")
+    public ResponseEntity<RetourBonDTO> closeManually(@PathVariable Integer id) {
+        log.debug("REST request to close manually RetourBon : {}", id);
+        RetourBonDTO result = retourBonService.closeManually(id);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code POST  /retour-bons/retour-complet} : Crée un RetourBon couvrant toutes les lignes d'une commande.
+     */
+    @PostMapping("/retour-bons/retour-complet")
+    public ResponseEntity<RetourBonDTO> createRetourComplet(@Valid @RequestBody RetourCompletCommandeRequest request)
+        throws URISyntaxException {
+        log.debug("REST request to create retour complet from commande: {}/{}", request.getCommandeId(), request.getCommandeOrderDate());
+        RetourBonDTO result = retourBonService.createRetourCompletFromCommande(request);
+        return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code GET  /retour-bons/grouped-by-fournisseur} : get all open retour bons grouped by fournisseur.
+     */
+    @GetMapping("/retour-bons/grouped-by-fournisseur")
+    public ResponseEntity<List<RetourBonGroupeDTO>> getAllGroupedByFournisseur() {
+        log.debug("REST request to get RetourBons grouped by fournisseur");
+        return ResponseEntity.ok(retourBonService.findAllGroupedByFournisseur());
+    }
+
+    /**
+     * {@code POST  /retour-bons/export-groupe} : generate a grouped PDF for the given retour bons.
+     */
+    @PostMapping("/retour-bons/export-groupe")
+    public ResponseEntity<byte[]> exportGroupe(@RequestBody List<Integer> ids) {
+        log.debug("REST request to export groupe PDF for RetourBons : {}", ids);
+        byte[] pdf = retourBonService.exportGroupe(ids);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"bordereau-groupe-retours.pdf\"")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdf);
     }
 
     /**

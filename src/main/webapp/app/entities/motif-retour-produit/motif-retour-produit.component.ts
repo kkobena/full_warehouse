@@ -54,7 +54,7 @@ export class MotifRetourProduitComponent implements OnInit {
 
   protected openNew(): void {
     const modalRef = this.modalService.open(MotifRetourProduitFormModalComponent, {
-      size: "md",
+      size: "lg",
       backdrop: "static",
       centered: true,
       keyboard: false
@@ -72,7 +72,7 @@ export class MotifRetourProduitComponent implements OnInit {
 
   protected edit(motif: IMotifRetourProduit): void {
     const modalRef = this.modalService.open(MotifRetourProduitFormModalComponent, {
-      size: "md",
+      size: "lg",
       backdrop: "static",
       keyboard: false
     });

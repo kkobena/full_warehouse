@@ -53,6 +53,8 @@ export class NavManagerComponent implements OnInit {
   private readonly rawTree = signal<INavNode[]>([]);
   protected readonly availableRoles = signal<IAuthority[]>([]);
   protected selectedRole: IAuthority | null = null;
+  //La fonctionnalité pas totalement OK
+  protected showTabReorder=false;
 
   /**
    * Arbre de prévisualisation : reflète en temps réel les cases cochées

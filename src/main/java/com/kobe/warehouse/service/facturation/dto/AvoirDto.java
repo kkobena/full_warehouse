@@ -10,6 +10,7 @@ public record AvoirDto(
     String numAvoir,
     Long factureOrigineId,
     LocalDate factureOrigineDate,
+    String factureNum,
     BigDecimal montantAvoir,
     BigDecimal montantTva,
     BigDecimal montantHt,

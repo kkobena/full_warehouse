@@ -234,6 +234,7 @@ export interface IAvoir {
   numAvoir?: string;
   factureOrigineId?: number;
   factureOrigineDate?: string;
+  factureNum?: string;
   montantAvoir?: number;
   montantTva?: number;
   montantHt?: number;

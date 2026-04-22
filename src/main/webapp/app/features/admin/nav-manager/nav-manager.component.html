@@ -283,17 +283,20 @@
         </ng-container>
 
         <!-- ── Onglet Réorganisation (Drag & Drop) ──────────────────── -->
-        <ng-container ngbNavItem="reorder">
-          <a class="pharma-nav-tab-link" ngbNavLink>
-            <i class="pi pi-arrows-alt"></i>
-            <span>Réorganisation</span>
-          </a>
-          <ng-template ngbNavContent>
-            <div class="p-3">
-              <app-nav-reorder />
-            </div>
-          </ng-template>
-        </ng-container>
+        @if (showTabReorder) {
+          <ng-container ngbNavItem="reorder">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-arrows-alt"></i>
+              <span>Réorganisation</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="p-3">
+                <app-nav-reorder />
+              </div>
+            </ng-template>
+          </ng-container>
+        }
+
 
         <!-- ── Onglet Prévisualisation ──────────────────────────────── -->
         <ng-container ngbNavItem="preview">

@@ -31,7 +31,6 @@ import java.util.List;
 @Table(
     name = "avoir_tiers_payant",
     indexes = {
-        @Index(columnList = "tiers_payant_id", name = "avoir_tiers_payant_idx"),
         @Index(columnList = "avoir_date", name = "avoir_date_idx"),
         @Index(columnList = "statut", name = "avoir_statut_idx"),
     }
@@ -50,17 +49,15 @@ public class AvoirTiersPayant implements Serializable {
     private String numAvoir;
 
     @NotNull
-    @Column(name = "facture_origine_id", nullable = false)
-    private Long factureOrigineId;
+    @ManyToOne
+    @JoinColumns(
+        {
+            @JoinColumn(name = "facture_origine_id", referencedColumnName = "id"),
+            @JoinColumn(name = "facture_origine_date", referencedColumnName = "invoice_date"),
+        }
+    )
+    private FactureTiersPayant factureTiersPayant;
 
-    @NotNull
-    @Column(name = "facture_origine_date", nullable = false)
-    private LocalDate factureOrigineDate;
-
-    @NotNull
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "tiers_payant_id", referencedColumnName = "id")
-    private TiersPayant tiersPayant;
 
     @NotNull
     @Column(name = "montant_avoir", precision = 15, scale = 2, nullable = false)
@@ -96,6 +93,8 @@ public class AvoirTiersPayant implements Serializable {
     @NotNull
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated;
+
+
 
     @OneToMany(mappedBy = "avoir", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvoirLine> lignes = new ArrayList<>();
@@ -133,30 +132,12 @@ public class AvoirTiersPayant implements Serializable {
         return this;
     }
 
-    public Long getFactureOrigineId() {
-        return factureOrigineId;
+    public FactureTiersPayant getFactureTiersPayant() {
+        return factureTiersPayant;
     }
 
-    public AvoirTiersPayant setFactureOrigineId(Long factureOrigineId) {
-        this.factureOrigineId = factureOrigineId;
-        return this;
-    }
-
-    public LocalDate getFactureOrigineDate() {
-        return factureOrigineDate;
-    }
-
-    public AvoirTiersPayant setFactureOrigineDate(LocalDate factureOrigineDate) {
-        this.factureOrigineDate = factureOrigineDate;
-        return this;
-    }
-
-    public TiersPayant getTiersPayant() {
-        return tiersPayant;
-    }
-
-    public AvoirTiersPayant setTiersPayant(TiersPayant tiersPayant) {
-        this.tiersPayant = tiersPayant;
+    public AvoirTiersPayant setFactureTiersPayant(FactureTiersPayant factureTiersPayant) {
+        this.factureTiersPayant = factureTiersPayant;
         return this;
     }
 

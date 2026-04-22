@@ -23,6 +23,7 @@ import {
   IReglementFactureDossier
 } from "../../data-access/models";
 import { ReglementWorkspaceComponent } from "../reglement-workspace/reglement-workspace.component";
+import { AvoirWorkspaceComponent } from "../avoir-workspace/avoir-workspace.component";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
@@ -38,7 +39,8 @@ import { CommonModule } from "@angular/common";
     BadgeModule,
     TooltipModule,
     ProgressSpinnerModule,
-    ReglementWorkspaceComponent
+    ReglementWorkspaceComponent,
+    AvoirWorkspaceComponent
   ],
   templateUrl: "./facture-detail-panel.component.html",
   styleUrl: "./facture-detail-panel.component.scss"

@@ -42,9 +42,10 @@ public class AvoirResource {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
         @RequestParam(required = false) List<AvoirStatut> statuts,
+        @RequestParam(required = false) String numAvoir,
         Pageable pageable
     ) {
-        AvoirSearchParams params = new AvoirSearchParams(tiersPayantId, startDate, endDate, statuts);
+        AvoirSearchParams params = new AvoirSearchParams(tiersPayantId, startDate, endDate, statuts, numAvoir);
         Page<AvoirDto> page = avoirService.findAll(params, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(), page
@@ -55,15 +56,12 @@ public class AvoirResource {
     @PostMapping
     public ResponseEntity<AvoirDto> creerAvoir(@RequestBody AvoirCommand command) {
         AvoirDto result = avoirService.creerAvoir(command);
-        return ResponseEntity
-            .created(URI.create("/api/avoirs/" + result.id()))
-            .body(result);
+        return ResponseEntity.created(URI.create("/api/avoirs/" + result.id())).body(result);
     }
 
     @PostMapping("/{id}/emettre")
     public ResponseEntity<AvoirDto> emettre(@PathVariable Long id) {
-        AvoirDto result = avoirService.emettre(id);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(avoirService.emettre(id));
     }
 
     @PostMapping("/{id}/imputer")
@@ -79,15 +77,48 @@ public class AvoirResource {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/annuler")
+    public ResponseEntity<Void> annuler(
+        @PathVariable Long id,
+        @RequestBody(required = false) Map<String, String> body
+    ) {
+        String motif = body != null ? body.get("motif") : null;
+        avoirService.annuler(id, motif);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> annuler(@PathVariable Long id) {
-        avoirService.annuler(id);
+    public ResponseEntity<Void> annulerLegacy(@PathVariable Long id) {
+        avoirService.annuler(id, null);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> exportPdf(@PathVariable Long id) {
-        byte[] pdf = avoirService.exportPdf(id);
-        return Utils.printPDF(pdf, "avoir_" + id + ".pdf");
+        return Utils.printPDF(avoirService.exportPdf(id), "avoir_" + id + ".pdf");
+    }
+
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportListPdf(
+        @RequestParam(required = false) Integer tiersPayantId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(required = false) List<AvoirStatut> statuts,
+        @RequestParam(required = false) String numAvoir
+    ) {
+        AvoirSearchParams params = new AvoirSearchParams(tiersPayantId, startDate, endDate, statuts, numAvoir);
+        return Utils.printPDF(avoirService.exportListPdf(params), "avoirs_" + LocalDate.now() + ".pdf");
+    }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportExcel(
+        @RequestParam(required = false) Integer tiersPayantId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(required = false) List<AvoirStatut> statuts,
+        @RequestParam(required = false) String numAvoir
+    ) {
+        AvoirSearchParams params = new AvoirSearchParams(tiersPayantId, startDate, endDate, statuts, numAvoir);
+        return Utils.exportExcel(avoirService.exportExcel(params), "avoirs_" + LocalDate.now() + ".xlsx");
     }
 }

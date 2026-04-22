@@ -1,0 +1,113 @@
+@use 'app/shared/scss/table-common' as common;
+
+.avoir-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --- Toolbar --- */
+.aw-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  background-color: var(--p-surface-50);
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.aw-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--p-text-color);
+}
+
+.aw-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.aw-total-badge {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  white-space: nowrap;
+
+  .pharma-price {
+    font-weight: 600;
+    color: var(--p-primary-color);
+  }
+}
+
+.aw-info-label {
+  font-size: 0.68rem;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* --- Mode selector --- */
+.aw-mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  flex-shrink: 0;
+}
+
+.aw-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+/* --- Form container --- */
+.aw-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* --- Global fields row --- */
+.aw-fields-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.aw-field {
+  flex: 1 1 140px;
+  min-width: 120px;
+}
+
+/* --- Ligne table (scrollable) --- */
+.aw-lignes-table {
+  flex: 1;
+  overflow: hidden;
+}
+
+.aw-motif-input {
+  width: 100%;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--p-surface-300);
+  border-radius: var(--p-border-radius);
+  background: var(--p-surface-0);
+
+  &:disabled {
+    background: var(--p-surface-100);
+    color: var(--p-text-muted-color);
+  }
+}

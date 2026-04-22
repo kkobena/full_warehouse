@@ -43,7 +43,7 @@
                 </ng-container>
               }
 
-              <!-- 3. Historique règlements — encaissements reçus (SS, mutuelles) -->
+              <!--  Historique règlements — encaissements reçus -->
               @if (showHistorique()) {
                 <ng-container ngbNavItem="historique">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -57,7 +57,7 @@
                 </ng-container>
               }
 
-              <!-- 4. Rapprochement — pointer règlements vs factures, identifier les impayés -->
+              <!--  Rapprochement — pointer règlements vs factures, identifier les impayés -->
               @if (showRapprochement()) {
                 <ng-container ngbNavItem="rapprochement">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -71,7 +71,7 @@
                 </ng-container>
               }
 
-              <!-- 5. Récapitulatif — synthèse périodique pour le pharmacien -->
+              <!--  Récapitulatif — synthèse périodique pour le pharmacien -->
               @if (showRecapitulatif()) {
                 <ng-container ngbNavItem="recapitulatif">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -85,11 +85,11 @@
                 </ng-container>
               }
 
-              <!-- 6. Avoirs — opération exceptionnelle (litiges, trop-perçus) -->
+              <!--  Avoirs — opération exceptionnelle (litiges, trop-perçus) -->
               @if (showAvoir && showAvoirs()) {
                 <ng-container ngbNavItem="avoirs">
                   <a class="pharma-nav-vertical-link" ngbNavLink>
-                    <i class="pi pi-file-minus"></i>
+                    <i class="pi pi-wallet"></i>
                     <span>Avoirs</span>
                     <span class="link-arrow">›</span>
                   </a>

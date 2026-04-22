@@ -1,0 +1,40 @@
+<header xmlns:th="http://www.thymeleaf.org">
+  <div class="row" style="padding-bottom: 0">
+    <table style="padding: 0; margin: 0">
+      <tbody>
+        <tr>
+          <td>
+            <div class="col-6 company-details">
+              <h2 class="name" th:text="${magasin.name}"></h2>
+              <div th:if="${magasin.phone != null}"><span th:text="${magasin.phone}"></span></div>
+              <div th:if="${magasin.address != null}"><span th:text="${magasin.address}"></span></div>
+            </div>
+          </td>
+          <td style="text-align: right; padding: 0">
+            <div style="font-size: 11px; font-weight: bold; color: #3989c6;">AVOIRS / NOTES DE CRÉDIT</div>
+            <div style="font-size: 9px; color: #555;" th:text="${periode}"></div>
+            <div style="font-size: 9px; color: #888;">
+              Édité le : <span th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+            <span class="header-counter" style="font-size: 8px; color: #888;"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Totaux résumé -->
+  <div style="padding: 4px 10px 0 10px;">
+    <table style="margin: 0; border: 0.5px solid #ccc;">
+      <tbody>
+        <tr>
+          <td style="font-size: 9px; padding: 2px 8px; font-weight: 600;">Total avoirs</td>
+          <td style="font-size: 9px; padding: 2px 8px;" th:text="${totalCount}"></td>
+          <td style="font-size: 9px; padding: 2px 8px; font-weight: 600;">Montant total TTC</td>
+          <td style="font-size: 9px; padding: 2px 8px; text-align: right; font-weight: 700;"
+              th:text="${#numbers.formatDecimal(totalMontant, 1, 'COMMA', 0, 'POINT')}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</header>

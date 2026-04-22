@@ -15,8 +15,7 @@ public interface AvoirFournisseurService {
 
     AvoirFournisseurDTO createFromReponseRetourBon(ReponseRetourBon reponseRetourBon);
 
-    Page<AvoirFournisseurDTO> findAll(AvoirFournisseurStatut statut, Integer fournisseurId,
-                                      LocalDate dtStart, LocalDate dtEnd, Pageable pageable);
+    Page<AvoirFournisseurDTO> findAll(AvoirFournisseurStatut statut, Integer fournisseurId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable);
 
     List<AvoirEncoursFournisseurDTO> getEncoursParFournisseur();
 

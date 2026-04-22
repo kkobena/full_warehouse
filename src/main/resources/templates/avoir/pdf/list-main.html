@@ -1,0 +1,15 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Liste des avoirs</title>
+    <style th:replace="~{common/reglement/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{avoir/pdf/list-header}"></header>
+    <div class="invoice">
+      <main>
+        <table th:replace="~{avoir/pdf/list-body}"></table>
+      </main>
+    </div>
+  </body>
+</html>

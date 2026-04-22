@@ -19,6 +19,7 @@
               [multiple]="true"
               [suggestions]="tiersPayantSuggestions"
               appendTo="body"
+              [dropdown]="true"
               id="av-tp"
               inputId="av-tp"
               optionLabel="fullName"
@@ -63,9 +64,19 @@
               id="av-statut"
               optionLabel="label"
               optionValue="value"
-              style="width: 150px"
+              style="width: 140px"
             />
             <label for="av-statut"></label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              [(ngModel)]="numAvoirSearch"
+              id="av-num"
+              style="width: 130px"
+            />
+            <label for="av-num">N° avoir</label>
           </p-floatlabel>
 
         </div>
@@ -82,18 +93,45 @@
               label="Rechercher"
               severity="info"
             />
-            <p-button
-              (onClick)="openNouvelAvoir()"
+            <p-splitbutton
+              [model]="exportMenuItems"
               [raised]="true"
-              icon="pi pi-plus"
-              label="Nouvel avoir"
-              severity="primary"
+              icon="pi pi-file-excel"
+              label="Exporter"
+              severity="warn"
             />
+
           </div>
         </div>
       </ng-template>
     </p-toolbar>
   </div>
+
+  <!-- KPI bar -->
+  @if (avoirs().length > 0) {
+    <div class="kpi-bar">
+      <div class="kpi-tile kpi-draft">
+        <span class="kpi-label">Brouillons</span>
+        <span class="kpi-count">{{ kpi()['DRAFT'].count }}</span>
+        <span class="kpi-amount">{{ kpi()['DRAFT'].total | number:'1.0-0' }}</span>
+      </div>
+      <div class="kpi-tile kpi-emis">
+        <span class="kpi-label">Émis</span>
+        <span class="kpi-count">{{ kpi()['EMIS'].count }}</span>
+        <span class="kpi-amount">{{ kpi()['EMIS'].total | number:'1.0-0' }}</span>
+      </div>
+      <div class="kpi-tile kpi-impute">
+        <span class="kpi-label">Imputés</span>
+        <span class="kpi-count">{{ kpi()['IMPUTE'].count }}</span>
+        <span class="kpi-amount">{{ kpi()['IMPUTE'].total | number:'1.0-0' }}</span>
+      </div>
+      <div class="kpi-tile kpi-annule">
+        <span class="kpi-label">Annulés</span>
+        <span class="kpi-count">{{ kpi()['ANNULE'].count }}</span>
+        <span class="kpi-amount">{{ kpi()['ANNULE'].total | number:'1.0-0' }}</span>
+      </div>
+    </div>
+  }
 
   <!-- Table -->
   <p-table
@@ -101,91 +139,88 @@
     [loading]="loading()"
     [rowHover]="true"
     [scrollable]="true"
-    scrollHeight="70vh"
+    scrollHeight="flex"
     class="p-datatable-sm"
   >
     <ng-template #header>
       <tr class="pharma-table-head">
         <th>N° Avoir</th>
         <th>Facture origine</th>
-        <th>Date facture</th>
         <th>Tiers-payant</th>
         <th>Date avoir</th>
         <th class="text-end">Montant TTC</th>
         <th class="text-end">TVA</th>
         <th class="text-end">HT</th>
         <th>Statut</th>
-        <th class="text-center">Motif</th>
+        <th>Motif</th>
         <th class="text-center">Actions</th>
       </tr>
     </ng-template>
     <ng-template #body let-avoir>
       <tr>
-        <td>{{ avoir.numAvoir || '—' }}</td>
-        <td>{{ avoir.factureOrigineId }}</td>
-        <td>{{ avoir.factureOrigineDate }}</td>
+        <td><span class="pharma-code">{{ avoir.numAvoir || '—' }}</span></td>
+        <td><span class="pharma-code">{{ avoir.factureNum }}</span></td>
         <td>{{ avoir.tiersPayantName }}</td>
-        <td>{{ avoir.avoirDate }}</td>
+        <td class="small text-muted">{{ avoir.avoirDate }}</td>
         <td class="text-end fw-bold">{{ (avoir.montantAvoir ?? 0) | number:'1.0-0' }}</td>
-        <td class="text-end">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
-        <td class="text-end">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
+        <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
+        <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
         <td>
-          <span [class]="getStatutBadgeClass(avoir.statut)">
-            {{ getStatutLabel(avoir.statut) }}
-          </span>
+          <p-badge [value]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
         </td>
-        <td class="text-center" [title]="avoir.motif ?? ''">
+        <td class="small text-muted" [title]="avoir.motif ?? ''">
           <span class="avoir-motif-cell">{{ avoir.motif }}</span>
         </td>
         <td class="text-center">
-          <div class="d-flex gap-1 justify-content-center flex-wrap">
+          <div class="d-flex gap-1 justify-content-center">
             @if (avoir.statut === 'DRAFT') {
               <p-button
                 (onClick)="onEmettre(avoir)"
                 icon="pi pi-send"
                 label="Émettre"
-                severity="primary"
+                severity="info"
                 size="small"
                 [outlined]="true"
-                title="Émettre cet avoir"
+                pTooltip="Émettre cet avoir"
               />
             }
             @if (avoir.statut === 'EMIS') {
               <p-button
-                (onClick)="onImputer(avoir)"
+                (onClick)="onOpenImputer(avoir)"
                 icon="pi pi-link"
                 label="Imputer"
                 severity="success"
                 size="small"
                 [outlined]="true"
-                title="Imputer sur une facture"
+                pTooltip="Imputer sur une facture"
               />
             }
             @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
               <p-button
-                (onClick)="onAnnuler(avoir)"
+                (onClick)="onOpenAnnuler(avoir)"
                 icon="pi pi-ban"
                 severity="danger"
                 size="small"
                 [text]="true"
-                title="Annuler l'avoir"
+                pTooltip="Annuler l'avoir"
               />
             }
+            <p-button
+              (onClick)="onExportPdf(avoir)"
+              icon="pi pi-file-pdf"
+              severity="warn"
+              size="small"
+              [text]="true"
+              [loading]="exportingPdf() === avoir.id"
+              pTooltip="Télécharger PDF"
+            />
             <p-button
               (onClick)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate, avoir.tiersPayantId)"
               icon="pi pi-plus"
               severity="secondary"
               size="small"
               [text]="true"
-              title="Créer un avoir pour cette facture"
-            />
-            <p-button
-              (onClick)="onDownloadPdf(avoir)"
-              icon="pi pi-file-pdf"
-              severity="secondary"
-              size="small"
-              [text]="true"
-              title="Télécharger PDF"
+              pTooltip="Créer un avoir sur cette facture"
             />
           </div>
         </td>
@@ -193,20 +228,99 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="11" class="text-center text-muted py-5">
+        <td colspan="10" class="text-center text-muted py-5">
           <i class="pi pi-inbox d-block fs-1 mb-2"></i>
-        <p>Aucun avoir trouvé. Cliquez sur "Nouvel avoir" pour en créer un.</p>
-          <p-button
-            (onClick)="openNouvelAvoir()"
-            [raised]="true"
-            icon="pi pi-plus"
-            label="Nouvel avoir"
-            severity="primary"
-          />
+          <p>Aucun avoir trouvé.</p>
         </td>
       </tr>
     </ng-template>
   </p-table>
 
 </div>
+
+<!-- Modal : Imputation -->
+<ng-template #imputerModal let-modal>
+  <div class="modal-header py-2">
+    <h6 class="modal-title mb-0">
+      <i class="pi pi-link me-2"></i>
+      Imputer {{ currentImputerAvoir?.numAvoir }}
+      <span class="pharma-price ms-2">{{ currentImputerAvoir?.montantAvoir | number:'1.0-0' }}</span>
+    </h6>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <p-floatlabel variant="on">
+      <p-autoComplete
+        [(ngModel)]="selectedTargetFacture"
+        [suggestions]="factureCibleSuggestions"
+        (completeMethod)="searchFactureCible($event)"
+        [forceSelection]="true"
+        [minQueryLength]="2"
+        [dropdown]="true"
+        optionLabel="numFacture"
+        appendTo="body"
+        id="imp-facture"
+        inputId="imp-facture"
+        style="width: 100%"
+      >
+        <ng-template #item let-f>
+          <div class="d-flex justify-content-between align-items-center gap-3 w-100">
+            <span class="pharma-code fw-semibold">{{ f.numFacture }}</span>
+            <span class="small text-muted">Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number:'1.0-0' }}</span></span>
+          </div>
+        </ng-template>
+      </p-autoComplete>
+      <label for="imp-facture">Facture cible *</label>
+    </p-floatlabel>
+    @if (selectedTargetFacture) {
+      @if (canConfirmImputer()) {
+        <small class="text-success d-block mt-1">
+          <i class="pi pi-check me-1"></i>Montant avoir ≤ montant restant
+        </small>
+      } @else {
+        <small class="text-danger d-block mt-1">
+          <i class="pi pi-times me-1"></i>Montant avoir &gt; restant ({{ selectedTargetFacture.montantRestant | number:'1.0-0' }})
+        </small>
+      }
+    }
+  </div>
+  <div class="modal-footer py-2">
+    <p-button label="Annuler" severity="secondary" [outlined]="true" size="small" (onClick)="modal.dismiss()" />
+    <p-button label="Imputer" icon="pi pi-link" severity="success" size="small" [disabled]="!canConfirmImputer()" (onClick)="modal.close()" />
+  </div>
+</ng-template>
+
+<!-- Modal : Annulation avec motif -->
+<ng-template #annulerModal let-modal>
+  <div class="modal-header py-2">
+    <h6 class="modal-title mb-0">
+      <i class="pi pi-ban me-2 text-danger"></i>Annuler {{ currentAnnulerAvoir?.numAvoir }}
+    </h6>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <p-floatlabel variant="on">
+      <textarea
+        [(ngModel)]="motifAnnulation"
+        id="ann-motif"
+        pInputText
+        rows="3"
+        style="width: 100%; resize: vertical"
+      ></textarea>
+      <label for="ann-motif">Motif d'annulation *</label>
+    </p-floatlabel>
+  </div>
+  <div class="modal-footer py-2">
+    <p-button label="Annuler" severity="secondary" [outlined]="true" size="small" (onClick)="modal.dismiss()" />
+    <p-button
+      label="Confirmer"
+      icon="pi pi-ban"
+      severity="danger"
+      size="small"
+      [disabled]="!motifAnnulation.trim()"
+      (onClick)="modal.close(motifAnnulation)"
+    />
+  </div>
+</ng-template>
+
 <p-toast position="center" />

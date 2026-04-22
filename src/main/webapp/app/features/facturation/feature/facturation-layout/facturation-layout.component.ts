@@ -28,7 +28,7 @@ import { PlanificationComponent } from '../planification/planification.component
 export class FacturationLayoutComponent {
   protected active = 'edition';
   /** Fonctionnalité non stable — masquée en attendant correction */
-  protected readonly showAvoir = false;
+  protected readonly showAvoir = true;
 
   private readonly ability = inject(AbilityService);
   protected readonly alertBadgeService = inject(AlertBadgeService);

@@ -34,11 +34,25 @@ export class AvoirApiService {
     );
   }
 
-  annuler(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  annuler(id: number, motif?: string): Observable<HttpResponse<{}>> {
+    return this.http.post(`${this.resourceUrl}/${id}/annuler`, { motif }, { observe: 'response' });
   }
 
   exportPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/${id}/pdf`, { responseType: 'blob' });
+  }
+
+  exportExcel(params: any): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/export/excel`, {
+      params: createRequestOptions(params),
+      responseType: 'blob',
+    });
+  }
+
+  exportListPdf(params: any): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/export/pdf`, {
+      params: createRequestOptions(params),
+      responseType: 'blob',
+    });
   }
 }

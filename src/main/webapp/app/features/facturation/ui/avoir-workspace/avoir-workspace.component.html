@@ -1,0 +1,235 @@
+<div class="avoir-workspace">
+
+  <!-- Toolbar -->
+  <div class="aw-toolbar">
+    @if (!showForm()) {
+      <span class="aw-title">
+        <i class="pi pi-file-minus me-1"></i>Avoirs associés
+      </span>
+      @if (facture()?.statut === 'PARTIALLY_PAID') {
+        <p-button
+          label="Nouvel avoir"
+          icon="pi pi-plus"
+          size="small"
+          severity="primary"
+          [outlined]="true"
+          (onClick)="onNouvelAvoir()"
+        />
+      }
+    } @else {
+      <p-button
+        icon="pi pi-arrow-left"
+        label="Retour"
+        size="small"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="onAnnuler()"
+      />
+      <div class="aw-toolbar-right">
+        @if (montantEffectif > 0) {
+          <span class="aw-total-badge">
+            Total&nbsp;: <span class="pharma-price">{{ montantEffectif | number: '1.0-0' }}</span>
+          </span>
+        }
+        <p-button
+          label="Annuler"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (onClick)="onAnnuler()"
+        />
+        <p-button
+          label="Enregistrer"
+          icon="pi pi-check"
+          severity="primary"
+          size="small"
+          [disabled]="!isFieldsValid()"
+          [loading]="saving()"
+          (onClick)="onEnregistrer()"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- List mode -->
+  @if (!showForm()) {
+    @if (loadingAvoirs()) {
+      <div class="d-flex justify-content-center p-3">
+        <p-progressSpinner [style]="{ width: '32px', height: '32px' }" />
+      </div>
+    } @else {
+      <p-table [value]="avoirs()" [stripedRows]="true" class="p-datatable-sm" [scrollable]="true" scrollHeight="flex">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>N° Avoir</th>
+            <th>Date</th>
+            <th class="text-end">Montant</th>
+            <th>Statut</th>
+            <th>Motif</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-avoir>
+          <tr>
+            <td><span class="pharma-code">{{ avoir.numAvoir }}</span></td>
+            <td class="small text-muted">{{ avoir.avoirDate }}</td>
+            <td class="text-end">
+              <span class="pharma-price">{{ avoir.montantAvoir | number: '1.0-0' }}</span>
+            </td>
+            <td>
+              <p-badge
+                [value]="getStatutLabel(avoir.statut)"
+                [severity]="getStatutSeverity(avoir.statut)"
+              />
+            </td>
+            <td class="small text-muted">{{ avoir.motif }}</td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5" class="text-center p-3 text-muted">
+              Aucun avoir pour cette facture
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  }
+
+  <!-- Form mode (replaces list) -->
+  @if (showForm()) {
+    <div class="aw-form">
+
+      <!-- Type d'avoir -->
+      <div class="aw-mode-selector">
+        <span class="aw-info-label">Type</span>
+        <label class="aw-radio-label">
+          <input type="radio" [(ngModel)]="mode" value="global" /> Montant global
+        </label>
+        <label class="aw-radio-label">
+          <input type="radio" [(ngModel)]="mode" value="ligne" /> Par ligne de dossier
+        </label>
+      </div>
+
+      <!-- Mode global : montant + TVA + HT -->
+      @if (mode === 'global') {
+        <div class="aw-fields-row">
+          <div class="aw-field">
+            <p-floatlabel variant="on">
+              <p-inputNumber
+                [(ngModel)]="montantAvoir"
+                id="aw-montant"
+                [min]="1"
+                [max]="maxMontant"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                style="width: 100%"
+              />
+              <label for="aw-montant">Montant avoir *</label>
+            </p-floatlabel>
+            @if (montantAvoir !== null && montantAvoir > maxMontant) {
+              <small class="text-danger">Max&nbsp;: {{ maxMontant | number: '1.0-0' }}</small>
+            }
+          </div>
+          <div class="aw-field">
+            <p-floatlabel variant="on">
+              <p-inputNumber [(ngModel)]="montantTva" id="aw-tva" [min]="0" style="width: 100%" />
+              <label for="aw-tva">dont TVA</label>
+            </p-floatlabel>
+          </div>
+          <div class="aw-field">
+            <p-floatlabel variant="on">
+              <p-inputNumber [(ngModel)]="montantHt" id="aw-ht" [min]="0" style="width: 100%" />
+              <label for="aw-ht">dont HT</label>
+            </p-floatlabel>
+          </div>
+        </div>
+        @if (tvaHtDepasseMontant) {
+          <small class="text-danger px-3">TVA + HT dépasse le montant avoir</small>
+        }
+      }
+
+      <!-- Mode par ligne de dossier (scrollable) -->
+      @if (mode === 'ligne') {
+        @if (lignes.length === 0) {
+          <p class="text-muted small px-3 py-2">Aucun dossier disponible pour cette facture.</p>
+        } @else {
+          <p-table
+            [value]="lignes"
+            [(selection)]="selectedLignes"
+            selectionMode="multiple"
+            [stripedRows]="true"
+            class="p-datatable-sm aw-lignes-table"
+            [scrollable]="true"
+            scrollHeight="flex"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th style="width: 2.5rem"><p-tableHeaderCheckbox /></th>
+                <th>N° Bon</th>
+                <th class="text-end">Montant</th>
+                <th>Motif rejet</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-ligne let-i="rowIndex">
+              <tr [pSelectableRow]="ligne">
+                <td><p-tableCheckbox [value]="ligne" /></td>
+                <td><span class="pharma-code small">{{ ligne.numBon }}</span></td>
+                <td class="text-end pharma-price small">{{ ligne.montant | number: '1.0-0' }}</td>
+                <td>
+                  <input
+                    pInputText
+                    [(ngModel)]="lignes[i].motifRejet"
+                    [disabled]="!isSelected(ligne)"
+                    placeholder="Motif…"
+                    class="aw-motif-input"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      }
+
+    </div>
+  }
+
+</div>
+
+<!-- Modal motif (ouvert à la validation) -->
+<ng-template #motifModal let-modal>
+  <div class="modal-header py-2">
+    <h6 class="modal-title mb-0">
+      <i class="pi pi-file-minus me-2"></i>Motif de l'avoir
+    </h6>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body py-2">
+    <p-floatlabel variant="on">
+      <textarea
+        [(ngModel)]="motifDraft"
+        id="aw-motif-draft"
+        pInputText
+        rows="3"
+        style="width: 100%; resize: vertical"
+      ></textarea>
+      <label for="aw-motif-draft">Motif *</label>
+    </p-floatlabel>
+  </div>
+  <div class="modal-footer py-2">
+    <p-button
+      label="Annuler"
+      severity="secondary"
+      [outlined]="true"
+      size="small"
+      (onClick)="modal.dismiss()"
+    />
+    <p-button
+      label="Confirmer"
+      icon="pi pi-check"
+      severity="primary"
+      size="small"
+      [disabled]="!motifDraft.trim()"
+      (onClick)="modal.close(motifDraft)"
+    />
+  </div>
+</ng-template>

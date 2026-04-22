@@ -1,3 +1,59 @@
-
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/table-common' as *;
+
+/* --- KPI bar --- */
+.kpi-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  background: var(--p-surface-0);
+  flex-shrink: 0;
+}
+
+.kpi-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  background: var(--p-surface-50);
+  min-width: 90px;
+}
+
+.kpi-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--p-text-muted-color);
+}
+
+.kpi-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kpi-amount {
+  font-size: 0.72rem;
+  color: var(--p-text-muted-color);
+}
+
+.kpi-draft  { border-left-color: var(--p-gray-400);   .kpi-count { color: var(--p-gray-600); } }
+.kpi-emis   { border-left-color: var(--p-blue-400);   .kpi-count { color: var(--p-blue-600); } }
+.kpi-impute { border-left-color: var(--p-green-400);  .kpi-count { color: var(--p-green-600); } }
+.kpi-annule { border-left-color: var(--p-red-400);    .kpi-count { color: var(--p-red-600); } }
+
+/* --- Table --- */
+.avoir-motif-cell {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 180px;
+}
+.p-floatlabel {
+  min-width: 90px !important;
+}

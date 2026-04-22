@@ -26,11 +26,12 @@ export class CommandCommonService {
   /** Bon de livraison (commandeId) à ouvrir en mode édition après navigation vers "Bons de livraison" */
   pendingOpenDeliveryId = signal<CommandeId | null>(null);
 
+  /** Déclenche l'ouverture du formulaire de nouvelle commande après navigation vers "Commandes à passer" */
+  pendingNewCommande = signal<boolean>(false);
+
   constructor() {}
 
-  updateCommand(commande: ICommande): void {
-    this.currentCommand.set(commande);
-  }
+
 
   updateCommandPreviousActiveNav(nav: string): void {
     this.commandPreviousActiveNav.set(nav);

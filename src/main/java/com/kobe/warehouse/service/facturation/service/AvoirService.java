@@ -14,9 +14,13 @@ public interface AvoirService {
 
     void imputer(Long avoirId, Long factureId, LocalDate factureDate);
 
-    void annuler(Long avoirId);
+    void annuler(Long avoirId, String motif);
 
     Page<AvoirDto> findAll(AvoirSearchParams params, Pageable pageable);
 
     byte[] exportPdf(Long avoirId);
+
+    byte[] exportExcel(AvoirSearchParams params);
+
+    byte[] exportListPdf(AvoirSearchParams params);
 }

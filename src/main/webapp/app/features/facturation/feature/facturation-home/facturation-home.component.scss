@@ -1,5 +1,8 @@
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/bulk-action-bar' as bulk;
+.p-floatlabel {
+  min-width: 90px !important;
+}
 
 :host {
   display: flex;

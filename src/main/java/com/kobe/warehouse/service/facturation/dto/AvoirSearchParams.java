@@ -8,5 +8,6 @@ public record AvoirSearchParams(
     Integer tiersPayantId,
     LocalDate startDate,
     LocalDate endDate,
-    List<AvoirStatut> statuts
+    List<AvoirStatut> statuts,
+    String numAvoir
 ) {}

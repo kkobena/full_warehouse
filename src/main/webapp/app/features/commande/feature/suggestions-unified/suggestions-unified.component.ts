@@ -51,7 +51,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
   private readonly deliveryService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
 
-  // Plus besoin de constructor/effect : activeSource est un computed pur.
+
 
   ngOnInit(): void {
     this.loadBadges();
@@ -79,7 +79,6 @@ export class SuggestionsUnifiedComponent implements OnInit {
   }
 
   setSource(source: SuggestionsSource): void {
-    // Une seule source de vérité : le signal du service.
     this.commandCommonService.suggestionsActiveSource.set(source);
     this.loadBadges();
   }
@@ -105,6 +104,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
     this.modalService.open(SemoisClasseConfigComponent, {
       size: 'lg',
       scrollable: true,
+      centered: true,
       backdrop: 'static',
     });
   }

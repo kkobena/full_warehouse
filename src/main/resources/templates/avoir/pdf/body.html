@@ -1,0 +1,75 @@
+<div xmlns:th="http://www.thymeleaf.org">
+
+  <!-- Montants -->
+  <table class="main-table" style="margin-top: 10px;">
+    <thead>
+      <tr>
+        <th style="width: 50%;">Désignation</th>
+        <th class="text-right">Montant (F CFA)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight: 600;">Montant avoir TTC</td>
+        <td class="unit" th:text="${#numbers.formatDecimal(avoir.montantAvoir, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+      <tr th:if="${avoir.montantTva != null and avoir.montantTva.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+        <td style="padding-left: 20px;">dont TVA</td>
+        <td class="unit" th:text="${#numbers.formatDecimal(avoir.montantTva, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+      <tr th:if="${avoir.montantHt != null and avoir.montantHt.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+        <td style="padding-left: 20px;">dont HT</td>
+        <td class="unit" th:text="${#numbers.formatDecimal(avoir.montantHt, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+    </tbody>
+    <tfoot class="datatable-footer">
+      <tr class="tr-footer">
+        <td class="datatable-footer-total-label">TOTAL AVOIR</td>
+        <td class="unit" th:text="${#numbers.formatDecimal(avoir.montantAvoir, 1, 'COMMA', 0, 'POINT')}"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Lignes de dossier (si présentes) -->
+  <div th:if="${lignes != null and !lignes.isEmpty()}" style="margin-top: 10px;">
+    <div style="font-weight: 600; font-size: 9px; margin-bottom: 4px; border-bottom: 0.5px solid #3989c6; padding-bottom: 2px;">
+      DÉTAIL PAR DOSSIER
+    </div>
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th>N° Dossier</th>
+          <th>Date</th>
+          <th class="text-right">Montant</th>
+          <th>Motif rejet</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ligne : ${lignes}">
+          <td th:text="${ligne.saleLineId}"></td>
+          <td th:text="${ligne.saleLineDate != null ? #temporals.format(ligne.saleLineDate, 'dd/MM/yyyy') : '—'}"></td>
+          <td class="unit" th:text="${#numbers.formatDecimal(ligne.montantAvoir, 1, 'COMMA', 0, 'POINT')}"></td>
+          <td th:text="${ligne.motifRejet}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Motif -->
+  <div th:if="${avoir.motif != null}" style="margin-top: 10px; padding: 6px 8px; border-left: 3px solid #3989c6; background: #f8f9fa; font-size: 9px;">
+    <span style="font-weight: 600;">Motif : </span>
+    <span th:text="${avoir.motif}"></span>
+  </div>
+
+  <!-- Statut -->
+  <div style="margin-top: 12px; text-align: right; font-size: 9px; color: #555;">
+    Statut : <span style="font-weight: 600;" th:text="${avoir.statut.name()}"></span>
+  </div>
+
+  <!-- Signature -->
+  <div class="signature" style="margin-top: 30px; font-size: 9px;">
+    <div>Signature et cachet</div>
+    <div style="margin-top: 30px; border-top: 0.5px solid #aaa; width: 120px; float: right;"></div>
+  </div>
+
+</div>

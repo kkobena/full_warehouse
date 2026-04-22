@@ -75,7 +75,7 @@
             icon="pi pi-eye"
             pTooltip="Voir détail"
             tooltipPosition="left"
-            severity="secondary"
+            severity="success"
             size="small"
           />
           @if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === 'UNPAID'){
@@ -112,6 +112,18 @@
               severity="danger"
               tooltipPosition="left"
               size="small"
+            />
+          }
+          @if (facture.statut === 'PAID' || facture.statut === 'PARTIALLY_PAID') {
+            <p-button
+              (onClick)="onCreateAvoir(facture)"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              icon="pi pi-file-plus"
+              pTooltip="Créer un avoir"
+              severity="primary"
+              tooltipPosition="left"
             />
           }
           @if (canExport()) {

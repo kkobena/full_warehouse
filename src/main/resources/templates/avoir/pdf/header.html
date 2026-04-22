@@ -1,0 +1,45 @@
+<header xmlns:th="http://www.thymeleaf.org">
+  <div class="row" style="padding-bottom: 0">
+    <table style="padding: 0; margin: 0">
+      <tbody>
+        <tr>
+          <td>
+            <div class="col-6 company-details">
+              <h2 class="name" th:text="${magasin.name}"></h2>
+              <div th:if="${magasin.phone != null}"><span th:text="${magasin.phone}"></span></div>
+              <div th:if="${magasin.address != null}"><span th:text="${magasin.address}"></span></div>
+            </div>
+          </td>
+          <td style="text-align: right; padding: 0">
+            <div style="font-size: 11px; font-weight: bold; color: #3989c6;">AVOIR / NOTE DE CRÉDIT</div>
+            <div style="font-size: 10px; font-weight: 600;" th:text="${avoir.numAvoir}"></div>
+            <div style="font-size: 9px; color: #555;">
+              Date : <span th:text="${#temporals.format(avoir.avoirDate, 'dd/MM/yyyy')}"></span>
+            </div>
+            <span class="header-counter" style="font-size: 8px; color: #888;"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row" style="padding-top: 4px; padding-bottom: 0; margin: 0; padding-left: 10px; padding-right: 10px">
+    <table style="margin: 0; border: 0.5px solid #ccc; border-radius: 3px;">
+      <tbody>
+        <tr>
+          <td style="font-weight: 600; font-size: 9px; padding: 3px 8px;">Tiers-payant</td>
+          <td style="font-size: 9px; padding: 3px 8px;" th:text="${tiersPayantName}"></td>
+          <td style="font-weight: 600; font-size: 9px; padding: 3px 8px;">Facture origine</td>
+          <td style="font-size: 9px; padding: 3px 8px;" th:text="${avoir.factureTiersPayant.numFacture}"></td>
+        </tr>
+        <tr>
+          <td style="font-weight: 600; font-size: 9px; padding: 3px 8px;">Créé par</td>
+          <td style="font-size: 9px; padding: 3px 8px;" th:text="${avoir.user.fullName}"></td>
+          <td style="font-weight: 600; font-size: 9px; padding: 3px 8px;">Date facture</td>
+          <td style="font-size: 9px; padding: 3px 8px;"
+              th:text="${#temporals.format(avoir.factureTiersPayant.id.invoiceDate, 'dd/MM/yyyy')}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</header>

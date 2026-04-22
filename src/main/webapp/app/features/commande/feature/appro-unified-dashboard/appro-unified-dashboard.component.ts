@@ -109,7 +109,10 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   }
 
   navigateToSemoisSuggestions(): void { this.commandCommonService.navigateToAnalyse(); }
-  navigateToCommandeEnCours(): void   { this.commandCommonService.navigateToCommandesAPasser(); }
+  navigateToCommandeEnCours(): void {
+    this.commandCommonService.pendingNewCommande.set(true);
+    this.commandCommonService.navigateToCommandesAPasser();
+  }
   navigateToReceptionEnAttente(): void { this.commandCommonService.navigateToBonsLivraison(); }
 
   // ─── Calculs VMM ─────────────────────────────────────────────────────────

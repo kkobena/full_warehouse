@@ -109,6 +109,16 @@ export class CommandeRequestedHomeComponent implements OnInit {
           }
         });
       });
+
+    toObservable(this.commandCommonService.pendingNewCommande, {injector: this.injector})
+      .pipe(
+        filter(v => v),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.commandCommonService.pendingNewCommande.set(false);
+        this.onNouvelleCommande();
+      });
   }
 
   loadPage(page = 0): void {

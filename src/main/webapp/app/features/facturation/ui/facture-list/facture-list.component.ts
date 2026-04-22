@@ -22,6 +22,8 @@ import { ButtonGroup } from "primeng/buttongroup";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { AvoirFormModalComponent } from "../avoir-form-modal/avoir-form-modal.component";
+import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 
 @Component({
   selector: "app-facture-list",
@@ -62,7 +64,6 @@ export class FactureListComponent {
   private readonly downloadDocumentService = inject(BlobDownloadService);
 
   constructor() {
-    // Déclenche le rechargement dès que le parent pousse de nouveaux paramètres
     effect(() => {
       const params = this.searchParams();
       if (params !== null) {
@@ -70,6 +71,10 @@ export class FactureListComponent {
         this.loadPage(params);
       }
     });
+  }
+
+  onCreateAvoir(facture: IFacture): void {
+    showCommonModal(this.modalService, AvoirFormModalComponent, { prefillFacture: facture });
   }
 
   onRowSelect(facture: IFacture): void {

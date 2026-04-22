@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AvoirFournisseur;
 import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
-import com.kobe.warehouse.domain.enumeration.AvoirStatut;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +15,6 @@ public class AvoirFournisseurDTO {
     private String commentaire;
     private Integer fournisseurId;
     private String fournisseurLibelle;
-    private Integer reponseRetourBonId;
     private Integer retourBonId;
     private String retourBonReference;
 
@@ -31,9 +29,8 @@ public class AvoirFournisseurDTO {
         this.commentaire = avoir.getCommentaire();
         this.fournisseurId = avoir.getFournisseur().getId();
         this.fournisseurLibelle = avoir.getFournisseur().getLibelle();
-        this.reponseRetourBonId = avoir.getReponseRetourBon().getId();
-        this.retourBonId = avoir.getReponseRetourBon().getRetourBon().getId();
-        this.retourBonReference = avoir.getReponseRetourBon().getRetourBon().getReference();
+        this.retourBonId = avoir.getRetourBon().getId();
+        this.retourBonReference = avoir.getRetourBon().getReference();
     }
 
     public Integer getId() { return id; }
@@ -59,9 +56,6 @@ public class AvoirFournisseurDTO {
 
     public String getFournisseurLibelle() { return fournisseurLibelle; }
     public AvoirFournisseurDTO setFournisseurLibelle(String fournisseurLibelle) { this.fournisseurLibelle = fournisseurLibelle; return this; }
-
-    public Integer getReponseRetourBonId() { return reponseRetourBonId; }
-    public AvoirFournisseurDTO setReponseRetourBonId(Integer reponseRetourBonId) { this.reponseRetourBonId = reponseRetourBonId; return this; }
 
     public Integer getRetourBonId() { return retourBonId; }
     public AvoirFournisseurDTO setRetourBonId(Integer retourBonId) { this.retourBonId = retourBonId; return this; }

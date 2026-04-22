@@ -56,7 +56,7 @@
               <td class="rdr-libelle">{{ row.orderLine.produitLibelle }}</td>
               <td class="text-end rdr-qty">{{ row.maxQty }}</td>
               <td class="rdr-input-cell">
-                <p-inputnumber
+                <p-inputNumber
                   [(ngModel)]="row.qtyRetour"
                   [min]="0"
                   [max]="row.maxQty"

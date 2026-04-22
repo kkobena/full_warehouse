@@ -1,7 +1,9 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
+import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
+import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
+import com.kobe.warehouse.service.dto.AvoirFromBonLignesCommand;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
@@ -57,12 +59,12 @@ public interface RetourBonService {
     Optional<RetourBonDTO> findOne(Integer id);
 
     /**
-     * Create a supplier response for a retour bon.
+     * Create an avoir fournisseur from a supplier response (via the modal).
      *
-     * @param reponseRetourBonDTO the supplier response to create.
-     * @return the persisted entity.
+     * @param command the avoir creation command (retourBonId + lines).
+     * @return the created avoir.
      */
-    ReponseRetourBonDTO createSupplierResponse(ReponseRetourBonDTO reponseRetourBonDTO);
+    AvoirFournisseurDTO createSupplierResponse(AvoirFournisseurCommand command);
 
     /**
      * Update an existing retour bon (only if statut = VALIDATED).
@@ -135,6 +137,14 @@ public interface RetourBonService {
      * @return le RetourBonDTO créé.
      */
     RetourBonDTO createRetourCompletFromCommande(RetourCompletCommandeRequest request);
+
+    /**
+     * Crée un RetourBon + AvoirFournisseur en une seule transaction depuis des lignes de BL sélectionnées.
+     *
+     * @param command la requête contenant commandeId, lignes sélectionnées, motifs et quantités.
+     * @return l'avoir créé.
+     */
+    AvoirFournisseurDTO createFromBonLignes(AvoirFromBonLignesCommand command);
 
     /**
      * Retourne les retours non clôturés regroupés par fournisseur.

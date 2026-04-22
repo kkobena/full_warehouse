@@ -1,0 +1,30 @@
+@use 'app/shared/scss/table-common' as commonTable;
+
+.rw-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--p-surface-border, #e2e8f0);
+  background: var(--p-surface-section, #f8fafc);
+}
+
+.rw-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rw-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rw-table {
+  flex: 1;
+}
+
+.rw-row-selected {
+  background-color: var(--p-highlight-bg, #eff6ff) !important;
+}

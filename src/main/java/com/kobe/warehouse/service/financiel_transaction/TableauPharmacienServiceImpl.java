@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
+import com.kobe.warehouse.repository.AvoirFournisseurLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
@@ -45,7 +45,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     // Data access
     private final SalesRepository salesRepository;
     private final CommandeDataService commandeDataService;
-    private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
+    private final AvoirFournisseurLineRepository avoirFournisseurLineRepository;
 
     // Configuration
     private final AppConfigurationService appConfigurationService;
@@ -61,7 +61,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     public TableauPharmacienServiceImpl(
         SalesRepository salesRepository,
         CommandeDataService commandeDataService,
-        ReponseRetourBonItemRepository reponseRetourBonItemRepository,
+        AvoirFournisseurLineRepository avoirFournisseurLineRepository,
         AppConfigurationService appConfigurationService,
         ObjectMapper objectMapper,
         GroupeFournisseurManager groupeFournisseurManager,
@@ -72,7 +72,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     ) {
         this.salesRepository = salesRepository;
         this.commandeDataService = commandeDataService;
-        this.reponseRetourBonItemRepository = reponseRetourBonItemRepository;
+        this.avoirFournisseurLineRepository = avoirFournisseurLineRepository;
         this.appConfigurationService = appConfigurationService;
         this.objectMapper = objectMapper;
         this.groupeFournisseurManager = groupeFournisseurManager;
@@ -235,12 +235,12 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
      */
     private List<ReponseRetourBonItemProjection> fetchSupplierReturns(MvtParam mvtParam) {
         if (GROUPING_MONTHLY.equals(mvtParam.getGroupeBy())) {
-            return reponseRetourBonItemRepository.findByDateRangeGroupByMonth(
+            return avoirFournisseurLineRepository.findByDateRangeGroupByMonth(
                 mvtParam.getFromDate().atStartOfDay(),
                 mvtParam.getToDate().atTime(LocalTime.MAX)
             );
         }
-        return reponseRetourBonItemRepository.findByDateRange(
+        return avoirFournisseurLineRepository.findByDateRange(
             mvtParam.getFromDate().atStartOfDay(),
             mvtParam.getToDate().atTime(LocalTime.MAX)
         );

@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -15,13 +16,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -102,6 +104,7 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
         Root<OrderLine> root
     ) {
         List<Predicate> predicates = new ArrayList<>();
+        predicates.add(root.get(OrderLine_.commande).get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
             predicates.add(root.get(OrderLine_.commande).get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
         }
@@ -138,6 +141,7 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
 
     private List<Predicate> predicatesFetchCommandes(CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<Commande> root) {
         List<Predicate> predicates = new ArrayList<>();
+        predicates.add(root.get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
             predicates.add(root.get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
         }

@@ -11,8 +11,6 @@ import com.kobe.warehouse.domain.MotifRetourProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.ReponseRetourBon;
-import com.kobe.warehouse.domain.ReponseRetourBonItem;
 import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.StockProduit;
@@ -23,14 +21,13 @@ import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
-import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
-import com.kobe.warehouse.repository.ReponseRetourBonRepository;
 import com.kobe.warehouse.repository.RetourBonItemRepository;
 import com.kobe.warehouse.repository.RetourBonRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
-import com.kobe.warehouse.service.dto.ReponseRetourBonItemDTO;
+import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
+import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
+import com.kobe.warehouse.service.dto.AvoirFromBonLignesCommand;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
@@ -80,8 +77,6 @@ public class RetourBonServiceImpl implements RetourBonService {
     private final UserService userService;
     private final StockProduitRepository stockProduitRepository;
     private final InventoryTransactionService inventoryTransactionService;
-    private final ReponseRetourBonRepository reponseRetourBonRepository;
-    private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
     private final LotRepository lotRepository;
     private final RetourBonPdfReportService retourBonPdfReportService;
     private final FournisseurProduitRepository fournisseurProduitRepository;
@@ -97,8 +92,6 @@ public class RetourBonServiceImpl implements RetourBonService {
         UserService userService,
         StockProduitRepository stockProduitRepository,
         InventoryTransactionService inventoryTransactionService,
-        ReponseRetourBonRepository reponseRetourBonRepository,
-        ReponseRetourBonItemRepository reponseRetourBonItemRepository,
         LotRepository lotRepository,
         RetourBonPdfReportService retourBonPdfReportService,
         FournisseurProduitRepository fournisseurProduitRepository,
@@ -113,8 +106,6 @@ public class RetourBonServiceImpl implements RetourBonService {
         this.userService = userService;
         this.stockProduitRepository = stockProduitRepository;
         this.inventoryTransactionService = inventoryTransactionService;
-        this.reponseRetourBonRepository = reponseRetourBonRepository;
-        this.reponseRetourBonItemRepository = reponseRetourBonItemRepository;
         this.lotRepository = lotRepository;
         this.retourBonPdfReportService = retourBonPdfReportService;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
@@ -205,43 +196,8 @@ public class RetourBonServiceImpl implements RetourBonService {
     }
 
     @Override
-    public ReponseRetourBonDTO createSupplierResponse(ReponseRetourBonDTO reponseRetourBonDTO) {
-        AppUser currentUser = userService.getUser();
-        RetourBon retourBon = retourBonRepository
-            .findById(reponseRetourBonDTO.getRetourBonId())
-            .orElseThrow(() -> new GenericError("RetourBon not found"));
-
-        if (retourBon.getStatut() != RetourStatut.VALIDATED && retourBon.getStatut() != RetourStatut.PROCESSING) {
-            throw new GenericError("Ce retour est déjà traité");
-        }
-
-        ReponseRetourBon reponseRetourBon = new ReponseRetourBon();
-        reponseRetourBon.setDateMtv(LocalDateTime.now());
-        reponseRetourBon.setUser(currentUser);
-        reponseRetourBon.setRetourBon(retourBon);
-        reponseRetourBon = reponseRetourBonRepository.save(reponseRetourBon);
-        boolean allItemsAccepted = true;
-
-        // Create the response items
-        if (reponseRetourBonDTO.getReponseRetourBonItems() != null && !reponseRetourBonDTO.getReponseRetourBonItems().isEmpty()) {
-            ReponseRetourBon finalReponseRetourBon = reponseRetourBon;
-            for (ReponseRetourBonItemDTO itemDTO : reponseRetourBonDTO.getReponseRetourBonItems()) {
-                var allAccepted = createReponseRetourBonItem(itemDTO, finalReponseRetourBon);
-                if (!allAccepted) {
-                    allItemsAccepted = false;
-                }
-            }
-        }
-        if (allItemsAccepted) {
-            retourBon.setStatut(RetourStatut.CLOSED);
-        } else {
-            retourBon.setStatut(RetourStatut.PARTIALLY_ACCEPTED);
-        }
-        retourBonRepository.save(retourBon);
-
-        avoirFournisseurService.createFromReponseRetourBon(reponseRetourBon);
-
-        return new ReponseRetourBonDTO(reponseRetourBon);
+    public AvoirFournisseurDTO createSupplierResponse(AvoirFournisseurCommand command) {
+        return avoirFournisseurService.create(command);
     }
 
     @Override
@@ -480,38 +436,6 @@ public class RetourBonServiceImpl implements RetourBonService {
         return result;
     }
 
-    /**
-     * Crée un item de réponse fournisseur pour un RetourBonItem donné.
-     * Met à jour le champ {@code acceptedQty} de l'item de retour.
-     *
-     * @param itemDTO          le DTO de l'item de réponse
-     * @param reponseRetourBon la réponse parente
-     * @return {@code true} si l'item est entièrement accepté (qtyMvt == item.qtyMvt), {@code false} sinon
-     */
-    private boolean createReponseRetourBonItem(ReponseRetourBonItemDTO itemDTO, ReponseRetourBon reponseRetourBon) {
-        RetourBonItem retourBonItem = retourBonItemRepository
-            .findById(itemDTO.getRetourBonItemId())
-            .orElseThrow(() -> new GenericError("RetourBonItem non trouvé: " + itemDTO.getRetourBonItemId()));
-
-        ReponseRetourBonItem reponseItem = new ReponseRetourBonItem();
-        reponseItem.setDateMtv(LocalDateTime.now());
-        reponseItem.setReponseRetourBon(reponseRetourBon);
-        reponseItem.setRetourBonItem(retourBonItem);
-        reponseItem.setQtyMvt(itemDTO.getQtyMvt());
-
-        // Utiliser le prix d'achat fourni dans la réponse ou celui de l'item de retour
-        int prixAchat = Objects.requireNonNullElse(itemDTO.getPrixAchat(), retourBonItem.getPrixAchat());
-        reponseItem.setPrixAchat(prixAchat);
-
-        reponseRetourBonItemRepository.save(reponseItem);
-
-        // Mettre à jour la quantité acceptée sur le RetourBonItem
-        retourBonItem.setAcceptedQty(itemDTO.getQtyMvt());
-        retourBonItemRepository.save(retourBonItem);
-
-        return Objects.equals(itemDTO.getQtyMvt(), retourBonItem.getQtyMvt());
-    }
-
     private void reverseRetourBonItem(RetourBonItem item, int magasinId) {
         // Résolution du produit : via orderLine si disponible, sinon via lot
         Integer produitId;
@@ -546,6 +470,48 @@ public class RetourBonServiceImpl implements RetourBonService {
         }
         retourBon.setStatut(RetourStatut.CLOSED);
         return toDto(retourBonRepository.save(retourBon));
+    }
+
+    @Override
+    public AvoirFournisseurDTO createFromBonLignes(AvoirFromBonLignesCommand command) {
+        log.debug("Request to create RetourBon + AvoirFournisseur from BL lines: commande={}", command.commandeId());
+
+        CommandeId commandeKey = new CommandeId(command.commandeId(), command.commandeOrderDate());
+        Commande commande = commandeRepository.findById(commandeKey)
+            .orElseThrow(() -> new GenericError("Commande introuvable: " + command.commandeId()));
+
+        AppUser currentUser = userService.getUser();
+        int magasinId = currentUser.getMagasin().getId();
+
+        RetourBon retourBon = new RetourBon();
+        retourBon.setDateMtv(LocalDateTime.now());
+        retourBon.setStatut(RetourStatut.VALIDATED);
+        retourBon.setCommentaire(command.commentaire());
+        retourBon.setUser(currentUser);
+        retourBon.setCommande(commande);
+        retourBon = retourBonRepository.save(retourBon);
+        retourBon.setReference(generateReference(retourBon.getId()));
+        retourBon = retourBonRepository.save(retourBon);
+
+        for (AvoirFromBonLignesCommand.BonLigneItem ligne : command.lignes()) {
+            RetourBonItemDTO itemDTO = new RetourBonItemDTO();
+            itemDTO.setOrderLineId(ligne.orderLineId());
+            itemDTO.setOrderLineOrderDate(ligne.orderLineOrderDate());
+            itemDTO.setQtyMvt(ligne.qtyRetour());
+            itemDTO.setMotifRetourId(ligne.motifRetourId());
+            itemDTO.setProduitId(ligne.produitId());
+            itemDTO.setProduitCip(ligne.produitCip());
+            itemDTO.setPrixAchat(ligne.prixAchat());
+            createRetourBonItem(itemDTO, retourBon, magasinId);
+        }
+
+        RetourBon saved = retourBonRepository.findById(retourBon.getId()).orElseThrow();
+        List<AvoirFournisseurCommand.AvoirLigneCommand> avoirLignes = retourBonItemRepository
+            .findAllByRetourBonId(saved.getId()).stream()
+            .map(item -> new AvoirFournisseurCommand.AvoirLigneCommand(item.getId(), item.getQtyMvt(), item.getPrixAchat()))
+            .toList();
+
+        return avoirFournisseurService.createFromRetourBon(saved, avoirLignes, command.commentaire());
     }
 
     @Override

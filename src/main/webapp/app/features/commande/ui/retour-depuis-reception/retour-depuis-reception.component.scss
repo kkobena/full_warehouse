@@ -1,3 +1,9 @@
+
+@use'app/shared/scss/modal-theme' as *;
+:host {
+  @include modal-theme;
+}
+
 .rdr-body {
   padding: 1rem 1.25rem;
   min-height: 200px;

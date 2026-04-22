@@ -6,7 +6,7 @@ import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
-import { IAvoirEncoursFournisseur, IAvoirFournisseur, AvoirStatut } from 'app/shared/model/avoir-fournisseur.model';
+import { AvoirFournisseurStatut, IAvoirEncoursFournisseur, IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
@@ -25,15 +25,16 @@ export class AvoirEncoursComponent implements OnInit {
   protected avoirs = signal<IAvoirFournisseur[]>([]);
   protected selectedFournisseurId = signal<number | null>(null);
   protected selectedFournisseurLibelle = signal<string>('');
-  protected detailStatut: AvoirStatut | null = 'EN_ATTENTE';
+  protected detailStatut: AvoirFournisseurStatut | null = 'EN_ATTENTE';
   protected loadingEncours = signal(false);
   protected loadingDetail = signal(false);
 
   protected readonly statutOptions = [
     { label: 'Tous les statuts', value: null },
-    { label: 'En attente', value: 'EN_ATTENTE' as AvoirStatut },
-    { label: 'Remboursé', value: 'REMBOURSE' as AvoirStatut },
-    { label: 'Imputé', value: 'IMPUTE' as AvoirStatut },
+    { label: 'En attente', value: 'EN_ATTENTE' as AvoirFournisseurStatut },
+    { label: 'Remboursé', value: 'REMBOURSE' as AvoirFournisseurStatut },
+    { label: 'Imputé', value: 'IMPUTE' as AvoirFournisseurStatut },
+    { label: 'Annulé', value: 'ANNULE' as AvoirFournisseurStatut },
   ];
 
   ngOnInit(): void {
@@ -70,16 +71,24 @@ export class AvoirEncoursComponent implements OnInit {
     });
   }
 
-  protected confirmUpdateStatut(avoir: IAvoirFournisseur, statut: AvoirStatut): void {
+  protected confirmUpdateStatut(avoir: IAvoirFournisseur, statut: AvoirFournisseurStatut): void {
     const label = statut === 'REMBOURSE' ? 'remboursé' : 'imputé';
-    this.confirmDialog.onConfirm( () => this.updateStatut(avoir, statut),
+    this.confirmDialog.onConfirm(
+      () => this.updateStatut(avoir, statut),
       'Confirmation',
       `Marquer l'avoir ${avoir.reference ?? '#' + avoir.id} comme ${label} ?`,
-
     );
   }
 
-  private updateStatut(avoir: IAvoirFournisseur, statut: AvoirStatut): void {
+  protected confirmAnnuler(avoir: IAvoirFournisseur): void {
+    this.confirmDialog.onConfirm(
+      () => this.annulerAvoir(avoir),
+      'Annulation',
+      `Annuler l'avoir ${avoir.reference ?? '#' + avoir.id} ?`,
+    );
+  }
+
+  private updateStatut(avoir: IAvoirFournisseur, statut: AvoirFournisseurStatut): void {
     this.avoirService.updateStatut(avoir.id!, statut).subscribe({
       next: () => {
         this.notificationService.success('Avoir mis à jour');
@@ -90,20 +99,33 @@ export class AvoirEncoursComponent implements OnInit {
     });
   }
 
-  protected getStatutLabel(statut: AvoirStatut | undefined): string {
+  private annulerAvoir(avoir: IAvoirFournisseur): void {
+    this.avoirService.annuler(avoir.id!).subscribe({
+      next: () => {
+        this.notificationService.success('Avoir annulé');
+        this.loadEncours();
+        this.loadDetail();
+      },
+      error: () => this.notificationService.error("Erreur lors de l'annulation de l'avoir"),
+    });
+  }
+
+  protected getStatutLabel(statut: AvoirFournisseurStatut | undefined): string {
     switch (statut) {
       case 'EN_ATTENTE': return 'En attente';
       case 'REMBOURSE':  return 'Remboursé';
       case 'IMPUTE':     return 'Imputé';
+      case 'ANNULE':     return 'Annulé';
       default:           return statut ?? '';
     }
   }
 
-  protected getStatutBadgeClass(statut: AvoirStatut | undefined): string {
+  protected getStatutBadgeClass(statut: AvoirFournisseurStatut | undefined): string {
     switch (statut) {
       case 'EN_ATTENTE': return 'pharma-badge pharma-badge-warning';
       case 'REMBOURSE':  return 'pharma-badge pharma-badge-success';
       case 'IMPUTE':     return 'pharma-badge pharma-badge-info';
+      case 'ANNULE':     return 'pharma-badge pharma-badge-danger';
       default:           return 'pharma-badge pharma-badge-secondary';
     }
   }
@@ -112,6 +134,7 @@ export class AvoirEncoursComponent implements OnInit {
     switch (avoir.statut) {
       case 'REMBOURSE': return 'pharma-row-success';
       case 'IMPUTE':    return 'pharma-row-info';
+      case 'ANNULE':    return 'pharma-row-danger';
       default:          return '';
     }
   }

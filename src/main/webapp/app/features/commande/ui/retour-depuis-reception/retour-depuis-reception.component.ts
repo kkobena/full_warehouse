@@ -11,6 +11,7 @@ import { IRetourBonItem } from '../../../../shared/model/retour-bon-item.model';
 import { RetourBonService } from '../../../../entities/commande/retour_fournisseur/retour-bon.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
+import { Tooltip } from "primeng/tooltip";
 
 interface RetourLine {
   orderLine: IOrderLine;
@@ -22,7 +23,7 @@ interface RetourLine {
   selector: 'app-retour-depuis-reception',
   templateUrl: './retour-depuis-reception.component.html',
   styleUrls: ['./retour-depuis-reception.component.scss'],
-  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, Tooltip]
 })
 export class RetourDepuisReceptionComponent implements OnInit {
   commande!: ICommande;

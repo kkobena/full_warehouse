@@ -201,7 +201,14 @@
     i { color: #065f46; }
   }
 }
-
+.cr-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
 // ── BADGE STATUT (bc__badge / cc__badge) ──────────────────────────────────────
 
 %badge-base {

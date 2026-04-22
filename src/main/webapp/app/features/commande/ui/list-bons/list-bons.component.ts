@@ -36,6 +36,7 @@ import { ReceptionConcordanceComponent } from "../reception-concordance/receptio
 import { CommandCommonService } from "app/entities/commande/command-common.service";
 import { RetourBonService } from "app/entities/commande/retour_fournisseur/retour-bon.service";
 import { RetourCompletModalComponent } from "./retour-complet-modal.component";
+import { RetourWorkspaceComponent } from "../retour-workspace/retour-workspace.component";
 
 @Component({
   selector: "app-list-bons",
@@ -60,6 +61,7 @@ import { RetourCompletModalComponent } from "./retour-complet-modal.component";
     ReceptionConcordanceComponent,
     ListBonsActionsComponent,
     ListBonsStatutComponent,
+    RetourWorkspaceComponent,
     DatePipe
   ]
 })
@@ -80,6 +82,7 @@ export class AppListBonsComponent implements OnInit {
   // ── Modes master/detail ────────────────────────────────────────────────────
   readonly editingReceived = signal<ICommande | null>(null);
   readonly selectedClosed = signal<IDelivery | null>(null);
+  readonly retourWorkspaceBon = signal<IDelivery | null>(null);
   private readonly datePipe = inject(DatePipe);
 
   protected readonly statutOptions = [
@@ -259,7 +262,20 @@ export class AppListBonsComponent implements OnInit {
     );
   }
 
-  onRetourComplet(delivery: IDelivery): void {
+  onRetourParLigne(delivery: IDelivery): void {
+    this.retourWorkspaceBon.set(delivery);
+  }
+
+  onRetourWorkspaceDone(): void {
+    this.retourWorkspaceBon.set(null);
+    this.loadPage(this.page);
+  }
+
+  onRetourWorkspaceCancelled(): void {
+    this.retourWorkspaceBon.set(null);
+  }
+
+protected  onRetourComplet(delivery: IDelivery): void {
     const ref = this.modalService.open(RetourCompletModalComponent, {
       size: "lg",
       centered: true,

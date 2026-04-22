@@ -71,9 +71,6 @@ public class RetourBon implements Serializable {
     @Column(name = "hors_commande", nullable = false)
     private boolean horsCommande = false;
 
-    @OneToMany(mappedBy = "retourBon")
-    private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
-
     @ManyToOne
     @JoinColumn(name = "pharmaml_envoi_id")
     private PharmaMlEnvoi pharmamlEnvoi;
@@ -146,15 +143,6 @@ public class RetourBon implements Serializable {
 
     public RetourBon setRetourBonItems(List<RetourBonItem> retourBonItems) {
         this.retourBonItems = retourBonItems;
-        return this;
-    }
-
-    public List<ReponseRetourBon> getReponseRetourBons() {
-        return reponseRetourBons;
-    }
-
-    public RetourBon setReponseRetourBons(List<ReponseRetourBon> reponseRetourBons) {
-        this.reponseRetourBons = reponseRetourBons;
         return this;
     }
 

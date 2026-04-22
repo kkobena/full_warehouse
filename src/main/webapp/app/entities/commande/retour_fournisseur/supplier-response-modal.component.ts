@@ -9,9 +9,17 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
-import { IReponseRetourBonItem, ReponseRetourBonItem } from 'app/shared/model/reponse-retour-bon-item.model';
-import { ReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
+import { IRetourBonItem } from 'app/shared/model/retour-bon-item.model';
+import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
+import { IAvoirLigneCommand } from 'app/shared/model/avoir-fournisseur.model';
 import { Tooltip } from 'primeng/tooltip';
+
+interface ResponseLine {
+  item: IRetourBonItem;
+  qtyAcceptee: number;
+  prixAchat: number;
+  alreadyProcessed: boolean;
+}
 
 @Component({
   selector: 'jhi-supplier-response-modal',
@@ -23,99 +31,87 @@ import { Tooltip } from 'primeng/tooltip';
 export class SupplierResponseModalComponent implements OnInit {
   protected readonly activeModal = inject(NgbActiveModal);
   protected readonly messageService = inject(MessageService);
+  private readonly avoirFournisseurService = inject(AvoirFournisseurService);
 
   retourBon: IRetourBon | null = null;
   title = 'Saisir la réponse fournisseur';
 
-  protected responseItems = signal<IReponseRetourBonItem[]>([]);
-  protected isSaving = signal<boolean>(false);
+  protected lines = signal<ResponseLine[]>([]);
+  protected isSaving = signal(false);
 
   ngOnInit(): void {
-    if (this.retourBon && this.retourBon.retourBonItems) {
-      // Initialize response items from retour bon items
-      const items: IReponseRetourBonItem[] = this.retourBon.retourBonItems.map(item => {
-        const responseItem = new ReponseRetourBonItem();
-        responseItem.retourBonItemId = item.id;
-        responseItem.produitLibelle = item.produitLibelle;
-        responseItem.produitCip = item.produitCip;
-        responseItem.lotNumero = item.lotNumero;
-        responseItem.requestedQty = item.qtyMvt;
-        responseItem.qtyMvt = item.qtyMvt; // Default to requested quantity
-        responseItem.acceptedQty = item.acceptedQty;
-        return responseItem;
-      });
-      this.responseItems.set(items);
+    if (this.retourBon?.retourBonItems) {
+      this.lines.set(
+        this.retourBon.retourBonItems.map(item => ({
+          item,
+          qtyAcceptee: item.acceptedQty ?? item.qtyMvt ?? 0,
+          prixAchat: item.prixAchat ?? 0,
+          alreadyProcessed: (item.acceptedQty ?? 0) > 0 && item.acceptedQty === item.qtyMvt,
+        })),
+      );
     }
   }
 
-  protected isItemAlreadyProcessed(item: IReponseRetourBonItem): boolean {
-    if (item.acceptedQty && item.acceptedQty > 0) {
-      return item.acceptedQty === item.qtyMvt;
-    }
-    return false;
-  }
-
-  protected onQuantityChange(item: IReponseRetourBonItem): void {
-    const maxQuantity = item.requestedQty || 0;
-    if (item.qtyMvt && item.qtyMvt > maxQuantity) {
-      item.qtyMvt = maxQuantity;
+  protected onQuantityChange(line: ResponseLine): void {
+    const max = line.item.qtyMvt ?? 0;
+    if (line.qtyAcceptee > max) {
+      line.qtyAcceptee = max;
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité acceptée ne peut pas dépasser la quantité demandée (${maxQuantity})`,
+        detail: `La quantité acceptée ne peut pas dépasser ${max}`,
       });
     }
-    if (item.qtyMvt && item.qtyMvt < 0) {
-      item.qtyMvt = 0;
+    if (line.qtyAcceptee < 0) {
+      line.qtyAcceptee = 0;
     }
   }
 
   protected canSave(): boolean {
-    const items = this.responseItems();
-    if (items.length === 0) {
-      return false;
-    }
-
-    // Check if all items have valid quantity
-    return items.every(item => item.qtyMvt !== undefined && item.qtyMvt !== null && item.qtyMvt >= 0);
+    return this.lines().length > 0 && !this.isSaving();
   }
 
   protected getTotalRequested(): number {
-    return this.responseItems().reduce((sum, item) => sum + (item.requestedQty || 0), 0);
+    return this.lines().reduce((s, l) => s + (l.item.qtyMvt ?? 0), 0);
   }
 
   protected getTotalAccepted(): number {
-    return this.responseItems().reduce((sum, item) => sum + (item.qtyMvt || 0), 0);
+    return this.lines().reduce((s, l) => s + l.qtyAcceptee, 0);
+  }
+
+  protected getRowClass(line: ResponseLine): string {
+    if (line.qtyAcceptee === 0) return 'rejected-row';
+    if (line.item.qtyMvt && line.qtyAcceptee < line.item.qtyMvt) return 'partial-row';
+    return 'accepted-row';
   }
 
   protected save(): void {
-    if (!this.canSave()) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Veuillez remplir toutes les quantités acceptées',
+    if (!this.canSave() || !this.retourBon?.id) return;
+    this.isSaving.set(true);
+
+    const lignes: IAvoirLigneCommand[] = this.lines()
+      .filter(l => !l.alreadyProcessed)
+      .map(l => ({
+        retourBonItemId: l.item.id!,
+        qtyAcceptee: l.qtyAcceptee,
+        prixAchat: l.prixAchat || undefined,
+      }));
+
+    this.avoirFournisseurService
+      .create({ retourBonId: this.retourBon.id, lignes })
+      .subscribe({
+        next: avoir => {
+          this.isSaving.set(false);
+          this.activeModal.close(avoir);
+        },
+        error: () => {
+          this.isSaving.set(false);
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "Erreur lors de la création de l'avoir" });
+        },
       });
-      return;
-    }
-
-    const reponseRetourBon = new ReponseRetourBon();
-    reponseRetourBon.retourBonId = this.retourBon.id;
-    reponseRetourBon.reponseRetourBonItems = this.responseItems();
-
-    this.activeModal.close(reponseRetourBon);
   }
 
   protected cancel(): void {
     this.activeModal.dismiss();
-  }
-
-  protected getRowClass(item: IReponseRetourBonItem): string {
-    if (item.qtyMvt === 0) {
-      return 'rejected-row';
-    }
-    if (item.qtyMvt && item.requestedQty && item.qtyMvt < item.requestedQty) {
-      return 'partial-row';
-    }
-    return 'accepted-row';
   }
 }

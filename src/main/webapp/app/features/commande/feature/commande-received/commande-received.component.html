@@ -3,7 +3,7 @@
 <div class="cr-wrapper">
   <!-- HEADER -->
   <div class="view-panel__header view-panel__header--detail">
-    <p-button (click)="previousState()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour" pTooltip="Retour à la liste"/>
+    <p-button (click)="previousState()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
     @if (currentCommande) {
       <span class="view-panel__title">{{ currentCommande.fournisseur?.libelle }}</span>
       <span class="view-panel__meta">

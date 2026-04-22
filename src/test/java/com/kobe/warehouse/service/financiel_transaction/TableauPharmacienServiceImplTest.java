@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
+import com.kobe.warehouse.repository.AvoirFournisseurLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
@@ -42,7 +42,7 @@ class TableauPharmacienServiceImplTest {
     private CommandeDataService commandeDataService;
 
     @Mock
-    private ReponseRetourBonItemRepository reponseRetourBonItemRepository;
+    private AvoirFournisseurLineRepository avoirFournisseurLineRepository;
 
     @Mock
     private AppConfigurationService appConfigurationService;
@@ -77,7 +77,7 @@ class TableauPharmacienServiceImplTest {
         service = new TableauPharmacienServiceImpl(
             salesRepository,
             commandeDataService,
-            reponseRetourBonItemRepository,
+            avoirFournisseurLineRepository,
             appConfigurationService,
             objectMapper,
             groupeFournisseurManager,
@@ -116,11 +116,8 @@ class TableauPharmacienServiceImplTest {
         purchasesData.add(createAchatDTO(date3, 2, "Supplier B", 3000L)); // Date with no sales
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(purchasesData);
 
-        // Mock supplier returns
-        List<ReponseRetourBonItemProjection> avoirs = new ArrayList<>();
-        avoirs.add(createAvoirProjection(date1, 500L));
-        avoirs.add(createAvoirProjection(date3, 300L)); // Date with no sales/purchases
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(avoirs);
+
+
 
         // Mock configuration
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
@@ -150,7 +147,7 @@ class TableauPharmacienServiceImplTest {
         when(objectMapper.readValue(eq(salesJson), any(TypeReference.class))).thenReturn(salesData);
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -173,7 +170,7 @@ class TableauPharmacienServiceImplTest {
         purchasesData.add(createAchatDTO(date1, 1, "Supplier A", 4000L));
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(purchasesData);
 
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -196,7 +193,7 @@ class TableauPharmacienServiceImplTest {
 
         List<ReponseRetourBonItemProjection> avoirs = new ArrayList<>();
         avoirs.add(createAvoirProjection(date1, 500L));
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(avoirs);
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -214,7 +211,7 @@ class TableauPharmacienServiceImplTest {
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of());
@@ -233,7 +230,7 @@ class TableauPharmacienServiceImplTest {
         );
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -251,7 +248,7 @@ class TableauPharmacienServiceImplTest {
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-        when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
+
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(true);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));

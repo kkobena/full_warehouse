@@ -24,7 +24,7 @@ import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ng
 import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
 import { IRetourBon } from "app/shared/model/retour-bon.model";
 import { IRetourBonGroupe } from "app/shared/model/retour-bon-groupe.model";
-import { IReponseRetourBon } from "app/shared/model/reponse-retour-bon.model";
+import { IAvoirFournisseur } from "app/shared/model/avoir-fournisseur.model";
 import { RetourBonStatut } from "app/shared/model/enumerations/retour-bon-statut.model";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { DATE_FORMAT_ISO_DATE } from "app/shared/util/warehouse-util";
@@ -227,9 +227,10 @@ export class AppRetourFournisseurComponent implements OnInit {
         retourBon,
         title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`
       },
-      (reponseRetourBon: IReponseRetourBon) => {
-        if (reponseRetourBon) {
-          this.saveSupplierResponse(reponseRetourBon);
+      (avoir: IAvoirFournisseur) => {
+        if (avoir) {
+          this.notificationService.success("Avoir fournisseur créé avec succès — réf. " + (avoir.reference ?? ''));
+          this.loadAll();
         }
       },
       "xl"
@@ -386,19 +387,6 @@ export class AppRetourFournisseurComponent implements OnInit {
     );
   }
 
-  private saveSupplierResponse(reponseRetourBon: IReponseRetourBon): void {
-    this.loading.set(true);
-    this.retourBonService.createSupplierResponse(reponseRetourBon).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.notificationService.success("Réponse fournisseur enregistrée avec succès");
-        this.loadAll();
-      },
-      error: () => {
-        this.notificationService.error("Erreur lors de l'enregistrement de la réponse fournisseur");
-        this.loading.set(false);
-      }
-    });
-  }
 
   protected exportRetourBons(format: "excel" | "csv"): void {
     const statutToUse =

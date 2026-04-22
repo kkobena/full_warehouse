@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { IAvoirEncoursFournisseur, IAvoirFournisseur, AvoirStatut } from 'app/shared/model/avoir-fournisseur.model';
+import {
+  IAvoirEncoursFournisseur,
+  IAvoirFournisseur,
+  IAvoirFournisseurCommand,
+  IAvoirFromBonLignesCommand,
+  AvoirFournisseurStatut,
+} from 'app/shared/model/avoir-fournisseur.model';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 
 @Injectable({ providedIn: 'root' })
@@ -10,8 +16,20 @@ export class AvoirFournisseurService {
   private readonly applicationConfigService = inject(ApplicationConfigService);
   private readonly resourceUrl = this.applicationConfigService.getEndpointFor('api/avoirs-fournisseur');
 
+  create(command: IAvoirFournisseurCommand): Observable<IAvoirFournisseur> {
+    return this.http.post<IAvoirFournisseur>(this.resourceUrl, command);
+  }
+
+  createFromBonLignes(command: IAvoirFromBonLignesCommand): Observable<IAvoirFournisseur> {
+    return this.http.post<IAvoirFournisseur>(`${this.resourceUrl}/from-bon-lignes`, command);
+  }
+
+  annuler(id: number, motif?: string): Observable<IAvoirFournisseur> {
+    return this.http.post<IAvoirFournisseur>(`${this.resourceUrl}/${id}/annuler`, motif ? { motif } : {});
+  }
+
   query(req?: {
-    statut?: AvoirStatut;
+    statut?: AvoirFournisseurStatut;
     fournisseurId?: number;
     dtStart?: string;
     dtEnd?: string;
@@ -32,7 +50,7 @@ export class AvoirFournisseurService {
     return this.http.get<IAvoirEncoursFournisseur[]>(`${this.resourceUrl}/encours-par-fournisseur`);
   }
 
-  updateStatut(id: number, statut: AvoirStatut): Observable<IAvoirFournisseur> {
+  updateStatut(id: number, statut: AvoirFournisseurStatut): Observable<IAvoirFournisseur> {
     return this.http.patch<IAvoirFournisseur>(`${this.resourceUrl}/${id}/statut`, null, {
       params: { statut },
     });

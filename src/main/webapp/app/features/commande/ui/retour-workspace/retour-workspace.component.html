@@ -1,0 +1,114 @@
+<p-toast />
+
+<div class="rw-header">
+  <p-button (onClick)="cancel()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+  <span class="rw-title">
+    <i class="pi pi-replay me-2"></i>
+    {{ bon().receiptReference ?? bon().orderReference }}
+    <span class="ms-2 text-muted">{{ bon().fournisseurLibelle }}</span>
+  </span>
+  <span class="ms-auto pharma-price me-3">
+    Sélectionné : <strong>{{ getTotalMontant() | number:'1.0-0' }} F</strong>
+  </span>
+  <p-button (onClick)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" size="small" />
+  <p-button
+    (onClick)="onSaveClick()"
+    [disabled]="!canSave || loading()"
+    [loading]="isSaving()"
+    icon="pi pi-check"
+    label="Créer l'avoir"
+    severity="primary"
+    size="small"
+  />
+</div>
+
+<div class="rw-body">
+  @if (loading()) {
+    <div class="d-flex align-items-center justify-content-center h-100">
+      <i class="pi pi-spin pi-spinner" style="font-size:2rem"></i>
+    </div>
+  }
+  <p-table
+    [value]="lines()"
+    [scrollable]="true"
+    scrollHeight="flex"
+    class="p-datatable-sm rw-table"
+    [showGridlines]="true"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width:44px"></th>
+        <th style="width:110px">Code</th>
+        <th>Libellé</th>
+        <th class="text-end" style="width:100px">Qté reçue</th>
+        <th class="text-end" style="width:130px">Qté à retourner</th>
+        <th style="width:200px">Motif *</th>
+        <th class="text-end" style="width:120px">Prix achat</th>
+        <th class="text-end" style="width:120px">Montant</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-line>
+      <tr [class.rw-row-selected]="line.selected">
+        <td class="text-center">
+          <input type="checkbox" [(ngModel)]="line.selected" class="form-check-input" />
+        </td>
+        <td><span class="pharma-code">{{ line.orderLine.produitCip }}</span></td>
+        <td>{{ line.orderLine.produitLibelle }}</td>
+        <td class="text-end"><span class="pharma-qty-value">{{ line.orderLine.quantityReceived | number }}</span></td>
+        <td class="text-end">
+          <p-inputNumber
+            [(ngModel)]="line.qtyRetour"
+            (ngModelChange)="onQtyChange(line)"
+            [min]="1"
+            [max]="line.maxQty"
+            [disabled]="!line.selected"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            [inputStyle]="{ 'text-align': 'right', width: '60px' }"
+            (keydown.enter)="$event.preventDefault()"
+          />
+        </td>
+        <td>
+          <p-select
+            [(ngModel)]="line.motifRetourId"
+            [options]="motifs()"
+            optionLabel="libelle"
+            optionValue="id"
+            [disabled]="!line.selected"
+            placeholder="Motif"
+            appendTo="body"
+            [style]="{ width: '100%' }"
+          />
+        </td>
+        <td class="text-end">
+          <p-inputNumber
+            [(ngModel)]="line.prixAchat"
+            [disabled]="!line.selected"
+            [min]="0"
+            [showButtons]="false"
+            [inputStyle]="{ 'text-align': 'right', width: '100px' }"
+          />
+        </td>
+        <td class="text-end pharma-price">
+          @if (line.selected) {
+            {{ line.qtyRetour * line.prixAchat | number:'1.0-0' }}
+          } @else {
+            —
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8">
+          <div class="pharma-empty-content">
+            <i class="pi pi-inbox"></i>
+            <p>Aucune ligne reçue sur ce bon</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

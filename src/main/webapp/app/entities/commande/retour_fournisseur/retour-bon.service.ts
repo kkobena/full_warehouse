@@ -5,7 +5,6 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
 import { IRetourBonGroupe } from 'app/shared/model/retour-bon-groupe.model';
-import { IReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
 import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
 import {
   RetourBonBatchResult,
@@ -16,7 +15,6 @@ import {
 
 type EntityResponseType = HttpResponse<IRetourBon>;
 type EntityArrayResponseType = HttpResponse<IRetourBon[]>;
-type ResponseEntityResponseType = HttpResponse<IReponseRetourBon>;
 
 @Injectable({ providedIn: 'root' })
 export class RetourBonService {
@@ -54,10 +52,6 @@ export class RetourBonService {
       params: options,
       observe: 'response',
     });
-  }
-
-  createSupplierResponse(reponseRetourBon: IReponseRetourBon): Observable<ResponseEntityResponseType> {
-    return this.http.post<IReponseRetourBon>(`${this.resourceUrl}/supplier-response`, reponseRetourBon, { observe: 'response' });
   }
 
   getPdf(id: number): Observable<Blob> {

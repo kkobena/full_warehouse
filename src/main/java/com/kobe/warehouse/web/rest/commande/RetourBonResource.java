@@ -1,7 +1,8 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
+import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
+import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
@@ -367,33 +368,17 @@ public class RetourBonResource {
     }
 
     /**
-     * {@code POST  /retour-bons/supplier-response} : Create a supplier response for a retour bon.
+     * {@code POST  /retour-bons/supplier-response} : Create an avoir fournisseur from a supplier response.
      *
-     * @param reponseRetourBonDTO the supplier response to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new reponseRetourBonDTO,
-     * or with status {@code 400 (Bad Request)} if the reponse has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/retour-bons/supplier-response")
-    public ResponseEntity<ReponseRetourBonDTO> createSupplierResponse(@Valid @RequestBody ReponseRetourBonDTO reponseRetourBonDTO)
+    public ResponseEntity<AvoirFournisseurDTO> createSupplierResponse(@RequestBody AvoirFournisseurCommand command)
         throws URISyntaxException {
-        log.debug("REST request to create supplier response for RetourBon : {}", reponseRetourBonDTO.getRetourBonId());
-        if (reponseRetourBonDTO.getId() != null) {
-            return ResponseEntity.badRequest()
-                .headers(
-                    HeaderUtil.createFailureAlert(
-                        applicationName,
-                        true,
-                        "reponseRetourBon",
-                        "idexists",
-                        "A new supplier response cannot already have an ID"
-                    )
-                )
-                .body(null);
-        }
-        ReponseRetourBonDTO result = retourBonService.createSupplierResponse(reponseRetourBonDTO);
-        return ResponseEntity.created(new URI("/api/retour-bons/supplier-response/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "reponseRetourBon", result.getId().toString()))
+        log.debug("REST request to create avoir fournisseur from retour bon : {}", command.retourBonId());
+        AvoirFournisseurDTO result = retourBonService.createSupplierResponse(command);
+        return ResponseEntity.created(new URI("/api/avoirs-fournisseur/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "avoirFournisseur", result.getId().toString()))
             .body(result);
     }
 }

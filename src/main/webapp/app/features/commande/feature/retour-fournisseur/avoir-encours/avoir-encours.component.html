@@ -136,6 +136,9 @@
                   <p-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
                             pTooltip="Marquer imputé" tooltipPosition="top"
                             (onClick)="confirmUpdateStatut(avoir, 'IMPUTE')" />
+                  <p-button icon="pi pi-ban" size="small" severity="danger" [text]="true"
+                            pTooltip="Annuler l'avoir" tooltipPosition="top"
+                            (onClick)="confirmAnnuler(avoir)" />
                 </div>
               }
             </td>

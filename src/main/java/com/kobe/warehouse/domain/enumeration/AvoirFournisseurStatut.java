@@ -4,4 +4,5 @@ public enum AvoirFournisseurStatut {
     EN_ATTENTE,
     REMBOURSE,
     IMPUTE,
+    ANNULE,
 }

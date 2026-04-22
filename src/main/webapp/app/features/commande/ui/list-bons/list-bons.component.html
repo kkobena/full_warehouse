@@ -22,14 +22,30 @@
   <div class="view-panel__header view-panel__header--detail">
     <p-button (click)="onRetourConsultation()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
     <div class="cr-header-actions">
+   <!--   <p-button
+        (onClick)="onRetourComplet(selectedClosed()!)"
+        severity="info"
+        icon="pi pi-replay"
+        label="Retour complet de ce bon"
+        class="mr-1"
+        size="small"
+      />
+      <p-button
+        (onClick)="onRetourParLigne(selectedClosed()!)"
+        severity="primary"
+        class="mr-1"
+        icon="pi pi-list-check"
+        label="Retour par ligne"
+        size="small"
+      />-->
       <p-button
         (onClick)="exportPdf(selectedClosed()!)"
         icon="pi pi-file-pdf"
         label="Imprimer BL"
         severity="secondary"
         size="small"
-      />
-    </div>
+      /></div>
+
   </div>
 
 
@@ -119,6 +135,18 @@
   </div>
 </div>
 
+
+} @else if (retourWorkspaceBon()) {
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <!-- MODE RETOUR PAR LIGNE                                                 -->
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <div class="view-panel">
+    <app-retour-workspace
+      [bon]="retourWorkspaceBon()!"
+      (avoirCreated)="onRetourWorkspaceDone()"
+      (cancelled)="onRetourWorkspaceCancelled()"
+    />
+  </div>
 
 } @else {
   <!-- ═════════════════════════════════════════════════════════════════════ -->
@@ -243,6 +271,7 @@
                 (exportPdf)="exportPdf(d)"
                 (printEtiquette)="printEtiquette(d)"
                 (retourComplet)="onRetourComplet(d)"
+                (retourParLigne)="onRetourParLigne(d)"
               />
             </td>
           </tr>

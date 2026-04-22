@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto.filter;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.Sort;
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ public class CommandeFilterDTO {
     private String typeSuggession;
     private Sort orderBy;
     private LocalDate orderDate;
+    private TypeDeliveryReceipt type=TypeDeliveryReceipt.ORDER;
 
     public Sort getOrderBy() {
         return orderBy;
@@ -23,6 +25,15 @@ public class CommandeFilterDTO {
 
     public CommandeFilterDTO setOrderBy(Sort orderBy) {
         this.orderBy = orderBy;
+        return this;
+    }
+
+    public TypeDeliveryReceipt getType() {
+        return type;
+    }
+
+    public CommandeFilterDTO setType(TypeDeliveryReceipt type) {
+        this.type = type;
         return this;
     }
 

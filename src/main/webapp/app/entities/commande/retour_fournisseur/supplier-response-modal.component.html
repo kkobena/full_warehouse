@@ -9,7 +9,6 @@
 <div class="modal-body">
   <p-toast />
 
-  <!-- Summary Card -->
   <div class="alert alert-info mb-2">
     <div class="d-flex justify-content-between align-items-center">
       <div>
@@ -17,92 +16,87 @@
         <span class="ms-2 text-muted">{{ retourBon?.fournisseurLibelle }}</span>
       </div>
       <div class="text-end">
-        <div class="text-sm">
-          Total Retourné: <strong>{{ getTotalRequested() | number }}</strong>
-        </div>
-        <div class="text-sm">
-          Total accepté: <strong class="text-primary">{{ getTotalAccepted() | number }}</strong>
-        </div>
+        <div class="text-sm">Total retourné : <strong>{{ getTotalRequested() | number }}</strong></div>
+        <div class="text-sm">Total accepté : <strong class="text-primary">{{ getTotalAccepted() | number }}</strong></div>
       </div>
     </div>
   </div>
 
-  <!-- Response Items Table -->
-  <p-table [value]="responseItems()" class="pharma-table" editMode="cell" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
+  <p-table [value]="lines()" class="pharma-table" editMode="cell" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 50px">#</th>
         <th style="width: 100px">CIP</th>
         <th>Produit</th>
         <th style="width: 100px">Lot</th>
-        <th style="width: 120px" class="text-center">Qté Retournée</th>
-        <th style="width: 150px" class="text-center">Qté Acceptée</th>
+        <th style="width: 120px" class="text-center">Qté retournée</th>
+        <th style="width: 150px" class="text-center">Qté acceptée</th>
+        <th style="width: 120px" class="text-center">Prix achat</th>
         <th style="width: 80px" class="text-center">Statut</th>
       </tr>
     </ng-template>
-    <ng-template #body let-item let-rowIndex="rowIndex">
-      @let alreadyProcessed = isItemAlreadyProcessed(item);
-      <tr [ngClass]="getRowClass(item)">
+    <ng-template #body let-line let-rowIndex="rowIndex">
+      <tr [ngClass]="getRowClass(line)">
+        <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+        <td><span class="pharma-code">{{ line.item.produitCip }}</span></td>
+        <td><span class="pharma-product-name">{{ line.item.produitLibelle }}</span></td>
         <td>
-          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-        </td>
-        <td>
-          <span class="pharma-code">{{ item.produitCip }}</span>
-        </td>
-        <td>
-          <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-        </td>
-        <td>
-          @if (item.lotNumero) {
-            <span class="pharma-badge pharma-badge-info">
-              {{ item.lotNumero }}
-            </span>
+          @if (line.item.lotNumero) {
+            <span class="pharma-badge pharma-badge-info">{{ line.item.lotNumero }}</span>
           }
         </td>
         <td class="text-center">
-          <span class="badge bg-info">{{ item.requestedQty | number }}</span>
+          <span class="badge bg-info">{{ line.item.qtyMvt | number }}</span>
         </td>
-        @if (!alreadyProcessed) {
+        @if (!line.alreadyProcessed) {
           <td class="text-center" pEditableColumn>
             <p-cellEditor>
               <ng-template #input>
                 <p-inputNumber
-                  [(ngModel)]="item.qtyMvt"
-                  (ngModelChange)="onQuantityChange(item)"
+                  [(ngModel)]="line.qtyAcceptee"
+                  (ngModelChange)="onQuantityChange(line)"
                   [min]="0"
-                  [max]="item.requestedQty"
+                  [max]="line.item.qtyMvt"
                   [showButtons]="true"
                   buttonLayout="horizontal"
                   incrementButtonIcon="pi pi-plus"
                   decrementButtonIcon="pi pi-minus"
-                  [inputStyle]="{ 'text-align': 'center', width: '100px' }"
+                  [inputStyle]="{ 'text-align': 'center', width: '80px' }"
                   (keydown.enter)="$event.preventDefault()"
                 />
               </ng-template>
               <ng-template #output>
-                <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
-                  {{ item.qtyMvt | number }}
-                </span>
+                <span [ngClass]="line.qtyAcceptee === 0 ? 'text-danger' : ''">{{ line.qtyAcceptee | number }}</span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+          <td class="text-center" pEditableColumn>
+            <p-cellEditor>
+              <ng-template #input>
+                <p-inputNumber
+                  [(ngModel)]="line.prixAchat"
+                  [min]="0"
+                  [showButtons]="false"
+                  [inputStyle]="{ 'text-align': 'right', width: '100px' }"
+                  (keydown.enter)="$event.preventDefault()"
+                />
+              </ng-template>
+              <ng-template #output>
+                <span>{{ line.prixAchat | number }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
         } @else {
-          <td class="text-center">
-            <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
-              {{ item.qtyMvt | number }}
-            </span>
-          </td>
+          <td class="text-center">{{ line.qtyAcceptee | number }}</td>
+          <td class="text-center">{{ line.prixAchat | number }}</td>
         }
-
         <td class="text-center">
-          @if (!alreadyProcessed) {
-            @if (item.qtyMvt === 0) {
-              <i class="pi pi-times-circle text-danger" pTooltip="Refusé" tooltipPosition="top"></i>
-            } @else if (item.qtyMvt && item.requestedQty && item.qtyMvt < item.requestedQty) {
-              <i class="pi pi-exclamation-triangle text-warning" pTooltip="Partiel" tooltipPosition="top"></i>
-            } @else {
-              <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
-            }
+          @if (line.alreadyProcessed) {
+            <i class="pi pi-check-circle text-success" pTooltip="Déjà traité" tooltipPosition="top"></i>
+          } @else if (line.qtyAcceptee === 0) {
+            <i class="pi pi-times-circle text-danger" pTooltip="Refusé" tooltipPosition="top"></i>
+          } @else if (line.item.qtyMvt && line.qtyAcceptee < line.item.qtyMvt) {
+            <i class="pi pi-exclamation-triangle text-warning" pTooltip="Partiel" tooltipPosition="top"></i>
           } @else {
             <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
           }
@@ -116,10 +110,10 @@
   <p-button (onClick)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" />
   <p-button
     (onClick)="save()"
-    [disabled]="!canSave() || isSaving()"
+    [disabled]="!canSave()"
     [loading]="isSaving()"
     icon="pi pi-save"
-    label="Enregistrer"
+    label="Créer l'avoir"
     severity="primary"
   />
 </div>

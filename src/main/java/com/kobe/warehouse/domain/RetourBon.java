@@ -71,6 +71,10 @@ public class RetourBon implements Serializable {
     @Column(name = "hors_commande", nullable = false)
     private boolean horsCommande = false;
 
+    /** true = retour effectué pendant la réception (marchandise jamais entrée en stock) */
+    @Column(name = "hors_stock", nullable = false)
+    private boolean horsStock = false;
+
     @ManyToOne
     @JoinColumn(name = "pharmaml_envoi_id")
     private PharmaMlEnvoi pharmamlEnvoi;
@@ -170,6 +174,15 @@ public class RetourBon implements Serializable {
 
     public RetourBon setHorsCommande(boolean horsCommande) {
         this.horsCommande = horsCommande;
+        return this;
+    }
+
+    public boolean isHorsStock() {
+        return horsStock;
+    }
+
+    public RetourBon setHorsStock(boolean horsStock) {
+        this.horsStock = horsStock;
         return this;
     }
 }

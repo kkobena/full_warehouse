@@ -39,6 +39,11 @@ public class AvoirFournisseurResource {
         return ResponseEntity.ok(retourBonService.createFromBonLignes(command));
     }
 
+    @PostMapping("/from-reception")
+    public ResponseEntity<AvoirFournisseurDTO> createFromReception(@RequestBody AvoirFromBonLignesCommand command) {
+        return ResponseEntity.ok(retourBonService.createFromReception(command));
+    }
+
     @PostMapping("/{id}/annuler")
     public ResponseEntity<AvoirFournisseurDTO> annuler(
         @PathVariable Integer id,

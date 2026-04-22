@@ -515,6 +515,71 @@ public class RetourBonServiceImpl implements RetourBonService {
     }
 
     @Override
+    public AvoirFournisseurDTO createFromReception(AvoirFromBonLignesCommand command) {
+        log.debug("Request to create RetourBon (hors stock) from reception: commande={}", command.commandeId());
+
+        CommandeId commandeKey = new CommandeId(command.commandeId(), command.commandeOrderDate());
+        Commande commande = commandeRepository.findById(commandeKey)
+            .orElseThrow(() -> new GenericError("Commande introuvable: " + command.commandeId()));
+
+        AppUser currentUser = userService.getUser();
+
+        RetourBon retourBon = new RetourBon();
+        retourBon.setDateMtv(LocalDateTime.now());
+        retourBon.setStatut(RetourStatut.VALIDATED);
+        retourBon.setCommentaire(command.commentaire());
+        retourBon.setUser(currentUser);
+        retourBon.setCommande(commande);
+        retourBon.setHorsStock(true);
+        retourBon = retourBonRepository.save(retourBon);
+        retourBon.setReference(generateReference(retourBon.getId()));
+        retourBon = retourBonRepository.save(retourBon);
+
+        for (AvoirFromBonLignesCommand.BonLigneItem ligne : command.lignes()) {
+            createRetourBonItemHorsStock(ligne, retourBon);
+        }
+
+        RetourBon saved = retourBonRepository.findById(retourBon.getId()).orElseThrow();
+        List<AvoirFournisseurCommand.AvoirLigneCommand> avoirLignes = retourBonItemRepository
+            .findAllByRetourBonId(saved.getId()).stream()
+            .map(item -> new AvoirFournisseurCommand.AvoirLigneCommand(item.getId(), item.getQtyMvt(), item.getPrixAchat()))
+            .toList();
+
+        return avoirFournisseurService.createFromRetourBon(saved, avoirLignes, command.commentaire());
+    }
+
+    private void createRetourBonItemHorsStock(AvoirFromBonLignesCommand.BonLigneItem cmd, RetourBon retourBon) {
+        OrderLineId orderLineId = new OrderLineId(cmd.orderLineId(), cmd.orderLineOrderDate());
+        OrderLine orderLine = orderLineRepository.findById(orderLineId)
+            .orElseThrow(() -> new GenericError("Ligne de commande introuvable: " + cmd.orderLineId()));
+
+        int qtyRecu = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : 0;
+        if (cmd.qtyRetour() > qtyRecu) {
+            throw new GenericError("Quantité à retourner (" + cmd.qtyRetour()
+                + ") supérieure à la quantité reçue (" + qtyRecu + ") pour: " + cmd.produitCip());
+        }
+
+        var motif = new MotifRetourProduit();
+        motif.setId(cmd.motifRetourId());
+
+        RetourBonItem item = new RetourBonItem();
+        item.setDateMtv(LocalDateTime.now());
+        item.setRetourBon(retourBon);
+        item.setQtyMvt(cmd.qtyRetour());
+        item.setInitStock(qtyRecu);
+        item.setAfterStock(qtyRecu - cmd.qtyRetour());
+        item.setMotifRetour(motif);
+        item.setOrderLine(orderLine);
+        item.setPrixAchat(cmd.prixAchat() != null ? cmd.prixAchat() : orderLine.getOrderCostAmount());
+        retourBonItemRepository.save(item);
+
+        orderLine.setQuantityReceived(qtyRecu - cmd.qtyRetour());
+        int alreadyReturned = orderLine.getQuantityReturned() != null ? orderLine.getQuantityReturned() : 0;
+        orderLine.setQuantityReturned(alreadyReturned + cmd.qtyRetour());
+        orderLineRepository.save(orderLine);
+    }
+
+    @Override
     public RetourBonDTO createRetourCompletFromCommande(RetourCompletCommandeRequest request) {
         log.debug("Request to create retour complet from commande: {}/{}", request.getCommandeId(), request.getCommandeOrderDate());
 

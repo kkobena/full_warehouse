@@ -24,6 +24,10 @@ export class AvoirFournisseurService {
     return this.http.post<IAvoirFournisseur>(`${this.resourceUrl}/from-bon-lignes`, command);
   }
 
+  createFromReception(command: IAvoirFromBonLignesCommand): Observable<IAvoirFournisseur> {
+    return this.http.post<IAvoirFournisseur>(`${this.resourceUrl}/from-reception`, command);
+  }
+
   annuler(id: number, motif?: string): Observable<IAvoirFournisseur> {
     return this.http.post<IAvoirFournisseur>(`${this.resourceUrl}/${id}/annuler`, motif ? { motif } : {});
   }

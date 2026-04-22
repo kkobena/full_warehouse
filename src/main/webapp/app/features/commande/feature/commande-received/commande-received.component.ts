@@ -394,7 +394,7 @@ export class CommandeReceivedComponent implements OnInit {
         header: `Retour fournisseur — ${this.currentCommande.receiptReference ?? this.currentCommande.orderReference ?? ""}`
       },
       () => this.refreshCommande(),
-      "lg"
+      "xl"
     );
   }
 

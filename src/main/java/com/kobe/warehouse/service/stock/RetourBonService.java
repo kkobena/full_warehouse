@@ -147,6 +147,16 @@ public interface RetourBonService {
     AvoirFournisseurDTO createFromBonLignes(AvoirFromBonLignesCommand command);
 
     /**
+     * Crée un RetourBon + AvoirFournisseur depuis la réception (BL en statut RECEIVED).
+     * Aucun mouvement de stock : la marchandise n'est jamais entrée en stock.
+     * Réduit OrderLine.quantityReceived pour chaque ligne retournée.
+     *
+     * @param command commande avec les lignes de réception sélectionnées.
+     * @return l'avoir créé.
+     */
+    AvoirFournisseurDTO createFromReception(AvoirFromBonLignesCommand command);
+
+    /**
      * Retourne les retours non clôturés regroupés par fournisseur.
      */
     List<RetourBonGroupeDTO> findAllGroupedByFournisseur();

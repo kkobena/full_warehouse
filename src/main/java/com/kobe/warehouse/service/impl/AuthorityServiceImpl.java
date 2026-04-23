@@ -47,10 +47,11 @@ public class AuthorityServiceImpl implements AuthorityService {
 
     @Override
     public List<AuthorityDTO> fetch(String search) {
+        Set<String> roleToExclude = Set.of("ROLE_SUPER_USER", "ROLE_ADMIN", "ROLE_USER");
         if (StringUtils.hasLength(search)) {
             return this.authorityRepository.findAll()
                 .stream()
-                .filter(authority -> !authority.getName().equals("ROLE_SUPER_USER"))
+                .filter(authority -> !roleToExclude.contains(authority.getName()))
                 .filter(authority -> authority.getName().contains(search.toUpperCase()))
                 .map(this::buildAutorityDTO)
                 .toList();
@@ -67,9 +68,10 @@ public class AuthorityServiceImpl implements AuthorityService {
 
     @Override
     public List<AuthorityDTO> fetchAll() {
+        Set<String> roleToExclude = Set.of("ROLE_SUPER_USER", "ROLE_ADMIN", "ROLE_USER");
         return authorityRepository.findNameAndLibelle()
             .stream()
-            .filter(authority -> !authority.code().equals("ROLE_SUPER_USER"))
+            .filter(authority -> !roleToExclude.contains(authority.code()))
             .map(authority -> new AuthorityDTO(authority.code(), authority.libelle(), Set.of()))
             .collect(Collectors.toList());
 

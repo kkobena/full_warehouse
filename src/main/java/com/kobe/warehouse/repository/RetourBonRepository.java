@@ -28,4 +28,6 @@ public interface RetourBonRepository extends JpaRepository<RetourBon, Integer>, 
         @Param("endDate") LocalDateTime endDate,
         Pageable pageable
     );
+
+    long countByStatutNot(RetourStatut statut);
 }

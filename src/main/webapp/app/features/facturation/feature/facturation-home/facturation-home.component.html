@@ -159,12 +159,12 @@
   <!-- Split container: liste + panneau détail -->
   <div class="split-container" [class.panel-open]="panelOpen()">
     <div class="list-column">
-      <app-facture-list [searchParams]="currentSearchParams()" [canDelete]="canDelete()" [canExport]="canExport()" />
+      <app-facture-list [searchParams]="currentSearchParams()" [canDelete]="canDelete()" [canExport]="canExport()" (createAvoir)="onCreateAvoir($event)" />
     </div>
 
     @if (panelOpen()) {
       <div class="detail-column">
-        <app-facture-detail-panel [facture]="store.selectedFacture()" [canExecute]="canExecute()" [canExport]="canExport()" />
+        <app-facture-detail-panel [facture]="store.selectedFacture()" [canExecute]="canExecute()" [canExport]="canExport()" [activeTabRequest]="requestedDetailTab()" />
       </div>
     }
   </div>

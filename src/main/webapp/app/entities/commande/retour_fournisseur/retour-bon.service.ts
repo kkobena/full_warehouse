@@ -112,6 +112,10 @@ export class RetourBonService {
       responseType: 'blob',
     });
   }
+
+  countEnAttente(): Observable<number> {
+    return this.http.get<number>(`${this.resourceUrl}/count-en-attente`);
+  }
 }
 
 

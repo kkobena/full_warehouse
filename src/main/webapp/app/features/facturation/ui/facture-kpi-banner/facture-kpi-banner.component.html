@@ -1,81 +1,60 @@
 @if (loading()) {
-  <div class="row mt-1 kpi-row">
-    @for (_ of [1, 2, 3, 4]; track _) {
-      <div class="col-6 col-md mb-2">
-        <div class="card kpi-card kpi-card-compact primary-accent">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <div class="kpi-icon-sm text-muted"><i class="pi pi-spin pi-spinner"></i></div>
-              <div>
-                <p class="kpi-label mb-0">Chargement...</p>
-                <span class="kpi-value-sm text-muted">—</span>
-              </div>
-            </div>
-          </div>
+  <div class="kpi-strip">
+    @for (_ of [1, 2, 3, 4]; track _; let last = $last) {
+      <div class="kpi-strip-item">
+        <i class="pi pi-spin pi-spinner text-muted"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Chargement...</span>
+          <span class="kpi-strip-value text-muted">—</span>
         </div>
       </div>
+      @if (!last) {
+        <div class="kpi-strip-divider"></div>
+      }
     }
   </div>
 } @else if (kpi()) {
-  <div class="row mt-1 kpi-row">
+  <div class="kpi-strip">
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact primary-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-primary"><i class="pi pi-file-edit"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Total facturé</p>
-              <span class="kpi-value-sm text-primary">{{ kpi().totalFacture | number }}</span>
-              <p class="kpi-sublabel mb-0">{{ kpi().countFactures | number }} factures</p>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-item primary-accent">
+      <i class="pi pi-file-edit text-primary"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Total facturé</span>
+        <span class="kpi-strip-value text-primary">{{ kpi()!.totalFacture | number }}</span>
+        <span class="kpi-strip-sub">{{ kpi()!.countFactures | number }} factures</span>
       </div>
     </div>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact success-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-success"><i class="pi pi-check-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Montant réglé</p>
-              <span class="kpi-value-sm text-success">{{ kpi().totalRegle | number }}</span>
-              <p class="kpi-sublabel mb-0">Taux {{ kpi().tauxRecouvrement | number: '1.1-1' }} %</p>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item success-accent">
+      <i class="pi pi-check-circle text-success"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Montant réglé</span>
+        <span class="kpi-strip-value text-success">{{ kpi()!.totalRegle | number }}</span>
+        <span class="kpi-strip-sub">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }} %</span>
       </div>
     </div>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact danger-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-danger"><i class="pi pi-exclamation-circle"></i></div>
-            <div>
-              <p class="kpi-label mb-0">Restant dû</p>
-              <span class="kpi-value-sm text-danger">{{ kpi().totalRestant | number }}</span>
-              <p class="kpi-sublabel mb-0">{{ kpi().countImpayees | number }} impayées</p>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item danger-accent">
+      <i class="pi pi-exclamation-circle text-danger"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">Restant dû</span>
+        <span class="kpi-strip-value text-danger">{{ kpi()!.totalRestant | number }}</span>
+        <span class="kpi-strip-sub">{{ kpi()!.countImpayees | number }} impayées</span>
       </div>
     </div>
 
-    <div class="col-6 col-md mb-2">
-      <div class="card kpi-card kpi-card-compact warning-accent">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-2">
-            <div class="kpi-icon-sm text-warning"><i class="pi pi-clock"></i></div>
-            <div>
-              <p class="kpi-label mb-0">En retard</p>
-              <span class="kpi-value-sm text-warning">{{ kpi().countEnRetard | number }}</span>
-              <p class="kpi-sublabel mb-0">Délai dépassé</p>
-            </div>
-          </div>
-        </div>
+    <div class="kpi-strip-divider"></div>
+
+    <div class="kpi-strip-item warning-accent">
+      <i class="pi pi-clock text-warning"></i>
+      <div class="kpi-strip-body">
+        <span class="kpi-strip-label">En retard</span>
+        <span class="kpi-strip-value text-warning">{{ kpi()!.countEnRetard | number }}</span>
+        <span class="kpi-strip-sub">Délai dépassé</span>
       </div>
     </div>
 

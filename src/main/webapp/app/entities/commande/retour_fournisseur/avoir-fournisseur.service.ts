@@ -59,4 +59,8 @@ export class AvoirFournisseurService {
       params: { statut },
     });
   }
+
+  countEnAttente(): Observable<number> {
+    return this.http.get<number>(`${this.resourceUrl}/count-en-attente`);
+  }
 }

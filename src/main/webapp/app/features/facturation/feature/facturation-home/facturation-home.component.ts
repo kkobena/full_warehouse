@@ -57,6 +57,7 @@ export class FacturationHomeComponent implements OnInit {
   // Store & computed
   protected readonly store = inject(FacturationStore);
   protected readonly panelOpen = computed(() => this.store.panelOpen());
+  protected readonly requestedDetailTab = signal<string | null>(null);
 
   private readonly ability = inject(AbilityService);
   protected readonly canExecute = this.ability.canSignal('execute', 'factures');
@@ -112,6 +113,11 @@ export class FacturationHomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadKpi();
     this.onSearch();
+  }
+
+  onCreateAvoir(facture: IFacture): void {
+    this.requestedDetailTab.set('avoirs');
+    this.store.selectFacture(facture);
   }
 
   onSearch(): void {

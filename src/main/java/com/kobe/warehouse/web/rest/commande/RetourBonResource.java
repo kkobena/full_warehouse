@@ -346,6 +346,14 @@ public class RetourBonResource {
     }
 
     /**
+     * {@code GET  /retour-bons/count-en-attente} : nombre de retours en attente (statut ≠ CLOSED).
+     */
+    @GetMapping("/retour-bons/count-en-attente")
+    public ResponseEntity<Long> countEnAttente() {
+        return ResponseEntity.ok(retourBonService.countEnAttente());
+    }
+
+    /**
      * {@code GET  /retour-bons/grouped-by-fournisseur} : get all open retour bons grouped by fournisseur.
      */
     @GetMapping("/retour-bons/grouped-by-fournisseur")

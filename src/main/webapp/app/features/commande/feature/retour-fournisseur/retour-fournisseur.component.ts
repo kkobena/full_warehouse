@@ -18,7 +18,6 @@ import { FloatLabel } from "primeng/floatlabel";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { MenuItem } from "primeng/api";
-import { saveAs } from "file-saver";
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { WarehouseCommonModule } from "app/shared/warehouse-common/warehouse-common.module";
@@ -33,10 +32,9 @@ import {
   SupplierResponseModalComponent
 } from "../../../../entities/commande/retour_fournisseur/supplier-response-modal.component";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
-import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
 import { AvoirEncoursComponent } from "./avoir-encours/avoir-encours.component";
 import { AvoirFournisseurService } from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
 
@@ -91,7 +89,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected page = signal<number>(0);
   protected readonly RetourBonStatut = RetourBonStatut;
   private readonly destroyRef = inject(DestroyRef);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly retourBonService = inject(RetourBonService);
   private readonly avoirFournisseurService = inject(AvoirFournisseurService);
   private readonly notificationService = inject(NotificationService);
@@ -162,12 +160,8 @@ export class AppRetourFournisseurComponent implements OnInit {
     const ids = (groupe.retourBons || []).map(r => r.id!).filter(id => !!id);
     this.retourBonService.exportGroupe(ids).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob: Blob) => {
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, `bordereau-groupe-${groupe.fournisseurLibelle}`);
-        } else {
-          const url = URL.createObjectURL(blob);
-          window.open(url);
-        }
+        this.downloadDocumentService.downloadPdf(blob, `bordereau-groupe-${groupe.fournisseurId}`);
+
       },
       error: () => {
         this.notificationService.error("Impossible de générer le bordereau groupé");
@@ -229,7 +223,7 @@ export class AppRetourFournisseurComponent implements OnInit {
       },
       (avoir: IAvoirFournisseur) => {
         if (avoir) {
-          this.notificationService.success("Avoir fournisseur créé avec succès — réf. " + (avoir.reference ?? ''));
+          this.notificationService.success("Avoir fournisseur créé avec succès — réf. " + (avoir.reference ?? ""));
           this.loadAll();
         }
       },
@@ -288,20 +282,17 @@ export class AppRetourFournisseurComponent implements OnInit {
     this.notificationService.error("Erreur lors du chargement des retours");
   }
 
-  /** Charge le compteur badge EN_ATTENTE (retours VALIDATED non encore traités) */
   protected loadBadges(): void {
-    this.retourBonService.query({ page: 0, size: 1, excludeStatut: RetourBonStatut.CLOSED })
+    this.retourBonService.countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res: HttpResponse<IRetourBon[]>) => {
-          this.countEnAttente.set(Number(res.headers.get("X-Total-Count")) || 0);
-        },
+        next: count => this.countEnAttente.set(count),
         error: () => {}
       });
-    this.avoirFournisseurService.query({ statut: 'EN_ATTENTE', page: 0, size: 1 })
+    this.avoirFournisseurService.countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: res => this.countAvoirs.set(Number(res.headers.get("X-Total-Count")) || 0),
+        next: count => this.countAvoirs.set(count),
         error: () => {}
       });
   }
@@ -309,12 +300,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected downloadPdf(retourBon: IRetourBon): void {
     this.retourBonService.getPdf(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (blob: Blob) => {
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, "retour_bon");
-        } else {
-          const blobUrl = URL.createObjectURL(blob);
-          window.open(blobUrl);
-        }
+        this.downloadDocumentService.downloadPdf(blob, `retour_bon-${retourBon.id}`);
 
       },
       error: () => {
@@ -383,7 +369,7 @@ export class AppRetourFournisseurComponent implements OnInit {
         });
       },
       "Clôturer manuellement",
-      `Clôturer manuellement le retour ${retourBon.reference ?? '#' + retourBon.id} (acceptation partielle) ?`
+      `Clôturer manuellement le retour ${retourBon.reference ?? "#" + retourBon.id} (acceptation partielle) ?`
     );
   }
 
@@ -395,20 +381,14 @@ export class AppRetourFournisseurComponent implements OnInit {
         : this.selectedStatut;
 
     const params: Record<string, string> = {};
-    if (statutToUse) params['statut'] = statutToUse;
+    if (statutToUse) params["statut"] = statutToUse;
     if (this.dtStart) params["dtStart"] = DATE_FORMAT_ISO_DATE(this.dtStart)!;
     if (this.dtEnd) params["dtEnd"] = DATE_FORMAT_ISO_DATE(this.dtEnd)!;
     if (this.search) params["search"] = this.search;
 
     this.retourBonService.export(format, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: blob => {
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, "retours-fournisseur", format);
-        } else {
-          const ext = format === "csv" ? "csv" : "xlsx";
-          saveAs(blob, `retours-fournisseur.${ext}`);
-        }
-
+        this.downloadDocumentService.download(blob, "retours-fournisseur", format);
       },
       error: () => {
         this.notificationService.error("Erreur lors de l'export des retours fournisseur.", "Erreur");

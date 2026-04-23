@@ -14,12 +14,15 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AvoirEncoursFournisseurDTO;
 import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
 import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
-import com.kobe.warehouse.service.stock.AvoirFournisseurService;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stock.AvoirFournisseurService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -102,18 +105,25 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AvoirFournisseurDTO> findAll(AvoirFournisseurStatut statut, Integer fournisseurId,
-                                              LocalDate dtStart, LocalDate dtEnd, Pageable pageable) {
+    public Page<AvoirFournisseurDTO> findAll(String reference, AvoirFournisseurStatut statut, Integer fournisseurId,
+                                             LocalDate dtStart, LocalDate dtEnd, Pageable pageable) {
         LocalDateTime start = dtStart != null ? dtStart.atStartOfDay() : null;
         LocalDateTime end = dtEnd != null ? dtEnd.atTime(LocalTime.MAX) : null;
-        return avoirFournisseurRepository.findAll(statut, fournisseurId, start, end, pageable)
+        var notFilter = Objects.isNull(statut) && !StringUtils.hasText(reference) && Objects.isNull(fournisseurId) && Objects.isNull(dtStart) && Objects.isNull(dtEnd);
+        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "dateMtv"));
+        if (notFilter) {
+            return avoirFournisseurRepository.findAll(page)
+                .map(AvoirFournisseurDTO::new);
+        }
+
+        return avoirFournisseurRepository.findAll(avoirFournisseurRepository.buildSpecification(statut, reference, fournisseurId, start, end), page)
             .map(AvoirFournisseurDTO::new);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AvoirEncoursFournisseurDTO> getEncoursParFournisseur() {
-        return avoirFournisseurRepository.sumEncoursParFournisseur().stream()
+        return avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE).stream()
             .map(row -> new AvoirEncoursFournisseurDTO(
                 (Integer) row[0],
                 (String) row[1],
@@ -167,6 +177,12 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
         retourBonItemRepository.save(retourBonItem);
 
         return Objects.equals(cmd.qtyAcceptee(), retourBonItem.getQtyMvt());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countEnAttente() {
+        return avoirFournisseurRepository.countByStatut(AvoirFournisseurStatut.EN_ATTENTE);
     }
 
     private Fournisseur resolveFournisseur(RetourBon retourBon) {

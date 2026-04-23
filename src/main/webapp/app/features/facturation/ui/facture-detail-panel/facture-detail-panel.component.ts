@@ -49,6 +49,7 @@ export class FactureDetailPanelComponent {
   readonly facture = input<IFacture | null>(null);
   readonly canExecute = input<boolean>(true);
   readonly canExport  = input<boolean>(true);
+  readonly activeTabRequest = input<string | null>(null);
 
   protected loadingItems = false;
   protected certifying = false;
@@ -118,7 +119,7 @@ export class FactureDetailPanelComponent {
       this.reglementDossiers.set([]);
 
       if (isNew) {
-        this.activeTab.set("detail");
+        this.activeTab.set(this.activeTabRequest() ?? "detail");
       }
 
       this.loadItems(f);

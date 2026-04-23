@@ -22,8 +22,6 @@ import { ButtonGroup } from "primeng/buttongroup";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { AvoirFormModalComponent } from "../avoir-form-modal/avoir-form-modal.component";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 
 @Component({
   selector: "app-facture-list",
@@ -46,6 +44,7 @@ export class FactureListComponent {
   readonly canExport = input<boolean>(true);
 
   readonly factureSelected = output<IFacture>();
+  readonly createAvoir = output<IFacture>();
 
   protected loading = false;
   protected certifying = false;
@@ -74,7 +73,7 @@ export class FactureListComponent {
   }
 
   onCreateAvoir(facture: IFacture): void {
-    showCommonModal(this.modalService, AvoirFormModalComponent, { prefillFacture: facture });
+    this.createAvoir.emit(facture);
   }
 
   onRowSelect(facture: IFacture): void {

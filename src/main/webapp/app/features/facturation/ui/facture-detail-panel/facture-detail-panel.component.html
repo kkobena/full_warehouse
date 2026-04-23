@@ -135,18 +135,7 @@
           </ng-container>
         }
 
-        <!-- Onglet Avoirs (factures réglées ou partiellement réglées) -->
-        @if (facture().statut === 'PAID' || facture().statut === 'PARTIALLY_PAID') {
-          <ng-container ngbNavItem="avoirs">
-            <a class="pharma-nav-tab-link" ngbNavLink>
-              <i class="pi pi-file-minus"></i>
-              <span>Avoirs</span>
-            </a>
-            <ng-template ngbNavContent>
-              <app-avoir-workspace [facture]="facture()" [factureItems]="factureItems()" />
-            </ng-template>
-          </ng-container>
-        }
+
 
         <!-- Onglet Versements -->
         <ng-container ngbNavItem="versements">
@@ -189,6 +178,18 @@
             }
           </ng-template>
         </ng-container>
+        <!-- Onglet Avoirs (factures réglées ou partiellement réglées) -->
+        @if (facture().statut === 'PAID' || facture().statut === 'PARTIALLY_PAID') {
+          <ng-container ngbNavItem="avoirs">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-file-minus"></i>
+              <span>Avoirs</span>
+            </a>
+            <ng-template ngbNavContent>
+              <app-avoir-workspace [facture]="facture()" [factureItems]="factureItems()" />
+            </ng-template>
+          </ng-container>
+        }
       </div>
 
       <div class="pharma-nav-tabs-outlet">

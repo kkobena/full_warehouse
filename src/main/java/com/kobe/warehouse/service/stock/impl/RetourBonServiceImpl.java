@@ -731,4 +731,10 @@ public class RetourBonServiceImpl implements RetourBonService {
         stockProduitRepository.save(stockProduit);
         inventoryTransactionService.save(item);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countEnAttente() {
+        return retourBonRepository.countByStatutNot(RetourStatut.CLOSED);
+    }
 }

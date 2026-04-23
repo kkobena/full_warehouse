@@ -19,11 +19,14 @@ public interface AvoirFournisseurService {
     /** Called from RetourBonService when all items are accepted via the supplier-response modal. */
     AvoirFournisseurDTO createFromRetourBon(RetourBon retourBon, List<AvoirFournisseurCommand.AvoirLigneCommand> lignes, String commentaire);
 
-    Page<AvoirFournisseurDTO> findAll(AvoirFournisseurStatut statut, Integer fournisseurId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable);
+    Page<AvoirFournisseurDTO> findAll(String reference,AvoirFournisseurStatut statut, Integer fournisseurId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable);
 
     List<AvoirEncoursFournisseurDTO> getEncoursParFournisseur();
 
     AvoirFournisseurDTO updateStatut(Integer id, AvoirFournisseurStatut statut);
 
     AvoirFournisseurDTO annuler(Integer id, String motif);
+
+    /** Retourne le nombre d'avoirs fournisseur en statut EN_ATTENTE. */
+    long countEnAttente();
 }

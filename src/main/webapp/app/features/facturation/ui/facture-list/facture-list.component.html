@@ -114,7 +114,7 @@
               size="small"
             />
           }
-          @if (facture.statut === 'PAID' || facture.statut === 'PARTIALLY_PAID') {
+          @if (facture.statut === 'PARTIALLY_PAID') {
             <p-button
               (onClick)="onCreateAvoir(facture)"
               [rounded]="true"

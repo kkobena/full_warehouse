@@ -168,4 +168,7 @@ public interface RetourBonService {
      * @return PDF en bytes.
      */
     byte[] exportGroupe(List<Integer> ids);
+
+    /** Retourne le nombre de retours en attente (statut ≠ CLOSED). */
+    long countEnAttente();
 }

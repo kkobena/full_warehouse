@@ -26,9 +26,7 @@ import { IOrderLine } from "app/shared/model/order-line.model";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { DeliveryService, IDeliveryTotals } from "../../../../entities/commande/delevery/delivery.service";
 import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
-import { TauriPrinterService } from "app/shared/services/tauri-printer.service";
 import { NotificationService } from "app/shared/services/notification.service";
-import { handleBlobForTauri } from "app/shared/util/tauri-util";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { EtiquetteComponent } from "../delivery/etiquette/etiquette.component";
 import { CommandeReceivedComponent } from "../../feature/commande-received/commande-received.component";
@@ -37,6 +35,7 @@ import { CommandCommonService } from "app/entities/commande/command-common.servi
 import { RetourBonService } from "app/entities/commande/retour_fournisseur/retour-bon.service";
 import { RetourCompletModalComponent } from "./retour-complet-modal.component";
 import { RetourWorkspaceComponent } from "../retour-workspace/retour-workspace.component";
+import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
 @Component({
   selector: "app-list-bons",
@@ -127,13 +126,13 @@ export class AppListBonsComponent implements OnInit {
   private readonly entityService = inject(DeliveryService);
   private readonly fournisseurService = inject(FournisseurService);
   private readonly modalService = inject(NgbModal);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly retourBonService = inject(RetourBonService);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
+  private readonly downloadDocumentService = inject(BlobDownloadService);
 
   ngOnInit(): void {
     this.fournisseurService
@@ -275,7 +274,7 @@ export class AppListBonsComponent implements OnInit {
     this.retourWorkspaceBon.set(null);
   }
 
-protected  onRetourComplet(delivery: IDelivery): void {
+  protected onRetourComplet(delivery: IDelivery): void {
     const ref = this.modalService.open(RetourCompletModalComponent, {
       size: "lg",
       centered: true,
@@ -311,11 +310,8 @@ protected  onRetourComplet(delivery: IDelivery): void {
     this.entityService.exportToPdf(delivery.commandeId).subscribe({
       next: blob => {
         this.spinner().hide();
-        if (this.tauriPrinterService.isRunningInTauri()) {
-          handleBlobForTauri(blob, "bon-livraison");
-        } else {
-          window.open(URL.createObjectURL(blob));
-        }
+        this.downloadDocumentService.downloadPdf(blob, `Bon_Livraison_${(delivery as any).receiptReference}`);
+
       },
       error: () => this.spinner().hide()
     });

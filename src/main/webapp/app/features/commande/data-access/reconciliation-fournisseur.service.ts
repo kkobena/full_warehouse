@@ -2,11 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { ApplicationConfigService } from 'src/main/webapp/app/core/config/application-config.service';
 import {
   IReconciliationFactureFournisseur,
   IReconciliationCommand,
-} from 'app/shared/model/reconciliation-facture-fournisseur.model';
+} from 'src/main/webapp/app/shared/model/reconciliation-facture-fournisseur.model';
 
 @Injectable({ providedIn: 'root' })
 export class ReconciliationFournisseurService {

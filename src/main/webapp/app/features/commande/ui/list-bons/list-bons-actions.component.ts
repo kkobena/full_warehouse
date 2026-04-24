@@ -82,8 +82,8 @@ export class ListBonsActionsComponent {
       });
       items.push({ separator: true });
       items.push({
-        label: 'Rapprocher la facture',
-        icon: 'pi pi-file-check',
+        label: d.reconciliationStatut === 'RECONCILIEE' ? 'Modifier la réconciliation' : 'Rapprocher la facture',
+        icon: d.reconciliationStatut === 'RECONCILIEE' ? 'pi pi-pencil' : 'pi pi-file-check',
         command: () => this.menuAction.emit('reconcilierFacture')
       });
     }

@@ -16,10 +16,10 @@ import {
   IReconciliationFactureFournisseur,
   IReconciliationCommand,
 } from 'app/shared/model/reconciliation-facture-fournisseur.model';
-import { ReconciliationFournisseurService } from 'app/entities/commande/reconciliation/reconciliation-fournisseur.service';
 import { DeliveryService } from 'app/entities/commande/delevery/delivery.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ErrorService } from 'app/shared/error.service';
+import { ReconciliationFournisseurService } from "../../data-access/reconciliation-fournisseur.service";
 
 @Component({
   selector: 'app-reconciliation-workspace',

@@ -76,7 +76,7 @@
               Montant HT <p-sortIcon field="grossAmount" />
             </th>
             <th style="width:90px"></th>
-            <th style="width:155px"></th>
+            <th style="width:60px">Actions</th>
           </tr>
         </ng-template>
 
@@ -88,7 +88,7 @@
             <td>{{ c.updatedAt ? (c.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
             <td>{{ c.fournisseur?.libelle ?? '—' }}</td>
             <td><span class="pharma-code">{{ c.orderReference ?? '—' }}</span></td>
-            <td class="text-end">{{ c.itemSize }}</td>
+            <td class="text-end"><span class="pharma-qty-value">{{ c.itemSize }}</span></td>
             <td class="text-end">
               <span class="pharma-total">{{ c.grossAmount != null ? (c.grossAmount | number:'1.0-0') + ' F' : '—' }}</span>
             </td>
@@ -97,13 +97,10 @@
                 <span class="pharma-badge pharma-badge-warning">RELIQUAT</span>
               }
             </td>
-            <td (click)="$event.stopPropagation()">
+            <td class="text-end" (click)="$event.stopPropagation()">
               <app-commande-requested-actions
                 [commande]="c"
-                (receptionner)="onReceptionner(c)"
-                (exportCsv)="exportCsv(c)"
-                (exportPdf)="exportPdf(c)"
-                (supprimer)="onSupprimerCommande(c)"
+                (menuAction)="onCommandeMenuAction($event, c)"
               />
             </td>
           </tr>

@@ -42,8 +42,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -211,9 +213,27 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     @Override
     public Page<DeliveryReceiptDTO> fetchAllWithoutDetail(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable) {
         Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Direction.DESC, "updatedAt"));
-        return commandeRepository
-            .findAll(buildSpecification(deliveryReceiptFilterDTO), sorted)
-            .map(c -> new DeliveryReceiptDTO(c, List.of()));
+        Page<Commande> commandePage = commandeRepository.findAll(buildSpecification(deliveryReceiptFilterDTO), sorted);
+        List<Commande> commandes = commandePage.getContent();
+        if (commandes.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        Map<CommandeId, Integer> itemCounts = fetchItemCounts(commandes);
+        return commandePage.map(c ->
+            new DeliveryReceiptDTO(c, List.of())
+                .setItemSize(itemCounts.getOrDefault(c.getId(), 0))
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<CommandeId, Integer> fetchItemCounts(List<Commande> commandes) {
+        List<Object[]> rows = em.createQuery(
+            "SELECT c.id, c.orderDate, COUNT(ol) FROM Commande c LEFT JOIN c.orderLines ol WHERE c IN :commandes GROUP BY c.id, c.orderDate"
+        ).setParameter("commandes", commandes).getResultList();
+        return rows.stream().collect(Collectors.toMap(
+            row -> new CommandeId((Integer) row[0], (LocalDate) row[1]),
+            row -> ((Long) row[2]).intValue()
+        ));
     }
 
     @Override

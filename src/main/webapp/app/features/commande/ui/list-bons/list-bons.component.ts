@@ -17,7 +17,7 @@ import { Toast } from "primeng/toast";
 import { TableModule } from "primeng/table";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ListBonsStatutComponent } from "./list-bons-statut.component";
-import { ListBonsActionsComponent } from "./list-bons-actions.component";
+import { BonAction, ListBonsActionsComponent } from "./list-bons-actions.component";
 import { SpinnerComponent } from "app/shared/spinner/spinner.component";
 import { IDelivery } from "app/shared/model/delevery.model";
 import { ICommande } from "app/shared/model/commande.model";
@@ -36,6 +36,7 @@ import { RetourBonService } from "app/entities/commande/retour_fournisseur/retou
 import { RetourCompletModalComponent } from "./retour-complet-modal.component";
 import { RetourWorkspaceComponent } from "../retour-workspace/retour-workspace.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
   selector: "app-list-bons",
@@ -133,6 +134,7 @@ export class AppListBonsComponent implements OnInit {
   private readonly retourBonService = inject(RetourBonService);
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly downloadDocumentService = inject(BlobDownloadService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
     this.fournisseurService
@@ -246,6 +248,57 @@ export class AppListBonsComponent implements OnInit {
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
+
+  onBonMenuAction(action: BonAction, delivery: IDelivery): void {
+    switch (action) {
+      case "voirDetail":
+        this.onRowClick(delivery);
+        break;
+      case "receive":
+        this.onEditerReceivedDelivery(delivery);
+        break;
+      case "cancel":
+        this.onAnnulerBon(delivery);
+        break;
+      case "exportPdf":
+        this.exportPdf(delivery);
+        break;
+      case "printEtiquette":
+        this.printEtiquette(delivery);
+        break;
+      case "retourComplet":
+        this.onRetourComplet(delivery);
+        break;
+      case "retourParLigne":
+        this.onRetourParLigne(delivery);
+        break;
+    }
+  }
+
+  protected onAnnulerBon(delivery: IDelivery): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        this.spinner().show();
+        this.entityService.cancelReceived(delivery.commandeId!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.spinner().hide();
+              this.notificationService.success("Bon annulé avec succès");
+              this.loadPage(this.page);
+            },
+            error: () => {
+              this.spinner().hide();
+              this.notificationService.error("Erreur lors de l'annulation du bon");
+            }
+          });
+      },
+      "Annulation du bon",
+      `Confirmer l'annulation du bon ${(delivery as any).receiptReference ?? (delivery as any).orderReference ?? ""} ?`
+    );
+
+
+  }
 
   printEtiquette(delivery: IDelivery): void {
     showCommonModal(

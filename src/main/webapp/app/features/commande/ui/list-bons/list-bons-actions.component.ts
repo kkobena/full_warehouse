@@ -1,82 +1,92 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { ButtonGroup } from 'primeng/buttongroup';
+import { TooltipModule } from 'primeng/tooltip';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { IDelivery } from '../../../../shared/model/delevery.model';
+
+export type BonAction = 'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne';
 
 @Component({
   selector: 'app-list-bons-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [Button, TooltipModule, MenuModule],
   template: `
-    <p-buttonGroup>
-      @if (isReceived()) {
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="warn"
-          icon="pi pi-inbox"
-          pTooltip="Saisir la réception"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="receive.emit()"
-        />
-      }
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        icon="pi pi-file-pdf"
-        pTooltip="Imprimer BL"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="exportPdf.emit()"
-      />
-      @if (!isReceived()) {
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          icon="pi pi-print"
-          pTooltip="Étiquettes"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="printEtiquette.emit()"
-        />
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="danger"
-          icon="pi pi-replay"
-          pTooltip="Retour complet de ce bon"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="retourComplet.emit()"
-        />
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="warn"
-          icon="pi pi-list-check"
-          pTooltip="Retour par ligne"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="retourParLigne.emit()"
-        />
-      }
-    </p-buttonGroup>
+    <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
+    <p-button
+      icon="pi pi-ellipsis-v"
+      [text]="true"
+      size="small"
+      severity="secondary"
+      pTooltip="Actions"
+      tooltipPosition="left"
+      (onClick)="openContextMenu($event, rowMenu)"
+    />
   `,
 })
 export class ListBonsActionsComponent {
-  delivery = input<IDelivery | null>(null);
+  readonly delivery = input.required<IDelivery>();
 
-  readonly isReceived = computed(() => {
+  readonly menuAction = output<BonAction>();
+
+  protected readonly menuItems = computed<MenuItem[]>(() => {
     const d = this.delivery();
-    return d?.orderStatus === 'RECEIVED' || (d as any)?.statut === 'RECEIVED';
+    const received = d.orderStatus === 'RECEIVED' || (d as any).statut === 'RECEIVED';
+    const items: MenuItem[] = [];
+
+    if (received) {
+      items.push({
+        label: 'Saisir la réception',
+        icon: 'pi pi-inbox',
+        command: () => this.menuAction.emit('receive')
+      });
+      items.push({ separator: true });
+      items.push({
+        label: 'Annuler ce bon',
+        icon: 'pi pi-times',
+        command: () => this.menuAction.emit('cancel')
+      });
+      items.push({ separator: true });
+    }
+
+    if (!received) {
+      items.push({
+        label: 'Voir le détail',
+        icon: 'pi pi-eye',
+        command: () => this.menuAction.emit('voirDetail')
+      });
+      items.push({ separator: true });
+    }
+
+    items.push({
+      label: 'Imprimer BL',
+      icon: 'pi pi-file-pdf',
+      command: () => this.menuAction.emit('exportPdf')
+    });
+
+    if (!received) {
+      items.push({
+        label: 'Étiquettes',
+        icon: 'pi pi-print',
+        command: () => this.menuAction.emit('printEtiquette')
+      });
+      items.push({ separator: true });
+      items.push({
+        label: 'Retour complet',
+        icon: 'pi pi-replay',
+        command: () => this.menuAction.emit('retourComplet')
+      });
+      items.push({
+        label: 'Retour par ligne',
+        icon: 'pi pi-list-check',
+        command: () => this.menuAction.emit('retourParLigne')
+      });
+    }
+
+    return items;
   });
 
-  receive = output<void>();
-  exportPdf = output<void>();
-  printEtiquette = output<void>();
-  retourComplet = output<void>();
-  retourParLigne = output<void>();
+  protected openContextMenu(event: Event, menu: any): void {
+    event.stopPropagation();
+    menu.toggle(event);
+  }
 }

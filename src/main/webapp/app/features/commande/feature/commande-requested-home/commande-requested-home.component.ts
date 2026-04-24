@@ -25,7 +25,7 @@ import {CommandeImportResponseDialogComponent} from '../../../../entities/comman
 import {CommandeRequestedComponent} from '../commande-requested/commande-requested.component';
 import {CommandCommonService} from '../../../../entities/commande/command-common.service';
 import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
-import {CommandeRequestedActionsComponent} from './commande-requested-actions.component';
+import {CommandeRequestedAction, CommandeRequestedActionsComponent} from './commande-requested-actions.component';
 
 @Component({
   selector: 'app-commande-requested-home',
@@ -168,6 +168,16 @@ export class CommandeRequestedHomeComponent implements OnInit {
   }
 
   // ── Actions unitaires ─────────────────────────────────────────────────────
+
+  onCommandeMenuAction(action: CommandeRequestedAction, c: ICommande): void {
+    switch (action) {
+      case 'editer':       this.onEditer(c); break;
+      case 'receptionner': this.onReceptionner(c); break;
+      case 'exportCsv':    this.exportCsv(c); break;
+      case 'exportPdf':    this.exportPdf(c); break;
+      case 'supprimer':    this.onSupprimerCommande(c); break;
+    }
+  }
 
   onSupprimerCommande(c: ICommande): void {
     this.confirmDialog.onConfirm(

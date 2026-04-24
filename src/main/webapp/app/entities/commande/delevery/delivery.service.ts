@@ -86,6 +86,10 @@ export class DeliveryService {
       observe: 'response',
     });
   }
+  cancelReceived(commandeId: CommandeId): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.resourceUrlQuery}/cancel/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
+  }
+
   queryWithoutDetail(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http.get<IDelivery[]>(this.resourceUrl + '/list-bon-livraison', {

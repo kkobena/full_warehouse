@@ -70,7 +70,10 @@
               [disabled]="row.qtyRetour === 0"
               placeholder="Motif"
               appendTo="body"
+              (onShow)="onDropdownShow($event)"
+              (onHide)="onDropdownHide($event)"
               [style]="{ width: '100%' }"
+              [overlayOptions]="{baseZIndex: 10050}"
             />
           </td>
         </tr>

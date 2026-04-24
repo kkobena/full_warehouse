@@ -2,7 +2,7 @@ import { Component, computed, input, output, signal } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FournisseurSuggestionSummary } from "../../data-access/suggestion-enrichie.model";
 import { TableModule } from "primeng/table";
-import { SuggestionFournisseurActionsComponent } from "./suggestion-fournisseur-actions.component";
+import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } from "./suggestion-fournisseur-actions.component";
 
 @Component({
   selector: "app-suggestion-fournisseur-list",
@@ -91,6 +91,16 @@ export class SuggestionFournisseurListComponent {
   }
 
   // ── Méthodes appelées par SuggestionFournisseurActionsComponent ────────────
+
+  onSuggestionMenuAction(action: SuggestionFournisseurAction, f: FournisseurSuggestionSummary): void {
+    switch (action) {
+      case 'valider':    this.onValider(f); break;
+      case 'commander':  this.onCommander(f); break;
+      case 'exportPdf':  this.onExportPdf(f); break;
+      case 'exportCsv':  this.onExportCsv(f); break;
+      case 'supprimer':  this.onSupprimer(f); break;
+    }
+  }
 
   onValider(f: FournisseurSuggestionSummary): void {
     this.validerRequest.emit(f);

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, ElementRef, inject, OnInit, Renderer2 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -44,7 +44,8 @@ export class RetourDepuisReceptionComponent implements OnInit {
   private readonly motifService = inject(ModifRetourProduitService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-
+  private readonly renderer = inject(Renderer2);
+  private readonly elementRef = inject(ElementRef);
   ngOnInit(): void {
     this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs = res.body ?? []) });
     this.retourLines = this.orderLines
@@ -77,7 +78,19 @@ export class RetourDepuisReceptionComponent implements OnInit {
   protected get totalUnites(): number {
     return this.retourLines.reduce((s, r) => s + r.qtyRetour, 0);
   }
+  protected onDropdownShow(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
+    if (modalBody) {
+      this.renderer.addClass(modalBody, "overflow-visible");
+    }
+  }
 
+  protected onDropdownHide(event: any): void {
+    const modalBody = this.elementRef.nativeElement.querySelector(".modal-body");
+    if (modalBody) {
+      this.renderer.removeClass(modalBody, "overflow-visible");
+    }
+  }
   protected onSelectAll(): void {
     this.retourLines.forEach(r => (r.qtyRetour = r.maxQty));
   }

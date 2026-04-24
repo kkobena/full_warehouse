@@ -1,62 +1,65 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
+import { TooltipModule } from 'primeng/tooltip';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { ICommande } from 'app/shared/model/commande.model';
-import { ButtonGroup } from 'primeng/buttongroup';
+
+export type CommandeRequestedAction = 'editer' | 'receptionner' | 'exportCsv' | 'exportPdf' | 'supprimer';
 
 @Component({
   selector: 'app-commande-requested-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [Button, TooltipModule, MenuModule],
   template: `
-    <p-buttonGroup>
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="primary"
-        icon="pi pi-inbox"
-        pTooltip="Réceptionner"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="receptionner.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        icon="pi pi-file-excel"
-        pTooltip="Export CSV"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="exportCsv.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        icon="pi pi-print"
-        pTooltip="Imprimer PDF"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="exportPdf.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="danger"
-        icon="pi pi-trash"
-        pTooltip="Supprimer"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="supprimer.emit()"
-      />
-    </p-buttonGroup>
+    <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
+    <p-button
+      icon="pi pi-ellipsis-v"
+      [text]="true"
+      size="small"
+      severity="secondary"
+      pTooltip="Actions"
+      tooltipPosition="left"
+      (onClick)="openContextMenu($event, rowMenu)"
+    />
   `,
 })
 export class CommandeRequestedActionsComponent {
-  commande = input<ICommande | null>(null);
+  readonly commande = input.required<ICommande>();
 
-  receptionner = output<void>();
-  exportCsv = output<void>();
-  exportPdf = output<void>();
-  supprimer = output<void>();
+  readonly menuAction = output<CommandeRequestedAction>();
+
+  protected readonly menuItems = computed<MenuItem[]>(() => [
+    {
+      label: 'Éditer',
+      icon: 'pi pi-pencil',
+      command: () => this.menuAction.emit('editer')
+    },
+    {
+      label: 'Réceptionner',
+      icon: 'pi pi-inbox',
+      command: () => this.menuAction.emit('receptionner')
+    },
+    { separator: true },
+    {
+      label: 'Export CSV',
+      icon: 'pi pi-file-excel',
+      command: () => this.menuAction.emit('exportCsv')
+    },
+    {
+      label: 'Imprimer PDF',
+      icon: 'pi pi-print',
+      command: () => this.menuAction.emit('exportPdf')
+    },
+    { separator: true },
+    {
+      label: 'Supprimer',
+      icon: 'pi pi-trash',
+      command: () => this.menuAction.emit('supprimer')
+    },
+  ]);
+
+  protected openContextMenu(event: Event, menu: any): void {
+    event.stopPropagation();
+    menu.toggle(event);
+  }
 }

@@ -1,75 +1,73 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
+import { TooltipModule } from 'primeng/tooltip';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { FournisseurSuggestionSummary } from '../../data-access/suggestion-enrichie.model';
-import { ButtonGroup } from 'primeng/buttongroup';
+
+export type SuggestionFournisseurAction = 'valider' | 'commander' | 'exportPdf' | 'exportCsv' | 'supprimer';
 
 @Component({
   selector: 'app-suggestion-fournisseur-actions',
-  imports: [Button, Tooltip, ButtonGroup],
+  imports: [Button, TooltipModule, MenuModule],
   template: `
-    <p-buttonGroup>
-      @if (fournisseur()?.statut !== 'VALIDEE') {
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="primary"
-          icon="pi pi-check"
-          pTooltip="Valider"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="valider.emit()"
-        />
-      }
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="primary"
-        icon="pi pi-shopping-cart"
-        pTooltip="Commander"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="commander.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        icon="pi pi-file-pdf"
-        pTooltip="PDF"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="exportPdf.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        icon="pi pi-file-excel"
-        pTooltip="CSV"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="exportCsv.emit()"
-      />
-      <p-button
-        [text]="true"
-        [rounded]="true"
-        severity="danger"
-        icon="pi pi-trash"
-        pTooltip="Supprimer"
-        tooltipPosition="top"
-        size="small"
-        (onClick)="supprimer.emit()"
-      />
-    </p-buttonGroup>
+    <p-menu #rowMenu [popup]="true" [model]="menuItems()" appendTo="body" />
+    <p-button
+      icon="pi pi-ellipsis-v"
+      [text]="true"
+      size="small"
+      severity="secondary"
+      pTooltip="Actions"
+      tooltipPosition="left"
+      (onClick)="openContextMenu($event, rowMenu)"
+    />
   `,
 })
 export class SuggestionFournisseurActionsComponent {
-  fournisseur = input<FournisseurSuggestionSummary | null>(null);
+  readonly fournisseur = input.required<FournisseurSuggestionSummary>();
 
-  valider = output<void>();
-  commander = output<void>();
-  exportPdf = output<void>();
-  exportCsv = output<void>();
-  supprimer = output<void>();
+  readonly menuAction = output<SuggestionFournisseurAction>();
+
+  protected readonly menuItems = computed<MenuItem[]>(() => {
+    const statut = this.fournisseur().statut;
+    const items: MenuItem[] = [];
+
+    if (statut !== 'VALIDEE') {
+      items.push({
+        label: 'Valider',
+        icon: 'pi pi-check',
+        command: () => this.menuAction.emit('valider')
+      });
+    }
+
+    items.push({
+      label: 'Commander',
+      icon: 'pi pi-shopping-cart',
+      command: () => this.menuAction.emit('commander')
+    });
+    items.push({ separator: true });
+    items.push({
+      label: 'Export PDF',
+      icon: 'pi pi-file-pdf',
+      command: () => this.menuAction.emit('exportPdf')
+    });
+    items.push({
+      label: 'Export CSV',
+      icon: 'pi pi-file-excel',
+      command: () => this.menuAction.emit('exportCsv')
+    });
+    items.push({ separator: true });
+    items.push({
+      label: 'Supprimer',
+      icon: 'pi pi-trash',
+      command: () => this.menuAction.emit('supprimer')
+    });
+
+    return items;
+  });
+
+  protected openContextMenu(event: Event, menu: any): void {
+    event.stopPropagation();
+    menu.toggle(event);
+  }
 }

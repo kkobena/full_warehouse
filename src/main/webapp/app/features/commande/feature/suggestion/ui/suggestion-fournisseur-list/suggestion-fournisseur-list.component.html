@@ -31,7 +31,7 @@
           Montant estimé <p-sortIcon field="montantEstime" />
         </th>
         <th style="width:120px">Statut</th>
-        <th style="width:175px"></th>
+        <th style="width:60px">Actions</th>
       </tr>
     </ng-template>
 
@@ -65,14 +65,10 @@
             </span>
           }
         </td>
-        <td (click)="$event.stopPropagation()">
+        <td class="text-end" (click)="$event.stopPropagation()">
           <app-suggestion-fournisseur-actions
             [fournisseur]="f"
-            (valider)="onValider(f)"
-            (commander)="onCommander(f)"
-            (exportPdf)="onExportPdf(f)"
-            (exportCsv)="onExportCsv(f)"
-            (supprimer)="onSupprimer(f)"
+            (menuAction)="onSuggestionMenuAction($event, f)"
           />
         </td>
       </tr>

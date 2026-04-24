@@ -1,0 +1,162 @@
+<p-toast position="center" />
+
+<div class="view-panel rw-wrapper">
+
+  <!-- HEADER — même pattern que commande-received et retour-workspace -->
+  <div class="view-panel__header view-panel__header--detail">
+    <p-button (click)="onCancel()" icon="pi pi-arrow-left" [text]="true" size="small" label="Retour à la liste" />
+    <span class="view-panel__title">
+      <i class="pi pi-file-check me-1"></i>Rapprochement facture — {{ deliveryRef() }}
+    </span>
+    @if (existing()) {
+      <p-tag
+        [value]="statutLabel(existing()!.statut)"
+        [severity]="statutSeverity(existing()!.statut)"
+      />
+    }
+    <span class="ms-auto"></span>
+    <p-button
+      (click)="onSubmit()"
+      icon="pi pi-save"
+      [label]="isReconcilie ? 'Valider — Réconcilié' : 'Enregistrer avec écart'"
+      [severity]="isReconcilie ? 'primary' : 'warn'"
+      size="small"
+      [loading]="saving()"
+      [disabled]="!canSave || saving()"
+    />
+    <p-button (click)="onCancel()" label="Annuler" severity="secondary" [text]="true" size="small" />
+  </div>
+
+  @if (loading()) {
+    <div class="rw-loading">
+      <i class="pi pi-spin pi-spinner"></i> Chargement…
+    </div>
+  } @else {
+
+    <div class="rw-content">
+
+      <!-- PANNEAU GAUCHE : saisie facture + comparaison -->
+      <div class="rw-left">
+
+        <!-- Métadonnées facture -->
+        <div class="rw-card">
+          <div class="rw-card__title"><i class="pi pi-file"></i> Facture fournisseur</div>
+
+          <div class="rw-field">
+            <label class="rw-label">Référence <span class="text-danger">*</span></label>
+            <input pInputText pKeyFilter="alphanum" [(ngModel)]="factureReference"
+                   type="text" maxlength="50" placeholder="N° facture fournisseur" />
+          </div>
+
+          <div class="rw-field">
+            <label class="rw-label">Date facture</label>
+            <p-datePicker [(ngModel)]="factureDate" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+          </div>
+        </div>
+
+        <!-- Tableau de comparaison BL ↔ Facture -->
+        <div class="rw-card rw-card--compare">
+          <div class="rw-card__title"><i class="pi pi-arrows-h"></i> Comparaison BL ↔ Facture</div>
+
+          <div class="rw-compare">
+
+            <div class="rw-compare__header">
+              <span></span>
+              <span class="rw-col-label"><i class="pi pi-calculator"></i> BL calculé</span>
+              <span class="rw-col-label"><i class="pi pi-file"></i> Facture</span>
+              <span class="rw-col-label"><i class="pi pi-arrows-h"></i> Écart</span>
+            </div>
+
+            <div class="rw-compare__row">
+              <span class="rw-row-label">Montant HT</span>
+              <span class="rw-val rw-val--ref">{{ blMontantHT | number:'1.0-0' }} F</span>
+              <span class="rw-val">
+                <p-inputNumber [(ngModel)]="factureMontantHT" [min]="0" [useGrouping]="true"
+                               [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
+              </span>
+              <span class="rw-ecart" [class.rw-ecart--ok]="ecartHT === 0" [class.rw-ecart--err]="ecartHT !== 0">
+                @if (ecartHT === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
+                {{ ecartHT | number:'1.0-0' }} F
+              </span>
+            </div>
+
+            <div class="rw-compare__row">
+              <span class="rw-row-label">TVA</span>
+              <span class="rw-val rw-val--ref">{{ blTVA | number:'1.0-0' }} F</span>
+              <span class="rw-val">
+                <p-inputNumber [(ngModel)]="factureTVA" [min]="0" [useGrouping]="true"
+                               [inputStyle]="{'width':'115px','text-align':'right'}" size="small" />
+              </span>
+              <span class="rw-ecart" [class.rw-ecart--ok]="ecartTVA === 0" [class.rw-ecart--err]="ecartTVA !== 0">
+                @if (ecartTVA === 0) { <i class="pi pi-check-circle"></i> } @else { <i class="pi pi-exclamation-triangle"></i> }
+                {{ ecartTVA | number:'1.0-0' }} F
+              </span>
+            </div>
+
+            <div class="rw-compare__row rw-compare__row--total">
+              <span class="rw-row-label fw-bold">Total TTC</span>
+              <span class="rw-val rw-val--ref fw-bold">{{ blTTC | number:'1.0-0' }} F</span>
+              <span class="rw-val fw-bold">{{ factureTTC | number:'1.0-0' }} F</span>
+              <span class="rw-ecart fw-bold"
+                    [class.rw-ecart--ok]="ecartTTC === 0"
+                    [class.rw-ecart--err]="ecartTTC !== 0">
+                {{ ecartTTC | number:'1.0-0' }} F
+              </span>
+            </div>
+
+          </div>
+
+          <div class="rw-status mt-3" [class.rw-status--ok]="isReconcilie" [class.rw-status--warn]="!isReconcilie">
+            @if (isReconcilie) {
+              <i class="pi pi-check-circle"></i>
+              <span>Facture concordante — aucun écart avec le BL</span>
+            } @else {
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>Écart détecté — vérifiez les montants avant validation</span>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANNEAU DROIT : lignes du BL (lecture seule) -->
+      <div class="rw-right">
+        <div class="rw-card rw-card--full-height">
+          <div class="rw-card__title"><i class="pi pi-list"></i> Lignes du bon de livraison</div>
+          <p-table [value]="orderLines()" [scrollable]="true" scrollHeight="flex" class="p-datatable-sm">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th style="width:100px">Code</th>
+                <th>Libellé</th>
+                <th class="text-end" style="width:80px">Qté reçue</th>
+                <th class="text-end" style="width:110px">P.Achat BL</th>
+                <th class="text-end" style="width:115px">Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-line>
+              <tr>
+                <td><span class="pharma-code">{{ line.produitCip }}</span></td>
+                <td>{{ line.produitLibelle }}</td>
+                <td class="text-end"><span class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
+                <td class="text-end"><span class="pharma-price">{{ line.orderCostAmount | number:'1.0-0' }}</span></td>
+                <td class="text-end">
+                  <span class="pharma-price fw-semibold">
+                    {{ (line.orderCostAmount * line.quantityReceived) | number:'1.0-0' }} F
+                  </span>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="pharma-empty-message">
+                  <div class="pharma-empty-content"><i class="pi pi-inbox"></i><p>Aucune ligne</p></div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

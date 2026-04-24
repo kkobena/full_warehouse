@@ -65,17 +65,6 @@
         pTooltip="Générer un avoir / bon de retour fournisseur"
         tooltipPosition="bottom"
       />
-      @if (currentCommande?.orderStatus === 'RECEIVED' || currentCommande?.orderStatus === 'CLOSED') {
-        <p-button
-          (click)="onReconciliationFacture()"
-          icon="pi pi-file-check"
-          label="Rapprocher facture"
-          severity="info"
-          size="small"
-          pTooltip="Rapprochement facture fournisseur vs BL calculé"
-          tooltipPosition="bottom"
-        />
-      }
       <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small"/>
     </div>
   </div>

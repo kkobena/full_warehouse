@@ -154,6 +154,18 @@
     />
   </div>
 
+} @else if (reconciliationWorkspaceBon()) {
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <!-- MODE RAPPROCHEMENT FACTURE                                            -->
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <div class="view-panel">
+    <app-reconciliation-workspace
+      [delivery]="reconciliationWorkspaceBon()!"
+      (done)="onReconciliationDone()"
+      (cancelled)="onReconciliationCancelled()"
+    />
+  </div>
+
 } @else {
   <!-- ═════════════════════════════════════════════════════════════════════ -->
     <!-- MODE LISTE                                                            -->
@@ -280,6 +292,30 @@
             </td>
             <td>
               <app-list-bons-statut [delivery]="d" />
+              @if (!isReceived(d)) {
+                @switch (d.reconciliationStatut) {
+                  @case ('RECONCILIEE') {
+                    <span class="bc__badge bc__badge--reconciliee ms-1" title="Facture réconciliée">
+                      <i class="pi pi-file-check"></i> Réconciliée
+                    </span>
+                  }
+                  @case ('ECART') {
+                    <span class="bc__badge bc__badge--ecart ms-1" title="Écart détecté">
+                      <i class="pi pi-exclamation-triangle"></i> Écart
+                    </span>
+                  }
+                  @case ('LITIGE') {
+                    <span class="bc__badge bc__badge--litige ms-1" title="Litige fournisseur">
+                      <i class="pi pi-times-circle"></i> Litige
+                    </span>
+                  }
+                  @default {
+                    <span class="bc__badge bc__badge--attente ms-1" title="Facture non encore rapprochée">
+                      <i class="pi pi-clock"></i> Facture en attente
+                    </span>
+                  }
+                }
+              }
             </td>
             <td class="text-end" (click)="$event.stopPropagation()">
               <app-list-bons-actions

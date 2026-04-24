@@ -35,6 +35,7 @@ export interface AbstractCommande {
   statut?: string;
   doTransfer?: boolean;
   hasBeenSubmittedToPharmaML?: boolean;
+  reconciliationStatut?: 'EN_ATTENTE' | 'RECONCILIEE' | 'ECART' | 'LITIGE' | null;
 }
 
 export class CommandeId {

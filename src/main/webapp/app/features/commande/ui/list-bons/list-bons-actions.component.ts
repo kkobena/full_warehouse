@@ -5,7 +5,7 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 
-export type BonAction = 'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne';
+export type BonAction = 'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne' | 'reconcilierFacture';
 
 @Component({
   selector: 'app-list-bons-actions',
@@ -79,6 +79,12 @@ export class ListBonsActionsComponent {
         label: 'Retour par ligne',
         icon: 'pi pi-list-check',
         command: () => this.menuAction.emit('retourParLigne')
+      });
+      items.push({ separator: true });
+      items.push({
+        label: 'Rapprocher la facture',
+        icon: 'pi pi-file-check',
+        command: () => this.menuAction.emit('reconcilierFacture')
       });
     }
 

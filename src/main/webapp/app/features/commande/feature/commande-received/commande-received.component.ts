@@ -47,7 +47,6 @@ import { IStockEntryResult } from "../../../../shared/model/stock-entry-result.m
 import { IReceptionScanResult } from "../../../../shared/model/reception-scan-result.model";
 import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
 import { RetourDepuisReceptionComponent } from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
-import { ReconciliationFactureComponent } from "../../ui/reconciliation-facture/reconciliation-facture.component";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {
@@ -395,22 +394,6 @@ export class CommandeReceivedComponent implements OnInit {
       },
       () => this.refreshCommande(),
       "xl"
-    );
-  }
-
-  protected onReconciliationFacture(): void {
-    showCommonModal(
-      this.modalService,
-      ReconciliationFactureComponent,
-      {
-        commande: this.currentCommande,
-        header: `Rapprochement facture — ${this.currentCommande.receiptReference ?? this.currentCommande.orderReference ?? ""}`
-      },
-      (updated: ICommande) => {
-        this.currentCommande = { ...this.currentCommande, ...updated };
-        this.commandeChange.emit(this.currentCommande);
-      },
-      "lg"
     );
   }
 

@@ -21,7 +21,7 @@
       <span class="rf-row-label">Montant HT</span>
       <span class="rf-val rf-val--ref">{{ blMontantHT | number }} F</span>
       <span class="rf-val">
-        <p-inputnumber
+        <p-inputNumber
           [(ngModel)]="factureMontantHT"
           [min]="0"
           [useGrouping]="true"
@@ -45,7 +45,7 @@
       <span class="rf-row-label">TVA</span>
       <span class="rf-val rf-val--ref">{{ blTVA | number }} F</span>
       <span class="rf-val">
-        <p-inputnumber
+        <p-inputNumber
           [(ngModel)]="factureTVA"
           [min]="0"
           [useGrouping]="true"
@@ -88,17 +88,17 @@
     }
   </div>
 
-  <hr class="my-3"/>
+  <hr class="my-2"/>
 
   <!-- Métadonnées de la facture -->
   <div class="rf-meta">
     <div class="rf-meta__field">
       <label class="form-label small fw-semibold">Référence facture <span class="text-danger">*</span></label>
       <input
-        class="form-control form-control-sm"
+        pInputText
+        pKeyFilter="alphanum"
         [(ngModel)]="factureReference"
         type="text"
-        placeholder="Ex : FAC-2026-00123"
         maxlength="50"
       />
     </div>
@@ -109,7 +109,6 @@
         dateFormat="dd/mm/yy"
         [showIcon]="true"
         appendTo="body"
-        inputStyleClass="form-control form-control-sm"
       />
     </div>
   </div>

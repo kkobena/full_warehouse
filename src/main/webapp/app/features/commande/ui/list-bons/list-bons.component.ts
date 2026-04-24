@@ -35,6 +35,7 @@ import { CommandCommonService } from "app/entities/commande/command-common.servi
 import { RetourBonService } from "app/entities/commande/retour_fournisseur/retour-bon.service";
 import { RetourCompletModalComponent } from "./retour-complet-modal.component";
 import { RetourWorkspaceComponent } from "../retour-workspace/retour-workspace.component";
+import { ReconciliationWorkspaceComponent } from "../reconciliation-workspace/reconciliation-workspace.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
@@ -62,6 +63,7 @@ import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-d
     ListBonsActionsComponent,
     ListBonsStatutComponent,
     RetourWorkspaceComponent,
+    ReconciliationWorkspaceComponent,
     DatePipe
   ]
 })
@@ -83,6 +85,7 @@ export class AppListBonsComponent implements OnInit {
   readonly editingReceived = signal<ICommande | null>(null);
   readonly selectedClosed = signal<IDelivery | null>(null);
   readonly retourWorkspaceBon = signal<IDelivery | null>(null);
+  readonly reconciliationWorkspaceBon = signal<IDelivery | null>(null);
   private readonly datePipe = inject(DatePipe);
 
   protected readonly statutOptions = [
@@ -272,6 +275,9 @@ export class AppListBonsComponent implements OnInit {
       case "retourParLigne":
         this.onRetourParLigne(delivery);
         break;
+      case "reconcilierFacture":
+        this.reconciliationWorkspaceBon.set(delivery);
+        break;
     }
   }
 
@@ -325,6 +331,15 @@ export class AppListBonsComponent implements OnInit {
 
   onRetourWorkspaceCancelled(): void {
     this.retourWorkspaceBon.set(null);
+  }
+
+  onReconciliationDone(): void {
+    this.reconciliationWorkspaceBon.set(null);
+    this.loadPage(this.page);
+  }
+
+  onReconciliationCancelled(): void {
+    this.reconciliationWorkspaceBon.set(null);
   }
 
   protected onRetourComplet(delivery: IDelivery): void {

@@ -10,12 +10,13 @@ import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../../../../entities/commande/delevery/delivery.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
+import { KeyFilter } from "primeng/keyfilter";
 
 @Component({
   selector: 'app-reconciliation-facture',
   templateUrl: './reconciliation-facture.component.html',
   styleUrls: ['./reconciliation-facture.component.scss'],
-  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, InputTextModule, DatePickerModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, InputTextModule, DatePickerModule, KeyFilter]
 })
 export class ReconciliationFactureComponent implements OnInit {
   commande!: ICommande;

@@ -1,6 +1,9 @@
-.rf-body {
-  padding: 1.25rem;
+@use 'app/shared/scss/modal-theme' as *;
+:host {
+  @include modal-theme;
 }
+
+
 
 // ── Tableau de comparaison ────────────────────────────────────────────────
 .rf-compare {

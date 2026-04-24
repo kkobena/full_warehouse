@@ -30,9 +30,9 @@ import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
 import com.kobe.warehouse.service.dto.AvoirFromBonLignesCommand;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
-import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
+import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
 import com.kobe.warehouse.service.dto.RetourBonItemDTO;
 import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
@@ -46,13 +46,6 @@ import com.kobe.warehouse.service.stock.AvoirFournisseurService;
 import com.kobe.warehouse.service.stock.RetourBonService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -60,6 +53,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link RetourBon}.
@@ -252,7 +252,7 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     @Override
     public byte[] export(Integer id) {
-       return retourBonPdfReportService.export(new RetourBonDTO(retourBonRepository.findById(id).orElseThrow(() -> new RuntimeException("RetourBon not found"))));
+        return retourBonPdfReportService.export(new RetourBonDTO(retourBonRepository.findById(id).orElseThrow(() -> new RuntimeException("RetourBon not found"))));
     }
 
     @Override
@@ -265,7 +265,7 @@ public class RetourBonServiceImpl implements RetourBonService {
         if (request.getQuantity() > lot.getQuantity()) {
             throw new GenericError(
                 "La quantité demandée (" + request.getQuantity()
-                + ") dépasse le stock disponible dans le lot (" + lot.getQuantity() + ")"
+                    + ") dépasse le stock disponible dans le lot (" + lot.getQuantity() + ")"
             );
         }
 
@@ -336,7 +336,36 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     // ── Helpers privés ────────────────────────────────────────────────────────
 
-    /** Résout le fournisseur pour un retour hors commande. Lance une exception si bloquant. */
+    /**
+     * Vérifie que la quantité demandée ne dépasse pas la quantité retournable
+     * sur cette ligne de commande, tous retours confondus (tous statuts, tous
+     * RetourBon confondus sauf le retour en cours).
+     *
+     * <p>Pour le chemin "hors stock", {@code quantityReceived} est déjà décrémenté
+     * à chaque retour précédent. On reconstitue la quantité initiale reçue en
+     * ajoutant {@code quantityReturned} (mis à jour sur ce même chemin) puis
+     * on soustrait la somme en base pour couvrir aussi les retours via le
+     * chemin stock (qui n'impactent pas les champs de l'orderLine).
+     */
+    private void validateQtyRetournable(OrderLine orderLine, OrderLineId orderLineId, int qtyDemandee, String cip, Integer excludeRetourBonId) {
+        int originalReceived = (orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : 0)
+            + (orderLine.getQuantityReturned() != null ? orderLine.getQuantityReturned() : 0);
+        int dejaRetourne = retourBonItemRepository.sumAllReturnedQtyByOrderLineId(
+            orderLineId.getId(), orderLineId.getOrderDate(), excludeRetourBonId);
+        int retournable = originalReceived - dejaRetourne;
+        if (qtyDemandee > retournable) {
+            String label = cip != null ? cip : ("ligne " + orderLineId.getId());
+            throw new GenericError(
+                "Quantité à retourner (" + qtyDemandee + ") dépasse la quantité retournable ("
+                    + retournable + ") pour : " + label
+                    + (dejaRetourne > 0 ? " — déjà retourné : " + dejaRetourne : "")
+            );
+        }
+    }
+
+    /**
+     * Résout le fournisseur pour un retour hors commande. Lance une exception si bloquant.
+     */
     private Fournisseur resolveFournisseurForHorsCommande(Lot lot, RetourBonFromLotRequest request) {
         // L'utilisateur a explicitement choisi un fournisseur (cas HORS_COMMANDE_MULTI)
         if (request.hasFournisseurOverride()) {
@@ -362,7 +391,9 @@ public class RetourBonServiceImpl implements RetourBonService {
         throw new FournisseurIntrouvableException(lot.getId());
     }
 
-    /** Crée un RetourBon hors commande (fournisseur direct, commande = null). */
+    /**
+     * Crée un RetourBon hors commande (fournisseur direct, commande = null).
+     */
     private RetourBonDTO createHorsCommande(Lot lot, RetourBonFromLotRequest request, Fournisseur fournisseur) {
         AppUser currentUser = userService.getUser();
         int magasinId = currentUser.getMagasin().getId();
@@ -389,7 +420,9 @@ public class RetourBonServiceImpl implements RetourBonService {
         return toDto(retourBonRepository.findById(retourBon.getId()).orElseThrow());
     }
 
-    /** Construit le DTO commande pour le chemin nominal ou override. */
+    /**
+     * Construit le DTO commande pour le chemin nominal ou override.
+     */
     private RetourBonDTO buildRetourBonDTOFromCommande(Commande commande, RetourBonFromLotRequest request, OrderLine orderLine, Lot lot) {
         RetourBonDTO dto = new RetourBonDTO();
         dto.setCommandeId(commande.getId().getId());
@@ -427,7 +460,8 @@ public class RetourBonServiceImpl implements RetourBonService {
                     lotNumero = lotRepository.findById(lotRequest.getLotId())
                         .map(Lot::getNumLot)
                         .orElse(null);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 result.addError(lotRequest.getLotId(), lotNumero, e.getMessage());
             }
         }
@@ -554,10 +588,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             .orElseThrow(() -> new GenericError("Ligne de commande introuvable: " + cmd.orderLineId()));
 
         int qtyRecu = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : 0;
-        if (cmd.qtyRetour() > qtyRecu) {
-            throw new GenericError("Quantité à retourner (" + cmd.qtyRetour()
-                + ") supérieure à la quantité reçue (" + qtyRecu + ") pour: " + cmd.produitCip());
-        }
+        validateQtyRetournable(orderLine, orderLineId, cmd.qtyRetour(), cmd.produitCip(), retourBon.getId());
 
         var motif = new MotifRetourProduit();
         motif.setId(cmd.motifRetourId());
@@ -700,6 +731,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             OrderLine orderLine = orderLineRepository
                 .findById(orderLineId)
                 .orElseThrow(() -> new RuntimeException("ligne de commande introuvable"));
+            validateQtyRetournable(orderLine, orderLineId, itemDTO.getQtyMvt(), itemDTO.getProduitCip(), retourBon.getId());
             item.setOrderLine(orderLine);
             item.setPrixAchat(orderLine.getOrderCostAmount());
         } else if (itemDTO.getPrixAchat() != null) {
@@ -719,7 +751,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             if (itemDTO.getQtyMvt() > retournable) {
                 throw new GenericError(
                     "Lot " + lot.getNumLot() + " : quantité retournable = " + retournable
-                    + " (déjà retourné : " + alreadyReturned + ")"
+                        + " (déjà retourné : " + alreadyReturned + ")"
                 );
             }
             lot.setQuantity(lot.getQuantity() - itemDTO.getQtyMvt());

@@ -3,7 +3,9 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.ReconciliationFactureFournisseur;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.ReconciliationStatut;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -29,7 +31,8 @@ public abstract class CommandeWrapperDTO {
     private FournisseurDTO fournisseur;
     private boolean hasBeenSubmittedToPharmaML;
     private Integer reliquatDeCommandeId;
-    private  String createdUser;
+    private String createdUser;
+    private ReconciliationStatut reconciliationStatut;
     protected CommandeWrapperDTO() {}
 
     protected CommandeWrapperDTO(Commande commande) {
@@ -52,6 +55,10 @@ public abstract class CommandeWrapperDTO {
         reliquatDeCommandeId = commande.getReliquatDeCommandeId();
         AppUser user1 = commande.getUser();
         createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
+        ReconciliationFactureFournisseur recon = commande.getReconciliation();
+        if (recon != null) {
+            reconciliationStatut = recon.getStatut();
+        }
     }
 
     public Integer getId() {
@@ -238,6 +245,15 @@ public abstract class CommandeWrapperDTO {
 
     public CommandeWrapperDTO setReliquatDeCommandeId(Integer reliquatDeCommandeId) {
         this.reliquatDeCommandeId = reliquatDeCommandeId;
+        return this;
+    }
+
+    public ReconciliationStatut getReconciliationStatut() {
+        return reconciliationStatut;
+    }
+
+    public CommandeWrapperDTO setReconciliationStatut(ReconciliationStatut reconciliationStatut) {
+        this.reconciliationStatut = reconciliationStatut;
         return this;
     }
 }

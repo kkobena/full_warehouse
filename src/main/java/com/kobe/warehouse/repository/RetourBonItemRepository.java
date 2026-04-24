@@ -52,4 +52,23 @@ public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, In
         @Param("excludeRetourBonId") Integer excludeRetourBonId,
         @Param("excludedStatut") RetourStatut excludedStatut
     );
+
+    /**
+     * Somme de toutes les quantités retournées pour une ligne de commande,
+     * tous statuts confondus (utilisé pour la validation anti-surretour).
+     * Le retour en cours ({@code excludeRetourBonId}) est exclu pour gérer
+     * le cas de la mise à jour.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(r.qtyMvt), 0)
+        FROM RetourBonItem r
+        WHERE r.orderLine.id = :orderLineId
+          AND r.orderLine.orderDate = :orderDate
+          AND (:excludeRetourBonId IS NULL OR r.retourBon.id <> :excludeRetourBonId)
+        """)
+    int sumAllReturnedQtyByOrderLineId(
+        @Param("orderLineId") Integer orderLineId,
+        @Param("orderDate") LocalDate orderDate,
+        @Param("excludeRetourBonId") Integer excludeRetourBonId
+    );
 }

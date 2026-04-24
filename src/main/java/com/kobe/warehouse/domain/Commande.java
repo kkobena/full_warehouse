@@ -9,11 +9,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -143,6 +146,10 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "reliquat_de_commande_id")
     private Integer reliquatDeCommandeId;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "reconciliation_id", nullable = true)
+    private ReconciliationFactureFournisseur reconciliation;
+
     @Transient
     private boolean isNew = true;
 
@@ -169,6 +176,15 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     public Commande setReliquatDeCommandeId(Integer reliquatDeCommandeId) {
         this.reliquatDeCommandeId = reliquatDeCommandeId;
+        return this;
+    }
+
+    public ReconciliationFactureFournisseur getReconciliation() {
+        return reconciliation;
+    }
+
+    public Commande setReconciliation(ReconciliationFactureFournisseur reconciliation) {
+        this.reconciliation = reconciliation;
         return this;
     }
 

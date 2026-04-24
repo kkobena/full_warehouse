@@ -256,3 +256,42 @@
     border: 1px solid #d1d5db;
   }
 }
+.p-floatlabel{
+  min-width: 90px !important;
+}
+
+// ── Badges réconciliation facture ──────────────────────────────────────────────
+.bc__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 12px;
+  white-space: nowrap;
+
+  &--reconciliee {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+  }
+
+  &--ecart {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+  }
+
+  &--litige {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  &--attente {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+  }
+}

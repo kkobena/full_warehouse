@@ -1,26 +1,33 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { finalize, switchMap, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { BudgetCommande, SemoisFraicheur, SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { ErrorService } from 'app/shared/error.service';
-import { SuggestionLine } from 'app/entities/commande/suggestion/model/suggestion-line.model';
-import { FournisseurSuggestionSummary, NiveauUrgence, SourceCalcul, SuggestionLigneEnrichie } from './suggestion-enrichie.model';
-import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
-import { handleBlobForTauri } from 'app/shared/util/tauri-util';
-import { saveAs } from 'file-saver';
-import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
-import { Keys } from 'app/shared/model/keys.model';
-import { CommanderModalResult } from './suggestion-commander.model';
-import { PharmamlApiService } from '../../../data-access/pharmaml-api.service';
-import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import { computed, inject, Injectable, signal } from "@angular/core";
+import { finalize, switchMap, tap } from "rxjs/operators";
+import { of } from "rxjs";
+import {
+  BudgetCommande,
+  SemoisFraicheur,
+  SuggestionService
+} from "app/entities/commande/suggestion/suggestion.service";
+import { NotificationService } from "app/shared/services/notification.service";
+import { ErrorService } from "app/shared/error.service";
+import { SuggestionLine } from "app/entities/commande/suggestion/model/suggestion-line.model";
+import {
+  FournisseurSuggestionSummary,
+  NiveauUrgence,
+  SourceCalcul,
+  SuggestionLigneEnrichie
+} from "./suggestion-enrichie.model";
+import { IFournisseurProduit } from "app/shared/model/fournisseur-produit.model";
+import { Keys } from "app/shared/model/keys.model";
+import { CommanderModalResult } from "./suggestion-commander.model";
+import { PharmamlApiService } from "../../../data-access/pharmaml-api.service";
+import { CommandCommonService } from "app/entities/commande/command-common.service";
+import { BlobDownloadService } from "../../../../../shared/services/blob-download.service";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class SuggestionFacadeService {
   private readonly suggestionService = inject(SuggestionService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly pharmamlApiService = inject(PharmamlApiService);
   private readonly commandCommonService = inject(CommandCommonService);
 
@@ -42,30 +49,30 @@ export class SuggestionFacadeService {
   readonly page = signal(0);
   readonly rows = signal(20);
   readonly totalLignes = signal(0);
-  readonly searchText = signal('');
-  readonly urgenceFilter = signal('TOUS');
+  readonly searchText = signal("");
+  readonly urgenceFilter = signal("TOUS");
 
   // ─── Computed ────────────────────────────────────────────────────────────────
   readonly totalMontantEstime = computed(() =>
-    this.fournisseurs().reduce((s, f) => s + f.montantEstime, 0),
+    this.fournisseurs().reduce((s, f) => s + f.montantEstime, 0)
   );
 
   readonly nbUrgentsTotal = computed(() =>
-    this.fournisseurs().reduce((s, f) => s + f.nbUrgents, 0),
+    this.fournisseurs().reduce((s, f) => s + f.nbUrgents, 0)
   );
 
   readonly lignesSelectionnees = computed(() =>
-    this.lignesEnrichies().filter(l => l.selected),
+    this.lignesEnrichies().filter(l => l.selected)
   );
 
   readonly montantSelection = computed(() =>
-    this.lignesSelectionnees().reduce((s, l) => s + l.quantite * l.prixAchat, 0),
+    this.lignesSelectionnees().reduce((s, l) => s + l.quantite * l.prixAchat, 0)
   );
 
   // Contexte du fournisseur courant pour les rechargements
   private currentSuggestionId: number | null = null;
   private currentFournisseurId: number | null = null;
-  private currentStatut: 'GENEREE' | 'VALIDEE' | undefined = undefined;
+  private currentStatut: string[] = ["GENEREE", "VALIDEE"];
 
   // ─── Public methods ──────────────────────────────────────────────────────────
 
@@ -74,8 +81,7 @@ export class SuggestionFacadeService {
    * @param statut Filtre optionnel : 'GENEREE' (tab Réapprovisionnement) ou 'VALIDEE' (tab Commandes à passer).
    *               Null = tous (comportement antérieur).
    */
-  loadAll(statut?: 'GENEREE' | 'VALIDEE'): void {
-    this.currentStatut = statut;
+   loadAll(statut: string[], search?: string, fournisseurIds?: number[]): void {
     this.loading.set(true);
     this.fournisseurs.set([]);
     this.selectedFournisseur.set(null);
@@ -84,50 +90,50 @@ export class SuggestionFacadeService {
     this.currentFournisseurId = null;
 
     this.suggestionService
-      .queryParFournisseur(statut)
+      .queryParFournisseur(statut, search, fournisseurIds)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: summaries => {
           this.fournisseurs.set(summaries);
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement");
+        }
       });
 
     this.suggestionService.getBudget().subscribe({
       next: b => this.budget.set(b),
-      error: () => this.budget.set(null),
+      error: () => this.budget.set(null)
     });
 
     this.suggestionService.getSemoisFraicheur().subscribe({
       next: f => this.semoisFraicheur.set(f),
-      error: () => this.semoisFraicheur.set(null),
+      error: () => this.semoisFraicheur.set(null)
     });
   }
 
   /** Déclenche un recalcul SEMOIS manuel puis recharge la fraîcheur. */
-  recalculerSemois(statut?: 'GENEREE' | 'VALIDEE'): void {
+   recalculerSemois(): void {
     this.recalculEnCours.set(true);
     this.suggestionService.recalculerSemois().subscribe({
       next: () => {
-        this.notificationService.success('Recalcul SEMOIS déclenché. Les données seront mises à jour dans quelques instants.', 'SEMOIS');
+        this.notificationService.success("Recalcul SEMOIS déclenché. Les données seront mises à jour dans quelques instants.", "SEMOIS");
         this.recalculEnCours.set(false);
-        this.loadAll(statut);
+        this.loadAll(["GENEREE"]);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Recalcul SEMOIS');
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Recalcul SEMOIS");
         this.recalculEnCours.set(false);
-      },
+      }
     });
   }
 
   /** Sélectionne un fournisseur et charge la première page de ses lignes. */
-  selectFournisseur(fournisseur: FournisseurSuggestionSummary): void {
+   selectFournisseur(fournisseur: FournisseurSuggestionSummary): void {
     this.selectedFournisseur.set(fournisseur);
     this.page.set(0);
-    this.searchText.set('');
-    this.urgenceFilter.set('TOUS');
+    this.searchText.set("");
+    this.urgenceFilter.set("TOUS");
 
     if (!fournisseur.suggestionId) {
       this.lignesEnrichies.set([]);
@@ -143,7 +149,7 @@ export class SuggestionFacadeService {
   }
 
   /** Applique un filtre texte + urgence et recharge depuis la page 0. */
-  applyFilter(search: string, urgence: string): void {
+   applyFilter(search: string, urgence: string): void {
     this.searchText.set(search);
     this.urgenceFilter.set(urgence);
     this.page.set(0);
@@ -151,14 +157,14 @@ export class SuggestionFacadeService {
   }
 
   /** Change de page et recharge. */
-  changePage(page: number, rows: number): void {
+   changePage(page: number, rows: number): void {
     this.page.set(page);
     this.rows.set(rows);
     this.loadLignes();
   }
 
   /** Recharge les lignes avec les paramètres courants (page, filtre). */
-  loadLignes(): void {
+   loadLignes(): void {
     if (this.currentSuggestionId == null) return;
     this.loadLignesForFournisseur(this.currentSuggestionId, this.currentFournisseurId!);
   }
@@ -167,34 +173,36 @@ export class SuggestionFacadeService {
    * Bug 3 — Commander toute la suggestion via son ID uniquement.
    * Gère le mode Interne (commande locale) et PharmaML (envoi électronique).
    */
-  commanderFull(modalResult: CommanderModalResult): void {
+   commanderFull(modalResult: CommanderModalResult): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
-      this.notificationService.warning('Aucun fournisseur sélectionné.');
+      this.notificationService.warning("Aucun fournisseur sélectionné.");
       return;
     }
     let savedCommandeId: any = null;
     this.suggestionService.commander(fournisseur.suggestionId, modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined).pipe(
-      tap(commandeId => { savedCommandeId = commandeId; }),
+      tap(commandeId => {
+        savedCommandeId = commandeId;
+      }),
       switchMap(commandeId => {
-        if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
+        if (modalResult.type === "PHARMAML" && modalResult.pharmamlParams) {
           const params = {
             commandeId: { id: commandeId.id, orderDate: commandeId.orderDate },
             grossisteId: modalResult.fournisseurId,
             typeCommande: modalResult.pharmamlParams.typeCommande,
             commentaire: modalResult.pharmamlParams.commentaire,
-            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee,
+            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee
           };
           return this.pharmamlApiService.envoi(params);
         }
         return of(null);
-      }),
+      })
     ).subscribe({
       next: () => {
-        const msg = modalResult.type === 'PHARMAML'
+        const msg = modalResult.type === "PHARMAML"
           ? `Commande transmise via PharmaML pour ${fournisseur.libelle}.`
           : `Commande passée avec succès pour ${fournisseur.libelle}.`;
-        this.notificationService.success(msg, 'Commander');
+        this.notificationService.success(msg, "Commander");
         if (savedCommandeId) {
           this.commandCommonService.pendingOpenCommandeId.set(savedCommandeId);
           this.commandCommonService.navigateToCommandesAPasser();
@@ -202,8 +210,8 @@ export class SuggestionFacadeService {
         this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Commander");
+      }
     });
   }
 
@@ -212,10 +220,10 @@ export class SuggestionFacadeService {
    * La suggestion n'est PAS supprimée si des lignes restent.
    * Gère le mode Interne et PharmaML.
    */
-  commanderSelection(lignes: SuggestionLigneEnrichie[], modalResult: CommanderModalResult): void {
+   commanderSelection(lignes: SuggestionLigneEnrichie[], modalResult: CommanderModalResult): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
-      this.notificationService.warning('Aucun fournisseur sélectionné.');
+      this.notificationService.warning("Aucun fournisseur sélectionné.");
       return;
     }
     const selection = lignes
@@ -223,35 +231,37 @@ export class SuggestionFacadeService {
       .map(l => ({ suggestionLineId: l.id!, quantite: l.quantite }));
 
     if (selection.length === 0) {
-      this.notificationService.warning('Aucune ligne à commander.');
+      this.notificationService.warning("Aucune ligne à commander.");
       return;
     }
     let savedCommandeId: any = null;
     this.suggestionService.commanderSelection({
       suggestionId: fournisseur.suggestionId,
       lignes: selection,
-      fournisseurId: modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined,
+      fournisseurId: modalResult.fournisseurId !== fournisseur.fournisseurId ? modalResult.fournisseurId : undefined
     }).pipe(
-      tap(commandeId => { savedCommandeId = commandeId; }),
+      tap(commandeId => {
+        savedCommandeId = commandeId;
+      }),
       switchMap(commandeId => {
-        if (modalResult.type === 'PHARMAML' && modalResult.pharmamlParams) {
+        if (modalResult.type === "PHARMAML" && modalResult.pharmamlParams) {
           const params = {
             commandeId: { id: commandeId.id, orderDate: commandeId.orderDate },
             grossisteId: modalResult.fournisseurId,
             typeCommande: modalResult.pharmamlParams.typeCommande,
             commentaire: modalResult.pharmamlParams.commentaire,
-            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee,
+            dateLivraisonSouhaitee: modalResult.pharmamlParams.dateLivraisonSouhaitee
           };
           return this.pharmamlApiService.envoi(params);
         }
         return of(null);
-      }),
+      })
     ).subscribe({
       next: () => {
-        const msg = modalResult.type === 'PHARMAML'
+        const msg = modalResult.type === "PHARMAML"
           ? `Sélection transmise via PharmaML pour ${fournisseur.libelle}.`
           : `Commande (sélection) passée avec succès pour ${fournisseur.libelle}.`;
-        this.notificationService.success(msg, 'Commander');
+        this.notificationService.success(msg, "Commander");
         if (savedCommandeId) {
           this.commandCommonService.pendingOpenCommandeId.set(savedCommandeId);
           this.commandCommonService.navigateToCommandesAPasser();
@@ -259,47 +269,31 @@ export class SuggestionFacadeService {
         this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander');
-      },
-    });
-  }
-
-  /** @deprecated Utiliser commanderFull() ou commanderSelection() à la place. */
-  commander(lignes?: SuggestionLigneEnrichie[]): void {
-    const fournisseur = this.selectedFournisseur();
-    if (!fournisseur?.suggestionId) return;
-    const linesToCommander = lignes ?? this.lignesEnrichies();
-    const selection = linesToCommander.filter(l => l.id != null).map(l => ({ suggestionLineId: l.id!, quantite: l.quantite }));
-    if (selection.length === 0) return;
-    this.suggestionService.commanderSelection({ suggestionId: fournisseur.suggestionId, lignes: selection }).subscribe({
-      next: () => {
-        this.notificationService.success(`Commande passée pour ${fournisseur.libelle}.`, 'Commander');
-        this.loadAll();
-      },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Commander'),
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Commander");
+      }
     });
   }
 
   /** Met à jour la quantité d'une ligne via l'API puis met à jour le signal. */
-  updateQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
+   updateQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
     if (!ligne.id) return;
     const updatedLine: SuggestionLine = {
       id: ligne.id,
       quantity: qte,
       produitId: ligne.produitId,
-      fournisseurProduitId: ligne.fournisseurProduitId,
+      fournisseurProduitId: ligne.fournisseurProduitId
     };
     this.suggestionService.updateQuantity(updatedLine).subscribe({
       next: () => {
         this.setQuantite(ligne, qte);
         // Marquer localement comme verrouillée après édition manuelle
         this.lignesEnrichies.update(list =>
-          list.map(l => l === ligne ? { ...l, quantiteModifiee: true, quantiteModifieeManuel: true } : l),
+          list.map(l => l === ligne ? { ...l, quantiteModifiee: true, quantiteModifieeManuel: true } : l)
         );
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Mise à jour quantité');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Mise à jour quantité");
+      }
     });
   }
 
@@ -307,7 +301,7 @@ export class SuggestionFacadeService {
    * Réinitialise le flag quantiteModifieeManuel d'une ligne.
    * Le batch SEMOIS pourra à nouveau calculer la quantité.
    */
-  resetQuantite(ligne: SuggestionLigneEnrichie): void {
+   resetQuantite(ligne: SuggestionLigneEnrichie): void {
     if (!ligne.id) return;
     this.suggestionService.resetQuantiteManuelle(ligne.id).subscribe({
       next: () => {
@@ -315,19 +309,19 @@ export class SuggestionFacadeService {
           list.map(l =>
             l === ligne
               ? { ...l, quantiteModifiee: false, quantiteModifieeManuel: false }
-              : l,
-          ),
+              : l
+          )
         );
-        this.notificationService.success('Quantité déverrouillée — le batch SEMOIS pourra la recalculer.', 'Réinitialiser');
+        this.notificationService.success("Quantité déverrouillée — le batch SEMOIS pourra la recalculer.", "Réinitialiser");
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Réinitialiser qté');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Réinitialiser qté");
+      }
     });
   }
 
   /** Exporte la suggestion en PDF (Tauri : boîte de dialogue de sauvegarde ; browser : ouvre dans un onglet). */
-  exporterPdf(): void {
+   exporterPdf(): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
     const filename = `suggestion_${fournisseur.suggestionId}`;
@@ -336,116 +330,87 @@ export class SuggestionFacadeService {
       .pipe(finalize(() => this.exportingPdf.set(false)))
       .subscribe({
         next: blob => {
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, filename);
-          } else {
-            window.open(URL.createObjectURL(blob));
-          }
+          this.downloadDocumentService.downloadPdf(blob, filename);
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Export PDF");
+        }
       });
   }
 
   /** Exporte la suggestion en CSV. */
-  exporterCsv(): void {
+   exporterCsv(): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
-    const filename = `suggestion_${fournisseur.suggestionId}.csv`;
+    const filename = `suggestion_${fournisseur.suggestionId}`;
     this.exportingCsv.set(true);
     this.suggestionService.exportToCsv(fournisseur.suggestionId)
       .pipe(finalize(() => this.exportingCsv.set(false)))
       .subscribe({
         next: blob => {
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, `suggestion_${fournisseur.suggestionId}`,'csv');
-          } else {
-            saveAs(blob, filename);
-          }
+          this.downloadDocumentService.downloadCsv(blob, filename);
+
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export CSV');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Export CSV");
+        }
       });
   }
 
   /** Valide une suggestion (GENEREE → VALIDEE). */
-  valider(id: number): void {
+   valider(id: number): void {
     this.suggestionService.valider(id).subscribe({
       next: () => {
-        this.notificationService.success('Suggestion validée.', 'Valider');
-        this.loadAll();
+        this.notificationService.success("Suggestion validée.", "Valider");
+        this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Valider');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Valider");
+      }
     });
   }
 
   /** Rejette (supprime) une suggestion. */
-  rejeter(id: number): void {
+   rejeter(id: number): void {
     this.suggestionService.rejeter(id).subscribe({
       next: () => {
-        this.notificationService.success('Suggestion rejetée.', 'Rejeter');
-        this.loadAll();
+        this.notificationService.success("Suggestion rejetée.", "Rejeter");
+        this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Rejeter');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Rejeter");
+      }
     });
   }
 
   /** Nettoie (sanitize) une suggestion puis recharge la liste. */
-  sanitize(id: number): void {
+   sanitize(id: number): void {
     this.suggestionService.sanitize(id).subscribe({
       next: () => {
-        this.notificationService.success('Suggestion nettoyée.', 'Sanitize');
-        this.loadAll();
+        this.notificationService.success("Suggestion nettoyée.", "Sanitize");
+        this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Sanitize');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Sanitize");
+      }
     });
-  }
-
-  /** Inverse la sélection d'une ligne. */
-  toggleSelection(ligne: SuggestionLigneEnrichie): void {
-    this.lignesEnrichies.update(lignes =>
-      lignes.map(l => (l === ligne ? { ...l, selected: !l.selected } : l)),
-    );
-  }
-
-  /** Sélectionne ou désélectionne toutes les lignes. */
-  toggleTout(selected: boolean): void {
-    this.lignesEnrichies.update(lignes => lignes.map(l => ({ ...l, selected })));
   }
 
 
   /** Met à jour la quantité d'une ligne dans le signal local. */
-  setQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
+   setQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
     this.lignesEnrichies.update(lignes =>
       lignes.map(l =>
         l === ligne
           ? { ...l, quantite: qte, quantiteModifiee: qte !== l.quantiteCalculee }
-          : l,
-      ),
+          : l
+      )
     );
   }
 
-  /** Met à jour la sélection de plusieurs lignes en une opération. */
-  setSelections(lignes: SuggestionLigneEnrichie[]): void {
-    const selectedSet = new Set(lignes.map(l => l.id ?? `${l.produitId}-${l.libelle}`));
-    this.lignesEnrichies.update(current =>
-      current.map(l => {
-        const key = l.id ?? `${l.produitId}-${l.libelle}`;
-        return { ...l, selected: selectedSet.has(key) };
-      }),
-    );
-  }
 
   /** Supprime une ligne de suggestion. */
-  supprimerLigne(id: number): void {
+   supprimerLigne(id: number): void {
     const keys: Keys = { ids: [id] };
     this.suggestionService.deleteItem(keys).subscribe({
       next: () => {
@@ -457,20 +422,20 @@ export class SuggestionFacadeService {
             list.map(f =>
               f.fournisseurId === fournisseur.fournisseurId
                 ? { ...f, nbProduits: Math.max(0, f.nbProduits - 1) }
-                : f,
-            ),
+                : f
+            )
           );
         }
-        this.notificationService.success('Produit retiré de la suggestion.', 'Suppression');
+        this.notificationService.success("Produit retiré de la suggestion.", "Suppression");
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression ligne');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression ligne");
+      }
     });
   }
 
   /** Supprime plusieurs lignes sélectionnées. */
-  supprimerLignes(ids: number[]): void {
+   supprimerLignes(ids: number[]): void {
     if (ids.length === 0) return;
     const keys: Keys = { ids };
     this.suggestionService.deleteItem(keys).subscribe({
@@ -484,27 +449,27 @@ export class SuggestionFacadeService {
             list.map(f =>
               f.fournisseurId === fournisseur.fournisseurId
                 ? { ...f, nbProduits: Math.max(0, f.nbProduits - ids.length) }
-                : f,
-            ),
+                : f
+            )
           );
         }
-        this.notificationService.success(`${ids.length} produit(s) retiré(s) de la suggestion.`, 'Suppression');
+        this.notificationService.success(`${ids.length} produit(s) retiré(s) de la suggestion.`, "Suppression");
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression lignes');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression lignes");
+      }
     });
   }
 
   /** Supprime une ou plusieurs suggestions. Désélectionne si la suggestion courante est supprimée. */
-  supprimerSuggestions(ids: number[]): void {
+   supprimerSuggestions(ids: number[]): void {
     if (ids.length === 0) return;
     const keys: Keys = { ids };
     this.suggestionService.delete(keys).subscribe({
       next: () => {
         this.notificationService.success(
-          ids.length === 1 ? 'Suggestion supprimée.' : `${ids.length} suggestions supprimées.`,
-          'Suppression',
+          ids.length === 1 ? "Suggestion supprimée." : `${ids.length} suggestions supprimées.`,
+          "Suppression"
         );
         const selected = this.selectedFournisseur();
         if (selected?.suggestionId && ids.includes(selected.suggestionId)) {
@@ -513,38 +478,38 @@ export class SuggestionFacadeService {
           this.currentSuggestionId = null;
           this.currentFournisseurId = null;
         }
-        this.loadAll();
+        this.loadAll(this.currentStatut);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression suggestion');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression suggestion");
+      }
     });
   }
 
   /** Fusionne plusieurs suggestions du même fournisseur. */
-  fusionnerSuggestions(ids: number[]): void {
+   fusionnerSuggestions(ids: number[]): void {
     if (ids.length < 2) return;
     const keys: Keys = { ids };
     this.suggestionService.fusionner(keys).subscribe({
       next: () => {
-        this.notificationService.success('Suggestions fusionnées avec succès.', 'Fusion');
+        this.notificationService.success("Suggestions fusionnées avec succès.", "Fusion");
         this.selectedFournisseur.set(null);
         this.lignesEnrichies.set([]);
         this.currentSuggestionId = null;
         this.currentFournisseurId = null;
-        this.loadAll();
+        this.loadAll([""]);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Fusion suggestions');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Fusion suggestions");
+      }
     });
   }
 
   /** Ajoute un produit à la suggestion courante puis recharge les lignes. */
-  ajouterProduit(produitId: number, fournisseurProduitId: number, quantite = 1): void {
+   ajouterProduit(produitId: number, fournisseurProduitId: number, quantite = 1): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
-      this.notificationService.warning('Aucun fournisseur sélectionné.');
+      this.notificationService.warning("Aucun fournisseur sélectionné.");
       return;
     }
     const item: SuggestionLine = { produitId, fournisseurProduitId, quantity: quantite };
@@ -553,13 +518,13 @@ export class SuggestionFacadeService {
         this.loadLignes();
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), 'Ajout produit');
-      },
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Ajout produit");
+      }
     });
   }
 
   /** Charge les fournisseurs d'un produit pour la vue comparaison, triés : principal d'abord puis prix croissant. */
-  loadFournisseursProduit(produitId: number): void {
+   loadFournisseursProduit(produitId: number): void {
     this.loadingComparaison.set(true);
     this.fournisseursProduit.set([]);
     this.suggestionService
@@ -575,8 +540,8 @@ export class SuggestionFacadeService {
           this.fournisseursProduit.set(sorted);
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Comparaison fournisseurs');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Comparaison fournisseurs");
+        }
       });
   }
 
@@ -589,7 +554,7 @@ export class SuggestionFacadeService {
     // pendant le chargement (masquées par l'overlay loadingLignes), puis met à jour en place.
 
     const search = this.searchText() || undefined;
-    const urgence = this.urgenceFilter() !== 'TOUS' ? this.urgenceFilter() : undefined;
+    const urgence = this.urgenceFilter() !== "TOUS" ? this.urgenceFilter() : undefined;
 
     this.suggestionService
       .queryAllLines(suggestionId, search, urgence)
@@ -599,14 +564,14 @@ export class SuggestionFacadeService {
           this.totalLignes.set(lines.length);
           const enrichies = lines.map(line => this.toEnrichie(line));
           this.lignesEnrichies.set(enrichies);
-          const nbUrgents = enrichies.filter(l => l.niveauUrgence === 'URGENT').length;
+          const nbUrgents = enrichies.filter(l => l.niveauUrgence === "URGENT").length;
           this.fournisseurs.update(list =>
-            list.map(f => f.fournisseurId === fournisseurId ? { ...f, nbUrgents } : f),
+            list.map(f => f.fournisseurId === fournisseurId ? { ...f, nbUrgents } : f)
           );
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement lignes');
-        },
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement lignes");
+        }
       });
   }
 
@@ -616,8 +581,8 @@ export class SuggestionFacadeService {
       id: line.id,
       produitId: line.produitId,
       fournisseurProduitId: line.fournisseurProduitId,
-      libelle: line.fournisseurProduitLibelle ?? '',
-      codeCip: line.fournisseurProduitCip ?? '',
+      libelle: line.fournisseurProduitLibelle ?? "",
+      codeCip: line.fournisseurProduitCip ?? "",
       currentStock: line.currentStock ?? 0,
       quantite: quantiteCalculee,
       quantiteCalculee,
@@ -625,18 +590,18 @@ export class SuggestionFacadeService {
       prixVente: line.prixVente,
       etatProduit: line.etatProduit,
       consommationMensuelle: line.consommationMensuelle,
-      niveauUrgence: (line.niveauUrgence ?? 'OK') as NiveauUrgence,
+      niveauUrgence: (line.niveauUrgence ?? "OK") as NiveauUrgence,
       joursRestants: line.joursRestants ?? null,
       tauxCouvertureMois: null,
       quantiteSemois: undefined,
       classeCriticite: undefined,
-      sourceCalcul: (line.sourceCalcul ?? 'CLASSIQUE') as SourceCalcul,
+      sourceCalcul: (line.sourceCalcul ?? "CLASSIQUE") as SourceCalcul,
       selected: false,
       quantiteModifiee: !!line.quantiteModifieeManuel,
       quantiteModifieeManuel: !!line.quantiteModifieeManuel,
       commandee: false,
       qteColis: line.qteColis ?? 1,
-      qteMinimaleCommande: line.qteMinimaleCommande ?? 0,
+      qteMinimaleCommande: line.qteMinimaleCommande ?? 0
     };
   }
 

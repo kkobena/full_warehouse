@@ -191,13 +191,11 @@ export class CommandeService {
     return this.http.put(`${this.resourceUrl}/delete-commandes`, ids, { observe: "response" });
   }
 
-  importerReponseCommande(commandeId: CommandeId, file: any): Observable<HttpResponse<IResponseCommande>> {
+  importerReponseCommande(commandeId: CommandeId, model: string, file: any): Observable<HttpResponse<IResponseCommande>> {
     return this.http.post<IResponseCommande>(
-      `${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}`,
+      `${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}/${model}`,
       file,
-      {
-        observe: "response"
-      }
+      { observe: 'response' }
     );
   }
 
@@ -282,6 +280,14 @@ export class CommandeService {
     return this.http.post(
       `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion`,
       null,
+      { observe: "response", params: { suggestionId } }
+    );
+  }
+
+  importSuggestionLinesIntoCommande(commandeId: CommandeId, suggestionId: number, lineIds: number[]): Observable<HttpResponse<{}>> {
+    return this.http.post(
+      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion-lines`,
+      lineIds,
       { observe: "response", params: { suggestionId } }
     );
   }

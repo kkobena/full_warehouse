@@ -27,6 +27,7 @@ import { EditProduitComponent } from "../../ui/delivery/edit-produit/edit-produi
 import { FileResponseModalComponent } from "../../ui/file-response-modal/file-response-modal.component";
 import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
 import { CommandeId } from "../../../../shared/model/abstract-commande.model";
+import { CommandCommonService } from "../../../../entities/commande/command-common.service";
 import { Params } from "../../../../shared/model/enumerations/params.model";
 import { ConfigurationService } from "../../../../shared/configuration.service";
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -124,7 +125,8 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     "pharma-row-warning": p =>
       !!p.data &&
       p.data.costAmount === p.data.orderCostAmount &&
-      p.data.regularUnitPrice !== p.data.orderUnitPrice
+      p.data.regularUnitPrice !== p.data.orderUnitPrice,
+    "pharma-row-provisional": p => !!p.data?.provisionalCode
   };
 
   protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
@@ -133,8 +135,21 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     {
       field: "produitCip",
       headerName: "Code",
-      width: 110,
-      cellStyle: { fontFamily: "monospace", fontSize: "12px" }
+      width: 130,
+      headerTooltip: "Code CIP — italique = code provisoire, cliquez pour saisir le CIP",
+      editable: (p: any) => !!p.data?.provisionalCode,
+      cellEditor: "agTextCellEditor",
+      cellRenderer: (p: any) => {
+        if (!p.data) return "";
+        const cip = p.data.produitCip ?? "";
+        if (p.data.provisionalCode) {
+          return `<span
+            style="display:inline-flex;align-items:center;gap:4px;font-family:monospace;font-size:12px;font-style:italic;color:#856404;cursor:pointer;"
+            title="Code CIP provisoire — cliquez pour saisir le CIP définitif."
+          ><i class="pi pi-exclamation-circle" style="color:#e6a817;font-size:11px;flex-shrink:0;"></i>${cip || "Cliquer pour saisir"}</span>`;
+        }
+        return `<span style="font-family:monospace;font-size:12px;">${cip}</span>`;
+      }
     },
     {
       field: "produitLibelle",
@@ -153,7 +168,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       headerName: "Couv.",
       width: 80,
       type: "numericColumn",
-      headerTooltip: "Couverture stock en jours (SEMOIS)",
+      headerTooltip: "Couverture stock en jours",
       valueFormatter: (p: any) => p.value != null ? `${p.value}j` : "—",
       cellStyle: (p: any) => {
         if (p.value == null) return { color: "#9ca3af" };
@@ -170,6 +185,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
+      cellEditorParams: {preventStepping: true},
       cellRenderer: (p: any) => {
         if (!p.data) return "";
         const val = p.data.orderCostAmount != null
@@ -194,6 +210,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix unitaire commandé — ⚠ indique un écart avec le tarif catalogue",
+      cellEditorParams: {preventStepping: true},
       cellRenderer: (p: any) => {
         if (!p.data) return "";
         const val = p.data.orderUnitPrice != null
@@ -215,6 +232,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       headerName: "Qté",
       width: 90,
       editable: p => !this.isLocked,
+      cellEditorParams: {preventStepping: true},
       type: "numericColumn",
       cellEditor: "agNumberCellEditor"
     },
@@ -223,6 +241,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       headerName: "Qté Ug",
       width: 80,
       editable: p => !this.isLocked,
+      cellEditorParams: {preventStepping: true},
       type: "numericColumn",
       cellEditor: "agNumberCellEditor"
     },
@@ -249,6 +268,14 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     const line = e.data;
     const val = Number(e.newValue);
     switch (e.colDef.field) {
+      case "produitCip": {
+        const cip = (e.newValue as string)?.trim();
+        if (cip) {
+          line.produitCip = cip;
+          this.subscribeUpdateOrderLine(this.commandeService.updateCip(line));
+        }
+        break;
+      }
       case "quantityRequested":
         if (val > 0) {
           line.quantityRequested = val;
@@ -289,6 +316,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
+  private readonly commandCommonService = inject(CommandCommonService);
 
 
   // ─── PharmaML actions ────────────────────────────────────────────────────────
@@ -491,7 +519,10 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       DeliveryModalComponent,
       { commande: this.currentCommande, header: "CREATION DU BON DE LIVRAISON" },
       commande => {
-        if (commande) this.reloadCommande();
+        if (commande) {
+          this.commandCommonService.pendingOpenDeliveryId.set(commande.commandeId);
+          this.commandCommonService.navigateToBonsLivraison();
+        }
       },
       "lg"
     );
@@ -505,6 +536,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     });
     modalRef.componentInstance.commandeId = this.currentCommande!.commandeId;
     modalRef.componentInstance.fournisseurId = this.currentCommande!.fournisseurId;
+    modalRef.componentInstance.commandeFournisseurId = this.currentCommande!.fournisseurId;
     modalRef.result.then(
       imported => {
         if (imported) this.refreshCommande();
@@ -631,6 +663,32 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     });
     modalRef.componentInstance.responseCommande = responseCommande;
     modalRef.componentInstance.commande = this.currentCommande;
+    modalRef.result.then(
+      result => {
+        if (result === 'DELETE') {
+          this.confirmDialog.onConfirm(
+            () => this.deleteCommandeApresRuptureTotale(),
+            'Suppression de la commande',
+            'Tous les produits sont en rupture. Voulez-vous supprimer définitivement cette commande ?'
+          );
+        }
+      },
+      () => {}
+    );
+  }
+
+  private deleteCommandeApresRuptureTotale(): void {
+    if (!this.currentCommande?.commandeId) return;
+    this.commandeService.delete(this.currentCommande.commandeId).subscribe({
+      next: () => {
+        this.currentCommande = null;
+        this.orderLines = [];
+        this.selectedProvider = null;
+        this.commandeChange.emit(null);
+        this.notificationService.success('Commande supprimée', 'Suppression');
+      },
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
+    });
   }
 
   private loadFournisseurs(search = ""): void {

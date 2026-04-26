@@ -15,6 +15,7 @@ public record FournisseurSuggestionSummaryDTO(
     int nbProduits,
     int nbUrgents,
     long montantEstime,
+    long montantEstimeVente,
     String source,
     LocalDateTime updatedAt
 ) {}

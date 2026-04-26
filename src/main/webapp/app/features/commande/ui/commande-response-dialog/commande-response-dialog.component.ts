@@ -21,22 +21,27 @@ export class CommandeResponseDialogComponent implements OnInit {
   protected responseCommandeItem: IResponseCommandeItem[] = [];
   protected responseCommandeItemNonPrisEnCompte: IResponseCommandeItem[] = [];
   protected responseCommandeItemMoitieLivrer: IResponseCommandeItem[] = [];
+  protected extraItems: IResponseCommandeItem[] = [];
 
   private readonly activeModal = inject(NgbActiveModal);
 
   ngOnInit(): void {
-    if (this.responseCommande) {
-      this.responseCommandeItem = this.responseCommande.items.filter(e => e.quantitePriseEnCompte > 0);
-      this.responseCommandeItemNonPrisEnCompte = this.responseCommande.items.filter(
-        e => e.quantitePriseEnCompte < e.quantite,
-      );
-      this.responseCommandeItemMoitieLivrer = this.responseCommande.items.filter(
-        e => e.quantitePriseEnCompte > 0 && e.quantitePriseEnCompte < e.quantite,
-      );
-    }
+    const items = this.responseCommande?.items ?? [];
+    this.responseCommandeItem = items.filter(e => (e.quantitePriseEnCompte ?? 0) > 0);
+    this.responseCommandeItemNonPrisEnCompte = items.filter(
+      e => (e.quantitePriseEnCompte ?? 0) < (e.quantite ?? 0),
+    );
+    this.responseCommandeItemMoitieLivrer = items.filter(
+      e => (e.quantitePriseEnCompte ?? 0) > 0 && (e.quantitePriseEnCompte ?? 0) < (e.quantite ?? 0),
+    );
+    this.extraItems = this.responseCommande?.extraItems ?? [];
   }
 
   protected close(): void {
     this.activeModal.dismiss();
+  }
+
+  protected onDeleteCommande(): void {
+    this.activeModal.close('DELETE');
   }
 }

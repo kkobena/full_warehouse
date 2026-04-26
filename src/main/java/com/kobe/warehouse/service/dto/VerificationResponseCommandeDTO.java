@@ -7,6 +7,7 @@ public class VerificationResponseCommandeDTO {
 
     private List<Item> items;
     private List<Item> extraItems;
+    private boolean allLinesInRupture;
 
     public List<Item> getItems() {
         return items;
@@ -23,6 +24,15 @@ public class VerificationResponseCommandeDTO {
 
     public VerificationResponseCommandeDTO setExtraItems(List<Item> extraItems) {
         this.extraItems = extraItems;
+        return this;
+    }
+
+    public boolean isAllLinesInRupture() {
+        return allLinesInRupture;
+    }
+
+    public VerificationResponseCommandeDTO setAllLinesInRupture(boolean allLinesInRupture) {
+        this.allLinesInRupture = allLinesInRupture;
         return this;
     }
 

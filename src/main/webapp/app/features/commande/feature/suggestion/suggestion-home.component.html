@@ -19,6 +19,32 @@
 @if (!editingFournisseur()) {
   <div class="view-panel">
     <div class="view-panel__header view-panel__header--list">
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          pSize="small"
+          type="text"
+          [value]="listSearch()"
+          (input)="onListSearchChange($any($event.target).value)"
+          placeholder="CIP, désignation, EAN…"
+          style="width:14rem"
+        />
+      </p-iconfield>
+      <p-multiSelect
+        [options]="fournisseurOptions()"
+        [ngModel]="listFournisseurIds()"
+        (ngModelChange)="onListFournisseurChange($event)"
+        optionLabel="libelle"
+        optionValue="id"
+        placeholder="Tous les fournisseurs"
+        [maxSelectedLabels]="1"
+        selectedItemsLabel="{0} fournisseur(s)"
+        [showClear]="true"
+        [filter]="true"
+        size="small"
+        style="min-width:12rem"
+      />
       <span class="ms-auto"></span>
       @if (childSelectionCount() >= 2) {
         <span class="bulk-info"><i class="pi pi-check-square"></i> {{ childSelectionCount() }} sél.</span>

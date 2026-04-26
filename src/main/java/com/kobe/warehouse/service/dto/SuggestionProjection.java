@@ -13,7 +13,10 @@ public record SuggestionProjection(
     TypeSuggession typeSuggession,
     StatutSuggession statut,
     Integer fournisseurId,
-    String fournisseurLibelle
+    String fournisseurLibelle,
+    Long nombreLignes,
+    Long montantEstimeAchat,
+    Long montantEstimeVente
 ) {
     @JsonProperty("statutLibelle")
     public String statutLibelle() {

@@ -94,6 +94,7 @@ export class SuggestionFournisseurListComponent {
 
   onSuggestionMenuAction(action: SuggestionFournisseurAction, f: FournisseurSuggestionSummary): void {
     switch (action) {
+      case 'editer':     this.onRowClick(f); break;
       case 'valider':    this.onValider(f); break;
       case 'commander':  this.onCommander(f); break;
       case 'exportPdf':  this.onExportPdf(f); break;

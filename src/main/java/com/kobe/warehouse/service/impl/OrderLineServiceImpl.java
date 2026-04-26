@@ -194,6 +194,21 @@ public class OrderLineServiceImpl implements OrderLineService {
         return createNewFromOne(fournisseurProduit, orderLineDTO.getCommande().getFournisseurId(), produit.getId());
     }
 
+    /** Crée un FournisseurProduit provisoire sans codeCip pour un fournisseur cible non référencé. */
+    private FournisseurProduit createProvisionalFournisseurProduit(FournisseurProduit sourceFp, Integer fournisseurId, Integer produitId) {
+        return fournisseurProduitService.createNewFournisseurProduit(
+            new FournisseurProduitDTO()
+                .setCreatedAt(LocalDateTime.now())
+                .setUpdatedAt(LocalDateTime.now())
+                .setFournisseurId(fournisseurId)
+                .setPrincipal(false)
+                .setCodeCip(sourceFp.getCodeCip())
+                .setPrixAchat(sourceFp.getPrixAchat())
+                .setPrixUni(sourceFp.getPrixUni())
+                .setProduitId(produitId)
+        );
+    }
+
     private FournisseurProduit createNewFromOne(FournisseurProduit fournisseurProduit, Integer fournisseurId, Integer produitId) {
         return fournisseurProduitService.createNewFournisseurProduit(
             new FournisseurProduitDTO()
@@ -279,14 +294,20 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public OrderLine buildOrderLine(SuggestionLine suggestionLine, Integer fournisseurId) {
-        FournisseurProduit fournisseurProduit = suggestionLine.getFournisseurProduit();
-        int produitId = fournisseurProduit.getProduit().getId();
-        int stockProduit = fournisseurProduit
-            .getProduit()
-            .getStockProduits()
-            .stream()
+        FournisseurProduit sourceFp = suggestionLine.getFournisseurProduit();
+        Produit produit = sourceFp.getProduit();
+        int stockProduit = produit.getStockProduits().stream()
             .map(StockProduit::getTotalStockQuantity)
             .reduce(0, Integer::sum);
+
+        Optional<FournisseurProduit> found = fournisseurProduitService.findFirstByProduitIdAndFournisseurId(
+            produit.getId(), fournisseurId
+        );
+        boolean provisional = found.isEmpty();
+        FournisseurProduit targetFp = found.orElseGet(
+            () -> createProvisionalFournisseurProduit(sourceFp, fournisseurId, produit.getId())
+        );
+
         OrderLine orderLine = new OrderLine();
         orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
         orderLine.setCreatedAt(LocalDateTime.now());
@@ -294,12 +315,12 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setQuantityReceived(0);
         orderLine.setInitStock(stockProduit);
         orderLine.setQuantityRequested(suggestionLine.getQuantity());
-        orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
-        orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
-        orderLine.setProvisionalCode(false);
+        orderLine.setOrderUnitPrice(targetFp.getPrixUni());
+        orderLine.setOrderCostAmount(targetFp.getPrixAchat());
+        orderLine.setProvisionalCode(provisional);
         orderLine.setFreeQty(0);
         orderLine.setTaxAmount(0);
-        orderLine.setFournisseurProduit(fournisseurProduitService.findFirstByProduitIdAndFournisseurId( produitId,fournisseurId).orElseThrow(()-> new GenericError("Le produit " + fournisseurProduit.getProduit().getLibelle() + " n'est pas référencé pour ce fournisseur", "productNotFoundForFournisseur")));
+        orderLine.setFournisseurProduit(targetFp);
         return orderLine;
     }
 

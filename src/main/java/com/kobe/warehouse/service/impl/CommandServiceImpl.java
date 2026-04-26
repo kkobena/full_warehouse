@@ -11,9 +11,11 @@ import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Suggestion;
+import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
+import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
@@ -37,6 +39,7 @@ import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
 import com.kobe.warehouse.service.stock.csv.ParsedCsvRecord;
+import com.kobe.warehouse.service.stock.csv.ReponseCommandeColumnMap;
 import com.kobe.warehouse.service.utils.FileUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -87,6 +90,15 @@ public class CommandServiceImpl implements CommandService {
         CommandeModel.CIP_QTE, CsvImportStrategy.CIP_QTE,
         CommandeModel.CIP_QTE_PA, CsvImportStrategy.CIP_QTE_PA
     );
+    // Mapping colonnes (CIP, qté confirmée) par format de fichier de réponse grossiste
+    private static final Map<CommandeModel, ReponseCommandeColumnMap> RESPONSE_COLUMN_MAPS = Map.of(
+        CommandeModel.LABOREX,   new ReponseCommandeColumnMap(3, 7, true),
+        CommandeModel.COPHARMED, new ReponseCommandeColumnMap(4, 9, true),
+        CommandeModel.DPCI,      new ReponseCommandeColumnMap(2, 6, false),
+        CommandeModel.TEDIS,     new ReponseCommandeColumnMap(1, 3, false),
+        CommandeModel.CIP_QTE,   new ReponseCommandeColumnMap(0, 1, false),
+        CommandeModel.CIP_QTE_PA, new ReponseCommandeColumnMap(0, 3, false)
+    );
     private final CommandeRepository commandeRepository;
     private final StorageService storageService;
     private final OrderLineService orderLineService;
@@ -96,6 +108,7 @@ public class CommandServiceImpl implements CommandService {
     private final CommandeIdGeneratorService commandeIdGeneratorService;
     private final SuggestionReassortService suggestionReassortService;
     private final SuggestionRepository suggestionRepository;
+    private final SuggestionLineRepository suggestionLineRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;
 
     public CommandServiceImpl(
@@ -108,6 +121,7 @@ public class CommandServiceImpl implements CommandService {
         CommandeIdGeneratorService commandeIdGeneratorService,
         SuggestionReassortService suggestionReassortService,
         SuggestionRepository suggestionRepository,
+        SuggestionLineRepository suggestionLineRepository,
         FournisseurProduitRepository fournisseurProduitRepository
     ) {
         this.commandeRepository = commandeRepository;
@@ -119,6 +133,7 @@ public class CommandServiceImpl implements CommandService {
         this.commandeIdGeneratorService = commandeIdGeneratorService;
         this.suggestionReassortService = suggestionReassortService;
         this.suggestionRepository = suggestionRepository;
+        this.suggestionLineRepository = suggestionLineRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
     }
 
@@ -319,16 +334,18 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, MultipartFile multipartFile) {
+    public VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, CommandeModel model, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
         if (fileName == null || fileName.isBlank()) {
             throw new GenericError("Le nom du fichier importé est obligatoire", "fileNameRequired");
         }
-        String extension = fileName.substring(fileName.indexOf(".") + 1);
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+        Commande commande = findCommandeById(commandeId);
         if (extension.equalsIgnoreCase(CSV)) {
-            return verificationCommandeCsv(multipartFile, findCommandeById(commandeId));
+            return verificationCommandeCsv(multipartFile, commande, model);
         }
-        return verificationCommandeExcel(multipartFile, findCommandeById(commandeId));
+        ReponseCommandeColumnMap columnMap = RESPONSE_COLUMN_MAPS.getOrDefault(model, RESPONSE_COLUMN_MAPS.get(CommandeModel.CIP_QTE_PA));
+        return verificationCommandeExcel(multipartFile, commande, columnMap);
     }
 
     @Override
@@ -420,13 +437,12 @@ public class CommandServiceImpl implements CommandService {
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
 
         for (SemoisCommanderDTO.LigneSemois ligne : lignes) {
-            if (ligne.quantite() <= 0) continue;
             fournisseurProduitRepository
                 .findOneByProduitIdAndFournisseurId(ligne.produitId(), fournisseurId)
                 .ifPresent(fp -> {
                     // Calcul du stock actuel comme snapshot à la commande
                     int stockActuel = fp.getProduit().getStockProduits().stream()
-                        .mapToInt(sp -> sp.getTotalStockQuantity())
+                        .mapToInt(StockProduit::getTotalStockQuantity)
                         .sum();
                     OrderLineDTO dto = new OrderLineDTO();
                     dto.setQuantityRequested(ligne.quantite());
@@ -748,18 +764,18 @@ public class CommandServiceImpl implements CommandService {
 
     private void updateCommandeAmount(Commande commande, OrderLine orderLine, Integer oldGrossAmount, Integer oldOrderAmount) {
         commande.setGrossAmount(
-            (orderLine.getQuantityRequested() * orderLine.getOrderCostAmount()) + commande.getGrossAmount() - oldGrossAmount
+            (orderLine.getQuantityRequested() * orderLine.getOrderCostAmount()) + Objects.requireNonNullElse(commande.getGrossAmount() ,0)- oldGrossAmount
         );
         commande.setFinalAmount(
-            (orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice()) + commande.getFinalAmount() - oldOrderAmount
+            (orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice()) + Objects.requireNonNullElse(commande.getFinalAmount(),0) - oldOrderAmount
         );
         commande.setOrderAmount(commande.getFinalAmount());
     }
 
     private void updateCommandeAmount(Commande commande, Integer grossAmount, Integer orderAmount) {
-        commande.setGrossAmount(commande.getGrossAmount() + grossAmount);
-        commande.setFinalAmount(commande.getFinalAmount() + orderAmount);
-        commande.setOrderAmount(commande.getOrderAmount() + orderAmount);
+        commande.setGrossAmount(Objects.requireNonNullElse(commande.getGrossAmount(),0) + grossAmount);
+        commande.setFinalAmount(Objects.requireNonNullElse(commande.getFinalAmount(),0) + orderAmount);
+        commande.setOrderAmount(Objects.requireNonNullElse(commande.getOrderAmount(),0) + orderAmount);
     }
 
     private Commande updateCommande(Pair<OrderLine, OrderLine> orderLineOrderLinePair) {
@@ -780,11 +796,15 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private void updateCommande(Commande commande, OrderLine orderLine) {
-        commande.setGrossAmount(orderLine.getGrossAmount() + commande.getGrossAmount());
+        commande.setGrossAmount(Objects.requireNonNullElse(orderLine.getGrossAmount() ,0)+ Objects.requireNonNullElse(commande.getGrossAmount(),0));
     }
 
-    private VerificationResponseCommandeDTO verificationCommandeCsv(MultipartFile multipartFile, Commande commande) {
-        List<Pair<String, Integer>> records = new ArrayList<>();
+    private VerificationResponseCommandeDTO verificationCommandeCsv(MultipartFile multipartFile, Commande commande, CommandeModel model) {
+        CsvImportStrategy strategy = CSV_STRATEGIES.get(model);
+        if (strategy == null) {
+            throw new GenericError("Format CSV non supporté : " + model, "unsupportedCsvModel");
+        }
+        List<ParsedCsvRecord> records = new ArrayList<>();
         CSVFormat csvFormat = CSVFormat.EXCEL.builder()
             .setDelimiter(';')
             .get();
@@ -795,10 +815,14 @@ public class CommandServiceImpl implements CommandService {
                  .setFormat(csvFormat)
                  .get()
         ) {
+            int rowIndex = 0;
             for (CSVRecord record : parser) {
-                String code = record.get(0);
-                int quantityReceived = Integer.parseInt(record.get(3));
-                records.add(Pair.of(code, quantityReceived));
+                try {
+                    strategy.extract(record, rowIndex).ifPresent(records::add);
+                } catch (Exception e) {
+                    log.warn("Ligne CSV ignorée (index {}) : {}", rowIndex, e.getMessage());
+                }
+                rowIndex++;
             }
             return processVerificationFileContent(commande, records);
         } catch (IOException e) {
@@ -807,28 +831,28 @@ public class CommandServiceImpl implements CommandService {
         return new VerificationResponseCommandeDTO();
     }
 
-    private VerificationResponseCommandeDTO processVerificationFileContent(Commande commande, List<Pair<String, Integer>> records) {
+    private VerificationResponseCommandeDTO processVerificationFileContent(Commande commande, List<ParsedCsvRecord> records) {
         Set<OrderLine> orderLinesToRemove = new HashSet<>();
         Set<OrderLine> orderLinesToSave = new HashSet<>();
         List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
         List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = new VerificationResponseCommandeDTO();
-        for (Pair<String, Integer> record : records) {
-            proccessFileRecord(commande, record.getFirst(), items, extraItems, record.getSecond(), orderLinesToSave, orderLinesToRemove);
+        for (ParsedCsvRecord parsed : records) {
+            proccessFileRecord(commande, parsed, items, extraItems, orderLinesToSave, orderLinesToRemove);
         }
-        updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
-        verificationResponseCommandeDTO.setItems(items).setExtraItems(extraItems);
-        return verificationResponseCommandeDTO;
+        boolean allInRupture = orderLinesToSave.isEmpty();
+        if (!allInRupture) {
+            updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
+        }
+        return new VerificationResponseCommandeDTO()
+            .setItems(items)
+            .setExtraItems(extraItems)
+            .setAllLinesInRupture(allInRupture);
     }
 
     private void updateResponseCommandeEnCours(Commande commande, Set<OrderLine> orderLinesToSave, Set<OrderLine> orderLinesToRemove) {
-        if (orderLinesToSave.isEmpty()) {
-            commandeRepository.delete(commande);
-        } else {
-            saveOrderLines(orderLinesToSave);
-            removeOrderLines(commande, orderLinesToRemove);
-            commandeRepository.save(commande);
-        }
+        saveOrderLines(orderLinesToSave);
+        removeOrderLines(commande, orderLinesToRemove);
+        commandeRepository.save(commande);
         if (!orderLinesToRemove.isEmpty()) {
             orderLineService.deleteAll(orderLinesToRemove);
         }
@@ -836,57 +860,61 @@ public class CommandServiceImpl implements CommandService {
 
     private void proccessFileRecord(
         Commande commande,
-        String code,
+        ParsedCsvRecord parsed,
         List<VerificationResponseCommandeDTO.Item> items,
         List<VerificationResponseCommandeDTO.Item> extraItems,
-        int quantityReceived,
         Set<OrderLine> orderLinesToSave,
         Set<OrderLine> orderLinesToRemove
     ) {
-        getOrderLineInCommandeItems(commande.getOrderLines(), code).ifPresentOrElse(
+        getOrderLineInCommandeItems(commande.getOrderLines(), parsed.codeProduit()).ifPresentOrElse(
             orderLine -> {
                 log.info(
-                    "orderLine {} ==>> code {} quantityReceived {} qut {}",
+                    "orderLine {} → code {} qteConfirmée {} qteDemandée {}",
                     orderLine.getFournisseurProduit().getCodeCip(),
-                    code,
-                    quantityReceived,
+                    parsed.codeProduit(),
+                    parsed.quantityReceived(),
                     orderLine.getQuantityRequested()
                 );
-                VerificationResponseCommandeDTO.Item item = updateOrderItemQtyFromResponse(orderLine, quantityReceived);
-                if (quantityReceived > 0) {
+                VerificationResponseCommandeDTO.Item item = updateOrderItemFromResponse(orderLine, parsed);
+                if (parsed.quantityReceived() > 0) {
                     orderLinesToSave.add(orderLine);
                 } else {
                     orderLinesToRemove.add(orderLine);
                 }
                 items.add(item);
             },
-            () -> extraItems.add(new VerificationResponseCommandeDTO.Item().setCodeCip(code).setQuantitePriseEnCompte(quantityReceived))
+            () -> extraItems.add(
+                new VerificationResponseCommandeDTO.Item()
+                    .setCodeCip(parsed.codeProduit())
+                    .setQuantitePriseEnCompte(parsed.quantityReceived())
+            )
         );
     }
 
-    private VerificationResponseCommandeDTO verificationCommandeExcel(MultipartFile multipartFile, Commande commande) {
-        List<Pair<String, Integer>> records = new ArrayList<>();
+    private VerificationResponseCommandeDTO verificationCommandeExcel(MultipartFile multipartFile, Commande commande, ReponseCommandeColumnMap map) {
+        List<ParsedCsvRecord> records = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(multipartFile.getInputStream())) {
             for (Sheet sheet : workbook) {
+                int rowIndex = 0;
                 for (Row row : sheet) {
-                    String code = "";
-                    Cell codeCell = row.getCell(0);
-                    Cell qtyquantityReceivedCell = row.getCell(3);
-                    switch (codeCell.getCellType()) {
-                        case STRING:
-                            code = codeCell.getStringCellValue();
-                            break;
-                        case NUMERIC:
-                            try {
-                                code = String.valueOf(codeCell.getNumericCellValue());
-                            } catch (Exception ignored) {
-                            }
-                            break;
-                        default:
-                            break;
+                    if (map.hasHeader() && rowIndex == 0) {
+                        rowIndex++;
+                        continue;
                     }
-                    int quantityReceived = (int) qtyquantityReceivedCell.getNumericCellValue();
-                    records.add(Pair.of(code, quantityReceived));
+                    try {
+                        String code = extractStringCell(row.getCell(map.cipCol()));
+                        Cell qtyCell = row.getCell(map.qteCol());
+                        if (code.isBlank() || qtyCell == null) {
+                            rowIndex++;
+                            continue;
+                        }
+                        int quantityReceived = (int) qtyCell.getNumericCellValue();
+                        // Excel : pas de données lot/prix dans les formats actuels
+                        records.add(new ParsedCsvRecord(code, quantityReceived, quantityReceived, 0, 0, 0, 0, null, null));
+                    } catch (Exception e) {
+                        log.warn("Ligne Excel ignorée (index {}) : {}", rowIndex, e.getMessage());
+                    }
+                    rowIndex++;
                 }
             }
             return processVerificationFileContent(commande, records);
@@ -894,6 +922,18 @@ public class CommandServiceImpl implements CommandService {
             log.debug("{0}", e);
         }
         return new VerificationResponseCommandeDTO();
+    }
+
+    private String extractStringCell(Cell cell) {
+        if (cell == null) return "";
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> {
+                try { yield String.valueOf(cell.getNumericCellValue()); }
+                catch (Exception e) { yield ""; }
+            }
+            default -> "";
+        };
     }
 
     private void saveOrderLines(Set<OrderLine> orderLines) {
@@ -914,14 +954,23 @@ public class CommandServiceImpl implements CommandService {
         updateCommandeAmount(commande, grossAmount * (-1), orderAmount * (-1));
     }
 
-    private VerificationResponseCommandeDTO.Item updateOrderItemQtyFromResponse(OrderLine orderLine, int quantityReceived) {
-        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
-        Produit produit = fournisseurProduit.getProduit();
-
+    private VerificationResponseCommandeDTO.Item updateOrderItemFromResponse(OrderLine orderLine, ParsedCsvRecord parsed) {
+        int quantityReceived = parsed.quantityReceived();
         if (quantityReceived > 0) {
             orderLineService.updateOrderLineQuantityReceived(orderLine, quantityReceived);
+            if (parsed.orderCostAmount() > 0) {
+                orderLine.setOrderCostAmount(parsed.orderCostAmount());
+            }
+            if (parsed.orderUnitPrice() > 0) {
+                orderLine.setOrderUnitPrice(parsed.orderUnitPrice());
+            }
+            if (parsed.quantityUg() > 0) {
+                orderLine.setFreeQty(parsed.quantityUg());
+            }
+            buildLot(orderLine, quantityReceived, parsed.lotNumber(), parsed.expirationDate(), parsed.quantityUg(), null);
         }
-
+        FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+        Produit produit = fournisseurProduit.getProduit();
         return new VerificationResponseCommandeDTO.Item()
             .setCodeCip(fournisseurProduit.getCodeCip())
             .setProduitLibelle(produit.getLibelle())
@@ -1031,34 +1080,61 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId) {
-        Commande commande = findCommandeById(commandeId);
-        Integer  fournisseurId = commande.getFournisseur().getId();
+        Commande commande = findAndValidateCommandeForImport(commandeId);
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
-        suggestion
-            .getSuggestionLines()
-            .forEach(suggestionLine -> {
-                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine,fournisseurId);
-                Optional<OrderLine> existing = findOrderLineInSetOrderLine(
-                    commande.getOrderLines(),
-                    orderLine
-                );
-                if (existing.isPresent()) {
+        List<SuggestionLine> allLines = new ArrayList<>(suggestion.getSuggestionLines());
+        mergeAndCleanup(commande, suggestion, allLines);
+    }
 
-                    orderLine = existing.get();
-                    System.err.println("Duplicate order line " + orderLine.getFournisseurProduit().getCodeCip());
-                    int oldGross = orderLine.getQuantityRequested() * orderLine.getOrderCostAmount();
-                    int oldOrder = orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice();
-                    orderLine.setQuantityRequested(orderLine.getQuantityRequested() + suggestionLine.getQuantity());
-                    orderLineService.save(orderLine);
-                    updateCommandeAmount(commande, orderLine, oldGross, oldOrder);
-                } else {
-                    System.err.println("New order line " + orderLine.getFournisseurProduit().getCodeCip());
-                    orderLine.setCommande(commande);
-                    orderLineService.save(orderLine);
-                    updateCommandeAmount(commande, orderLine);
-                    commande.getOrderLines().add(orderLine);
-                }
-            });
+    @Override
+    public void importSuggestionLinesIntoCommande(CommandeId commandeId, Integer suggestionId, List<Integer> lineIds) {
+        Commande commande = findAndValidateCommandeForImport(commandeId);
+        Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
+        Set<Integer> lineIdSet = new HashSet<>(lineIds);
+        List<SuggestionLine> selectedLines = suggestion.getSuggestionLines().stream()
+            .filter(sl -> lineIdSet.contains(sl.getId()))
+            .collect(Collectors.toList());
+        mergeAndCleanup(commande, suggestion, selectedLines);
+    }
+
+    private Commande findAndValidateCommandeForImport(CommandeId commandeId) {
+        Commande commande = findCommandeById(commandeId);
+        if (commande.getOrderStatus() != OrderStatut.REQUESTED) {
+            throw new GenericError(
+                "Impossible d'importer dans une commande au statut " + commande.getOrderStatus(),
+                "commande"
+            );
+        }
+        return commande;
+    }
+
+    private void mergeAndCleanup(Commande commande, Suggestion suggestion, List<SuggestionLine> lines) {
+        Integer fournisseurId = commande.getFournisseur().getId();
+        lines.forEach(suggestionLine -> {
+            OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, fournisseurId);
+            Optional<OrderLine> existing = findOrderLineInSetOrderLine(commande.getOrderLines(), orderLine);
+            if (existing.isPresent()) {
+                OrderLine ol = existing.get();
+                int oldGross = ol.getQuantityRequested() * ol.getOrderCostAmount();
+                int oldOrder = ol.getQuantityRequested() * ol.getOrderUnitPrice();
+                ol.setQuantityRequested(ol.getQuantityRequested() + suggestionLine.getQuantity());
+                orderLineService.save(ol);
+                updateCommandeAmount(commande, ol, oldGross, oldOrder);
+            } else {
+                orderLine.setCommande(commande);
+                orderLineService.save(orderLine);
+                updateCommandeAmount(commande, orderLine);
+                commande.getOrderLines().add(orderLine);
+            }
+            // Retirer de la collection parente sinon Hibernate re-persiste la ligne en fin de transaction
+            suggestion.getSuggestionLines().remove(suggestionLine);
+        });
+        suggestionLineRepository.deleteAllInBatch(lines);
+        if (suggestion.getSuggestionLines().isEmpty()) {
+            suggestionRepository.delete(suggestion);
+        } else {
+            suggestionRepository.save(suggestion);
+        }
         commande.setUpdatedAt(LocalDateTime.now());
         commandeRepository.save(commande);
     }

@@ -17,6 +17,16 @@
   &--warn {
     .response-card-header { background: #d97706; }
   }
+
+  &--danger {
+    border-color: #dc2626;
+    .response-card-header { background: #dc2626; }
+  }
+
+  &--info {
+    border-color: #2563eb;
+    .response-card-header { background: #2563eb; }
+  }
 }
 
 .response-card-header {

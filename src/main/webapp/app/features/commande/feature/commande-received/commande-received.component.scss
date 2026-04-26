@@ -255,3 +255,27 @@
   color: #f59e0b;
   font-weight: 700;
 }
+
+// ── AG Grid row classes ────────────────────────────────────────────────────
+
+:host ::ng-deep {
+  .pharma-row-danger {
+    background-color: #fde8ea !important;
+    border-left: 3px solid #dc3545 !important;
+  }
+
+  .pharma-row-warning {
+    background-color: #fff8e1 !important;
+    border-left: 3px solid #fd7e14 !important;
+  }
+
+  .pharma-row-provisional {
+    background-color: #fffbeb !important;
+    border-left: 3px solid #f59e0b !important;
+
+    .ag-cell { font-style: italic; color: #78350f; }
+  }
+
+  .ag-row { font-size: 0.82rem; }
+  .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+}

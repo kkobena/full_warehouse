@@ -16,6 +16,8 @@
           optionValue="id"
           placeholder="Séléctionner un fournisseur "
           size="large"
+          (onShow)="onDropdownShow($event)"
+          (onHide)="onDropdownHide($event)"
         >
         </p-select>
       </div>

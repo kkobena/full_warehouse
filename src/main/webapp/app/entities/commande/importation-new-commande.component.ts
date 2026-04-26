@@ -15,12 +15,13 @@ import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
   styleUrls: ['./form-import-new.scss'],
-  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent],
+  imports: [CommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent],
 })
 export class ImportationNewCommandeComponent implements OnInit {
   header = '';

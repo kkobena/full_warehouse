@@ -24,32 +24,35 @@ import org.springframework.data.domain.Pageable;
 
 public interface SuggestionProduitService {
 
-    /**
-     * @deprecated Décommissionné depuis v12. Le batch {@code SemoisBatchJobService.creerSuggestionBatch()}
-     *             remplace cette approche post-vente.
-     */
-    @Deprecated(since = "2026-03", forRemoval = false)
-    void suggerer(List<QuantitySuggestion> quantitySuggestions, Magasin magasin, AppUser user);
+
 
     /**
      * Liste paginée des suggestions, avec filtres optionnels.
      * @param statut filtre par statut (GENEREE = Réapprovisionnement, VALIDEE = Commandes à passer). null = tous.
      */
-    Page<SuggestionProjection> getAllSuggestion(String search, Integer fournisseurId,
-        TypeSuggession typeSuggession, StatutSuggession statut, Pageable pageable);
+    Page<SuggestionProjection> getAllSuggestion(String search, Set<Integer> fournisseurIds,
+        TypeSuggession typeSuggession, Set<StatutSuggession> statut, Pageable pageable);
 
     /**
      * Compte les suggestions par statut — utilisé pour les badges onglets de l'UI.
      */
     long countByStatut(StatutSuggession statut);
 
-    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur();
-
     /**
-     * Liste par fournisseur filtrée par statut (v12).
-     * @param statut GENEREE = tab Réapprovisionnement, VALIDEE = tab Commandes à passer
+     * Résumé agrégé par fournisseur, avec filtres optionnels.
+     * @param statut         filtre par statut (null ou vide = tous)
+     * @param fournisseurIds filtre sur une liste de fournisseurs (null ou vide = tous)
+     * @param searchTerm     filtre produit sur codeCip, codeEan, libelle, codeEanLaboratoire (null = aucun filtre)
      */
-    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(StatutSuggession statut);
+    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm);
+
+    default List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur() {
+        return getSuggestionsParFournisseur(null, null, null);
+    }
+
+    default List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut) {
+        return getSuggestionsParFournisseur(statut, null, null);
+    }
 
     Optional<SuggestionDTO> getSuggestionById(Integer id);
 

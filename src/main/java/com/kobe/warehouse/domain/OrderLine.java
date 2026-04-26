@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -114,7 +115,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     @Column(name = "provisional_code")
     private Boolean provisionalCode = Boolean.FALSE;
 
-    @OneToMany(mappedBy = "orderLine", cascade = { jakarta.persistence.CascadeType.PERSIST, jakarta.persistence.CascadeType.REMOVE })
+    @OneToMany(mappedBy = "orderLine", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<Lot> lots = new ArrayList<>();
 
     @Column(name = "is_updated")

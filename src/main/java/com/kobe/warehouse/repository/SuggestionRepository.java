@@ -11,7 +11,9 @@ import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import jakarta.persistence.criteria.SetJoin;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -34,12 +36,16 @@ public interface SuggestionRepository
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.typeSuggession), typeSuggession);
     }
 
-    default Specification<Suggestion> filterByStatut(StatutSuggession statut) {
-        return (root, query, cb) -> cb.equal(root.get(Suggestion_.statut), statut);
+    default Specification<Suggestion> filterByStatut(EnumSet<StatutSuggession> statut) {
+        return (root, query, cb) -> root.get(Suggestion_.statut).in(statut);
     }
 
     default Specification<Suggestion> filterByFournisseurId(Integer fournisseurId) {
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.fournisseur).get(Fournisseur_.id), fournisseurId);
+    }
+
+    default Specification<Suggestion> filterByFournisseurIds(Set<Integer> fournisseurIds) {
+        return (root, query, cb) -> root.get(Suggestion_.fournisseur).get(Fournisseur_.id).in(fournisseurIds);
     }
 
     default Specification<Suggestion> filterByProduit(String search) {

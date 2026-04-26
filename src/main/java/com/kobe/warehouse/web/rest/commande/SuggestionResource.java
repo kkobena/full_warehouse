@@ -1,8 +1,8 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
-import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
@@ -13,12 +13,10 @@ import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
+import com.kobe.warehouse.web.util.PaginationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +27,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -41,16 +45,18 @@ public class SuggestionResource {
     }
 
     @GetMapping("/suggestions")
-    public ResponseEntity<Page<SuggestionProjection>> getAllSuggestions(
+    public ResponseEntity<List<SuggestionProjection>> getAllSuggestions(
         @RequestParam(required = false) String search,
-        @RequestParam(required = false) Integer fournisseurId,
+        @RequestParam(required = false) Set<Integer> fournisseurIds,
         @RequestParam(required = false) TypeSuggession typeSuggession,
-        @RequestParam(required = false) StatutSuggession statut,
+        @RequestParam(required = false) Set<StatutSuggession> statut,
         Pageable pageable
     ) {
-        return ResponseEntity.ok(
-            suggestionProduitService.getAllSuggestion(search, fournisseurId, typeSuggession, statut, pageable)
-        );
+
+        Page<SuggestionProjection> page = suggestionProduitService.getAllSuggestion(search, fournisseurIds, typeSuggession, statut, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+
     }
 
     /**
@@ -64,9 +70,11 @@ public class SuggestionResource {
 
     @GetMapping("/suggestions/par-fournisseur")
     public ResponseEntity<List<FournisseurSuggestionSummaryDTO>> getSuggestionsParFournisseur(
-        @RequestParam(required = false) StatutSuggession statut
+        @RequestParam(required = false) Set<StatutSuggession> statut,
+        @RequestParam(required = false) Set<Integer> fournisseurIds,
+        @RequestParam(required = false) String search
     ) {
-        return ResponseEntity.ok(suggestionProduitService.getSuggestionsParFournisseur(statut));
+        return ResponseEntity.ok(suggestionProduitService.getSuggestionsParFournisseur(statut, fournisseurIds, search));
     }
 
     @GetMapping("/suggestions/{id}")
@@ -76,15 +84,16 @@ public class SuggestionResource {
     }
 
     @GetMapping("/suggestions/{id}/lines")
-    public ResponseEntity<Page<SuggestionLineDTO>> getSuggestionLines(
+    public ResponseEntity<List<SuggestionLineDTO>> getSuggestionLines(
         @PathVariable Integer id,
         @RequestParam(required = false) String search,
         @RequestParam(required = false) String niveauUrgence,
         Pageable pageable
     ) {
-        return ResponseEntity.ok(
-            suggestionProduitService.getSuggestionLinesByIdWithConsommation(id, search, niveauUrgence, pageable)
-        );
+        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesByIdWithConsommation(id, search, niveauUrgence, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+
     }
 
     /**

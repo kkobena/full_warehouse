@@ -122,7 +122,8 @@ export class CommandeReceivedComponent implements OnInit {
     "pharma-row-warning": p =>
       !!p.data &&
       p.data.costAmount === p.data.orderCostAmount &&
-      p.data.regularUnitPrice !== p.data.orderUnitPrice
+      p.data.regularUnitPrice !== p.data.orderUnitPrice,
+    "pharma-row-provisional": p => !!p.data?.provisionalCode
   };
 
   protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
@@ -598,11 +599,20 @@ export class CommandeReceivedComponent implements OnInit {
         field: "produitCip",
         headerName: "Code",
         width: 95,
-        editable: p => p.data?.provisionalCode === true,
-        cellStyle: (p: any) =>
-          p.data?.provisionalCode
-            ? { fontFamily: "monospace", fontSize: "12px", background: "rgba(59,130,246,0.08)" }
-            : { fontFamily: "monospace", fontSize: "12px" }
+        headerTooltip: "Code CIP — italique = code provisoire, cliquez pour saisir le CIP",
+        editable: (p: any) => !!p.data?.provisionalCode,
+        cellEditor: "agTextCellEditor",
+        cellRenderer: (p: any) => {
+          if (!p.data) return "";
+          const cip = p.data.produitCip ?? "";
+          if (p.data.provisionalCode) {
+            return `<span
+              style="display:inline-flex;align-items:center;gap:4px;font-family:monospace;font-size:12px;font-style:italic;color:#856404;cursor:pointer;"
+              title="Code CIP provisoire — cliquez pour saisir le CIP définitif."
+            ><i class="pi pi-exclamation-circle" style="color:#e6a817;font-size:11px;flex-shrink:0;"></i>${cip || "Cliquer pour saisir"}</span>`;
+          }
+          return `<span style="font-family:monospace;font-size:12px;">${cip}</span>`;
+        }
       },
       {
         field: "produitLibelle",
@@ -682,6 +692,7 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         editable: true,
         cellEditor: "agNumberCellEditor",
+        cellEditorParams: {preventStepping: true},
         cellRenderer: (p: any) => {
           if (!p.data) return "";
           const qty = p.data.quantityReceivedTmp;
@@ -701,7 +712,8 @@ export class CommandeReceivedComponent implements OnInit {
         width: 80,
         type: "numericColumn",
         editable: true,
-        cellEditor: "agNumberCellEditor"
+        cellEditor: "agNumberCellEditor",
+        cellEditorParams: {preventStepping: true},
       },
       {
         headerName: "Stock.après",

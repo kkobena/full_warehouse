@@ -1,8 +1,13 @@
-import { Component, effect, inject, Injector, input, signal, untracked, viewChild } from "@angular/core";
+import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild } from "@angular/core";
 import { CommonModule, DecimalPipe } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonModule } from "primeng/button";
 import { TooltipModule } from "primeng/tooltip";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
 import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
 import {
   SuggestionFournisseurListComponent
@@ -18,6 +23,11 @@ import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-ac
 import { NotificationService } from "app/shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { Toast } from "primeng/toast";
+import { FournisseurService } from "../../../../entities/fournisseur/fournisseur.service";
+import { IFournisseur } from "../../../../shared/model/fournisseur.model";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, Subject } from "rxjs";
+import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
 
 @Component({
   selector: "app-suggestion-home",
@@ -25,12 +35,17 @@ import { Toast } from "primeng/toast";
   styleUrls: ["./suggestion-home.component.scss"],
   imports: [
     CommonModule,
+    FormsModule,
     SuggestionFournisseurListComponent,
     SuggestionProduitPanelComponent,
     ButtonModule,
     TooltipModule,
     DecimalPipe,
-    Toast
+    Toast,
+    IconField,
+    InputIcon,
+    InputTextModule,
+    MultiSelectModule,
   ]
 })
 export class SuggestionHomeComponent {
@@ -39,18 +54,19 @@ export class SuggestionHomeComponent {
   private readonly injector = inject(Injector);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-
-
-  /**
-   * Filtre par statut (v12) — signal input réactif :
-   * - 'GENEREE'  → onglet "Réapprovisionnement"
-   * - 'VALIDEE'  → onglet "Commandes à passer"
-   * - undefined  → tous
-   */
-  readonly statut = input<"GENEREE" | "VALIDEE" | undefined>(undefined);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
   readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
+
+  // ── List-level filters ─────────────────────────────────────────────────────
+  readonly listSearch = signal('');
+  readonly listFournisseurIds = signal<number[]>([]);
+  readonly fournisseurOptions = signal<IFournisseur[]>([]);
+
+  private readonly listSearchSubject = new Subject<string>();
+  private readonly listFournisseurIds$ = toObservable(this.listFournisseurIds);
 
   // ── Bulk actions (propagées depuis le composant enfant) ────────────────────
   private readonly sfList = viewChild(SuggestionFournisseurListComponent);
@@ -58,10 +74,17 @@ export class SuggestionHomeComponent {
   readonly childCanFusionner = signal<boolean>(false);
 
   constructor() {
-    // Réagit à chaque changement du statut (y compris l'init)
-    effect(() => {
-      this.facade.loadAll(this.statut());
+    // Charge les options du multiselect une seule fois
+    this.fournisseurService.query({ page: 0, size: 999 }).subscribe({
+      next: res => this.fournisseurOptions.set(res.body ?? []),
     });
+
+    // Recharge la liste à chaque changement de search (debounced) ou fournisseurs (init inclus via startWith)
+    combineLatest([
+      this.listSearchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith('')),
+      this.listFournisseurIds$,
+    ]).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([search, ids]) => this.facade.loadAll(['GENEREE', 'VALIDEE'], search, ids));
 
     // After loadAll(), selectedFournisseur is cleared. Re-select if still editing.
     effect(() => {
@@ -75,6 +98,15 @@ export class SuggestionHomeComponent {
         }
       }
     });
+  }
+
+  onListSearchChange(value: string): void {
+    this.listSearch.set(value);
+    this.listSearchSubject.next(value);
+  }
+
+  onListFournisseurChange(ids: number[]): void {
+    this.listFournisseurIds.set(ids ?? []);
   }
 
   onFournisseurSelected(f: FournisseurSuggestionSummary): void {
@@ -272,15 +304,15 @@ export class SuggestionHomeComponent {
     this.childCanFusionner.set(b);
   }
 
-  onFusionnerBulk(): void {
+  protected onFusionnerBulk(): void {
     this.sfList()?.onFusionner();
   }
 
-  onSupprimerBulk(): void {
+  protected onSupprimerBulk(): void {
     this.sfList()?.onSupprimerSelection();
   }
 
-  onFusionnerSuggestions(ids: number[]): void {
+  protected onFusionnerSuggestions(ids: number[]): void {
     if (ids.length < 2) return;
     this.confirmDialog.onConfirm(
       () => this.facade.fusionnerSuggestions(ids),
@@ -289,11 +321,11 @@ export class SuggestionHomeComponent {
     );
   }
 
-  onRecalculer(): void {
-    this.facade.recalculerSemois(this.statut());
+  protected onRecalculer(): void {
+    this.facade.recalculerSemois();
   }
 
-  onValiderDirect(f: FournisseurSuggestionSummary): void {
+ protected onValiderDirect(f: FournisseurSuggestionSummary): void {
     if (!f.suggestionId) return;
     this.confirmDialog.onConfirm(
       () => {
@@ -305,19 +337,19 @@ export class SuggestionHomeComponent {
     );
   }
 
-  onExportPdfDirect(f: FournisseurSuggestionSummary): void {
+  protected onExportPdfDirect(f: FournisseurSuggestionSummary): void {
     if (!f.suggestionId) return;
     this.facade.selectFournisseur(f);
     this.facade.exporterPdf();
   }
 
-  onExportCsvDirect(f: FournisseurSuggestionSummary): void {
+  protected onExportCsvDirect(f: FournisseurSuggestionSummary): void {
     if (!f.suggestionId) return;
     this.facade.selectFournisseur(f);
     this.facade.exporterCsv();
   }
 
-  onCommanderDirect(f: FournisseurSuggestionSummary): void {
+  protected onCommanderDirect(f: FournisseurSuggestionSummary): void {
     this.onFournisseurSelected(f);
   }
 

@@ -5,6 +5,8 @@ export class Suggestion {
   updatedAt: Date;
   typeSuggession: string;
   fournisseurId: number;
+  montantEstimeAchat?: number;
+  montantEstimeVente?: number;
   fournisseurLibelle: string;
   statut: string;
   statutLibelle: string;

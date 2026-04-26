@@ -1,32 +1,36 @@
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { createRequestOptions } from '../../../shared/util/request-util';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { SERVER_API_URL } from '../../../app.constants';
-import { Suggestion } from './model/suggestion.model';
-import { Keys } from '../../../shared/model/keys.model';
-import { SuggestionLine } from './model/suggestion-line.model';
-import { FournisseurSuggestionSummary } from '../../../features/commande/feature/suggestion/data-access/suggestion-enrichie.model';
+import { inject, Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { createRequestOptions } from "../../../shared/util/request-util";
+import { HttpClient, HttpResponse } from "@angular/common/http";
+import { SERVER_API_URL } from "../../../app.constants";
+import { Suggestion } from "./model/suggestion.model";
+import { Keys } from "../../../shared/model/keys.model";
+import { SuggestionLine } from "./model/suggestion-line.model";
+import {
+  FournisseurSuggestionSummary
+} from "../../../features/commande/feature/suggestion/data-access/suggestion-enrichie.model";
 import { IFournisseurProduit } from "../../../shared/model";
-import { CommandeId } from '../../../shared/model/abstract-commande.model';
+import { CommandeId } from "../../../shared/model/abstract-commande.model";
 
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root"
 })
 export class SuggestionService {
-  private readonly  http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  private readonly resourceUrl = SERVER_API_URL + 'api/suggestions';
+  private readonly resourceUrl = SERVER_API_URL + "api/suggestions";
 
-  queryParFournisseur(statut?: 'GENEREE' | 'VALIDEE'): Observable<FournisseurSuggestionSummary[]> {
-    const params: Record<string, string> = {};
-    if (statut) params['statut'] = statut;
+  queryParFournisseur(statut?: string[], search?: string, fournisseurIds?: number[]): Observable<FournisseurSuggestionSummary[]> {
+    const params: Record<string, any> = {};
+    if (statut?.length) params['statut'] = statut;
+    if (search) params['search'] = search;
+    if (fournisseurIds?.length) params['fournisseurIds'] = fournisseurIds;
     return this.http.get<FournisseurSuggestionSummary[]>(this.resourceUrl + '/par-fournisseur', { params });
   }
 
-  countByStatut(statut: 'GENEREE' | 'VALIDEE'): Observable<number> {
+  countByStatut(statut: "GENEREE" | "VALIDEE"): Observable<number> {
     return this.http.get<number>(`${this.resourceUrl}/count-by-statut`, { params: { statut } });
   }
 
@@ -34,7 +38,7 @@ export class SuggestionService {
     const options = createRequestOptions(req);
     return this.http.get<Suggestion[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: "response"
     });
   }
 
@@ -43,34 +47,33 @@ export class SuggestionService {
     const options = createRequestOptions(rest);
     return this.http.get<SuggestionLine[]>(`${this.resourceUrl}/${suggestionId}/lines`, {
       params: options,
-      observe: 'response',
+      observe: "response"
     });
   }
 
   /** Charge toutes les lignes sans pagination — pour le composant d'édition. */
   queryAllLines(id: number, search?: string, niveauUrgence?: string): Observable<SuggestionLine[]> {
     const params: Record<string, string> = {};
-    if (search) params['search'] = search;
-    if (niveauUrgence) params['niveauUrgence'] = niveauUrgence;
+    if (search) params["search"] = search;
+    if (niveauUrgence) params["niveauUrgence"] = niveauUrgence;
     return this.http.get<SuggestionLine[]>(`${this.resourceUrl}/${id}/all-lines`, { params });
   }
 
 
-
   find(id: number): Observable<HttpResponse<Suggestion>> {
-    return this.http.get<Suggestion>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+    return this.http.get<Suggestion>(`${this.resourceUrl}/${id}`, { observe: "response" });
   }
 
   delete(ids: Keys): Observable<HttpResponse<void>> {
-    return this.http.post<void>(this.resourceUrl + '/delete', ids, { observe: 'response' });
+    return this.http.post<void>(this.resourceUrl + "/delete", ids, { observe: "response" });
   }
 
   deleteItem(ids: Keys): Observable<HttpResponse<void>> {
-    return this.http.post<void>(this.resourceUrl + '/delete/lines', ids, { observe: 'response' });
+    return this.http.post<void>(this.resourceUrl + "/delete/lines", ids, { observe: "response" });
   }
 
   fusionner(ids: Keys): Observable<HttpResponse<void>> {
-    return this.http.post<void>(this.resourceUrl + '/fusionner', ids, { observe: 'response' });
+    return this.http.post<void>(this.resourceUrl + "/fusionner", ids, { observe: "response" });
   }
 
   /** Nettoie (sanitize) une suggestion — supprime les lignes inutiles. */
@@ -79,15 +82,15 @@ export class SuggestionService {
   }
 
   exportToCsv(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/${id}/export-csv`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/${id}/export-csv`, { responseType: "blob" });
   }
 
   createOrUpdateItem(item: SuggestionLine, id: number): Observable<HttpResponse<void>> {
-    return this.http.post<void>(`${this.resourceUrl}/add-item/${id}`, item, { observe: 'response' });
+    return this.http.post<void>(`${this.resourceUrl}/add-item/${id}`, item, { observe: "response" });
   }
 
   updateQuantity(item: SuggestionLine): Observable<HttpResponse<void>> {
-    return this.http.put<void>(this.resourceUrl + '/lines/quantity', item, { observe: 'response' });
+    return this.http.put<void>(this.resourceUrl + "/lines/quantity", item, { observe: "response" });
   }
 
   /** Réinitialise le flag quantiteModifieeManuel — le batch peut à nouveau calculer la qté. */
@@ -96,7 +99,7 @@ export class SuggestionService {
   }
 
   exportToPdf(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/${id}/export-pdf`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/${id}/export-pdf`, { responseType: "blob" });
   }
 
   /** Commande toute la suggestion (toutes les lignes). Retourne le CommandeId de la commande créée.
@@ -104,12 +107,16 @@ export class SuggestionService {
    */
   commander(id: number, fournisseurId?: number): Observable<CommandeId> {
     const params: Record<string, string> = {};
-    if (fournisseurId != null) params['fournisseurId'] = fournisseurId.toString();
+    if (fournisseurId != null) params["fournisseurId"] = fournisseurId.toString();
     return this.http.post<CommandeId>(`${this.resourceUrl}/${id}/commander`, {}, { params });
   }
 
   /** Commande une sélection de lignes. Retourne le CommandeId de la commande créée. */
-  commanderSelection(dto: { suggestionId: number; lignes: { suggestionLineId: number; quantite: number }[]; fournisseurId?: number }): Observable<CommandeId> {
+  commanderSelection(dto: {
+    suggestionId: number;
+    lignes: { suggestionLineId: number; quantite: number }[];
+    fournisseurId?: number
+  }): Observable<CommandeId> {
     return this.http.post<CommandeId>(`${this.resourceUrl}/commander-selection`, dto);
   }
 

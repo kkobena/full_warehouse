@@ -1,5 +1,32 @@
 @use 'app/shared/scss/modal-theme' as *;
 @use 'app/shared/scss/table-common'  as *;
+
 :host {
   @include modal-theme;
+}
+
+.suggestion-lines-panel {
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem 1rem 0.75rem;
+}
+
+.suggestion-lines-table {
+  font-size: 0.8rem;
+
+  th {
+    background: #eef2f7;
+    color: #374151;
+    font-weight: 600;
+    padding: 0.35rem 0.5rem;
+  }
+
+  td {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  tr.line-selected td {
+    background: #eff6ff;
+  }
 }

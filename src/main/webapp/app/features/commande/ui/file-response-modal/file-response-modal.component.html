@@ -4,10 +4,26 @@
 </div>
 <div class="modal-body">
   <p-card>
+    <div class="form-group mb-1">
+      <label class="form-label fw-semibold" for="model-select">Format du fichier grossiste</label>
+      <p-select
+        [(ngModel)]="selectedModel"
+        [options]="models"
+        inputId="model-select"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Sélectionner le format..."
+        class="w-100"
+        (onShow)="onDropdownShow($event)"
+        (onHide)="onDropdownHide($event)"
+      />
+    </div>
     <div class="form-group">
       <p-fileupload
-        (uploadHandler)="onImporterReponseCommande($event)"
+        #fileUploadRef
+        (uploadHandler)="onImporterReponseCommande($event, fileUploadRef)"
         [customUpload]="true"
+        [disabled]="!selectedModel"
         accept=".csv,.xls,.xlsx"
         cancelLabel="Annuler"
         chooseLabel="Importer un fichier"

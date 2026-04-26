@@ -146,14 +146,16 @@ public class CommandeResource {
             .build();
     }
 
-    @PostMapping("/commandes/verification-commande-en-cours/{id}/{orderDate}")
+    @PostMapping("/commandes/verification-commande-en-cours/{id}/{orderDate}/{model}")
     public ResponseEntity<VerificationResponseCommandeDTO> importerReponseCommande(
         @PathVariable("id") Integer id,
         @PathVariable("orderDate") LocalDate orderDate,
+        @PathVariable("model") CommandeModel model,
         @RequestPart("commande") MultipartFile file
     ) {
         VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(
             new CommandeId(id, orderDate),
+            model,
             file
         );
         return ResponseEntity.ok(verificationResponseCommandeDTO);
@@ -224,6 +226,17 @@ public class CommandeResource {
         @RequestParam Integer suggestionId
     ) {
         commandService.importSuggestionIntoCommande(new CommandeId(id, orderDate), suggestionId);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/commandes/{id}/{orderDate}/import-suggestion-lines")
+    public ResponseEntity<Void> importSuggestionLinesIntoCommande(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate,
+        @RequestParam Integer suggestionId,
+        @RequestBody List<Integer> lineIds
+    ) {
+        commandService.importSuggestionLinesIntoCommande(new CommandeId(id, orderDate), suggestionId, lineIds);
         return ResponseEntity.accepted().build();
     }
 }

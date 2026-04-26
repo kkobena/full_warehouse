@@ -247,7 +247,6 @@ public class SemoisResource {
      * Retourne 409 Conflict si un recalcul est déjà en cours.
      */
     @PostMapping("/recalculate")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<MessageResponse> triggerRecalculation() {
         LOG.info("REST request to force SEMOIS recalculation (bypasses daily guard)");
         try {

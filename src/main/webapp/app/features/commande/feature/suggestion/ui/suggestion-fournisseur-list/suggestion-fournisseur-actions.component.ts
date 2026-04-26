@@ -5,7 +5,7 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { FournisseurSuggestionSummary } from '../../data-access/suggestion-enrichie.model';
 
-export type SuggestionFournisseurAction = 'valider' | 'commander' | 'exportPdf' | 'exportCsv' | 'supprimer';
+export type SuggestionFournisseurAction = 'editer' | 'valider' | 'commander' | 'exportPdf' | 'exportCsv' | 'supprimer';
 
 @Component({
   selector: 'app-suggestion-fournisseur-actions',
@@ -31,6 +31,13 @@ export class SuggestionFournisseurActionsComponent {
   protected readonly menuItems = computed<MenuItem[]>(() => {
     const statut = this.fournisseur().statut;
     const items: MenuItem[] = [];
+
+    items.push({
+      label: 'Éditer',
+      icon: 'pi pi-pencil',
+      command: () => this.menuAction.emit('editer')
+    });
+    items.push({ separator: true });
 
     if (statut !== 'VALIDEE') {
       items.push({

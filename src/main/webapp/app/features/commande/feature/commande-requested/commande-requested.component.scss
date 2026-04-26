@@ -195,6 +195,13 @@
     border-left: 3px solid #fd7e14 !important;
   }
 
+  .pharma-row-provisional {
+    background-color: #fffbeb !important;
+    border-left: 3px solid #f59e0b !important;
+
+    .ag-cell { font-style: italic; color: #78350f; }
+  }
+
   .ag-row { font-size: 0.82rem; }
   .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
 }

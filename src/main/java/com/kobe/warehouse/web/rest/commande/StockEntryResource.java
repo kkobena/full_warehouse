@@ -82,8 +82,8 @@ public class StockEntryResource {
         @RequestParam Integer commandeId,
         @RequestParam String orderDate
     ) {
-        List<OrderLineDTO> lignes = stockEntryService.findLignesAvecEcartPrix(commandeId, LocalDate.parse(orderDate));
-        return ResponseEntity.ok(lignes);
+
+        return ResponseEntity.ok(stockEntryService.findLignesAvecEcartPrix(commandeId, LocalDate.parse(orderDate)));
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-cost-amount")

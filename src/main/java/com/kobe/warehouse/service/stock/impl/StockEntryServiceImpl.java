@@ -134,16 +134,11 @@ public class StockEntryServiceImpl implements StockEntryService {
             orderLine.getQuantityReceived().compareTo(orderLine.getQuantityRequested()) == 0;
     };
 
-    private final Predicate<OrderLine> lotPredicate = orderLine -> {
-
-            return (
-                !CollectionUtils.isEmpty(orderLine.getLots()) &&
-                orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-                orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
-            );
-
-
-    };
+    private final Predicate<OrderLine> lotPredicate = orderLine -> (
+        !CollectionUtils.isEmpty(orderLine.getLots()) &&
+        orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+        orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
+    );
 
     private final Predicate<OrderLine> cipNotSet = orderLine ->
         org.springframework.util.StringUtils.hasLength(orderLine.getFournisseurProduit().getCodeCip());
@@ -666,7 +661,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         Commande commande = new Commande();
         commande.setId(commandeIdGeneratorService.getNextIdAsInt());
         commande.setOrderDate(LocalDate.now());
-        commande.setType(TypeDeliveryReceipt.DIRECT);
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(storageService.getUser());

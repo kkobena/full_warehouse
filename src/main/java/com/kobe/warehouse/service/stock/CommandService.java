@@ -48,7 +48,7 @@ public interface CommandService {
 
     void deleteAll(List<CommandeId> ids);
 
-    VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, MultipartFile multipartFile);
+    VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, CommandeModel model, MultipartFile multipartFile);
 
     CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
@@ -79,6 +79,8 @@ public interface CommandService {
     void createCommandeFromSemoisLines(Integer fournisseurId, List<SemoisCommanderDTO.LigneSemois> lignes);
 
     void importSuggestionIntoCommande(CommandeId commandeId, Integer suggestionId);
+
+    void importSuggestionLinesIntoCommande(CommandeId commandeId, Integer suggestionId, List<Integer> lineIds);
 
     void changeGrossiste(CommandeDTO commandeDTO);
 

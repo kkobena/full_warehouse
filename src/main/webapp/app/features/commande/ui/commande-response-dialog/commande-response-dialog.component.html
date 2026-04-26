@@ -8,6 +8,28 @@
 <div class="modal-body">
   <div class="row g-3">
 
+    <!-- Bandeau rupture totale -->
+    @if (responseCommande?.allLinesInRupture) {
+      <div class="col-12">
+        <div class="response-card response-card--danger">
+          <div class="response-card-header">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>Tous les produits sont en rupture — aucune ligne confirmée par le grossiste</span>
+          </div>
+          <div class="response-card-body d-flex align-items-center gap-3">
+            <span class="text-muted small">La commande n'a pas été modifiée. Vous pouvez la supprimer ou la conserver pour révision.</span>
+            <p-button
+              label="Supprimer la commande"
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              (click)="onDeleteCommande()"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- Produits pris en compte -->
     <div [class]="responseCommandeItemNonPrisEnCompte.length > 0 ? 'col-sm-3' : 'col-sm-8'">
       <div class="response-card response-card--success">
@@ -18,7 +40,7 @@
         <div class="response-card-body">
           <span class="response-counter">
             {{ responseCommandeItem.length | number }}
-            <span class="response-counter-total">/ {{ (commande?.orderLines)!.length | number }}</span>
+            <span class="response-counter-total">/ {{ (commande?.orderLines?.length ?? 0) | number }}</span>
           </span>
         </div>
       </div>
@@ -33,7 +55,7 @@
             <span>Produits en rupture ou partiels</span>
             <span class="response-counter-badge ms-auto">
               {{ responseCommandeItemNonPrisEnCompte.length | number }}
-              / {{ (commande?.orderLines)!.length | number }}
+              / {{ (commande?.orderLines?.length ?? 0) | number }}
             </span>
           </div>
           <div class="response-card-body">
@@ -67,6 +89,37 @@
                 </tbody>
               </table>
             }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Produits hors commande (extraItems) -->
+    @if (extraItems.length > 0) {
+      <div class="col-12">
+        <div class="response-card response-card--info">
+          <div class="response-card-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Produits hors commande proposés par le grossiste</span>
+            <span class="response-counter-badge ms-auto">{{ extraItems.length | number }}</span>
+          </div>
+          <div class="response-card-body">
+            <table class="pharma-table">
+              <thead>
+                <tr class="pharma-table-head">
+                  <th>Code CIP</th>
+                  <th class="text-right">Qté proposée</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of extraItems; track item.codeCip) {
+                  <tr>
+                    <td class="pharma-code">{{ item.codeCip }}</td>
+                    <td class="text-right">{{ item.quantitePriseEnCompte | number }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

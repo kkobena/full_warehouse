@@ -13,16 +13,12 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
-import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
-import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.Status;
-import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
-import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.service.EtatProduitService;
@@ -44,6 +40,16 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
+import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,6 +59,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,17 +70,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import jakarta.persistence.EntityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -90,12 +86,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     private final EtatProduitService etatProduitService;
     private final CommandService commandService;
     private final CsvExportService csvExportService;
-    private final SemoisConfigurationRepository semoisConfigurationRepository;
-    private final SemoisClasseConfigRepository semoisClasseConfigRepository;
     private final EntityManager em;
     private final SuggestionPdfReportService suggestionPdfReportService;
     private final ProduitRepository produitRepository;
-    /** Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison. */
+    /**
+     * Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison.
+     */
     private final OrderLineRepository orderLineRepository;
 
 
@@ -109,8 +105,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         EtatProduitService etatProduitService,
         CommandService commandService,
         CsvExportService csvExportService,
-        SemoisConfigurationRepository semoisConfigurationRepository,
-        SemoisClasseConfigRepository semoisClasseConfigRepository,
         EntityManager em,
         SuggestionPdfReportService suggestionPdfReportService,
         ProduitRepository produitRepository,
@@ -125,143 +119,10 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         this.etatProduitService = etatProduitService;
         this.commandService = commandService;
         this.csvExportService = csvExportService;
-        this.semoisConfigurationRepository = semoisConfigurationRepository;
-        this.semoisClasseConfigRepository = semoisClasseConfigRepository;
         this.em = em;
         this.suggestionPdfReportService = suggestionPdfReportService;
         this.produitRepository = produitRepository;
         this.orderLineRepository = orderLineRepository;
-    }
-
-    @Async
-    @Override
-    public void suggerer(List<QuantitySuggestion> quantitySuggestions, Magasin magasin, AppUser user) {
-        if (CollectionUtils.isEmpty(quantitySuggestions)) return;
-
-        boolean isSemois = appConfigurationService.getCurrentModelReappro() == ModelReapprovisionnement.SEMOIS;
-        int couvertureMois = appConfigurationService.getCouvertureMoisClassique();
-
-        // ── 1. Pré-filtrage : on garde les produits éligibles uniquement ──────────
-        List<QuantitySuggestion> eligibles = quantitySuggestions.stream()
-            .filter(q -> etatProduitService.canSuggere(q.produit().getId()))
-            .toList();
-        if (eligibles.isEmpty()) return;
-
-        // ── 2. Batch-load SEMOIS configs (surcharges par produit, optionnel) ───────
-        Set<Integer> allProduitIds = eligibles.stream()
-            .map(q -> q.produit().getId())
-            .collect(Collectors.toSet());
-        Map<Integer, SemoisConfiguration> semoisConfigByProduitId = semoisConfigurationRepository
-            .findByProduitIdIn(allProduitIds)
-            .stream()
-            .collect(Collectors.toMap(sc -> sc.getProduit().getId(), Function.identity()));
-
-        // ── 3. Charger les configs de classe SEMOIS (5 lignes max, L2-cached) ─────
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs = isSemois
-            ? semoisClasseConfigRepository.findAll().stream()
-                .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()))
-            : Map.of();
-
-        // ── 4. Batch-load VMM — par classe si SEMOIS (nbMoisHistorique spécifique),
-        //       sinon global nthMois ──────────────────────────────────────────────
-        Map<Integer, Integer> vmmByProduitId = isSemois
-            ? loadVmmForProduitsBySemoisClass(eligibles, classeConfigs)
-            : loadVmmForProduits(allProduitIds, appConfigurationService.getNthMoisConsommation());
-
-        // ── 5. Batch-load lignes existantes (évite N+1 par produit) ───────────────
-        Set<Integer> allFpIds = eligibles.stream()
-            .map(q -> q.produit().getFournisseurProduitPrincipal().getId())
-            .collect(Collectors.toSet());
-        Map<Integer, SuggestionLine> existingLineByFpId = suggestionLineRepository
-            .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, allFpIds)
-            .stream()
-            .collect(Collectors.toMap(l -> l.getFournisseurProduit().getId(), Function.identity()));
-
-        // ── 5b. Batch-load commandes en attente — STOCK VIRTUEL (Axe 1) ──────────
-        // Produits déjà commandés (REQUESTED) mais non encore reçus.
-        // On les soustrait du calcul pour ne pas commander en double.
-        Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(allProduitIds);
-        if (!pendingQtyByProduitId.isEmpty()) {
-            LOG.debug("Stock virtuel chargé : {} produit(s) ont des commandes en attente", pendingQtyByProduitId.size());
-        }
-
-        // ── 6. Regroupement par fournisseur ──────────────────────────────────────
-        Map<Fournisseur, List<QuantitySuggestion>> byFournisseur = eligibles.stream()
-            .collect(Collectors.groupingBy(q -> q.produit().getFournisseurProduitPrincipal().getFournisseur()));
-
-        List<Suggestion> suggestionsToSave = new ArrayList<>();
-        List<SuggestionLine> linesToSave = new ArrayList<>();
-
-        for (Map.Entry<Fournisseur, List<QuantitySuggestion>> entry : byFournisseur.entrySet()) {
-            Fournisseur fournisseur = entry.getKey();
-            List<QuantitySuggestion> values = entry.getValue();
-
-            AtomicBoolean suggestionExist = new AtomicBoolean(false);
-            Suggestion suggestion = getSuggestion(fournisseur, suggestionExist, magasin, user);
-            boolean alreadyExisted = suggestionExist.get();
-
-            for (QuantitySuggestion qs : values) {
-                Produit produit = qs.produit();
-                FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-                boolean isDetail = false;
-                int quantitySold = qs.quantitySold();
-
-                if (produit.getTypeProduit() == TypeProduit.DETAIL) {
-                    isDetail = true;
-                    produit = produit.getParent();
-                    quantitySold = Math.ceilDiv(quantitySold, produit.getItemQty());
-                }
-
-                int produitAllSock = produit.getStockProduits().stream()
-                    .filter(s -> s.getStorage().getMagasin().equals(magasin))
-                    .mapToInt(StockProduit::getTotalStockQuantity)
-                    .sum();
-                if (isDetail) {
-                    produitAllSock -= quantitySold;
-                }
-
-                // Axe 1 — Stock virtuel : stock physique + commandes REQUESTED en attente
-                // Évite de commander des produits déjà en cours de livraison
-                int qtesEnCommande = pendingQtyByProduitId.getOrDefault(produit.getId(), 0);
-                int stockVirtuel = produitAllSock + qtesEnCommande;
-
-                SemoisConfiguration semoisConfig = semoisConfigByProduitId.get(produit.getId());
-                int vmm = vmmByProduitId.getOrDefault(produit.getId(), 0);
-
-                // Utiliser stockVirtuel pour le seuil : si le stock virtuel couvre déjà l'objectif, pas de suggestion
-                if (stockVirtuel > seuilReappro(produit, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs)) continue;
-
-                // Utiliser stockVirtuel pour le calcul de la quantité : on ne commande que le delta restant
-                int qty = computeQtyReappro(produit, stockVirtuel, semoisConfig, fournisseur, vmm, couvertureMois, isSemois, classeConfigs);
-                if (qty <= 0) continue; // Sécurité : ne jamais suggérer une quantité nulle ou négative
-                SuggestionLine existingLine = existingLineByFpId.get(fournisseurProduit.getId());
-
-                if (existingLine != null) {
-                    existingLine.setQuantity(qty);
-                    existingLine.setUpdatedAt(LocalDateTime.now());
-                    linesToSave.add(existingLine);
-                } else {
-                    SuggestionLine newLine = new SuggestionLine();
-                    newLine.setCreatedAt(LocalDateTime.now());
-                    newLine.setUpdatedAt(newLine.getCreatedAt());
-                    newLine.setQuantity(qty);
-                    newLine.setFournisseurProduit(fournisseurProduit);
-                    newLine.setSuggestion(suggestion);
-                    suggestion.getSuggestionLines().add(newLine);
-                    if (alreadyExisted) {
-                        linesToSave.add(newLine);
-                    }
-                }
-            }
-
-            if (!suggestion.getSuggestionLines().isEmpty() || !linesToSave.isEmpty()) {
-                suggestionsToSave.add(suggestion);
-            }
-        }
-
-        // ── 7. Persister en batch ─────────────────────────────────────────────────
-        suggestionRepository.saveAll(suggestionsToSave);
-        suggestionLineRepository.saveAll(linesToSave);
     }
 
 
@@ -269,26 +130,23 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Transactional(readOnly = true)
     public Page<SuggestionProjection> getAllSuggestion(
         String search,
-        Integer fournisseurId,
+        Set<Integer> fournisseurIds,
         TypeSuggession typeSuggession,
-        StatutSuggession statut,
+        Set<StatutSuggession> statut,
         Pageable pageable
     ) {
         Specification<Suggestion> specification = suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention());
         if (typeSuggession != null) {
             specification = specification.and(suggestionRepository.filterByType(typeSuggession));
         }
-        if (statut != null) {
-            specification = specification.and(suggestionRepository.filterByStatut(statut));
+        if (!CollectionUtils.isEmpty(statut)) {
+            specification = specification.and(suggestionRepository.filterByStatut(EnumSet.copyOf(statut)));
         }
-        if (fournisseurId != null) {
-            specification = specification.and(suggestionRepository.filterByFournisseurId(fournisseurId));
-        }
-        if (StringUtils.hasLength(search)) {
-            specification = specification.and(suggestionRepository.filterByProduit(search));
+        if (!CollectionUtils.isEmpty(fournisseurIds)) {
+            specification = specification.and(suggestionRepository.filterByFournisseurIds(fournisseurIds));
         }
 
-        return suggestionRepository.getAllSuggestion(specification, pageable);
+        return suggestionRepository.getAllSuggestion(specification, pageable, search);
     }
 
     @Override
@@ -309,17 +167,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur() {
-        return suggestionRepository.getParFournisseur(appConfigurationService.findSuggestionRetention());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(StatutSuggession statut) {
-        if (statut == null) {
-            return getSuggestionsParFournisseur();
-        }
-        return suggestionRepository.getParFournisseur(appConfigurationService.findSuggestionRetention(), statut);
+    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm) {
+        return suggestionRepository.getSuggestionsParFournisseur(statut, fournisseurIds, searchTerm);
     }
 
     @Override
@@ -465,30 +314,34 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         long budgetMensuel = appConfigurationService
             .findOneById(com.kobe.warehouse.constant.EntityConstant.APP_BUDGET_MENSUEL_COMMANDE)
             .map(c -> {
-                try { return Long.parseLong(c.getValue().trim()); } catch (NumberFormatException _) { return 0L; }
+                try {
+                    return Long.parseLong(c.getValue().trim());
+                } catch (NumberFormatException _) {
+                    return 0L;
+                }
             })
             .orElse(0L);
 
         // Montant déjà commandé ce mois (commandes REQUESTED ou RECEIVED)
         Number montantCommandeRaw = (Number) em.createNativeQuery(
             """
-            SELECT COALESCE(SUM(c.gross_amount), 0)
-            FROM commande c
-            WHERE c.order_status IN ('REQUESTED', 'RECEIVED')
-              AND c.order_date >= DATE_TRUNC('month', CURRENT_DATE)
-            """
+                SELECT COALESCE(SUM(c.gross_amount), 0)
+                FROM commande c
+                WHERE c.order_status IN ('REQUESTED', 'RECEIVED')
+                  AND c.order_date >= DATE_TRUNC('month', CURRENT_DATE)
+                """
         ).getSingleResult();
         long montantCommande = montantCommandeRaw.longValue();
 
         // Montant estimé des suggestions actives (lignes × prix_achat fournisseur)
         Number montantEstimeRaw = (Number) em.createNativeQuery(
             """
-            SELECT COALESCE(SUM(sl.quantity * fp.prix_achat), 0)
-            FROM suggestion_line sl
-            JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
-            JOIN suggestion s ON s.id = sl.suggestion_id
-            WHERE s.statut = 'GENEREE'
-            """
+                SELECT COALESCE(SUM(sl.quantity * fp.prix_achat), 0)
+                FROM suggestion_line sl
+                JOIN fournisseur_produit fp ON fp.id = sl.fournisseur_produit_id
+                JOIN suggestion s ON s.id = sl.suggestion_id
+                WHERE s.statut = 'GENEREE'
+                """
         ).getSingleResult();
         long montantEstime = montantEstimeRaw.longValue();
 
@@ -551,7 +404,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     @Transactional(readOnly = true)
     public byte[] exportToCsv(Integer id) throws IOException {
-        return exportToCsvBytes(this.suggestionRepository.findById(id).orElseThrow(()-> new GenericError("Suggestion non trouvée")));
+        return exportToCsvBytes(this.suggestionRepository.findById(id).orElseThrow(() -> new GenericError("Suggestion non trouvée")));
     }
 
     @Override

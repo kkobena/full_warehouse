@@ -129,9 +129,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (!BooleanUtils.isTrue(orderLine.getUpdated())) {
             return true;
         }
-        // updated=true : quantityReceived doit être renseignée et égale à quantityRequested
-        return nonNull(orderLine.getQuantityReceived()) &&
-            orderLine.getQuantityReceived().compareTo(orderLine.getQuantityRequested()) == 0;
+        // updated=true : quantityReceived doit être renseignée et >= 0 (partiel autorisé)
+        return nonNull(orderLine.getQuantityReceived()) && orderLine.getQuantityReceived() >= 0;
     };
 
     private final Predicate<OrderLine> lotPredicate = orderLine -> (
@@ -279,7 +278,9 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "commandeManquante"
                     );
                 }
-                if (!lotPredicate.test(orderLine)) {
+                boolean lotActif = appConfigurationService.useLot().orElse(false);
+                boolean produitNecessiteLot = BooleanUtils.isTrue(produit.getGestionLot());
+                if (lotActif && produitNecessiteLot && !lotPredicate.test(orderLine)) {
                     throw new GenericError(
                         String.format(
                             "%s [%s %s ]",
@@ -786,15 +787,19 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private void buildLot(OrderLine orderLine, int quantity, String lotNumber, LocalDate expirationDate, int freeQuantity) {
         if (StringUtils.isNotBlank(lotNumber)) {
-            orderLine.getLots().add(
-                new Lot()
-                    .setOrderLine(orderLine)
-                    .setProduit(orderLine.getFournisseurProduit().getProduit())
-                    .setNumLot(lotNumber)
-                    .setFreeQty(freeQuantity)
-                    .setExpiryDate(expirationDate)
-                    .setQuantity(quantity)
-            );
+            Lot lot = new Lot()
+                .setOrderLine(orderLine)
+                .setProduit(orderLine.getFournisseurProduit().getProduit())
+                .setNumLot(lotNumber)
+                .setFreeQty(freeQuantity)
+                .setExpiryDate(expirationDate)
+                .setQuantity(quantity)
+                .setCurrentQuantity(quantity)
+                .setCreatedDate(LocalDateTime.now())
+                .setStatut(StatutLot.AVAILABLE);
+            lot.setPrixAchat(orderLine.getOrderCostAmount());
+            lot.setPrixUnit(orderLine.getOrderUnitPrice());
+            orderLine.getLots().add(lot);
         }
     }
 

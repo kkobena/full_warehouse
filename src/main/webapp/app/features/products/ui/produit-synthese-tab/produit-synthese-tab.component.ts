@@ -1,34 +1,42 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
-import { ILotPeremption } from '../../data-access/services/products-api.service';
+import { ILotPeremption, ProductsApiService } from '../../data-access/services/products-api.service';
 import { PrixReference } from '../prix-reference/model/prix-reference.model';
 import { PrixReferenceService } from '../prix-reference/prix-reference.service';
 import { AddPrixFormComponent } from '../prix-reference/add-prix-form/add-prix-form.component';
 import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
-  imports: [CommonModule, TooltipModule, ButtonModule],
+  imports: [CommonModule, TooltipModule, ButtonModule, ToggleSwitch],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
   readonly lots = input<ILotPeremption[]>([]);
   readonly loadingIndicateurs = input<boolean>(false);
+  readonly canEdit = input<boolean>(false);
+
+  readonly refreshRequested = output<void>();
 
   protected prixReferences = signal<PrixReference[]>([]);
+  protected gestionLotPending = signal(false);
 
   private readonly prixReferenceService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly api = inject(ProductsApiService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor() {
     effect(() => {
@@ -103,6 +111,26 @@ export class ProduitSyntheseTabComponent {
     if (mois < 6) return 'warning';
     return null;
   });
+
+  protected onToggleGestionLot(active: boolean): void {
+    const id = this.produit().id;
+    if (!id) return;
+    this.gestionLotPending.set(true);
+    this.api.patchGestionLot(id, active).subscribe({
+      next: () => {
+        this.gestionLotPending.set(false);
+        this.notificationService.success(
+          active ? 'Contrôle des lots activé pour ce produit' : 'Contrôle des lots désactivé',
+          'Gestion des lots'
+        );
+        this.refreshRequested.emit();
+      },
+      error: () => {
+        this.gestionLotPending.set(false);
+        this.notificationService.error('Impossible de modifier le paramètre', 'Erreur');
+      },
+    });
+  }
 
   protected formatPrix(montant?: number | null): string {
     if (montant == null) return '—';

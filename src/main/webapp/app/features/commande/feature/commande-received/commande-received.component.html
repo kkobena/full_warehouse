@@ -1,4 +1,4 @@
-<p-toast position="center"/>
+<p-toast position="center" />
 
 <div class="cr-wrapper">
   <!-- HEADER -->
@@ -65,7 +65,8 @@
         pTooltip="Générer un avoir / bon de retour fournisseur"
         tooltipPosition="bottom"
       />
-      <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn" size="small"/>
+      <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export" label="Exporter" severity="warn"
+                     size="small" />
     </div>
   </div>
 
@@ -73,7 +74,7 @@
   <div class="su-action-bar">
     <div class="su-action-bar__filters">
       <p-iconfield>
-        <p-inputicon class="pi pi-search"/>
+        <p-inputicon class="pi pi-search" />
         <input
           (keyup.enter)="onFilterCommandeLines()"
           [(ngModel)]="search"
@@ -108,24 +109,24 @@
       </p-floatlabel>
       <!-- Scan douchette -->
       <div class="cr-scan-field">
-            <p-iconfield>
-              <p-inputicon class="pi pi-qrcode"/>
-              <input
-                #scanInputRef
-                (keyup.enter)="onScanReception()"
-                [(ngModel)]="scanValue"
-                pInputText
-                placeholder="Scanner CIP / DataMatrix…"
-                type="text"
-                autocomplete="off"
-              />
-            </p-iconfield>
-            @if (lastScanResult() !== null) {
-              <span
-                class="cr-scan-badge"
-                [class.cr-scan-badge--ok]="lastScanResult()!.found"
-                [class.cr-scan-badge--err]="!lastScanResult()!.found"
-              >
+        <p-iconfield>
+          <p-inputicon class="pi pi-qrcode" />
+          <input
+            #scanInputRef
+            (keyup.enter)="onScanReception()"
+            [(ngModel)]="scanValue"
+            pInputText
+            placeholder="Scanner CIP / DataMatrix…"
+            type="text"
+            autocomplete="off"
+          />
+        </p-iconfield>
+        @if (lastScanResult() !== null) {
+          <span
+            class="cr-scan-badge"
+            [class.cr-scan-badge--ok]="lastScanResult()!.found"
+            [class.cr-scan-badge--err]="!lastScanResult()!.found"
+          >
                 @if (lastScanResult()!.found) {
                   <i class="pi pi-check-circle"></i>
                   {{ lastScanResult()!.produitLibelle }}
@@ -134,17 +135,21 @@
                   }
                   <!-- Badge FMD -->
                   @if (lastScanResult()!.fmdStatus === 'PRESENT') {
-                    <span class="cr-fmd-badge cr-fmd-badge--ok" pTooltip="FMD : numéro de série enregistré ({{ lastScanResult()!.serialNumber }})" tooltipPosition="top">
+                    <span class="cr-fmd-badge cr-fmd-badge--ok"
+                          pTooltip="FMD : numéro de série enregistré ({{ lastScanResult()!.serialNumber }})"
+                          tooltipPosition="top">
                       <i class="pi pi-shield"></i> FMD ✓
                     </span>
                   }
                   @if (lastScanResult()!.fmdStatus === 'DUPLICATE') {
-                    <span class="cr-fmd-badge cr-fmd-badge--danger" pTooltip="{{ lastScanResult()!.warningMessage }}" tooltipPosition="top">
+                    <span class="cr-fmd-badge cr-fmd-badge--danger" pTooltip="{{ lastScanResult()!.warningMessage }}"
+                          tooltipPosition="top">
                       <i class="pi pi-shield"></i> DOUBLON !
                     </span>
                   }
                   @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType === 'DATAMATRIX') {
-                    <span class="cr-fmd-badge cr-fmd-badge--warn" pTooltip="DataMatrix sans numéro de série (AI 21 absent)" tooltipPosition="top">
+                    <span class="cr-fmd-badge cr-fmd-badge--warn"
+                          pTooltip="DataMatrix sans numéro de série (AI 21 absent)" tooltipPosition="top">
                       <i class="pi pi-shield"></i> FMD ?
                     </span>
                   }
@@ -153,7 +158,7 @@
                   {{ lastScanResult()!.warningMessage }}
                 }
               </span>
-            }
+        }
       </div>
     </div>
   </div>
@@ -204,11 +209,14 @@
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [getRowId]="getRowId"
+          [getRowHeight]="getRowHeight"
           [rowClassRules]="rowClassRules"
-          [rowData]="orderLines"
+          [rowData]="displayRows"
           [theme]="theme"
           [singleClickEdit]="true"
           [context]="gridContext"
+          [isFullWidthRow]="isFullWidthRow"
+          [fullWidthCellRenderer]="fullWidthCellRenderer"
           [enterNavigatesVertically]="true"
           [enableCellEditingOnBackspace]="true"
           [enterNavigatesVerticallyAfterEdit]="true"
@@ -217,10 +225,26 @@
           (gridReady)="onGridReady($event)"
           class="cr-grid"
         />
-        <!-- Footer totaux -->
+        <!-- Footer totaux + progression lots -->
         <div class="cr-grid-footer">
           <span>Valeur achat : <strong>{{ currentCommande.grossAmount | number }} F</strong></span>
           <span>Valeur vente : <strong>{{ currentCommande.orderAmount | number }} F</strong></span>
+          @if (showLotBtn) {
+            <span class="cr-lot-progress ms-auto">
+              <i class="pi pi-box me-1"></i>
+              Lots :
+              <strong [class.text-success]="lignesSansLot === 0" [class.text-warning]="lignesSansLot > 0">
+                {{ orderLines.length - lignesSansLot }} / {{ orderLines.length }}
+              </strong>
+              <span class="cr-lot-bar ms-2">
+                <span
+                  class="cr-lot-bar__fill"
+                  [style.width.%]="orderLines.length > 0 ? ((orderLines.length - lignesSansLot) / orderLines.length) * 100 : 0"
+                  [class.cr-lot-bar__fill--ok]="lignesSansLot === 0"
+                ></span>
+              </span>
+            </span>
+          }
         </div>
       }
     </div>
@@ -228,4 +252,4 @@
   </div>
 </div>
 
-<jhi-spinner #spinner/>
+<jhi-spinner #spinner />

@@ -96,5 +96,7 @@ public interface ProduitService {
     void deleteProduit(Integer id);
     void changeStatus(Integer id, com.kobe.warehouse.domain.enumeration.Status status);
 
+    void toggleGestionLot(Integer id, boolean active);
+
     List<SubstitutDTO> findGeneriques(Integer produitId);
 }

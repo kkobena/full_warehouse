@@ -87,6 +87,7 @@ export interface IProduit {
   status?: number;
   dateperemption?: boolean;
   couvertureStockJours?: number;
+  gestionLot?: boolean;
 }
 
 export class Produit implements IProduit {

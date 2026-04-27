@@ -67,10 +67,12 @@
         </a>
         <ng-template ngbNavContent>
           <app-produit-synthese-tab
-            [produit]="produit()"
+            [produit]="richProduit()"
             [indicateurs]="indicateurs()"
             [lots]="lots()"
             [loadingIndicateurs]="loadingIndicateurs()"
+            [canEdit]="canEdit()"
+            (refreshRequested)="onRefreshRequested()"
           />
         </ng-template>
       </ng-container>

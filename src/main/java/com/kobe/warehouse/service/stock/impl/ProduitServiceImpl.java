@@ -468,6 +468,17 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(cacheNames = "produits", key = "#id")
+    public void toggleGestionLot(Integer id, boolean active) {
+        produitRepository.findById(id).ifPresent(produit -> {
+            produit.setGestionLot(active);
+            produit.setUpdatedAt(java.time.LocalDateTime.now());
+            produitRepository.save(produit);
+        });
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<SubstitutDTO> findGeneriques(Integer produitId) {
         return substitutRepository.findAllByProduitId(produitId).stream()

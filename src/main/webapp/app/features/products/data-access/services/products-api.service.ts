@@ -112,4 +112,10 @@ export class ProductsApiService {
   addLotHorsCommande(lot: ILot): Observable<HttpResponse<ILot>> {
     return this.http.post<ILot>(`${SERVER_API_URL}api/lot/add-sur-produit`, lot, { observe: 'response' });
   }
+
+  patchGestionLot(id: number, active: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.resourceUrl}/${id}/gestion-lot`, null, {
+      params: { active: String(active) },
+    });
+  }
 }

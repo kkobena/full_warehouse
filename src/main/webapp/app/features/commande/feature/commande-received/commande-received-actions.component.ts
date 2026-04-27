@@ -34,6 +34,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
         <p-button
           [text]="true"
           [rounded]="true"
+          [hidden]="true"
           severity="info"
           icon="pi pi-box"
           pTooltip="Gérer le lot"
@@ -44,6 +45,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
         <p-button
           [text]="true"
           [rounded]="true"
+          [hidden]="true"
           severity="danger"
           icon="pi pi-trash"
           pTooltip="Supprimer"

@@ -179,6 +179,24 @@
           <span class="kpi-label">Dernière commande</span>
           <span class="kpi-value">{{ formatDate(produit().lastOrderDate) }}</span>
         </div>
+        <div class="kpi-item kpi-item--toggle">
+          <span class="kpi-label">
+            Suivi des lots
+            <i
+              class="pi pi-info-circle ms-1"
+              style="font-size: 0.7rem; color: #6b7280; cursor: help"
+              pTooltip="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <p-toggleswitch
+            [checked]="produit().gestionLot ?? true"
+            [disabled]="!canEdit() || gestionLotPending()"
+            (onChange)="onToggleGestionLot($event.checked)"
+            pTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
+            tooltipPosition="left"
+          />
+        </div>
       </div>
     </div>
 

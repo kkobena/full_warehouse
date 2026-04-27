@@ -100,6 +100,9 @@ public class Produit implements Serializable {
 
     @Column(name = "check_expiry_date", columnDefinition = "boolean default false")
     private Boolean checkExpiryDate= false;//TODO: to remove
+
+    @Column(name = "gestion_lot", columnDefinition = "boolean default true")
+    private Boolean gestionLot = true;
     //Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits numériques, etc.)
 
     @NotAudited
@@ -395,6 +398,15 @@ public class Produit implements Serializable {
 
     public Produit setCheckExpiryDate(Boolean checkExpiryDate) {
         this.checkExpiryDate = checkExpiryDate;
+        return this;
+    }
+
+    public Boolean getGestionLot() {
+        return gestionLot;
+    }
+
+    public Produit setGestionLot(Boolean gestionLot) {
+        this.gestionLot = gestionLot;
         return this;
     }
 

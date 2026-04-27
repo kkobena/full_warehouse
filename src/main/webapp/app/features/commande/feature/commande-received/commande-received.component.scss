@@ -278,4 +278,40 @@
 
   .ag-row { font-size: 0.82rem; }
   .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+
+  .cr-lot-editor-row {
+    background-color: #f0f9ff !important;
+    border-left: 3px solid #7dd3fc !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+// ── Lot progress bar (footer) ──────────────────────────────────────────────
+
+.cr-lot-progress {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  color: $gray-600;
+  gap: 4px;
+}
+
+.cr-lot-bar {
+  display: inline-block;
+  width: 80px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__fill {
+    display: block;
+    height: 100%;
+    background: #f59e0b;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+
+    &--ok { background: #16a34a; }
+  }
 }

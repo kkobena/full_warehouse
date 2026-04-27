@@ -13,6 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public interface LotService {
+    /**
+     * Methode à utiliser uniquement dans le process de commande normale pas dans BED
+     * @param lot
+     * @return
+     */
     LotDTO addLot(LotDTO lot);
 
     /**

@@ -84,13 +84,30 @@ public class LotServiceImpl implements LotService {
 
     @Override
     public LotDTO addLot(LotDTO lot) {
-        OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId()).orElse(null);
+        OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId())
+            .orElseThrow(() -> new GenericError("Ligne de commande introuvable", "ligneCommandeIntrouvable"));
+        Integer qtyReceived = orderLine.getQuantityReceived();
+        if (qtyReceived != null && qtyReceived > 0) {
+            int alreadyCovered = orderLine.getLots().stream()
+                .mapToInt(l -> Optional.ofNullable(l.getQuantity()).orElse(0))
+                .sum();
+            int newQty = Optional.ofNullable(lot.getQuantityReceived()).orElse(0)
+                       + Optional.ofNullable(lot.getFreeQty()).orElse(0);
+            int total = qtyReceived + Optional.of(orderLine.getFreeQty()).orElse(0);
+            if (alreadyCovered + newQty > total) {
+                throw new GenericError(
+                    "La quantité totale des lots (" + (alreadyCovered + newQty) + ") dépasserait la quantité reçue (" + total + ")",
+                    "lotsDepassentQuantiteRecue"
+                );
+            }
+        }
         Lot lotEntity = lot.toEntity();
         lotEntity.setCurrentQuantity(lotEntity.getQuantity());
         lotEntity.setCreatedDate(LocalDateTime.now());
         lotEntity.setPrixUnit(orderLine.getOrderUnitPrice());
         lotEntity.setPrixAchat(orderLine.getOrderCostAmount());
         lotEntity.setOrderLine(orderLine);
+        lotEntity.setProduit(orderLine.getFournisseurProduit().getProduit());
         return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
     }
 

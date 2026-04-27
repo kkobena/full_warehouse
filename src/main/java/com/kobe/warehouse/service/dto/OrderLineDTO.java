@@ -59,6 +59,7 @@ public class OrderLineDTO {
     private Integer couvertureStockJours;
     /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
     private Integer qteColis;
+    private Boolean gestionLot;
 
     public OrderLineDTO() {}
 
@@ -105,6 +106,7 @@ public class OrderLineDTO {
         afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
         qteColis = fournisseurProduit.getQteColis();
+        gestionLot = produit.getGestionLot();
     }
 
     public Integer getTvaId() {
@@ -460,6 +462,15 @@ public class OrderLineDTO {
 
     public OrderLineDTO setQteColis(Integer qteColis) {
         this.qteColis = qteColis;
+        return this;
+    }
+
+    public Boolean getGestionLot() {
+        return gestionLot;
+    }
+
+    public OrderLineDTO setGestionLot(Boolean gestionLot) {
+        this.gestionLot = gestionLot;
         return this;
     }
 }

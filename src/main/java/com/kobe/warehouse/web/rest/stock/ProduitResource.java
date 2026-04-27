@@ -211,6 +211,16 @@ public class ProduitResource {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/produits/{id}/gestion-lot")
+    public ResponseEntity<Void> toggleGestionLot(
+        @PathVariable Integer id,
+        @RequestParam boolean active
+    ) {
+        log.debug("REST request to toggle gestion_lot for Produit {} → {}", id, active);
+        produitService.toggleGestionLot(id, active);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/produits/{id}")
     public ResponseEntity<Void> deleteProduit(@PathVariable Integer id) {
         log.debug("REST request to delete Produit : {}", id);

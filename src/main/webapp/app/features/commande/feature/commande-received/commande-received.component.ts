@@ -4,6 +4,7 @@ import { HttpResponse } from "@angular/common/http";
 import { ICommande } from "app/shared/model/commande.model";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { IOrderLine } from "../../../../shared/model/order-line.model";
+import { ILot } from "../../../../shared/model/lot.model";
 import { MenuItem } from "primeng/api";
 import { ErrorService } from "../../../../shared/error.service";
 import { saveAs } from "file-saver";
@@ -65,6 +66,8 @@ import {
 import { AgGridAngular } from "ag-grid-angular";
 import { CommandeReceivedActionsComponent } from "./commande-received-actions.component";
 import { CommandeReceivedStatutComponent } from "./commande-received-statut.component";
+import { LotExpandCellComponent } from "../../ui/lot/inline/lot-expand-cell.component";
+import { LotInlineEditorComponent } from "../../ui/lot/inline/lot-inline-editor.component";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -98,6 +101,7 @@ export class CommandeReceivedComponent implements OnInit {
   retour = output<void>();
 
   protected orderLines: IOrderLine[] = [];
+  protected displayRows: any[] = [];
   protected search?: string;
   protected tris = "UPDATE";
   protected selectedFilter = "ALL";
@@ -109,26 +113,41 @@ export class CommandeReceivedComponent implements OnInit {
 
   // ── AG Grid ───────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
-  private gridApi: GridApi<IOrderLine> | null = null;
+  private gridApi: GridApi<any> | null = null;
 
-  protected readonly defaultColDef: ColDef<IOrderLine> = {
+  protected readonly defaultColDef: ColDef<any> = {
     resizable: true,
     sortable: false,
     suppressHeaderMenuButton: true
   };
 
-  protected readonly rowClassRules: RowClassRules<IOrderLine> = {
-    "pharma-row-danger": p => !!p.data && p.data.costAmount !== p.data.orderCostAmount,
+  protected readonly rowClassRules: RowClassRules<any> = {
+    "pharma-row-danger": p => !p.data?.__type && !!p.data && p.data.costAmount !== p.data.orderCostAmount,
     "pharma-row-warning": p =>
-      !!p.data &&
+      !p.data?.__type && !!p.data &&
       p.data.costAmount === p.data.orderCostAmount &&
       p.data.regularUnitPrice !== p.data.orderUnitPrice,
-    "pharma-row-provisional": p => !!p.data?.provisionalCode
+    "pharma-row-provisional": p => !p.data?.__type && !!p.data?.provisionalCode,
+    "cr-lot-editor-row": p => p.data?.__type === "lot-editor"
   };
 
-  protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);
-  protected columnDefs: ColDef<IOrderLine>[] = [];
+  protected readonly getRowId: GetRowIdFunc<any> = p => {
+    if (p.data?.__type === "lot-editor") return `lot-editor-${p.data.__line.id}`;
+    return String(p.data.id);
+  };
+  protected columnDefs: ColDef<any>[] = [];
   protected readonly gridContext: { componentParent: CommandeReceivedComponent } = { componentParent: this };
+
+  // ── Lot inline expand ──────────────────────────────────────────────────────
+  private expandedLineIds = new Set<number>();
+  protected readonly isFullWidthRow = (params: any): boolean => params.rowNode.data?.__type === "lot-editor";
+  protected readonly fullWidthCellRenderer = LotInlineEditorComponent;
+  protected readonly getRowHeight = (params: any): number | undefined => {
+    if (params.data?.__type !== "lot-editor") return undefined;
+    const line = params.data.__line as IOrderLine;
+    const lots = (line.lots ?? []).length;
+    return Math.max(160, 48 + (lots + 1) * 28 + 44);
+  };
 
   // ── Scan réception ────────────────────────────────────────────────────────
   protected scanValue = "";
@@ -174,6 +193,7 @@ export class CommandeReceivedComponent implements OnInit {
     this.orderLines = (this.currentCommande.orderLines as IOrderLine[]) ?? [];
     this.isLotActif();
     this.columnDefs = this.buildColumnDefs();
+    this.refreshDisplayRows();
     this.setupBarcodeScanner();
   }
 
@@ -190,13 +210,14 @@ export class CommandeReceivedComponent implements OnInit {
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
       this.orderLines = res.body!;
-      this.gridApi?.setGridOption("rowData", this.orderLines);
+      this.expandedLineIds.clear();
+      this.refreshDisplayRows();
     });
   }
 
   // ── AG Grid events ────────────────────────────────────────────────────────
 
-  protected onGridReady(event: GridReadyEvent<IOrderLine>): void {
+  protected onGridReady(event: GridReadyEvent<any>): void {
     this.gridApi = event.api;
   }
 
@@ -284,7 +305,7 @@ export class CommandeReceivedComponent implements OnInit {
     }
     this.selectedFilter = "ALL";
     this.orderLines = [...allLines];
-    this.gridApi?.refreshCells({ force: true });
+    this.refreshDisplayRows();
     forkJoin(linesToUpdate.map(l => this.deliveryService.updateQuantityReceived(l))).subscribe({
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
@@ -455,6 +476,37 @@ export class CommandeReceivedComponent implements OnInit {
     return this.showLotBtn;
   }
 
+  // ── Lot inline editor ─────────────────────────────────────────────────────
+
+  onToggleLotExpand(line: IOrderLine): void {
+    if (!line?.id) return;
+    if (this.expandedLineIds.has(line.id)) {
+      this.expandedLineIds.delete(line.id);
+      (line as any).__expanded = false;
+    } else {
+      this.expandedLineIds.add(line.id);
+      (line as any).__expanded = true;
+    }
+    this.refreshDisplayRows();
+  }
+
+  onCollapseRow(line: IOrderLine | null): void {
+    if (!line?.id) return;
+    this.expandedLineIds.delete(line.id);
+    const found = this.orderLines.find(l => l.id === line.id);
+    if (found) (found as any).__expanded = false;
+    this.refreshDisplayRows();
+  }
+
+  onLotSaved(line: IOrderLine, lots: ILot[]): void {
+    const found = this.orderLines.find(l => l.id === line.id);
+    if (found) found.lots = lots;
+    const rowNode = this.gridApi?.getRowNode(String(line.id));
+    if (rowNode) {
+      this.gridApi?.refreshCells({ rowNodes: [rowNode], columns: ["lots"], force: true });
+    }
+  }
+
   protected get lignesPcbAlert(): number {
     return this.orderLines.filter(l => {
       const pcb = l.qteColis;
@@ -507,7 +559,7 @@ export class CommandeReceivedComponent implements OnInit {
             updated.quantityReceivedTmp = updated.quantityReceived;
             this.orderLines = [...this.orderLines];
             this.orderLines[idx] = updated;
-            this.gridApi?.setGridOption("rowData", this.orderLines);
+            this.refreshDisplayRows();
             const rowNode = this.gridApi?.getRowNode(String(updated.id));
             if (rowNode) {
               this.gridApi?.refreshCells({
@@ -692,7 +744,7 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         editable: true,
         cellEditor: "agNumberCellEditor",
-        cellEditorParams: {preventStepping: true},
+        cellEditorParams: { preventStepping: true },
         cellRenderer: (p: any) => {
           if (!p.data) return "";
           const qty = p.data.quantityReceivedTmp;
@@ -713,7 +765,7 @@ export class CommandeReceivedComponent implements OnInit {
         type: "numericColumn",
         editable: true,
         cellEditor: "agNumberCellEditor",
-        cellEditorParams: {preventStepping: true},
+        cellEditorParams: { preventStepping: true }
       },
       {
         headerName: "Stock.après",
@@ -733,32 +785,28 @@ export class CommandeReceivedComponent implements OnInit {
         colId: "statut",
         width: 83,
         cellRenderer: CommandeReceivedStatutComponent
-      },
-      {
-        colId: "actions",
-        headerName: "",
-        width: 160,
-        sortable: false,
-        cellRenderer: CommandeReceivedActionsComponent
       }
     ];
 
     if (this.showLotBtn) {
-      const actionsIdx = cols.findIndex(c => (c as any).colId === "actions");
-      cols.splice(actionsIdx, 0, {
+      cols.push({
         headerName: "Lots",
         colId: "lots",
-        width: 110,
-        cellRenderer: (p: any) => {
-          if (!p.data) return "";
-          const lots: any[] = p.data.lots ?? [];
-          if (lots.length === 0) {
-            return `<i class="pi pi-exclamation-triangle" style="color:#ffc107" title="Pas de lot renseigné"></i>`;
-          }
-          return lots.map(l => `<span class="me-1" style="font-size:0.72rem;font-family:monospace">${l.numLot}</span>`).join("");
-        }
+        width: 90,
+        suppressMovable: true,
+        pinned: "right",
+        cellRenderer: LotExpandCellComponent
       });
     }
+
+    cols.push({
+      colId: "actions",
+      headerName: "",
+      width: 75,
+      sortable: false,
+      pinned: "right",
+      cellRenderer: CommandeReceivedActionsComponent
+    });
 
     return cols;
   }
@@ -773,11 +821,25 @@ export class CommandeReceivedComponent implements OnInit {
     modalRef.componentInstance.commande = this.currentCommande;
   }
 
+  private refreshDisplayRows(): void {
+    const rows: any[] = [];
+    for (const line of this.orderLines) {
+      rows.push(line);
+      if (this.expandedLineIds.has(line.id!)) {
+        rows.push({ __type: "lot-editor", __line: line, __id: `lot-editor-${line.id}` });
+      }
+    }
+    this.displayRows = rows;
+    this.gridApi?.setGridOption("rowData", this.displayRows);
+  }
+
   private refreshCommande(): void {
     this.commandeService.find(this.currentCommande.commandeId).subscribe(res => {
       this.currentCommande = res.body;
       this.orderLines = this.currentCommande.orderLines as IOrderLine[];
       this.commandeChange.emit(this.currentCommande);
+      this.expandedLineIds.clear();
+      this.refreshDisplayRows();
     });
   }
 

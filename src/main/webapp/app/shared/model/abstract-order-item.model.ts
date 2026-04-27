@@ -44,6 +44,7 @@ export interface AbstractOrderItem {
   couvertureStockJours?: number;
   /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
   qteColis?: number;
+  gestionLot?: boolean;
 }
 
 export class OrderLineId {

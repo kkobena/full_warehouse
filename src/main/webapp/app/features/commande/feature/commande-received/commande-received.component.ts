@@ -108,6 +108,16 @@ export class CommandeReceivedComponent implements OnInit {
   protected selectedFilter = "ALL";
   protected showLotBtn = false;
   protected showLeftPanel = true;
+
+  // ── Vue séquentielle / grille ─────────────────────────────────────────────
+  protected readonly viewMode = signal<'grid' | 'sequential'>(
+    (localStorage.getItem('reception-view-mode') as 'grid' | 'sequential') ?? 'sequential'
+  );
+
+  protected setViewMode(mode: 'grid' | 'sequential'): void {
+    this.viewMode.set(mode);
+    localStorage.setItem('reception-view-mode', mode);
+  }
   protected currentCommande!: ICommande;
   protected filtres: any[];
   protected exportbuttons: MenuItem[];

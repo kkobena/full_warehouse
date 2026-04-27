@@ -13,6 +13,24 @@
       </span>
     }
     <div class="cr-header-actions">
+      <!-- Toggle séquentiel / grille -->
+      <div class="custom-segment-control">
+        <div class="segment-track">
+          <div class="segment-slider" [class.active-right]="viewMode() === 'grid'"></div>
+          <button type="button" class="segment-option" [class.active]="viewMode() === 'sequential'"
+                  (click)="setViewMode('sequential')"
+                  pTooltip="Saisie ligne par ligne — mode nominal" tooltipPosition="bottom">
+            <i class="pi pi-list"></i>
+            <span>Séquentiel</span>
+          </button>
+          <button type="button" class="segment-option" [class.active]="viewMode() === 'grid'"
+                  (click)="setViewMode('grid')"
+                  pTooltip="Vue tableau complète" tooltipPosition="bottom">
+            <i class="pi pi-table"></i>
+            <span>Grille</span>
+          </button>
+        </div>
+      </div>
       @if (lignesPcbAlert > 0) {
         <p-tag
           [value]="lignesPcbAlert + ' alerte(s) colisage'"
@@ -190,6 +208,14 @@
   <!-- MAIN CONTENT -->
   <div class="cr-content">
 
+    @if (viewMode() === 'sequential') {
+      <!-- MODE SÉQUENTIEL — à implémenter dans reception-sequential.component -->
+      <div class="cr-panel-right" style="align-items:center;justify-content:center;color:#9ca3af;font-size:0.85rem;gap:0.5rem;display:flex;">
+        <i class="pi pi-wrench" style="font-size:1.2rem;"></i>
+        Mode séquentiel — en cours d'implémentation
+      </div>
+
+    } @else {
     <!-- LEFT PANEL : concordance + résumé (toggle) -->
     @if (showLeftPanel) {
       <div class="cr-panel-left">
@@ -274,6 +300,8 @@
         </div>
       }
     </div>
+
+    } <!-- fin @else mode grille -->
 
   </div>
 </div>

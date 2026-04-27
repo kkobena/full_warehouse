@@ -263,6 +263,58 @@
   }
 }
 
+// ── Toggle vue séquentielle / grille — reprend le style .custom-segment-control du dashboard ──
+
+.custom-segment-control { display: inline-flex; }
+
+.segment-track {
+  position: relative;
+  display: flex;
+  background: rgba($gray-200, 0.8);
+  border-radius: 12px;
+  padding: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.segment-slider {
+  position: absolute;
+  top: 3px; left: 3px; bottom: 3px;
+  width: calc(50% - 3px);
+  background: linear-gradient(135deg, $pharma-primary 0%, lighten($pharma-primary, 12%) 100%);
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba($pharma-primary, 0.25);
+  transition: all 0.3s ease;
+  z-index: 0;
+
+  &.active-right { transform: translateX(calc(100% + 3px)); }
+}
+
+.segment-option {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  i { font-size: 0.75rem; }
+
+  &:not(.active):hover { color: $pharma-primary; }
+  &.active { color: $pharma-white; font-weight: 600; }
+  &:focus { outline: none; }
+  &:focus-visible { outline: 2px solid $pharma-primary; outline-offset: 2px; border-radius: 8px; }
+}
+
 // ── Barre de droite (toggle + aide) ───────────────────────────────────────
 
 .cr-bar-actions {

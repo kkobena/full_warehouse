@@ -67,6 +67,7 @@ import { ErrorService } from "../../../../../shared/error.service";
                     <td>
                       <input pInputText [(ngModel)]="editExpiry" placeholder="jj/MM/AAAA" maxlength="10"
                              class="lie-field lie-field--expiry"
+                             placeholder="MM/AAAA" maxlength="7"
                              [class.lie-expiry-soon]="editExpiryWarning() === 'soon'"
                              [class.lie-expiry-critical]="editExpiryWarning() === 'critical'"
                              (ngModelChange)="onEditExpiryInput($event)"
@@ -137,7 +138,7 @@ import { ErrorService } from "../../../../../shared/error.service";
             <input #numLotInput pInputText [(ngModel)]="draftNumLot" placeholder="N° lot"
                    class="lie-field lie-field--numlot"
                    (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input pInputText [(ngModel)]="draftExpiry" placeholder="jj/MM/AAAA" maxlength="10"
+            <input pInputText [(ngModel)]="draftExpiry" placeholder="MM/AAAA" maxlength="7"
                    class="lie-field lie-field--expiry"
                    [class.lie-expiry-soon]="expiryWarning() === 'soon'"
                    [class.lie-expiry-critical]="expiryWarning() === 'critical'"
@@ -601,11 +602,11 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
     return m < 3;
   }
 
+  // Format pharmaceutique standard : MM/AAAA (imprimé sur l'emballage, directive 2001/83/CE)
   private autoFormat(value: string): string {
-    const d = value.replace(/\D/g, "").slice(0, 8);
+    const d = value.replace(/\D/g, "").slice(0, 6);
     if (d.length <= 2) return d;
-    if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
-    return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+    return `${d.slice(0, 2)}/${d.slice(2)}`;
   }
 
   private calcWarning(value: string): "none" | "soon" | "critical" {
@@ -616,22 +617,30 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   }
 
   private isoToDisplay(iso: string): string {
-    // "YYYY-MM-DD" → "DD/MM/YYYY"
+    // "YYYY-MM-DD" → "MM/YYYY"
     const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+    return m ? `${m[2]}/${m[1]}` : iso;
   }
 
   private parseExpiry(value: string): Date | null {
-    const m = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    // Accepte MM/YYYY (format pharmaceutique)
+    const m = value.match(/^(\d{1,2})\/(\d{4})$/);
     if (!m) return null;
-    const day = parseInt(m[1], 10), mo = parseInt(m[2], 10) - 1, yr = parseInt(m[3], 10);
-    if (day < 1 || day > 31 || mo < 0 || mo > 11 || yr < 2000) return null;
-    return new Date(yr, mo, day);
+    const mo = parseInt(m[1], 10);
+    const yr = parseInt(m[2], 10);
+    if (mo < 1 || mo > 12 || yr < 2000) return null;
+    // Convention FEFO : dernier jour du mois
+    return new Date(yr, mo, 0);
   }
 
   private formatExpiry(value: string): string | null {
-    const m = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    // "MM/YYYY" → "YYYY-MM-DD" (dernier jour du mois, convention FEFO)
+    const m = value.match(/^(\d{1,2})\/(\d{4})$/);
     if (!m) return null;
-    return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+    const mo = parseInt(m[1], 10);
+    const yr = parseInt(m[2], 10);
+    if (mo < 1 || mo > 12 || yr < 2000) return null;
+    const lastDay = new Date(yr, mo, 0).getDate();
+    return `${yr}-${String(mo).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
   }
 }

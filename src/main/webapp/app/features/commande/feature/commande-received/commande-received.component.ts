@@ -48,6 +48,7 @@ import { IStockEntryResult } from "../../../../shared/model/stock-entry-result.m
 import { IReceptionScanResult } from "../../../../shared/model/reception-scan-result.model";
 import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
 import { RetourDepuisReceptionComponent } from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
+import { ReceptionHelpComponent } from "../../ui/reception-help/reception-help.component";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {
@@ -106,6 +107,7 @@ export class CommandeReceivedComponent implements OnInit {
   protected tris = "UPDATE";
   protected selectedFilter = "ALL";
   protected showLotBtn = false;
+  protected showLeftPanel = true;
   protected currentCommande!: ICommande;
   protected filtres: any[];
   protected exportbuttons: MenuItem[];
@@ -153,20 +155,20 @@ export class CommandeReceivedComponent implements OnInit {
   protected scanValue = "";
   protected readonly lastScanResult = signal<IReceptionScanResult | null>(null);
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-
-  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
-  readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly commandeService = inject(CommandeService);
-  private readonly deliveryService = inject(DeliveryService);
-  private readonly modalService = inject(NgbModal);
-  private readonly errorService = inject(ErrorService);
-  private readonly configurationService = inject(ConfigurationService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly scanDetectorService = inject(ScanDetectorService);
   private keydownListener: ((e: KeyboardEvent) => void) | null = null;
+
+  private readonly spinner            = viewChild.required<SpinnerComponent>("spinner");
+  readonly scanInputRef               = viewChild<ElementRef>("scanInputRef");
+  private readonly confirmDialog      = inject(NgbConfirmDialogService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly commandeService    = inject(CommandeService);
+  private readonly deliveryService    = inject(DeliveryService);
+  private readonly modalService       = inject(NgbModal);
+  private readonly errorService       = inject(ErrorService);
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly tauriPrinterService  = inject(TauriPrinterService);
+  private readonly destroyRef           = inject(DestroyRef);
+  private readonly scanDetectorService  = inject(ScanDetectorService);
 
   constructor() {
     this.filtres = [
@@ -199,6 +201,14 @@ export class CommandeReceivedComponent implements OnInit {
 
   protected previousState(): void {
     this.retour.emit();
+  }
+
+  protected openHelp(): void {
+    this.modalService.open(ReceptionHelpComponent, { size: "lg", centered: true, scrollable: true });
+  }
+
+  protected toggleLeftPanel(): void {
+    this.showLeftPanel = !this.showLeftPanel;
   }
 
   protected onFilterCommandeLines(): void {
@@ -239,6 +249,10 @@ export class CommandeReceivedComponent implements OnInit {
         this.deliveryService.updateQuantityReceived(line).subscribe({
           error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
         });
+        // Auto-ouvrir l'éditeur de lots si le produit le nécessite et que la ligne n'est pas déjà expandée
+        if (this.showLotBtn && line.gestionLot !== false && qty > 0 && !this.expandedLineIds.has(line.id!)) {
+          setTimeout(() => this.onToggleLotExpand(line), 50);
+        }
       }
     } else if (field === "freeQty") {
       const qty = Number(event.newValue);
@@ -555,7 +569,7 @@ export class CommandeReceivedComponent implements OnInit {
           const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
           if (idx !== -1) {
             const updated = { ...this.orderLines[idx] };
-            updated.quantityReceived = (updated.quantityReceived ?? 0) + 1;
+            updated.quantityReceived    = (updated.quantityReceived ?? 0) + 1;
             updated.quantityReceivedTmp = updated.quantityReceived;
             this.orderLines = [...this.orderLines];
             this.orderLines[idx] = updated;
@@ -587,10 +601,7 @@ export class CommandeReceivedComponent implements OnInit {
     this.scanFeedbackTimer = setTimeout(() => this.lastScanResult.set(null), 4000);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
   private setupBarcodeScanner(): void {
-    // Écoute de la douchette hardware via ScanDetectorService
     this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -603,11 +614,9 @@ export class CommandeReceivedComponent implements OnInit {
         }
       });
 
-    // Alimentation du ScanDetectorService par les keydown globaux
     this.keydownListener = (event: KeyboardEvent) => this.scanDetectorService.keyPressed(event.key);
     document.addEventListener("keydown", this.keydownListener, true);
 
-    // Nettoyage du listener au destroy
     this.destroyRef.onDestroy(() => {
       if (this.keydownListener) {
         document.removeEventListener("keydown", this.keydownListener, true);
@@ -615,11 +624,12 @@ export class CommandeReceivedComponent implements OnInit {
       }
     });
 
-    // Auto-focus sur le champ scan à l'ouverture
     setTimeout(() => {
       (this.scanInputRef()?.nativeElement as HTMLInputElement | undefined)?.focus();
     }, 150);
   }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   private computeAfterStock(ol: IOrderLine): number {
     return (ol.initStock ?? 0) + (ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0) + (ol.freeQty ?? 0);
@@ -643,7 +653,7 @@ export class CommandeReceivedComponent implements OnInit {
     const cols: ColDef<IOrderLine>[] = [
       {
         headerName: "#",
-        width: 38,
+        width: 50,
         valueGetter: p => (p.node?.rowIndex ?? 0) + 1,
         cellStyle: { color: "#9ca3af", fontSize: "0.72rem", textAlign: "center" }
       },
@@ -795,7 +805,18 @@ export class CommandeReceivedComponent implements OnInit {
         width: 90,
         suppressMovable: true,
         pinned: "right",
-        cellRenderer: LotExpandCellComponent
+        cellRenderer: LotExpandCellComponent,
+        suppressKeyboardEvent: (params) => {
+          if (params.event.key === " " && !params.editing) {
+            params.event.preventDefault();
+            const line = params.data as IOrderLine;
+            if (line?.id && line.gestionLot !== false) {
+              this.onToggleLotExpand(line);
+            }
+            return true;
+          }
+          return false;
+        }
       });
     }
 

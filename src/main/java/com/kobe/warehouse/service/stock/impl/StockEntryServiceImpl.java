@@ -1,26 +1,27 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import static java.util.Objects.nonNull;
-
-import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.FournisseurProduitPriceHistory;
 import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.LotReception;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.WarehouseSequence;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.FournisseurProduitPriceHistoryRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
-import com.kobe.warehouse.repository.WarehouseSequenceRepository;
+import com.kobe.warehouse.repository.LotReceptionRepository;
+import com.kobe.warehouse.repository.LotRepository;
+import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
@@ -28,32 +29,23 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
 import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
+import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
+import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
-import com.kobe.warehouse.domain.enumeration.PutawayMode;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.rupture.service.RuptureService;
-import com.kobe.warehouse.domain.FournisseurProduitPriceHistory;
-import com.kobe.warehouse.domain.LotReception;
-import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import com.kobe.warehouse.repository.FournisseurProduitPriceHistoryRepository;
-import com.kobe.warehouse.repository.LotReceptionRepository;
-import com.kobe.warehouse.repository.LotRepository;
-import com.kobe.warehouse.repository.OrderLineRepository;
-import com.kobe.warehouse.repository.RetourBonRepository;
-import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import com.kobe.warehouse.service.dto.DataMatrixInfo;
-import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
@@ -64,6 +56,18 @@ import com.kobe.warehouse.service.stock.csv.CsvImportStrategy;
 import com.kobe.warehouse.service.stock.csv.ParsedCsvRecord;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -82,17 +86,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -106,7 +100,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final StorageService storageService;
     private final FournisseurProduitService fournisseurProduitService;
     private final LogsService logsService;
-    private final WarehouseSequenceRepository warehouseSequenceRepository;
+
     private final FournisseurRepository fournisseurRepository;
     private final OrderLineService orderLineService;
     private final CommandeIdGeneratorService commandeIdGeneratorService;
@@ -116,8 +110,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final InventoryTransactionService inventoryTransactionService;
     private final LotRepository lotRepository;
     private final LotReceptionRepository lotReceptionRepository;
-    private final AppConfigurationService appConfigurationService ;
-    private final RetourBonRepository retourBonRepository;
+    private final AppConfigurationService appConfigurationService;
+
     private final FournisseurProduitPriceHistoryRepository priceHistoryRepository;
     private final OrderLineRepository orderLineRepository;
     private final LotStockLocationService lotStockLocationService;
@@ -135,8 +129,8 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private final Predicate<OrderLine> lotPredicate = orderLine -> (
         !CollectionUtils.isEmpty(orderLine.getLots()) &&
-        orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-        orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
+            orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+            orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
     );
 
     private final Predicate<OrderLine> cipNotSet = orderLine ->
@@ -150,7 +144,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         StorageService storageService,
         FournisseurProduitService fournisseurProduitService,
         LogsService logsService,
-        WarehouseSequenceRepository warehouseSequenceRepository,
         FournisseurRepository fournisseurRepository,
         OrderLineService orderLineService,
         CommandeIdGeneratorService commandeIdGeneratorService,
@@ -160,7 +153,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         LotRepository lotRepository,
         LotReceptionRepository lotReceptionRepository,
         AppConfigurationService appConfigurationService,
-        RetourBonRepository retourBonRepository,
         FournisseurProduitPriceHistoryRepository priceHistoryRepository,
         OrderLineRepository orderLineRepository,
         LotStockLocationService lotStockLocationService,
@@ -174,7 +166,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.storageService = storageService;
         this.fournisseurProduitService = fournisseurProduitService;
         this.logsService = logsService;
-        this.warehouseSequenceRepository = warehouseSequenceRepository;
         this.fournisseurRepository = fournisseurRepository;
         this.orderLineService = orderLineService;
         this.commandeIdGeneratorService = commandeIdGeneratorService;
@@ -184,7 +175,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.lotRepository = lotRepository;
         this.lotReceptionRepository = lotReceptionRepository;
         this.appConfigurationService = appConfigurationService;
-        this.retourBonRepository = retourBonRepository;
         this.priceHistoryRepository = priceHistoryRepository;
         this.orderLineRepository = orderLineRepository;
         this.lotStockLocationService = lotStockLocationService;
@@ -208,7 +198,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 int orderCost = line.getOrderCostAmount();
                 int currentCost = line.getFournisseurProduit().getPrixAchat();
                 if (orderCost == 0 || currentCost == orderCost) return false;
-                double variation = Math.abs((double)(currentCost - orderCost) / orderCost) * 100;
+                double variation = Math.abs((double) (currentCost - orderCost) / orderCost) * 100;
                 return variation > seuil;
             })
             .map(line -> new OrderLineDTO(line)
@@ -241,14 +231,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private StockEntryResultDTO finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        record Pair(Commande origin, Commande cloned) {}
         Commande deliveryReceipt = getReferenceById(deliveryReceiptLite.getCommandeId());
-        Pair pair = null;
-        if (!deliveryReceipt.getOrderDate().isEqual(LocalDate.now())) {
-            pair = new Pair(deliveryReceipt, cloneCommande(deliveryReceipt));
-            deliveryReceipt = pair.cloned();
-        }
-        boolean hasCloned = pair != null;
         LocalDate receiptDate = deliveryReceipt.getReceiptDate();
         // TODO: liste des vente en avoir pour envoi possible de notif et de mail
         deliveryReceipt
@@ -302,7 +285,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "lotExpirationTropProche"
                     );
                 }
-                mergeLots(orderLine, produit, receiptDate);
+                mergeLots(orderLine, receiptDate);
                 updateFournisseurProduit(orderLine, fournisseurProduit, produit);
                 saveItem(orderLine);
 
@@ -330,42 +313,18 @@ public class StockEntryServiceImpl implements StockEntryService {
         logsService.create(
             TransactionType.ENTREE_STOCK,
             "order.entry",
-            new Object[] { deliveryReceipt.getReceiptReference() },
+            new Object[]{deliveryReceipt.getReceiptReference()},
             deliveryReceipt.getId().getId().toString()
         );
         deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
         deliveryReceipt.setUpdatedAt(LocalDateTime.now());
-        //  Archiver l'original au lieu de le supprimer
-        // Évite la FK violation via RetourBonItem.order_line → order_line (cascade delete)
-        if (hasCloned) {
-            pair.origin.setOrderStatus(OrderStatut.ARCHIVED);
-            pair.origin.setUpdatedAt(LocalDateTime.now());
-            commandeRepository.save(pair.origin);
-        }
         deliveryReceipt = this.commandeRepository.save(deliveryReceipt);
-        if (!hasCloned) {
-            orderLineService.saveAll(deliveryReceipt.getOrderLines());
-        }
+
         saveLotReceptions(deliveryReceipt, receiptDate);
         saveLotStockLocations(deliveryReceipt);
         applyPutawayPolicy(deliveryReceipt, deliveryReceiptLite);
         inventoryTransactionService.saveAll(deliveryReceipt.getOrderLines());
-        // Retours fournisseur en attente liés à cette commande (ou l'originale si clonée)
-        Integer sourceCommandeId = hasCloned
-            ? pair.origin.getId().getId()
-            : deliveryReceipt.getId().getId();
-        List<StockEntryResultDTO.PendingRetourBon> pendingRetourBons = retourBonRepository
-            .findAllByCommandeId(sourceCommandeId)
-            .stream()
-            .filter(rb -> rb.getStatut() == RetourStatut.VALIDATED)
-            .map(rb -> new StockEntryResultDTO.PendingRetourBon(
-                rb.getId(),
-                rb.getDateMtv(),
-                rb.getCommentaire(),
-                rb.getRetourBonItems().size()
-            ))
-            .toList();
-        return new StockEntryResultDTO(deliveryReceipt.getId(), pendingRetourBons);
+        return new StockEntryResultDTO(deliveryReceipt.getId(), List.of());
     }
 
     private Commande cloneCommande(Commande commande) {
@@ -386,7 +345,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         cloned.setFinalAmount(commande.getFinalAmount());
         cloned.setOrderStatus(commande.getOrderStatus());
         cloned.setType(commande.getType());
-        cloned.setOriginalCommandeId(commande.getId().getId());
         commande.getOrderLines().forEach(orderLine -> cloneOrderLine(orderLine, cloned));
         return cloned;
     }
@@ -423,6 +381,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         cloned.setExpiryDate(lot.getExpiryDate());
         cloned.setPrixAchat(lot.getPrixAchat());
         cloned.setPrixUnit(lot.getPrixUnit());
+        cloned.setStatut(lot.getStatut());
+        cloned.setProduit(lot.getProduit());
+        cloned.setCurrentQuantity(lot.getCurrentQuantity());
         cloned.setOrderLine(orderLine);
         orderLine.getLots().add(cloned);
     }
@@ -492,7 +453,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public ReceptionScanResultDTO processScanReception(Integer commandeId, String rawScan) {
-        // 1. Parser le code scanné (EAN-8, EAN-13, CIP-7, CIP-13, GS1 DataMatrix)
+        // Parser le code scanné (EAN-8, EAN-13, CIP-7, CIP-13, GS1 DataMatrix)
         var parsedOpt = dataMatrixParserService.parse(rawScan);
         BarcodeType barcodeType = dataMatrixParserService.detectBarcodeType(rawScan);
 
@@ -510,7 +471,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 null, ReceptionScanResultDTO.FmdStatus.ABSENT);
         }
 
-        // 2. Identifier la ligne de commande par CIP
+        //Identifier la ligne de commande par CIP
         OrderLine line = orderLineRepository.findFirstByCommandeIdAndCip(commandeId, cip).orElse(null);
         if (line == null) {
             return new ReceptionScanResultDTO(false, null, null, cip,
@@ -518,7 +479,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 null, ReceptionScanResultDTO.FmdStatus.ABSENT);
         }
 
-        // 3. Vérification FMD — numéro de série (AI 21)
+        // Vérification FMD — numéro de série (AI 21)
         String serialNumber = parsed.serialNumber();
         ReceptionScanResultDTO.FmdStatus fmdStatus;
         String fmdWarning = null;
@@ -536,12 +497,12 @@ public class StockEntryServiceImpl implements StockEntryService {
             fmdStatus = ReceptionScanResultDTO.FmdStatus.ABSENT;
         }
 
-        // 4. Incrémenter la quantité reçue de 1
+        //Incrémenter la quantité reçue de 1
         int newQty = (line.getQuantityReceived() == null ? 0 : line.getQuantityReceived()) + 1;
         line.setQuantityReceived(newQty);
         updateItem(line);
 
-        // 5. Créer le lot automatiquement si DataMatrix complet + APP_GESTION_LOT actif
+        // Créer le lot automatiquement si DataMatrix complet + APP_GESTION_LOT actif
         boolean lotCreated = false;
         String lotNumero = null;
         LocalDate lotPeremption = null;
@@ -560,7 +521,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             lot.setProduit(line.getFournisseurProduit().getProduit());
             lot.setPrixAchat(line.getOrderCostAmount());
             lot.setPrixUnit(line.getOrderUnitPrice());
-            lot.setStatut(StatutLot.AVAILABLE);
+            lot.setStatut(StatutLot.IN_PROGRESS);
             if (fmdStatus == ReceptionScanResultDTO.FmdStatus.PRESENT) {
                 lot.setSerialNumber(serialNumber);
             }
@@ -621,16 +582,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         );
     }
 
-    private String buildDeliveryReceiptNumberTransaction() {
-        WarehouseSequence warehouseSequence = warehouseSequenceRepository.getReferenceById(EntityConstant.ENTREE_STOCK_SEQUENCE_ID);
-        String num = StringUtils.leftPad(String.valueOf(warehouseSequence.getValue()), EntityConstant.LEFTPAD_SIZE, '0');
-        warehouseSequence.setValue(warehouseSequence.getValue() + warehouseSequence.getIncrement());
-        warehouseSequenceRepository.save(warehouseSequence);
-        return num;
-    }
 
     private int getTotalStockQuantity(StockProduit stockProduit) {
-        return stockProduit.getQtyStock() + Objects.requireNonNullElse(stockProduit.getQtyUG(),0);
+        return stockProduit.getQtyStock() + Objects.requireNonNullElse(stockProduit.getQtyUG(), 0);
     }
 
     private Commande buildDeliveryReceipt(DeliveryReceiptLiteDTO deliveryReceiptLite, Commande commande) {
@@ -720,16 +674,16 @@ public class StockEntryServiceImpl implements StockEntryService {
     ) {
         OrderLine orderLine =
             this.orderLineService.buildDeliveryReceiptItemFromRecord(
-                    fournisseurProduit,
-                    quantityRequested,
-                    quantityReceived,
-                    orderCostAmount,
-                    orderUnitPrice,
-                    quantityUg,
-                    stock,
-                    taxeAmount,
-                    commande
-                );
+                fournisseurProduit,
+                quantityRequested,
+                quantityReceived,
+                orderCostAmount,
+                orderUnitPrice,
+                quantityUg,
+                stock,
+                taxeAmount,
+                commande
+            );
 
         commande.getOrderLines().add(orderLine);
 
@@ -796,7 +750,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 .setQuantity(quantity)
                 .setCurrentQuantity(quantity)
                 .setCreatedDate(LocalDateTime.now())
-                .setStatut(StatutLot.AVAILABLE);
+                .setStatut(StatutLot.IN_PROGRESS);
             lot.setPrixAchat(orderLine.getOrderCostAmount());
             lot.setPrixUnit(orderLine.getOrderUnitPrice());
             orderLine.getLots().add(lot);
@@ -967,19 +921,19 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId,LocalDate orderDate) {
-        Commande commande = commandeRepository.getReferenceById(new CommandeId(commandeId,orderDate));
-        Storage rayon   = storageService.getDefaultConnectedUserMainStorage();
+    public List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId, LocalDate orderDate) {
+        Commande commande = commandeRepository.getReferenceById(new CommandeId(commandeId, orderDate));
+        Storage rayon = storageService.getDefaultConnectedUserMainStorage();
         Storage reserve = storageService.getDefaultConnectedUserReserveStorage();
 
         return commande.getOrderLines().stream()
             .map(ol -> ol.getFournisseurProduit().getProduit())
             .distinct()
             .flatMap(produit -> {
-                StockProduit rayonSp   = null;
+                StockProduit rayonSp = null;
                 StockProduit reserveSp = null;
                 for (StockProduit sp : produit.getStockProduits()) {
-                    if (sp.getStorage().getId().equals(rayon.getId()))   rayonSp   = sp;
+                    if (sp.getStorage().getId().equals(rayon.getId())) rayonSp = sp;
                     if (sp.getStorage().getId().equals(reserve.getId())) reserveSp = sp;
                 }
                 if (rayonSp == null || reserveSp == null) return java.util.stream.Stream.empty();
@@ -1004,10 +958,10 @@ public class StockEntryServiceImpl implements StockEntryService {
             })
             .sorted(Comparator.comparingInt(item -> switch (item.classePareto()) {
                 case "A+" -> 0;
-                case "A"  -> 1;
-                case "B"  -> 2;
-                case "C"  -> 3;
-                default   -> 4;
+                case "A" -> 1;
+                case "B" -> 2;
+                case "C" -> 3;
+                default -> 4;
             }))
             .toList();
     }
@@ -1026,8 +980,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     private void applyPutawayPolicy(Commande deliveryReceipt, DeliveryReceiptLiteDTO dto) {
         PutawayMode mode = appConfigurationService.getPutawayMode();
         boolean shouldTransfer = switch (mode) {
-            case AUTO      -> true;
-            case MANUAL    -> Boolean.TRUE.equals(dto.getDoTransfer());
+            case AUTO -> true;
+            case MANUAL -> Boolean.TRUE.equals(dto.getDoTransfer());
             case ALL_RAYON -> false;
         };
         if (!shouldTransfer) return;
@@ -1038,28 +992,24 @@ public class StockEntryServiceImpl implements StockEntryService {
         suggestionReassortService.autoExecuteOverflowForProducts(produitIds);
     }
 
-    private void mergeLots(OrderLine orderLine, Produit produit, LocalDate receiptDate) {
+    private void mergeLots(OrderLine orderLine, LocalDate receiptDate) {
         if (CollectionUtils.isEmpty(orderLine.getLots())) {
             return;
         }
         var principalStorage = storageService.getDefaultConnectedUserMainStorage();
-        List<Lot> lotsToRemove = new ArrayList<>();
-        orderLine.getLots().forEach(lot ->
-            lotRepository.findByNumLotAndProduitId(lot.getNumLot(), produit.getId())
-                .ifPresent(existingLot -> {
-                    existingLot.setQuantity(existingLot.getQuantity() + lot.getQuantity());
-                    existingLot.setCurrentQuantity(existingLot.getCurrentQuantity() + lot.getQuantity());
-                    existingLot.setFreeQty(existingLot.getFreeQty() + lot.getFreeQty());
-                    existingLot.setStatut(StatutLot.AVAILABLE);
-                    existingLot.setUpdated(LocalDateTime.now());
-                    lotRepository.save(existingLot);
-                    lotReceptionRepository.save(buildLotReception(existingLot, orderLine, lot.getQuantity(), lot.getFreeQty(), lot.getPrixAchat(), receiptDate));
-                    // FEFO : créditer le lot existant dans le storage PRINCIPAL
-                    lotStockLocationService.credit(existingLot, principalStorage, lot.getQuantity());
-                    lotsToRemove.add(lot);
-                })
+
+        orderLine.getLots().forEach(lot -> {
+
+                lot.setStatut(StatutLot.AVAILABLE);
+                lot.setUpdated(LocalDateTime.now());
+                lotRepository.save(lot);
+                lotReceptionRepository.save(buildLotReception(lot, orderLine, lot.getQuantity(), lot.getFreeQty(), lot.getPrixAchat(), receiptDate));
+                // FEFO : créditer le lot existant dans le storage PRINCIPAL
+                lotStockLocationService.credit(lot, principalStorage, lot.getQuantity());
+
+            }
         );
-        orderLine.getLots().removeAll(lotsToRemove);
+
     }
 
     /**

@@ -345,7 +345,7 @@ public class ProduitServiceImpl implements ProduitService {
         }
 
         stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduit.setQtyStock(stockProduit.getQtyStock() + (stockIn + stockUg));
+        stockProduit.setQtyStock(stockProduit.getQtyStock() + stockIn);
         stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduit = stockProduitRepository.save(stockProduit);

@@ -23,7 +23,7 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
-  styleUrls: ['./form-lot.scss'],
+  styleUrls: ['form-lot.scss'],
   imports: [
     CommonModule,
     ButtonModule,

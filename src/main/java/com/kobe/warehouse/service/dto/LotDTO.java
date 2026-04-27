@@ -210,7 +210,7 @@ public class LotDTO {
             .setManufacturingDate(manufacturingDate)
             .setSerialNumber(serialNumber)
             .setQuantity(quantityReceived + ug)
-            .setStatut(StatutLot.AVAILABLE)
+            .setStatut(StatutLot.IN_PROGRESS)
             .setFreeQty(ug);
     }
 }

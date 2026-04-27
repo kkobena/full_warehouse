@@ -94,8 +94,10 @@ public class StockUpdateService {
      * @param stockProduit StockProduit rayon à restaurer
      */
     public void updateStockOnCancellation(SalesLine canceledLine, StockProduit stockProduit) {
-        // canceledLine.quantityRequested est négatif → la soustraction restaure le stock
-        stockProduit.setQtyStock(stockProduit.getQtyStock() - canceledLine.getQuantityRequested());
+        // canceledLine a des quantités négatives → la soustraction restaure le stock.
+        // Symétrie avec updateStock : qtyStock ne contient pas les UG, on restaure chaque
+        // compartiment séparément pour éviter de gonfler qtyStock des UG annulées.
+        stockProduit.setQtyStock(stockProduit.getQtyStock() - (canceledLine.getQuantityRequested() - canceledLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - canceledLine.getQuantityUg());
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduitRepository.save(stockProduit);

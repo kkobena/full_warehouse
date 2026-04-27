@@ -22,6 +22,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -32,16 +34,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
-
 /**
  * not an ignored comment
  */
-@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+
 @Entity
 @Table(
     name = "produit",
@@ -99,13 +95,13 @@ public class Produit implements Serializable {
     private Integer qtySeuilMini = 1;
 
     @Column(name = "check_expiry_date", columnDefinition = "boolean default false")
-    private Boolean checkExpiryDate= false;//TODO: to remove
+    private Boolean checkExpiryDate = false;//TODO: to remove
 
     @Column(name = "gestion_lot", columnDefinition = "boolean default true")
     private Boolean gestionLot = true;
     //Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits numériques, etc.)
 
-    @NotAudited
+
     @Column(name = "chiffre", columnDefinition = "boolean default true")
     private Boolean chiffre = true;
 
@@ -122,7 +118,7 @@ public class Produit implements Serializable {
     @Column(name = "item_regular_unit_price", nullable = false)
     private Integer itemRegularUnitPrice = 0;
 
-    @NotAudited
+
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
@@ -133,30 +129,30 @@ public class Produit implements Serializable {
 
     @NotNull
     @Column(name = "deconditionnable", nullable = false)
-    private Boolean deconditionnable= false;
+    private Boolean deconditionnable = false;
 
-    @NotAudited
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Produit parent;
 
-    @NotAudited
+
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
-    @NotAudited
+
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private Set<StockProduit> stockProduits = new HashSet<>();
 
-    @NotAudited
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Tva tva;
 
-    @NotAudited
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Laboratoire laboratoire;
 
-    @NotAudited
+
     @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
 
@@ -164,15 +160,15 @@ public class Produit implements Serializable {
     private String codeEanLaboratoire;
 
     @NotNull
-    @NotAudited
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private FamilleProduit famille;
 
-    @NotAudited
+
     @ManyToOne(fetch = FetchType.LAZY)
     private GammeProduit gamme;
 
-    @NotAudited
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Dci dci;
 
@@ -206,18 +202,17 @@ public class Produit implements Serializable {
     @Column(name = "est_produit_garde", columnDefinition = "boolean default false")
     private Boolean estProduitGarde = false;
 
-    @NotAudited
+
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
-    @NotAudited
+
     @OneToOne
     @JoinColumn(name = "fournisseur_produit_principal_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduitPrincipal;
 
 
-    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
@@ -231,7 +226,7 @@ public class Produit implements Serializable {
      */
     @Min(value = 0)
     @Column(name = "seuil_decond", comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
-    private Integer seuilDeconditionnement= 0;
+    private Integer seuilDeconditionnement = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "code_remise", length = 6, comment = "Code de remise qui seront mappés sur les grilles de remises")

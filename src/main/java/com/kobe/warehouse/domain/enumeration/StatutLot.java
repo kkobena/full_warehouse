@@ -5,4 +5,5 @@ public enum StatutLot {
     SOLD,
     EXPIRED,
     DESTROYED,
+    IN_PROGRESS
 }

@@ -146,8 +146,8 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "reliquat_de_commande_id")
     private Integer reliquatDeCommandeId;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
-    @JoinColumn(name = "reconciliation_id", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "reconciliation_id")
     private ReconciliationFactureFournisseur reconciliation;
 
     @Transient

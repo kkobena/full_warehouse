@@ -127,38 +127,62 @@
             [class.cr-scan-badge--ok]="lastScanResult()!.found"
             [class.cr-scan-badge--err]="!lastScanResult()!.found"
           >
-                @if (lastScanResult()!.found) {
-                  <i class="pi pi-check-circle"></i>
-                  {{ lastScanResult()!.produitLibelle }}
-                  @if (lastScanResult()!.lotAutoCreated) {
-                    <span class="ms-1">(lot {{ lastScanResult()!.lotNumero }})</span>
-                  }
-                  <!-- Badge FMD -->
-                  @if (lastScanResult()!.fmdStatus === 'PRESENT') {
-                    <span class="cr-fmd-badge cr-fmd-badge--ok"
-                          pTooltip="FMD : numéro de série enregistré ({{ lastScanResult()!.serialNumber }})"
-                          tooltipPosition="top">
-                      <i class="pi pi-shield"></i> FMD ✓
-                    </span>
-                  }
-                  @if (lastScanResult()!.fmdStatus === 'DUPLICATE') {
-                    <span class="cr-fmd-badge cr-fmd-badge--danger" pTooltip="{{ lastScanResult()!.warningMessage }}"
-                          tooltipPosition="top">
-                      <i class="pi pi-shield"></i> DOUBLON !
-                    </span>
-                  }
-                  @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType === 'DATAMATRIX') {
-                    <span class="cr-fmd-badge cr-fmd-badge--warn"
-                          pTooltip="DataMatrix sans numéro de série (AI 21 absent)" tooltipPosition="top">
-                      <i class="pi pi-shield"></i> FMD ?
-                    </span>
-                  }
-                } @else {
-                  <i class="pi pi-times-circle"></i>
-                  {{ lastScanResult()!.warningMessage }}
-                }
-              </span>
+            @if (lastScanResult()!.found) {
+              <i class="pi pi-check-circle"></i>
+              {{ lastScanResult()!.produitLibelle }}
+              @if (lastScanResult()!.lotAutoCreated) {
+                <span class="ms-1">(lot {{ lastScanResult()!.lotNumero }})</span>
+              }
+              @if (lastScanResult()!.fmdStatus === 'PRESENT') {
+                <span class="cr-fmd-badge cr-fmd-badge--ok"
+                      [pTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
+                      tooltipPosition="top">
+                  <i class="pi pi-shield"></i> FMD ✓
+                </span>
+              }
+              @if (lastScanResult()!.fmdStatus === 'DUPLICATE') {
+                <span class="cr-fmd-badge cr-fmd-badge--danger"
+                      [pTooltip]="lastScanResult()!.warningMessage ?? ''"
+                      tooltipPosition="top">
+                  <i class="pi pi-shield"></i> DOUBLON !
+                </span>
+              }
+              @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType === 'DATAMATRIX') {
+                <span class="cr-fmd-badge cr-fmd-badge--warn"
+                      pTooltip="DataMatrix sans numéro de série (AI 21 absent)"
+                      tooltipPosition="top">
+                  <i class="pi pi-shield"></i> FMD ?
+                </span>
+              }
+            } @else {
+              <i class="pi pi-times-circle"></i>
+              {{ lastScanResult()!.warningMessage }}
+            }
+          </span>
         }
+      </div>
+      <!-- Actions barre droite -->
+      <div class="cr-bar-actions ms-auto">
+        <p-button
+          (click)="toggleLeftPanel()"
+          [icon]="showLeftPanel ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
+          [label]="showLeftPanel ? 'Fermer récap' : 'Récap BL'"
+          severity="secondary"
+          size="small"
+          [outlined]="true"
+          pTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
+          tooltipPosition="bottom"
+        />
+        <p-button
+          (click)="openHelp()"
+          icon="pi pi-question-circle"
+          label="Aide"
+          severity="info"
+          size="small"
+          [outlined]="true"
+          pTooltip="Raccourcis clavier, scanner CIP, scanner DataMatrix"
+          tooltipPosition="bottom"
+        />
       </div>
     </div>
   </div>
@@ -166,41 +190,43 @@
   <!-- MAIN CONTENT -->
   <div class="cr-content">
 
-    <!-- LEFT PANEL : concordance + résumé -->
-    <div class="cr-panel-left">
-      <app-reception-concordance
-        [orderLines]="orderLines"
-        [showLotInfo]="showLotBtn"
-      />
-      <div class="reception-summary-card">
-        <div class="summary-header">
-          <i class="pi pi-info-circle"></i>
-          <span>Détails de la réception</span>
-        </div>
-        <div class="summary-content">
-          <div class="summary-row">
-            <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
-            <span class="summary-val">{{ currentCommande?.fournisseur?.libelle }}</span>
+    <!-- LEFT PANEL : concordance + résumé (toggle) -->
+    @if (showLeftPanel) {
+      <div class="cr-panel-left">
+        <app-reception-concordance
+          [orderLines]="orderLines"
+          [showLotInfo]="showLotBtn"
+        />
+        <div class="reception-summary-card">
+          <div class="summary-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Détails de la réception</span>
           </div>
-          <div class="summary-row">
-            <span class="summary-key"><i class="pi pi-file"></i> Référence</span>
-            <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
-            <span class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="summary-row highlight">
-            <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
-            <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }} F</span>
-          </div>
-          <div class="summary-row highlight">
-            <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
-            <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+          <div class="summary-content">
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
+              <span class="summary-val">{{ currentCommande?.fournisseur?.libelle }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-file"></i> Référence</span>
+              <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
+              <span class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="summary-row highlight">
+              <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
+              <span class="summary-val amount">{{ currentCommande?.receiptAmount | number }} F</span>
+            </div>
+            <div class="summary-row highlight">
+              <span class="summary-key"><i class="pi pi-percentage"></i> Taxe</span>
+              <span class="summary-val amount">{{ currentCommande?.taxAmount | number }} F</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- RIGHT PANEL : AG Grid des lignes -->
     <div class="cr-panel-right">
@@ -253,3 +279,4 @@
 </div>
 
 <jhi-spinner #spinner />
+

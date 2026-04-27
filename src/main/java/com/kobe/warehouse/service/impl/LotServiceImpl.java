@@ -4,14 +4,12 @@ import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
-import com.kobe.warehouse.domain.LotStockLocation;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.LotStockLocationRepository;
@@ -19,6 +17,7 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.LotDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
@@ -41,6 +40,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,18 +87,32 @@ public class LotServiceImpl implements LotService {
         OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId())
             .orElseThrow(() -> new GenericError("Ligne de commande introuvable", "ligneCommandeIntrouvable"));
         Integer qtyReceived = orderLine.getQuantityReceived();
-        if (qtyReceived != null && qtyReceived > 0) {
+        if (Objects.nonNull(qtyReceived) && qtyReceived> 0) {
             int alreadyCovered = orderLine.getLots().stream()
                 .mapToInt(l -> Optional.ofNullable(l.getQuantity()).orElse(0))
                 .sum();
             int newQty = Optional.ofNullable(lot.getQuantityReceived()).orElse(0)
-                       + Optional.ofNullable(lot.getFreeQty()).orElse(0);
+                + Optional.ofNullable(lot.getFreeQty()).orElse(0);
             int total = qtyReceived + Optional.of(orderLine.getFreeQty()).orElse(0);
             if (alreadyCovered + newQty > total) {
                 throw new GenericError(
                     "La quantité totale des lots (" + (alreadyCovered + newQty) + ") dépasserait la quantité reçue (" + total + ")",
                     "lotsDepassentQuantiteRecue"
                 );
+            }
+        }
+        if (lot.getNumLot() != null) {
+            Optional<Lot> existing = orderLine.getLots().stream()
+                .filter(l -> lot.getNumLot().equals(l.getNumLot()))
+                .findFirst();
+            if (existing.isPresent()) {
+                Lot existingLot = existing.get();
+                int addQty = Optional.ofNullable(lot.getQuantityReceived()).orElse(0)
+                    + Optional.ofNullable(lot.getFreeQty()).orElse(0);
+                existingLot.setQuantity(existingLot.getQuantity() + addQty);
+                existingLot.setCurrentQuantity(existingLot.getCurrentQuantity() + addQty);
+                existingLot.setFreeQty(existingLot.getFreeQty() + Optional.ofNullable(lot.getFreeQty()).orElse(0));
+                return new LotDTO(this.lotRepository.saveAndFlush(existingLot));
             }
         }
         Lot lotEntity = lot.toEntity();
@@ -151,7 +165,7 @@ public class LotServiceImpl implements LotService {
 
         FournisseurProduit fp = produit.getFournisseurProduitPrincipal();
         int prixAchat = fp != null ? fp.getPrixAchat() : produit.getCostAmount();
-        int prixUnit  = fp != null ? fp.getPrixUni()   : produit.getRegularUnitPrice();
+        int prixUnit = fp != null ? fp.getPrixUni() : produit.getRegularUnitPrice();
 
         Lot lotEntity = lot.toEntity();
         lotEntity.setCurrentQuantity(lotEntity.getQuantity());

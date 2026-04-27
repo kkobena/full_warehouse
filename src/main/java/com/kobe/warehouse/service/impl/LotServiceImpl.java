@@ -171,7 +171,8 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotDTO editLot(LotDTO lot) {
         Lot entity = this.lotRepository.getReferenceById(lot.getId());
-        entity.setFreeQty(Optional.ofNullable(lot.getFreeQty()).orElse(0));
+        int ug = Optional.ofNullable(lot.getUgQuantityReceived()).orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
+        entity.setFreeQty(ug);
         entity.setExpiryDate(lot.getExpiryDate());
         entity.setManufacturingDate(lot.getManufacturingDate());
         entity.setNumLot(lot.getNumLot());
@@ -318,7 +319,8 @@ public class LotServiceImpl implements LotService {
     }
 
     private int computeQuantity(LotDTO lot) {
-        return lot.getQuantityReceived() + Optional.ofNullable(lot.getFreeQty()).orElse(0);
+        int ug = Optional.ofNullable(lot.getUgQuantityReceived()).orElse(Optional.ofNullable(lot.getFreeQty()).orElse(0));
+        return lot.getQuantityReceived() + ug;
     }
 
     private Page<LotPerimeDTO> buildLotPerimePage(LotFilterParam lotFilterParam, Pageable pageable) {

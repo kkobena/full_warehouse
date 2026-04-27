@@ -19,7 +19,7 @@ import { ILot } from "../../../../../shared/model/lot.model";
           [class.lec-open]="expanded()"
           [class.lec-warn]="!expanded() && !isComplete()"
           [class.lec-ok]="!expanded() && isComplete()"
-          [pTooltip]="expanded() ? 'Fermer la saisie inline' : isComplete() ? 'Lots complets ✓' : 'Saisir lots (inline)'"
+          [pTooltip]="expanded() ? 'Fermer la saisie' : isComplete() ? 'Lots complets ✓' : 'Saisir lots'"
           tooltipPosition="left"
           (click)="onToggle($event)"
         ></i>

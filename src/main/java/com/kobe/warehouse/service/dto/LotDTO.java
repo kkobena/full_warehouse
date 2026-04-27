@@ -24,6 +24,8 @@ public class LotDTO {
 
     private Integer quantityReceived;
 
+    private Integer ugQuantityReceived;
+
     private LocalDateTime createdDate;
 
     private LocalDate manufacturingDate;
@@ -44,6 +46,7 @@ public class LotDTO {
         id = lot.getId();
         numLot = lot.getNumLot();
         freeQty = lot.getFreeQty();
+        ugQuantityReceived = lot.getFreeQty();
         quantity = lot.getQuantity();
         quantityReceived = lot.getQuantity();
         currentQuantity = lot.getCurrentQuantity();
@@ -190,8 +193,17 @@ public class LotDTO {
         return this;
     }
 
+    public Integer getUgQuantityReceived() {
+        return ugQuantityReceived;
+    }
+
+    public LotDTO setUgQuantityReceived(Integer ugQuantityReceived) {
+        this.ugQuantityReceived = ugQuantityReceived;
+        return this;
+    }
+
     public Lot toEntity() {
-        var ug = Optional.ofNullable(freeQty).orElse(0);
+        var ug = Optional.ofNullable(ugQuantityReceived).orElse(Optional.ofNullable(freeQty).orElse(0));
         return new Lot()
             .setNumLot(numLot)
             .setExpiryDate(expiryDate)

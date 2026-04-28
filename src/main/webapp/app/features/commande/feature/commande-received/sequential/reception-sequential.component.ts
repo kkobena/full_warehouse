@@ -263,6 +263,7 @@ export class ReceptionSequentialComponent {
     if (idx >= 0 && idx < lines.length - 1) {
       this.currentLineId.set(lines[idx + 1].id ?? null);
     } else if (idx >= 0 && idx === lines.length - 1) {
+      this.currentLineId.set(null);
       this.allLinesProcessed.emit();
     } else if (idx === -1) {
       // currentLine non trouvée dans visibleLines → chercher la première visible après sa position
@@ -271,7 +272,8 @@ export class ReceptionSequentialComponent {
       const nextVisible = lines.find(l => allLines.findIndex(a => a.id === l.id) > posInAll);
       if (nextVisible) {
         this.currentLineId.set(nextVisible.id ?? null);
-      } else if (lines.length > 0) {
+      } else {
+        this.currentLineId.set(null);
         this.allLinesProcessed.emit();
       }
     }

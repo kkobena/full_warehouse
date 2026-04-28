@@ -113,14 +113,15 @@ export class CommandeReceivedComponent implements OnInit {
   protected showLeftPanel = true;
 
   // ── Vue séquentielle / grille ─────────────────────────────────────────────
-  protected readonly viewMode = signal<'grid' | 'sequential'>(
-    (localStorage.getItem('reception-view-mode') as 'grid' | 'sequential') ?? 'sequential'
+  protected readonly viewMode = signal<"grid" | "sequential">(
+    (localStorage.getItem("reception-view-mode") as "grid" | "sequential") ?? "sequential"
   );
 
-  protected setViewMode(mode: 'grid' | 'sequential'): void {
+  protected setViewMode(mode: "grid" | "sequential"): void {
     this.viewMode.set(mode);
-    localStorage.setItem('reception-view-mode', mode);
+    localStorage.setItem("reception-view-mode", mode);
   }
+
   protected currentCommande!: ICommande;
   protected filtres: any[];
   protected exportbuttons: MenuItem[];
@@ -166,25 +167,25 @@ export class CommandeReceivedComponent implements OnInit {
 
   // ── Scan réception ────────────────────────────────────────────────────────
   protected scanValue = "";
-  protected readonly lastScanResult   = signal<IReceptionScanResult | null>(null);
+  protected readonly lastScanResult = signal<IReceptionScanResult | null>(null);
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
-  protected readonly scanLotPrefill   = signal<{ numLot: string; expiry: string } | null>(null);
+  protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private scanPrefillTimer:  ReturnType<typeof setTimeout> | null = null;
+  private scanPrefillTimer: ReturnType<typeof setTimeout> | null = null;
   private keydownListener: ((e: KeyboardEvent) => void) | null = null;
 
-  private readonly spinner            = viewChild.required<SpinnerComponent>("spinner");
-  readonly scanInputRef               = viewChild<ElementRef>("scanInputRef");
-  private readonly confirmDialog      = inject(NgbConfirmDialogService);
+  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
+  readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
-  private readonly commandeService    = inject(CommandeService);
-  private readonly deliveryService    = inject(DeliveryService);
-  private readonly modalService       = inject(NgbModal);
-  private readonly errorService       = inject(ErrorService);
+  private readonly commandeService = inject(CommandeService);
+  private readonly deliveryService = inject(DeliveryService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
-  private readonly tauriPrinterService  = inject(TauriPrinterService);
-  private readonly destroyRef           = inject(DestroyRef);
-  private readonly scanDetectorService  = inject(ScanDetectorService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly scanDetectorService = inject(ScanDetectorService);
 
   constructor() {
     this.filtres = [
@@ -246,13 +247,16 @@ export class CommandeReceivedComponent implements OnInit {
       centered: true
     });
     const instance = ref.componentInstance as ReceptionFinalizeModalComponent;
-    instance.orderLines        = this.orderLines;
-    instance.commandeRef       = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
+    instance.orderLines = this.orderLines;
+    instance.commandeRef = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
     instance.fournisseurLibelle = this.currentCommande.fournisseur?.libelle ?? "";
 
     ref.result.then(
-      result => { if (result === "finalize") this.onConfirmFinalize(); },
-      () => { /* dismissed — continuer la saisie */ }
+      result => {
+        if (result === "finalize") this.finalizeSansConfirmModal();
+      },
+      () => { /* dismissed — continuer la saisie */
+      }
     );
   }
 
@@ -403,6 +407,33 @@ export class CommandeReceivedComponent implements OnInit {
             "Finalisation de la commande",
             "Voullez-vous faire l'entrée en stock ?"
           );
+        }
+      },
+      error: () => {
+        this.confirmDialog.onConfirm(
+          () => this.checkPutawayAndFinalize(),
+          "Finalisation de la commande",
+          "Voullez-vous faire l'entrée en stock ?"
+        );
+      }
+    });
+  }
+
+  protected finalizeSansConfirmModal(): void {
+    this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
+      next: res => {
+        const lignesAnomalie = res.body ?? [];
+        if (lignesAnomalie.length > 0) {
+          const detail = lignesAnomalie
+            .map(l => `• ${l.produitLibelle} : commandé ${l.orderCostAmount} → actuel ${l.costAmount}`)
+            .join("\n");
+          this.confirmDialog.onConfirm(
+            () => this.confirmFinalizeApresAlertesPrix(),
+            "Variation de prix détectée",
+            `${lignesAnomalie.length} ligne(s) ont un écart de prix dépassant le seuil configuré :\n${detail}\n\nVoulez-vous continuer malgré ces écarts ?`
+          );
+        } else {
+          this.checkPutawayAndFinalize();
         }
       },
       error: () => {
@@ -614,7 +645,7 @@ export class CommandeReceivedComponent implements OnInit {
           const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
           if (idx !== -1) {
             const updated = { ...this.orderLines[idx] };
-            updated.quantityReceived    = (updated.quantityReceived ?? 0) + 1;
+            updated.quantityReceived = (updated.quantityReceived ?? 0) + 1;
             updated.quantityReceivedTmp = updated.quantityReceived;
             this.orderLines = [...this.orderLines];
             this.orderLines[idx] = updated;
@@ -634,7 +665,7 @@ export class CommandeReceivedComponent implements OnInit {
             // DataMatrix avec info lot mais lot non auto-créé → pré-remplir le formulaire lot séquentiel
             const isoDate = result.lot.expiryDate as unknown as string;
             const m = isoDate.match(/^(\d{4})-(\d{2})/);
-            const expiry = m ? `${m[2]}/${m[1]}` : '';
+            const expiry = m ? `${m[2]}/${m[1]}` : "";
             if (expiry) {
               if (this.scanPrefillTimer) clearTimeout(this.scanPrefillTimer);
               this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
@@ -679,9 +710,11 @@ export class CommandeReceivedComponent implements OnInit {
       }
     });
 
-    setTimeout(() => {
-      (this.scanInputRef()?.nativeElement as HTMLInputElement | undefined)?.focus();
-    }, 150);
+    if (this.viewMode() !== "sequential") {
+      setTimeout(() => {
+        (this.scanInputRef()?.nativeElement as HTMLInputElement | undefined)?.focus();
+      }, 150);
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

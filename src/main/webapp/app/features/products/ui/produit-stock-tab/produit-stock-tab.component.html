@@ -280,8 +280,8 @@
         @for (lot of lotsFEFO(); track lot.id) {
           <div [class]="'fefo-row ' + fefoClass(lot)">
             <span class="fefo-num">{{ lot.numLot }}</span>
-            <span class="fefo-date">{{ lot.datePeremption }}</span>
-            <span class="fefo-qty text-end">{{ lot.quantity }}</span>
+            <span class="fefo-date">{{ lot.expiryDate | date : 'dd/MM/yyyy' }}</span>
+            <span class="fefo-qty text-end">{{ lot.currentQuantity }}</span>
             <span>
               @if ((lot.peremptionStatut?.days ?? 9999) <= 30) {
                 <span class="fefo-badge fefo-badge-critical">Critique</span>

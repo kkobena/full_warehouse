@@ -6,7 +6,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
-import { ILotPeremption, ProductsApiService } from '../../data-access/services/products-api.service';
+import { ILotPeremption, ILotProduit, ProductsApiService } from "../../data-access/services/products-api.service";
 import { PrixReference } from '../prix-reference/model/prix-reference.model';
 import { PrixReferenceService } from '../prix-reference/prix-reference.service';
 import { AddPrixFormComponent } from '../prix-reference/add-prix-form/add-prix-form.component';
@@ -23,7 +23,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
-  readonly lots = input<ILotPeremption[]>([]);
+  readonly lots = input<ILotProduit[]>([]);
   readonly loadingIndicateurs = input<boolean>(false);
   readonly canEdit = input<boolean>(false);
 

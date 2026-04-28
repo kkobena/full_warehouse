@@ -209,11 +209,13 @@
   <div class="cr-content">
 
     @if (viewMode() === 'sequential') {
-      <!-- MODE SÉQUENTIEL — à implémenter dans reception-sequential.component -->
-      <div class="cr-panel-right" style="align-items:center;justify-content:center;color:#9ca3af;font-size:0.85rem;gap:0.5rem;display:flex;">
-        <i class="pi pi-wrench" style="font-size:1.2rem;"></i>
-        Mode séquentiel — en cours d'implémentation
-      </div>
+      <app-reception-sequential
+        [orderLines]="orderLines"
+        [showLotBtn]="showLotBtn"
+        [lotPrefill]="scanLotPrefill()"
+        (lineChanged)="onSequentialLineChanged($event)"
+        (allLinesProcessed)="onSequentialAllDone()"
+      />
 
     } @else {
     <!-- LEFT PANEL : concordance + résumé (toggle) -->

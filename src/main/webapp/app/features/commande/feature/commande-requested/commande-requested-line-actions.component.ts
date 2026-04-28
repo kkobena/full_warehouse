@@ -20,18 +20,7 @@ import { ButtonGroup } from "primeng/buttongroup";
         size="small"
         (onClick)="onEdit($event)"
       />
-      @if (showLot) {
-        <p-button
-          [text]="true"
-          [rounded]="true"
-          severity="info"
-          icon="pi pi-box"
-          pTooltip="Lots"
-          tooltipPosition="top"
-          size="small"
-          (onClick)="onLot($event)"
-        />
-      }
+
       <p-button
         [text]="true"
         [rounded]="true"

@@ -58,7 +58,31 @@ Toute la logique métier, les endpoints, les services restent **identiques et in
 
 ---
 
-### 3. Séquentiel = mode par défaut
+### 3. Saisie UG — Tab flow (arrêté)
+
+Le champ UG est **toujours visible** dans le step 'qty', positionné juste après "Reçu" dans
+l'ordre de tabulation.
+
+| Geste clavier | Résultat |
+|---|---|
+| Tape qty → **Entrée** | Valide directement (0 UG) |
+| Tape qty → **Tab** → tape UG → **Entrée** | Valide avec UG |
+| Tape qty → **Tab** → laisse vide → **Entrée** | Valide (0 UG) |
+
+**Pourquoi pas un toggle :** un champ conditionnel (`@if`) sort du tab order — Tab saute
+par-dessus et le comportement devient imprévisible. UG toujours dans le DOM = Tab toujours
+prévisible (référence : WCAG 2.1 §3.2.1, pattern Excel / Sage Gestion Commerciale).
+
+**Option C (UG uniquement au lot) rejetée** : les produits sans gestion de lot n'auraient
+aucun endroit pour saisir les UG. Crée deux comportements différents selon le produit.
+
+**Distribution UG au prorata en step 'lot' :** `resetLotDraft()` pré-remplit `draftLotUg`
+avec `remainingLotUg()`. Si plusieurs lots, la part de chaque lot est naturellement ajustée
+par le restant décroissant — pas de calcul explicite requis côté utilisateur.
+
+---
+
+### 4. Séquentiel = mode par défaut
 
 | Logiciel | Mode principal | Mode secondaire |
 |---|---|---|
@@ -73,7 +97,7 @@ Le pharmacien est debout face au BL papier. Une ligne à la fois est le flux nat
 
 ---
 
-### 4. Panneau gauche et filtres en mode séquentiel
+### 5. Panneau gauche et filtres en mode séquentiel
 
 **LEFT PANEL (concordance + résumé)** : inutile en mode séquentiel.
 
@@ -94,7 +118,7 @@ Le pharmacien est debout face au BL papier. Une ligne à la fois est le flux nat
 
 ---
 
-### 5. EDI import existant — à ne pas dupliquer
+### 6. EDI import existant — à ne pas dupliquer
 
 Le bouton `[ Importer réponse ]` avec tooltip `"Importer la réponse EDI / fichier du grossiste"`
 **existe déjà** dans `commande-received.component.html`. Aucun travail requis sur ce point.
@@ -308,10 +332,11 @@ délègue toute la persistance aux mêmes services (`DeliveryService`, `LotServi
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Comportement :**
-- `Entrée` / bouton `→` : sauvegarde la ligne courante, avance à la suivante incomplète
-- `←` : revient à la ligne précédente
-- `Tab` : circule entre les champs (`qtyReceived → UG → PA → numLot → expiry → Ajouter`)
+**Comportement clavier :**
+- Step 'qty' — champ **Reçu** : `Entrée` valide (0 UG), `Tab` va sur **UG**
+- Step 'qty' — champ **UG** : `Entrée` valide, `Shift+Tab` revient sur Reçu
+- `F8` / `F9` : ligne précédente / suivante
+- `F12` : action primaire du step courant (Valider qty ou Ajouter lot)
 - Toggle `Ignorer lignes complètes` (actif par défaut) : saute les lignes OK
 - Scan douchette : même logique que le mode grille (`onScanReception()` partagé)
 

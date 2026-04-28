@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
-import java.time.LocalDate;
 
 /**
  * Résultat d'un scan CIP/DataMatrix pendant la saisie d'entrée en stock.
@@ -11,8 +10,8 @@ import java.time.LocalDate;
  * @param produitLibelle libellé du produit (retour UI)
  * @param produitCip     CIP identifié depuis le scan
  * @param lotAutoCreated true si un lot a été créé automatiquement (DataMatrix avec lot + péremption)
- * @param lotNumero      numéro de lot auto-créé (si lotAutoCreated)
- * @param lotPeremption  date de péremption auto-remplie (si lotAutoCreated)
+ * @param lotNumero      numéro de lot (auto-créé ou extrait du DataMatrix pour pré-remplissage)
+ * @param lot            LotDTO complet (auto-créé si lotAutoCreated=true, ou pré-remplissage si lotAutoCreated=false)
  * @param warningMessage message d'avertissement (CIP absent de commande, substitution, doublon FMD, etc.)
  * @param barcodeType    type de code-barres détecté
  * @param serialNumber   numéro de série FMD (AI 21) — null si scan 1D ou absent du DataMatrix
@@ -25,7 +24,7 @@ public record ReceptionScanResultDTO(
     String produitCip,
     boolean lotAutoCreated,
     String lotNumero,
-    LocalDate lotPeremption,
+    LotDTO lot,
     String warningMessage,
     BarcodeType barcodeType,
     String serialNumber,

@@ -61,6 +61,11 @@ public class LotResource {
         return ResponseEntity.ok().body(lotService.addLot(lot));
     }
 
+    @PostMapping("/lot/add-batch")
+    public ResponseEntity<List<LotDTO>> addBatch(@RequestBody List<LotDTO> lots) {
+        return ResponseEntity.ok(lotService.addLotBatch(lots));
+    }
+
     @PostMapping("/lot/edit")
     public ResponseEntity<LotDTO> edit(@Valid @RequestBody LotDTO lot) {
         return ResponseEntity.ok().body(lotService.editLot(lot));

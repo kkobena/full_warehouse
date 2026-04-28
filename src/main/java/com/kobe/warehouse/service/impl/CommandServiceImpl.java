@@ -23,8 +23,8 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
-import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
@@ -92,11 +92,11 @@ public class CommandServiceImpl implements CommandService {
     );
     // Mapping colonnes (CIP, qté confirmée) par format de fichier de réponse grossiste
     private static final Map<CommandeModel, ReponseCommandeColumnMap> RESPONSE_COLUMN_MAPS = Map.of(
-        CommandeModel.LABOREX,   new ReponseCommandeColumnMap(3, 7, true),
+        CommandeModel.LABOREX, new ReponseCommandeColumnMap(3, 7, true),
         CommandeModel.COPHARMED, new ReponseCommandeColumnMap(4, 9, true),
-        CommandeModel.DPCI,      new ReponseCommandeColumnMap(2, 6, false),
-        CommandeModel.TEDIS,     new ReponseCommandeColumnMap(1, 3, false),
-        CommandeModel.CIP_QTE,   new ReponseCommandeColumnMap(0, 1, false),
+        CommandeModel.DPCI, new ReponseCommandeColumnMap(2, 6, false),
+        CommandeModel.TEDIS, new ReponseCommandeColumnMap(1, 3, false),
+        CommandeModel.CIP_QTE, new ReponseCommandeColumnMap(0, 1, false),
         CommandeModel.CIP_QTE_PA, new ReponseCommandeColumnMap(0, 3, false)
     );
     private final CommandeRepository commandeRepository;
@@ -143,18 +143,18 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
-        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO,orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst()))));
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst()))));
     }
 
     @Override
     public CommandeLiteDTO createCommandeRapide(CommandeRapideDTO dto) {
 
-        OrderLine orderLine=orderLineService.buildOrderLine(dto);
+        OrderLine orderLine = orderLineService.buildOrderLine(dto);
         CommandeDTO commandeDTO = new CommandeDTO();
         commandeDTO.setFournisseurId(orderLine.getFournisseurProduit().getFournisseur().getId());
 
-        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO,orderLine)));
-      //  return createNewCommandeFromCommandeDTO(commandeDTO);
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLine)));
+        //  return createNewCommandeFromCommandeDTO(commandeDTO);
     }
 
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO, OrderLine orderLine) {
@@ -165,7 +165,7 @@ public class CommandServiceImpl implements CommandService {
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(user);
         commande.setOrderReference(referenceService.buildNumCommande());
-     //   OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
+        //   OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
         commande.setOrderAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());
         commande.setFinalAmount(orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested());
@@ -258,8 +258,8 @@ public class CommandServiceImpl implements CommandService {
             .ifPresent(orderLine -> {
                 Commande commande = orderLine.getCommande();
                 commande.removeOrderLine(orderLine);
-                updateCommandeAmount(commande, orderLine.getGrossAmount() * (-1), orderLine.getOrderAmount() * (-1));
                 orderLineService.deleteOrderLine(orderLine);
+                computeCommandeAmount(commande);
                 commandeRepository.save(commande);
             });
     }
@@ -290,11 +290,26 @@ public class CommandServiceImpl implements CommandService {
                 .findOneById(orderLineId)
                 .ifPresent(orderLine -> {
                     commande.removeOrderLine(orderLine);
-                    updateCommandeAmount(commande, orderLine.getGrossAmount() * (-1), orderLine.getOrderAmount() * (-1));
+
                     orderLineService.deleteOrderLine(orderLine);
                 })
         );
+        computeCommandeAmount(commande);
         commandeRepository.save(commande);
+    }
+
+    private void computeCommandeAmount(Commande commande) {
+        int grossAmount = 0;
+        int finalAmount = 0;
+        int orderAmount = 0;
+        for (OrderLine orderLine : commande.getOrderLines()) {
+            grossAmount += orderLine.getOrderCostAmount() * orderLine.getQuantityRequested();
+            orderAmount += orderLine.getOrderUnitPrice() * orderLine.getQuantityRequested();
+        }
+        commande.setGrossAmount(grossAmount);
+        commande.setOrderAmount(orderAmount);
+        commande.setFinalAmount(orderAmount);
+
     }
 
     @Override
@@ -374,13 +389,13 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public CommandeId createCommandeFromSelection(
         Suggestion suggestion,
-       List<CommanderSelectionDTO.LigneSelection> lignes,
-       Integer fournisseurId
+        List<CommanderSelectionDTO.LigneSelection> lignes,
+        Integer fournisseurId
     ) {
         Map<Integer, Integer> qteParLigne = lignes.stream()
             .collect(Collectors.toMap(
                 CommanderSelectionDTO.LigneSelection::suggestionLineId,
-               CommanderSelectionDTO.LigneSelection::quantite
+                CommanderSelectionDTO.LigneSelection::quantite
             ));
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
@@ -764,18 +779,18 @@ public class CommandServiceImpl implements CommandService {
 
     private void updateCommandeAmount(Commande commande, OrderLine orderLine, Integer oldGrossAmount, Integer oldOrderAmount) {
         commande.setGrossAmount(
-            (orderLine.getQuantityRequested() * orderLine.getOrderCostAmount()) + Objects.requireNonNullElse(commande.getGrossAmount() ,0)- oldGrossAmount
+            (orderLine.getQuantityRequested() * orderLine.getOrderCostAmount()) + Objects.requireNonNullElse(commande.getGrossAmount(), 0) - oldGrossAmount
         );
         commande.setFinalAmount(
-            (orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice()) + Objects.requireNonNullElse(commande.getFinalAmount(),0) - oldOrderAmount
+            (orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice()) + Objects.requireNonNullElse(commande.getFinalAmount(), 0) - oldOrderAmount
         );
         commande.setOrderAmount(commande.getFinalAmount());
     }
 
     private void updateCommandeAmount(Commande commande, Integer grossAmount, Integer orderAmount) {
-        commande.setGrossAmount(Objects.requireNonNullElse(commande.getGrossAmount(),0) + grossAmount);
-        commande.setFinalAmount(Objects.requireNonNullElse(commande.getFinalAmount(),0) + orderAmount);
-        commande.setOrderAmount(Objects.requireNonNullElse(commande.getOrderAmount(),0) + orderAmount);
+        commande.setGrossAmount(Objects.requireNonNullElse(commande.getGrossAmount(), 0) + grossAmount);
+        commande.setFinalAmount(Objects.requireNonNullElse(commande.getFinalAmount(), 0) + orderAmount);
+        commande.setOrderAmount(Objects.requireNonNullElse(commande.getOrderAmount(), 0) + orderAmount);
     }
 
     private Commande updateCommande(Pair<OrderLine, OrderLine> orderLineOrderLinePair) {
@@ -796,7 +811,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private void updateCommande(Commande commande, OrderLine orderLine) {
-        commande.setGrossAmount(Objects.requireNonNullElse(orderLine.getGrossAmount() ,0)+ Objects.requireNonNullElse(commande.getGrossAmount(),0));
+        commande.setGrossAmount(Objects.requireNonNullElse(orderLine.getGrossAmount(), 0) + Objects.requireNonNullElse(commande.getGrossAmount(), 0));
     }
 
     private VerificationResponseCommandeDTO verificationCommandeCsv(MultipartFile multipartFile, Commande commande, CommandeModel model) {
@@ -929,8 +944,11 @@ public class CommandServiceImpl implements CommandService {
         return switch (cell.getCellType()) {
             case STRING -> cell.getStringCellValue();
             case NUMERIC -> {
-                try { yield String.valueOf(cell.getNumericCellValue()); }
-                catch (Exception e) { yield ""; }
+                try {
+                    yield String.valueOf(cell.getNumericCellValue());
+                } catch (Exception e) {
+                    yield "";
+                }
             }
             default -> "";
         };
@@ -1115,15 +1133,12 @@ public class CommandServiceImpl implements CommandService {
             Optional<OrderLine> existing = findOrderLineInSetOrderLine(commande.getOrderLines(), orderLine);
             if (existing.isPresent()) {
                 OrderLine ol = existing.get();
-                int oldGross = ol.getQuantityRequested() * ol.getOrderCostAmount();
-                int oldOrder = ol.getQuantityRequested() * ol.getOrderUnitPrice();
                 ol.setQuantityRequested(ol.getQuantityRequested() + suggestionLine.getQuantity());
                 orderLineService.save(ol);
-                updateCommandeAmount(commande, ol, oldGross, oldOrder);
+
             } else {
                 orderLine.setCommande(commande);
                 orderLineService.save(orderLine);
-                updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             }
             // Retirer de la collection parente sinon Hibernate re-persiste la ligne en fin de transaction
@@ -1136,6 +1151,7 @@ public class CommandServiceImpl implements CommandService {
             suggestionRepository.save(suggestion);
         }
         commande.setUpdatedAt(LocalDateTime.now());
+        computeCommandeAmount(commande);
         commandeRepository.save(commande);
     }
 

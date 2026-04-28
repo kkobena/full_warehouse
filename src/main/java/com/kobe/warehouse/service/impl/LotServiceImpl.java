@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -83,11 +82,16 @@ public class LotServiceImpl implements LotService {
     }
 
     @Override
+    public List<LotDTO> addLotBatch(List<LotDTO> lots) {
+        return lots.stream().map(this::addLot).toList();
+    }
+
+    @Override
     public LotDTO addLot(LotDTO lot) {
         OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId())
             .orElseThrow(() -> new GenericError("Ligne de commande introuvable", "ligneCommandeIntrouvable"));
         Integer qtyReceived = orderLine.getQuantityReceived();
-        if (Objects.nonNull(qtyReceived) && qtyReceived> 0) {
+        if (Objects.nonNull(qtyReceived) && qtyReceived > 0) {
             int alreadyCovered = orderLine.getLots().stream()
                 .mapToInt(l -> Optional.ofNullable(l.getQuantity()).orElse(0))
                 .sum();
@@ -208,9 +212,7 @@ public class LotServiceImpl implements LotService {
     @Transactional(readOnly = true)
     public List<Lot> findByProduitId(Integer produitId) {
         return this.lotRepository.findByProduitId(
-            produitId,
-            LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption()),
-            StatutLot.AVAILABLE
+            produitId
         );
     }
 

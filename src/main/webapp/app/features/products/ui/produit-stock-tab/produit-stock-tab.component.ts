@@ -1,40 +1,40 @@
-import { Component, computed, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { IProduit } from 'app/shared/model/produit.model';
-import { IStockProduit } from 'app/shared/model/stock-produit.model';
-import { IProduitIndicateurs } from 'app/features/products/models/produit-indicateurs.model';
-import { ILotPeremption } from 'app/features/products/data-access/services/products-api.service';
-import { FormStockProduitComponent } from 'app/entities/produit/form-stock-produit/form-stock-produit.component';
-import { FormTransfertStockComponent } from 'app/entities/produit/form-transfert-stock/form-transfert-stock.component';
-import { LotSaisieProduitModalComponent } from '../lot-saisie-produit-modal/lot-saisie-produit-modal.component';
+import { Component, computed, inject, input, output } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { IProduit } from "app/shared/model/produit.model";
+import { IStockProduit } from "app/shared/model/stock-produit.model";
+import { IProduitIndicateurs } from "app/features/products/models/produit-indicateurs.model";
+import { ILotProduit } from "app/features/products/data-access/services/products-api.service";
+import { FormStockProduitComponent } from "app/entities/produit/form-stock-produit/form-stock-produit.component";
+import { FormTransfertStockComponent } from "app/entities/produit/form-transfert-stock/form-transfert-stock.component";
+import { LotSaisieProduitModalComponent } from "../lot-saisie-produit-modal/lot-saisie-produit-modal.component";
 
 @Component({
-  selector: 'app-produit-stock-tab',
-  templateUrl: './produit-stock-tab.component.html',
-  styleUrls: ['./produit-stock-tab.component.scss'],
-  imports: [CommonModule, ButtonModule, TooltipModule],
+  selector: "app-produit-stock-tab",
+  templateUrl: "./produit-stock-tab.component.html",
+  styleUrls: ["./produit-stock-tab.component.scss"],
+  imports: [CommonModule, ButtonModule, TooltipModule]
 })
 export class ProduitStockTabComponent {
   readonly produit = input.required<IProduit>();
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
-  readonly lots = input<ILotPeremption[]>([]);
+  readonly lots = input<ILotProduit[]>([]);
   readonly refreshRequested = output<void>();
 
   private readonly modalService = inject(NgbModal);
 
   protected stockPrincipal = computed<IStockProduit | undefined>(
-    () => this.produit().stockProduits?.find(sp => sp.type === 'PRINCIPAL'),
+    () => this.produit().stockProduits?.find(sp => sp.type === "PRINCIPAL")
   );
 
   protected stockReserve = computed<IStockProduit | undefined>(
-    () => this.produit().stockProduits?.find(sp => sp.type === 'SAFETY_STOCK'),
+    () => this.produit().stockProduits?.find(sp => sp.type === "SAFETY_STOCK")
   );
 
   protected canAddReserve = computed<boolean>(
-    () => !!this.stockPrincipal() && !this.stockReserve(),
+    () => !!this.stockPrincipal() && !this.stockReserve()
   );
 
   protected canTransfertToReserve = computed<boolean>(() => {
@@ -51,7 +51,7 @@ export class ProduitStockTabComponent {
 
   /** Délai livraison du fournisseur principal (jours), fallback 7 j */
   protected delaiLivraison = computed<number>(
-    () => this.produit().fournisseurProduit?.delaiLivraisonJours ?? 7,
+    () => this.produit().fournisseurProduit?.delaiLivraisonJours ?? 7
   );
 
   /** CMM en unités/mois depuis indicateurs */
@@ -93,16 +93,16 @@ export class ProduitStockTabComponent {
 
 
   /** Lots triés FEFO : du plus proche au plus lointain */
-  protected lotsFEFO = computed<ILotPeremption[]>(() =>
+  protected lotsFEFO = computed<ILotProduit[]>(() =>
     [...this.lots()].sort((a, b) => {
-      if (!a.datePeremption) return 1;
-      if (!b.datePeremption) return -1;
-      return a.datePeremption.localeCompare(b.datePeremption);
-    }),
+      if (!a.expiryDate) return 1;
+      if (!b.expiryDate) return -1;
+      return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+    })
   );
 
   /** Lot expirant le plus tôt */
-  protected lotUrgent = computed<ILotPeremption | null>(() => {
+  protected lotUrgent = computed<ILotProduit | null>(() => {
     const lot = this.lotsFEFO()[0];
     if (!lot) return null;
     const days = lot.peremptionStatut?.days ?? 9999;
@@ -110,11 +110,11 @@ export class ProduitStockTabComponent {
   });
 
   /** Badge couleur FEFO selon les jours restants */
-  protected fefoClass(lot: ILotPeremption): string {
+  protected fefoClass(lot: ILotProduit): string {
     const days = lot.peremptionStatut?.days ?? 9999;
-    if (days <= 30) return 'fefo-critical';
-    if (days <= 90) return 'fefo-warning';
-    return 'fefo-ok';
+    if (days <= 30) return "fefo-critical";
+    if (days <= 90) return "fefo-warning";
+    return "fefo-ok";
   }
 
   /** 0-100 niveau de remplissage */
@@ -128,41 +128,44 @@ export class ProduitStockTabComponent {
 
   /** Classe couleur selon rapport qty / seuilMini */
   protected stockClass(sp: IStockProduit | undefined): string {
-    if (!sp) return '';
+    if (!sp) return "";
     const qty = sp.qtyStock ?? 0;
     const seuil = sp.seuilMini ?? 0;
-    if (qty <= 0) return 'niveau-empty';
-    if (seuil > 0 && qty < seuil) return 'niveau-danger';
-    if (seuil > 0 && qty < seuil * 1.5) return 'niveau-warning';
-    return 'niveau-ok';
+    if (qty <= 0) return "niveau-empty";
+    if (seuil > 0 && qty < seuil) return "niveau-danger";
+    if (seuil > 0 && qty < seuil * 1.5) return "niveau-warning";
+    return "niveau-ok";
   }
 
   protected onEditStock(sp: IStockProduit): void {
-    const modalRef = this.modalService.open(FormStockProduitComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormStockProduitComponent, { size: "lg", backdrop: "static" });
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.stockProduit = sp;
     modalRef.result.then(
       () => this.refreshRequested.emit(),
-      () => {},
+      () => {
+      }
     );
   }
 
   protected onAddReserve(): void {
-    const modalRef = this.modalService.open(FormStockProduitComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormStockProduitComponent, { size: "lg", backdrop: "static" });
     modalRef.componentInstance.produit = this.produit();
     modalRef.result.then(
       () => this.refreshRequested.emit(),
-      () => {},
+      () => {
+      }
     );
   }
 
   protected onTransfert(src: IStockProduit): void {
-    const modalRef = this.modalService.open(FormTransfertStockComponent, { size: 'lg', backdrop: 'static' });
+    const modalRef = this.modalService.open(FormTransfertStockComponent, { size: "lg", backdrop: "static" });
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.stockProduitSrc = src;
     modalRef.result.then(
       () => this.refreshRequested.emit(),
-      () => {},
+      () => {
+      }
     );
   }
 
@@ -170,13 +173,13 @@ export class ProduitStockTabComponent {
     const stock = this.produit().totalQuantity ?? 0;
     if (stock <= 0) return;
     const modalRef = this.modalService.open(LotSaisieProduitModalComponent, {
-      size: 'lg',
+      size: "lg",
       centered: true,
-      backdrop: 'static',
+      backdrop: "static"
     });
     (modalRef.componentInstance as LotSaisieProduitModalComponent).produit = this.produit();
     modalRef.closed.subscribe(reason => {
-      if (reason === 'saved') {
+      if (reason === "saved") {
         this.refreshRequested.emit();
       }
     });

@@ -1,0 +1,665 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/features/commande/commande-shared';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/table-common';
+
+:host {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LAYOUT RACINE
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NAV GAUCHE — élargie
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__nav {
+  flex: 0 0 32rem;
+  min-width: 22rem;
+  max-width: 38rem;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid $pharma-border;
+  background: $pharma-white;
+  overflow: hidden;
+}
+
+.rh-seq__nav-progress {
+  height: 4px;
+  background: $gray-200;
+  flex-shrink: 0;
+}
+
+.rh-seq__nav-progress-fill {
+  height: 100%;
+  background: $pharma-primary;
+  transition: width 0.4s ease;
+}
+
+.rh-seq__nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $gray-200;
+  flex-shrink: 0;
+}
+
+.rh-seq__nav-counter {
+  font-size: 0.8rem;
+  color: $gray-600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  strong { color: $pharma-primary; font-size: 0.95rem; }
+}
+
+.rh-seq__nav-pct {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: $pharma-primary;
+  background: rgba($pharma-primary, 0.08);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.rh-seq__nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.73rem;
+  color: $gray-500;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  input { cursor: pointer; accent-color: $pharma-primary; }
+}
+
+// ── Liste ─────────────────────────────────────────────────────────────────────
+.rh-seq__nav-list {
+  flex: 1 1 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $gray-300 transparent;
+}
+
+.rh-seq__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid $gray-100;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+
+  &:hover { background: rgba($pharma-primary, 0.04); }
+
+  &--active {
+    background: rgba($pharma-primary, 0.09) !important;
+    border-left: 3px solid $pharma-primary;
+    padding-left: calc(0.75rem - 3px);
+  }
+
+  &--done .rh-seq__nav-lib { color: $gray-400; }
+}
+
+.rh-seq__nav-icon { flex-shrink: 0; font-size: 0.9rem; line-height: 1; }
+
+.rh-seq__nav-body {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rh-seq__nav-lib {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $gray-800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rh-seq__nav-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rh-seq__nav-cip {
+  font-size: 0.68rem;
+  font-family: monospace;
+  color: $gray-400;
+}
+
+.rh-seq__nav-lot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: $gray-100;
+  color: $gray-500;
+  border: 1px solid $gray-200;
+  i { font-size: 0.6rem; }
+
+  &--ok { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+}
+
+.rh-seq__nav-qty {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $pharma-success;
+  white-space: nowrap;
+  min-width: 42px;
+  text-align: right;
+
+  &--zero    { color: $gray-300; font-weight: 400; }
+  &--partial { color: #f59e0b; }
+}
+
+.rh-seq__nav-all-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: $pharma-success;
+  font-size: 0.82rem;
+  font-weight: 600;
+  i { font-size: 1.8rem; }
+}
+
+// ── Footer nav ────────────────────────────────────────────────────────────────
+.rh-seq__nav-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-top: 1px solid $gray-200;
+  background: $gray-50;
+  align-items: center;
+
+  ::ng-deep .p-button {
+    //flex: 1;
+    //justify-content: center;
+    //height: 2.4rem;
+    //font-size: 0.82rem;
+    //font-weight: 700;
+    //border-radius: 8px;
+
+    &:disabled { opacity: 0.35; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PANNEAU PRINCIPAL
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__main {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ── En-tête produit ───────────────────────────────────────────────────────────
+.rh-seq__product-header {
+  flex-shrink: 0;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid $gray-200;
+  background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+}
+
+.rh-seq__product-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $gray-900;
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+}
+
+.rh-seq__product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rh-seq__meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 0.72rem;
+  color: #475569;
+
+  i { font-size: 0.65rem; color: $pharma-primary; }
+  strong { color: $gray-900; }
+
+  &--pcb {
+    background: #fef3c7; border-color: #fde68a; color: #92400e;
+    i, strong { color: #92400e; }
+  }
+
+  &--pmp {
+    background: #ede9fe; border-color: #c4b5fd; color: #5b21b6;
+    i { color: #7c3aed; }
+    strong { color: #4c1d95; }
+  }
+
+  &--pa-diff {
+    background: #fee2e2; border-color: #fca5a5; color: #991b1b;
+    i, strong { color: #b91c1c; }
+  }
+}
+
+// ── Corps scrollable ──────────────────────────────────────────────────────────
+.rh-seq__body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.rh-seq__section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: $gray-400;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  margin-bottom: 0.05rem;
+  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// ── Ligne champ (label + valeur/input côte à côte) ────────────────────────────
+.rh-seq__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  gap: 0.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus-within {
+    border: 2px solid $pharma-primary;
+    box-shadow: 0 0 0 3px rgba($pharma-primary, 0.12);
+    background: #fff;
+    padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
+  }
+
+  &--static { background: transparent; border-color: $gray-100; }
+  &--result { border-style: dashed; background: transparent; }
+}
+
+.rh-seq__row-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $gray-600;
+  flex-shrink: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+// ── Input principal (grande taille) ───────────────────────────────────────────
+.rh-seq__big-input {
+  width: 120px;
+  text-align: right;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  color: $gray-900 !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  &--secondary {
+    font-size: 0.95rem !important;
+    color: $gray-400 !important;
+    width: 100px;
+  }
+}
+
+.rh-seq__row-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: $gray-300;
+
+  &--muted { color: $gray-500; }
+  &--ok    { color: $pharma-success; }
+  &--warn  { color: #f59e0b; }
+}
+
+// ── Alerte PCB ────────────────────────────────────────────────────────────────
+.rh-seq__pcb-warn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #c2410c;
+  font-size: 0.78rem;
+  font-weight: 600;
+  i { font-size: 0.85rem; }
+}
+
+// ── Info lots en étape qty ────────────────────────────────────────────────────
+.rh-seq__lot-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 0.76rem;
+  i { flex-shrink: 0; margin-top: 1px; }
+  strong { font-weight: 700; }
+}
+
+// ── PMP inchangé ─────────────────────────────────────────────────────────────
+.rh-seq__pmp-stable {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 600;
+  i { font-size: 0.8rem; }
+}
+.rh-seq__pmp-stable-val {
+  font-weight: 700;
+  color: #166534;
+}
+
+// ── Lien rapide vers les lots ─────────────────────────────────────────────────
+.rh-seq__lot-shortcut {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #1e40af;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  &:hover { color: #1d4ed8; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ÉTAPE LOTS
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Bandeau état ──────────────────────────────────────────────────────────────
+.rh-seq__lot-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 10px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  i { font-size: 1rem; flex-shrink: 0; }
+  strong { font-weight: 700; }
+
+  &--complete {
+    background: #d1fae5;
+    border-color: #a7f3d0;
+    color: #065f46;
+  }
+}
+
+// ── Compteurs dans le bandeau lot ─────────────────────────────────────────────
+.rh-seq__lot-state-counters {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.rh-seq__lot-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(#000, 0.06);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i { font-size: 0.68rem; }
+
+  &--ug {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+}
+
+// ── Liste des lots saisis ─────────────────────────────────────────────────────
+.rh-seq__lots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.rh-seq__lot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 0.8rem;
+}
+
+.rh-seq__lot-row-ok { flex-shrink: 0; font-size: 0.8rem; color: $pharma-success; }
+.rh-seq__lot-num    { font-weight: 700; color: #1e40af; flex-shrink: 0; }
+.rh-seq__lot-exp    { color: #3b82f6; font-size: 0.74rem; flex-shrink: 0; }
+.rh-seq__lot-qty    { font-weight: 600; color: #1e40af; margin-left: auto; flex-shrink: 0; }
+.rh-seq__lot-ug     {
+  font-size: 0.7rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 6px;
+  background: #d1fae5; color: #065f46;
+  flex-shrink: 0;
+}
+.rh-seq__lot-del {
+  flex-shrink: 0; background: none; border: none;
+  cursor: pointer; color: #93c5fd; padding: 2px;
+  border-radius: 4px; line-height: 1;
+  transition: color 0.1s, background 0.1s;
+  i { font-size: 0.72rem; }
+  &:hover { color: #dc3545; background: rgba(#dc3545, 0.08); }
+}
+
+// ── Formulaire nouveau lot ────────────────────────────────────────────────────
+.rh-seq__lot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+// Inputs du formulaire lot — réutilise .rh-seq__row mais plus compacts
+.rh-seq__lot-input {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  height: 38px !important;
+  border-radius: 8px !important;
+  text-align: right;
+
+  &:focus {
+    border: 2px solid $pharma-primary !important;
+    box-shadow: 0 0 0 4px rgba($pharma-primary, 0.18) !important;
+    outline: none !important;
+  }
+
+  &--num { width: 200px; text-align: left !important; font-family: monospace; }
+  &--exp { width: 110px; text-align: center; letter-spacing: 0.5px; }
+  &--qty { width: 90px; }
+}
+
+.rh-seq__expiry--critical {
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+  font-weight: 700 !important;
+}
+.rh-seq__expiry--soon {
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+}
+
+.rh-seq__ug-only-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.rh-seq__expiry-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 7px;
+  i { font-size: 0.8rem; }
+
+  &--critical { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  &--soon     { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FOOTER
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__footer {
+  flex-shrink: 0;
+  padding: 0.45rem 1rem;
+  border-top: 1px solid $gray-200;
+  background: $gray-50;
+
+  &--lot {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  ::ng-deep .p-button {
+    height: 38px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// APERÇU PMP
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__pmp-preview {
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+
+  .rh-seq__row-value { font-weight: 700; }
+  .rh-seq__pmp-actuel { font-size: 0.75rem; color: $gray-400; margin-left: 0.4rem; font-weight: 400; }
+
+  &--up   { background: rgba(#dc3545, 0.05); border-color: rgba(#dc3545, 0.25); .rh-seq__row-value { color: #dc3545; } }
+  &--down { background: rgba(#16a34a, 0.05); border-color: rgba(#16a34a, 0.25); .rh-seq__row-value { color: #16a34a; } }
+  &--stable { .rh-seq__row-value { color: $gray-600; } }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LOT COMMUN — barre "Appliquer à toutes les lignes"
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.75rem 0.5rem;
+  background: rgba($pharma-primary, 0.05);
+  border: 1px dashed rgba($pharma-primary, 0.4);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: $pharma-primary;
+
+  .rh-seq__batch-icon { font-size: 0.85rem; }
+  .rh-seq__batch-label { flex: 1; font-weight: 600; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ÉTAT TERMINÉ
+// ══════════════════════════════════════════════════════════════════════════════
+.rh-seq__all-done {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.rh-seq__all-done-icon  { font-size: 3.5rem; color: $pharma-success; }
+.rh-seq__all-done-title { font-size: 1.15rem; font-weight: 700; color: $gray-800; margin: 0; }
+.rh-seq__all-done-hint  { font-size: 0.82rem; color: $gray-500; margin: 0; max-width: 380px; line-height: 1.5; }

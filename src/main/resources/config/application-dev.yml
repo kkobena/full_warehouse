@@ -4,18 +4,18 @@ logging:
       management:
         remote:
           rmi: OFF
-    com.kobe.warehouse: WARN
+    com.kobe.warehouse: INFO
 
     # Logs SQL (DEBUG pour voir les requêtes en détail)
     # ATTENTION: Très verbeux, à n'activer qu'en dev
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
 
     # Logs transaction (pour debug)
-    org.springframework.transaction: WARN
-    org.springframework.orm.jpa: WARN
-    org.hibernate.type.descriptor.sql: WARN
-    org.hibernate.stat: INFO
+    org.springframework.transaction: OFF
+    org.springframework.orm.jpa: OFF
+    org.hibernate.type.descriptor.sql: OFF
+    org.hibernate.stat: OFF
 
     org.springframework: warn
 

@@ -69,6 +69,8 @@ import { CommandeReceivedActionsComponent } from "./commande-received-actions.co
 import { CommandeReceivedStatutComponent } from "./commande-received-statut.component";
 import { LotExpandCellComponent } from "../../ui/lot/inline/lot-expand-cell.component";
 import { LotInlineEditorComponent } from "../../ui/lot/inline/lot-inline-editor.component";
+import { ReceptionSequentialComponent } from "./sequential/reception-sequential.component";
+import { ReceptionFinalizeModalComponent } from "./sequential/reception-finalize-modal.component";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -93,7 +95,8 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     Toast,
     SpinnerComponent,
     ReceptionConcordanceComponent,
-    AgGridAngular
+    AgGridAngular,
+    ReceptionSequentialComponent
   ]
 })
 export class CommandeReceivedComponent implements OnInit {
@@ -163,8 +166,11 @@ export class CommandeReceivedComponent implements OnInit {
 
   // ── Scan réception ────────────────────────────────────────────────────────
   protected scanValue = "";
-  protected readonly lastScanResult = signal<IReceptionScanResult | null>(null);
+  protected readonly lastScanResult   = signal<IReceptionScanResult | null>(null);
+  /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
+  protected readonly scanLotPrefill   = signal<{ numLot: string; expiry: string } | null>(null);
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
+  private scanPrefillTimer:  ReturnType<typeof setTimeout> | null = null;
   private keydownListener: ((e: KeyboardEvent) => void) | null = null;
 
   private readonly spinner            = viewChild.required<SpinnerComponent>("spinner");
@@ -219,6 +225,35 @@ export class CommandeReceivedComponent implements OnInit {
 
   protected toggleLeftPanel(): void {
     this.showLeftPanel = !this.showLeftPanel;
+  }
+
+  protected onSequentialLineChanged(updatedLine: IOrderLine): void {
+    const idx = this.orderLines.findIndex(l => l.id === updatedLine.id);
+    if (idx !== -1) {
+      this.orderLines = [
+        ...this.orderLines.slice(0, idx),
+        updatedLine,
+        ...this.orderLines.slice(idx + 1)
+      ];
+      this.refreshDisplayRows();
+    }
+  }
+
+  protected onSequentialAllDone(): void {
+    const ref = this.modalService.open(ReceptionFinalizeModalComponent, {
+      size: "md",
+      backdrop: "static",
+      centered: true
+    });
+    const instance = ref.componentInstance as ReceptionFinalizeModalComponent;
+    instance.orderLines        = this.orderLines;
+    instance.commandeRef       = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
+    instance.fournisseurLibelle = this.currentCommande.fournisseur?.libelle ?? "";
+
+    ref.result.then(
+      result => { if (result === "finalize") this.onConfirmFinalize(); },
+      () => { /* dismissed — continuer la saisie */ }
+    );
   }
 
   protected onFilterCommandeLines(): void {
@@ -595,6 +630,16 @@ export class CommandeReceivedComponent implements OnInit {
           }
           if (result.lotAutoCreated) {
             this.refreshCommande();
+          } else if (result.lot?.numLot && result.lot?.expiryDate) {
+            // DataMatrix avec info lot mais lot non auto-créé → pré-remplir le formulaire lot séquentiel
+            const isoDate = result.lot.expiryDate as unknown as string;
+            const m = isoDate.match(/^(\d{4})-(\d{2})/);
+            const expiry = m ? `${m[2]}/${m[1]}` : '';
+            if (expiry) {
+              if (this.scanPrefillTimer) clearTimeout(this.scanPrefillTimer);
+              this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
+              this.scanPrefillTimer = setTimeout(() => this.scanLotPrefill.set(null), 10000);
+            }
           }
         }
         this.scheduleClearScanResult();

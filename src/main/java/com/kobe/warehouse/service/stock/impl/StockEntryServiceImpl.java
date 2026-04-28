@@ -32,6 +32,7 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
+import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.PriceHistoryDTO;
@@ -505,31 +506,37 @@ public class StockEntryServiceImpl implements StockEntryService {
         // Créer le lot automatiquement si DataMatrix complet + APP_GESTION_LOT actif
         boolean lotCreated = false;
         String lotNumero = null;
-        LocalDate lotPeremption = null;
+        LotDTO lotDTO = null;
 
         boolean gestionLotActif = appConfigurationService.useLot().orElse(false);
-        if (gestionLotActif && parsed.hasBatchInfo() && parsed.hasExpiryDate()) {
-            Lot lot = new Lot();
-            lot.setOrderLine(line);
-            lot.setNumLot(parsed.batchNumber());
-            lot.setExpiryDate(parsed.expiryDate());
-            lot.setManufacturingDate(parsed.manufacturingDate());
-            lot.setQuantity(1);
-            lot.setFreeQty(0);
-            lot.setCurrentQuantity(1);
-            lot.setCreatedDate(LocalDateTime.now());
-            lot.setProduit(line.getFournisseurProduit().getProduit());
-            lot.setPrixAchat(line.getOrderCostAmount());
-            lot.setPrixUnit(line.getOrderUnitPrice());
-            lot.setStatut(StatutLot.IN_PROGRESS);
-            if (fmdStatus == ReceptionScanResultDTO.FmdStatus.PRESENT) {
-                lot.setSerialNumber(serialNumber);
-            }
-            lotRepository.save(lot);
-
-            lotCreated = true;
+        if (parsed.hasBatchInfo() && parsed.hasExpiryDate()) {
             lotNumero = parsed.batchNumber();
-            lotPeremption = parsed.expiryDate();
+            if (gestionLotActif) {
+                Lot lot = new Lot();
+                lot.setOrderLine(line);
+                lot.setNumLot(parsed.batchNumber());
+                lot.setExpiryDate(parsed.expiryDate());
+                lot.setManufacturingDate(parsed.manufacturingDate());
+                lot.setQuantity(1);
+                lot.setFreeQty(0);
+                lot.setCurrentQuantity(1);
+                lot.setCreatedDate(LocalDateTime.now());
+                lot.setProduit(line.getFournisseurProduit().getProduit());
+                lot.setPrixAchat(line.getOrderCostAmount());
+                lot.setPrixUnit(line.getOrderUnitPrice());
+                lot.setStatut(StatutLot.IN_PROGRESS);
+                if (fmdStatus == ReceptionScanResultDTO.FmdStatus.PRESENT) {
+                    lot.setSerialNumber(serialNumber);
+                }
+                lotDTO = new LotDTO(lotRepository.save(lot));
+                lotCreated = true;
+            } else {
+                // DataMatrix a des infos de lot mais la gestion de lot n'est pas active :
+                // retourner le lot parsé pour pré-remplir le formulaire côté UI
+                lotDTO = new LotDTO()
+                    .setNumLot(parsed.batchNumber())
+                    .setExpiryDate(parsed.expiryDate());
+            }
         }
 
         String produitLibelle = line.getFournisseurProduit() != null &&
@@ -543,7 +550,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             cip,
             lotCreated,
             lotNumero,
-            lotPeremption,
+            lotDTO,
             fmdWarning,
             barcodeType,
             serialNumber,

@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class ServiceUtil {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -119,10 +120,12 @@ public class ServiceUtil {
         }
         LocalDate toDate = LocalDate.now();
         Period p = Period.between(toDate, datePeremption);
+
         int years = p.getYears();
         int months = p.getMonths();
         int days = p.getDays();
         String libelle;
+
 
         if (datePeremption.isBefore(toDate)) {
             Period diff = Period.between(datePeremption, toDate);
@@ -139,6 +142,6 @@ public class ServiceUtil {
             String txtDays = days > 0 ? days + " jour(s)" : "";
             libelle = "Périme dans " + txtYears + txtMonths + txtDays;
         }
-        return new PeremptionStatut(libelle, days, months, years);
+        return new PeremptionStatut(libelle,  ChronoUnit.DAYS.between(toDate,datePeremption) , ChronoUnit.MONTHS.between(toDate,datePeremption), years);
     }
 }

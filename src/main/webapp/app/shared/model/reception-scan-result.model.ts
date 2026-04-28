@@ -10,7 +10,8 @@ export interface IReceptionScanResult {
   produitCip: string | null;
   lotAutoCreated: boolean;
   lotNumero: string | null;
-  lotPeremption: string | null;
+  /** LotDTO complet : auto-créé si lotAutoCreated=true, ou données DataMatrix pour pré-remplissage si false. */
+  lot: { numLot?: string; expiryDate?: string } | null;
   warningMessage: string | null;
   barcodeType: BarcodeType;
   /** Numéro de série FMD (AI 21). Null si scan 1D ou absent du DataMatrix. */

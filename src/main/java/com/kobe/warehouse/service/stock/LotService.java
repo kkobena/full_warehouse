@@ -20,6 +20,8 @@ public interface LotService {
      */
     LotDTO addLot(LotDTO lot);
 
+    List<LotDTO> addLotBatch(List<LotDTO> lots);
+
     /**
      * Crée un lot directement rattaché à un produit, sans OrderLine.
      * Utilisé pour la saisie de lot hors commande depuis la fiche produit.

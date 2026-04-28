@@ -84,6 +84,63 @@
   &__item { white-space: nowrap; }
 }
 
+// ── TAB BAR réception ─────────────────────────────────────────────────────
+
+.lb-tab-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 2px solid $gray-200;
+  background: $gray-50;
+  padding: 0 0.75rem;
+  flex-shrink: 0;
+}
+
+.lb-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $gray-500;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  i { font-size: 0.8rem; flex-shrink: 0; }
+
+  &:hover:not(.lb-tab--active) {
+    color: $pharma-primary;
+    background: rgba($pharma-primary, 0.04);
+  }
+
+  &--active {
+    color: $pharma-primary;
+    border-bottom-color: $pharma-primary;
+    background: $pharma-white;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    color: $gray-400;
+    margin-left: 0.25rem;
+    padding: 2px 3px;
+    border-radius: 3px;
+    transition: background 0.1s, color 0.1s;
+
+    &:hover { background: rgba($pharma-danger, 0.12); color: $pharma-danger; }
+  }
+}
+
 // ── DETAIL BODY (mode saisie) ─────────────────────────────────────────────
 
 .lb-detail-body {

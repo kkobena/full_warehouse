@@ -1,0 +1,78 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-check-circle me-2"></i>
+    Fin de saisie — Clôturer la réception
+  </h5>
+  <button type="button" class="btn-close" (click)="onContinue()"></button>
+</div>
+
+<div class="modal-body">
+
+  @if (hasSkipped) {
+    <div class="rf-banner rf-banner--warning">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>
+        <strong>{{ skippedLines }} ligne{{ skippedLines > 1 ? 's' : '' }} non traitée{{ skippedLines > 1 ? 's' : '' }}</strong>
+        — ces lignes seront clôturées avec la quantité reçue actuelle (0 si non saisie).
+        Vous pouvez continuer la saisie si nécessaire.
+      </span>
+    </div>
+  } @else {
+    <div class="rf-banner rf-banner--success">
+      <i class="pi pi-check"></i>
+      <span>Toutes les lignes ont été saisies. La réception est prête à être clôturée.</span>
+    </div>
+  }
+
+  <!-- Récap commande -->
+  <div class="rf-recap-header">
+    <span class="rf-recap-ref">
+      <i class="pi pi-hashtag"></i>
+      {{ commandeRef || '—' }}
+    </span>
+    @if (fournisseurLibelle) {
+      <span class="rf-recap-supplier">{{ fournisseurLibelle }}</span>
+    }
+  </div>
+
+  <!-- Statistiques -->
+  <div class="rf-stats">
+    <div class="rf-stat">
+      <span class="rf-stat__value">{{ processedLines }}<span class="rf-stat__total"> / {{ totalLines }}</span></span>
+      <span class="rf-stat__label">Lignes traitées</span>
+    </div>
+    <div class="rf-stat">
+      <span class="rf-stat__value">{{ totalAmount | number:'1.0-0' }}</span>
+      <span class="rf-stat__label">Montant HT (F)</span>
+    </div>
+    @if (totalUg > 0) {
+      <div class="rf-stat rf-stat--ug">
+        <span class="rf-stat__value">{{ totalUg }}</span>
+        <span class="rf-stat__label">UG total</span>
+      </div>
+    }
+  </div>
+
+  <p class="rf-irrev-note">
+    <i class="pi pi-lock me-1"></i>
+    La clôture créditera le stock et est <strong>irréversible</strong>.
+  </p>
+
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (onClick)="onContinue()"
+    icon="pi pi-pencil"
+    label="Continuer la saisie"
+    severity="secondary"
+    size="small"
+  />
+  <p-button
+    (onClick)="onFinalize()"
+    icon="pi pi-check"
+    label="Clôturer la réception"
+    severity="success"
+    size="small"
+  />
+</div>

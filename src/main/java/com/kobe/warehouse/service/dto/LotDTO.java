@@ -3,10 +3,14 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
+import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
 
 public class LotDTO {
 
@@ -41,7 +45,7 @@ public class LotDTO {
     private Integer produitId;
     /** Storage cible (optionnel) — si absent, le storage principal de l'utilisateur connecté est utilisé. */
     private Integer storageId;
-
+    private PeremptionStatut peremptionStatut;
     public LotDTO(Lot lot) {
         id = lot.getId();
         numLot = lot.getNumLot();
@@ -54,6 +58,16 @@ public class LotDTO {
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
         serialNumber = lot.getSerialNumber();
+        peremptionStatut=buildPeremptionStatut(lot.getExpiryDate());
+    }
+
+    public PeremptionStatut getPeremptionStatut() {
+        return peremptionStatut;
+    }
+
+    public LotDTO setPeremptionStatut(PeremptionStatut peremptionStatut) {
+        this.peremptionStatut = peremptionStatut;
+        return this;
     }
 
     public LotDTO() {}

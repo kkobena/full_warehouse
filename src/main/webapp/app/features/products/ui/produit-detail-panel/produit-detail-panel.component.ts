@@ -6,7 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
-import { ProductsApiService, ILotPeremption } from '../../data-access/services/products-api.service';
+import { ProductsApiService, ILotPeremption, ILotProduit } from "../../data-access/services/products-api.service";
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { ProduitSyntheseTabComponent } from '../produit-synthese-tab/produit-synthese-tab.component';
 import { ProduitStockTabComponent } from '../produit-stock-tab/produit-stock-tab.component';
@@ -48,7 +48,7 @@ export class ProduitDetailPanelComponent {
   protected loadingFull = signal(false);
 
   protected indicateurs = signal<IProduitIndicateurs | null>(null);
-  protected lots = signal<ILotPeremption[]>([]);
+  protected lots = signal<ILotProduit[]>([]);
   protected loadingIndicateurs = signal(false);
   protected activeTab = signal<string>('synthese');
 

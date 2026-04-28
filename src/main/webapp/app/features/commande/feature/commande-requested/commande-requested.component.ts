@@ -236,19 +236,11 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       type: "numericColumn",
       cellEditor: "agNumberCellEditor"
     },
-    {
-      field: "freeQty",
-      headerName: "Qté Ug",
-      width: 80,
-      editable: p => !this.isLocked,
-      cellEditorParams: {preventStepping: true},
-      type: "numericColumn",
-      cellEditor: "agNumberCellEditor"
-    },
+
     {
       colId: "actions",
       headerName: "",
-      width: 110,
+      width: 95,
       sortable: false,
       cellRenderer: CommandeRequestedLineActionsComponent
     }
@@ -282,12 +274,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
           this.subscribeToSaveOrderLine(this.commandeService.updateQuantityRequested(line));
         }
         break;
-      case "freeQty":
-        if (val >= 0) {
-          line.freeQty = val;
-          this.subscribeUpdateOrderLine(this.commandeService.updateQuantityUG(line));
-        }
-        break;
+
       case "orderCostAmount":
         if (val > 0) {
           line.orderCostAmount = val;
@@ -745,7 +732,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
 
   private deleteSelectedLines(): void {
     if (!this.currentCommande?.commandeId) return;
-    const ids = this.selectedEl.map(e => ({ id: e.id, orderDate: e.orderDate }));
+    const ids = this.selectedEl.map(e => e.orderLineId);
     this.commandeService.deleteOrderLinesByIds(this.currentCommande.commandeId, ids).subscribe(() => {
       this.selectedEl = [];
       this.refreshCommande();

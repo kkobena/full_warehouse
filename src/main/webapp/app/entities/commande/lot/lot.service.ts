@@ -19,6 +19,10 @@ export class LotService {
     return this.http.post<ILot>(this.resourceUrl + '/add', lot, { observe: 'response' });
   }
 
+  addLotBatch(lots: ILot[]): Observable<HttpResponse<ILot[]>> {
+    return this.http.post<ILot[]>(this.resourceUrl + '/add-batch', lots, { observe: 'response' });
+  }
+
   editLot(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/edit', lot, { observe: 'response' });
   }

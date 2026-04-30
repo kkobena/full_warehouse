@@ -72,9 +72,11 @@ public interface ProduitService {
     StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg);
 
     void update(Produit produit);
-
+    //TODO: methode à analyser , ça ne me semble pas être la bonne formule pour calculer le prix moyen pondéré à la réception d'une commande
     default int calculPrixMoyenPondereReception(int oldStock, int oldPrixAchat, int newStock, int newPrixAchat) {
-        return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
+
+       // return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
+        return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / newStock;
     }
     int produitTotalStock(Produit produit);
     void updateFromCommande(ProduitDTO produitDTO, Produit produit);

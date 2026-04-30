@@ -295,21 +295,22 @@ public class StockEntryServiceImpl implements StockEntryService {
                     orderLine.getQuantityReceived(),
                     orderLine.getFreeQty()
                 );
+                int quantiteFinal = getTotalStockQuantity(stockProduit);
+                if (quantiteFinal > 0) {
+                    produit.setPrixMnp(
+                        produitService.calculPrixMoyenPondereReception(
+                            orderLine.getInitStock(),
+                            fournisseurProduit.getPrixAchat(), quantiteFinal,
+                            orderLine.getOrderCostAmount()
+                        )
+                    );
+                    ruptureService.markProductAsBackInStock(produit);
+                }
 
-                produit.setPrixMnp(
-                    produitService.calculPrixMoyenPondereReception(
-                        orderLine.getInitStock(),
-                        fournisseurProduit.getPrixAchat(),
-                        getTotalStockQuantity(stockProduit),
-                        orderLine.getOrderCostAmount()
-                    )
-                );
                 produit.setUpdatedAt(LocalDateTime.now());
                 produitService.update(produit);
                 // Si le produit rentre en stock, on marque ses ruptures ouvertes comme résolues
-                if (getTotalStockQuantity(stockProduit) > 0) {
-                    ruptureService.markProductAsBackInStock(produit);
-                }
+
             });
         logsService.create(
             TransactionType.ENTREE_STOCK,
@@ -321,8 +322,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         deliveryReceipt.setUpdatedAt(LocalDateTime.now());
         deliveryReceipt = this.commandeRepository.save(deliveryReceipt);
 
-        saveLotReceptions(deliveryReceipt, receiptDate);
-        saveLotStockLocations(deliveryReceipt);
+      /*  saveLotReceptions(deliveryReceipt, receiptDate);
+        saveLotStockLocations(deliveryReceipt);*/
         applyPutawayPolicy(deliveryReceipt, deliveryReceiptLite);
         inventoryTransactionService.saveAll(deliveryReceipt.getOrderLines());
         return new StockEntryResultDTO(deliveryReceipt.getId(), List.of());

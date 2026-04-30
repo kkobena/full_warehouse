@@ -16,7 +16,6 @@ import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import java.time.LocalDateTime;
 
 public class InventoryTransactionBuilder {
 
@@ -25,7 +24,6 @@ public class InventoryTransactionBuilder {
     public InventoryTransactionBuilder(Object entity) {
         if (entity instanceof SalesLine salesLine) {
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(salesLine.getUpdatedAt())
                 .setProduit(salesLine.getProduit())
                 .setMouvementType(
                     salesLine.getQuantityRequested() < 0 ? MouvementProduit.CANCEL_SALE
@@ -41,7 +39,6 @@ public class InventoryTransactionBuilder {
         } else if (entity instanceof OrderLine orderLine) {
             AppUser appUser = orderLine.getCommande().getUser();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(orderLine.getUpdatedAt())
                 .setProduit(orderLine.getFournisseurProduit().getProduit())
                 .setMouvementType(MouvementProduit.ENTREE_STOCK)
                 .setQuantity(orderLine.getQuantityReceived())
@@ -57,7 +54,6 @@ public class InventoryTransactionBuilder {
             Produit produit = stockProduit.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(ajustement.getDateMtv())
                 .setProduit(produit)
                 .setMouvementType(ajustement.getQtyMvt() > 0 ? MouvementProduit.AJUSTEMENT_IN
                     : MouvementProduit.AJUSTEMENT_OUT)
@@ -74,7 +70,6 @@ public class InventoryTransactionBuilder {
             Produit produit = decondition.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(decondition.getDateMtv())
                 .setProduit(produit)
                 .setMouvementType(
                     TypeDeconditionnement.DECONDTION_IN == decondition.getTypeDeconditionnement()
@@ -93,7 +88,6 @@ public class InventoryTransactionBuilder {
             FournisseurProduit fournisseurProduit = productsToDestroy.getFournisseurProduit();
             Produit produit = fournisseurProduit.getProduit();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(productsToDestroy.getUpdated())
                 .setProduit(produit)
                 .setMouvementType(MouvementProduit.RETRAIT_PERIME)
                 .setQuantity(productsToDestroy.getQuantity())
@@ -109,7 +103,6 @@ public class InventoryTransactionBuilder {
             OrderLine orderLine = retourBonItem.getOrderLine();
             Produit produit = orderLine.getFournisseurProduit().getProduit();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(retourBonItem.getDateMtv())
                 .setProduit(produit)
                 .setMouvementType(MouvementProduit.RETOUR_FOURNISSEUR)
                 .setQuantity(retourBonItem.getQtyMvt())
@@ -130,7 +123,6 @@ public class InventoryTransactionBuilder {
             int qtyBefore = storeInventoryLine.getQuantityInit() != null
                 ? storeInventoryLine.getQuantityInit() : 0;
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(storeInventoryLine.getUpdatedAt())
                 .setProduit(produit)
                 .setMouvementType(MouvementProduit.INVENTAIRE)
                 .setQuantity(qtyAfter - qtyBefore)                // delta signé
@@ -146,7 +138,6 @@ public class InventoryTransactionBuilder {
             Produit produit = retourDepotItem.getProduit();
             AppUser user = retourDepotItem.getRetourDepot().getUser();
             inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(LocalDateTime.now())
                 .setProduit(produit)
                 .setMouvementType(MouvementProduit.RETOUR_DEPOT)
                 .setQuantity(retourDepotItem.getQtyMvt())

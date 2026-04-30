@@ -46,10 +46,13 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
 import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { IStockEntryResult } from "../../../../shared/model/stock-entry-result.model";
 import { IReceptionScanResult } from "../../../../shared/model/reception-scan-result.model";
-import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
+import { ScanEvent } from "../../../../shared/scanner";
+import { ReceptionScannerService } from "./reception-scanner.service";
 import { RetourDepuisReceptionComponent } from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
+import { ReconciliationFactureComponent } from "../../ui/reconciliation-facture/reconciliation-facture.component";
 import { ReceptionHelpComponent } from "../../ui/reception-help/reception-help.component";
 import { NotificationService } from "../../../../shared/services/notification.service";
+import { ScanAudioFeedbackService } from "../../../../shared/services/scan-audio-feedback.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {
   AllCommunityModule,
@@ -78,6 +81,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: "app-commande-received",
   templateUrl: "./commande-received.component.html",
   styleUrls: ["./commande-received.component.scss"],
+  providers: [ReceptionScannerService],
   imports: [
     CommonModule,
     FormsModule,
@@ -171,13 +175,15 @@ export class CommandeReceivedComponent implements OnInit {
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
   protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private scanPrefillTimer: ReturnType<typeof setTimeout> | null = null;
   private keydownListener: ((e: KeyboardEvent) => void) | null = null;
+  /** AX-23g — IDs des lignes dont le CIP a été mis à jour pendant cette réception. */
+  private readonly updatedCipLineIds = new Set<number>();
 
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly audioFeedback = inject(ScanAudioFeedbackService);
   private readonly commandeService = inject(CommandeService);
   private readonly deliveryService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
@@ -185,7 +191,8 @@ export class CommandeReceivedComponent implements OnInit {
   private readonly configurationService = inject(ConfigurationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly scanDetectorService = inject(ScanDetectorService);
+  /** Service scanner isolé à ce composant — ne partage PAS le buffer avec le module vente. */
+  private readonly receptionScanner = inject(ReceptionScannerService);
 
   constructor() {
     this.filtres = [
@@ -229,6 +236,8 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onSequentialLineChanged(updatedLine: IOrderLine): void {
+    // AX-05 : effacer le prefill DataMatrix dès que la ligne est validée (consommé)
+    this.scanLotPrefill.set(null);
     const idx = this.orderLines.findIndex(l => l.id === updatedLine.id);
     if (idx !== -1) {
       this.orderLines = [
@@ -250,6 +259,8 @@ export class CommandeReceivedComponent implements OnInit {
     instance.orderLines = this.orderLines;
     instance.commandeRef = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
     instance.fournisseurLibelle = this.currentCommande.fournisseur?.libelle ?? "";
+    // AX-23g — Lignes dont le CIP a été mis à jour pendant cette réception
+    instance.updatedCipLines = this.orderLines.filter(l => l.id && this.updatedCipLineIds.has(l.id));
 
     ref.result.then(
       result => {
@@ -258,6 +269,10 @@ export class CommandeReceivedComponent implements OnInit {
       () => { /* dismissed — continuer la saisie */
       }
     );
+  }
+
+  protected onCipUpdated(lineId: number): void {
+    this.updatedCipLineIds.add(lineId);
   }
 
   protected onFilterCommandeLines(): void {
@@ -323,7 +338,10 @@ export class CommandeReceivedComponent implements OnInit {
           this.confirmDialog.onConfirm(
             () => {
               line.produitCip = newCip;
-              this.commandeService.updateCip(line).subscribe(() => this.refreshCommande());
+              this.commandeService.updateCip(line).subscribe(() => {
+                if (line.id) this.updatedCipLineIds.add(line.id);
+                this.refreshCommande();
+              });
             },
             "Substitution détectée",
             `Le CIP reçu (${newCip}) diffère du CIP commandé (${oldCip}).\nAccepter la substitution et mettre à jour le produit ?`,
@@ -336,7 +354,10 @@ export class CommandeReceivedComponent implements OnInit {
           );
         } else {
           line.produitCip = newCip;
-          this.commandeService.updateCip(line).subscribe(() => this.refreshCommande());
+          this.commandeService.updateCip(line).subscribe(() => {
+            if (line.id) this.updatedCipLineIds.add(line.id);
+            this.refreshCommande();
+          });
         }
       }
     }
@@ -389,6 +410,17 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onConfirmFinalize(): void {
+    this.executeFinalizationFlow(true);
+  }
+
+  protected finalizeSansConfirmModal(): void {
+    this.executeFinalizationFlow(false);
+  }
+
+
+  // requireConfirm = true → dialog "Voulez-vous faire l'entrée en stock ?" avant la mise en stock
+  // requireConfirm = false → exécution directe (le modal de finalisation a déjà obtenu la confirmation)
+  private executeFinalizationFlow(requireConfirm: boolean): void {
     this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
       next: res => {
         const lignesAnomalie = res.body ?? [];
@@ -401,36 +433,11 @@ export class CommandeReceivedComponent implements OnInit {
             "Variation de prix détectée",
             `${lignesAnomalie.length} ligne(s) ont un écart de prix dépassant le seuil configuré :\n${detail}\n\nVoulez-vous continuer malgré ces écarts ?`
           );
-        } else {
+        } else if (requireConfirm) {
           this.confirmDialog.onConfirm(
             () => this.checkPutawayAndFinalize(),
             "Finalisation de la commande",
             "Voullez-vous faire l'entrée en stock ?"
-          );
-        }
-      },
-      error: () => {
-        this.confirmDialog.onConfirm(
-          () => this.checkPutawayAndFinalize(),
-          "Finalisation de la commande",
-          "Voullez-vous faire l'entrée en stock ?"
-        );
-      }
-    });
-  }
-
-  protected finalizeSansConfirmModal(): void {
-    this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
-      next: res => {
-        const lignesAnomalie = res.body ?? [];
-        if (lignesAnomalie.length > 0) {
-          const detail = lignesAnomalie
-            .map(l => `• ${l.produitLibelle} : commandé ${l.orderCostAmount} → actuel ${l.costAmount}`)
-            .join("\n");
-          this.confirmDialog.onConfirm(
-            () => this.confirmFinalizeApresAlertesPrix(),
-            "Variation de prix détectée",
-            `${lignesAnomalie.length} ligne(s) ont un écart de prix dépassant le seuil configuré :\n${detail}\n\nVoulez-vous continuer malgré ces écarts ?`
           );
         } else {
           this.checkPutawayAndFinalize();
@@ -493,6 +500,12 @@ export class CommandeReceivedComponent implements OnInit {
       },
       "lg"
     );
+  }
+
+  // AX-22 — Lien vers le module de rapprochement facture fournisseur
+  protected onRapprocher(): void {
+    const ref = this.modalService.open(ReconciliationFactureComponent, { size: "lg", centered: true });
+    (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande;
   }
 
   protected onRetourFournisseur(): void {
@@ -640,7 +653,21 @@ export class CommandeReceivedComponent implements OnInit {
     this.deliveryService.scanReception(this.currentCommande.id, raw).subscribe({
       next: res => {
         const result = res.body!;
-        this.lastScanResult.set(result);
+        // AX-01 — Feedback sonore
+        if (result.found) {
+          this.audioFeedback.beepSuccess();
+        } else {
+          this.audioFeedback.beepError();
+        }
+        // AX-23a — Enrichir le signal avec les lignes provisoires + le code scanné quand non trouvé
+        if (!result.found) {
+          const provisionalLines = this.orderLines
+            .filter(l => l.provisionalCode)
+            .map(l => ({ id: l.id!, libelle: l.produitLibelle! }));
+          this.lastScanResult.set({ ...result, provisionalLines, scannedCode: raw });
+        } else {
+          this.lastScanResult.set(result);
+        }
         if (result.found) {
           const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
           if (idx !== -1) {
@@ -657,6 +684,9 @@ export class CommandeReceivedComponent implements OnInit {
                 columns: ["quantityReceivedTmp", "afterStock", "statut"],
                 force: true
               });
+              // AX-02 — Auto-scroll + flash vert 800 ms pour repérer visuellement la ligne mise à jour
+              this.gridApi?.ensureNodeVisible(rowNode, "middle");
+              this.gridApi?.flashCells({ rowNodes: [rowNode], flashDuration: 800, fadeDuration: 400 });
             }
           }
           if (result.lotAutoCreated) {
@@ -667,9 +697,9 @@ export class CommandeReceivedComponent implements OnInit {
             const m = isoDate.match(/^(\d{4})-(\d{2})/);
             const expiry = m ? `${m[2]}/${m[1]}` : "";
             if (expiry) {
-              if (this.scanPrefillTimer) clearTimeout(this.scanPrefillTimer);
               this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
-              this.scanPrefillTimer = setTimeout(() => this.scanLotPrefill.set(null), 10000);
+              // AX-05 : pas de timer fixe — le prefill est effacé à la validation de la ligne
+              //         (voir onSequentialLineChanged)
             }
           }
         }
@@ -682,13 +712,39 @@ export class CommandeReceivedComponent implements OnInit {
     });
   }
 
+  // AX-23c — Associer le code scanné à la première ligne provisoire et ouvrir la cellule CIP
+  protected onAssocierScanToProvisional(): void {
+    const scan = this.lastScanResult();
+    if (!scan?.provisionalLines?.length || !scan.scannedCode) return;
+    const firstLine = scan.provisionalLines[0];
+    const rowNode = this.gridApi?.getRowNode(String(firstLine.id));
+    if (!rowNode) return;
+    // Basculer en mode grille pour que la cellule CIP soit visible
+    this.setViewMode("grid");
+    setTimeout(() => {
+      this.gridApi?.ensureNodeVisible(rowNode, "middle");
+      setTimeout(() => {
+        this.gridApi?.startEditingCell({ rowIndex: rowNode.rowIndex!, colKey: "produitCip" });
+        setTimeout(() => {
+          const eInput = document.querySelector<HTMLInputElement>(".ag-cell-editor input");
+          if (eInput) {
+            eInput.value = scan.scannedCode!;
+            eInput.dispatchEvent(new Event("input"));
+          }
+        }, 50);
+      }, 100);
+    }, 50);
+    this.lastScanResult.set(null);
+  }
+
   private scheduleClearScanResult(): void {
     if (this.scanFeedbackTimer) clearTimeout(this.scanFeedbackTimer);
     this.scanFeedbackTimer = setTimeout(() => this.lastScanResult.set(null), 4000);
   }
 
   private setupBarcodeScanner(): void {
-    this.scanDetectorService.onScanEvent$
+    // ── Abonnement aux scans complétés ─────────────────────────────────────
+    this.receptionScanner.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         filter((e: ScanEvent) => e.type === "complete")
@@ -700,7 +756,35 @@ export class CommandeReceivedComponent implements OnInit {
         }
       });
 
-    this.keydownListener = (event: KeyboardEvent) => this.scanDetectorService.keyPressed(event.key);
+    // ── Écouteur global clavier (capture phase = avant les inputs) ─────────
+    //
+    // Comportement :
+    //  1. Chaque touche est transmise au ReceptionScannerService (isolé de la vente).
+    //  2. Dès qu'une frappe rapide est détectée (scan en cours),
+    //     on bloque l'écriture dans l'input actif via preventDefault()
+    //     → évite que le code CIP/DataMatrix se retrouve dans le champ N° lot, qty, etc.
+    //  3. Le premier caractère peut déjà avoir été écrit avant la détection ;
+    //     onScanReception() nettoiera les champs si nécessaire (cf. clearLotDraftOnScan()).
+    this.keydownListener = (event: KeyboardEvent): void => {
+      const result = this.receptionScanner.processKey(event.key);
+      if (result.isScanInProgress && this.isInputElementActive()) {
+        event.preventDefault();
+      }
+      // AX-17 — Raccourcis clavier globaux
+      if (event.ctrlKey && event.key.toLowerCase() === "g") {
+        event.preventDefault();
+        this.setViewMode(this.viewMode() === "grid" ? "sequential" : "grid");
+      } else if (event.key === "F5" && !event.ctrlKey && !event.shiftKey) {
+        event.preventDefault();
+        this.onFilterCommandeLines();
+      } else if (event.key === "F11") {
+        event.preventDefault();
+        this.onToutValider();
+      } else if (event.altKey && event.key.toLowerCase() === "h") {
+        event.preventDefault();
+        this.openHelp();
+      }
+    };
     document.addEventListener("keydown", this.keydownListener, true);
 
     this.destroyRef.onDestroy(() => {
@@ -717,6 +801,20 @@ export class CommandeReceivedComponent implements OnInit {
     }
   }
 
+  /**
+   * Vérifie si le focus est actuellement sur un champ de saisie texte ou numérique.
+   * Utilisé pour décider d'appeler event.preventDefault() lors d'un scan en cours.
+   */
+  private isInputElementActive(): boolean {
+    const el = document.activeElement;
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      // Ne pas bloquer si c'est le champ dédié au scan (mode grille)
+      if (el === (this.scanInputRef()?.nativeElement)) return false;
+      return true;
+    }
+    return false;
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   private computeAfterStock(ol: IOrderLine): number {
@@ -724,12 +822,25 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
-    const rec = ol.quantityReceivedTmp ?? ol.quantityRequested ?? 0;
+    // AX-13 — Distinguer jamais touché (null) de saisi à 0
+    if (ol.quantityReceivedTmp == null) return { label: "À saisir", severity: "secondary" };
+    const rec = ol.quantityReceivedTmp;
     const cmd = ol.quantityRequested ?? 0;
     if (rec === cmd) return { label: "Servi", severity: "success" };
     if (rec === 0) return { label: "Rupture", severity: "danger" };
     if (rec > cmd) return { label: "Excédent", severity: "info" };
     return { label: "Partiel", severity: "warn" };
+  }
+
+  // AX-08 — Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
+  protected get tauxService(): number {
+    if (!this.orderLines.length) return 0;
+    const served = this.orderLines.filter(
+      l => l.quantityRequested != null &&
+           (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
+           l.quantityRequested > 0
+    ).length;
+    return Math.round((served / this.orderLines.length) * 100);
   }
 
   private isLotActif(): void {
@@ -742,6 +853,7 @@ export class CommandeReceivedComponent implements OnInit {
       {
         headerName: "#",
         width: 50,
+        hide: true,
         valueGetter: p => (p.node?.rowIndex ?? 0) + 1,
         cellStyle: { color: "#9ca3af", fontSize: "0.72rem", textAlign: "center" }
       },
@@ -907,6 +1019,49 @@ export class CommandeReceivedComponent implements OnInit {
         }
       });
     }
+    // AX-12 — Couverture stock en jours (masquée par défaut)
+    cols.push({
+      field: "couvertureStockJours",
+      headerName: "Couverture",
+      width: 100,
+      type: "numericColumn",
+      headerTooltip: "Jours de couverture stock estimés",
+      cellRenderer: (p: any) => {
+        const v = p.data?.couvertureStockJours;
+        if (v == null) return "—";
+        const color = v < 7 ? "#dc3545" : v < 30 ? "#f59e0b" : "#16a34a";
+        return `<span style="color:${color};font-weight:700">${v} j</span>`;
+      }
+    });
+    // AX-06 — TVA (masquée par défaut, activable via menu colonnes)
+    cols.push({
+      field: "tva",
+      headerName: "TVA (%)",
+      width: 75,
+      type: "numericColumn",
+      hide: true,
+      cellRenderer: (p: any) => p.data?.tva != null ? `${p.data.tva} %` : "—"
+    });
+
+    // AX-07 — Remise + Montant net (masqués par défaut)
+    cols.push({
+      field: "discountAmount",
+      headerName: "Remise",
+      width: 95,
+      type: "numericColumn",
+      hide: true,
+      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+    });
+    cols.push({
+      field: "netAmount",
+      headerName: "Net",
+      width: 100,
+      type: "numericColumn",
+      hide: true,
+      valueFormatter: (p: any) => p.value != null ? `${Number(p.value).toLocaleString("fr-FR")} F` : "—"
+    });
+
+
 
     cols.push({
       colId: "actions",

@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { finalize, switchMap, tap } from "rxjs/operators";
-import { of } from "rxjs";
+import { finalize, map, switchMap, tap } from "rxjs/operators";
+import { Observable, of } from "rxjs";
 import {
   BudgetCommande,
   SemoisFraicheur,
@@ -81,7 +81,7 @@ export class SuggestionFacadeService {
    * @param statut Filtre optionnel : 'GENEREE' (tab Réapprovisionnement) ou 'VALIDEE' (tab Commandes à passer).
    *               Null = tous (comportement antérieur).
    */
-   loadAll(statut: string[], search?: string, fournisseurIds?: number[]): void {
+  loadAll(statut: string[], search?: string, fournisseurIds?: number[]): void {
     this.loading.set(true);
     this.fournisseurs.set([]);
     this.selectedFournisseur.set(null);
@@ -113,7 +113,7 @@ export class SuggestionFacadeService {
   }
 
   /** Déclenche un recalcul SEMOIS manuel puis recharge la fraîcheur. */
-   recalculerSemois(): void {
+  recalculerSemois(): void {
     this.recalculEnCours.set(true);
     this.suggestionService.recalculerSemois().subscribe({
       next: () => {
@@ -129,7 +129,7 @@ export class SuggestionFacadeService {
   }
 
   /** Sélectionne un fournisseur et charge la première page de ses lignes. */
-   selectFournisseur(fournisseur: FournisseurSuggestionSummary): void {
+  selectFournisseur(fournisseur: FournisseurSuggestionSummary): void {
     this.selectedFournisseur.set(fournisseur);
     this.page.set(0);
     this.searchText.set("");
@@ -149,7 +149,7 @@ export class SuggestionFacadeService {
   }
 
   /** Applique un filtre texte + urgence et recharge depuis la page 0. */
-   applyFilter(search: string, urgence: string): void {
+  applyFilter(search: string, urgence: string): void {
     this.searchText.set(search);
     this.urgenceFilter.set(urgence);
     this.page.set(0);
@@ -157,23 +157,23 @@ export class SuggestionFacadeService {
   }
 
   /** Change de page et recharge. */
-   changePage(page: number, rows: number): void {
+  changePage(page: number, rows: number): void {
     this.page.set(page);
     this.rows.set(rows);
     this.loadLignes();
   }
 
   /** Recharge les lignes avec les paramètres courants (page, filtre). */
-   loadLignes(): void {
+  loadLignes(): void {
     if (this.currentSuggestionId == null) return;
     this.loadLignesForFournisseur(this.currentSuggestionId, this.currentFournisseurId!);
   }
 
   /**
-   * Bug 3 — Commander toute la suggestion via son ID uniquement.
+   * Commander toute la suggestion via son ID uniquement.
    * Gère le mode Interne (commande locale) et PharmaML (envoi électronique).
    */
-   commanderFull(modalResult: CommanderModalResult): void {
+  commanderFull(modalResult: CommanderModalResult): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
       this.notificationService.warning("Aucun fournisseur sélectionné.");
@@ -220,7 +220,7 @@ export class SuggestionFacadeService {
    * La suggestion n'est PAS supprimée si des lignes restent.
    * Gère le mode Interne et PharmaML.
    */
-   commanderSelection(lignes: SuggestionLigneEnrichie[], modalResult: CommanderModalResult): void {
+  commanderSelection(lignes: SuggestionLigneEnrichie[], modalResult: CommanderModalResult): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
       this.notificationService.warning("Aucun fournisseur sélectionné.");
@@ -275,7 +275,7 @@ export class SuggestionFacadeService {
   }
 
   /** Met à jour la quantité d'une ligne via l'API puis met à jour le signal. */
-   updateQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
+  updateQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
     if (!ligne.id) return;
     const updatedLine: SuggestionLine = {
       id: ligne.id,
@@ -301,7 +301,7 @@ export class SuggestionFacadeService {
    * Réinitialise le flag quantiteModifieeManuel d'une ligne.
    * Le batch SEMOIS pourra à nouveau calculer la quantité.
    */
-   resetQuantite(ligne: SuggestionLigneEnrichie): void {
+  resetQuantite(ligne: SuggestionLigneEnrichie): void {
     if (!ligne.id) return;
     this.suggestionService.resetQuantiteManuelle(ligne.id).subscribe({
       next: () => {
@@ -321,7 +321,7 @@ export class SuggestionFacadeService {
   }
 
   /** Exporte la suggestion en PDF (Tauri : boîte de dialogue de sauvegarde ; browser : ouvre dans un onglet). */
-   exporterPdf(): void {
+  exporterPdf(): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
     const filename = `suggestion_${fournisseur.suggestionId}`;
@@ -339,7 +339,7 @@ export class SuggestionFacadeService {
   }
 
   /** Exporte la suggestion en CSV. */
-   exporterCsv(): void {
+  exporterCsv(): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) return;
     const filename = `suggestion_${fournisseur.suggestionId}`;
@@ -358,7 +358,7 @@ export class SuggestionFacadeService {
   }
 
   /** Valide une suggestion (GENEREE → VALIDEE). */
-   valider(id: number): void {
+  valider(id: number): void {
     this.suggestionService.valider(id).subscribe({
       next: () => {
         this.notificationService.success("Suggestion validée.", "Valider");
@@ -371,7 +371,7 @@ export class SuggestionFacadeService {
   }
 
   /** Rejette (supprime) une suggestion. */
-   rejeter(id: number): void {
+  rejeter(id: number): void {
     this.suggestionService.rejeter(id).subscribe({
       next: () => {
         this.notificationService.success("Suggestion rejetée.", "Rejeter");
@@ -384,7 +384,7 @@ export class SuggestionFacadeService {
   }
 
   /** Nettoie (sanitize) une suggestion puis recharge la liste. */
-   sanitize(id: number): void {
+  sanitize(id: number): void {
     this.suggestionService.sanitize(id).subscribe({
       next: () => {
         this.notificationService.success("Suggestion nettoyée.", "Sanitize");
@@ -398,7 +398,7 @@ export class SuggestionFacadeService {
 
 
   /** Met à jour la quantité d'une ligne dans le signal local. */
-   setQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
+  setQuantite(ligne: SuggestionLigneEnrichie, qte: number): void {
     this.lignesEnrichies.update(lignes =>
       lignes.map(l =>
         l === ligne
@@ -410,7 +410,7 @@ export class SuggestionFacadeService {
 
 
   /** Supprime une ligne de suggestion. */
-   supprimerLigne(id: number): void {
+  supprimerLigne(id: number): void {
     const keys: Keys = { ids: [id] };
     this.suggestionService.deleteItem(keys).subscribe({
       next: () => {
@@ -435,7 +435,7 @@ export class SuggestionFacadeService {
   }
 
   /** Supprime plusieurs lignes sélectionnées. */
-   supprimerLignes(ids: number[]): void {
+  supprimerLignes(ids: number[]): void {
     if (ids.length === 0) return;
     const keys: Keys = { ids };
     this.suggestionService.deleteItem(keys).subscribe({
@@ -462,7 +462,7 @@ export class SuggestionFacadeService {
   }
 
   /** Supprime une ou plusieurs suggestions. Désélectionne si la suggestion courante est supprimée. */
-   supprimerSuggestions(ids: number[]): void {
+  supprimerSuggestions(ids: number[]): void {
     if (ids.length === 0) return;
     const keys: Keys = { ids };
     this.suggestionService.delete(keys).subscribe({
@@ -487,7 +487,7 @@ export class SuggestionFacadeService {
   }
 
   /** Fusionne plusieurs suggestions du même fournisseur. */
-   fusionnerSuggestions(ids: number[]): void {
+  fusionnerSuggestions(ids: number[]): void {
     if (ids.length < 2) return;
     const keys: Keys = { ids };
     this.suggestionService.fusionner(keys).subscribe({
@@ -506,7 +506,7 @@ export class SuggestionFacadeService {
   }
 
   /** Ajoute un produit à la suggestion courante puis recharge les lignes. */
-   ajouterProduit(produitId: number, fournisseurProduitId: number, quantite = 1): void {
+  ajouterProduit(produitId: number, fournisseurProduitId: number, quantite = 1): void {
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
       this.notificationService.warning("Aucun fournisseur sélectionné.");
@@ -524,7 +524,7 @@ export class SuggestionFacadeService {
   }
 
   /** Charge les fournisseurs d'un produit pour la vue comparaison, triés : principal d'abord puis prix croissant. */
-   loadFournisseursProduit(produitId: number): void {
+  loadFournisseursProduit(produitId: number): void {
     this.loadingComparaison.set(true);
     this.fournisseursProduit.set([]);
     this.suggestionService
@@ -574,6 +574,17 @@ export class SuggestionFacadeService {
         }
       });
   }
+
+  fetchLignes(suggestionId: number): Observable<SuggestionLigneEnrichie[]> {
+    this.loadingLignes.set(true);
+    return this.suggestionService
+      .queryAllLines(suggestionId)
+      .pipe(
+        map(lines => lines.map(line => this.toEnrichie(line))),
+        finalize(() => this.loadingLignes.set(false))
+      );
+  }
+
 
   private toEnrichie(line: SuggestionLine): SuggestionLigneEnrichie {
     const quantiteCalculee = line.quantity ?? 0;

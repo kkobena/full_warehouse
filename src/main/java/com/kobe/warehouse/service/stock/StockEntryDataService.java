@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
@@ -34,5 +35,5 @@ public interface StockEntryDataService {
 
     DeliveryTotalsDTO computeTotals(DeliveryReceiptFilterDTO filter);
 
-    long countByStatut(com.kobe.warehouse.domain.enumeration.OrderStatut statut);
+    long countByOrderStatusAndType(OrderStatut statut);
 }

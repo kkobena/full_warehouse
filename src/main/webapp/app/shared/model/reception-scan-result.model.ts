@@ -18,4 +18,9 @@ export interface IReceptionScanResult {
   serialNumber: string | null;
   /** Statut FMD : PRESENT (OK), ABSENT (scan 1D / pas d'AI 21), DUPLICATE (alerte contrefaçon). */
   fmdStatus: FmdStatus;
+  // ── AX-23 — Pont scan → CIP provisoire ──────────────────────────────────
+  /** Code brut scanné — renseigné quand found=false pour l'associer à une ligne provisoire. */
+  scannedCode?: string | null;
+  /** Lignes avec provisionalCode=true détectées lors d'un scan inconnu. */
+  provisionalLines?: { id: number; libelle: string }[];
 }

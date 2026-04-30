@@ -54,6 +54,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(
             idProduit);
         int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
+        System.err.println("commandeCount ***************************   = " + commandeCount);
         boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
             idProduit,
             OrderStatut.RECEIVED,
@@ -73,7 +74,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     }
 
     private LocalDate getDateRetentionCommande() {
-        return LocalDate.now().plusDays(appConfigurationService.getNombreJourRetentionCommande());
+        return LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
     }
 
     private int getCommandeCount(Integer idProduit, OrderStatut orderStatut) {

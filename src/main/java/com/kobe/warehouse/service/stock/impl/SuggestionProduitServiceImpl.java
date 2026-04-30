@@ -269,20 +269,10 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @Override
     public CommandeId commanderSelection(CommanderSelectionDTO dto) {
-        Suggestion suggestion = suggestionRepository.findById(dto.suggestionId()).orElseThrow();
+        Suggestion suggestion = suggestionRepository.getReferenceById(dto.suggestionId());
         CommandeId commandeId = commandService.createCommandeFromSelection(suggestion, dto.lignes(), dto.fournisseurId());
-
-        // Supprimer uniquement les lignes qui ont été commandées (pas toute la suggestion)
-        Set<Integer> idsCommandees = dto.lignes().stream()
-            .map(CommanderSelectionDTO.LigneSelection::suggestionLineId)
-            .collect(Collectors.toSet());
-        List<SuggestionLine> lignesASupprimer = suggestion.getSuggestionLines().stream()
-            .filter(sl -> idsCommandees.contains(sl.getId()))
-            .toList();
-        suggestionLineRepository.deleteAll(lignesASupprimer);
-
         // Si toutes les lignes ont été commandées, supprimer la suggestion elle-même
-        long restantes = suggestion.getSuggestionLines().size() - lignesASupprimer.size();
+        long restantes = suggestion.getSuggestionLines().size() - dto.lignes().size();
         if (restantes <= 0) {
             suggestionRepository.delete(suggestion);
         } else {

@@ -20,6 +20,22 @@
       </label>
     </div>
 
+    <!-- AX-09 — Bandeau concordance compact -->
+    <div class="rh-seq__nav-concordance" [class.rh-seq__nav-concordance--ok]="!navConcordance().hasAnomaly">
+      <span class="rh-seq__nav-conc-total">
+        {{ orderLines().length - navConcordance().ecartQte }}/{{ orderLines().length }}
+      </span>
+      @if (navConcordance().ecartQte > 0) {
+        <span class="rh-seq__nav-conc-chip rh-seq__nav-conc-chip--warn">{{ navConcordance().ecartQte }} éc.qté</span>
+      }
+      @if (navConcordance().ecartPrix > 0) {
+        <span class="rh-seq__nav-conc-chip rh-seq__nav-conc-chip--danger">{{ navConcordance().ecartPrix }} éc.prix</span>
+      }
+      @if (navConcordance().lotsManquants > 0) {
+        <span class="rh-seq__nav-conc-chip rh-seq__nav-conc-chip--lot">{{ navConcordance().lotsManquants }} lots</span>
+      }
+    </div>
+
     <div class="rh-seq__nav-list">
       @for (line of visibleLines(); track line.id) {
         <button type="button"
@@ -114,8 +130,66 @@
               <i class="pi pi-th-large"></i>&nbsp;PCB&nbsp;<strong>{{ line.qteColis }}</strong>
             </span>
           }
+          @if (line.thermosensible) {
+            <span class="rh-seq__meta-chip rh-seq__meta-chip--cold"
+                  pTooltip="Produit thermosensible — conserver entre 2°C et 8°C"
+                  tooltipPosition="top">
+              <i class="pi pi-snowflake"></i>&nbsp;2–8°C
+            </span>
+          }
         </div>
       </div>
+
+      <!-- AX-15 — Feedback scan visible en mode séquentiel -->
+      @if (lastScanResult(); as scan) {
+        <div class="rh-seq__scan-feedback"
+             [class.rh-seq__scan-feedback--ok]="scan.found"
+             [class.rh-seq__scan-feedback--err]="!scan.found">
+          <i [class]="scan.found ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+          <span>{{ scan.found ? scan.produitLibelle : (scan.warningMessage ?? 'Produit non trouvé') }}</span>
+          @if (scan.found && scan.lotNumero) {
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--lot">
+              <i class="pi pi-box"></i>{{ scan.lotNumero }}
+            </span>
+          }
+          @if (scan.found && scan.fmdStatus === 'PRESENT') {
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-ok">
+              <i class="pi pi-shield"></i>FMD ✓
+            </span>
+          }
+          @if (scan.found && scan.fmdStatus === 'DUPLICATE') {
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-dup">
+              <i class="pi pi-shield"></i>DOUBLON !
+            </span>
+          }
+        </div>
+      }
+
+      <!-- AX-23d — Bandeau CIP provisoire en mode séquentiel -->
+      @if (currentLine()?.provisionalCode) {
+        <div class="rh-seq__provisional-cip-banner">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Code CIP provisoire — à mettre à jour</span>
+          @if (pendingCipAssociation()) {
+            <span class="rh-seq__prov-scanned">Code scanné : <strong>{{ pendingCipAssociation() }}</strong></span>
+            <p-button size="small" severity="warn" icon="pi pi-check"
+                      label="Associer" (onClick)="onConfirmCipAssociation()" />
+          } @else if (!isEditingCip()) {
+            <p-button size="small" severity="secondary" icon="pi pi-pencil"
+                      label="Modifier CIP" (onClick)="isEditingCip.set(true)" />
+          } @else {
+            <input type="text" pInputText [(ngModel)]="draftCip"
+                   placeholder="Nouveau CIP"
+                   class="rh-seq__prov-cip-input"
+                   (keydown.enter)="onSaveDraftCip()"
+                   (keydown.escape)="isEditingCip.set(false)" />
+            <p-button size="small" severity="success" icon="pi pi-check"
+                      label="Sauver" (onClick)="onSaveDraftCip()" />
+            <p-button size="small" severity="secondary" icon="pi pi-times"
+                      (onClick)="isEditingCip.set(false)" />
+          }
+        </div>
+      }
 
       <!-- ════════════════════════════════════════════════════════════════ -->
       <!-- ÉTAPE 1 — QUANTITÉS                                             -->

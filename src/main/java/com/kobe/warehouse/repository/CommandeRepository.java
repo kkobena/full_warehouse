@@ -45,7 +45,7 @@ import java.util.Set;
 @Repository
 public interface CommandeRepository
     extends JpaRepository<Commande, CommandeId>, JpaSpecificationExecutor<Commande>, CustomCommandeRepository {
-    int countByOrderStatus(OrderStatut orderStatut);
+    int countByOrderStatusAndType(OrderStatut orderStatut,TypeDeliveryReceipt type);
 
     long countByTypeAndOrderDate(TypeDeliveryReceipt type, LocalDate orderDate);
 

@@ -49,7 +49,7 @@ export class RetourDepuisReceptionComponent implements OnInit {
   ngOnInit(): void {
     this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs = res.body ?? []) });
     this.retourLines = this.orderLines
-      .filter(l => (l.quantityReceived ?? 0) > 0)
+      .filter(l => (l.quantityReceived ?? 0) > 0)  //On ne peut retourner une quantité qu'on a pas reçu
       .map(l => ({
         orderLine: l,
         qtyRetour: 0,

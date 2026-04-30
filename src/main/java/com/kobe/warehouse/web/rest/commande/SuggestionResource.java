@@ -186,8 +186,7 @@ public class SuggestionResource {
         @PathVariable Integer id,
         @RequestParam(required = false) Integer fournisseurId
     ) {
-        CommandeId commandeId = suggestionProduitService.commander(id, fournisseurId);
-        return ResponseEntity.ok(commandeId);
+        return ResponseEntity.ok(suggestionProduitService.commander(id, fournisseurId));
     }
 
     @PostMapping("/suggestions/commander-selection")

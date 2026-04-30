@@ -91,6 +91,6 @@ public class StockEntryDataResource {
 
     @GetMapping("/commandes/count")
     public ResponseEntity<Long> countByStatut(@RequestParam("statut") OrderStatut statut) {
-        return ResponseEntity.ok(stockEntryDataServicetryService.countByStatut(statut));
+        return ResponseEntity.ok(stockEntryDataServicetryService.countByOrderStatusAndType(statut));
     }
 }

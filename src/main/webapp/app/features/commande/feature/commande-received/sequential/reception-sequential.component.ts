@@ -18,6 +18,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { forkJoin } from "rxjs";
 
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
+import { IReceptionScanResult } from "../../../../../shared/model/reception-scan-result.model";
 import { ILot } from "../../../../../shared/model/lot.model";
 import { DeliveryService } from "../../../../../entities/commande/delevery/delivery.service";
 import { CommandeService } from "../../../../../entities/commande/commande.service";
@@ -33,13 +34,17 @@ import { ErrorService } from "../../../../../shared/error.service";
   imports: [CommonModule, FormsModule, ButtonModule, TooltipModule, InputTextModule]
 })
 export class ReceptionSequentialComponent {
-  orderLines   = input.required<IOrderLine[]>();
-  showLotBtn   = input<boolean>(false);
+  orderLines      = input.required<IOrderLine[]>();
+  showLotBtn      = input<boolean>(false);
   /** Pré-remplissage lot depuis un scan DataMatrix (fourni par commande-received quand lotAutoCreated=false). */
-  lotPrefill   = input<{ numLot: string; expiry: string } | null>(null);
+  lotPrefill      = input<{ numLot: string; expiry: string } | null>(null);
+  /** AX-15 / AX-23d — Résultat du dernier scan transmis par le composant parent. */
+  lastScanResult  = input<IReceptionScanResult | null>(null);
 
   lineChanged       = output<IOrderLine>();
   allLinesProcessed = output<void>();
+  /** AX-23g — Émis quand le CIP d'une ligne est mis à jour manuellement. */
+  cipUpdated        = output<number>();
 
   // ── Étape active ─────────────────────────────────────────────────────────
   protected readonly step = signal<"qty" | "lot">("qty");
@@ -62,6 +67,12 @@ export class ReceptionSequentialComponent {
   protected readonly lotSaving     = signal(false);
   protected readonly expiryWarning = signal<"none" | "soon" | "critical">("none");
   protected readonly lotJustAdded  = signal(false);
+
+  // ── AX-23d — CIP provisoire ───────────────────────────────────────────────
+  /** Code scanné en attente d'association au CIP de la ligne courante. */
+  protected readonly pendingCipAssociation = signal<string | null>(null);
+  protected readonly isEditingCip = signal(false);
+  protected draftCip = "";
 
   /** Pré-remplissage en attente, appliqué quand on entre en step lot. */
   private pendingPrefill: { numLot: string; expiry: string } | null = null;
@@ -155,6 +166,18 @@ export class ReceptionSequentialComponent {
     return this.remainingLotQty() === 0 && this.remainingLotUg() === 0;
   });
 
+  // AX-09 — Bandeau concordance compact dans la nav
+  protected readonly navConcordance = computed(() => {
+    const lines = this.orderLines();
+    let ecartQte = 0, ecartPrix = 0, lotsManquants = 0;
+    for (const l of lines) {
+      if ((l.quantityReceivedTmp ?? 0) !== (l.quantityRequested ?? 0)) ecartQte++;
+      if (l.costAmount && l.orderCostAmount && l.costAmount !== l.orderCostAmount) ecartPrix++;
+      if (this.showLotBtn() && l.gestionLot !== false && (l.lots?.length ?? 0) === 0) lotsManquants++;
+    }
+    return { ecartQte, ecartPrix, lotsManquants, hasAnomaly: ecartQte + ecartPrix + lotsManquants > 0 };
+  });
+
   /** Lignes éligibles au lot commun : gestion lot, sans lot, quantité reçue > 0, hors ligne courante. */
   protected readonly linesForBatch = computed(() =>
     this.orderLines().filter(l =>
@@ -221,6 +244,17 @@ export class ReceptionSequentialComponent {
         if (this.step() === "lot") {
           this.applyPrefill(pf);
           this.pendingPrefill = null;
+        }
+      });
+    });
+
+    // AX-23d — Capturer le code scanné inconnu si la ligne courante est provisoire
+    effect(() => {
+      const scan = this.lastScanResult();
+      untracked(() => {
+        if (!scan || scan.found) return;
+        if (this.currentLine()?.provisionalCode && scan.scannedCode) {
+          this.pendingCipAssociation.set(scan.scannedCode);
         }
       });
     });
@@ -458,6 +492,40 @@ export class ReceptionSequentialComponent {
   protected onSkipLots(): void {
     this.step.set("qty");
     this.goNext();
+  }
+
+  // ── AX-23d — Association CIP provisoire ──────────────────────────────────
+
+  protected onConfirmCipAssociation(): void {
+    const newCip = this.pendingCipAssociation();
+    const line = this.currentLine();
+    if (!newCip || !line) return;
+    line.produitCip = newCip;
+    this.commandeService.updateCip(line).subscribe({
+      next: () => {
+        this.pendingCipAssociation.set(null);
+        if (line.id) this.cipUpdated.emit(line.id);
+        this.lineChanged.emit(line);
+        this.notificationService.success(`CIP mis à jour : ${newCip}`, "CIP");
+      },
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP")
+    });
+  }
+
+  protected onSaveDraftCip(): void {
+    const line = this.currentLine();
+    if (!this.draftCip.trim() || !line) return;
+    line.produitCip = this.draftCip.trim();
+    this.commandeService.updateCip(line).subscribe({
+      next: () => {
+        this.isEditingCip.set(false);
+        this.draftCip = "";
+        if (line.id) this.cipUpdated.emit(line.id);
+        this.lineChanged.emit(line);
+        this.notificationService.success(`CIP mis à jour : ${line.produitCip}`, "CIP");
+      },
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP")
+    });
   }
 
   // ── Helpers template ──────────────────────────────────────────────────────

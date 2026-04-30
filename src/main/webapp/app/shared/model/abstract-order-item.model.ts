@@ -45,6 +45,7 @@ export interface AbstractOrderItem {
   /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
   qteColis?: number;
   gestionLot?: boolean;
+  thermosensible?: boolean;
 }
 
 export class OrderLineId {

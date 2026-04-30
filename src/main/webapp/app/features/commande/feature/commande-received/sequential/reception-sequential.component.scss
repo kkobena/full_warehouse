@@ -86,6 +86,47 @@
   input { cursor: pointer; accent-color: $pharma-primary; }
 }
 
+// ── AX-09 — Bandeau concordance compact ──────────────────────────────────────
+.rh-seq__nav-concordance {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 3px 0.75rem;
+  background: #fff8e7;
+  border-bottom: 1px solid #fde68a;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  min-height: 24px;
+
+  &--ok {
+    background: #f0fdf4;
+    border-bottom-color: #bbf7d0;
+    .rh-seq__nav-conc-total { color: #15803d; }
+  }
+}
+
+.rh-seq__nav-conc-total {
+  font-weight: 700;
+  color: #92400e;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.rh-seq__nav-conc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--warn   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  &--danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  &--lot    { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+}
+
 // ── Liste ─────────────────────────────────────────────────────────────────────
 .rh-seq__nav-list {
   flex: 1 1 0;
@@ -276,6 +317,81 @@
     background: #fee2e2; border-color: #fca5a5; color: #991b1b;
     i, strong { color: #b91c1c; }
   }
+
+  &--cold {
+    background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e;
+    i, strong { color: #0369a1; }
+  }
+}
+
+// ── AX-15 — Feedback scan ────────────────────────────────────────────────────
+.rh-seq__scan-feedback {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  animation: rh-seq-fade 0.2s ease;
+
+  i { font-size: 0.9rem; flex-shrink: 0; }
+
+  &--ok  { background: #f0fdf4; color: #15803d; border-bottom: 1px solid #bbf7d0; }
+  &--err { background: #fef2f2; color: #991b1b; border-bottom: 1px solid #fecaca; }
+}
+
+.rh-seq__scan-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  &--lot     { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; i { font-size: 0.65rem; } }
+  &--fmd-ok  { background: rgba(13,110,253,.08); color: #0d6efd; border: 1px solid rgba(13,110,253,.2); }
+  &--fmd-dup { background: rgba(220,53,69,.1); color: #dc3545; border: 1px solid rgba(220,53,69,.3); }
+}
+
+@keyframes rh-seq-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── AX-23d — Bandeau CIP provisoire ──────────────────────────────────────────
+.rh-seq__provisional-cip-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 5px 1rem;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  font-size: 0.78rem;
+  color: #92400e;
+  font-weight: 600;
+  flex-wrap: wrap;
+
+  i { color: #d97706; flex-shrink: 0; }
+}
+
+.rh-seq__prov-scanned {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.76rem;
+  strong { font-family: monospace; color: #78350f; }
+}
+
+.rh-seq__prov-cip-input {
+  width: 160px !important;
+  height: 28px !important;
+  font-size: 0.82rem !important;
+  font-family: monospace;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
 }
 
 // ── Corps scrollable ──────────────────────────────────────────────────────────

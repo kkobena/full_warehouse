@@ -51,7 +51,9 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
@@ -253,7 +255,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
                     "SELECT vsr.produit_id, vsr.couverture_stock_jours FROM v_stock_rotation vsr WHERE vsr.produit_id IN :ids")
                 .setParameter("ids", ids)
                 .getResultList();
-            java.util.Map<Integer, Integer> couvertureMap = new java.util.HashMap<>();
+            Map<Integer, Integer> couvertureMap = new HashMap<>();
             for (Object[] row : rotationRows) {
                 if (row[1] != null) {
                     couvertureMap.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());

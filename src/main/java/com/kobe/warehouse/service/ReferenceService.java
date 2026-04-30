@@ -25,7 +25,7 @@ public class ReferenceService {
     public ReferenceService(ReferenceRepository referenceRepository) {
         this.referenceRepository = referenceRepository;
     }
-
+//PO comme prefix
     public String buildNumCommande() {
         return buildReference(TypeReference.COMMANDE, this::formatWithDatePrefix);
     }

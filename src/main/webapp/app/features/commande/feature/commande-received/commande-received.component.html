@@ -13,24 +13,14 @@
       </span>
     }
     <div class="cr-header-actions">
-      <!-- Toggle séquentiel / grille -->
-      <div class="custom-segment-control">
-        <div class="segment-track">
-          <div class="segment-slider" [class.active-right]="viewMode() === 'grid'"></div>
-          <button type="button" class="segment-option" [class.active]="viewMode() === 'sequential'"
-                  (click)="setViewMode('sequential')"
-                  pTooltip="Saisie ligne par ligne — mode nominal" tooltipPosition="bottom">
-            <i class="pi pi-list"></i>
-            <span>Séquentiel</span>
-          </button>
-          <button type="button" class="segment-option" [class.active]="viewMode() === 'grid'"
-                  (click)="setViewMode('grid')"
-                  pTooltip="Vue tableau complète" tooltipPosition="bottom">
-            <i class="pi pi-table"></i>
-            <span>Grille</span>
-          </button>
-        </div>
-      </div>
+
+      <!-- AX-08 — Taux de service -->
+      <p-tag
+        [value]="'Taux service : ' + tauxService + '%'"
+        [severity]="tauxService >= 90 ? 'success' : tauxService >= 70 ? 'warn' : 'danger'"
+        [pTooltip]="'Lignes entièrement servies / total lignes'"
+        tooltipPosition="bottom"
+      />
       @if (lignesPcbAlert > 0) {
         <p-tag
           [value]="lignesPcbAlert + ' alerte(s) colisage'"
@@ -41,7 +31,7 @@
         />
       }
       @if (lignesSansLot > 0) {
-        <p-tag
+        <p-tag [hidden]="true"
           [value]="lignesSansLot + ' lot(s) manquant(s)'"
           severity="warn"
           icon="pi pi-exclamation-triangle"
@@ -58,21 +48,22 @@
         pTooltip="Importer la réponse / fichier du grossiste"
         tooltipPosition="bottom"
       />
-      <p-button
-        (click)="onToutValider()"
-        icon="pi pi-check-square"
-        label="Tout valider"
-        severity="secondary"
-        size="small"
-        pTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
-        tooltipPosition="bottom"
-      />
+
       <p-button
         (click)="onConfirmFinalize()"
         icon="pi pi-check-circle"
         label="Valider"
         severity="primary"
         size="small"
+      />
+      <p-button
+        (click)="onRapprocher()"
+        icon="pi pi-receipt"
+        label="Rapprocher facture"
+        severity="secondary"
+        size="small"
+        pTooltip="Rapprocher la facture fournisseur avec ce bon de livraison"
+        tooltipPosition="bottom"
       />
       <p-button
         (click)="onRetourFournisseur()"
@@ -143,7 +134,8 @@
           <span
             class="cr-scan-badge"
             [class.cr-scan-badge--ok]="lastScanResult()!.found"
-            [class.cr-scan-badge--err]="!lastScanResult()!.found"
+            [class.cr-scan-badge--err]="!lastScanResult()!.found && !lastScanResult()!.provisionalLines?.length"
+            [class.cr-scan-badge--provisional]="!lastScanResult()!.found && !!lastScanResult()!.provisionalLines?.length"
           >
             @if (lastScanResult()!.found) {
               <i class="pi pi-check-circle"></i>
@@ -172,6 +164,12 @@
                   <i class="pi pi-shield"></i> FMD ?
                 </span>
               }
+            } @else if (lastScanResult()!.provisionalLines?.length) {
+              <i class="pi pi-exclamation-triangle"></i>
+              Code inconnu — {{ lastScanResult()!.provisionalLines!.length }} ligne(s) provisoire(s)
+              <button type="button" class="cr-btn-associer" (click)="onAssocierScanToProvisional()">
+                <i class="pi pi-link"></i> Associer
+              </button>
             } @else {
               <i class="pi pi-times-circle"></i>
               {{ lastScanResult()!.warningMessage }}
@@ -179,8 +177,27 @@
           </span>
         }
       </div>
+
       <!-- Actions barre droite -->
       <div class="cr-bar-actions ms-auto">
+        <!-- Toggle séquentiel / grille -->
+        <div class="custom-segment-control">
+          <div class="segment-track">
+            <div class="segment-slider" [class.active-right]="viewMode() === 'grid'"></div>
+            <button type="button" class="segment-option" [class.active]="viewMode() === 'sequential'"
+                    (click)="setViewMode('sequential')"
+                    pTooltip="Saisie ligne par ligne — mode nominal" tooltipPosition="bottom">
+              <i class="pi pi-list"></i>
+              <span>Séquentiel</span>
+            </button>
+            <button type="button" class="segment-option" [class.active]="viewMode() === 'grid'"
+                    (click)="setViewMode('grid')"
+                    pTooltip="Vue tableau complète" tooltipPosition="bottom">
+              <i class="pi pi-table"></i>
+              <span>Grille</span>
+            </button>
+          </div>
+        </div>
         <p-button
           (click)="toggleLeftPanel()"
           [icon]="showLeftPanel ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
@@ -188,7 +205,18 @@
           severity="secondary"
           size="small"
           [outlined]="true"
+          [hidden]="viewMode() === 'sequential'"
           pTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
+          tooltipPosition="bottom"
+        />
+        <p-button
+          (click)="onToutValider()"
+          icon="pi pi-check-square"
+          [hidden]="viewMode() === 'sequential'"
+          label="Tout valider"
+          severity="secondary"
+          size="small"
+          pTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
           tooltipPosition="bottom"
         />
         <p-button
@@ -213,8 +241,10 @@
         [orderLines]="orderLines"
         [showLotBtn]="showLotBtn"
         [lotPrefill]="scanLotPrefill()"
+        [lastScanResult]="lastScanResult()"
         (lineChanged)="onSequentialLineChanged($event)"
         (allLinesProcessed)="onSequentialAllDone()"
+        (cipUpdated)="onCipUpdated($event)"
       />
 
     } @else {
@@ -233,12 +263,18 @@
           <div class="summary-content">
             <div class="summary-row">
               <span class="summary-key"><i class="pi pi-building"></i> Grossiste</span>
-              <span class="summary-val">{{ currentCommande?.fournisseur?.libelle }}</span>
+              <span class="summary-val">{{ currentCommande?.fournisseurLibelle }}</span>
             </div>
             <div class="summary-row">
-              <span class="summary-key"><i class="pi pi-file"></i> Référence</span>
+              <span class="summary-key"><i class="pi pi-file"></i> N° BL</span>
               <span class="summary-val">{{ currentCommande?.receiptReference }}</span>
             </div>
+            @if (currentCommande?.orderReference) {
+              <div class="summary-row">
+                <span class="summary-key"><i class="pi pi-hashtag"></i> N° Cmde</span>
+                <span class="summary-val po-ref">{{ currentCommande.orderReference }}</span>
+              </div>
+            }
             <div class="summary-row">
               <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
               <span class="summary-val">{{ currentCommande?.receiptDate | date: 'dd/MM/yyyy' }}</span>

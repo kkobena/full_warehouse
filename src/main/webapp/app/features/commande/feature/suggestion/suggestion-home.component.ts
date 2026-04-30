@@ -45,7 +45,7 @@ import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
     IconField,
     InputIcon,
     InputTextModule,
-    MultiSelectModule,
+    MultiSelectModule
   ]
 })
 export class SuggestionHomeComponent {
@@ -61,7 +61,7 @@ export class SuggestionHomeComponent {
   readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
 
   // ── List-level filters ─────────────────────────────────────────────────────
-  readonly listSearch = signal('');
+  readonly listSearch = signal("");
   readonly listFournisseurIds = signal<number[]>([]);
   readonly fournisseurOptions = signal<IFournisseur[]>([]);
 
@@ -76,15 +76,15 @@ export class SuggestionHomeComponent {
   constructor() {
     // Charge les options du multiselect une seule fois
     this.fournisseurService.query({ page: 0, size: 999 }).subscribe({
-      next: res => this.fournisseurOptions.set(res.body ?? []),
+      next: res => this.fournisseurOptions.set(res.body ?? [])
     });
 
     // Recharge la liste à chaque changement de search (debounced) ou fournisseurs (init inclus via startWith)
     combineLatest([
-      this.listSearchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith('')),
-      this.listFournisseurIds$,
+      this.listSearchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith("")),
+      this.listFournisseurIds$
     ]).pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([search, ids]) => this.facade.loadAll(['GENEREE', 'VALIDEE'], search, ids));
+      .subscribe(([search, ids]) => this.facade.loadAll(["GENEREE", "VALIDEE"], search, ids));
 
     // After loadAll(), selectedFournisseur is cleared. Re-select if still editing.
     effect(() => {
@@ -325,7 +325,7 @@ export class SuggestionHomeComponent {
     this.facade.recalculerSemois();
   }
 
- protected onValiderDirect(f: FournisseurSuggestionSummary): void {
+  protected onValiderDirect(f: FournisseurSuggestionSummary): void {
     if (!f.suggestionId) return;
     this.confirmDialog.onConfirm(
       () => {
@@ -350,7 +350,19 @@ export class SuggestionHomeComponent {
   }
 
   protected onCommanderDirect(f: FournisseurSuggestionSummary): void {
-    this.onFournisseurSelected(f);
+
+    this.facade.selectFournisseur(f);
+    this.facade.fetchLignes(f.suggestionId).subscribe(
+      {
+        next: lignes => {
+          this.openCommanderModal(f, lignes, "full");
+        },
+        error: () => {
+          this.notificationService.error("Erreur lors du chargement des lignes de la suggestion.");
+        }
+      }
+    );
+
   }
 
   private openCommanderModal(

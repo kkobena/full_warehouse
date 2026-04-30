@@ -154,7 +154,7 @@ public class CommandServiceImpl implements CommandService {
         commandeDTO.setFournisseurId(orderLine.getFournisseurProduit().getFournisseur().getId());
 
         return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLine)));
-        //  return createNewCommandeFromCommandeDTO(commandeDTO);
+
     }
 
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO, OrderLine orderLine) {
@@ -300,7 +300,6 @@ public class CommandServiceImpl implements CommandService {
 
     private void computeCommandeAmount(Commande commande) {
         int grossAmount = 0;
-        int finalAmount = 0;
         int orderAmount = 0;
         for (OrderLine orderLine : commande.getOrderLines()) {
             grossAmount += orderLine.getOrderCostAmount() * orderLine.getQuantityRequested();
@@ -392,6 +391,7 @@ public class CommandServiceImpl implements CommandService {
         List<CommanderSelectionDTO.LigneSelection> lignes,
         Integer fournisseurId
     ) {
+        List<SuggestionLine> lignesASupprimers = new ArrayList<>();
         Map<Integer, Integer> qteParLigne = lignes.stream()
             .collect(Collectors.toMap(
                 CommanderSelectionDTO.LigneSelection::suggestionLineId,
@@ -409,25 +409,27 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
         commande.setTaxAmount(0);
         commande.setHtAmount(0);
         commande.setDiscountAmount(0);
         commande.setFournisseur(fournisseur);
-        suggestion.getSuggestionLines().stream()
-            .filter(sl -> qteParLigne.containsKey(sl.getId()))
-            .forEach(suggestionLine -> {
-                int qte = qteParLigne.get(suggestionLine.getId());
-                if (qte <= 0) return;
-                // Toujours utiliser le fournisseurProduit original pour la référence produit
-                OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
-                orderLine.setQuantityRequested(qte);
-                orderLine.setCommande(commande);
-                updateCommandeAmount(commande, orderLine);
-                commande.getOrderLines().add(orderLine);
-            });
+        for (SuggestionLine suggestionLine :  suggestion.getSuggestionLines()) {
+            int qte = qteParLigne.getOrDefault(suggestionLine.getId(),-1);
+            if (qte <= 0) continue;
+            // Toujours utiliser le fournisseurProduit original pour la référence produit
+            OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
+            orderLine.setQuantityRequested(qte);
+            orderLine.setCommande(commande);
+            commande.getOrderLines().add(orderLine);
+            lignesASupprimers.add(suggestionLine);
+        }
+        lignesASupprimers.forEach(suggestion.getSuggestionLines()::remove);
+        suggestionLineRepository.deleteAll(lignesASupprimers);
+
+
+        computeCommandeAmount(commande);
         commandeRepository.save(commande);
         return new CommandeId(commande.getId().getId(), commande.getId().getOrderDate());
     }
@@ -443,7 +445,6 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
         commande.setTaxAmount(0);
@@ -501,7 +502,6 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setReceiptReference(commande.getOrderReference());
         commande.setUser(storageService.getUser());
         commande.setGrossAmount(0);
         commande.setDiscountAmount(0);
@@ -1079,7 +1079,6 @@ public class CommandServiceImpl implements CommandService {
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
         commande.setOrderReference(referenceService.buildNumCommande());
-        commande.setReceiptReference(commande.getOrderReference());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
         commande.setFournisseur(fournisseur);
@@ -1089,9 +1088,9 @@ public class CommandServiceImpl implements CommandService {
                 // Toujours utiliser le fournisseurProduit original pour la référence produit
                 OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
                 orderLine.setCommande(commande);
-                updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
+        computeCommandeAmount(commande);
         commandeRepository.save(commande);
         return commande;
     }
@@ -1202,7 +1201,6 @@ public class CommandServiceImpl implements CommandService {
         reliquat.setOrderStatus(OrderStatut.REQUESTED);
         reliquat.setUser(user);
         reliquat.setOrderReference(referenceService.buildNumCommande());
-        reliquat.setReceiptReference(reliquat.getOrderReference());
         reliquat.setGrossAmount(0);
         reliquat.setOrderAmount(0);
         reliquat.setTaxAmount(0);

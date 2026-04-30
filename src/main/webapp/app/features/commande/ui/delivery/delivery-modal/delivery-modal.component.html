@@ -76,7 +76,7 @@
             <div class="form-field form-field-full">
               <label for="receiptAmount">Montant HT<span class="required">*</span></label>
 
-              <input [pKeyFilter]="'int'" autocomplete="off" formControlName="receiptAmount" name="receiptAmount" pInputText type="text" />
+              <p-inputNumber autocomplete="off" formControlName="receiptAmount" name="receiptAmount"  type="text" />
               @if (
                 editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)
               ) {
@@ -93,7 +93,7 @@
             <div class="form-field form-field-full">
               <label for="taxAmount">Montant Taxe<span class="required">*</span></label>
 
-              <input [pKeyFilter]="'int'" autocomplete="off" formControlName="taxAmount" name="taxAmount" pInputText type="text" />
+              <p-inputNumber autocomplete="off" formControlName="taxAmount" name="taxAmount"  type="text" />
               @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
                 <div>
                   @if (editForm.get('taxAmount')?.errors?.required) {

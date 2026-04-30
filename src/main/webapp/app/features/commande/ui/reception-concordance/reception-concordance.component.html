@@ -44,6 +44,19 @@
       />
     </div>
 
+    <!-- Écarts colisage -->
+    <div class="concordance-row" [class.anomaly]="stats().ecartColisage > 0">
+      <span class="concordance-label">
+        <i class="pi pi-box"></i>Écarts colisage
+      </span>
+      <p-tag
+        [value]="stats().ecartColisage | number"
+        [severity]="stats().ecartColisage > 0 ? 'warn' : 'success'"
+        [pTooltip]="stats().ecartColisage + ' ligne(s) avec quantité non multiple du conditionnement'"
+        tooltipPosition="right"
+      />
+    </div>
+
     <!-- Non validées -->
     <div class="concordance-row" [class.anomaly]="stats().nonValidees > 0">
       <span class="concordance-label">

@@ -101,6 +101,9 @@ public class Produit implements Serializable {
     private Boolean gestionLot = true;
     //Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits numériques, etc.)
 
+    @Column(name = "thermosensible", columnDefinition = "boolean default false")
+    private Boolean thermosensible = false;
+
 
     @Column(name = "chiffre", columnDefinition = "boolean default true")
     private Boolean chiffre = true;
@@ -402,6 +405,15 @@ public class Produit implements Serializable {
 
     public Produit setGestionLot(Boolean gestionLot) {
         this.gestionLot = gestionLot;
+        return this;
+    }
+
+    public Boolean getThermosensible() {
+        return thermosensible;
+    }
+
+    public Produit setThermosensible(Boolean thermosensible) {
+        this.thermosensible = thermosensible;
         return this;
     }
 

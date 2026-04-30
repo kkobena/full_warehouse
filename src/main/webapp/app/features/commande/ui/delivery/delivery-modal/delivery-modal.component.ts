@@ -23,9 +23,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ErrorService } from 'app/shared/error.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { InputNumber } from "primeng/inputnumber";
 
 @Component({
-  selector: 'jhi-form-delivery',
+  selector: 'app-form-delivery',
   templateUrl: './delivery-modal.component.html',
   styleUrls: ['./form-delevery.scss'],
   imports: [
@@ -41,7 +42,8 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     InputTextModule,
     DatePicker,
     NgxSpinnerModule,
-  ],
+    InputNumber
+  ]
 })
 export class DeliveryModalComponent implements OnInit {
   header = '';

@@ -51,7 +51,57 @@
         <span class="rf-stat__label">UG total</span>
       </div>
     }
+    @if (ecartColisage > 0) {
+      <div class="rf-stat rf-stat--warn" title="Lignes dont la quantité reçue n'est pas multiple du conditionnement fournisseur">
+        <span class="rf-stat__value">{{ ecartColisage }}</span>
+        <span class="rf-stat__label"><i class="pi pi-box me-1"></i>Écart colisage</span>
+      </div>
+    }
   </div>
+
+  <!-- AX-23g — Lignes CIP mises à jour -->
+  @if (updatedCipLines.length > 0) {
+    <div class="rf-cip-section">
+      <div class="rf-cip-title">
+        <i class="pi pi-tag me-1"></i>
+        {{ updatedCipLines.length }} CIP mis à jour
+      </div>
+      <div class="rf-cip-list">
+        @for (l of updatedCipLines; track l.id) {
+          <div class="rf-cip-row">
+            <i class="pi pi-check-circle rf-cip-ok"></i>
+            <span class="rf-cip-lib">{{ l.produitLibelle }}</span>
+            <span class="rf-cip-code">{{ l.produitCip }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- AX-20 — Récapitulatif TVA par taux -->
+  @if (tvaGroups.length > 1 || (tvaGroups.length === 1 && tvaGroups[0].taux !== 0)) {
+    <div class="rf-tva-section">
+      <div class="rf-tva-title"><i class="pi pi-percentage me-1"></i>Récapitulatif TVA</div>
+      <table class="rf-tva-table">
+        <thead>
+          <tr>
+            <th>Taux</th>
+            <th>Base HT</th>
+            <th>TVA</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (grp of tvaGroups; track grp.taux) {
+            <tr>
+              <td>{{ grp.taux }} %</td>
+              <td>{{ grp.montantHT | number:'1.0-0' }} F</td>
+              <td>{{ grp.montantTVA | number:'1.0-0' }} F</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 
   <p class="rf-irrev-note">
     <i class="pi pi-lock me-1"></i>

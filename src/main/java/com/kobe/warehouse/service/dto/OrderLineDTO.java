@@ -60,6 +60,7 @@ public class OrderLineDTO {
     /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
     private Integer qteColis;
     private Boolean gestionLot;
+    private Boolean thermosensible;
 
     public OrderLineDTO() {}
 
@@ -107,6 +108,7 @@ public class OrderLineDTO {
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
         qteColis = fournisseurProduit.getQteColis();
         gestionLot = produit.getGestionLot();
+        thermosensible = produit.getThermosensible();
     }
 
     public Integer getTvaId() {
@@ -471,6 +473,15 @@ public class OrderLineDTO {
 
     public OrderLineDTO setGestionLot(Boolean gestionLot) {
         this.gestionLot = gestionLot;
+        return this;
+    }
+
+    public Boolean getThermosensible() {
+        return thermosensible;
+    }
+
+    public OrderLineDTO setThermosensible(Boolean thermosensible) {
+        this.thermosensible = thermosensible;
         return this;
     }
 }

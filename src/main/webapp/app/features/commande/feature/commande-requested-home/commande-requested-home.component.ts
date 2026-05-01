@@ -220,7 +220,10 @@ export class CommandeRequestedHomeComponent implements OnInit {
         this.modalService,
         DeliveryModalComponent,
         {commande: res.body, header: 'CREATION DU BON DE LIVRAISON'},
-        () => this.loadPage(this.currentPage()),
+        () => {
+          this.commandCommonService.pendingOpenDeliveryId.set(c.commandeId);
+          this.commandCommonService.navigateToBonsLivraison();
+        },
         'lg',
       );
     });

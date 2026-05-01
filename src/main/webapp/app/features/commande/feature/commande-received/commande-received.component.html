@@ -49,13 +49,7 @@
         tooltipPosition="bottom"
       />
 
-      <p-button
-        (click)="onConfirmFinalize()"
-        icon="pi pi-check-circle"
-        label="Valider"
-        severity="primary"
-        size="small"
-      />
+
       <p-button
         (click)="onRapprocher()"
         icon="pi pi-receipt"
@@ -209,12 +203,20 @@
           pTooltip="Afficher / masquer le panneau concordance & récapitulatif BL"
           tooltipPosition="bottom"
         />
+
+        <p-button
+          (click)="onConfirmFinalize()"
+          icon="pi pi-check-circle"
+          label="Finaliser"
+          severity="primary"
+          size="small"
+        />
+
         <p-button
           (click)="onToutValider()"
           icon="pi pi-check-square"
-          [hidden]="viewMode() === 'sequential'"
           label="Tout valider"
-          severity="secondary"
+          severity="info"
           size="small"
           pTooltip="Marquer toutes les lignes comme entièrement reçues (Qté reçue = Qté commandée)"
           tooltipPosition="bottom"

@@ -12,6 +12,8 @@ import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +38,7 @@ public interface OrderLineService {
     void deleteOrderLine(OrderLine orderLine);
 
     Optional<OrderLine> findOneById(OrderLineId id);
+    List<OrderLine> findAllByOrderLineIdIn(Set<Integer> ids, LocalDate orderDate);
 
     OrderLine save(OrderLine orderLine);
 

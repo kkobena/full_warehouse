@@ -60,7 +60,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private Integer quantityRequested;
 
     @Column(name = "quantity_returned")
-    private Integer quantityReturned;
+    private Integer quantityReturned=0;
 
     @Column(name = "discount_amount", nullable = false)
     private int discountAmount = 0;
@@ -86,7 +86,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private LocalDateTime updatedAt;
 
     @Column(name = "receipt_date")
-    private LocalDateTime receiptDate;
+    private LocalDateTime receiptDate;//TODO a supprimer
 
     @ManyToOne(optional = false)
     @JoinColumns(

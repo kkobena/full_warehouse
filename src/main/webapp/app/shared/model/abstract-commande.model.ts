@@ -34,6 +34,7 @@ export interface AbstractCommande {
   itemSize?: number;
   statut?: string;
   doTransfer?: boolean;
+  conformeSansLot?: boolean;
   hasBeenSubmittedToPharmaML?: boolean;
   reconciliationStatut?: 'EN_ATTENTE' | 'RECONCILIEE' | 'ECART' | 'LITIGE' | null;
 }

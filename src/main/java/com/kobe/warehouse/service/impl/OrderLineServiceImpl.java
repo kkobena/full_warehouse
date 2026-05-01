@@ -20,10 +20,13 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.kobe.warehouse.service.stock.ProduitService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -221,6 +224,12 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .setPrixUni(fournisseurProduit.getPrixUni())
                 .setProduitId(produitId)
         );
+    }
+
+    @Override
+    public List<OrderLine> findAllByOrderLineIdIn(Set<Integer> ids, LocalDate orderDate) {
+
+        return orderLineRepository.findAllByIdInAndOrderDate(ids, orderDate);
     }
 
     @Override

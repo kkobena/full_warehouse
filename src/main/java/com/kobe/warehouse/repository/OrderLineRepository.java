@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Collection;
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -134,4 +136,6 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         HAVING SUM(ol.quantity_requested - COALESCE(ol.quantity_received, 0)) > 0
         """, nativeQuery = true)
     List<Object[]> findPendingQtyByProduitIds(@Param("produitIds") Collection<Integer> produitIds);
+
+    List<OrderLine> findAllByIdInAndOrderDate(Set<Integer> ids,LocalDate orderDate);
 }

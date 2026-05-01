@@ -82,7 +82,6 @@ export class LotExpandCellComponent implements ICellRendererAngularComp {
 
   private sync(params: ICellRendererParams): void {
     const line = params.data as IOrderLine;
-    // gestionLot defaults to true when absent (existing products before migration)
     this.hasLot.set(line.gestionLot !== false);
     this.expanded.set(!!params.data.__expanded);
     this.lots.set(line.lots ?? []);

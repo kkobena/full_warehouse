@@ -108,6 +108,14 @@ public class StockEntryResource {
             .build();
     }
 
+    @PutMapping("/commandes/entree-stock/batch-quantity-received")
+    public ResponseEntity<Void> batchUpdateQuantityReceived(@Valid @RequestBody List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems) {
+        stockEntryService.batchUpdateQuantityReceived(deliveryReceiptItems);
+        return ResponseEntity.accepted()
+            .build();
+    }
+
+
     @PutMapping("/commandes/entree-stock/update-provisional-cip")
     public ResponseEntity<Void> updateCodeCip(@Valid @RequestBody OrderLineDTO orderLineDTO) {
         commandService.updateCodeCip(orderLineDTO);

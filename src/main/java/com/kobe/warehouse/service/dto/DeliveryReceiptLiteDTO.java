@@ -119,4 +119,20 @@ public class DeliveryReceiptLiteDTO {
         this.doTransfer = doTransfer;
         return this;
     }
+
+    /**
+     * {@code true} quand la gestion de lot globale est inactive : le backend doit poser
+     * {@code quantityReceived = quantityRequested} sur toutes les lignes non encore saisies
+     * ({@code updated == false}) avant la mise en stock.
+     */
+    private Boolean conformeSansLot;
+
+    public Boolean getConformeSansLot() {
+        return conformeSansLot;
+    }
+
+    public DeliveryReceiptLiteDTO setConformeSansLot(Boolean conformeSansLot) {
+        this.conformeSansLot = conformeSansLot;
+        return this;
+    }
 }

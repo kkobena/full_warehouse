@@ -78,6 +78,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -128,11 +129,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         return nonNull(orderLine.getQuantityReceived()) && orderLine.getQuantityReceived() >= 0;
     };
 
-    private final Predicate<OrderLine> lotPredicate = orderLine -> (
-        !CollectionUtils.isEmpty(orderLine.getLots()) &&
-            orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-            orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
-    );
+    private final Predicate<OrderLine> lotPredicate = orderLine -> {
+        List<Lot> lots = orderLine.getLots();
+        return !CollectionUtils.isEmpty(lots) &&
+            lots.stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+            lots.stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived();
+    };
 
     private final Predicate<OrderLine> cipNotSet = orderLine ->
         org.springframework.util.StringUtils.hasLength(orderLine.getFournisseurProduit().getCodeCip());
@@ -234,10 +236,18 @@ public class StockEntryServiceImpl implements StockEntryService {
     private StockEntryResultDTO finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
         Commande deliveryReceipt = getReferenceById(deliveryReceiptLite.getCommandeId());
         LocalDate receiptDate = deliveryReceipt.getReceiptDate();
+        final boolean lotActif = appConfigurationService.useLot().orElse(false);
+        final boolean conformeSansLot = BooleanUtils.isTrue(deliveryReceiptLite.getConformeSansLot());
+        final LocalDate minAcceptableDate = LocalDate.now().plusDays(appConfigurationService.getReceptionMinExpiryDays());
         // TODO: liste des vente en avoir pour envoi possible de notif et de mail
         deliveryReceipt
             .getOrderLines()
             .forEach(orderLine -> {
+                orderLine.setReceiptDate(receiptDate.atStartOfDay());
+                if (conformeSansLot && !BooleanUtils.isTrue(orderLine.getUpdated())) {
+                    orderLine.setQuantityReceived(orderLine.getQuantityRequested());
+                    orderLine.setUpdated(true);
+                }
                 FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
                 Produit produit = fournisseurProduit.getProduit();
                 if (!cipNotSet.test(orderLine)) {
@@ -262,7 +272,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "commandeManquante"
                     );
                 }
-                boolean lotActif = appConfigurationService.useLot().orElse(false);
+
                 boolean produitNecessiteLot = BooleanUtils.isTrue(produit.getGestionLot());
                 if (lotActif && produitNecessiteLot && !lotPredicate.test(orderLine)) {
                     throw new GenericError(
@@ -275,7 +285,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                         "lotManquant"
                     );
                 }
-                if (!isLotMinExpiryValid(orderLine)) {
+                if (!isLotMinExpiryValid(orderLine, minAcceptableDate)) {
                     throw new GenericError(
                         String.format(
                             "Un ou plusieurs lots du produit [%s %s] ont une date de péremption inférieure au seuil minimum de %d jours",
@@ -443,7 +453,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private void updateItem(OrderLine orderLine) {
         orderLine.setUpdated(true);
         orderLine.setUpdatedAt(LocalDateTime.now());
-        this.orderLineService.save(orderLine);
+        orderLineService.save(orderLine);
     }
 
     @Override
@@ -451,6 +461,30 @@ public class StockEntryServiceImpl implements StockEntryService {
         OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
         updateItem(orderLine);
+    }
+
+    @Override
+    public void batchUpdateQuantityReceived(List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems) {
+        Set<Integer> ids = new HashSet<>();
+        LocalDate orderDate = null;
+        Map<Integer, Integer> orderLineHashMap = new HashMap<>();
+        for (DeliveryReceiptItemLiteDTO item : deliveryReceiptItems) {
+            OrderLineId orderLineId = item.getOrderLineId();
+            ids.add(orderLineId.getId());
+            orderLineHashMap.put(orderLineId.getId(), item.getQuantityReceivedTmp());
+            if (orderDate == null) {
+                orderDate = item.getOrderLineId().getOrderDate();
+            }
+        }
+        List<OrderLine> orderLines = orderLineService.findAllByOrderLineIdIn(ids, orderDate);
+        for (OrderLine orderLine : orderLines) {
+            orderLine.setQuantityReceived(orderLineHashMap.get(orderLine.getId().getId()));
+            orderLine.setUpdated(true);
+            orderLine.setUpdatedAt(LocalDateTime.now());
+        }
+
+
+        orderLineService.saveAll(orderLines);
     }
 
     @Override
@@ -1049,14 +1083,14 @@ public class StockEntryServiceImpl implements StockEntryService {
         );
     }
 
-    private boolean isLotMinExpiryValid(OrderLine orderLine) {
+    private boolean isLotMinExpiryValid(OrderLine orderLine, LocalDate minAcceptableDate) {
         if (!BooleanUtils.isTrue(orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
             return true;
         }
         if (CollectionUtils.isEmpty(orderLine.getLots())) {
             return true;
         }
-        LocalDate minAcceptableDate = LocalDate.now().plusDays(appConfigurationService.getReceptionMinExpiryDays());
+
         return orderLine.getLots().stream()
             .filter(lot -> lot.getExpiryDate() != null)
             .noneMatch(lot -> lot.getExpiryDate().isBefore(minAcceptableDate));

@@ -171,7 +171,7 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         }
     }
 
-    // ── Génération automatique (deux passes : GROUP → TIERS_PAYANT) ───────────
+
 
     /**
      * Priorité aux factures groupées : les groupes éligibles sont traités en premier
@@ -184,12 +184,12 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         boolean provisoire = plan.isFactureProvisoire();
         Periodicite periodicite = plan.getPeriodicite();
 
-        // 1. Groupes éligibles selon le type de facturation (définitive ou provisoire)
+
         List<Integer> groupeIds = provisoire
             ? groupeTiersPayantRepository.findIdsForAutoGenerationProvisoire(periodicite)
             : groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(periodicite);
 
-        // 2. Tiers payants individuels non couverts par un groupe éligible
+
         List<Integer> tpIds = groupeIds.isEmpty()
             ? (provisoire
                 ? tiersPayantRepository.findAllIdsForAutoGenerationProvisoire(periodicite)
@@ -206,7 +206,7 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
 
         Integer generationCode = null;
 
-        // Passe 1 : facturation groupée (prioritaire)
+
         if (!groupeIds.isEmpty()) {
             log.info("Planification {} : {} groupe(s) en facturation groupée ({})",
                 plan.getId(), groupeIds.size(), provisoire ? "provisoire" : "définitive");
@@ -222,7 +222,7 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
                 .createFactureEdition(groupParams).generationCode();
         }
 
-        // Passe 2 : facturation individuelle pour les tiers payants hors groupe
+
         if (!tpIds.isEmpty()) {
             log.info("Planification {} : {} tiers payant(s) individuels ({})",
                 plan.getId(), tpIds.size(), provisoire ? "provisoire" : "définitive");
@@ -242,7 +242,7 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         return new FactureEditionResponse(generationCode, generationCode != null);
     }
 
-    // ── Calcul de période ─────────────────────────────────────────────────────
+
 
     /**
      * Détermine la période à facturer à partir de {@code dernierePeriodeFin}.
@@ -298,7 +298,6 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         return finProchaine.plusDays(1).atTime(heure);
     }
 
-    // ── Historique (exécution manuelle, même transaction) ────────────────────
 
     private void enregistrerHistorique(
         PlanificationFacturation plan,
@@ -317,8 +316,6 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         h.setMessage(message);
         historiqueRepository.save(h);
     }
-
-    // ── Mapping ───────────────────────────────────────────────────────────────
 
     private void mapDtoToEntity(PlanificationDto dto, PlanificationFacturation entity) {
         entity.setLibelle(dto.libelle());

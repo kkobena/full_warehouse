@@ -26,6 +26,7 @@ public interface StockEntryService {
     void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 
     void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+    void batchUpdateQuantityReceived(List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems);
 
     void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 

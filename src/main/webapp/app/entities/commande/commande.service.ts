@@ -117,25 +117,25 @@ export class CommandeService {
   createOrUpdateOrderLine(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .post<ICommande>(this.resourceUrl + "/add-order-line", orderLine, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   updateQuantityRequested(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .put<ICommande>(this.resourceUrl + "/update-order-line-quantity-requested", orderLine, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   updateOrderCostAmount(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .put<ICommande>(this.resourceUrl + "/update-order-line-cost-amount", orderLine, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   updateOrderUnitPrice(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .put<ICommande>(this.resourceUrl + "/update-order-line-unit-price", orderLine, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   deleteOrderLineById(orderLineId: OrderLineId): Observable<HttpResponse<{}>> {
@@ -231,7 +231,7 @@ export class CommandeService {
   sauvegarderSaisieEntreeStock(commande: ICommande): Observable<EntityResponseType> {
     return this.http
       .put<ICommande>(`${this.resourceUrl}/entree-stock/save`, commande, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   changeGrossiste(commande: ICommande): Observable<HttpResponse<{}>> {
@@ -254,7 +254,7 @@ export class CommandeService {
   }
 
   getPutawayPreview(commandeId: CommandeId): Observable<IPutawayPreviewItem[]> {
-    return this.http.get<IPutawayPreviewItem[]>(`${this.resourceUrl}/entree-stock/putaway-preview/${commandeId}/${commandeId.orderDate}`);
+    return this.http.get<IPutawayPreviewItem[]>(`${this.resourceUrl}/entree-stock/putaway-preview/${commandeId.id}/${commandeId.orderDate}`);
   }
 
   getDashboard(): Observable<ICommandeDashboard> {
@@ -296,7 +296,7 @@ export class CommandeService {
   findSaisieEntreeStock(commandeId: CommandeId): Observable<EntityResponseType> {
     return this.http
       .get<ICommande>(`${this.resourceUrl}/entree-stock/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      ;
   }
 
   private convertDateFromClient(commande: ICommande): ICommande {

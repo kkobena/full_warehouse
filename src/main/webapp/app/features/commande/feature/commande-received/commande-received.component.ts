@@ -23,7 +23,6 @@ import { InputIcon } from "primeng/inputicon";
 import { FloatLabel } from "primeng/floatlabel";
 import { Toast } from "primeng/toast";
 import { filter, finalize } from "rxjs/operators";
-import { forkJoin } from "rxjs";
 import { SORT } from "../../../../shared/util/command-item-sort";
 import { CommandeService, IPutawayPreviewItem } from "../../../../entities/commande/commande.service";
 import { DeliveryService } from "../../../../entities/commande/delevery/delivery.service";
@@ -115,6 +114,7 @@ export class CommandeReceivedComponent implements OnInit {
   protected selectedFilter = "ALL";
   protected showLotBtn = false;
   protected showLeftPanel = true;
+  private conformeSansLot = false;
 
   // ── Vue séquentielle / grille ─────────────────────────────────────────────
   protected readonly viewMode = signal<"grid" | "sequential">(
@@ -367,19 +367,24 @@ export class CommandeReceivedComponent implements OnInit {
     // Actions handled by CommandeReceivedActionsComponent renderer
   }
 
-  // ── Business logic ────────────────────────────────────────────────────────
 
   protected onToutValider(): void {
     const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
-    const linesToUpdate = allLines.filter(
-      l => (l.quantityReceivedTmp ?? l.quantityRequested ?? 0) !== (l.quantityRequested ?? 0)
-    );
-    if (linesToUpdate.length === 0) return;
+    const linesToUpdate = allLines.filter(l => !l.updated);
+    if (linesToUpdate.length === 0) {
+      this.notificationService.info("Aucune ligne en attente de validation", "Tout valider");
+      return;
+    }
+    this.onConfirmToutValider(allLines, linesToUpdate);
+  }
+
+  private onConfirmToutValider(allLines: IOrderLine[], linesToUpdate: IOrderLine[]): void {
     this.confirmDialog.onConfirm(
       () => this.doToutValider(allLines, linesToUpdate),
       "Tout valider",
-      `Marquer les ${linesToUpdate.length} ligne(s) en attente comme entièrement reçues ?\n\nLes quantités reçues seront égalisées aux quantités commandées.`
+      `Confirmer la réception conforme pour les ${linesToUpdate.length} ligne(s) non saisies ?\n\nChaque ligne sera considérée comme entièrement livrée selon la quantité commandée.\nAucun écart ne sera signalé pour ces lignes.`
     );
+
   }
 
   private doToutValider(allLines: IOrderLine[], linesToUpdate: IOrderLine[]): void {
@@ -390,9 +395,11 @@ export class CommandeReceivedComponent implements OnInit {
     this.selectedFilter = "ALL";
     this.orderLines = [...allLines];
     this.refreshDisplayRows();
-    forkJoin(linesToUpdate.map(l => this.deliveryService.updateQuantityReceived(l))).subscribe({
+    this.deliveryService.batchUpdateQuantityReceived(linesToUpdate).subscribe({
+      next:()=>this.refreshCommande(),
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
+
   }
 
   protected onDeleteOrderLine(orderLine: IOrderLine): void {
@@ -417,10 +424,27 @@ export class CommandeReceivedComponent implements OnInit {
     this.executeFinalizationFlow(false);
   }
 
+  private canValidate(): boolean {
+    const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
+    const linesToUpdate = allLines.filter(l => !l.updated);
+    return linesToUpdate.length === 0;
+  }
+
+  private countLignesNonSaisies(): number {
+    const allLines = this.currentCommande.orderLines as IOrderLine[] ?? [];
+    return allLines.filter(l => !l.updated).length;
+  }
 
   // requireConfirm = true → dialog "Voulez-vous faire l'entrée en stock ?" avant la mise en stock
   // requireConfirm = false → exécution directe (le modal de finalisation a déjà obtenu la confirmation)
   private executeFinalizationFlow(requireConfirm: boolean): void {
+    if (this.showLotBtn && !this.canValidate()) {
+      this.notificationService.warning("Des lignes de réception sont incomplètes. Veuillez saisir les quantités reçues avant de valider l'entrée en stock.", "Réception incomplète");
+      return;
+    }
+    // Sans gestion de lot : les lignes non saisies sont considérées conformes (quantityReceived = quantityRequested côté backend)
+    this.conformeSansLot = !this.showLotBtn;
+
     this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
       next: res => {
         const lignesAnomalie = res.body ?? [];
@@ -433,31 +457,62 @@ export class CommandeReceivedComponent implements OnInit {
             "Variation de prix détectée",
             `${lignesAnomalie.length} ligne(s) ont un écart de prix dépassant le seuil configuré :\n${detail}\n\nVoulez-vous continuer malgré ces écarts ?`
           );
-        } else if (requireConfirm) {
-          this.confirmDialog.onConfirm(
-            () => this.checkPutawayAndFinalize(),
-            "Finalisation de la commande",
-            "Voullez-vous faire l'entrée en stock ?"
-          );
         } else {
-          this.checkPutawayAndFinalize();
+          this.confirmFinalisation(requireConfirm);
         }
       },
-      error: () => {
-        this.confirmDialog.onConfirm(
-          () => this.checkPutawayAndFinalize(),
-          "Finalisation de la commande",
-          "Voullez-vous faire l'entrée en stock ?"
-        );
-      }
+      error: () => this.confirmFinalisation(true)
     });
   }
 
+  private confirmFinalisation(requireConfirm: boolean): void {
+    const lignesNonSaisies = this.countLignesNonSaisies();
+    if (lignesNonSaisies > 0) {
+      this.confirmDialog.onConfirm(
+        () => this.checkPutawayAndFinalize(),
+        "Entrée en stock sans saisie complète",
+        this.buildConformeSansLotMessage(lignesNonSaisies)
+      );
+      return;
+    }
+    if (requireConfirm) {
+      this.confirmDialog.onConfirm(
+        () => this.checkPutawayAndFinalize(),
+        "Finalisation de la commande",
+        "Voullez-vous faire l'entrée en stock ?"
+      );
+    } else {
+      this.checkPutawayAndFinalize();
+    }
+  }
+
   private confirmFinalizeApresAlertesPrix(): void {
+    const lignesNonSaisies = this.countLignesNonSaisies();
+    if (lignesNonSaisies > 0) {
+      this.confirmDialog.onConfirm(
+        () => this.checkPutawayAndFinalize(),
+        "Entrée en stock sans saisie complète",
+        this.buildConformeSansLotMessage(lignesNonSaisies, true)
+      );
+      return;
+    }
     this.confirmDialog.onConfirm(
       () => this.checkPutawayAndFinalize(),
       "Confirmation finale",
       "Confirmer l'entrée en stock malgré les écarts de prix ?"
+    );
+  }
+
+  private buildConformeSansLotMessage(lignesNonSaisies: number, ecartsPrixAcceptes = false): string {
+    const total = (this.currentCommande.orderLines ?? []).length;
+    const prefixe = ecartsPrixAcceptes
+      ? "Ecarts de prix déjà acceptés."
+      : "";
+    return (
+      `${prefixe}\n\n` +
+      `${lignesNonSaisies} ligne(s) sur ${total} n'ont pas été saisies. ` +
+      `Elles seront considérées comme intégralement reçues : la quantité reçue sera égale à la quantité commandée et le stock sera mis à jour en conséquence.\n\n` +
+      `Confirmer la finalisation et l'entrée en stock ?`
     );
   }
 
@@ -575,9 +630,6 @@ export class CommandeReceivedComponent implements OnInit {
     );
   }
 
-  protected showLotColumn(): boolean {
-    return this.showLotBtn;
-  }
 
   // ── Lot inline editor ─────────────────────────────────────────────────────
 
@@ -809,8 +861,8 @@ export class CommandeReceivedComponent implements OnInit {
     const el = document.activeElement;
     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
       // Ne pas bloquer si c'est le champ dédié au scan (mode grille)
-      if (el === (this.scanInputRef()?.nativeElement)) return false;
-      return true;
+      return el !== (this.scanInputRef()?.nativeElement);
+
     }
     return false;
   }
@@ -823,7 +875,7 @@ export class CommandeReceivedComponent implements OnInit {
 
   protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
     // AX-13 — Distinguer jamais touché (null) de saisi à 0
-    if (ol.quantityReceivedTmp == null) return { label: "À saisir", severity: "secondary" };
+    if (ol.quantityReceivedTmp == null || !ol.updated) return { label: "À saisir", severity: "secondary" };
     const rec = ol.quantityReceivedTmp;
     const cmd = ol.quantityRequested ?? 0;
     if (rec === cmd) return { label: "Servi", severity: "success" };
@@ -836,16 +888,16 @@ export class CommandeReceivedComponent implements OnInit {
   protected get tauxService(): number {
     if (!this.orderLines.length) return 0;
     const served = this.orderLines.filter(
-      l => l.quantityRequested != null &&
-           (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
-           l.quantityRequested > 0
+      l => l.updated && l.quantityRequested != null &&
+        (l.quantityReceivedTmp ?? 0) >= l.quantityRequested &&
+        l.quantityRequested > 0
     ).length;
     return Math.round((served / this.orderLines.length) * 100);
   }
 
   private isLotActif(): void {
     const param = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
-    if (param) this.showLotBtn = Number(param.value) === 0;
+    if (param) this.showLotBtn = Number(param.value) === 1;
   }
 
   private buildColumnDefs(): ColDef<IOrderLine>[] {
@@ -1062,7 +1114,6 @@ export class CommandeReceivedComponent implements OnInit {
     });
 
 
-
     cols.push({
       colId: "actions",
       headerName: "",
@@ -1110,7 +1161,7 @@ export class CommandeReceivedComponent implements OnInit {
   private onFinalize(doTransfer = false): void {
     this.spinner().show();
     this.deliveryService
-      .finalizeSaisieEntreeStock({ ...this.currentCommande, doTransfer })
+      .finalizeSaisieEntreeStock({ ...this.currentCommande, doTransfer, conformeSansLot: this.conformeSansLot })
       .pipe(finalize(() => this.spinner().hide()))
       .subscribe({
         next: (res: HttpResponse<IStockEntryResult>) => {

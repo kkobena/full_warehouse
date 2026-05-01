@@ -50,6 +50,7 @@ export class DeliveryModalComponent implements OnInit {
   commande: ICommande;
   isEdit = false;
   protected isSaving = false;
+  protected blockSpace: RegExp = /^[a-zA-Z0-9_\-]+$/;
   protected fb = inject(FormBuilder);
   protected maxDate = new Date();
   protected minDate = new Date();

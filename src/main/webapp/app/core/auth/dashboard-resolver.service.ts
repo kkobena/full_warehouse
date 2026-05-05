@@ -61,7 +61,6 @@ export class DashboardResolverService {
     return this.layoutService.getResolved().pipe(
       map(response => response.body),
       tap(layout => {
-        console.log(layout,'*************************************************');
         this._resolvedLayout.set(layout);
         this._loaded.set(true);
       }),

@@ -3,8 +3,6 @@ export interface IPoste {
   name?: string;
   posteNumber?: string;
   address?: string;
-  customerDisplay?: boolean;
-  customerDisplayPort?: string;
 }
 
 export class Poste implements IPoste {
@@ -13,9 +11,5 @@ export class Poste implements IPoste {
     public name?: string,
     public posteNumber?: string,
     public address?: string,
-    public customerDisplay?: boolean,
-    public customerDisplayPort?: string,
-  ) {
-    this.customerDisplay = this.customerDisplay || false;
-  }
+  ) {}
 }

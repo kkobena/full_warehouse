@@ -13,7 +13,8 @@ public record DataMatrixInfo(
     String batchNumber,
     LocalDate expiryDate,
     LocalDate manufacturingDate,
-    String serialNumber
+    String serialNumber,
+    int scannedQty
 ) {
     public boolean hasProductCode() {
         return gtin != null || cip13 != null || ean13 != null;
@@ -52,6 +53,7 @@ public record DataMatrixInfo(
         private LocalDate expiryDate;
         private LocalDate manufacturingDate;
         private String serialNumber;
+        private int scannedQty = 1;
 
         public Builder gtin(String gtin) {
             this.gtin = gtin;
@@ -88,8 +90,13 @@ public record DataMatrixInfo(
             return this;
         }
 
+        public Builder scannedQty(int scannedQty) {
+            this.scannedQty = scannedQty;
+            return this;
+        }
+
         public DataMatrixInfo build() {
-            return new DataMatrixInfo(gtin, cip13, ean13, batchNumber, expiryDate, manufacturingDate, serialNumber);
+            return new DataMatrixInfo(gtin, cip13, ean13, batchNumber, expiryDate, manufacturingDate, serialNumber, scannedQty);
         }
     }
 }

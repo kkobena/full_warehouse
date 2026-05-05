@@ -13,7 +13,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.5.6", features = [] }
 
 [dependencies]
-tauri = { version = "2.10.3", features = [] }
+tauri = { version = "2.11.0", features = [] }
 tauri-plugin-shell = "2.3.5"
 tauri-plugin-http = "2.5.7"
 tauri-plugin-dialog = "=2.6.0"
@@ -26,6 +26,7 @@ serialport = { version = "4.5", optional = true }
 tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.13", features = ["json"] }
 dirs = "6"
+hostname = "0.4"
 thiserror = "2"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -33,12 +34,25 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.62.2", features = [
   "Win32_Foundation",
+  # Impression thermique (printer.rs)
   "Win32_Graphics_Printing",
+  # WNDCLASSW / RegisterClassW dépendent de HBRUSH (Win32_Graphics_Gdi) dans windows 0.62
   "Win32_Graphics_Gdi",
+  # Requis par CreateFileW (SECURITY_ATTRIBUTES) et CreateEventW — dépendance transitive
   "Win32_Security",
+  # Requis comme dépendance transitive de Win32_UI_WindowsAndMessaging (WM_DEVICECHANGE)
   "Win32_System_Com",
+  # Fenêtre message-only WM_DEVICECHANGE (scanner.rs — device_monitor)
   "Win32_UI_WindowsAndMessaging",
-  "Win32_UI_Shell",
+  # CreateFileW + EscapeCommFunction — primer CDC (scanner.rs)
+  "Win32_Devices_Communication",
+  "Win32_Storage_FileSystem",
+  # ReadFile overlapped — bypass GetCommState (scanner.rs — RawCdcPort)
+  "Win32_System_IO",
+  # CreateEventW, WaitForSingleObject (scanner.rs — overlapped IO usbser.sys)
+  "Win32_System_Threading",
+  # GetModuleHandleW — HMODULE pour WM_DEVICECHANGE (scanner.rs)
+  "Win32_System_LibraryLoader",
 ] }
 
 [profile.dev]

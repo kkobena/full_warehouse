@@ -1,4 +1,5 @@
 import { ApplicationConfig, inject, LOCALE_ID, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
+import { TauriDeviceDetectionService } from './shared/services/tauri-device-detection.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   NavigationError,
@@ -79,6 +80,13 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     provideAppInitializer(translationInitializer),
+    provideAppInitializer(() => {
+      const tauriDeviceService = inject(TauriDeviceDetectionService);
+      if (tauriDeviceService.isTauriAvailable()) {
+        return tauriDeviceService.loadSystemInfo();
+      }
+      return Promise.resolve();
+    }),
 
     // --- Storage ---
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),

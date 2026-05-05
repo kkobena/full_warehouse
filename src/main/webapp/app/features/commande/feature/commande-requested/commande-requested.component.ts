@@ -57,6 +57,7 @@ import {
 } from "ag-grid-community";
 import { AgGridAngular } from "ag-grid-angular";
 import { CommandeRequestedLineActionsComponent } from "./commande-requested-line-actions.component";
+import { IConfiguration } from "../../../../shared/model/configuration.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -389,7 +390,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       this.selectedProvider = null;
     }
     this.loadFournisseurs();
-    this.isLotActif();
+
     //this.loadSeuilMontant();
   }
 
@@ -579,9 +580,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
     return !!this.currentCommande?.hasBeenSubmittedToPharmaML;
   }
 
-  protected showLotColumn(): boolean {
-    return this.showLotBtn;
-  }
+
 
   protected onAddLot(orderLine: IOrderLine): void {
     const qty = orderLine.quantityReceived || orderLine.quantityRequested;
@@ -684,15 +683,7 @@ export class CommandeRequestedComponent implements OnInit, AfterViewInit {
       .subscribe({ next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!) });
   }
 
-  private isLotActif(): void {
-    const param = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
-    if (param) this.showLotBtn = Number(param.value) === 0;
-  }
 
-  private loadSeuilMontant(): void {
-    const param = this.configurationService.getParamByKey(Params.APP_SEUIL_MONTANT_COMMANDE);
-    if (param) this.seuilMontantCommande = Number(param.value) || 0;
-  }
 
   private reloadCommande(): void {
     if (!this.currentCommande?.commandeId) return;

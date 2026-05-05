@@ -16,6 +16,10 @@ export class ScanAudioFeedbackService {
     this.playTone(300, 0.3); // 300Hz, 300ms - bip grave plus long
   }
 
+  beepWarning(): void {
+    this.playTone(550, 0.18); // 550Hz, 180ms - bip intermédiaire (ambiguïté multi-produit)
+  }
+
   private playTone(frequency: number, duration: number): void {
     if (!this.audioContext) {
       this.audioContext = new AudioContext();

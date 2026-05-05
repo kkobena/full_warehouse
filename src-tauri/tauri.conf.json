@@ -24,8 +24,7 @@
       "config.default.json",
       "backend-url.txt.template",
       "backup/setup-backup-tasks.ps1",
-      "backup/remove-backup-tasks.ps1",
-      "backup/pharmasmart-backup.exe"
+      "backup/remove-backup-tasks.ps1"
     ],
     "windows": {
       "digestAlgorithm": "sha256",

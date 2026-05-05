@@ -14,6 +14,19 @@
     }
     <div class="cr-header-actions">
 
+
+      @if (canReconnectScanner()) {
+        <p-button
+          (click)="reconnectScanner()"
+          icon="pi pi-refresh"
+          label="Reconnecter scanner"
+          severity="warn"
+          size="small"
+          pTooltip="Tenter de reconnecter la douchette USB (si branchée après ouverture ou sortie de veille)"
+          tooltipPosition="bottom"
+        />
+      }
+
       <!-- AX-08 — Taux de service -->
       <p-tag
         [value]="'Taux service : ' + tauxService + '%'"
@@ -112,18 +125,24 @@
       </p-floatlabel>
       <!-- Scan douchette -->
       <div class="cr-scan-field">
-        <p-iconfield>
-          <p-inputicon class="pi pi-qrcode" />
-          <input
-            #scanInputRef
-            (keyup.enter)="onScanReception()"
-            [(ngModel)]="scanValue"
-            pInputText
-            placeholder="Scanner CIP / DataMatrix…"
-            type="text"
-            autocomplete="off"
-          />
-        </p-iconfield>
+        @if (scannerMode() !== 'SERIAL') {
+          <p-iconfield>
+            <p-inputicon class="pi pi-qrcode" />
+            <input
+              #scanInputRef
+              (keyup.enter)="onScanReception()"
+              [(ngModel)]="scanValue"
+              pInputText
+              placeholder="Scanner CIP / DataMatrix…"
+              type="text"
+              autocomplete="off"
+            />
+          </p-iconfield>
+        } @else {
+          <span class="cr-serial-badge" pTooltip="Douchette USB série active — lecture automatique" tooltipPosition="bottom">
+            <i class="pi pi-wifi"></i> Scanner série actif
+          </span>
+        }
         @if (lastScanResult() !== null) {
           <span
             class="cr-scan-badge"
@@ -241,7 +260,7 @@
     @if (viewMode() === 'sequential') {
       <app-reception-sequential
         [orderLines]="orderLines"
-        [showLotBtn]="showLotBtn"
+        [showLotBtn]="showLotBtn()"
         [lotPrefill]="scanLotPrefill()"
         [lastScanResult]="lastScanResult()"
         (lineChanged)="onSequentialLineChanged($event)"
@@ -255,7 +274,7 @@
       <div class="cr-panel-left">
         <app-reception-concordance
           [orderLines]="orderLines"
-          [showLotInfo]="showLotBtn"
+          [showLotInfo]="showLotBtn()"
         />
         <div class="reception-summary-card">
           <div class="summary-header">
@@ -321,7 +340,7 @@
         <div class="cr-grid-footer">
           <span>Valeur achat : <strong>{{ currentCommande.grossAmount | number }} F</strong></span>
           <span>Valeur vente : <strong>{{ currentCommande.orderAmount | number }} F</strong></span>
-          @if (showLotBtn) {
+          @if (showLotBtn()) {
             <span class="cr-lot-progress ms-auto">
               <i class="pi pi-box me-1"></i>
               Lots :

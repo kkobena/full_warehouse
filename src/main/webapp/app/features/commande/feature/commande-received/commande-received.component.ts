@@ -22,7 +22,8 @@ import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { FloatLabel } from "primeng/floatlabel";
 import { Toast } from "primeng/toast";
-import { filter, finalize } from "rxjs/operators";
+import { filter, finalize, map, timeout } from "rxjs/operators";
+import { TimeoutError } from "rxjs";
 import { SORT } from "../../../../shared/util/command-item-sort";
 import { CommandeService, IPutawayPreviewItem } from "../../../../entities/commande/commande.service";
 import { DeliveryService } from "../../../../entities/commande/delevery/delivery.service";
@@ -45,7 +46,7 @@ import { TauriPrinterService } from "../../../../shared/services/tauri-printer.s
 import { handleBlobForTauri } from "../../../../shared/util/tauri-util";
 import { IStockEntryResult } from "../../../../shared/model/stock-entry-result.model";
 import { IReceptionScanResult } from "../../../../shared/model/reception-scan-result.model";
-import { ScanEvent } from "../../../../shared/scanner";
+import { ScanEvent, ScanOrchestratorService } from "../../../../shared/scanner";
 import { ReceptionScannerService } from "./reception-scanner.service";
 import { RetourDepuisReceptionComponent } from "../../ui/retour-depuis-reception/retour-depuis-reception.component";
 import { ReconciliationFactureComponent } from "../../ui/reconciliation-facture/reconciliation-facture.component";
@@ -73,6 +74,8 @@ import { LotExpandCellComponent } from "../../ui/lot/inline/lot-expand-cell.comp
 import { LotInlineEditorComponent } from "../../ui/lot/inline/lot-inline-editor.component";
 import { ReceptionSequentialComponent } from "./sequential/reception-sequential.component";
 import { ReceptionFinalizeModalComponent } from "./sequential/reception-finalize-modal.component";
+import { IConfiguration } from "../../../../shared/model/configuration.model";
+import { IPoste } from "../../../../shared/model/poste.model";
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -80,7 +83,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   selector: "app-commande-received",
   templateUrl: "./commande-received.component.html",
   styleUrls: ["./commande-received.component.scss"],
-  providers: [ReceptionScannerService],
+  providers: [ReceptionScannerService, ScanOrchestratorService],
   imports: [
     CommonModule,
     FormsModule,
@@ -112,7 +115,7 @@ export class CommandeReceivedComponent implements OnInit {
   protected search?: string;
   protected tris = "UPDATE";
   protected selectedFilter = "ALL";
-  protected showLotBtn = false;
+  showLotBtn = input(false);
   protected showLeftPanel = true;
   private conformeSansLot = false;
 
@@ -120,6 +123,7 @@ export class CommandeReceivedComponent implements OnInit {
   protected readonly viewMode = signal<"grid" | "sequential">(
     (localStorage.getItem("reception-view-mode") as "grid" | "sequential") ?? "sequential"
   );
+  protected putWayMode = signal<string>("MANUAL");
 
   protected setViewMode(mode: "grid" | "sequential"): void {
     this.viewMode.set(mode);
@@ -175,8 +179,15 @@ export class CommandeReceivedComponent implements OnInit {
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
   protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private keydownListener: ((e: KeyboardEvent) => void) | null = null;
-  /** AX-23g — IDs des lignes dont le CIP a été mis à jour pendant cette réception. */
+  /** Listener clavier dédié aux raccourcis (Ctrl+G, F5, F11, Alt+H) — toujours actif. */
+  private shortcutListener: ((e: KeyboardEvent) => void) | null = null;
+  /** Listener clavier dédié au buffer scan HID — installé seulement quand l'orchestrateur est en mode HID. */
+  private scanKeydownListener: ((e: KeyboardEvent) => void) | null = null;
+  /** Dernier code scanné en réception + timestamp — anti-rebond / double trigger. */
+  private lastReceptionScan: { code: string; at: number } | null = null;
+  private static readonly DEDUP_WINDOW_MS = 400;
+  private static readonly SCAN_RECEPTION_TIMEOUT_MS = 3000;
+  /** IDs des lignes dont le CIP a été mis à jour pendant cette réception. */
   private readonly updatedCipLineIds = new Set<number>();
 
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
@@ -193,6 +204,12 @@ export class CommandeReceivedComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   /** Service scanner isolé à ce composant — ne partage PAS le buffer avec le module vente. */
   private readonly receptionScanner = inject(ReceptionScannerService);
+  /** Orchestrateur unifié HID + Tauri SERIAL. */
+  private readonly scanOrchestrator = inject(ScanOrchestratorService);
+  /** Mode scanner actif (badge UI) — délégué à l'orchestrateur. */
+  protected readonly scannerMode = this.scanOrchestrator.scannerMode;
+  /** Bouton reconnexion CDC visible — délégué à l'orchestrateur. */
+  protected readonly canReconnectScanner = this.scanOrchestrator.canReconnect;
 
   constructor() {
     this.filtres = [
@@ -212,12 +229,26 @@ export class CommandeReceivedComponent implements OnInit {
         command: () => this.exportCSV()
       }
     ];
+
+    // HID source : codes 'complete' du buffer scanner réception.
+    const hidSource$ = this.receptionScanner.onScanEvent$.pipe(
+      filter((e: ScanEvent) => e.type === "complete" && !!e.code),
+      map((e: ScanEvent) => e.code!)
+    );
+    this.scanOrchestrator.configure({
+      eventName: "scan-reception",
+      hidSource$,
+      hidEnable: () => this.installScanKeydownListener(),
+      hidDisable: () => this.removeScanKeydownListener()
+    });
   }
 
   ngOnInit(): void {
+
+    this.initPutAway();
     this.currentCommande = this.commande();
     this.orderLines = (this.currentCommande.orderLines as IOrderLine[]) ?? [];
-    this.isLotActif();
+
     this.columnDefs = this.buildColumnDefs();
     this.refreshDisplayRows();
     this.setupBarcodeScanner();
@@ -236,7 +267,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected onSequentialLineChanged(updatedLine: IOrderLine): void {
-    // AX-05 : effacer le prefill DataMatrix dès que la ligne est validée (consommé)
+    // effacer le prefill DataMatrix dès que la ligne est validée (consommé)
     this.scanLotPrefill.set(null);
     const idx = this.orderLines.findIndex(l => l.id === updatedLine.id);
     if (idx !== -1) {
@@ -259,7 +290,7 @@ export class CommandeReceivedComponent implements OnInit {
     instance.orderLines = this.orderLines;
     instance.commandeRef = this.currentCommande.orderReference ?? this.currentCommande.receiptReference ?? "";
     instance.fournisseurLibelle = this.currentCommande.fournisseur?.libelle ?? "";
-    // AX-23g — Lignes dont le CIP a été mis à jour pendant cette réception
+    //  Lignes dont le CIP a été mis à jour pendant cette réception
     instance.updatedCipLines = this.orderLines.filter(l => l.id && this.updatedCipLineIds.has(l.id));
 
     ref.result.then(
@@ -314,7 +345,7 @@ export class CommandeReceivedComponent implements OnInit {
           error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
         });
         // Auto-ouvrir l'éditeur de lots si le produit le nécessite et que la ligne n'est pas déjà expandée
-        if (this.showLotBtn && line.gestionLot !== false && qty > 0 && !this.expandedLineIds.has(line.id!)) {
+        if (this.showLotBtn() && line.gestionLot !== false && qty > 0 && !this.expandedLineIds.has(line.id!)) {
           setTimeout(() => this.onToggleLotExpand(line), 50);
         }
       }
@@ -396,7 +427,7 @@ export class CommandeReceivedComponent implements OnInit {
     this.orderLines = [...allLines];
     this.refreshDisplayRows();
     this.deliveryService.batchUpdateQuantityReceived(linesToUpdate).subscribe({
-      next:()=>this.refreshCommande(),
+      next: () => this.refreshCommande(),
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
 
@@ -438,12 +469,12 @@ export class CommandeReceivedComponent implements OnInit {
   // requireConfirm = true → dialog "Voulez-vous faire l'entrée en stock ?" avant la mise en stock
   // requireConfirm = false → exécution directe (le modal de finalisation a déjà obtenu la confirmation)
   private executeFinalizationFlow(requireConfirm: boolean): void {
-    if (this.showLotBtn && !this.canValidate()) {
+    if (this.showLotBtn() && !this.canValidate()) {
       this.notificationService.warning("Des lignes de réception sont incomplètes. Veuillez saisir les quantités reçues avant de valider l'entrée en stock.", "Réception incomplète");
       return;
     }
     // Sans gestion de lot : les lignes non saisies sont considérées conformes (quantityReceived = quantityRequested côté backend)
-    this.conformeSansLot = !this.showLotBtn;
+    this.conformeSansLot = !this.showLotBtn();
 
     this.commandeService.checkPriceVariation(this.currentCommande.commandeId).subscribe({
       next: res => {
@@ -517,8 +548,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   private checkPutawayAndFinalize(): void {
-    const mode = this.configurationService.getParamByKey(Params.APP_PUTAWAY_MODE)?.value ?? "MANUAL";
-    if (mode !== "MANUAL") {
+    if (this.putWayMode() !== "MANUAL") {
       this.onFinalize(false);
       return;
     }
@@ -557,7 +587,7 @@ export class CommandeReceivedComponent implements OnInit {
     );
   }
 
-  // AX-22 — Lien vers le module de rapprochement facture fournisseur
+  //Lien vers le module de rapprochement facture fournisseur
   protected onRapprocher(): void {
     const ref = this.modalService.open(ReconciliationFactureComponent, { size: "lg", centered: true });
     (ref.componentInstance as ReconciliationFactureComponent).commande = this.currentCommande;
@@ -672,7 +702,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected get lignesSansLot(): number {
-    if (!this.showLotBtn) return 0;
+    if (!this.showLotBtn()) return 0;
     return this.orderLines.filter(l => (l.lots?.length ?? 0) === 0).length;
   }
 
@@ -702,69 +732,120 @@ export class CommandeReceivedComponent implements OnInit {
     const raw = this.scanValue?.trim();
     if (!raw) return;
     this.scanValue = "";
-    this.deliveryService.scanReception(this.currentCommande.id, raw).subscribe({
+
+    // Anti-rebond : ignorer un même code reçu trop vite (double trigger / rebond mécanique)
+    const now = Date.now();
+    if (this.lastReceptionScan
+        && this.lastReceptionScan.code === raw
+        && now - this.lastReceptionScan.at < CommandeReceivedComponent.DEDUP_WINDOW_MS) {
+      return;
+    }
+    this.lastReceptionScan = { code: raw, at: now };
+
+    this.deliveryService.scanReception(this.currentCommande.id, raw)
+      .pipe(timeout(CommandeReceivedComponent.SCAN_RECEPTION_TIMEOUT_MS))
+      .subscribe({
       next: res => {
         const result = res.body!;
-        // AX-01 — Feedback sonore
-        if (result.found) {
-          this.audioFeedback.beepSuccess();
-        } else {
-          this.audioFeedback.beepError();
-        }
-        // AX-23a — Enrichir le signal avec les lignes provisoires + le code scanné quand non trouvé
         if (!result.found) {
+          this.audioFeedback.beepError();
+          //  Enrichir le signal avec les lignes provisoires + le code scanné
           const provisionalLines = this.orderLines
             .filter(l => l.provisionalCode)
             .map(l => ({ id: l.id!, libelle: l.produitLibelle! }));
           this.lastScanResult.set({ ...result, provisionalLines, scannedCode: raw });
-        } else {
+          this.scheduleClearScanResult();
+          return;
+        }
+
+        this.audioFeedback.beepSuccess();
+        const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
+        if (idx === -1) {
           this.lastScanResult.set(result);
+          this.scheduleClearScanResult();
+          return;
         }
-        if (result.found) {
-          const idx = this.orderLines.findIndex(l => l.id === result.orderLineId);
-          if (idx !== -1) {
-            const updated = { ...this.orderLines[idx] };
-            updated.quantityReceived = (updated.quantityReceived ?? 0) + 1;
-            updated.quantityReceivedTmp = updated.quantityReceived;
-            this.orderLines = [...this.orderLines];
-            this.orderLines[idx] = updated;
-            this.refreshDisplayRows();
-            const rowNode = this.gridApi?.getRowNode(String(updated.id));
-            if (rowNode) {
-              this.gridApi?.refreshCells({
-                rowNodes: [rowNode],
-                columns: ["quantityReceivedTmp", "afterStock", "statut"],
-                force: true
+
+        const currentLine = this.orderLines[idx];
+        const increment = result.scannedQty ?? 1;
+        const oldQty = currentLine.quantityReceived ?? 0;
+        const newQty = oldQty + increment;
+        const orderedQty = currentLine.quantityRequested ?? 0;
+
+        if (newQty > orderedQty) {
+          // Confirmation obligatoire avant d'accepter un excédent au scan
+          this.confirmDialog.onConfirm(
+            () => {
+              this.applyScanResult(idx, result, newQty);
+              this.lastScanResult.set(result);
+              this.scheduleClearScanResult();
+            },
+            "Excédent détecté",
+            `La quantité scannée (${newQty}) dépasse la quantité commandée (${orderedQty})\npour ${currentLine.produitLibelle}.\n\nConfirmer la réception en excédent ?`,
+            "pi pi-exclamation-triangle",
+            () => {
+              // Refusé — révoquer la mise à jour déjà enregistrée côté serveur
+              const reverted = { ...currentLine, quantityReceived: oldQty, quantityReceivedTmp: oldQty };
+              this.deliveryService.updateQuantityReceived(reverted).subscribe({
+                error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Annulation scan")
               });
-              // AX-02 — Auto-scroll + flash vert 800 ms pour repérer visuellement la ligne mise à jour
-              this.gridApi?.ensureNodeVisible(rowNode, "middle");
-              this.gridApi?.flashCells({ rowNodes: [rowNode], flashDuration: 800, fadeDuration: 400 });
+              this.audioFeedback.beepError();
             }
-          }
-          if (result.lotAutoCreated) {
-            this.refreshCommande();
-          } else if (result.lot?.numLot && result.lot?.expiryDate) {
-            // DataMatrix avec info lot mais lot non auto-créé → pré-remplir le formulaire lot séquentiel
-            const isoDate = result.lot.expiryDate as unknown as string;
-            const m = isoDate.match(/^(\d{4})-(\d{2})/);
-            const expiry = m ? `${m[2]}/${m[1]}` : "";
-            if (expiry) {
-              this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
-              // AX-05 : pas de timer fixe — le prefill est effacé à la validation de la ligne
-              //         (voir onSequentialLineChanged)
-            }
-          }
+          );
+        } else {
+          this.applyScanResult(idx, result, newQty);
+          this.lastScanResult.set(result);
+          this.scheduleClearScanResult();
         }
-        this.scheduleClearScanResult();
       },
       error: err => {
         this.lastScanResult.set(null);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Scan");
+        this.audioFeedback.beepError();
+        if (err instanceof TimeoutError) {
+          this.notificationService.error("Backend trop lent — scan abandonné", "Scan");
+        } else {
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Scan");
+        }
       }
     });
   }
 
-  // AX-23c — Associer le code scanné à la première ligne provisoire et ouvrir la cellule CIP
+  private applyScanResult(idx: number, result: IReceptionScanResult, newQty: number): void {
+    const updated = { ...this.orderLines[idx] };
+    updated.quantityReceived = newQty;
+    updated.quantityReceivedTmp = newQty;
+    updated.updated = true; // ← marquer comme saisi pour que statut / tauxService / concordance soient corrects
+    this.orderLines = [...this.orderLines];
+    this.orderLines[idx] = updated;
+    this.refreshDisplayRows();
+
+    const rowNode = this.gridApi?.getRowNode(String(updated.id));
+    if (rowNode) {
+      this.gridApi?.refreshCells({
+        rowNodes: [rowNode],
+        columns: ["quantityReceivedTmp", "afterStock", "statut"],
+        force: true
+      });
+      // Auto-scroll + flash vert 800 ms
+      this.gridApi?.ensureNodeVisible(rowNode, "middle");
+      this.gridApi?.flashCells({ rowNodes: [rowNode], flashDuration: 800, fadeDuration: 400 });
+    }
+
+    if (result.lotAutoCreated) {
+      this.refreshCommande();
+    } else if (result.lot?.numLot && result.lot?.expiryDate) {
+      // DataMatrix avec info lot non auto-créé → pré-remplir le formulaire lot séquentiel
+      const isoDate = result.lot.expiryDate as unknown as string;
+      const m = isoDate.match(/^(\d{4})-(\d{2})/);
+      const expiry = m ? `${m[2]}/${m[1]}` : "";
+      if (expiry) {
+        this.scanLotPrefill.set({ numLot: result.lot.numLot, expiry });
+        //  le prefill est effacé à la validation de la ligne (voir onSequentialLineChanged)
+      }
+    }
+  }
+
+  //  Associer le code scanné à la première ligne provisoire et ouvrir la cellule CIP
   protected onAssocierScanToProvisional(): void {
     const scan = this.lastScanResult();
     if (!scan?.provisionalLines?.length || !scan.scannedCode) return;
@@ -794,62 +875,103 @@ export class CommandeReceivedComponent implements OnInit {
     this.scanFeedbackTimer = setTimeout(() => this.lastScanResult.set(null), 4000);
   }
 
+  /**
+   * Démarre le scanner — délègue à {@link ScanOrchestratorService}.
+   * - Récupère le poste courant
+   * - Configure les raccourcis clavier (toujours actifs, indépendants du mode scanner)
+   * - Branche les codes émis par l'orchestrateur sur {@link onScanReception}
+   * - Démarre la détection CDC (fallback HID + retry géré côté orchestrateur)
+   */
   private setupBarcodeScanner(): void {
-    // ── Abonnement aux scans complétés ─────────────────────────────────────
-    this.receptionScanner.onScanEvent$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter((e: ScanEvent) => e.type === "complete")
-      )
-      .subscribe((e: ScanEvent) => {
-        if (e.code) {
-          this.scanValue = e.code;
-          this.onScanReception();
-        }
+    this.installShortcutListener();
+
+    this.scanOrchestrator.onScan$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(code => {
+        this.scanValue = code;
+        this.onScanReception();
       });
 
-    // ── Écouteur global clavier (capture phase = avant les inputs) ─────────
-    //
-    // Comportement :
-    //  1. Chaque touche est transmise au ReceptionScannerService (isolé de la vente).
-    //  2. Dès qu'une frappe rapide est détectée (scan en cours),
-    //     on bloque l'écriture dans l'input actif via preventDefault()
-    //     → évite que le code CIP/DataMatrix se retrouve dans le champ N° lot, qty, etc.
-    //  3. Le premier caractère peut déjà avoir été écrit avant la détection ;
-    //     onScanReception() nettoiera les champs si nécessaire (cf. clearLotDraftOnScan()).
-    this.keydownListener = (event: KeyboardEvent): void => {
+    this.destroyRef.onDestroy(() => {
+      this.removeShortcutListener();
+      this.removeScanKeydownListener();
+      this.scanOrchestrator.teardown();
+    });
+
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.configurationService.getCurrentPoste()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res: HttpResponse<IPoste>) => this.scanOrchestrator.setup(res.body?.id ?? undefined),
+          error: () => this.scanOrchestrator.setup()
+        });
+    } else {
+      this.scanOrchestrator.setup();
+    }
+  }
+
+  /** Listener clavier raccourcis — actif en permanence quel que soit le mode scanner. */
+  private installShortcutListener(): void {
+    if (this.shortcutListener) return;
+    this.shortcutListener = (event: KeyboardEvent): void => this.handleKeyboardShortcut(event);
+    document.addEventListener("keydown", this.shortcutListener, true);
+  }
+
+  private removeShortcutListener(): void {
+    if (this.shortcutListener) {
+      document.removeEventListener("keydown", this.shortcutListener, true);
+      this.shortcutListener = null;
+    }
+  }
+
+  /**
+   * Listener clavier scan HID — installé/retiré par les callbacks hidEnable/hidDisable
+   * de l'orchestrateur. Alimente le buffer du {@link ReceptionScannerService} qui émettra
+   * via `onScanEvent$` (consommé par l'orchestrateur).
+   */
+  private installScanKeydownListener(): void {
+    if (this.scanKeydownListener) return;
+    this.scanKeydownListener = (event: KeyboardEvent): void => {
       const result = this.receptionScanner.processKey(event.key);
       if (result.isScanInProgress && this.isInputElementActive()) {
         event.preventDefault();
       }
-      // AX-17 — Raccourcis clavier globaux
-      if (event.ctrlKey && event.key.toLowerCase() === "g") {
-        event.preventDefault();
-        this.setViewMode(this.viewMode() === "grid" ? "sequential" : "grid");
-      } else if (event.key === "F5" && !event.ctrlKey && !event.shiftKey) {
-        event.preventDefault();
-        this.onFilterCommandeLines();
-      } else if (event.key === "F11") {
-        event.preventDefault();
-        this.onToutValider();
-      } else if (event.altKey && event.key.toLowerCase() === "h") {
-        event.preventDefault();
-        this.openHelp();
-      }
     };
-    document.addEventListener("keydown", this.keydownListener, true);
-
-    this.destroyRef.onDestroy(() => {
-      if (this.keydownListener) {
-        document.removeEventListener("keydown", this.keydownListener, true);
-        this.keydownListener = null;
-      }
-    });
+    document.addEventListener("keydown", this.scanKeydownListener, true);
 
     if (this.viewMode() !== "sequential") {
       setTimeout(() => {
         (this.scanInputRef()?.nativeElement as HTMLInputElement | undefined)?.focus();
       }, 150);
+    }
+  }
+
+  private removeScanKeydownListener(): void {
+    if (this.scanKeydownListener) {
+      document.removeEventListener("keydown", this.scanKeydownListener, true);
+      this.scanKeydownListener = null;
+    }
+  }
+
+  /** Reconnexion manuelle du scanner CDC. */
+  protected reconnectScanner(): Promise<void> {
+    return this.scanOrchestrator.reconnect();
+  }
+
+  /** Raccourcis identiques quel que soit le mode scanner. */
+  private handleKeyboardShortcut(event: KeyboardEvent): void {
+    if (event.ctrlKey && event.key.toLowerCase() === "g") {
+      event.preventDefault();
+      this.setViewMode(this.viewMode() === "grid" ? "sequential" : "grid");
+    } else if (event.key === "F5" && !event.ctrlKey && !event.shiftKey) {
+      event.preventDefault();
+      this.onFilterCommandeLines();
+    } else if (event.key === "F11") {
+      event.preventDefault();
+      this.onToutValider();
+    } else if (event.altKey && event.key.toLowerCase() === "h") {
+      event.preventDefault();
+      this.openHelp();
     }
   }
 
@@ -874,7 +996,7 @@ export class CommandeReceivedComponent implements OnInit {
   }
 
   protected lineStatut(ol: IOrderLine): { label: string; severity: string } {
-    // AX-13 — Distinguer jamais touché (null) de saisi à 0
+    // Distinguer jamais touché (null) de saisi à 0
     if (ol.quantityReceivedTmp == null || !ol.updated) return { label: "À saisir", severity: "secondary" };
     const rec = ol.quantityReceivedTmp;
     const cmd = ol.quantityRequested ?? 0;
@@ -884,7 +1006,7 @@ export class CommandeReceivedComponent implements OnInit {
     return { label: "Partiel", severity: "warn" };
   }
 
-  // AX-08 — Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
+  //Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
   protected get tauxService(): number {
     if (!this.orderLines.length) return 0;
     const served = this.orderLines.filter(
@@ -895,10 +1017,18 @@ export class CommandeReceivedComponent implements OnInit {
     return Math.round((served / this.orderLines.length) * 100);
   }
 
-  private isLotActif(): void {
-    const param = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
-    if (param) this.showLotBtn = Number(param.value) === 1;
+
+  private initPutAway(): void {
+    this.configurationService.getParamByKey(Params.APP_PUTAWAY_MODE)
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res: HttpResponse<IConfiguration>) => {
+        if (res) {
+          this.putWayMode.set(res.body?.value);
+        }
+      }
+    });
   }
+
 
   private buildColumnDefs(): ColDef<IOrderLine>[] {
     const cols: ColDef<IOrderLine>[] = [
@@ -1050,7 +1180,7 @@ export class CommandeReceivedComponent implements OnInit {
       }
     ];
 
-    if (this.showLotBtn) {
+    if (this.showLotBtn()) {
       cols.push({
         headerName: "Lots",
         colId: "lots",
@@ -1071,7 +1201,7 @@ export class CommandeReceivedComponent implements OnInit {
         }
       });
     }
-    // AX-12 — Couverture stock en jours (masquée par défaut)
+    // Couverture stock en jours (masquée par défaut)
     cols.push({
       field: "couvertureStockJours",
       headerName: "Couverture",
@@ -1085,7 +1215,7 @@ export class CommandeReceivedComponent implements OnInit {
         return `<span style="color:${color};font-weight:700">${v} j</span>`;
       }
     });
-    // AX-06 — TVA (masquée par défaut, activable via menu colonnes)
+    //TVA (masquée par défaut, activable via menu colonnes)
     cols.push({
       field: "tva",
       headerName: "TVA (%)",
@@ -1095,7 +1225,7 @@ export class CommandeReceivedComponent implements OnInit {
       cellRenderer: (p: any) => p.data?.tva != null ? `${p.data.tva} %` : "—"
     });
 
-    // AX-07 — Remise + Montant net (masqués par défaut)
+    //  Remise + Montant net (masqués par défaut)
     cols.push({
       field: "discountAmount",
       headerName: "Remise",

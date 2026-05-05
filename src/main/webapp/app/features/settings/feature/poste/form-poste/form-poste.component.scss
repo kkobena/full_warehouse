@@ -1,0 +1,23 @@
+/**
+ * Poste Form Component Styles
+ *
+ * This component uses centralized form styles from shared/scss/form-styles.scss
+ * See FORMS_README.md for documentation on the form pattern.
+ */
+
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+.modal-body.overflow-visible {
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+}
+
+
+::ng-deep .p-select-overlay,
+::ng-deep .p-select-list-container {
+  z-index: 10000 !important;
+}

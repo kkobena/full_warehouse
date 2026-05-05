@@ -102,7 +102,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
      * Recherche la première ligne d'une commande dont le CIP fournisseur correspond au code scanné.
      * Utilisé pour la réception par scan CIP/DataMatrix.
      */
-    @Query("SELECT o FROM OrderLine o WHERE o.commande.id = :commandeId AND o.fournisseurProduit.codeCip = :codeCip")
+    @Query("SELECT o FROM OrderLine o WHERE o.commande.id = :commandeId AND (o.fournisseurProduit.codeCip = :codeCip OR o.fournisseurProduit.codeEan=:codeCip OR o.fournisseurProduit.produit.codeEanLaboratoire =:codeCip)")
     Optional<OrderLine> findFirstByCommandeIdAndCip(
         @Param("commandeId") Integer commandeId,
         @Param("codeCip") String codeCip

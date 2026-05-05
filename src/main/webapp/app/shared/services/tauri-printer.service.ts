@@ -1,10 +1,11 @@
-import {inject, Injectable} from '@angular/core';
+import { inject, Injectable } from "@angular/core";
 import {
   CustomerDisplayConnectionConfig,
   CustomerDisplayEscPosService
-} from '../customer-display/customer-display-escpos.service';
-import {PosteService} from '../../entities/poste/poste.service';
-import {firstValueFrom} from 'rxjs';
+} from "../customer-display/customer-display-escpos.service";
+import { PosteDeviceService } from "../../features/settings/feature/poste/poste-device.service";
+import { firstValueFrom } from "rxjs";
+import { PosteService } from "../../features/settings/feature/poste/poste.service";
 
 export interface PrinterInfo {
   name: string;
@@ -13,7 +14,7 @@ export interface PrinterInfo {
 
 export interface CustomerDisplayConfig {
   enabled: boolean;
-  connectionType: 'SERIAL' | 'USB' | 'NETWORK';
+  connectionType: "SERIAL" | "USB" | "NETWORK";
   serialPort?: string;
   baudRate?: number;
   ipAddress?: string;
@@ -21,7 +22,7 @@ export interface CustomerDisplayConfig {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root"
 })
 export class TauriPrinterService {
   private tauriInvoke: any = null;
@@ -29,6 +30,7 @@ export class TauriPrinterService {
   private displayEnabled = false;
   private readonly customerDisplayService = inject(CustomerDisplayEscPosService);
   private readonly posteService = inject(PosteService);
+  private readonly posteDeviceService = inject(PosteDeviceService);
 
   constructor() {
     void this.initializeTauri();
@@ -39,7 +41,7 @@ export class TauriPrinterService {
    * Check if running in Tauri environment
    */
   isRunningInTauri(): boolean {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return false;
     }
 
@@ -58,7 +60,7 @@ export class TauriPrinterService {
 
     try {
       const invoke = await this.getInvoke();
-      return (await invoke('get_printers')) as PrinterInfo[];
+      return (await invoke("get_printers")) as PrinterInfo[];
     } catch (error) {
       return [];
     }
@@ -79,7 +81,7 @@ export class TauriPrinterService {
    */
   async printImage(imageBase64: string, printerName?: string): Promise<void> {
     if (!this.isRunningInTauri()) {
-      throw new Error('Tauri printing is only available in Tauri application');
+      throw new Error("Tauri printing is only available in Tauri application");
     }
 
     try {
@@ -89,18 +91,18 @@ export class TauriPrinterService {
       if (!printerName) {
         const defaultPrinter = await this.getDefaultPrinter();
         if (!defaultPrinter) {
-          throw new Error('No printer available');
+          throw new Error("No printer available");
         }
         printerName = defaultPrinter.name;
       }
 
-      await invoke('print_image', {
+      await invoke("print_image", {
         imageData: imageBase64,
-        printerName,
+        printerName
       });
 
     } catch (error) {
-      console.error('Error printing image:', error);
+      console.error("Error printing image:", error);
       throw error;
     }
   }
@@ -112,14 +114,14 @@ export class TauriPrinterService {
    */
   async printPages(pages: string[], printerName?: string): Promise<void> {
     if (!pages || pages.length === 0) {
-      throw new Error('No pages to print');
+      throw new Error("No pages to print");
     }
 
     // Get printer name once for all pages
     if (!printerName) {
       const defaultPrinter = await this.getDefaultPrinter();
       if (!defaultPrinter) {
-        throw new Error('No printer available');
+        throw new Error("No printer available");
       }
       printerName = defaultPrinter.name;
     }
@@ -154,7 +156,7 @@ export class TauriPrinterService {
    */
   async printEscPos(escposData: string, printerName?: string): Promise<void> {
     if (!this.isRunningInTauri()) {
-      throw new Error('ESC/POS printing is only available in Tauri application');
+      throw new Error("ESC/POS printing is only available in Tauri application");
     }
 
     try {
@@ -164,17 +166,17 @@ export class TauriPrinterService {
       if (!printerName) {
         const defaultPrinter = await this.getDefaultPrinter();
         if (!defaultPrinter) {
-          throw new Error('No printer available');
+          throw new Error("No printer available");
         }
         printerName = defaultPrinter.name;
       }
 
-      await invoke('print_escpos', {
+      await invoke("print_escpos", {
         escposData,
-        printerName,
+        printerName
       });
     } catch (error) {
-      console.error('Error printing ESC/POS receipt:', error);
+      console.error("Error printing ESC/POS receipt:", error);
       throw error;
     }
   }
@@ -215,7 +217,7 @@ export class TauriPrinterService {
       serialPort: config.serialPort,
       baudRate: config.baudRate || 9600,
       ipAddress: config.ipAddress,
-      port: config.port || 9100,
+      port: config.port || 9100
     };
     this.displayEnabled = config.enabled;
     this.saveDisplayConfig(config);
@@ -242,9 +244,9 @@ export class TauriPrinterService {
 
     try {
       const invoke = await this.getInvoke();
-      return (await invoke('list_serial_ports')) as string[];
+      return (await invoke("list_serial_ports")) as string[];
     } catch (error) {
-      console.error('Error listing serial ports:', error);
+      console.error("Error listing serial ports:", error);
       return [];
     }
   }
@@ -259,10 +261,10 @@ export class TauriPrinterService {
 
     try {
       const invoke = await this.getInvoke();
-      await invoke('test_customer_display_connection', {config: this.displayConfig});
+      await invoke("test_customer_display_connection", { config: this.displayConfig });
       return true;
     } catch (error) {
-      console.error('Customer display connection test failed:', error);
+      console.error("Customer display connection test failed:", error);
       return false;
     }
   }
@@ -279,7 +281,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displayWelcomeMessage(storeName, this.displayConfig);
     } catch (error) {
-      console.error('Failed to show welcome message on customer display:', error);
+      console.error("Failed to show welcome message on customer display:", error);
     }
   }
 
@@ -295,7 +297,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displayUserMessage(userName, this.displayConfig);
     } catch (error) {
-      console.error('Failed to update customer display for user:', error);
+      console.error("Failed to update customer display for user:", error);
     }
   }
 
@@ -313,7 +315,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displaySalesData(productName, qty, price, this.displayConfig);
     } catch (error) {
-      console.error('Failed to update customer display for product:', error);
+      console.error("Failed to update customer display for product:", error);
     }
   }
 
@@ -329,7 +331,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displaySaleTotal(total, this.displayConfig);
     } catch (error) {
-      console.error('Failed to update customer display for total:', error);
+      console.error("Failed to update customer display for total:", error);
     }
   }
 
@@ -345,7 +347,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displayChange(change, this.displayConfig);
     } catch (error) {
-      console.error('Failed to update customer display for change:', error);
+      console.error("Failed to update customer display for change:", error);
     }
   }
 
@@ -356,7 +358,7 @@ export class TauriPrinterService {
    * @param align1 Alignment for line 1 (default 'left')
    * @param align2 Alignment for line 2 (default 'left')
    */
-  async displayCustomMessage(line1: string, line2: string, align1 = 'left', align2 = 'left'): Promise<void> {
+  async displayCustomMessage(line1: string, line2: string, align1 = "left", align2 = "left"): Promise<void> {
     if (!this.isCustomerDisplayEnabled()) {
       return;
     }
@@ -364,7 +366,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.displayTwoLines(line1, line2, this.displayConfig, align1, align2);
     } catch (error) {
-      console.error('Failed to display custom message on customer display:', error);
+      console.error("Failed to display custom message on customer display:", error);
     }
   }
 
@@ -379,7 +381,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.clearDisplay(this.displayConfig);
     } catch (error) {
-      console.error('Failed to clear customer display:', error);
+      console.error("Failed to clear customer display:", error);
     }
   }
 
@@ -394,7 +396,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.resetDisplay(this.displayConfig);
     } catch (error) {
-      console.error('Failed to reset customer display:', error);
+      console.error("Failed to reset customer display:", error);
     }
   }
 
@@ -410,7 +412,7 @@ export class TauriPrinterService {
     try {
       await this.customerDisplayService.setBrightness(level, this.displayConfig);
     } catch (error) {
-      console.error('Failed to set customer display brightness:', error);
+      console.error("Failed to set customer display brightness:", error);
     }
   }
 
@@ -442,7 +444,7 @@ export class TauriPrinterService {
    * Initialize Tauri invoke function
    */
   private async initializeTauri(): Promise<void> {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
@@ -457,10 +459,10 @@ export class TauriPrinterService {
 
     // Fallback to modern import method
     try {
-      const {invoke} = await import('@tauri-apps/api/core');
+      const { invoke } = await import("@tauri-apps/api/core");
       this.tauriInvoke = invoke;
     } catch (error) {
-      console.log('Tauri not available:', error);
+      console.log("Tauri not available:", error);
     }
   }
 
@@ -477,7 +479,7 @@ export class TauriPrinterService {
     await this.initializeTauri();
 
     if (!this.tauriInvoke) {
-      throw new Error('Tauri is not available');
+      throw new Error("Tauri is not available");
     }
 
     return this.tauriInvoke;
@@ -495,7 +497,7 @@ export class TauriPrinterService {
    * Used for converting binary ESC/POS data from backend
    */
   private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    let binary = '';
+    let binary = "";
     const bytes = new Uint8Array(buffer);
     const len = bytes.byteLength;
     for (let i = 0; i < len; i++) {
@@ -510,7 +512,7 @@ export class TauriPrinterService {
 
   /**
    * Initialize customer display configuration
-   * Fetches configuration from the current poste via API
+   * Fetches active DISPLAY device from PosteDevice API
    */
   private async initializeCustomerDisplay(): Promise<void> {
     if (!this.isRunningInTauri()) {
@@ -519,38 +521,44 @@ export class TauriPrinterService {
 
     try {
       // Fetch current poste configuration from API
-      const response = await firstValueFrom(this.posteService.getCurrentPoste());
-      const posteData = response.body;
+      const posteResponse = await firstValueFrom(this.posteService.getCurrentPoste());
+      const posteData = posteResponse.body;
 
-      if (posteData && posteData.customerDisplay) {
-        // Determine connection type based on port format
-        const connectionType = this.determineConnectionType(posteData.customerDisplayPort);
+      if (posteData?.id) {
+        // Fetch active DISPLAY device for this poste
+        const deviceResponse = await firstValueFrom(this.posteDeviceService.getActiveDevice(posteData.id, "DISPLAY"));
+        const device = deviceResponse.body;
 
-        this.displayConfig = {
-          connectionType,
-          serialPort: connectionType === 'SERIAL' ? posteData.customerDisplayPort : undefined,
-          baudRate: 9600, // Default baud rate for serial
-          ipAddress: connectionType === 'NETWORK' ? posteData.address : undefined,
-          port: connectionType === 'NETWORK' ? 9100 : undefined, // Default ESC/POS network port
-        };
-        this.displayEnabled = true;
+        if (device?.portName) {
+          const connectionType = this.determineConnectionType(device.portName);
 
-        // Save to localStorage for offline fallback
-        this.saveDisplayConfig({
-          enabled: true,
-          connectionType,
-          serialPort: this.displayConfig.serialPort,
-          baudRate: this.displayConfig.baudRate,
-          ipAddress: this.displayConfig.ipAddress,
-          port: this.displayConfig.port,
-        });
+          this.displayConfig = {
+            connectionType,
+            serialPort: connectionType === "SERIAL" ? device.portName : undefined,
+            baudRate: device.baudRate ?? 9600,
+            ipAddress: connectionType === "NETWORK" ? posteData.address : undefined,
+            port: connectionType === "NETWORK" ? 9100 : undefined
+          };
+          this.displayEnabled = true;
+
+          this.saveDisplayConfig({
+            enabled: true,
+            connectionType,
+            serialPort: this.displayConfig.serialPort,
+            baudRate: this.displayConfig.baudRate,
+            ipAddress: this.displayConfig.ipAddress,
+            port: this.displayConfig.port
+          });
+        } else {
+          this.displayEnabled = false;
+          this.displayConfig = null;
+        }
       } else {
-        // Customer display not enabled for this poste
         this.displayEnabled = false;
         this.displayConfig = null;
       }
     } catch (error) {
-      console.error('Failed to fetch poste configuration, falling back to localStorage:', error);
+      console.error("Failed to fetch poste configuration, falling back to localStorage:", error);
 
       // Fallback to localStorage configuration
       const savedConfig = this.loadDisplayConfig();
@@ -560,7 +568,7 @@ export class TauriPrinterService {
           serialPort: savedConfig.serialPort,
           baudRate: savedConfig.baudRate || 9600,
           ipAddress: savedConfig.ipAddress,
-          port: savedConfig.port || 9100,
+          port: savedConfig.port || 9100
         };
         this.displayEnabled = true;
       } else {
@@ -575,40 +583,40 @@ export class TauriPrinterService {
    * Determine connection type based on port/address format
    * @param port Port identifier (e.g., "COM3", "/dev/ttyUSB0", or "USB")
    */
-  private determineConnectionType(port?: string): 'SERIAL' | 'USB' | 'NETWORK' {
+  private determineConnectionType(port?: string): "SERIAL" | "USB" | "NETWORK" {
     if (!port) {
-      return 'SERIAL'; // Default to serial
+      return "SERIAL"; // Default to serial
     }
 
     const portUpper = port.toUpperCase();
 
     // Check for USB identifiers
-    if (portUpper.includes('USB') && !portUpper.includes('TTY')) {
-      return 'USB';
+    if (portUpper.includes("USB") && !portUpper.includes("TTY")) {
+      return "USB";
     }
 
     // Check for serial port identifiers
     // Windows: COM1, COM2, etc.
     // Linux/Mac: /dev/ttyUSB0, /dev/ttyS0, /dev/tty.usbserial, etc.
-    if (portUpper.startsWith('COM') || portUpper.includes('/DEV/TTY') || portUpper.includes('SERIAL')) {
-      return 'SERIAL';
+    if (portUpper.startsWith("COM") || portUpper.includes("/DEV/TTY") || portUpper.includes("SERIAL")) {
+      return "SERIAL";
     }
 
     // If it looks like an IP address or contains "NET", assume network
-    if (portUpper.includes('NET') || /^\d+\.\d+\.\d+\.\d+/.test(port)) {
-      return 'NETWORK';
+    if (portUpper.includes("NET") || /^\d+\.\d+\.\d+\.\d+/.test(port)) {
+      return "NETWORK";
     }
 
     // Default to SERIAL
-    return 'SERIAL';
+    return "SERIAL";
   }
 
   /**
    * Save display configuration to localStorage
    */
   private saveDisplayConfig(config: CustomerDisplayConfig): void {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem('customerDisplayConfig', JSON.stringify(config));
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.setItem("customerDisplayConfig", JSON.stringify(config));
     }
   }
 
@@ -616,13 +624,13 @@ export class TauriPrinterService {
    * Load display configuration from localStorage
    */
   private loadDisplayConfig(): CustomerDisplayConfig | null {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const saved = localStorage.getItem('customerDisplayConfig');
+    if (typeof window !== "undefined" && window.localStorage) {
+      const saved = localStorage.getItem("customerDisplayConfig");
       if (saved) {
         try {
           return JSON.parse(saved) as CustomerDisplayConfig;
         } catch (error) {
-          console.error('Failed to parse saved display config:', error);
+          console.error("Failed to parse saved display config:", error);
         }
       }
     }

@@ -28,6 +28,7 @@ import { catchError, debounceTime, filter, of, Subject, Subscription } from "rxj
 import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
 import { GlobalScannerService } from "../../../../shared/global-scanner.service";
 import { CommonModule } from "@angular/common";
+import { SalesScannerService } from "../../data-access/services/sales-scanner.service";
 
 /**
  * Composant de recherche produit avec scanner intégré
@@ -81,6 +82,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   private readonly globalScanner = inject(GlobalScannerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  /**
+   * SalesScannerService fourni par SalesHomeComponent (parent dans la hiérarchie DI).
+   * null si le composant est utilisé hors du contexte vente.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly salesScanner: SalesScannerService | null = inject(SalesScannerService as any, { optional: true }) as SalesScannerService | null;
   private readonly searchTrigger$ = new Subject<string>();
 
   // Scanner state
@@ -252,6 +259,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   // ===== Scanner Logic =====
 
   private setupBarcodeScanner(): void {
+    // En mode SERIAL (scanner USB CDC via Tauri), aucune frappe clavier n'est générée
+    // par la douchette → le scan local est inutile et doit rester inactif.
+    if (this.salesScanner?.scannerMode() === 'SERIAL') {
+      return;
+    }
+
     this.scanSubscription?.unsubscribe();
 
     this.scanSubscription = this.scanDetectorService.onScanEvent$

@@ -32,12 +32,11 @@ import { Tag } from "primeng/tag";
 import { Tooltip } from "primeng/tooltip";
 import { PeremptionStatut } from "../model/peremption-statut";
 import { DatePickerComponent } from "../../../shared/date-picker/date-picker.component";
-import { saveAs } from "file-saver";
-import { extractFileName2 } from "../../../shared/util/file-utils";
 import { SpinnerComponent } from "../../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { CommonModule } from "@angular/common";
+import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 
 @Component({
   selector: "jhi-lot-a-detruire",
@@ -117,6 +116,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
 
   ngAfterViewInit(): void {
     this.translate.use("fr");
@@ -260,14 +260,22 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   }
 
   private findConfigStock(): void {
-    const stockParam = this.configurationService.getParamByKey(Params.APP_GESTION_STOCK);
-    if (stockParam) {
-      this.isMono = Number(stockParam.value) === 0;
-      if (!this.isMono) {
-        this.fetchMagasin();
+    this.configurationService.getParamByKey(Params.APP_GESTION_STOCK).subscribe(
+      {
+        next: res => {
+          if (res.body) {
+            this.isMono = Number(res.body.value) === 0;
+            if (!this.isMono) {
+              this.fetchMagasin();
+            }
+            this.fetchRayon();
+
+          }
+
+        }
       }
-      this.fetchRayon();
-    }
+    );
+
   }
 
   private fetchRayon(): void {
@@ -304,7 +312,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.productToDestroyService.exportToPdf(this.buidParams()).subscribe({
       next: blod => {
         this.spinner().hide();
-        window.open(URL.createObjectURL(blod));
+        this.downloadDocumentService.downloadPdf(blod, "lot_a_detruire");
       },
       error: () => this.spinner().hide()
     });
@@ -315,8 +323,8 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.productToDestroyService.export(format, this.buidParams()).subscribe({
       next: resp => {
         this.spinner().hide();
-        const blob = resp.body;
-        saveAs(blob, extractFileName2(resp.headers.get("Content-disposition"), format, "produits_a_detruire"));
+        this.downloadDocumentService.download(resp.body, "lot_a_detruire", format === "csv" ? "csv" : "excel");
+
       },
       error: () => {
         this.spinner().hide();

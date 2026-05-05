@@ -53,6 +53,7 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     private static final String AI_PRODUCTION_DATE = "11";
     private static final String AI_EXPIRY_DATE = "17";
     private static final String AI_SERIAL = "21";
+    private static final String AI_QUANTITY = "37";
     private static final String AI_NHRN_GERMANY = "710";
     private static final String AI_NHRN_FRANCE = "711"; // CIP
     private static final String AI_NHRN_SPAIN = "712";
@@ -314,6 +315,7 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             case AI_PRODUCTION_DATE -> parseFixedLength(code, AI_PRODUCTION_DATE, DATE_LENGTH);
             case AI_EXPIRY_DATE -> parseFixedLength(code, AI_EXPIRY_DATE, DATE_LENGTH);
             case AI_SERIAL -> parseVariableLength(code, AI_SERIAL);
+            case AI_QUANTITY -> parseVariableLength(code, AI_QUANTITY);
             default -> null;
         };
 
@@ -410,6 +412,15 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             }
             case AI_SERIAL -> {
                 builder.serialNumber(result.data());
+                yield true;
+            }
+            case AI_QUANTITY -> {
+                try {
+                    int qty = Integer.parseInt(result.data().strip());
+                    if (qty > 0) {
+                        builder.scannedQty(qty);
+                    }
+                } catch (NumberFormatException ignored) {}
                 yield true;
             }
             case AI_NHRN_FRANCE -> {

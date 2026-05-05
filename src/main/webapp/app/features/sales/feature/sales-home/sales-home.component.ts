@@ -35,9 +35,6 @@ import {CustomerOverlayPanelComponent, PendingSalesListComponent} from '../../ui
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
 import {IUser} from '../../../../core/user/user.model';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import {ToastAlertComponent} from '../../../../shared/toast-alert/toast-alert.component';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {MagasinService} from '../../../../entities/magasin/magasin.service';
@@ -45,16 +42,21 @@ import {AccountService} from '../../../../core/auth/account.service';
 import {CashRegisterService} from '../../../../entities/cash-register/cash-register.service';
 import {RemiseCacheService} from '../../data-access/services/remise-cache.service';
 import {SalesApiService} from '../../data-access/services/sales-api.service';
-import {finalize, interval} from 'rxjs';
+import {finalize, interval, TimeoutError} from 'rxjs';
+import {timeout} from 'rxjs/operators';
 import {ProduitSearch, SalesStatut} from '../../../../shared/model';
 import {SaleForEditInfo, SaleId} from '../../../../shared/model/sales.model';
 import {GlobalScannerService} from '../../../../shared/global-scanner.service';
 import {ProduitService} from '../../../../entities/produit/produit.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {ScanAudioFeedbackService} from '../../../../shared/services/scan-audio-feedback.service';
+import {SalesScannerService} from '../../data-access/services/sales-scanner.service';
+import {ScanOrchestratorService} from '../../../../shared/scanner';
+import {ConfigurationService} from '../../../../shared/configuration.service';
 import {getNavChangeMessage, SaleType} from '../../../../entities/sales/selling-home/sale-helper';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthorizationService} from '../../data-access/services/authorization.service';
+import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 
 @Component({
   selector: 'app-sales-home',
@@ -63,6 +65,7 @@ import {AuthorizationService} from '../../data-access/services/authorization.ser
   host: {
     '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
   },
+  providers: [ScanOrchestratorService, SalesScannerService],
   imports: [
     CommonModule,
     FormsModule,
@@ -81,7 +84,6 @@ import {AuthorizationService} from '../../data-access/services/authorization.ser
     SaleDevisComponent,
     PendingSalesListComponent,
     CustomerOverlayPanelComponent,
-    ConfirmDialogComponent,
     ToastAlertComponent,
   ],
 })
@@ -92,7 +94,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   showStock = signal(false);
   protected salesFacade = inject(SalesFacade);
   protected userVendeurService = inject(UserVendeurService); // Pour liste vendeurs uniquement
-  protected confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
   protected alert = viewChild.required<ToastAlertComponent>('alert');
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits
   protected saleCreation = viewChild<SaleCreationComponent>(SaleCreationComponent);
@@ -125,7 +127,14 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private remiseCacheService = inject(RemiseCacheService);
   protected remises = this.remiseCacheService.remises;
   private readonly translate = inject(TranslateService);
+  /** Conservé pour le cas où GlobalScannerService est appelé directement ailleurs. */
   private globalScanner = inject(GlobalScannerService);
+  /** Orchestrateur unifié HID + CDC — point d'entrée unique pour le scan vente. */
+  private readonly salesScanner = inject(SalesScannerService);
+  /** Mode scanner courant exposé au template (badge SERIAL / bouton reconnexion). */
+  protected readonly scannerMode = this.salesScanner.scannerMode;
+  protected readonly canReconnectScanner = this.salesScanner.canReconnect;
+  private readonly configurationService = inject(ConfigurationService);
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
   private scanAudio = inject(ScanAudioFeedbackService);
@@ -138,6 +147,16 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private scanQueue: string[] = [];
   private processingQueue = false;
   private pendingScanCode = signal<string | null>(null);
+  /** Timer d'expiration du scan en attente (évite un rejeu fantôme si loading reste bloqué). */
+  private pendingScanTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Dernier code scanné + timestamp — pour ignorer les rebonds / doubles déclenchements. */
+  private lastScan: { code: string; at: number } | null = null;
+  /** Fenêtre anti-rebond : un même code reçu sous ce délai est ignoré. */
+  private static readonly DEDUP_WINDOW_MS = 400;
+  /** TTL d'un scan mis en attente pendant un loading. */
+  private static readonly PENDING_TTL_MS = 5000;
+  /** Timeout HTTP de la recherche produit après scan. */
+  private static readonly SCAN_SEARCH_TIMEOUT_MS = 3000;
 
   constructor() {
     this.showStock.set(this.authorizationService.canShowStock());
@@ -152,6 +171,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       const code = this.pendingScanCode();
       const isLoading = this.salesFacade.loading();
       if (code && !isLoading) {
+        this.clearPendingScanTimer();
         this.pendingScanCode.set(null);
         setTimeout(() => this.enqueueScan(code), 100);
       }
@@ -162,9 +182,18 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.checkScreenSize();
     this.salesFacade.resetCurrentSale();
 
-    // Activer le scanner global et s'abonner aux scans
-    this.globalScanner.enable();
-    this.globalScanner.onScan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(code => this.enqueueScan(code));
+    // Initialiser le scanner (HID ou SERIAL selon Tauri + device configuré)
+    this.configurationService.getCurrentPoste().subscribe({
+      next: res => this.salesScanner.setup(res.body?.id ?? undefined),
+      error: ()  => this.salesScanner.setup(),
+    });
+    // S'abonner aux codes-barres (HID ou SERIAL — interface unifiée)
+    this.salesScanner.onScan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(code => this.enqueueScan(code));
+    // Cleanup du scanner à la destruction du composant
+    this.destroyRef.onDestroy(() => {
+      this.clearPendingScanTimer();
+      this.salesScanner.teardown();
+    });
     // Initialiser le caissier (utilisateur connecté)
     const currentUser = this.accountService.trackCurrentAccount()();
     if (currentUser) {
@@ -316,8 +345,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // 2. Scanner global - toujours traiter pour détecter les codes-barres
-    const result = this.globalScanner.processKeyEvent(event);
+    // 2. Scanner global - délègue à SalesScannerService (no-op si mode SERIAL actif)
+    const result = this.salesScanner.processKeyEvent(event);
     if (result.isScanInProgress) {
       // Ne pas bloquer la saisie dans les inputs en mode TIMING
       // (les caractères du scanner apparaissent dans l'input, nettoyés après dispatch)
@@ -338,7 +367,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     const asCurrentSale = currentSale && currentSale.salesLines && currentSale.salesLines.length > 0;
     if (!this.isDevisMode() && asCurrentSale) {
       evt.preventDefault();
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.dispatchTabTransition(fromTab, toTab);
           this.active.set(toTab);
@@ -350,7 +379,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     } else {
       if (asCurrentSale) {
         evt.preventDefault();
-        this.confirmDialog().onConfirm(
+        this.confirmDialog.onConfirm(
           () => {
             this.salesFacade.resetCurrentSale();
             this.goToNextTab(toTab);
@@ -370,6 +399,10 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     if (seller) {
       this.salesFacade.setSeller(seller);
     }
+  }
+
+  protected reconnectScanner(): void {
+    this.salesScanner.reconnect();
   }
 
   // ===== Transitions entre onglets =====
@@ -593,7 +626,7 @@ private isFromVo(fromTab: string): boolean {
 
     const currentSale = this.salesFacade.currentSale();
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
-      this.confirmDialog().onConfirm(
+      this.confirmDialog.onConfirm(
         () => {
           this.dispatchTabTransition(fromTab, tab);
           this.active.set(tab);
@@ -612,12 +645,40 @@ private isFromVo(fromTab: string): boolean {
   // ===== Scan global - file d'attente et dispatch =====
 
   private enqueueScan(code: string): void {
+    // Anti-rebond : ignorer un code identique reçu trop vite (double trigger / rebond mécanique)
+    const now = Date.now();
+    if (this.lastScan && this.lastScan.code === code && now - this.lastScan.at < SalesHomeComponent.DEDUP_WINDOW_MS) {
+      return;
+    }
+    this.lastScan = { code, at: now };
+
     if (this.salesFacade.loading()) {
       this.pendingScanCode.set(code);
+      this.armPendingScanTimer(code);
       return;
     }
     this.scanQueue.push(code);
     this.processNextScan();
+  }
+
+  /** Arme le TTL : si loading reste bloqué, on abandonne le scan plutôt que de le rejouer plus tard hors contexte. */
+  private armPendingScanTimer(code: string): void {
+    this.clearPendingScanTimer();
+    this.pendingScanTimer = setTimeout(() => {
+      this.pendingScanTimer = null;
+      if (this.pendingScanCode() === code) {
+        this.pendingScanCode.set(null);
+        this.scanAudio.beepError();
+        this.notificationService.warning('Scan abandonné — chargement trop long', 'Scan');
+      }
+    }, SalesHomeComponent.PENDING_TTL_MS);
+  }
+
+  private clearPendingScanTimer(): void {
+    if (this.pendingScanTimer) {
+      clearTimeout(this.pendingScanTimer);
+      this.pendingScanTimer = null;
+    }
   }
 
   private processNextScan(): void {
@@ -634,6 +695,7 @@ private isFromVo(fromTab: string): boolean {
       .search({page: 0, size: 5, search: code}, false)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        timeout(SalesHomeComponent.SCAN_SEARCH_TIMEOUT_MS),
         finalize(() => {
           this.processingQueue = false;
           this.processNextScan();
@@ -649,13 +711,24 @@ private isFromVo(fromTab: string): boolean {
             this.scanAudio.beepError();
             this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
           } else {
-            this.scanAudio.beepSuccess();
+            // Ambiguïté : plusieurs produits matchent — informer l'utilisateur, prendre le 1er.
+            this.scanAudio.beepWarning();
+            const labels = results.slice(0, 3).map(p => p.libelle ?? '?').join(', ');
+            const suffix = results.length > 3 ? ` (+${results.length - 3} autres)` : '';
+            this.notificationService.warning(
+              `${results.length} produits correspondent à « ${code} » : ${labels}${suffix}. Le 1er a été ajouté — vérifiez la ligne.`,
+              'Scan ambigu',
+            );
             this.dispatchScannedProduct(results[0]);
           }
         },
-        error: () => {
+        error: (err: unknown) => {
           this.scanAudio.beepError();
-          this.notificationService.error('Erreur de recherche produit', 'Scan');
+          if (err instanceof TimeoutError) {
+            this.notificationService.error('Recherche produit trop lente — scan abandonné', 'Scan');
+          } else {
+            this.notificationService.error('Erreur de recherche produit', 'Scan');
+          }
         },
       });
   }

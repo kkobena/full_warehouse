@@ -99,7 +99,7 @@ const routes: Routes = [
     path: "poste",
     data: { pageTitle: "Gestion des Postes", abilitySubject: "poste" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./poste/poste.route")
+    loadChildren: () => import("../features/settings/feature/poste/poste.route")
   },
 
   // ── Compte utilisateur (auth only) ─────────────────────────────────────────

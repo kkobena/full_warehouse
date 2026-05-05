@@ -38,6 +38,9 @@ import { RetourWorkspaceComponent } from "../retour-workspace/retour-workspace.c
 import { ReconciliationWorkspaceComponent } from "../reconciliation-workspace/reconciliation-workspace.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { Params } from "../../../../shared/model/enumerations/params.model";
+import { IConfiguration } from "../../../../shared/model/configuration.model";
+import { ConfigurationService } from "../../../../shared/configuration.service";
 
 @Component({
   selector: "app-list-bons",
@@ -86,6 +89,7 @@ export class AppListBonsComponent implements OnInit {
   readonly selectedClosed = signal<IDelivery | null>(null);
   readonly retourWorkspaceBon = signal<IDelivery | null>(null);
   readonly reconciliationWorkspaceBon = signal<IDelivery | null>(null);
+  protected showLotBtn = signal(false);
   private readonly datePipe = inject(DatePipe);
 
   protected readonly statutOptions = [
@@ -138,8 +142,9 @@ export class AppListBonsComponent implements OnInit {
   private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
   private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-
+  private readonly configurationService = inject(ConfigurationService);
   ngOnInit(): void {
+    this.isLotActif();
     this.fournisseurService
       .query({ page: 0, size: 999 })
       .subscribe((res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body ?? []));
@@ -170,7 +175,18 @@ export class AppListBonsComponent implements OnInit {
   }
 
   // ── Recherche / pagination ─────────────────────────────────────────────────
+  private isLotActif(): void {
+    this.configurationService.getParamByKey(Params.APP_GESTION_LOT).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: HttpResponse<IConfiguration>) => {
+          if (res) {
+            this.showLotBtn.set(Number(res.body.value) === 1);
 
+
+          }
+        }
+      });
+  }
   onSearch(): void {
     this.loadPage(0);
   }

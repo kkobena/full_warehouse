@@ -410,7 +410,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         buildDeliveryReceipt(deliveryReceiptLite, commande);
         List<OrderLine> orderLines = commande.getOrderLines();
-        orderLines.forEach(this::updateReceivedQty);
+      //  orderLines.forEach(this::updateReceivedQty);
         this.orderLineService.saveAll(orderLines);
         return fromEntity(commandeRepository.saveAndFlush(commande));
     }
@@ -493,18 +493,20 @@ public class StockEntryServiceImpl implements StockEntryService {
         var parsedOpt = dataMatrixParserService.parse(rawScan);
         BarcodeType barcodeType = dataMatrixParserService.detectBarcodeType(rawScan);
 
+
         if (parsedOpt.isEmpty()) {
             return new ReceptionScanResultDTO(false, null, null, null,
                 false, null, null, "Format de code non reconnu", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
         }
 
         DataMatrixInfo parsed = parsedOpt.get();
         String cip = parsed.getProductCode();
+
         if (cip == null || cip.isBlank()) {
             return new ReceptionScanResultDTO(false, null, null, null,
                 false, null, null, "Aucun code produit identifié dans le scan", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
         }
 
         //Identifier la ligne de commande par CIP
@@ -512,7 +514,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (line == null) {
             return new ReceptionScanResultDTO(false, null, null, cip,
                 false, null, null, "CIP " + cip + " absent de la commande", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT);
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
         }
 
         // Vérification FMD — numéro de série (AI 21)
@@ -533,8 +535,9 @@ public class StockEntryServiceImpl implements StockEntryService {
             fmdStatus = ReceptionScanResultDTO.FmdStatus.ABSENT;
         }
 
-        //Incrémenter la quantité reçue de 1
-        int newQty = (line.getQuantityReceived() == null ? 0 : line.getQuantityReceived()) + 1;
+        // Incrémenter la quantité reçue (AI 37 si présent, sinon +1)
+        int increment = parsed.scannedQty() > 0 ? parsed.scannedQty() : 1;
+        int newQty = (line.getQuantityReceived() == null ? 0 : line.getQuantityReceived()) + increment;
         line.setQuantityReceived(newQty);
         updateItem(line);
 
@@ -552,9 +555,9 @@ public class StockEntryServiceImpl implements StockEntryService {
                 lot.setNumLot(parsed.batchNumber());
                 lot.setExpiryDate(parsed.expiryDate());
                 lot.setManufacturingDate(parsed.manufacturingDate());
-                lot.setQuantity(1);
+                lot.setQuantity(increment);
                 lot.setFreeQty(0);
-                lot.setCurrentQuantity(1);
+                lot.setCurrentQuantity(increment);
                 lot.setCreatedDate(LocalDateTime.now());
                 lot.setProduit(line.getFournisseurProduit().getProduit());
                 lot.setPrixAchat(line.getOrderCostAmount());
@@ -589,7 +592,8 @@ public class StockEntryServiceImpl implements StockEntryService {
             fmdWarning,
             barcodeType,
             serialNumber,
-            fmdStatus
+            fmdStatus,
+            increment
         );
     }
 

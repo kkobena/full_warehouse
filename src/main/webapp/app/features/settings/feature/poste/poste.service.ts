@@ -1,8 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SERVER_API_URL } from '../../app.constants';
-import { IPoste } from '../../shared/model/poste.model';
+import { IPoste } from "../../../../shared/model/poste.model";
+
 
 type EntityResponseType = HttpResponse<IPoste>;
 type EntityArrayResponseType = HttpResponse<IPoste[]>;
@@ -11,12 +11,12 @@ type EntityArrayResponseType = HttpResponse<IPoste[]>;
   providedIn: 'root',
 })
 export class PosteService {
-  protected http = inject(HttpClient);
+  private readonly  http = inject(HttpClient);
 
   private readonly resourceUrl = SERVER_API_URL + 'api/postes';
 
-  create(poste: IPoste): Observable<HttpResponse<void>> {
-    return this.http.post<void>(this.resourceUrl, poste, { observe: 'response' });
+  create(poste: IPoste): Observable<EntityResponseType> {
+    return this.http.post<IPoste>(this.resourceUrl, poste, { observe: 'response' });
   }
 
   fetchAll(): Observable<EntityArrayResponseType> {

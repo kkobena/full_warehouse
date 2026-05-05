@@ -3,6 +3,8 @@
 
 mod printer;
 mod types;
+mod customer_display;
+mod scanner;
 
 #[cfg(feature = "bundled-backend")]
 mod backend_manager;
@@ -170,6 +172,16 @@ fn main() {
             printer::print_escpos,
             check_backend_health,
             get_backend_url_command,
+            customer_display::send_to_customer_display,
+            customer_display::list_serial_ports,
+            customer_display::test_customer_display_connection,
+            scanner::list_serial_ports_detailed,
+            scanner::start_scanner_listener,
+            scanner::stop_scanner_listener,
+            scanner::send_to_display,
+            scanner::is_port_connected,
+            scanner::check_ports_connection,
+            scanner::get_system_info,
             #[cfg(feature = "bundled-backend")]
             get_backend_status,
             #[cfg(feature = "bundled-backend")]
@@ -183,6 +195,11 @@ fn main() {
     {
         builder = builder.setup(|app| {
             tracing::info!("Démarrage PharmaSmart (backend embarqué)");
+
+            // Moniteur USB Win32 : émet `scan-usb-arrived` à chaque DBT_DEVICEARRIVAL
+            // sur un port COM. Déclencheur primaire de la reconnexion CDC après
+            // débranchement/rebranchement (cf. scanner::device_monitor).
+            scanner::start_device_monitor(app.handle().clone());
 
             // I4 : Lit le port depuis la configuration au lieu de le coder en dur.
             let config = config::AppConfig::load(app.handle());
@@ -230,6 +247,11 @@ fn main() {
         builder = builder.setup(|app| {
             tracing::info!("Démarrage PharmaSmart (backend externe)");
             use tauri::Manager; // nécessaire pour app.state()
+
+            // Moniteur USB Win32 : émet `scan-usb-arrived` à chaque DBT_DEVICEARRIVAL
+            // sur un port COM. Déclencheur primaire de la reconnexion CDC après
+            // débranchement/rebranchement (cf. scanner::device_monitor).
+            scanner::start_device_monitor(app.handle().clone());
 
             let backend_url = get_backend_url();
             tracing::info!("URL backend : {}", backend_url);

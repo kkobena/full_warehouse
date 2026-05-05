@@ -27,9 +27,17 @@ public class PosteResource {
 
     @GetMapping("/current")
     public ResponseEntity<PosteRecord> getCurrentPoste(HttpServletRequest request) {
-        var remoteAddr = request.getRemoteAddr();
-        var remoteHost = request.getRemoteHost();
-        return ResponseUtil.wrapOrNotFound(posteService.findFirstByAddressOrName(remoteAddr, remoteHost));
+        // En mode Tauri, le backend tourne en local (127.0.0.1) : utiliser les headers
+        // X-Poste-Ip / X-Poste-Hostname qui portent la vraie IP LAN et le hostname de la machine.
+        // Sinon, fallback sur les valeurs réseau de la requête (mode navigateur distant).
+        var address = resolveHeader(request, "X-Poste-Ip", request.getRemoteAddr());
+        var name = resolveHeader(request, "X-Poste-Hostname", request.getRemoteHost());
+        return ResponseUtil.wrapOrNotFound(posteService.findFirstByAddressOrName(address, name));
+    }
+
+    private static String resolveHeader(HttpServletRequest request, String header, String fallback) {
+        var value = request.getHeader(header);
+        return (value != null && !value.isBlank()) ? value : fallback;
     }
 
     @GetMapping
@@ -38,9 +46,8 @@ public class PosteResource {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody PosteRecord posteRecord) {
-        posteService.create(posteRecord);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<PosteRecord> create(@Valid @RequestBody PosteRecord posteRecord) {
+        return ResponseEntity.ok().body(posteService.create(posteRecord));
     }
 
     @DeleteMapping("/{id}")

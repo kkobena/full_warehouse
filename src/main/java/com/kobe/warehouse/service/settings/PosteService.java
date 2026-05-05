@@ -9,7 +9,7 @@ public interface PosteService {
 
     Optional<PosteRecord> findFirstByAddressOrName(String address, String name);
 
-    void create(PosteRecord posteRecord);
+    PosteRecord create(PosteRecord posteRecord);
 
     void delete(Integer id);
 }

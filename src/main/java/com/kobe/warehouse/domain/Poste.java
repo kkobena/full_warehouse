@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "poste", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
@@ -40,31 +39,6 @@ public class Poste implements Serializable {
         message = "L'adresse doit être une adresse IP valide"
     )
     private String address;
-
-    @ColumnDefault("false")
-    @Column(name = "customer_display")
-    private boolean customerDisplay;
-
-    @Column(name = "customer_display_port", length = 10)
-    private String customerDisplayPort;
-
-    public boolean isCustomerDisplay() {
-        return customerDisplay;
-    }
-
-    public String getCustomerDisplayPort() {
-        return customerDisplayPort;
-    }
-
-    public Poste setCustomerDisplayPort(String customerDisplayPort) {
-        this.customerDisplayPort = customerDisplayPort;
-        return this;
-    }
-
-    public Poste setCustomerDisplay(boolean customerDisplay) {
-        this.customerDisplay = customerDisplay;
-        return this;
-    }
 
     public String getPosteNumber() {
         return posteNumber;

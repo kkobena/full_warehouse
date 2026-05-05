@@ -4,7 +4,5 @@ public record PosteRecord(
     Integer id,
     String name,
     String posteNumber,
-    String address,
-    boolean customerDisplay,
-    String customerDisplayPort
+    String address
 ) {}

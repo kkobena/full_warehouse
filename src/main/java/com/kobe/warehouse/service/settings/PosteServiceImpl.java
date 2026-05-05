@@ -33,8 +33,8 @@ public class PosteServiceImpl implements PosteService {
 
     @Override
     @Transactional
-    public void create(PosteRecord posteRecord) {
-        posteRepository.save(buildEntityFromRecord(posteRecord));
+    public PosteRecord create(PosteRecord posteRecord) {
+        return buildRecordFromEntity( posteRepository.save(buildEntityFromRecord(posteRecord)));
     }
 
     @Override
@@ -48,9 +48,7 @@ public class PosteServiceImpl implements PosteService {
             poste.getId(),
             poste.getName(),
             poste.getPosteNumber(),
-            poste.getAddress(),
-            poste.isCustomerDisplay(),
-            poste.getCustomerDisplayPort()
+            poste.getAddress()
         );
     }
 
@@ -58,9 +56,7 @@ public class PosteServiceImpl implements PosteService {
         Poste poste = new Poste()
             .setName(posteRecord.name())
             .setPosteNumber(posteRecord.posteNumber())
-            .setAddress(posteRecord.address())
-            .setCustomerDisplay(posteRecord.customerDisplay())
-            .setCustomerDisplayPort(posteRecord.customerDisplayPort());
+            .setAddress(posteRecord.address());
         if (posteRecord.id() != null) {
             poste.setId(posteRecord.id());
         }

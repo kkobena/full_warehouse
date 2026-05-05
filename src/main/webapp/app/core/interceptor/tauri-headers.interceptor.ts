@@ -1,30 +1,23 @@
+import { inject } from '@angular/core';
 import { HttpInterceptorFn } from '@angular/common/http';
+import { TauriDeviceDetectionService } from '../../shared/services/tauri-device-detection.service';
 
 export const tauriHeadersInterceptor: HttpInterceptorFn = (req, next) => {
-  // Only add headers if running in Tauri environment
-  if (!isRunningInTauri()) {
+  const tauriDeviceService = inject(TauriDeviceDetectionService);
+
+  if (!tauriDeviceService.isTauriAvailable()) {
     return next(req);
   }
 
-  // Clone request and add Tauri identification headers
-  const modifiedRequest = req.clone({
-    setHeaders: {
-      'X-Tauri-App': 'true',
-    },
-  });
+  const headers: Record<string, string> = { 'X-Tauri-App': 'true' };
 
-  return next(modifiedRequest);
-};
-
-/**
- * Check if application is running in Tauri environment
- */
-function isRunningInTauri(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
+  const info = tauriDeviceService.systemInfo();
+  if (info?.hostname) {
+    headers['X-Poste-Hostname'] = info.hostname;
+  }
+  if (info?.localIp) {
+    headers['X-Poste-Ip'] = info.localIp;
   }
 
-  // Check for Tauri runtime internals (only exists in actual Tauri app, not browser)
-  // @ts-ignore - __TAURI_INTERNALS__ is injected by Tauri at runtime
-  return !!window.__TAURI_INTERNALS__;
-}
+  return next(req.clone({ setHeaders: headers }));
+};

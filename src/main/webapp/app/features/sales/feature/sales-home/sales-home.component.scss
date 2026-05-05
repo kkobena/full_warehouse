@@ -1035,6 +1035,34 @@ $devis-indigo-light: #e8eaf6;
 }
 
 /* ========================================
+   BADGE MODE SCANNER SERIAL (USB CDC)
+   ======================================== */
+
+.sales-serial-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  .pi-wifi {
+    animation: wifi-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes wifi-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ========================================
    UTILITY CLASSES
    ======================================== */
 

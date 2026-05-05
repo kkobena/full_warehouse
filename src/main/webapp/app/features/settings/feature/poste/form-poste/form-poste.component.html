@@ -1,0 +1,240 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" class="btn-close" type="button">&times;</button>
+</div>
+
+<form [formGroup]="editForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <input formControlName="id" id="id" name="id" type="hidden" />
+
+    <!-- Two Column Layout: Champs Obligatoires and Périphériques Série -->
+    <div class="card-grid-2col">
+      <!-- Section 1: Champs Obligatoires -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header section-header-required">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>Champs Obligatoires</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Nom du Poste -->
+          <div class="form-field form-field-full">
+            <label for="field_name">Nom du Poste <span class="required">*</span></label>
+            <input
+              #nameInput
+              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="name"
+              id="field_name"
+              pInputText
+              placeholder="Ex: Poste Caisse 1"
+            />
+            @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+              @if (editForm.get('name')?.errors?.required) {
+                <small class="p-error">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('name')?.errors?.maxlength) {
+                <small class="p-error">Le nom ne doit pas dépasser 100 caractères</small>
+              }
+            }
+          </div>
+
+          <!-- Adresse IP -->
+          <div class="form-field form-field-full">
+            <label for="field_address">Adresse IP <span class="required">*</span></label>
+            <input
+              [class.ng-invalid]="editForm.get('address')?.invalid && editForm.get('address')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="address"
+              id="field_address"
+              pInputText
+              placeholder="Ex: 192.168.1.100"
+            />
+            @if (editForm.get('address')?.invalid && editForm.get('address')?.touched) {
+              @if (editForm.get('address')?.errors?.required) {
+                <small class="p-error">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('address')?.errors?.pattern) {
+                <small class="p-error">L'adresse doit être une adresse IP valide</small>
+              }
+            }
+          </div>
+
+          <!-- Numéro du Poste -->
+          <div class="form-field form-field-full">
+            <label for="field_posteNumber">Numéro du Poste</label>
+            <input
+              autocomplete="off"
+              class="w-full"
+              formControlName="posteNumber"
+              id="field_posteNumber"
+              pInputText
+              placeholder="Ex: P001"
+            />
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Section 2: Périphériques Série (PosteDevice) -->
+      @if (isTauri()) {
+        <p-card>
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-usb"></i>
+              <span>Périphériques Série</span>
+              <p-button
+                (click)="refreshPorts()"
+                [loading]="portsLoading()"
+                [text]="true"
+                [rounded]="true"
+                icon="pi pi-refresh"
+                pTooltip="Actualiser la liste des ports"
+                size="small"
+              ></p-button>
+            </div>
+          </ng-template>
+
+          <!-- Devices configurés -->
+          @if (devices().length > 0) {
+            <div class="mb-3">
+              <h6 class="mb-2" style="font-size: 0.82rem; color: #6b7280;">Périphériques configurés</h6>
+              <div class="flex flex-column gap-2">
+                @for (device of devices(); track (device.id ?? (device.portName + '_' + device.deviceType))) {
+                  <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-ground);">
+                    <p-tag [value]="device.deviceType!" [severity]="device.active ? 'success' : 'secondary'" />
+                    <span class="font-mono text-sm">{{ device.portName }}</span>
+                    <span class="text-sm text-secondary">{{ device.label ?? device.productName ?? '' }}</span>
+                    @if (device.active) {
+                      <i class="pi pi-check-circle text-green-500 ml-auto" pTooltip="Actif"></i>
+                    } @else {
+                      <p-button
+                        class="ml-auto"
+                        icon="pi pi-bolt"
+                        severity="secondary"
+                        size="small"
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Activer"
+                        (click)="activateDevice(device)"
+                      ></p-button>
+                    }
+                    @if (device.deviceType === 'SCANNER') {
+                      <p-button
+                        icon="pi pi-qrcode"
+                        severity="info"
+                        size="small"
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Tester le scanner"
+                        (click)="testScanner(device.portName!, device.baudRate ?? 9600)"
+                      ></p-button>
+                    }
+                    @if (device.deviceType === 'DISPLAY') {
+                      <p-button
+                        icon="pi pi-desktop"
+                        severity="info"
+                        size="small"
+                        [text]="true"
+                        [rounded]="true"
+                        pTooltip="Tester l'afficheur"
+                        (click)="testDisplay(device.portName!)"
+                      ></p-button>
+                    }
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      size="small"
+                      [text]="true"
+                      [rounded]="true"
+                      pTooltip="Supprimer"
+                      (click)="deleteDevice(device)"
+                    ></p-button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Résultat tests -->
+          @if (scannerTestResult() !== 'idle' || displayTestResult() !== 'idle') {
+            <div class="mb-3">
+              @if (scannerTestResult() === 'waiting') {
+                <p-tag severity="warn" value="⏳ Scannez un produit..." />
+              }
+              @if (scannerTestResult() === 'ok') {
+                <p-tag severity="success" value="✅ Scanner OK" />
+              }
+              @if (scannerTestResult() === 'error') {
+                <p-tag severity="danger" [value]="'❌ ' + (scannerErrorMessage() || 'Aucun scan reçu (5s)')" />
+              }
+              @if (displayTestResult() === 'ok') {
+                <p-tag severity="success" value="✅ Afficheur Connecté" class="ml-2" />
+              }
+              @if (displayTestResult() === 'error') {
+                <p-tag severity="danger" value="❌ Erreur afficheur" class="ml-2" />
+              }
+            </div>
+          }
+
+          <!-- Ports détectés (ajout de nouveaux devices) -->
+          @if (detectedPorts().length > 0) {
+            <h6 class="mb-1 mt-2" style="font-size: 0.82rem; color: #6b7280;">
+              Ports disponibles ({{ detectedPorts().length }})
+            </h6>
+            <div class="flex flex-column gap-2">
+              @for (port of detectedPorts(); track port.portName) {
+                <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-50);">
+                  <span class="font-mono text-sm font-bold mr-2">{{ port.portName }}</span>
+                  <span class="text-xs text-secondary">{{ port.product ?? port.manufacturer ?? '' }}</span>
+                  @if (port.suggestedRole) {
+                    <p-tag [value]="roleLabel(port.suggestedRole)" severity="info" />
+                  }
+                  @if (port.genericAdapter) {
+                    <p-tag value="Adaptateur" severity="warn" />
+                  }
+                  <div class="ml-auto">
+                    <p-select
+                      [options]="deviceTypeOptions"
+                      (onShow)="onDropdownShow($event)"
+                      (onHide)="onDropdownHide($event)"
+                      placeholder="Assigner"
+                      (onChange)="addDevice(port, $event.value)"
+                      [fluid]="true"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Guide si aucun port détecté -->
+          @if (!portsLoading() && detectedPorts().length === 0) {
+            <div class="p-3 border-round" style="background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.15);">
+              <p class="mb-1" style="font-size: 0.82rem; font-weight: 600; color: #1e40af;">
+                <i class="pi pi-info-circle mr-1"></i>Aucun port série détecté
+              </p>
+              <p class="mb-1 text-sm text-secondary">
+                Votre douchette est probablement en mode clavier (HID).
+              </p>
+              <p class="mb-0 text-sm text-secondary">
+                Pour activer le mode CDC : scannez l'étiquette <strong>"USB Virtual COM"</strong>
+                dans le manuel de votre douchette, puis cliquez <strong>Actualiser</strong>.
+              </p>
+            </div>
+          }
+        </p-card>
+      }
+    </div>
+  </div>
+
+  <div class="form-actions-compact">
+    <p-button icon="pi pi-times" label="Annuler" severity="secondary" type="button" (click)="cancel()"></p-button>
+    <p-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+  </div>
+</form>
+
+<p-toast position="center"></p-toast>

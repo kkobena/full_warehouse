@@ -28,7 +28,8 @@ public record ReceptionScanResultDTO(
     String warningMessage,
     BarcodeType barcodeType,
     String serialNumber,
-    FmdStatus fmdStatus
+    FmdStatus fmdStatus,
+    int scannedQty
 ) {
     public enum FmdStatus {
         /** Numéro de série présent et unique — traçabilité FMD assurée. */

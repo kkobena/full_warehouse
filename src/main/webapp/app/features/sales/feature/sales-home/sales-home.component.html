@@ -133,6 +133,28 @@
         />
       }
 
+      <!-- Badge mode scanner SERIAL -->
+      @if (scannerMode() === 'SERIAL') {
+        <span class="sales-serial-badge"
+              pTooltip="Douchette USB série active — lecture automatique"
+              tooltipPosition="bottom">
+          <i class="pi pi-wifi"></i> Scanner série
+        </span>
+      }
+
+      <!-- Bouton reconnexion manuelle (visible si Tauri + HID + poste configuré) -->
+      @if (canReconnectScanner()) {
+        <p-button
+          (click)="reconnectScanner()"
+          icon="pi pi-refresh"
+          label="Reconnecter scanner"
+          severity="warn"
+          size="small"
+          pTooltip="Tenter de reconnecter la douchette USB (branchée après ouverture ou sortie de veille)"
+          tooltipPosition="bottom"
+        />
+      }
+
     </div>
   </div>
 
@@ -274,7 +296,6 @@
 </div>
 
 <!-- Composants de notification -->
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 
 <!-- Sélecteur de thème DEVIS (temporaire pour test) -->

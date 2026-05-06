@@ -34,6 +34,10 @@ public class GroupeFournisseurDTO implements Serializable {
     private String idRecepteurPharmaMl;
     private Integer delaiLivraisonJours;
     private Integer frequenceCommandeJours;
+    private Integer joursCredit;
+    private Integer joursCritique;
+    private Long palierRfa;
+    private Integer tauxRfa;
 
     public GroupeFournisseurDTO() {
     }
@@ -51,6 +55,11 @@ public class GroupeFournisseurDTO implements Serializable {
         urlPharmaMl = groupeFournisseur.getUrlPharmaMl();
         idRecepteurPharmaMl = groupeFournisseur.getIdRecepteurPharmaMl();
         delaiLivraisonJours = groupeFournisseur.getDelaiLivraisonJours();
+        frequenceCommandeJours = groupeFournisseur.getFrequenceCommandeJours();
+        joursCredit = groupeFournisseur.getJoursCredit();
+        joursCritique = groupeFournisseur.getJoursCritique();
+        palierRfa = groupeFournisseur.getPalierRfa();
+        tauxRfa = groupeFournisseur.getTauxRfa();
     }
 
     public Integer getDelaiLivraisonJours() {
@@ -167,6 +176,18 @@ public class GroupeFournisseurDTO implements Serializable {
         this.odre = odre;
         return this;
     }
+
+    public Integer getJoursCredit() { return joursCredit; }
+    public GroupeFournisseurDTO setJoursCredit(Integer joursCredit) { this.joursCredit = joursCredit; return this; }
+
+    public Integer getJoursCritique() { return joursCritique; }
+    public GroupeFournisseurDTO setJoursCritique(Integer joursCritique) { this.joursCritique = joursCritique; return this; }
+
+    public Long getPalierRfa() { return palierRfa; }
+    public GroupeFournisseurDTO setPalierRfa(Long palierRfa) { this.palierRfa = palierRfa; return this; }
+
+    public Integer getTauxRfa() { return tauxRfa; }
+    public GroupeFournisseurDTO setTauxRfa(Integer tauxRfa) { this.tauxRfa = tauxRfa; return this; }
 
     @Override
     public boolean equals(Object o) {

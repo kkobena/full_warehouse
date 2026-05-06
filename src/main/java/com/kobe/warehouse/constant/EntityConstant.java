@@ -83,6 +83,10 @@ public final class EntityConstant {
     public static final String APP_DELAI_REGLEMENT_FACTURE = "APP_DELAI_REGLEMENT_FACTURE";
     public static final String APP_DELAI_RETOUR_FOURNISSEUR = "APP_DELAI_RETOUR_FOURNISSEUR"; // Délai max (jours) entre réception et retour fournisseur avant avertissement
     public static final String APP_DELAI_RETOUR_FOURNISSEUR_CACHE = "APP_DELAI_RETOUR_FOURNISSEUR_CACHE";
+    public static final String APP_AP_DEFAULT_CREDIT_DAYS = "APP_AP_DEFAULT_CREDIT_DAYS"; // Délai de crédit fournisseur par défaut (jours) pour les comptes fournisseurs AP
+    public static final String APP_AP_DEFAULT_CREDIT_DAYS_CACHE = "APP_AP_DEFAULT_CREDIT_DAYS_CACHE";
+    public static final String APP_AP_DEFAULT_CRITIQUE_DAYS = "APP_AP_DEFAULT_CRITIQUE_DAYS"; // Délai supplémentaire (jours) après échéance avant statut CRITIQUE
+    public static final String APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE = "APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE";
 
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */

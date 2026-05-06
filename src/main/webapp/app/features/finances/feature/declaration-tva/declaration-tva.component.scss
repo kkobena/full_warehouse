@@ -1,0 +1,88 @@
+@import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/_pharma-toolbar';
+
+.tva-summary-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tva-summary-header {
+  background: linear-gradient(135deg, #008cba 0%, #5bc0de 100%);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.tva-summary-body {
+  padding: 1rem 1.5rem;
+}
+
+.tva-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+
+  &.nette {
+    font-size: 1.05rem;
+    padding-top: 0.75rem;
+  }
+}
+
+.tva-label em {
+  color: #888;
+  font-size: 0.8rem;
+  font-style: normal;
+}
+
+.tva-amount {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.tva-divider {
+  border-top: 2px solid #e2e8f0;
+  margin: 0.25rem 0;
+}
+
+.tva-summary-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e2e8f0;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.tva-table-footer td {
+  background: #f8f9fa;
+  border-top: 2px solid #008cba;
+}
+
+.pharma-empty-message {
+  text-align: center;
+}
+
+.pharma-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #888;
+
+  i {
+    font-size: 2.5rem;
+    opacity: 0.4;
+    margin-bottom: 0.5rem;
+  }
+}

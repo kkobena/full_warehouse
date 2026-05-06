@@ -12,6 +12,10 @@ export interface IGroupeFournisseur {
   idRecepteurPharmaMl?: string;
   delaiLivraisonJours?: number;
   frequenceCommandeJours?: number;
+  joursCredit?: number;
+  joursCritique?: number;
+  palierRfa?: number;
+  tauxRfa?: number;
 }
 
 export class GroupeFournisseur implements IGroupeFournisseur {

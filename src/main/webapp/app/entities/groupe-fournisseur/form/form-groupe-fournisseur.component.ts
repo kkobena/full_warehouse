@@ -53,6 +53,10 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
     idRecepteurPharmaMl: [],
     delaiLivraisonJours: [7],
     frequenceCommandeJours: [7],
+    joursCredit: [],
+    joursCritique: [],
+    palierRfa: [],
+    tauxRfa: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(GroupeFournisseurService);
@@ -114,6 +118,10 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       idRecepteurPharmaMl: entity.idRecepteurPharmaMl,
       delaiLivraisonJours: entity.delaiLivraisonJours,
       frequenceCommandeJours: entity.frequenceCommandeJours ?? 7,
+      joursCredit: entity.joursCredit,
+      joursCritique: entity.joursCritique,
+      palierRfa: entity.palierRfa,
+      tauxRfa: entity.tauxRfa,
     });
   }
 
@@ -138,6 +146,10 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       idRecepteurPharmaMl: this.editForm.get(['idRecepteurPharmaMl']).value,
       delaiLivraisonJours: this.editForm.get(['delaiLivraisonJours']).value,
       frequenceCommandeJours: this.editForm.get(['frequenceCommandeJours']).value,
+      joursCredit: this.editForm.get(['joursCredit']).value || null,
+      joursCritique: this.editForm.get(['joursCritique']).value || null,
+      palierRfa: this.editForm.get(['palierRfa']).value || null,
+      tauxRfa: this.editForm.get(['tauxRfa']).value || null,
     };
   }
 }

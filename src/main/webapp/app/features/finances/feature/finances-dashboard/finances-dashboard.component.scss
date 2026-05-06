@@ -1,0 +1,13 @@
+@import 'app/shared/scss/dashboard-common';
+
+.finances-dashboard {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.kpi-card {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}

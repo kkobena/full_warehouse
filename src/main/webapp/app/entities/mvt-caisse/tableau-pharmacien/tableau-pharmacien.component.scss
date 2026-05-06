@@ -1,2 +1,9 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+
+.sticky-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--bs-table-bg, #fff);
+}

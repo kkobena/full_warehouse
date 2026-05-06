@@ -102,6 +102,32 @@
                 </ng-container>
               }
 
+              @if (showDeclarationTva() && !hideDeclarationTva()) {
+                <ng-container ngbNavItem="declaration-tva">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-percentage"></i>
+                    <span>Déclaration TVA</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-declaration-tva />
+                  </ng-template>
+                </ng-container>
+              }
+
+              @if (showExportComptable()) {
+                <ng-container ngbNavItem="export-comptable">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-download"></i>
+                    <span>Export comptable</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-export-comptable />
+                  </ng-template>
+                </ng-container>
+              }
+
             </div>
           </div>
         </div>

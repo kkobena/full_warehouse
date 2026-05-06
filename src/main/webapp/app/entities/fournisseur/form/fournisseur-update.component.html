@@ -125,17 +125,46 @@
         </div>
         <div class="form-field form-field-full">
           <label for="field_addresspostale">Adresse postale</label>
-
-          <input
-            autocomplete="off"
-            class="w-full"
-            formControlName="addresspostale"
-            id="field_addresspostale"
-            name="addresspostale"
-            pInputText
-            type="text"
-          />
+          <input autocomplete="off" class="w-full" formControlName="addresspostale"
+                 id="field_addresspostale" name="addresspostale" pInputText type="text" />
         </div>
+
+        <!-- ── Conditions commerciales ──────────────────────────────────── -->
+        <div class="form-field form-field-full mt-2">
+          <small class="text-muted fw-semibold" style="text-transform:uppercase;letter-spacing:.04em;">
+            <i class="pi pi-percentage me-1"></i>Conditions commerciales
+          </small>
+          <hr class="mt-1 mb-2" style="opacity:.25;" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_joursCredit">Délai de paiement (jours)</label>
+          <input autocomplete="off" class="w-full" formControlName="joursCredit"
+                 id="field_joursCredit" name="joursCredit" pInputText pKeyFilter="int"
+                 placeholder="Vide = valeur par défaut app" type="number" min="0" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_joursCritique">Délai critique après échéance (jours)</label>
+          <input autocomplete="off" class="w-full" formControlName="joursCritique"
+                 id="field_joursCritique" name="joursCritique" pInputText pKeyFilter="int"
+                 placeholder="Vide = valeur par défaut app" type="number" min="0" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_palierRfa">Palier RFA (FCFA)</label>
+          <input autocomplete="off" class="w-full" formControlName="palierRfa"
+                 id="field_palierRfa" name="palierRfa" pInputText pKeyFilter="int"
+                 placeholder="Vide = pas de RFA configurée" type="number" min="0" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_tauxRfa">Taux RFA (%)</label>
+          <input autocomplete="off" class="w-full" formControlName="tauxRfa"
+                 id="field_tauxRfa" name="tauxRfa" pInputText pKeyFilter="int"
+                 placeholder="ex : 2 = 2 %" type="number" min="0" max="100" />
+        </div>
+
       </div>
     </p-card>
   </div>

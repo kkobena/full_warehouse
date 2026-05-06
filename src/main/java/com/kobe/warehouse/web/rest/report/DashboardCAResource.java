@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.*;
 import com.kobe.warehouse.service.report.DashboardCAService;
 import java.time.LocalDate;
@@ -243,6 +244,11 @@ public class DashboardCAResource {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/summary-finances")
+    public ResponseEntity<FinancesSummaryDTO> getSummaryFinances() {
+        return ResponseEntity.ok(dashboardCAService.getSummaryFinances());
     }
 
     /**

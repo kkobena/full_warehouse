@@ -29,6 +29,10 @@ public class FournisseurDTO implements Serializable {
     private Integer delaiLivraisonJours;
     private Integer frequenceCommandeJours;
     private String identifiantRepartiteur;
+    private Integer joursCredit;
+    private Integer joursCritique;
+    private Long palierRfa;
+    private Integer tauxRfa;
 
     public FournisseurDTO() {}
 
@@ -45,6 +49,10 @@ public class FournisseurDTO implements Serializable {
         identifiantRepartiteur = fournisseur.getIdentifiantRepartiteur();
         delaiLivraisonJours = fournisseur.getDelaiLivraisonJours();
         frequenceCommandeJours = fournisseur.getFrequenceCommandeJours();
+        joursCredit = fournisseur.getJoursCredit();
+        joursCritique = fournisseur.getJoursCritique();
+        palierRfa = fournisseur.getPalierRfa();
+        tauxRfa = fournisseur.getTauxRfa();
         GroupeFournisseur groupeFournisseur = fournisseur.getGroupeFournisseur();
         if (groupeFournisseur != null) {
             groupeFournisseurId = groupeFournisseur.getId();
@@ -163,6 +171,18 @@ public class FournisseurDTO implements Serializable {
     public void setGroupeFournisseurLibelle(String groupeFournisseurLibelle) {
         this.groupeFournisseurLibelle = groupeFournisseurLibelle;
     }
+
+    public Integer getJoursCredit() { return joursCredit; }
+    public void setJoursCredit(Integer joursCredit) { this.joursCredit = joursCredit; }
+
+    public Integer getJoursCritique() { return joursCritique; }
+    public void setJoursCritique(Integer joursCritique) { this.joursCritique = joursCritique; }
+
+    public Long getPalierRfa() { return palierRfa; }
+    public void setPalierRfa(Long palierRfa) { this.palierRfa = palierRfa; }
+
+    public Integer getTauxRfa() { return tauxRfa; }
+    public void setTauxRfa(Integer tauxRfa) { this.tauxRfa = tauxRfa; }
 
     @Override
     public boolean equals(Object o) {

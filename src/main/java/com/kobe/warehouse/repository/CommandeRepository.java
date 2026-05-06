@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
@@ -45,6 +46,51 @@ import java.util.Set;
 @Repository
 public interface CommandeRepository
     extends JpaRepository<Commande, CommandeId>, JpaSpecificationExecutor<Commande>, CustomCommandeRepository {
+    @Query(
+        "SELECT c FROM Commande c " +
+        "JOIN FETCH c.fournisseur f " +
+        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "WHERE c.orderStatus IN :statuts " +
+        "AND c.paimentStatut != :paid " +
+        "ORDER BY c.orderDate ASC"
+    )
+    List<Commande> findUnpaidCommandesAp(
+        @Param("statuts") Set<OrderStatut> statuts,
+        @Param("paid") PaimentStatut paid
+    );
+
+    @Query(
+        "SELECT c FROM Commande c " +
+        "JOIN FETCH c.fournisseur f " +
+        "LEFT JOIN FETCH f.groupeFournisseur " +
+        "WHERE c.orderStatus IN :statuts " +
+        "AND c.paimentStatut != :paid " +
+        "AND f.id = :fournisseurId " +
+        "ORDER BY c.orderDate ASC"
+    )
+    List<Commande> findUnpaidCommandesApByFournisseur(
+        @Param("statuts") Set<OrderStatut> statuts,
+        @Param("paid") PaimentStatut paid,
+        @Param("fournisseurId") Integer fournisseurId
+    );
+
+    @Query(
+        "SELECT f.id, f.libelle, SUM(c.grossAmount), " +
+        "COALESCE(f.palierRfa, gf.palierRfa), " +
+        "COALESCE(f.tauxRfa, gf.tauxRfa) " +
+        "FROM Commande c " +
+        "JOIN c.fournisseur f " +
+        "LEFT JOIN f.groupeFournisseur gf " +
+        "WHERE c.orderStatus = :statut AND c.orderDate >= :start AND c.orderDate < :end " +
+        "GROUP BY f.id, f.libelle, f.palierRfa, gf.palierRfa, f.tauxRfa, gf.tauxRfa " +
+        "ORDER BY SUM(c.grossAmount) DESC"
+    )
+    List<Object[]> sumCaByFournisseur(
+        @Param("statut") OrderStatut statut,
+        @Param("start") LocalDate start,
+        @Param("end") LocalDate end
+    );
+
     int countByOrderStatusAndType(OrderStatut orderStatut,TypeDeliveryReceipt type);
 
     long countByTypeAndOrderDate(TypeDeliveryReceipt type, LocalDate orderDate);

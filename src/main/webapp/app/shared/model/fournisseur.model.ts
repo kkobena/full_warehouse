@@ -12,6 +12,10 @@ export interface IFournisseur {
   identifiantRepartiteur?: string;
   delaiLivraisonJours?: number;
   frequenceCommandeJours?: number;
+  joursCredit?: number;
+  joursCritique?: number;
+  palierRfa?: number;
+  tauxRfa?: number;
 }
 
 export class Fournisseur implements IFournisseur {

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,6 +43,11 @@ public interface DashboardCAService {
      */
     List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate, Integer limit);
 
+
+    /**
+     * Get finances summary KPIs (supplier debt + third-party receivables)
+     */
+    FinancesSummaryDTO getSummaryFinances();
 
     /**
      * Refresh materialized views

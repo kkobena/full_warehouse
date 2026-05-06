@@ -81,6 +81,22 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "id_recepteur_pharma_ml", length = 50)
     private String idRecepteurPharmaMl; // Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
 
+    /** Délai de paiement en jours. Null = utiliser la valeur par défaut de l'application. */
+    @Column(name = "jours_credit")
+    private Integer joursCredit;
+
+    /** Délai supplémentaire (en jours après l'échéance) avant de passer en statut CRITIQUE. Null = valeur par défaut. */
+    @Column(name = "jours_critique")
+    private Integer joursCritique;
+
+    /** Seuil CA annuel (FCFA) à atteindre pour déclencher la RFA. Null = pas de RFA configurée. */
+    @Column(name = "palier_rfa")
+    private Long palierRfa;
+
+    /** Taux RFA en % entier (ex : 2 = 2 %). Null = pas de taux configuré. */
+    @Column(name = "taux_rfa")
+    private Integer tauxRfa;
+
     public Integer getId() {
         return id;
     }
@@ -91,6 +107,42 @@ public class GroupeFournisseur implements Serializable {
 
     public String getCodeOfficePharmaMl() {
         return codeOfficePharmaMl;
+    }
+
+    public Integer getJoursCredit() {
+        return joursCredit;
+    }
+
+    public GroupeFournisseur setJoursCredit(Integer joursCredit) {
+        this.joursCredit = joursCredit;
+        return this;
+    }
+
+    public Integer getJoursCritique() {
+        return joursCritique;
+    }
+
+    public GroupeFournisseur setJoursCritique(Integer joursCritique) {
+        this.joursCritique = joursCritique;
+        return this;
+    }
+
+    public Long getPalierRfa() {
+        return palierRfa;
+    }
+
+    public GroupeFournisseur setPalierRfa(Long palierRfa) {
+        this.palierRfa = palierRfa;
+        return this;
+    }
+
+    public Integer getTauxRfa() {
+        return tauxRfa;
+    }
+
+    public GroupeFournisseur setTauxRfa(Integer tauxRfa) {
+        this.tauxRfa = tauxRfa;
+        return this;
     }
 
     public GroupeFournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) {

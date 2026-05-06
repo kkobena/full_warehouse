@@ -425,6 +425,38 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS_CACHE)
+    public int getApDefaultCreditDays() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 30;
+                }
+            })
+            .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE)
+    public int getApDefaultCritiqueDays() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS)
+            .map(AppConfiguration::getValue)
+            .map(v -> {
+                try {
+                    return Integer.parseInt(v.trim());
+                } catch (NumberFormatException _) {
+                    return 30;
+                }
+            })
+            .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
     public int getDelaiReglement() {
         return appConfigurationRepository

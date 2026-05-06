@@ -1,0 +1,166 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Déclaration TVA</title>
+    <style th:replace="~{common/css}"></style>
+    <style>
+      .tva-summary-box {
+        border: 0.5px solid #4d4d4d;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        font-size: 9px;
+      }
+      .tva-summary-box table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .tva-summary-box td {
+        padding: 3px 6px;
+        font-size: 9px;
+      }
+      .tva-summary-box .label-col {
+        width: 60%;
+      }
+      .tva-summary-box .amount-col {
+        text-align: right;
+        font-weight: bold;
+      }
+      .tva-summary-box .divider td {
+        border-top: 0.5px solid #4d4d4d;
+        padding-top: 5px;
+      }
+      .tva-summary-box .row-nette td {
+        font-weight: bold;
+        font-size: 10px;
+      }
+      .tva-summary-box .row-footer td {
+        font-size: 8px;
+        color: #555;
+        border-top: 0.5px dashed #aaa;
+        padding-top: 4px;
+      }
+      .section-title {
+        font-size: 10px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        margin-top: 10px;
+        border-bottom: 0.5px solid #3989c6;
+        padding-bottom: 2px;
+        color: #3989c6;
+      }
+    </style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+
+        <!-- Résumé TVA -->
+        <div class="section-title">Résumé TVA</div>
+        <div class="tva-summary-box">
+          <table>
+            <tbody>
+              <tr>
+                <td class="label-col">TVA collectée <em>(sur ventes)</em></td>
+                <td class="amount-col"
+                    th:text="${declaration.tvaCollectee >= 1000}
+                              ? ${#numbers.formatInteger(declaration.tvaCollectee, 3, 'WHITESPACE')}
+                              : ${declaration.tvaCollectee}"></td>
+              </tr>
+              <tr>
+                <td class="label-col">TVA déductible <em>(sur achats)</em></td>
+                <td class="amount-col"
+                    th:text="${declaration.tvaDeductible >= 1000}
+                              ? ${#numbers.formatInteger(declaration.tvaDeductible, 3, 'WHITESPACE')}
+                              : ${declaration.tvaDeductible}"></td>
+              </tr>
+              <tr class="divider">
+                <td class="label-col">TVA nette à payer</td>
+                <td class="amount-col"
+                    th:text="${declaration.tvaNette >= 1000 or declaration.tvaNette <= -1000}
+                              ? ${#numbers.formatInteger(declaration.tvaNette, 3, 'WHITESPACE')}
+                              : ${declaration.tvaNette}"></td>
+              </tr>
+              <tr class="row-footer">
+                <td>Base HT ventes :
+                  <span th:text="${declaration.montantHt >= 1000}
+                                  ? ${#numbers.formatInteger(declaration.montantHt, 3, 'WHITESPACE')}
+                                  : ${declaration.montantHt}"></span>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  Montant TTC :
+                  <span th:text="${declaration.montantTtc >= 1000}
+                                  ? ${#numbers.formatInteger(declaration.montantTtc, 3, 'WHITESPACE')}
+                                  : ${declaration.montantTtc}"></span>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  Remises :
+                  <span th:text="${declaration.remises >= 1000}
+                                  ? ${#numbers.formatInteger(declaration.remises, 3, 'WHITESPACE')}
+                                  : ${declaration.remises}"></span>
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tableau de détail par taux -->
+        <div class="section-title">Détail par taux de TVA</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th class="text-left">Taux TVA</th>
+              <th class="text-right">Base HT ventes</th>
+              <th class="text-right">TVA collectée</th>
+              <th class="text-right">Base HT achats</th>
+              <th class="text-right">TVA déductible</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="row : ${taxes}">
+              <td class="text-left">
+                <span th:text="${row.codeTva} + '%'"></span>
+                &nbsp;—&nbsp;
+                <span th:text="${row.tauxLabel}"></span>
+              </td>
+              <td class="unit"
+                  th:text="${row.baseHtVentes >= 1000}
+                            ? ${#numbers.formatInteger(row.baseHtVentes, 3, 'WHITESPACE')}
+                            : ${row.baseHtVentes}"></td>
+              <td class="unit"
+                  th:text="${row.tvaCollectee >= 1000}
+                            ? ${#numbers.formatInteger(row.tvaCollectee, 3, 'WHITESPACE')}
+                            : ${row.tvaCollectee}"></td>
+              <td class="unit"
+                  th:text="${row.baseHtAchats >= 1000}
+                            ? ${#numbers.formatInteger(row.baseHtAchats, 3, 'WHITESPACE')}
+                            : ${row.baseHtAchats}"></td>
+              <td class="unit"
+                  th:text="${row.tvaDeductible >= 1000}
+                            ? ${#numbers.formatInteger(row.tvaDeductible, 3, 'WHITESPACE')}
+                            : ${row.tvaDeductible}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="text-left">Total</td>
+              <td class="unit"
+                  th:text="${declaration.montantHt >= 1000}
+                            ? ${#numbers.formatInteger(declaration.montantHt, 3, 'WHITESPACE')}
+                            : ${declaration.montantHt}"></td>
+              <td class="unit"
+                  th:text="${declaration.tvaCollectee >= 1000}
+                            ? ${#numbers.formatInteger(declaration.tvaCollectee, 3, 'WHITESPACE')}
+                            : ${declaration.tvaCollectee}"></td>
+              <td class="unit">—</td>
+              <td class="unit"
+                  th:text="${declaration.tvaDeductible >= 1000}
+                            ? ${#numbers.formatInteger(declaration.tvaDeductible, 3, 'WHITESPACE')}
+                            : ${declaration.tvaDeductible}"></td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </main>
+    </div>
+  </body>
+</html>

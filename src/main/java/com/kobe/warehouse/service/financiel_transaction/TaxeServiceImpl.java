@@ -26,12 +26,18 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaxeServiceImpl.class);
     private final TvaReportReportService tvaReportService;
+    private final DeclarationTvaPdfReportService declarationTvaPdfReportService;
     private final SalesRepository salesRepository;
     private final ObjectMapper objectMapper;
 
-    public TaxeServiceImpl(TvaReportReportService tvaReportService, SalesRepository salesRepository, ObjectMapper objectMapper) {
+    public TaxeServiceImpl(
+        TvaReportReportService tvaReportService,
+        DeclarationTvaPdfReportService declarationTvaPdfReportService,
+        SalesRepository salesRepository,
+        ObjectMapper objectMapper
+    ) {
         this.tvaReportService = tvaReportService;
-
+        this.declarationTvaPdfReportService = declarationTvaPdfReportService;
         this.salesRepository = salesRepository;
         this.objectMapper = objectMapper;
     }
@@ -58,6 +64,31 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
                 new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
                 StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
             );
+    }
+
+    @Override
+    public byte[] exportDeclarationToPdf(MvtParam mvtParam) {
+        TaxeWrapperDTO declaration = fetchDeclarationTva(mvtParam);
+        return declarationTvaPdfReportService.export(declaration, mvtParam.getFromDate(), mvtParam.getToDate());
+    }
+
+    @Override
+    public TaxeWrapperDTO fetchDeclarationTva(MvtParam mvtParam) {
+        TaxeWrapperDTO result = fetchTaxe(mvtParam, false);
+        if (result == null) {
+            result = new TaxeWrapperDTO();
+        }
+        // Calcul TVA déductible : Σ (montantAchat HT × codeTva / 100) par ligne de taux
+        long tvaDeductible = result.getTaxes().stream()
+            .mapToLong(taxe -> {
+                long achatHt = taxe.getMontantAchat() != null ? taxe.getMontantAchat() : 0L;
+                int taux = taxe.getCodeTva() != null ? taxe.getCodeTva() : 0;
+                return Math.round(achatHt * taux / 100.0);
+            })
+            .sum();
+        result.setTvaDeductible(tvaDeductible);
+        result.setTvaNette(result.getMontantTaxe() - tvaDeductible);
+        return result;
     }
 
     private List<TaxeDTO> fetchTaxe(MvtParam mvtParam) {

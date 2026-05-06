@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from "@angular/core";
 import { AbilityService } from 'app/core/auth/ability.service';
 import { ConfirmationService } from 'primeng/api';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -19,6 +19,8 @@ import { TaxeReportComponent } from './taxe-report/taxe-report.component';
 import { GestionCaisseComponent } from './gestion-caisse/gestion-caisse.component';
 import { ActivitySummaryComponent } from '../raport-gestion/activity-summary/activity-summary.component';
 import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/recapitualtif-caisse.component';
+import { DeclarationTvaComponent } from '../../features/finances/feature/declaration-tva/declaration-tva.component';
+import { ExportComptableComponent } from '../../features/finances/feature/export-comptable/export-comptable.component';
 
 @Component({
   selector: 'jhi-mvt-caisse',
@@ -41,6 +43,8 @@ import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/re
     GestionCaisseComponent,
     ActivitySummaryComponent,
     RecapitualtifCaisseComponent,
+    DeclarationTvaComponent,
+    ExportComptableComponent,
   ],
   templateUrl: './mvt-caisse.component.html',
   styleUrl: './mvt-caisse.component.scss',
@@ -49,6 +53,7 @@ export class MvtCaisseComponent {
   protected active = 'mvt-caisse';
 
   private readonly ability = inject(AbilityService);
+  protected readonly hideDeclarationTva=signal(true);//La fonctionnalité n'est Ok pour le moment
 
   protected readonly showMvtCaisse         = this.ability.canSignal('display', 'mvt-caisse.mvt-caisse');
   protected readonly showBalance           = this.ability.canSignal('display', 'mvt-caisse.balance');
@@ -57,4 +62,6 @@ export class MvtCaisseComponent {
   protected readonly showRecapCaisse       = this.ability.canSignal('display', 'mvt-caisse.recapitulatif-caisse');
   protected readonly showGestionCaisse     = this.ability.canSignal('display', 'mvt-caisse.gestion-caisse');
   protected readonly showRaportActivite    = this.ability.canSignal('display', 'mvt-caisse.raport-activite');
+  protected readonly showDeclarationTva    = this.ability.canSignal('display', 'mvt-caisse.declaration-tva');
+  protected readonly showExportComptable   = this.ability.canSignal('display', 'mvt-caisse.export-comptable');
 }

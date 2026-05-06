@@ -1,0 +1,33 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+
+.alerte-rfa {
+  font-size: 0.75rem;
+  color: #e99002;
+  display: flex;
+  align-items: center;
+}
+
+.progress-rfa {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.progress-bar-rfa {
+  height: 8px;
+  border-radius: 4px;
+  flex: 1;
+  transition: width 0.4s ease;
+
+  &.progress-ok    { background: #43ac6a; }
+  &.progress-close { background: #e99002; }
+  &.progress-low   { background: #008cba; }
+}
+
+.progress-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-width: 40px;
+}

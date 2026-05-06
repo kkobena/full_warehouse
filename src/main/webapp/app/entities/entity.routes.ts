@@ -228,6 +228,14 @@ const routes: Routes = [
     data: { pageTitle: "Rapports" },
     canActivate: [AuthGuard],
     loadChildren: () => import("./reports/reports.route")
+  },
+
+  // ── Finances (ABAC) ───────────────────────────────────────────────────────
+  {
+    path: "finances",
+    data: { pageTitle: "Finances", abilitySubject: "finances" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/finances/finances.routes")
   }
 ];
 

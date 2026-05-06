@@ -84,7 +84,33 @@
                   </ng-template>
                 </ng-container>
               }
+              <!-- 8. Comptes fournisseurs — suivi des dettes AP -->
+              @if (showComptesFournisseurs()) {
+                <ng-container ngbNavItem="comptes-fournisseurs">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-truck"></i>
+                    <span>Comptes fournisseurs</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-comptes-fournisseurs />
+                  </ng-template>
+                </ng-container>
+              }
 
+              <!-- 9. Remises & RFA -->
+              @if (showRemisesRfa()) {
+                <ng-container ngbNavItem="remises-rfa">
+                  <a class="pharma-nav-vertical-link" ngbNavLink>
+                    <i class="pi pi-tag"></i>
+                    <span>Remises & RFA</span>
+                    <span class="link-arrow">›</span>
+                  </a>
+                  <ng-template ngbNavContent>
+                    <app-remises-rfa />
+                  </ng-template>
+                </ng-container>
+              }
               <!--  Avoirs — opération exceptionnelle (litiges, trop-perçus) -->
               @if (showAvoir && showAvoirs()) {
                 <ng-container ngbNavItem="avoirs">
@@ -112,6 +138,8 @@
                   </ng-template>
                 </ng-container>
               }
+
+
 
             </div>
           </div>

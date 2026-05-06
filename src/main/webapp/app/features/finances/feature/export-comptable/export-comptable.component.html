@@ -1,0 +1,79 @@
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-download export-icon"></i>
+      <span class="pharma-toolbar-title">Export expert-comptable</span>
+    </div>
+
+  </div>
+
+
+  <div class="export-card">
+
+    <!-- Période -->
+    <section class="export-section">
+      <h6 class="section-title"><i class="pi pi-calendar me-2"></i>Période</h6>
+      <div class="d-flex gap-3 flex-wrap">
+        <p-floatlabel variant="on">
+          <p-datePicker inputId="exp-start" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
+                        dateFormat="dd/mm/yy" />
+          <label for="exp-start">Du</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on">
+          <p-datePicker inputId="exp-end" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
+                        dateFormat="dd/mm/yy" />
+          <label for="exp-end">Au</label>
+        </p-floatlabel>
+      </div>
+    </section>
+
+
+
+    <!-- Contenu -->
+    <section class="export-section">
+      <h6 class="section-title"><i class="pi pi-list me-2"></i>Contenu à inclure</h6>
+      <div class="row g-2">
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeVentes" [binary]="true" inputId="chk-ventes" />
+          <label for="chk-ventes">Ventes par famille (CA + TVA)</label>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeAchats" [binary]="true" inputId="chk-achats" />
+          <label for="chk-achats">Achats par fournisseur</label>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeMvtCaisse" [binary]="true" inputId="chk-caisse" />
+          <label for="chk-caisse">Mouvements de caisse</label>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeTiersPayant" [binary]="true" inputId="chk-tp" />
+          <label for="chk-tp">Tiers-payants (créances + règlements)</label>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeDifferes" [binary]="true" inputId="chk-diff" />
+          <label for="chk-diff">Différés clients</label>
+        </div>
+        <div class="col-md-6 d-flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="includeTva" [binary]="true" inputId="chk-tva" />
+          <label for="chk-tva">TVA collectée + déductible + nette</label>
+        </div>
+      </div>
+    </section>
+    <!-- Format + export direct -->
+    <section class="export-section">
+      <h6 class="section-title"><i class="pi pi-file me-2"></i>Exporter au format</h6>
+      <div class="d-flex gap-3 flex-wrap">
+        @for (f of formatOptions; track f.value) {
+          <button class="format-btn"
+                  [disabled]="isLoading() || (!includeVentes && !includeAchats && !includeMvtCaisse && !includeTiersPayant && !includeDifferes && !includeTva)"
+                  (click)="generateExport(f.value)" type="button">
+            <i [class]="isLoading() ? 'pi pi-spin pi-spinner' : f.icon"></i>
+            <span>{{ f.label }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+  </div>
+
+</div>

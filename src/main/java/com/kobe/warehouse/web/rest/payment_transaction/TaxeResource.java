@@ -49,4 +49,29 @@ public class TaxeResource  {
             new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build()
         ), "rapport_tva.pdf");
     }
+
+    @GetMapping("/taxe-report/declaration/pdf")
+    public ResponseEntity<byte[]> exportDeclarationToPdf(
+        @RequestParam(value = "startDate", required = false) LocalDate startDate,
+        @RequestParam(value = "endDate", required = false) LocalDate endDate
+    ) {
+        MvtParam param = new MvtParam().setFromDate(startDate).setToDate(endDate).build();
+        return Utils.printPDF(taxeService.exportDeclarationToPdf(param), "declaration_tva.pdf");
+    }
+
+    @GetMapping("/taxe-report/declaration")
+    public ResponseEntity<TaxeWrapperDTO> getDeclarationTva(
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy
+    ) {
+        return ResponseEntity.ok(
+            taxeService.fetchDeclarationTva(
+                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build()
+            )
+        );
+    }
 }

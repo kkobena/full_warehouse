@@ -23,7 +23,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
-import { FournisseurUpdateComponent } from './fournisseur-update.component';
+import { FournisseurUpdateComponent } from './form/fournisseur-update.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';

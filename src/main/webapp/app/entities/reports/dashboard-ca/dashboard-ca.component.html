@@ -70,6 +70,8 @@
     </p-toolbar>
   </div>
 
+
+
   <!-- Loading spinner -->
   @if (isLoading()) {
     <div class="flex justify-content-center align-items-center" style="min-height: 400px">
@@ -80,7 +82,7 @@
     @if (summary(); as sum) {
       <div class="row">
         <!-- Today -->
-        <div class="col-xl-3 col-md-6 mb-2">
+        <div class="col-xl-2 col-md-4 mb-2">
           <div class="card h-100 kpi-card primary-accent">
             <div class="card-body">
               <div class="kpi-header">
@@ -117,7 +119,7 @@
         </div>
 
         <!-- Week -->
-        <div class="col-xl-3 col-md-6 mb-2">
+        <div class="col-xl-2 col-md-4 mb-2">
           <div class="card h-100 kpi-card success-accent">
             <div class="card-body">
               <div class="kpi-header">
@@ -154,7 +156,7 @@
         </div>
 
         <!-- Month -->
-        <div class="col-xl-3 col-md-6 mb-2">
+        <div class="col-xl-2 col-md-4 mb-2">
           <div class="card h-100 kpi-card warning-accent">
             <div class="card-body">
               <div class="kpi-header">
@@ -193,7 +195,7 @@
         </div>
 
         <!-- Year -->
-        <div class="col-xl-3 col-md-6 mb-2">
+        <div class="col-xl-2 col-md-4 mb-2">
           <div class="card h-100 kpi-card danger-accent">
             <div class="card-body">
               <div class="kpi-header">
@@ -229,6 +231,72 @@
             </div>
           </div>
         </div>
+
+        <!-- Dettes fournisseurs -->
+        @if (summaryFinances(); as fin) {
+          <div class="col-xl-2 col-md-4 mb-2">
+            <div class="card h-100 kpi-card" style="border-left: 3px solid #6f42c1">
+              <div class="card-body">
+                <div class="kpi-header">
+                  <div class="kpi-content">
+                    <p class="kpi-label">Dettes fournisseurs</p>
+                    <h4 class="kpi-value">
+                      <span>{{ formatCurrency(fin.totalDetteFournisseurs) }}</span>
+                      <span class="value-suffix">FCFA</span>
+                    </h4>
+                    <div class="kpi-badges">
+                      <span class="badge" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
+                        <i class="pi" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'pi-exclamation-triangle' : 'pi-check'"></i>
+                        {{ fin.nbEcheancesEnRetard ?? 0 }} en retard
+                      </span>
+                    </div>
+                  </div>
+                  <div class="kpi-icon" style="color: #6f42c1">
+                    <i class="pi pi-building"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span class="footer-label">Échéances en retard</span>
+                <span class="badge" [class]="(fin.nbEcheancesEnRetard ?? 0) > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
+                  {{ fin.nbEcheancesEnRetard ?? 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Créances tiers-payants -->
+          <div class="col-xl-2 col-md-4 mb-2">
+            <div class="card h-100 kpi-card" style="border-left: 3px solid #0dcaf0">
+              <div class="card-body">
+                <div class="kpi-header">
+                  <div class="kpi-content">
+                    <p class="kpi-label">Créances tiers-payants</p>
+                    <h4 class="kpi-value">
+                      <span>{{ formatCurrency(fin.totalCreancesTP) }}</span>
+                      <span class="value-suffix">FCFA</span>
+                    </h4>
+                    <div class="kpi-badges">
+                      <span class="badge" [class]="(fin.nbFacturesImpayees ?? 0) > 0 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
+                        <i class="pi pi-file"></i>
+                        {{ fin.nbFacturesImpayees ?? 0 }} facture(s)
+                      </span>
+                    </div>
+                  </div>
+                  <div class="kpi-icon" style="color: #0dcaf0">
+                    <i class="pi pi-users"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span class="footer-label">Factures impayées</span>
+                <span class="badge" [class]="(fin.nbFacturesImpayees ?? 0) > 0 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
+                  {{ fin.nbFacturesImpayees ?? 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     }
 

@@ -1,0 +1,168 @@
+@import 'app/shared/scss/pharma-nav';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/bulk-action-bar';
+@import 'app/shared/scss/dashboard-common';
+@import 'app/shared/scss/table-common';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+// ── Split container ────────────────────────────────────────────────────────
+
+.split-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+  min-height: 0;
+}
+
+.list-column {
+  flex: 1;
+  overflow: auto;
+  transition: flex 0.2s ease;
+  border-right: 1px solid #e2e8f0;
+}
+
+.split-container.panel-open .list-column {
+  flex: 0 0 45%;
+  max-width: 45%;
+}
+
+.detail-column {
+  flex: 0 0 55%;
+  max-width: 55%;
+  overflow: hidden;
+  background: #fff;
+}
+
+// ── Detail panel (suit le pattern differe-detail-panel) ────────────────────
+
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.875rem 1rem 0.5rem;
+  border-bottom: 1px solid $pharma-border;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.panel-title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-libelle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $pharma-text;
+}
+
+.panel-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+// ── Onglet règlement ───────────────────────────────────────────────────────
+
+.regler-panel {
+  padding: 1rem;
+  max-width: 440px;
+}
+
+.actions-col {
+  white-space: nowrap;
+  width: 1%;
+  padding: 0.25rem 0.5rem !important;
+}
+
+.ligne-selected {
+  background-color: rgba(#008cba, 0.06) !important;
+}
+
+.bl-detail-header {
+  padding: 0.4rem 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.solde-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(#f04124, 0.06);
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+
+// ── Table styles ───────────────────────────────────────────────────────────
+
+.table-row-overdue {
+  background-color: rgba(#f04124, 0.06) !important;
+}
+
+.table-row-warning {
+  background-color: rgba(#e99002, 0.06) !important;
+}
+
+.row-selected {
+  background-color: rgba(#008cba, 0.08) !important;
+}
+
+.pharma-code {
+  font-family: 'Courier New', monospace;
+  background: rgba(#008cba, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #008cba;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────
+
+@media (max-width: 1024px) {
+  .split-container.panel-open {
+    flex-direction: column;
+
+    .list-column,
+    .detail-column {
+      flex: none;
+      max-width: 100%;
+      width: 100%;
+      border-right: none;
+    }
+
+    .list-column {
+      border-bottom: 1px solid #e2e8f0;
+      max-height: 40%;
+    }
+
+    .detail-column {
+      flex: 1;
+    }
+  }
+}

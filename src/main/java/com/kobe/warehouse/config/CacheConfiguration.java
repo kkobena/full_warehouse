@@ -37,6 +37,8 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_PUTAWAY_MODE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_ACCEPTATION_SUBSTITUTION_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.USER_MAGASIN, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_SUGGESTION_RETENTION, defaultTtl, TimeUnit.HOURS, defaultMaxSize),

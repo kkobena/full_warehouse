@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister_;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales;
@@ -30,7 +31,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Repository
 public interface SalePaymentRepository
-    extends JpaRepository<SalePayment, Long>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
+    extends JpaRepository<SalePayment, PaymentId>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
     List<SalePayment> findAllBySale(Sales sale);
 
     @Query("SELECT o FROM SalePayment o WHERE o.sale.id=:saleId AND o.sale.saleDate=:saleDate")

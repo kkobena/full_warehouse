@@ -68,6 +68,10 @@ public class FournisseurServiceImpl implements FournisseurService {
             .setDelaiLivraisonJours(fournisseurDTO.getDelaiLivraisonJours())
             .setFrequenceCommandeJours(fournisseurDTO.getFrequenceCommandeJours())
             .setIdentifiantRepartiteur(fournisseurDTO.getIdentifiantRepartiteur())
+            .setJoursCredit(fournisseurDTO.getJoursCredit())
+            .setJoursCritique(fournisseurDTO.getJoursCritique())
+            .setPalierRfa(fournisseurDTO.getPalierRfa())
+            .setTauxRfa(fournisseurDTO.getTauxRfa())
             .groupeFournisseur(
                 new GroupeFournisseur().id(fournisseurDTO.getGroupeFournisseurId() != null ? fournisseurDTO.getGroupeFournisseurId() : 5)
             );

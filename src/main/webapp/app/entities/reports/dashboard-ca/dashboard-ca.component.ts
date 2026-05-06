@@ -2,6 +2,7 @@ import {Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} fro
 import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {RouterModule} from '@angular/router';
 
 import {ButtonModule} from 'primeng/button';
 import {SelectModule} from 'primeng/select';
@@ -20,6 +21,8 @@ import {
 } from 'app/shared/model/report';
 import {ITopProduct} from 'app/shared/model/report/top-product.model';
 import {DashboardCAService} from '../services/dashboard-ca.service';
+import {FinancesDashboardApiService} from '../../../features/finances/data-access/services/finances-dashboard-api.service';
+import {IFinancesSummary} from '../../../features/finances/data-access/models';
 import {formatCurrency, formatDate, formatPercent} from 'app/shared/utils/format-utils';
 
 import {Chart, ChartConfiguration, ChartData, registerables} from 'chart.js';
@@ -50,6 +53,7 @@ interface PeriodOption {
     WarehouseCommonModule,
     DatePicker,
     FloatLabel,
+    RouterModule,
   ],
 })
 export default class DashboardCAComponent implements OnInit, OnDestroy {
@@ -65,6 +69,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   paymentMethodData = signal<IPaymentMethodSummary[]>([]);
   productFamilyData = signal<IProductFamilySummary[]>([]);
   isLoading = signal<boolean>(false);
+  summaryFinances = signal<IFinancesSummary | null>(null);
   periodOptions: PeriodOption[] = [
     {label: "Aujourd'hui", value: 'today'},
     {label: '7 derniers jours', value: 'week'},
@@ -81,6 +86,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   private familyChart?: Chart;
   // Filters
   private dashboardCAService = inject(DashboardCAService);
+  private readonly financesDashboardApi = inject(FinancesDashboardApiService);
   private readonly tauriPrinter = inject(TauriPrinterService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
@@ -91,6 +97,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       this.primeNGConfig.setTranslation(data);
     });
     this.loadDashboard();
+    this.financesDashboardApi.getSummaryFinances().subscribe({
+      next: res => this.summaryFinances.set(res.body),
+    });
   }
 
   ngOnDestroy(): void {

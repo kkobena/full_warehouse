@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.DailyCADTO;
 import com.kobe.warehouse.service.dto.report.DashboardCAEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
@@ -317,6 +318,51 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .toList();
     }
 
+
+    @Override
+    public FinancesSummaryDTO getSummaryFinances() {
+        Number detteFournisseur = (Number) entityManager.createNativeQuery(
+                "SELECT COALESCE(SUM(c.final_amount), 0) - COALESCE((" +
+                "  SELECT SUM(pt.paid_amount) FROM payment_transaction pt " +
+                "  WHERE pt.dtype = 'PaymentFournisseur' " +
+                "  AND pt.commande_id IN (SELECT c2.id FROM commande c2 WHERE c2.paiment_status != 'PAID' AND c2.order_status IN ('CLOSED'))" +
+                "), 0) " +
+                "FROM commande c " +
+                "WHERE c.paiment_status != 'PAID' AND c.order_status IN ('CLOSED')"
+            )
+            .getSingleResult();
+
+        Number creanceTiersPayant = (Number) entityManager.createNativeQuery(
+                "SELECT COALESCE(SUM(tpsl.montant - COALESCE(tpsl.montant_regle, 0)), 0) " +
+                "FROM third_party_sale_line tpsl " +
+                "WHERE tpsl.statut NOT IN ('PAID', 'DELETE')"
+            )
+            .getSingleResult();
+
+        Number nbEcheancesEnRetard = (Number) entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM commande c " +
+                "JOIN fournisseur f ON c.fournisseur_id = f.id " +
+                "LEFT JOIN groupe_fournisseur gf ON f.groupe_pournisseur_id = gf.id " +
+                "WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' " +
+                "AND (COALESCE(c.receipt_date, c.order_date) + " +
+                "     (COALESCE(f.jours_credit, gf.jours_credit, 30) || ' days')::interval) < CURRENT_DATE"
+            )
+            .getSingleResult();
+
+        Number nbFacturesImpayees = (Number) entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM sales s " +
+                "WHERE s.payment_status = 'IMPAYE' AND s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA' " +
+                "AND s.sale_date < (CURRENT_DATE - INTERVAL '30 days')"
+            )
+            .getSingleResult();
+
+        return new FinancesSummaryDTO(
+            detteFournisseur != null ? detteFournisseur.longValue() : 0L,
+            creanceTiersPayant != null ? creanceTiersPayant.longValue() : 0L,
+            nbEcheancesEnRetard != null ? nbEcheancesEnRetard.longValue() : 0L,
+            nbFacturesImpayees != null ? nbFacturesImpayees.longValue() : 0L
+        );
+    }
 
     @Override
     @Transactional

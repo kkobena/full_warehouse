@@ -69,6 +69,22 @@ public class Fournisseur implements Serializable {
     @Column(name = "frequence_commande_jours")
     private Integer frequenceCommandeJours;
 
+    /** Délai de paiement en jours. Null = utiliser la valeur par défaut de l'application. */
+    @Column(name = "jours_credit")
+    private Integer joursCredit;
+
+    /** Délai supplémentaire (en jours après l'échéance) avant de passer en statut CRITIQUE. Null = valeur par défaut. */
+    @Column(name = "jours_critique")
+    private Integer joursCritique;
+
+    /** Seuil CA annuel (FCFA) à atteindre pour déclencher la RFA. Null = pas de RFA configurée. */
+    @Column(name = "palier_rfa")
+    private Long palierRfa;
+
+    /** Taux RFA en % entier (ex : 2 = 2 %). Null = pas de taux configuré. */
+    @Column(name = "taux_rfa")
+    private Integer tauxRfa;
+
     /*
     Id de agence grossiste, utliser dans pharamaml RECEPTEUR (Id) DESTINATAIRE(Id_Societe)
      */
@@ -225,6 +241,42 @@ public class Fournisseur implements Serializable {
 
     public Fournisseur setFrequenceCommandeJours(Integer frequenceCommandeJours) {
         this.frequenceCommandeJours = frequenceCommandeJours;
+        return this;
+    }
+
+    public Integer getJoursCredit() {
+        return joursCredit;
+    }
+
+    public Fournisseur setJoursCredit(Integer joursCredit) {
+        this.joursCredit = joursCredit;
+        return this;
+    }
+
+    public Integer getJoursCritique() {
+        return joursCritique;
+    }
+
+    public Fournisseur setJoursCritique(Integer joursCritique) {
+        this.joursCritique = joursCritique;
+        return this;
+    }
+
+    public Long getPalierRfa() {
+        return palierRfa;
+    }
+
+    public Fournisseur setPalierRfa(Long palierRfa) {
+        this.palierRfa = palierRfa;
+        return this;
+    }
+
+    public Integer getTauxRfa() {
+        return tauxRfa;
+    }
+
+    public Fournisseur setTauxRfa(Integer tauxRfa) {
+        this.tauxRfa = tauxRfa;
         return this;
     }
 

@@ -57,6 +57,13 @@ public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisse
     }
 
 
+    @Query(
+        "SELECT a FROM AvoirFournisseur a " +
+        "JOIN FETCH a.fournisseur " +
+        "ORDER BY a.dateMtv DESC"
+    )
+    List<AvoirFournisseur> findAllWithFournisseur();
+
     long countByStatut(AvoirFournisseurStatut statut);
 
     default Specification<AvoirFournisseur> buildSpecification(AvoirFournisseurStatut statut, String reference, Integer fournisseurId, LocalDateTime dtStart, LocalDateTime dtEnd) {

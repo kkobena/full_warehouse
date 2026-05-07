@@ -80,9 +80,9 @@ public interface CommandeRepository
         "LEFT JOIN FETCH f.groupeFournisseur " +
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
-        "AND (:fromDate IS NULL OR c.orderDate >= :fromDate) " +
-        "AND (:toDate IS NULL OR c.orderDate <= :toDate) " +
-        "ORDER BY c.orderDate ASC"
+        "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) " +
+        "AND (:toDate IS NULL OR c.receiptDate <= :toDate) " +
+        "ORDER BY c.receiptDate ASC"
     )
     List<Commande> findUnpaidCommandesApByPeriod(
         @Param("statuts") Set<OrderStatut> statuts,
@@ -98,9 +98,9 @@ public interface CommandeRepository
         "WHERE c.orderStatus IN :statuts " +
         "AND c.paimentStatut != :paid " +
         "AND f.id = :fournisseurId " +
-        "AND (:fromDate IS NULL OR c.orderDate >= :fromDate) " +
-        "AND (:toDate IS NULL OR c.orderDate <= :toDate) " +
-        "ORDER BY c.orderDate ASC"
+        "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) " +
+        "AND (:toDate IS NULL OR c.receiptDate <= :toDate) " +
+        "ORDER BY c.receiptDate ASC"
     )
     List<Commande> findUnpaidCommandesApByFournisseurAndPeriod(
         @Param("statuts") Set<OrderStatut> statuts,
@@ -111,15 +111,15 @@ public interface CommandeRepository
     );
 
     @Query(
-        "SELECT f.id, f.libelle, SUM(c.grossAmount), " +
+        "SELECT f.id, f.libelle, SUM(c.finalAmount), " +
         "COALESCE(f.palierRfa, gf.palierRfa), " +
         "COALESCE(f.tauxRfa, gf.tauxRfa) " +
         "FROM Commande c " +
         "JOIN c.fournisseur f " +
         "LEFT JOIN f.groupeFournisseur gf " +
-        "WHERE c.orderStatus = :statut AND c.orderDate >= :start AND c.orderDate < :end " +
+        "WHERE c.orderStatus = :statut AND c.receiptDate >= :start AND c.receiptDate < :end " +
         "GROUP BY f.id, f.libelle, f.palierRfa, gf.palierRfa, f.tauxRfa, gf.tauxRfa " +
-        "ORDER BY SUM(c.grossAmount) DESC"
+        "ORDER BY SUM(c.finalAmount) DESC"
     )
     List<Object[]> sumCaByFournisseur(
         @Param("statut") OrderStatut statut,
@@ -266,6 +266,27 @@ public interface CommandeRepository
             cb.like(cb.upper(root.get(Commande_.orderReference)), search)
         );
     }
+
+    /**
+     * Compte les commandes fournisseurs dont l'échéance de paiement AP est dépassée.
+     * Échéance = COALESCE(receipt_date, order_date) + COALESCE(f.jours_credit, gf.jours_credit, :defaultCreditDays).
+     * Seules les commandes CLOSED et non PAID sont comptées.
+     */
+    @Query(
+        value = """
+            SELECT COUNT(*)
+            FROM commande c
+            LEFT JOIN fournisseur f       ON f.id  = c.fournisseur_id
+            LEFT JOIN groupe_fournisseur gf ON gf.id = f.groupe_pournisseur_id
+            WHERE c.order_status   = 'CLOSED'
+              AND c.paiment_status != 'PAID'
+              AND COALESCE(c.receipt_date, c.order_date)
+                  + make_interval(days => COALESCE(f.jours_credit, gf.jours_credit, :defaultCreditDays))
+                  < CURRENT_DATE
+            """,
+        nativeQuery = true
+    )
+    long countOverdueCommandesAp(@Param("defaultCreditDays") int defaultCreditDays);
 
     default Specification<Commande> bySearchTerm(String searchTerm) {
         if (!StringUtils.hasLength(searchTerm)) {

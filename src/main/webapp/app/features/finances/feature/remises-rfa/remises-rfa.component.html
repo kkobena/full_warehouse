@@ -4,101 +4,122 @@
       <i class="pi pi-tag"></i>
       <span class="pharma-toolbar-title">Remises & RFA</span>
     </div>
-    <p-toolbar class="mb-3">
-      <ng-template #start>
-        <div class="d-flex gap-2">
-          <p-button [label]="'Paliers RFA'" [outlined]="activeTab() !== 'rfa'" (onClick)="activeTab.set('rfa')"
-                    icon="pi pi-percentage" size="small" />
-          <p-button [label]="'Avoirs reçus (' + avoirs().length + ')'" [outlined]="activeTab() !== 'avoirs'"
-                    (onClick)="activeTab.set('avoirs')" icon="pi pi-file-check" size="small" severity="secondary" />
-        </div>
-      </ng-template>
+    <p-toolbar>
       <ng-template #end>
-        <p-button icon="pi pi-refresh" severity="secondary" (onClick)="load()" [loading]="isLoading()" />
+        <div class="pharma-toolbar-actions">
+          <p-button icon="pi pi-refresh" severity="secondary" (onClick)="load()" [loading]="isLoading()" />
+        </div>
       </ng-template>
     </p-toolbar>
   </div>
 
+  <div class="pharma-nav-tabs-container">
+    <div
+      #nav="ngbNav"
+      [activeId]="activeTab()"
+      (activeIdChange)="activeTab.set($any($event))"
+      class="nav pharma-nav-tabs"
+      ngbNav
+      orientation="horizontal"
+    >
+      <!-- ── Paliers RFA ── -->
+      <ng-container ngbNavItem="rfa">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-percentage"></i>
+          <span>Paliers RFA</span>
+        </a>
+        <ng-template ngbNavContent>
+          <p-table [value]="rfas()" [loading]="isLoading()" class="p-datatable-sm p-datatable-striped"
+                   [tableStyle]="{ 'min-width': '60rem' }">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Fournisseur</th>
+                <th class="text-end">Palier RFA</th>
+                <th class="text-end">CA commandé (N)</th>
+                <th class="text-end">% atteint</th>
+                <th class="text-end">RFA estimée</th>
+                <th class="text-end">RFA reçue</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-r>
+              <tr>
+                <td>
+                  <strong>{{ r.fournisseurName }}</strong>
+                  @if (r.alerte) {
+                    <div class="alerte-rfa mt-1">
+                      <i class="pi pi-bell me-1"></i>{{ r.alerte }}
+                    </div>
+                  }
+                </td>
+                <td class="text-end">{{ r.palierRfa ? formatCurrency(r.palierRfa) + ' FCFA' : '—' }}</td>
+                <td class="text-end">{{ formatCurrency(r.caCommandeN) }}</td>
+                <td class="text-end">
+                  <div class="progress-rfa">
+                    <div class="progress-bar-rfa" [style.width.%]="Math.min(r.pourcentageAtteint, 100)"
+                         [class.progress-ok]="r.pourcentageAtteint >= 100"
+                         [class.progress-close]="r.pourcentageAtteint >= 80 && r.pourcentageAtteint < 100"
+                         [class.progress-low]="r.pourcentageAtteint < 80">
+                    </div>
+                    <span class="progress-label">{{ r.pourcentageAtteint | number: '1.0-1' }}%</span>
+                  </div>
+                </td>
+                <td class="text-end">{{ formatCurrency(r.rfaEstimee) }}</td>
+                <td class="text-end text-success fw-semibold">{{ formatCurrency(r.rfaRecue) }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6" class="text-center py-4 text-secondary">
+                  <i class="pi pi-info-circle me-2"></i>Aucune donnée de remise/RFA disponible.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-template>
+      </ng-container>
 
-  @if (activeTab() === 'rfa') {
-    <p-table [value]="rfas()" [loading]="isLoading()" class="p-datatable-sm p-datatable-striped"
-             [tableStyle]="{ 'min-width': '60rem' }">
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Fournisseur</th>
-          <th class="text-end">Palier RFA</th>
-          <th class="text-end">CA commandé (N)</th>
-          <th class="text-end">% atteint</th>
-          <th class="text-end">RFA estimée</th>
-          <th class="text-end">RFA reçue</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-r>
-        <tr>
-          <td>
-            <strong>{{ r.fournisseurName }}</strong>
-            @if (r.alerte) {
-              <div class="alerte-rfa mt-1">
-                <i class="pi pi-bell me-1"></i>{{ r.alerte }}
-              </div>
-            }
-          </td>
-          <td class="text-end">{{ r.palierRfa ? formatCurrency(r.palierRfa) + ' FCFA' : '—' }}</td>
-          <td class="text-end">{{ formatCurrency(r.caCommandeN) }}</td>
-          <td class="text-end">
-            <div class="progress-rfa">
-              <div class="progress-bar-rfa" [style.width.%]="Math.min(r.pourcentageAtteint, 100)"
-                   [class.progress-ok]="r.pourcentageAtteint >= 100"
-                   [class.progress-close]="r.pourcentageAtteint >= 80 && r.pourcentageAtteint < 100"
-                   [class.progress-low]="r.pourcentageAtteint < 80">
-              </div>
-              <span class="progress-label">{{ r.pourcentageAtteint | number: '1.0-1' }}%</span>
-            </div>
-          </td>
-          <td class="text-end">{{ formatCurrency(r.rfaEstimee) }}</td>
-          <td class="text-end text-success fw-semibold">{{ formatCurrency(r.rfaRecue) }}</td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="6" class="text-center py-4 text-secondary">
-            <i class="pi pi-info-circle me-2"></i>Aucune donnée de remise/RFA disponible.
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  }
+      <!-- ── Avoirs reçus ── -->
+      <ng-container ngbNavItem="avoirs">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-file-check"></i>
+          <span>Avoirs reçus ({{ avoirs().length }})</span>
+        </a>
+        <ng-template ngbNavContent>
+          <p-table [value]="avoirs()" class="p-datatable-sm p-datatable-striped"
+                   [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Fournisseur</th>
+                <th>N° Avoir</th>
+                <th>Date</th>
+                <th class="text-end">Montant</th>
+                <th>Statut</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-a>
+              <tr>
+                <td>{{ a.fournisseurName }}</td>
+                <td><code>{{ a.numAvoir }}</code></td>
+                <td>{{ a.dateAvoir }}</td>
+                <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} FCFA</td>
+                <td>
+                  <p-tag [value]="a.statut"
+                         [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'" />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="text-center py-4 text-secondary">Aucun avoir fournisseur.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </ng-template>
+      </ng-container>
+    </div>
 
-  @if (activeTab() === 'avoirs') {
-    <p-table [value]="avoirs()" class="p-datatable-sm p-datatable-striped"
-             [tableStyle]="{ 'min-width': '50rem' }">
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Fournisseur</th>
-          <th>N° Avoir</th>
-          <th>Date</th>
-          <th class="text-end">Montant</th>
-          <th>Statut</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-a>
-        <tr>
-          <td>{{ a.fournisseurName }}</td>
-          <td><code>{{ a.numAvoir }}</code></td>
-          <td>{{ a.dateAvoir }}</td>
-          <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} FCFA</td>
-          <td>
-            <p-tag [value]="a.statut"
-                   [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'" />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="5" class="text-center py-4 text-secondary">Aucun avoir fournisseur.</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  }
-
+    <div class="pharma-nav-tabs-outlet">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
 </div>

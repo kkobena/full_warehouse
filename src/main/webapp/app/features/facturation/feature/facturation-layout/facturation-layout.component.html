@@ -90,6 +90,11 @@
                   <a class="pharma-nav-vertical-link" ngbNavLink>
                     <i class="pi pi-truck"></i>
                     <span>Comptes fournisseurs</span>
+                    @if (alertBadgeService.comptesFournisseursOverdueCount() > 0) {
+                      <span class="badge rounded-pill bg-warning text-dark sidebar-nav-badge ms-auto">
+                        {{ alertBadgeService.comptesFournisseursOverdueCount() > 99 ? '99+' : alertBadgeService.comptesFournisseursOverdueCount() }}
+                      </span>
+                    }
                     <span class="link-arrow">›</span>
                   </a>
                   <ng-template ngbNavContent>

@@ -8,6 +8,8 @@ export interface IDashboardAlertCount {
   urgentCount: number;
   /** Factures tiers-payant dont l'échéance de règlement est dépassée */
   facturationOverdueCount: number;
+  /** Factures fournisseurs échues non réglées (comptes fournisseurs AP) */
+  comptesFournisseursOverdueCount: number;
 }
 
 export class DashboardAlertCount implements IDashboardAlertCount {
@@ -19,5 +21,6 @@ export class DashboardAlertCount implements IDashboardAlertCount {
     public prixModifCount = 0,
     public urgentCount = 0,
     public facturationOverdueCount = 0,
+    public comptesFournisseursOverdueCount = 0,
   ) {}
 }

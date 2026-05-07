@@ -3,3 +3,7 @@ ALTER TABLE fournisseur
     ADD COLUMN IF NOT EXISTS code_office_pharma_ml  VARCHAR(50),
     ADD COLUMN IF NOT EXISTS code_recepteur_pharma_ml VARCHAR(50),
     ADD COLUMN IF NOT EXISTS id_recepteur_pharma_ml VARCHAR(50);
+
+
+
+

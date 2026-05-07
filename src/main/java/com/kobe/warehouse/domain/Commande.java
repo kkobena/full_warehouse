@@ -121,7 +121,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @NotNull
     private AppUser user;
 
-    @ManyToOne(optional = true)
+    @ManyToOne
     private Fournisseur fournisseur;
 
     @Enumerated(EnumType.STRING)

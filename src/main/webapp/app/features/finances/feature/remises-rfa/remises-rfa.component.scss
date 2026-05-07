@@ -1,5 +1,6 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/table-common' as table;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/pharma-nav' as *;
 
 .alerte-rfa {
   font-size: 0.75rem;

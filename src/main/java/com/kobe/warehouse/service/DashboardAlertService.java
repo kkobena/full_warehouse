@@ -2,6 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
+import com.kobe.warehouse.service.ap.AccountsPayableService;
 import com.kobe.warehouse.service.dto.DashboardAlertCountDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
 import jakarta.persistence.EntityManager;
@@ -27,11 +28,14 @@ public class DashboardAlertService {
 
     private final StockAlertReportService stockAlertReportService;
     private final SemoisSuggestionViewRepository semoisSuggestionViewRepository;
+    private final AccountsPayableService accountsPayableService;
 
     public DashboardAlertService(StockAlertReportService stockAlertReportService,
-                                  SemoisSuggestionViewRepository semoisSuggestionViewRepository) {
+                                  SemoisSuggestionViewRepository semoisSuggestionViewRepository,
+                                  AccountsPayableService accountsPayableService) {
         this.stockAlertReportService = stockAlertReportService;
         this.semoisSuggestionViewRepository = semoisSuggestionViewRepository;
+        this.accountsPayableService = accountsPayableService;
     }
 
     /**
@@ -63,7 +67,10 @@ public class DashboardAlertService {
         // Factures tiers-payant dont l'échéance de règlement est dépassée
         Long facturationOverdueCount = getFacturationOverdueCount();
 
-        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount, facturationOverdueCount);
+        // Commandes fournisseurs dont l'échéance de paiement AP est dépassée
+        Long comptesFournisseursOverdueCount = accountsPayableService.countOverdue();
+
+        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount, facturationOverdueCount, comptesFournisseursOverdueCount);
     }
 
     /**

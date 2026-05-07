@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AccountsPayableServiceImpl implements AccountsPayableService {
 
-    private static final Set<OrderStatut> RECEIVED_STATUTS = EnumSet.of(OrderStatut.CLOSED);
+    private static final Set<OrderStatut> CLOSED = EnumSet.of(OrderStatut.CLOSED);
 
     private final CommandeRepository commandeRepository;
     private final PaymentFournisseurRepository paymentFournisseurRepository;
@@ -103,7 +103,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             Integer fId = c.getFournisseur().getId();
             actifs.add(fId);
 
-            long gross = (long) Objects.requireNonNullElse(c.getGrossAmount(), 0);
+            long gross = (long) Objects.requireNonNullElse(c.getFinalAmount(), 0);
             long paid = paidMap.getOrDefault(intId(c), 0L);
             long restant = gross - paid;
             if (restant > 0) totalDu += restant;
@@ -128,7 +128,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         LocalDate now = LocalDate.now();
         List<LigneFournisseurAPDTO> all = commandes.stream()
             .map(c -> {
-                long montant = (long) Objects.requireNonNullElse(c.getGrossAmount(), 0);
+                long montant = (long) Objects.requireNonNullElse(c.getFinalAmount(), 0);
                 long montantRegle = paidMap.getOrDefault(intId(c), 0L);
                 long restantDu = montant - montantRegle;
                 LocalDate ech = computeEcheance(c);
@@ -191,14 +191,14 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             if (command.commandeId() != null && intId(commande).equals(command.commandeId())) continue;
 
             long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
-            long restant = (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0) - alreadyPaid;
+            long restant = (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
             if (restant <= 0) continue;
 
             int allocated = (int) Math.min(remaining, restant);
             remaining -= allocated;
             toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
 
-            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0)) {
+            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0)) {
                 commande.setPaimentStatut(PaimentStatut.PAID);
                 commandeRepository.save(commande);
             }
@@ -229,7 +229,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         LocalDate now = LocalDate.now();
         List<LigneFournisseurAPDTO> lignes = commandes.stream()
             .map(c -> {
-                long montant = (long) Objects.requireNonNullElse(c.getGrossAmount(), 0);
+                long montant = (long) Objects.requireNonNullElse(c.getFinalAmount(), 0);
                 long montantRegle = paidMap.getOrDefault(intId(c), 0L);
                 long restantDu = montant - montantRegle;
                 LocalDate ech = computeEcheance(c);
@@ -258,14 +258,14 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
             if (!intId(commande).equals(commandeId)) continue;
 
             long alreadyPaid = paidMap.getOrDefault(intId(commande), 0L);
-            long restant = (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0) - alreadyPaid;
+            long restant = (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0) - alreadyPaid;
             if (restant <= 0) break;
 
             int allocated = (int) Math.min(remaining, restant);
             remaining -= allocated;
             toSave.add(buildPayment(commande, allocated, (int) restant, command.montant(), paymentDate, command));
 
-            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getGrossAmount(), 0)) {
+            if (alreadyPaid + allocated >= (long) Objects.requireNonNullElse(commande.getFinalAmount(), 0)) {
                 commande.setPaimentStatut(PaimentStatut.PAID);
                 commandeRepository.save(commande);
             }
@@ -312,7 +312,7 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         boolean hasEnRetard = false;
 
         for (Commande c : fCmds) {
-            long gross = (long) Objects.requireNonNullElse(c.getGrossAmount(), 0);
+            long gross = (long) Objects.requireNonNullElse(c.getFinalAmount(), 0);
             long paid = paidMap.getOrDefault(intId(c), 0L);
             totalCommande += gross;
             totalRegle += paid;
@@ -358,6 +358,12 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
         return appConfigurationService.getApDefaultCritiqueDays();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countOverdue() {
+        return commandeRepository.countOverdueCommandesAp(appConfigurationService.getApDefaultCreditDays());
+    }
+
     private Integer intId(Commande c) {
         return c.getId().getId();
     }
@@ -383,9 +389,9 @@ public class AccountsPayableServiceImpl implements AccountsPayableService {
     private List<Commande> loadUnpaidCommandes(Integer fournisseurId, LocalDate fromDate, LocalDate toDate) {
         if (fournisseurId != null) {
             return commandeRepository.findUnpaidCommandesApByFournisseurAndPeriod(
-                RECEIVED_STATUTS, PaimentStatut.PAID, fournisseurId, fromDate, toDate);
+                CLOSED, PaimentStatut.PAID, fournisseurId, fromDate, toDate);
         }
-        return commandeRepository.findUnpaidCommandesApByPeriod(RECEIVED_STATUTS, PaimentStatut.PAID, fromDate, toDate);
+        return commandeRepository.findUnpaidCommandesApByPeriod(CLOSED, PaimentStatut.PAID, fromDate, toDate);
     }
 
     private Map<Integer, Long> loadPaidAmounts(List<Commande> commandes) {

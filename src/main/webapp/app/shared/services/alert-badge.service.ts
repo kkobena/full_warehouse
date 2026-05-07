@@ -34,6 +34,9 @@ export class AlertBadgeService {
   /** Factures tiers-payant dont l'échéance de règlement est dépassée */
   readonly facturationOverdueCount = signal(0);
 
+  /** Factures fournisseurs échues non réglées (comptes fournisseurs AP) */
+  readonly comptesFournisseursOverdueCount = signal(0);
+
 
   // ─── Privé ───────────────────────────────────────────────────────────────
 
@@ -68,6 +71,7 @@ export class AlertBadgeService {
         this.entreeCount.set(d.entreeCount ?? 0);
         this.prixModifCount.set(d.prixModifCount ?? 0);
         this.facturationOverdueCount.set(d.facturationOverdueCount ?? 0);
+        this.comptesFournisseursOverdueCount.set(d.comptesFournisseursOverdueCount ?? 0);
       },
       error: () => {
         // Silencieux — les compteurs restent à leur dernière valeur connue

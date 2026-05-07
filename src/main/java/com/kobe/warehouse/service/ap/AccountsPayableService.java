@@ -30,4 +30,6 @@ public interface AccountsPayableService {
     byte[] exportComptesAsPdf(LocalDate fromDate, LocalDate toDate);
 
     byte[] exportFournisseurAsPdf(Integer fournisseurId);
+
+    long countOverdue();
 }
